@@ -1,0 +1,11 @@
+language: r
+cache: packages
+dist: xenial
+addons:
+  apt:
+    packages:
+      - libnode-dev
+r_packages:
+  - covr
+after_success:
+  - Rscript -e 'covr::codecov(quiet = FALSE)'
