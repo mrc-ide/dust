@@ -1,5 +1,16 @@
-particle_alloc <- function(y, user, index_y) {
-  .Call(Cparticle_alloc, as.numeric(y), user, as.integer(index_y))
+dust_model <- function(create, update, free, dllname) {
+  ret <- list(create = getNativeSymbolInfo(create, dllname)$address,
+              update = getNativeSymbolInfo(update, dllname)$address,
+              free = getNativeSymbolInfo(free, dllname)$address)
+  class(ret) <- "dust_model"
+  ret
+}
+
+
+particle_alloc <- function(model, y, user, index_y) {
+  stopifnot(inherits(model, "dust_model"))
+  .Call(Cparticle_alloc, model$create, model$update, model$free,
+        as.numeric(y), user, as.integer(index_y))
 }
 
 
@@ -18,9 +29,10 @@ particle_step <- function(ptr) {
 }
 
 
-dust_alloc <- function(n_particles, y, user, index_y) {
-  .Call(Cdust_alloc, as.integer(n_particles),
-        as.numeric(y), user, as.integer(index_y))
+dust_alloc <- function(model, n_particles, y, user, index_y) {
+  stopifnot(inherits(model, "dust_model"))
+  .Call(Cdust_alloc, model$create, model$update, model$free,
+        as.integer(n_particles), as.numeric(y), user, as.integer(index_y))
 }
 
 

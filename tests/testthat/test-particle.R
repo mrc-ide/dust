@@ -39,7 +39,7 @@ test_that("simulation with one particle", {
 
   user <- NULL
   index_y <- 2L
-  p <- particle_alloc(y, user, index_y)
+  p <- particle_alloc(example_sir(), y, user, index_y)
   expect_is(p, "externalptr")
 
   set.seed(1)
@@ -73,9 +73,16 @@ test_that("pointer validation", {
   y <- c(1000, 10, 0)
   user <- NULL
   index_y <- 2L
-  p <- particle_alloc(y, user, index_y)
+  p <- particle_alloc(example_sir(), y, user, index_y)
   expect_error(particle_step(NULL), "Expected an external pointer")
   expect_error(
     particle_step(unserialize(serialize(p, NULL))),
-    "Pointer has been invalidated")
+    "Pointer has been invalidated (perhaps serialised?)",
+    fixed = TRUE)
+  model <- example_sir()
+  model$create <- unserialize(serialize(model$create, NULL))
+  expect_error(
+    particle_alloc(model, y, user, index_y),
+    "Function pointer has been invalidated (perhaps serialised?)",
+    fixed = TRUE)
 })

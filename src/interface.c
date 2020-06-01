@@ -1,16 +1,23 @@
 #include "interface.h"
+
+#include <stdbool.h>
 #include "dust.h"
-#include "sir.h"
 
 // R interface
-SEXP r_particle_alloc(SEXP r_y, SEXP user, SEXP r_index_y) {
+SEXP r_particle_alloc(SEXP r_create, SEXP r_update, SEXP r_free,
+                      SEXP r_y, SEXP user, SEXP r_index_y) {
+  model_create * f_create = (model_create*) ptr_fn_get(r_create);
+  model_update * f_update = (model_update*) ptr_fn_get(r_update);
+  model_free * f_free = (model_free*) ptr_fn_get(r_free);
+
   size_t n_index_y = length(r_index_y);
   size_t *index_y = (size_t*) R_alloc(n_index_y, sizeof(size_t));
   for (size_t i = 0; i < n_index_y; ++i) {
     index_y[i] = INTEGER(r_index_y)[i] - 1;
   }
-  particle * obj = particle_alloc(&sir2_create, &sir2_update, &sir2_free,
-                                  3, REAL(r_y), user,
+  size_t n_y = length(r_y);
+  particle * obj = particle_alloc(f_create, f_update, f_free,
+                                  n_y, REAL(r_y), user,
                                   n_index_y, index_y);
   SEXP r_ptr = PROTECT(R_MakeExternalPtr(obj, R_NilValue, R_NilValue));
   R_RegisterCFinalizer(r_ptr, particle_finalise);
@@ -60,15 +67,21 @@ SEXP r_particle_step(SEXP r_ptr) {
   return ScalarInteger(step);
 }
 
-SEXP r_dust_alloc(SEXP r_n_particles, SEXP r_y, SEXP user, SEXP r_index_y) {
+SEXP r_dust_alloc(SEXP r_create, SEXP r_update, SEXP r_free,
+                  SEXP r_n_particles, SEXP r_y, SEXP user, SEXP r_index_y) {
+  model_create * f_create = (model_create*) ptr_fn_get(r_create);
+  model_update * f_update = (model_update*) ptr_fn_get(r_update);
+  model_free * f_free = (model_free*) ptr_fn_get(r_free);
+
   size_t n_index_y = length(r_index_y);
   size_t *index_y = (size_t*) R_alloc(n_index_y, sizeof(size_t));
   for (size_t i = 0; i < n_index_y; ++i) {
     index_y[i] = INTEGER(r_index_y)[i] - 1;
   }
+  size_t n_y = length(r_y);
   size_t n_particles = INTEGER(r_n_particles)[0];
-  dust * obj = dust_alloc(&sir2_create, &sir2_update, &sir2_free,
-                          n_particles, 3, REAL(r_y), user,
+  dust * obj = dust_alloc(f_create, f_update, f_free,
+                          n_particles, n_y, REAL(r_y), user,
                           n_index_y, index_y);
   SEXP r_ptr = PROTECT(R_MakeExternalPtr(obj, R_NilValue, R_NilValue));
   R_RegisterCFinalizer(r_ptr, dust_finalise);
@@ -130,7 +143,21 @@ void* read_r_pointer(SEXP r_ptr, int closed_error) {
   }
   ptr = (void*) R_ExternalPtrAddr(r_ptr);
   if (!ptr && closed_error) {
-    Rf_error("Pointer has been invalidated");
+    Rf_error("Pointer has been invalidated (perhaps serialised?)");
   }
   return ptr;
+}
+
+// This gets a function pointer from a data pointer and avoids some
+// compiler warnings.
+DL_FUNC ptr_fn_get(SEXP r_ptr) {
+#if defined(R_VERSION) && R_VERSION >= R_Version(3, 4, 0)
+  DL_FUNC ret = R_ExternalPtrAddrFn(r_ptr);
+#else
+  DL_FUNC ret = (DL_FUNC) R_ExternalPtrAddr(r_ptr);
+#endif
+  if (ret == NULL) {
+    Rf_error("Function pointer has been invalidated (perhaps serialised?)");
+  }
+  return ret;
 }

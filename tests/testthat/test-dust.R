@@ -4,7 +4,7 @@ test_that("dust of size 1 gives same answer as single particle", {
   y <- c(1000, 10, 0)
   user <- NULL
   index_y <- 2L
-  pp <- particle_alloc(y, user, index_y)
+  pp <- particle_alloc(example_sir(), y, user, index_y)
   by <- 5
   steps <- seq(0, 100, by = by)
 
@@ -22,7 +22,7 @@ test_that("dust of size 1 gives same answer as single particle", {
   }
 
   set.seed(1)
-  ps <- dust_alloc(1, y, user, index_y)
+  ps <- dust_alloc(example_sir(), 1, y, user, index_y)
   expect_is(ps, "externalptr")
 
   res <- vector("list", length(steps))
