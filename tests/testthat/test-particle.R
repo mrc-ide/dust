@@ -4,6 +4,7 @@ test_that("simulation with one particle", {
   ## TODO: We might write a reference that does not use odin here;
   ## this is not complicated stuff.
   gen <- odin::odin({
+    ## nolint start
     update(S) <- S - n_SI
     update(I) <- I + n_SI - n_IR
     update(R) <- R + n_IR
@@ -26,6 +27,7 @@ test_that("simulation with one particle", {
 
     dt <- 1 / steps_per_day
     N <- S + I + R
+    ## nolint end
   }, verbose = FALSE)
 
   mod <- gen()
