@@ -4,3 +4,6 @@
 ^\.travis\.yml$
 ^docs$
 ^\.lintr$
+^tests/testthat/.*\.o$
+^tests/testthat/.*\.so$
+^tests/testthat/.*\.dll$
