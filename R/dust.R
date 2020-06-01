@@ -18,22 +18,22 @@ particle_step <- function(ptr) {
 }
 
 
-swarm_alloc <- function(n_particles, n_y, user, index_y) {
-  .Call(Cswarm_alloc, as.integer(n_particles),
+dust_alloc <- function(n_particles, n_y, user, index_y) {
+  .Call(Cdust_alloc, as.integer(n_particles),
         as.numeric(y), user, as.integer(index_y))
 }
 
 
-swarm_run <- function(ptr, steps_end) {
-  .Call(Cswarm_run, ptr, as.integer(steps_end))
+dust_run <- function(ptr, steps_end) {
+  .Call(Cdust_run, ptr, as.integer(steps_end))
 }
 
 
-swarm_state <- function(ptr) {
-  .Call(Cswarm_state, ptr)
+dust_state <- function(ptr) {
+  .Call(Cdust_state, ptr)
 }
 
 
-swarm_step <- function(ptr) {
-  .Call(Cswarm_step, ptr)
+dust_step <- function(ptr) {
+  .Call(Cdust_step, ptr)
 }
