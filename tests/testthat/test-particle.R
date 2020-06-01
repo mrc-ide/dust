@@ -65,3 +65,15 @@ test_that("simulation with one particle", {
   rm(p)
   gc()
 })
+
+
+test_that("pointer validation", {
+  y <- c(1000, 10, 0)
+  user <- NULL
+  index_y <- 2L
+  p <- particle_alloc(y, user, index_y)
+  expect_error(particle_step(NULL), "Expected an external pointer")
+  expect_error(
+    particle_step(unserialize(serialize(p, NULL))),
+    "Pointer has been invalidated")
+})
