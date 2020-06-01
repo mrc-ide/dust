@@ -18,7 +18,7 @@ particle_step <- function(ptr) {
 }
 
 
-dust_alloc <- function(n_particles, n_y, user, index_y) {
+dust_alloc <- function(n_particles, y, user, index_y) {
   .Call(Cdust_alloc, as.integer(n_particles),
         as.numeric(y), user, as.integer(index_y))
 }
