@@ -1,0 +1,10 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.DS_Store
+TODO.md
+docs
+*.o
+*.so
+*.dll

@@ -14,3 +14,4 @@ LazyData: true
 Language: en-GB
 Suggests:
     testthat
+RoxygenNote: 7.0.2
