@@ -3,6 +3,8 @@
 #include <Rinternals.h>
 #include <stdbool.h>
 #include <R_ext/Rdynload.h>
+#include <gsl/gsl_rng.h>
+#include <gsl/gsl_randist.h>
 
 typedef struct sir_internal {
   double beta;
@@ -43,7 +45,7 @@ void * sir2_create(SEXP user);
 void sir2_free(void * data);
 void sir2_set_user(sir_internal * internal, SEXP user);
 void sir2_update(void* data, size_t step, const double * state,
-                 double * state_next);
+                 gsl_rng * rng, double * state_next);
 
 
 sir_internal* sir_get_internal(SEXP internal_p, int closed_error) {
@@ -271,15 +273,15 @@ void sir2_free(void * data) {
 }
 
 void sir2_update(void* data, size_t step, const double * state,
-                 double * state_next) {
+                 gsl_rng *rng, double * state_next) {
   sir_internal * internal = (sir_internal*)data;
   double S = state[0];
   double I = state[1];
   double R = state[2];
   double N = S + I + R;
-  double n_IR = Rf_rbinom(round(I), internal->p_IR * internal->dt);
+  double n_IR = (double)gsl_ran_binomial(rng, internal->p_IR * internal->dt, round(I));
   double p_SI = 1 - exp(-(internal->beta) * I / (double) N);
-  double n_SI = Rf_rbinom(round(S), p_SI * internal->dt);
+  double n_SI = (double)gsl_ran_binomial(rng, p_SI * internal->dt, round(S));
   state_next[2] = R + n_IR;
   state_next[1] = I + n_SI - n_IR;
   state_next[0] = S - n_SI;

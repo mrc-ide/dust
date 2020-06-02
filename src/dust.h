@@ -14,7 +14,7 @@ typedef void model_free(void *data);
 typedef struct {
   gsl_rng** generators;
   unsigned long seed;
-  gsl_rng_type* gen_type;
+  const gsl_rng_type* gen_type;
   size_t n_generators;
 } rng_array;
 
@@ -35,15 +35,16 @@ typedef struct {
 
 typedef struct {
   size_t n_particles;
+  size_t n_threads;
   size_t n_y;
   size_t n_index_y;
   particle * particles;
   rng_array * rngs;
 } dust;
 
-rng_array* rng_init(const size_t n_generators,
-                   const gsl_rng_type* gen_type,
-                   const unsigned long seed);
+rng_array* rng_init(size_t n_generators,
+                    const gsl_rng_type* gen_type,
+                    unsigned long seed);
 void rng_free(rng_array* rngs);
 
 void particle_init(model_create* f_create, model_update * f_update,

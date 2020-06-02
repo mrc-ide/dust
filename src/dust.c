@@ -1,8 +1,8 @@
 #include "dust.h"
 
-rng_array* rng_init(const size_t n_generators,
-                   const gsl_rng_type* gen_type,
-                   const unsigned long seed) {
+rng_array* rng_init(size_t n_generators,
+                    const gsl_rng_type* gen_type,
+                    unsigned long seed) {
   rng_array * rng = (rng_array*) calloc(1, sizeof(rng_array));
   rng->seed = seed;
   rng->gen_type = gen_type;
@@ -10,6 +10,7 @@ rng_array* rng_init(const size_t n_generators,
 
   rng->generators = (gsl_rng**) calloc(n_generators, sizeof(gsl_rng*));
   if (rng->generators) {
+    gsl_set_error_handler_off();
     for (size_t gen_idx = 0; gen_idx < n_generators; gen_idx++) {
       *(rng->generators + gen_idx) = gsl_rng_alloc(gen_type);
       if (*(rng->generators + gen_idx) == NULL) {
@@ -98,6 +99,7 @@ dust* dust_alloc(model_create* f_create, model_update * f_update,
                  size_t n_index_y, size_t *index_y) {
   dust *obj = (dust*) Calloc(1, dust);
   obj->n_particles = n_particles;
+  obj->n_threads = n_threads;
   obj->n_y = n_y;
   obj->n_index_y = n_index_y;
   obj->rngs = rng_init(n_threads, gsl_rng_taus2, gsl_rng_default_seed);
@@ -124,7 +126,7 @@ void dust_free(dust* obj) {
 
 void dust_run(dust *obj, size_t step_end) {
   size_t i;
-  #pragma omp parallel for private(i) schedule(static) num_threads(obj->nthreads)
+  #pragma omp parallel for private(i) schedule(static) num_threads(obj->n_threads)
   for (i = 0; i < obj->n_particles; ++i) {
     particle * x = obj->particles + i;
 
@@ -132,13 +134,13 @@ void dust_run(dust *obj, size_t step_end) {
     #ifdef _OPENMP
     thread_idx = omp_get_thread_num();
     #endif
-    particle_run(x, step_end, *(obj->rngs.generators + thread_idx));
+    particle_run(x, step_end, *(obj->rngs->generators + thread_idx));
   }
 }
 
 void dust_copy_state(dust *obj, double *ret) {
   size_t i;
-  #pragma omp for private(i) schedule(static) num_threads(obj->nthreads)
+  #pragma omp parallel for private(i) schedule(static) num_threads(obj->n_threads)
   for (i = 0; i < obj->n_particles; ++i) {
     particle_copy_state(obj->particles + i, ret);
     ret += obj->n_index_y;
