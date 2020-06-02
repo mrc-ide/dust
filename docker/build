@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -e
+HERE=$(dirname $0)
+docker build -t mrcide/dust $HERE
