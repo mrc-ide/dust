@@ -126,21 +126,23 @@ void dust_free(dust* obj) {
 
 void dust_run(dust *obj, size_t step_end) {
   size_t i;
-  #pragma omp parallel for private(i) schedule(static) num_threads(obj->n_threads)
+  #pragma omp parallel for private(i) schedule(static) num_threads(obj->n_threads) ordered
   for (i = 0; i < obj->n_particles; ++i) {
     particle * x = obj->particles + i;
-
-    size_t thread_idx = 0;
-    #ifdef _OPENMP
-    thread_idx = omp_get_thread_num();
-    #endif
-    particle_run(x, step_end, *(obj->rngs->generators + thread_idx));
+    #pragma omp ordered
+    {
+      size_t thread_idx = 0;
+      #ifdef _OPENMP
+      thread_idx = omp_get_thread_num();
+      #endif
+      particle_run(x, step_end, *(obj->rngs->generators + thread_idx));
+    }
   }
 }
 
 void dust_copy_state(dust *obj, double *ret) {
   size_t i;
-  #pragma omp parallel for private(i) schedule(static) num_threads(obj->n_threads) ordered
+  #pragma omp parallel for private(i) schedule(static) num_threads(obj->n_threads)
   for (i = 0; i < obj->n_particles; ++i) {
     particle_copy_state(obj->particles + i, ret);
     ret += obj->n_index_y;
