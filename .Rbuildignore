@@ -7,6 +7,7 @@
 ^tests/testthat/.*\.o$
 ^tests/testthat/.*\.so$
 ^tests/testthat/.*\.dll$
+\.dylib$
 ^appveyor\.yml$
 ^docker$
 ^\.hadolint\.yaml$
