@@ -140,7 +140,7 @@ void dust_run(dust *obj, size_t step_end) {
 
 void dust_copy_state(dust *obj, double *ret) {
   size_t i;
-  #pragma omp parallel for private(i) schedule(static) num_threads(obj->n_threads)
+  #pragma omp parallel for private(i) schedule(static) num_threads(obj->n_threads) ordered
   for (i = 0; i < obj->n_particles; ++i) {
     particle_copy_state(obj->particles + i, ret);
     ret += obj->n_index_y;
