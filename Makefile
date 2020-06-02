@@ -6,8 +6,13 @@ all: install
 test:
 	${RSCRIPT} -e 'library(methods); devtools::test()'
 
-test_all:
-	REMAKE_TEST_INSTALL_PACKAGES=true make test
+test_leaks: .valgrind_ignore
+        R -d 'valgrind --leak-check=full --suppressions=.valgrind_ignore' -e 'devtools::test()'
+
+.valgrind_ignore:
+        R -d 'valgrind --leak-check=full --gen-suppressions=all --log-file=$@' -e 'library(testthat)'
+        sed -i.bak '/^=/ d' $@
+        $(RM) $@.bak
 
 roxygen:
 	@mkdir -p man
@@ -28,7 +33,7 @@ check_all:
 README.md: README.Rmd
 	Rscript -e "options(warnPartialMatchArgs=FALSE); knitr::knit('$<')"
 	sed -i.bak 's/[[:space:]]*$$//' README.md
-	rm -f $@.bak
+	$(RM) $@.bak
 
 
 pkgdown:
@@ -38,7 +43,7 @@ website: pkgdown
 	./scripts/update_web.sh
 
 clean:
-	rm -f src/*.o src/dust.so src/dust.dll
+	$(RM) src/*.o src/dust.so src/dust.dll
 
 vignettes: vignettes/traduire.Rmd
 	${RSCRIPT} -e 'tools::buildVignettes(dir = ".")'
