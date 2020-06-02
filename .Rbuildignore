@@ -11,3 +11,4 @@
 ^appveyor\.yml$
 ^docker$
 ^\.hadolint\.yaml$
+\.valgrind_ignore$

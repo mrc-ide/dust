@@ -9,3 +9,4 @@ docs
 *.so
 *.dll
 *.dylib
+.valgrind_ignore
