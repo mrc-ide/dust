@@ -29,10 +29,10 @@ particle_step <- function(ptr) {
 }
 
 
-dust_alloc <- function(model, n_particles, y, user, index_y) {
+dust_alloc <- function(model, n_particles, n_threads, y, user, index_y) {
   stopifnot(inherits(model, "dust_model"))
   .Call(Cdust_alloc, model$create, model$update, model$free,
-        as.integer(n_particles), as.numeric(y), user, as.integer(index_y))
+        as.integer(n_particles), as.integer(n_threads), as.numeric(y), user, as.integer(index_y))
 }
 
 

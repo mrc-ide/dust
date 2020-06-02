@@ -22,7 +22,7 @@ test_that("dust of size 1 gives same answer as single particle", {
   }
 
   set.seed(1)
-  ps <- dust_alloc(example_sir(), 1, y, user, index_y)
+  ps <- dust_alloc(example_sir(), 1, 1, y, user, index_y)
   expect_is(ps, "externalptr")
 
   res <- vector("list", length(steps))
@@ -39,6 +39,33 @@ test_that("dust of size 1 gives same answer as single particle", {
 
   expect_equal(res, cmp)
 
+  ## Force the finaliser:
+  rm(ps)
+  gc()
+})
+
+test_that("dust works with multiple threads", {
+  y <- c(1000, 10, 0)
+  user <- NULL
+  index_y <- 2L
+  by <- 5
+  steps <- seq(0, 100, by = by)
+  
+  ps <- dust_alloc(example_sir(), 2, 2, y, user, index_y)
+  expect_is(ps, "externalptr")
+  
+  res <- vector("list", length(steps))
+  for (i in seq_along(steps)) {
+    if (i == 1) {
+      value <- NULL
+    } else {
+      value <- matrix(dust_run(ps, (i - 1) * by))
+    }
+    res[[i]] <- list(step = dust_step(ps),
+                     state = matrix(dust_state(ps)),
+                     value = value)
+  }
+  
   ## Force the finaliser:
   rm(ps)
   gc()

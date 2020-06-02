@@ -11,7 +11,7 @@ static const R_CallMethodDef call_methods[] = {
   {"Cparticle_state",  (DL_FUNC) &r_particle_state,    1},
   {"Cparticle_step",   (DL_FUNC) &r_particle_step,     1},
 
-  {"Cdust_alloc",      (DL_FUNC) &r_dust_alloc,        7},
+  {"Cdust_alloc",      (DL_FUNC) &r_dust_alloc,        8},
   {"Cdust_run",        (DL_FUNC) &r_dust_run,          2},
   {"Cdust_state",      (DL_FUNC) &r_dust_state,        1},
   {"Cdust_step",       (DL_FUNC) &r_dust_step,         1},
