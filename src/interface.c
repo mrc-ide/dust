@@ -36,12 +36,14 @@ void particle_finalise(SEXP r_ptr) {
 SEXP r_particle_run(SEXP r_ptr, SEXP r_step_end) {
   particle *obj = (particle*) read_r_pointer(r_ptr, true);
   size_t step_end = (size_t) INTEGER(r_step_end)[0];
+  gsl_rng * rng = gsl_rng_alloc(gsl_rng_taus2);
+  gsl_rng_set(rng, gsl_rng_default_seed);
 
   // Actual running bit
-  GetRNGstate();
-  particle_run(obj, step_end);
-  PutRNGstate();
+  particle_run(obj, step_end, rng);
 
+  gsl_rng_free(rng);
+  
   // This is the selected states wanted at the end of the simulation
   SEXP r_ret = PROTECT(allocVector(REALSXP, obj->n_index_y));
   particle_copy_state(obj, REAL(r_ret));
@@ -97,16 +99,15 @@ void dust_finalise(SEXP r_ptr) {
   }
 }
 
-SEXP r_dust_run(SEXP r_ptr, SEXP r_step_end) {
+SEXP r_dust_run(SEXP r_ptr, SEXP r_step_end, SEXP r_nthreads) {
   dust *obj = (dust*) read_r_pointer(r_ptr, true);
   size_t step_end = (size_t) INTEGER(r_step_end)[0];
+  size_t nthreads = (size_t) INTEGER(r_nthreads)[0];
 
-  GetRNGstate();
-  dust_run(obj, step_end);
-  PutRNGstate();
+  dust_run(obj, step_end, nthreads, gsl_rng_taus2);
 
   SEXP r_ret = PROTECT(allocMatrix(REALSXP, obj->n_index_y, obj->n_particles));
-  dust_copy_state(obj, REAL(r_ret));
+  dust_copy_state(obj, REAL(r_ret), nthreads);
   UNPROTECT(1);
   return r_ret;
 }
