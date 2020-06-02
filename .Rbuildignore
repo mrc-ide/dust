@@ -8,3 +8,5 @@
 ^tests/testthat/.*\.so$
 ^tests/testthat/.*\.dll$
 ^appveyor\.yml$
+^docker$
+^\.hadolint\.yaml$

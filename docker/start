@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -e
+HERE=$(dirname $0)
+PACKAGE_ROOT=$(realpath $HERE/..)
+USER_STR="$(id -u):$(id -g)"
+docker run -it --rm --user $USER_STR odin-gsl
