@@ -12,7 +12,7 @@ test_leaks: .valgrind_ignore
 .valgrind_ignore:
         R -d 'valgrind --leak-check=full --gen-suppressions=all --log-file=$@' -e 'library(testthat)'
         sed -i.bak '/^=/ d' $@
-        rm -f $@.bak
+        $(RM) $@.bak
 
 roxygen:
 	@mkdir -p man
@@ -33,7 +33,7 @@ check_all:
 README.md: README.Rmd
 	Rscript -e "options(warnPartialMatchArgs=FALSE); knitr::knit('$<')"
 	sed -i.bak 's/[[:space:]]*$$//' README.md
-	rm -f $@.bak
+	$(RM) $@.bak
 
 
 pkgdown:
@@ -43,7 +43,7 @@ website: pkgdown
 	./scripts/update_web.sh
 
 clean:
-	rm -f src/*.o src/dust.so src/dust.dll
+	$(RM) src/*.o src/dust.so src/dust.dll
 
 vignettes: vignettes/traduire.Rmd
 	${RSCRIPT} -e 'tools::buildVignettes(dir = ".")'
