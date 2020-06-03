@@ -13,4 +13,4 @@ class RNG {
 
     private:
         std::vector<trng::lcg64_shift> _rng_array;
-}
+};

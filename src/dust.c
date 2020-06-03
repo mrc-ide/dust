@@ -46,7 +46,7 @@ void particle_free(particle* obj) {
 
 void particle_run(particle *obj, size_t step_end, RNG *rng, size_t thread_idx) {
   while (obj->step < step_end) {
-    obj->update(obj->data, obj->step, obj->y, rng, obj->y_swap);
+    obj->update(obj->data, obj->step, obj->y, rng, thread_idx, obj->y_swap);
     obj->step++;
     double *y_tmp = obj->y;
     obj->y = obj->y_swap;
@@ -94,14 +94,15 @@ void dust_free(dust* obj) {
 
 void dust_run(dust *obj, size_t step_end) {
   size_t i;
-  #pragma omp parallel ordered
+  #pragma omp parallel num_threads(obj->n_threads)
   {
     size_t thread_idx = 0;
     #ifdef _OPENMP
     thread_idx = omp_get_thread_num();
     #endif
     C_jump(obj->rng, thread_idx, 2); // TODO-> generalise the '2'
-    #pragma omp for private(i) schedule(static) num_threads(obj->n_threads) ordered
+    
+    #pragma omp for private(i) schedule(static) ordered
     for (i = 0; i < obj->n_particles; ++i) {
       particle * x = obj->particles + i;
       #pragma omp ordered

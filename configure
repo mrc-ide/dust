@@ -7,15 +7,15 @@
 # R CMD INSTALL --configure-vars='INCLUDE_DIR=/.../include LIB_DIR=/.../lib'
 
 # Library settings
-PKG_CONFIG_NAME="gsl"
-PKG_DEB_NAME="libgsl-dev"
-PKG_RPM_NAME="gsl-devel"
-PKG_CSW_NAME="gsl_dev"
-PKG_BREW_NAME="gsl"
-PKG_TEST_HEADER="<gsl/gsl_version.h>"
-PKG_LIBS="-lgsl"
+PKG_CONFIG_NAME="trng4"
+PKG_DEB_NAME="libtrng-dev"
+PKG_RPM_NAME="trng-devel"
+PKG_CSW_NAME="trng_dev"
+PKG_BREW_NAME="libtrng"
+PKG_TEST_HEADER="<trng/utility.hpp>"
+PKG_LIBS="-ltrng4"
 # Not sure about this bit:
-PKG_CFLAGS="-I/usr/include/gsl"
+PKG_CFLAGS="-I/usr/include/trng"
 
 # Use pkg-config if available
 pkg-config --version >/dev/null 2>&1

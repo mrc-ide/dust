@@ -39,17 +39,12 @@ SEXP r_particle_run(SEXP r_ptr, SEXP r_step_end) {
   
   // Note: running a single particle allocs a gsl rng each
   // time that it is called
-  gsl_set_error_handler_off();
-  gsl_rng * rng = gsl_rng_alloc(gsl_rng_taus2);
-  if (!rng) {
-    Rf_error("Could not allocate memory for random number generator");
-  }
-  gsl_rng_set(rng, gsl_rng_default_seed);
+  RNG* rng = C_RNG_alloc(1);
 
   // Actual running bit
-  particle_run(obj, step_end, rng);
+  particle_run(obj, step_end, rng, 0);
 
-  gsl_rng_free(rng);
+  C_RNG_free(rng);
   
   // This is the selected states wanted at the end of the simulation
   SEXP r_ret = PROTECT(allocVector(REALSXP, obj->n_index_y));

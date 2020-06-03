@@ -6,6 +6,7 @@
 
 typedef void* RNG;
 int C_rbinom(RNG*, size_t, double, int);
+
 typedef struct sir_internal {
   double beta;
   double dt;

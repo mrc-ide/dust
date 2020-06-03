@@ -2,8 +2,9 @@
 
 #include <trng/binomial_dist.hpp>
 
-RNG::RNG(const size_t n_threads):
- _rng_array(n_threads, trng::lcg64_shift) {}
+RNG::RNG(const size_t n_threads) :
+   _rng_array(n_threads)
+{}
 
 // https://stackoverflow.com/a/24237867
 extern "C" RNG* C_RNG_alloc(const size_t n_threads) noexcept {
@@ -42,8 +43,8 @@ extern "C" void C_jump(RNG* r, const size_t thread_idx, const size_t rand_per_it
 }
 
 int RNG::rbinom(const size_t thread_idx, const double p, const int n) {
-    trng::binomial_dist(p, n);
-    return(_rng_array[thread_idx]);
+    trng::binomial_dist binom(p, n);
+    return(binom(_rng_array[thread_idx]));
 }
 
 extern "C" int C_rbinom(RNG* r, const size_t thread_idx, const double p, const int n) { 
