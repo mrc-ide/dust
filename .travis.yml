@@ -5,6 +5,7 @@ addons:
   apt:
     packages:
       - libnode-dev
+      - libgsl-dev
 r_packages:
   - covr
 after_success:
