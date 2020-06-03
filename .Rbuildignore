@@ -12,3 +12,5 @@
 ^docker$
 ^\.hadolint\.yaml$
 \.valgrind_ignore$
+^tools$
+^windows$
