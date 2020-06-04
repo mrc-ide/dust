@@ -4,14 +4,6 @@
 #include <omp.h>
 #endif
 
- #ifdef __cplusplus
- #  define EXTERNC extern "C"
- #  define NOTHROW noexcept
- #else
- #  define EXTERNC
- #  define NOTHROW
- #endif
-
 typedef void* RNG;
 typedef void* model_create(SEXP user);
 typedef void model_update(void *data, size_t step, const double *y,
@@ -36,6 +28,7 @@ typedef struct {
 typedef struct {
   size_t n_particles;
   size_t n_threads;
+  size_t model_rng_calls;
   size_t n_y;
   size_t n_index_y;
   particle * particles;
@@ -62,7 +55,8 @@ void particle_copy_state(particle *obj, double *dest);
 
 dust* dust_alloc(model_create* f_create, model_update * f_update,
                  model_free *f_free,
-                 size_t n_particles, size_t n_threads, size_t n_y, double *y, SEXP user,
+                 size_t n_particles, size_t n_threads, size_t model_rng_calls, 
+                 size_t n_y, double *y, SEXP user,
                  size_t n_index_y, size_t *index_y);
 void dust_free(dust* obj);
 void dust_run(dust *obj, size_t step_end);

@@ -71,7 +71,8 @@ SEXP r_particle_step(SEXP r_ptr) {
 }
 
 SEXP r_dust_alloc(SEXP r_create, SEXP r_update, SEXP r_free,
-                  SEXP r_n_particles, SEXP r_nthreads, SEXP r_y, SEXP user, SEXP r_index_y) {
+                  SEXP r_n_particles, SEXP r_nthreads, SEXP r_model_rng_calls, 
+                  SEXP r_y, SEXP user, SEXP r_index_y) {
   model_create * f_create = (model_create*) ptr_fn_get(r_create);
   model_update * f_update = (model_update*) ptr_fn_get(r_update);
   model_free * f_free = (model_free*) ptr_fn_get(r_free);
@@ -84,8 +85,10 @@ SEXP r_dust_alloc(SEXP r_create, SEXP r_update, SEXP r_free,
   size_t n_y = length(r_y);
   size_t n_particles = INTEGER(r_n_particles)[0];
   size_t nthreads = (size_t) INTEGER(r_nthreads)[0];
+  size_t model_rng_calls = (size_t) INTEGER(r_model_rng_calls)[0];
   dust * obj = dust_alloc(f_create, f_update, f_free,
-                          n_particles, nthreads, n_y, REAL(r_y), user,
+                          n_particles, nthreads, model_rng_calls, 
+                          n_y, REAL(r_y), user,
                           n_index_y, index_y);
   SEXP r_ptr = PROTECT(R_MakeExternalPtr(obj, R_NilValue, R_NilValue));
   R_RegisterCFinalizer(r_ptr, dust_finalise);

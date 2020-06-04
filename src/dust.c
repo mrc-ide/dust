@@ -63,11 +63,13 @@ void particle_copy_state(particle *obj, double *dest) {
 
 dust* dust_alloc(model_create* f_create, model_update * f_update,
                  model_free *f_free,
-                 size_t n_particles, size_t n_threads, size_t n_y, double *y, SEXP user,
+                 size_t n_particles, size_t n_threads, size_t model_rng_calls, 
+                 size_t n_y, double *y, SEXP user,
                  size_t n_index_y, size_t *index_y) {
   dust *obj = (dust*) Calloc(1, dust);
   obj->n_particles = n_particles;
   obj->n_threads = n_threads;
+  obj->model_rng_calls = model_rng_calls;
   obj->n_y = n_y;
   obj->n_index_y = n_index_y;
   obj->rng = C_RNG_alloc(n_threads);
@@ -100,7 +102,7 @@ void dust_run(dust *obj, size_t step_end) {
     #ifdef _OPENMP
     thread_idx = omp_get_thread_num();
     #endif
-    C_jump(obj->rng, thread_idx, 2); // TODO-> generalise the '2'
+    C_jump(obj->rng, thread_idx, obj->model_rng_calls);
     
     #pragma omp for private(i) schedule(static) ordered
     for (i = 0; i < obj->n_particles; ++i) {
@@ -109,7 +111,7 @@ void dust_run(dust *obj, size_t step_end) {
       {
         particle_run(x, step_end, obj->rng, thread_idx);
       }
-      C_jump(obj->rng, thread_idx, (obj->n_threads - 1) * 2);
+      C_jump(obj->rng, thread_idx, (obj->n_threads - 1) * obj->model_rng_calls);
     }
   }
 }

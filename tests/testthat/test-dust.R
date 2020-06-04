@@ -22,7 +22,10 @@ test_that("dust of size 1 gives same answer as single particle", {
   }
 
   set.seed(1)
-  ps <- dust_alloc(example_sir(), 1, 1, y, user, index_y)
+  n_particles <- 1
+  n_threads <- 1
+  n_rng <- 2 # Needs to be automated
+  ps <- dust_alloc(example_sir(), n_particles, n_threads, n_rng, y, user, index_y)
   expect_is(ps, "externalptr")
 
   res <- vector("list", length(steps))
@@ -50,8 +53,11 @@ test_that("dust works with multiple threads", {
   index_y <- 2L
   by <- 5
   steps <- seq(0, 100, by = by)
+  n_particles <- 2
+  n_threads <- 2
+  n_rng <- 2 # Needs to be automated
   
-  ps <- dust_alloc(example_sir(), 2, 2, y, user, index_y)
+  ps <- dust_alloc(example_sir(), n_particles, n_threads, n_rng, y, user, index_y)
   expect_is(ps, "externalptr")
   
   res <- vector("list", length(steps))
