@@ -11,4 +11,3 @@ docs
 *.dylib
 .valgrind_ignore
 windows
-src/Makevars

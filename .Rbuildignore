@@ -14,4 +14,3 @@
 \.valgrind_ignore$
 ^tools$
 ^windows$
-^src/Makevars$
