@@ -36,7 +36,7 @@ SEXP r_particle_run(SEXP r_ptr, SEXP r_step_end) {
   particle *obj = (particle*) read_r_pointer(r_ptr, true);
   size_t step_end = (size_t) INTEGER(r_step_end)[0];
   
-  // Note: running a single particle allocs a gsl rng each
+  // Note: running a single particle allocs a rng each
   // time that it is called
   RNG* rng = C_RNG_alloc(1);
 
