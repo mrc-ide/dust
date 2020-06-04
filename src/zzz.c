@@ -23,6 +23,9 @@ void R_init_dust(DllInfo *info) {
   // Register C routines to be called from R:
   R_registerRoutines(info, NULL, call_methods, NULL, NULL);
 
+  R_RegisterCCallable("dust", "dust_rbinom",
+                      (DL_FUNC) &C_rbinom);
+
 #if defined(R_VERSION) && R_VERSION >= R_Version(3, 3, 0)
   R_useDynamicSymbols(info, FALSE);
   R_forceSymbols(info, TRUE);

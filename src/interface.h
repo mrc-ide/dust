@@ -2,6 +2,8 @@
 #include <Rinternals.h>
 #include <Rversion.h>
 
+#include "dust.h"
+
 SEXP r_particle_alloc(SEXP r_create, SEXP r_update, SEXP r_free,
                       SEXP r_y, SEXP user, SEXP r_index_y);
 SEXP r_particle_run(SEXP r_ptr, SEXP r_step_end);

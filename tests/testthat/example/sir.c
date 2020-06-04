@@ -4,9 +4,6 @@
 #include <stdbool.h>
 #include <R_ext/Rdynload.h>
 
-typedef void* RNG;
-int C_rbinom(RNG*, size_t, double, int);
-
 typedef struct sir_internal {
   double beta;
   double dt;
@@ -46,8 +43,18 @@ void * sir2_create(SEXP user);
 void sir2_free(void * data);
 void sir2_set_user(sir_internal * internal, SEXP user);
 void sir2_update(void* data, size_t step, const double * state,
-                 RNG * rng, size_t thread_idx, double * state_next);
+                 void* rng, size_t thread_idx, double * state_next);
 
+// Get C functions from dust
+int dust_rbinom(void* rng, size_t thread_idx, double p, int n) {
+  typedef int dust_rbinom_t(void*, size_t, double, int);
+  static dust_rbinom_t *fun;
+  if (fun == NULL) {
+    fun = (dust_rbinom_t*)
+      R_GetCCallable("dust", "dust_rbinom");
+  }
+  return fun(rng, thread_idx, p, n);
+}
 
 sir_internal* sir_get_internal(SEXP internal_p, int closed_error) {
   sir_internal *internal = NULL;
@@ -274,15 +281,15 @@ void sir2_free(void * data) {
 }
 
 void sir2_update(void* data, size_t step, const double * state,
-                 RNG *rng, size_t thread_idx, double * state_next) {
+                 void *rng, size_t thread_idx, double * state_next) {
   sir_internal * internal = (sir_internal*)data;
   double S = state[0];
   double I = state[1];
   double R = state[2];
   double N = S + I + R;
-  double n_IR = (double)C_rbinom(rng, thread_idx, internal->p_IR * internal->dt, round(I));
+  double n_IR = (double)dust_rbinom(rng, thread_idx, internal->p_IR * internal->dt, round(I));
   double p_SI = 1 - exp(-(internal->beta) * I / (double) N);
-  double n_SI = (double)C_rbinom(rng, thread_idx, p_SI * internal->dt, round(S));
+  double n_SI = (double)dust_rbinom(rng, thread_idx, p_SI * internal->dt, round(S));
   state_next[2] = R + n_IR;
   state_next[1] = I + n_SI - n_IR;
   state_next[0] = S - n_SI;

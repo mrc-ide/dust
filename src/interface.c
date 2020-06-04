@@ -1,7 +1,6 @@
 #include "interface.h"
 
 #include <stdbool.h>
-#include "dust.h"
 
 // R interface
 SEXP r_particle_alloc(SEXP r_create, SEXP r_update, SEXP r_free,
