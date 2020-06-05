@@ -43,7 +43,7 @@ website: pkgdown
 	./scripts/update_web.sh
 
 clean:
-	$(RM) src/*.o src/dust.so src/dust.dll
+	$(RM) src/*.o src/dust.so src/dust.dll src/trng/*.o
 
 vignettes: vignettes/traduire.Rmd
 	${RSCRIPT} -e 'tools::buildVignettes(dir = ".")'

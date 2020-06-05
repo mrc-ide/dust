@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 dest_include <- "inst/include/trng"
 dest_src <- "src/trng"
-dest_licence <- "COPYING.trng"
+dest_licence <- "inst/COPYING.trng"
 unlink(dir(dest_include, full.names = TRUE))
 unlink(dir(dest_src, full.names = TRUE))
 unlink(dest_licence)
