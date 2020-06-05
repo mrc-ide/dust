@@ -8,14 +8,14 @@ SEXP r_binom_test(SEXP r_type) {
     RNG* rng = C_RNG_alloc(1, 1);
 
     long long sum = 0;
-    for (int rep = 0; rep < 10; rep++) {
+    for (int rep = 0; rep < 100; rep++) {
         for (int i = 0; i < 20; i++) {
             for (int j = 0; j < 20; j++) {
                 double p = 1/pow(2,(double)i);
                 int N = 1 << j;
                 if (type == 0) {
                     sum += C_rbinom(rng, 0, p, N); 
-                    // printf("p:%f n:%d draw:%d\n", p, N, C_rbinom_tf(rng, 0, p, N));
+                    // printf("p:%f n:%d draw:%d\n", p, N, C_rbinom(rng, 0, p, N));
                 } else {
                     sum += Rf_rbinom((double)N, p);
                 }

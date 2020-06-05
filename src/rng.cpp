@@ -41,7 +41,7 @@ uint64_t XOSHIRO::operator()() {
 
 	_state[3] = rotl(_state[3], 45);
 
-	return result;
+    return result;
 }
 
 /* This is the jump function for the generator. It is equivalent
@@ -112,8 +112,9 @@ RNG::RNG(const size_t n_threads, const uint64_t seed) {
 
 // Should just do rng()/max
 double RNG::runif(const size_t thread_idx) {
-    static std::uniform_int_distribution<int> unif_dist(0, 1);
+    static std::uniform_real_distribution<double> unif_dist(0, 1);
     return(unif_dist(_generators[thread_idx]));
+    // return((double)_generators[thread_idx]()/ULLONG_MAX);
 }
 
 double RNG::rnorm(const size_t thread_idx, const double mu, const double sd) {
