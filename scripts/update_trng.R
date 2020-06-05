@@ -26,8 +26,13 @@ path_src <- file.path(path, "trng")
 
 dir.create(dest_include, FALSE, TRUE)
 dir.create(dest_src, FALSE, TRUE)
+
+file_copy(file.path(path, "COPYING"), dest_licence)
 file_copy(list.files(path_src, pattern = "\\.hpp$", full.names = TRUE),
           dest_include)
-file_copy(list.files(path_src, pattern = "\\.cc$", full.names = TRUE),
-          dest_src)
-file_copy(file.path(path, "COPYING"), dest_licence)
+
+for (s in list.files(path_src, pattern = "\\.cc$", full.names = TRUE)) {
+  txt <- readLines(s)
+  writeLines(sub('#include "(.*\\.hpp)"', "#include <trng/\\1>", txt),
+             file.path(dest_src, basename(s)))
+}
