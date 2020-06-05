@@ -102,7 +102,6 @@ void dust_run(dust *obj, size_t step_end) {
     #ifdef _OPENMP
     thread_idx = omp_get_thread_num();
     #endif
-    C_jump(obj->rng, thread_idx, obj->model_rng_calls);
     
     #pragma omp for private(i) schedule(static) ordered
     for (i = 0; i < obj->n_particles; ++i) {
@@ -111,7 +110,6 @@ void dust_run(dust *obj, size_t step_end) {
       {
         particle_run(x, step_end, obj->rng, thread_idx);
       }
-      C_jump(obj->rng, thread_idx, (obj->n_threads - 1) * obj->model_rng_calls);
     }
   }
 }
