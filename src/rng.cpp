@@ -2,6 +2,7 @@
 
 #include <trng/binomial_dist.hpp>
 #include <trng/normal_dist.hpp>
+#include <trng/uniform01_dist.hpp>
 
 RNG::RNG(const size_t n_threads) :
    _rng_array(n_threads)
@@ -18,6 +19,11 @@ trng::lcg64_shift RNG::get_generator(const size_t thread_idx) {
 
 void RNG::jump(const size_t thread_idx, const size_t rand_per_it) {
     _rng_array[thread_idx].jump(thread_idx * rand_per_it);
+}
+
+double RNG::runif(const size_t thread_idx) {
+    trng::uniform01_dist<> unif;
+    return(unif(_rng_array[thread_idx]));
 }
 
 int RNG::rbinom(const size_t thread_idx, const double p, const int n) {
@@ -54,8 +60,16 @@ extern "C" void C_jump(RNG* r, const size_t thread_idx, const size_t rand_per_it
     r->jump(thread_idx, rand_per_it);
 }
 
+extern "C" double C_runif(RNG* r, const size_t thread_idx) {
+    return r->runif(thread_idx);
+}
+
 extern "C" int C_rbinom(RNG* r, const size_t thread_idx, const double p, const int n) {
     return r->rbinom(thread_idx, p, n);
+}
+
+extern "C" int C_rbinom_tf(RNG* r, const size_t thread_idx, const double p, const int n) {
+    return static_cast<int>(r->rbinom_tf(thread_idx, p, n));
 }
 
 extern "C" double C_rnorm(RNG* r, const size_t thread_idx, const double mu, const double sd) {

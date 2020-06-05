@@ -27,6 +27,8 @@ void R_init_dust(DllInfo *info) {
 
   R_RegisterCCallable("dust", "dust_rbinom",
                       (DL_FUNC) &C_rbinom);
+  R_RegisterCCallable("dust", "dust_rbinom_tf",
+                      (DL_FUNC) &C_rbinom_tf);
   R_RegisterCCallable("dust", "dust_rnorm",
                       (DL_FUNC) &C_rnorm);
 

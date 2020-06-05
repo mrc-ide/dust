@@ -4,6 +4,7 @@ PKG_LIBS=$(BLAS_LIBS) #$(SHLIB_OPENMP_CFLAGS)
 
 OBJECTS = \
     trng/lcg64_shift.o \
+    binomial_tensorflow.o \
     dust.o \
     interface.o \
     rng.o \
