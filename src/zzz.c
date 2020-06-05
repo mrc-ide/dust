@@ -16,6 +16,8 @@ static const R_CallMethodDef call_methods[] = {
   {"Cdust_state",      (DL_FUNC) &r_dust_state,        1},
   {"Cdust_step",       (DL_FUNC) &r_dust_step,         1},
 
+  {"Cbinom_test",      (DL_FUNC) &r_binom_test,        1},
+
   {NULL,              NULL,                            0}
 };
 

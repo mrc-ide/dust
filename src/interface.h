@@ -21,3 +21,5 @@ void particle_finalise(SEXP r_ptr);
 void dust_finalise(SEXP r_ptr);
 void* read_r_pointer(SEXP r_ptr, int closed_error);
 DL_FUNC ptr_fn_get(SEXP r_ptr);
+
+SEXP r_binom_test(SEXP r_type);
