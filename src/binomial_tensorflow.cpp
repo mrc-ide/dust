@@ -84,7 +84,7 @@ inline double btrs(double count, double prob,
 }
 
 template <class T = int>
-T RNG::rbinom_tf(const size_t thread_idx, double p, int n) {
+T RNG::rbinom(const size_t thread_idx, double p, int n) {
     T draw;
     if (p <= 0.5) {
         if (n * p >= 10) {
@@ -108,4 +108,4 @@ T RNG::rbinom_tf(const size_t thread_idx, double p, int n) {
     return(draw);
 }
 
-template int RNG::rbinom_tf<int>(const size_t thread_idx, double p, int n); 
+template int RNG::rbinom<int>(const size_t thread_idx, double p, int n); 

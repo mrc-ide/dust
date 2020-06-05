@@ -55,7 +55,7 @@ void XOSHIRO::jump() {
 	uint64_t s1 = 0;
 	uint64_t s2 = 0;
 	uint64_t s3 = 0;
-	for(int i = 0; i < sizeof JUMP / sizeof *JUMP; i++)
+	for(long unsigned int i = 0; i < sizeof JUMP / sizeof *JUMP; i++)
 		for(int b = 0; b < 64; b++) {
 			if (JUMP[i] & UINT64_C(1) << b) {
 				s0 ^= _state[0];
@@ -63,7 +63,7 @@ void XOSHIRO::jump() {
 				s2 ^= _state[2];
 				s3 ^= _state[3];
 			}
-			this->gen_rand();	
+			this->operator()();	
 		}
 		
 	_state[0] = s0;
@@ -84,7 +84,7 @@ void XOSHIRO::long_jump() {
 	uint64_t s1 = 0;
 	uint64_t s2 = 0;
 	uint64_t s3 = 0;
-	for(int i = 0; i < sizeof LONG_JUMP / sizeof *LONG_JUMP; i++)
+	for(long unsigned int i = 0; i < sizeof LONG_JUMP / sizeof *LONG_JUMP; i++)
 		for(int b = 0; b < 64; b++) {
 			if (LONG_JUMP[i] & UINT64_C(1) << b) {
 				s0 ^= _state[0];
@@ -92,13 +92,13 @@ void XOSHIRO::long_jump() {
 				s2 ^= _state[2];
 				s3 ^= _state[3];
 			}
-			next();	
+			this->operator()();	
 		}
 		
-	s[0] = s0;
-	s[1] = s1;
-	s[2] = s2;
-	s[3] = s3;
+	_state[0] = s0;
+	_state[1] = s1;
+	_state[2] = s2;
+	_state[3] = s3;;
 }
 
 
@@ -122,9 +122,9 @@ double RNG::rnorm(const size_t thread_idx, const double mu, const double sd) {
 }
 
 // https://stackoverflow.com/a/24237867
-extern "C" RNG* C_RNG_alloc(const size_t n_threads) noexcept {
+extern "C" RNG* C_RNG_alloc(const size_t n_threads, const uint64_t seed) noexcept {
    try {
-     return static_cast<RNG*>(new RNG(n_threads));
+     return static_cast<RNG*>(new RNG(n_threads, seed));
    }
    catch (...) {
      return nullptr;

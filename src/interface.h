@@ -6,7 +6,7 @@
 
 SEXP r_particle_alloc(SEXP r_create, SEXP r_update, SEXP r_free,
                       SEXP r_y, SEXP user, SEXP r_index_y);
-SEXP r_particle_run(SEXP r_ptr, SEXP r_step_end);
+SEXP r_particle_run(SEXP r_ptr, SEXP r_step_end, SEXP r_seed);
 SEXP r_particle_state(SEXP r_ptr);
 SEXP r_particle_step(SEXP r_ptr);
 

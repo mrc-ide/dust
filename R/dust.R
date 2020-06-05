@@ -14,8 +14,8 @@ particle_alloc <- function(model, y, user, index_y) {
 }
 
 
-particle_run <- function(ptr, steps_end) {
-  .Call(Cparticle_run, ptr, as.integer(steps_end))
+particle_run <- function(ptr, steps_end, seed) {
+  .Call(Cparticle_run, ptr, as.integer(steps_end), as.integer(seed))
 }
 
 
@@ -29,10 +29,10 @@ particle_step <- function(ptr) {
 }
 
 
-dust_alloc <- function(model, n_particles, n_threads, n_rng_calls, y, user, index_y) {
+dust_alloc <- function(model, n_particles, n_threads, seed, y, user, index_y) {
   stopifnot(inherits(model, "dust_model"))
   .Call(Cdust_alloc, model$create, model$update, model$free,
-        as.integer(n_particles), as.integer(n_threads), as.integer(n_rng_calls), 
+        as.integer(n_particles), as.integer(n_threads), as.integer(seed), 
         as.numeric(y), user, as.integer(index_y))
 }
 

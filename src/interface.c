@@ -32,13 +32,14 @@ void particle_finalise(SEXP r_ptr) {
   }
 }
 
-SEXP r_particle_run(SEXP r_ptr, SEXP r_step_end) {
+SEXP r_particle_run(SEXP r_ptr, SEXP r_step_end, SEXP r_seed) {
   particle *obj = (particle*) read_r_pointer(r_ptr, true);
   size_t step_end = (size_t) INTEGER(r_step_end)[0];
+  uint64_t seed = (uint64_t) INTEGER(r_seed)[0];
   
   // Note: running a single particle allocs a rng each
   // time that it is called
-  RNG* rng = C_RNG_alloc(1);
+  RNG* rng = C_RNG_alloc(1, seed);
 
   // Actual running bit
   particle_run(obj, step_end, rng, 0);
@@ -71,7 +72,7 @@ SEXP r_particle_step(SEXP r_ptr) {
 }
 
 SEXP r_dust_alloc(SEXP r_create, SEXP r_update, SEXP r_free,
-                  SEXP r_n_particles, SEXP r_nthreads, SEXP r_model_rng_calls, 
+                  SEXP r_n_particles, SEXP r_nthreads, SEXP r_seed, 
                   SEXP r_y, SEXP user, SEXP r_index_y) {
   model_create * f_create = (model_create*) ptr_fn_get(r_create);
   model_update * f_update = (model_update*) ptr_fn_get(r_update);
@@ -85,9 +86,9 @@ SEXP r_dust_alloc(SEXP r_create, SEXP r_update, SEXP r_free,
   size_t n_y = length(r_y);
   size_t n_particles = INTEGER(r_n_particles)[0];
   size_t nthreads = (size_t) INTEGER(r_nthreads)[0];
-  size_t model_rng_calls = (size_t) INTEGER(r_model_rng_calls)[0];
+  uint64_t seed = (uint64_t) INTEGER(r_seed)[0];
   dust * obj = dust_alloc(f_create, f_update, f_free,
-                          n_particles, nthreads, model_rng_calls, 
+                          n_particles, nthreads, seed, 
                           n_y, REAL(r_y), user,
                           n_index_y, index_y);
   SEXP r_ptr = PROTECT(R_MakeExternalPtr(obj, R_NilValue, R_NilValue));

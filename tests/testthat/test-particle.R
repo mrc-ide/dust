@@ -49,9 +49,10 @@ test_that("simulation with one particle", {
   res[1, 1] <- 0
   res[1, 2:4] <- s
 
+  seed <- 1
   for (i in seq_along(steps)[-1]) {
     to <- (i - 1) * 4
-    x1 <- particle_run(p, to)
+    x1 <- particle_run(p, to, 1)
     x2 <- particle_state(p)
     res[i, 1] <- particle_step(p)
     res[i, 2:4] <- x2

@@ -7,7 +7,7 @@
 
 static const R_CallMethodDef call_methods[] = {
   {"Cparticle_alloc",  (DL_FUNC) &r_particle_alloc,    6},
-  {"Cparticle_run",    (DL_FUNC) &r_particle_run,      2},
+  {"Cparticle_run",    (DL_FUNC) &r_particle_run,      3},
   {"Cparticle_state",  (DL_FUNC) &r_particle_state,    1},
   {"Cparticle_step",   (DL_FUNC) &r_particle_step,     1},
 

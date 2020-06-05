@@ -26,11 +26,11 @@ class XOSHIRO {
 };
 class RNG {
     public:
-        RNG(const size_t n_threads);
+        RNG(const size_t n_threads, const uint64_t seed);
 
         double runif(const size_t thread_idx);
         double rnorm(const size_t thread_idx, double mu, double sd);
-        template <class T = int> T rbinom_tf(const size_t thread_idx, double p, int n);
+        template <class T = int> T rbinom(const size_t thread_idx, double p, int n);
 
     private:
         std::vector<XOSHIRO> _generators;

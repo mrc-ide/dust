@@ -28,7 +28,6 @@ typedef struct {
 typedef struct {
   size_t n_particles;
   size_t n_threads;
-  size_t model_rng_calls;
   size_t n_y;
   size_t n_index_y;
   particle * particles;
@@ -36,7 +35,7 @@ typedef struct {
 } dust;
 
 // Prototypes for C++ calls
-RNG* C_RNG_alloc(const size_t n_threads);
+RNG* C_RNG_alloc(const size_t n_threads, const uint64_t seed);
 void C_RNG_free(RNG* obj) ;
 int C_rbinom(RNG*, size_t, double, int);
 double C_rnorm(RNG*, size_t, double, double);
@@ -55,7 +54,7 @@ void particle_copy_state(particle *obj, double *dest);
 
 dust* dust_alloc(model_create* f_create, model_update * f_update,
                  model_free *f_free,
-                 size_t n_particles, size_t n_threads, size_t model_rng_calls, 
+                 size_t n_particles, size_t n_threads, size_t seed, 
                  size_t n_y, double *y, SEXP user,
                  size_t n_index_y, size_t *index_y);
 void dust_free(dust* obj);

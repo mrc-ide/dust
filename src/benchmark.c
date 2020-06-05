@@ -5,7 +5,7 @@
 SEXP r_binom_test(SEXP r_type) {
     int type = (int) INTEGER(r_type)[0];
   
-    RNG* rng = C_RNG_alloc(1);
+    RNG* rng = C_RNG_alloc(1, 1);
 
     long long sum = 0;
     for (int rep = 0; rep < 10; rep++) {
@@ -15,8 +15,6 @@ SEXP r_binom_test(SEXP r_type) {
                 int N = 1 << j;
                 if (type == 0) {
                     sum += C_rbinom(rng, 0, p, N); 
-                } else if (type == 1) {
-                    sum += C_rbinom_tf(rng, 0, p, N); 
                     // printf("p:%f n:%d draw:%d\n", p, N, C_rbinom_tf(rng, 0, p, N));
                 } else {
                     sum += Rf_rbinom((double)N, p);

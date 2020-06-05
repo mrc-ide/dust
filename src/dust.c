@@ -63,16 +63,15 @@ void particle_copy_state(particle *obj, double *dest) {
 
 dust* dust_alloc(model_create* f_create, model_update * f_update,
                  model_free *f_free,
-                 size_t n_particles, size_t n_threads, size_t model_rng_calls, 
+                 size_t n_particles, size_t n_threads, size_t seed, 
                  size_t n_y, double *y, SEXP user,
                  size_t n_index_y, size_t *index_y) {
   dust *obj = (dust*) Calloc(1, dust);
   obj->n_particles = n_particles;
   obj->n_threads = n_threads;
-  obj->model_rng_calls = model_rng_calls;
   obj->n_y = n_y;
   obj->n_index_y = n_index_y;
-  obj->rng = C_RNG_alloc(n_threads);
+  obj->rng = C_RNG_alloc(n_threads, seed);
   obj->particles = (particle*) Calloc(n_particles, particle);
   for (size_t i = 0; i < n_particles; ++i) {
     particle_init(f_create, f_update, f_free,
