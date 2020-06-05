@@ -39,7 +39,8 @@ typedef struct {
 RNG* C_RNG_alloc(const size_t n_threads);
 void C_RNG_free(RNG* obj) ;
 void C_jump(RNG*, size_t, size_t);
-int C_rbinom(RNG*, size_t, double, int); 
+int C_rbinom(RNG*, size_t, double, int);
+double C_rnorm(RNG*, size_t, double, double);
 
 void particle_init(model_create* f_create, model_update * f_update,
                    model_free *f_free,

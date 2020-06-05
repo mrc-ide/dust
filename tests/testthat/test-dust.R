@@ -76,3 +76,16 @@ test_that("dust works with multiple threads", {
   rm(ps)
   gc()
 })
+
+test_that("random walk", {
+  y <- 0
+  user <- c(0, 1)
+  index_y <- 1L
+  n_particles <- 1024
+  n_threads <- 2
+  n_rng <- 2
+  pp <- dust_alloc(example_walk(), n_particles, n_threads, n_rng,
+                   y, user, index_y)
+
+  res <- helper_run_dust(50, 1, pp)
+})

@@ -5,7 +5,6 @@ addons:
   apt:
     packages:
       - libnode-dev
-      - libtrng-dev
 r_packages:
   - covr
 after_success:

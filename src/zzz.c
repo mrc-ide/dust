@@ -27,6 +27,8 @@ void R_init_dust(DllInfo *info) {
 
   R_RegisterCCallable("dust", "dust_rbinom",
                       (DL_FUNC) &C_rbinom);
+  R_RegisterCCallable("dust", "dust_rnorm",
+                      (DL_FUNC) &C_rnorm);
 
 #if defined(R_VERSION) && R_VERSION >= R_Version(3, 3, 0)
   R_useDynamicSymbols(info, FALSE);
