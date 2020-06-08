@@ -5,14 +5,11 @@
 #include "dust.hpp"
 
 Particle::Particle(const size_t n_y) :
-  _step(0) {
-    _data = ;
-    _y.reserve(n_y);
-    _y_swap.reserve(n_y);
-    _index_y = ;
+  _step(0), _y(n_y), _y_swap(n_y) {
+    // TODO Need to set the following:
+    // _data = ;
+    // _index_y = ;
 }
-
-    dest[i] = obj->y[obj->index_y[i]];
 
 void Particle::run(const size_t step_end, RNG& rng, const size_t thread_idx) {
   while (_step < step_end) {
@@ -66,5 +63,5 @@ std::vector<std::vector<double>> Dust::state() const {
 }
 
 void Dust::shuffle() {
-  
+
 }
