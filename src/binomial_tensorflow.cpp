@@ -86,25 +86,23 @@ inline double btrs(double count, double prob,
 template <class T = int>
 T RNG::rbinom(const size_t thread_idx, double p, int n) {
     T draw;
-    if (p <= 0.5) {
-        if (n * p >= 10) {
-            // Uses 256 random numbers
-            draw = static_cast<T>(btrs(n, p, this, thread_idx));
-        } else {
-            // Uses 42 random numbers
-            draw = static_cast<T>(binomial_inversion(n, p, this, thread_idx));
-        }
-    } else {
-        double q = 1 - p;
-        if (n * q >= 10) {
-            // Uses 256 random numbers
-            draw = n - static_cast<T>(btrs(n, q, this, thread_idx));
-        } else {
-            // Uses 42 random numbers
-            draw = n - static_cast<T>(binomial_inversion(n, q, this, thread_idx));
-        } 
+    double q = p;
+    if (q > 0.5) {
+      q = 1 - q;
     }
-    // Estimated number of draws =~ 341
+
+    if (n * p >= 10) {
+        // Uses 256 random numbers
+        draw = static_cast<T>(btrs(n, q, this, thread_idx));
+    } else {
+        // Uses 42 random numbers
+        draw = static_cast<T>(binomial_inversion(n, q, this, thread_idx));
+    }
+
+    if (p > 0.5) {
+      draw = n - draw;
+    }
+
     return(draw);
 }
 
