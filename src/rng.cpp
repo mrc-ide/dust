@@ -13,11 +13,11 @@ uint64_t splitmix64(uint64_t seed) {
 	return z ^ (z >> 31);
 }
 
-XOSHIRO::XOSHIRO(uint64_t seed) {
+Xoshiro::Xoshiro(uint64_t seed) {
     this->set_seed(seed);
 }
 
-void XOSHIRO::set_seed(uint64_t seed) {
+void Xoshiro::set_seed(uint64_t seed) {
     // normal brain: for i in 1:4
     // advanced brain: -funroll-loops
     // galaxy brain:
@@ -27,7 +27,7 @@ void XOSHIRO::set_seed(uint64_t seed) {
     _state[3] = splitmix64(_state[2]);
 }
 
-uint64_t XOSHIRO::operator()() {
+uint64_t Xoshiro::operator()() {
     const uint64_t result = rotl(_state[1] * 5, 7) * 9;
 
 	const uint64_t t = _state[1] << 17;
@@ -47,7 +47,7 @@ uint64_t XOSHIRO::operator()() {
 /* This is the jump function for the generator. It is equivalent
    to 2^128 calls to next(); it can be used to generate 2^128
    non-overlapping subsequences for parallel computations. */
-void XOSHIRO::jump() {
+void Xoshiro::jump() {
 	static const uint64_t JUMP[] = \
         { 0x180ec6d33cfd0aba, 0xd5a61266f0c9392c, 0xa9582618e03fc9aa, 0x39abdc4529b1661c };
 
@@ -76,7 +76,7 @@ void XOSHIRO::jump() {
    2^192 calls to next(); it can be used to generate 2^64 starting points,
    from each of which jump() will generate 2^64 non-overlapping
    subsequences for parallel distributed computations. */
-void XOSHIRO::long_jump() {
+void Xoshiro::long_jump() {
     static const uint64_t LONG_JUMP[] = \
         { 0x76e15d3efefdcbbf, 0xc5004e441c522fb3, 0x77710069854ee241, 0x39109bb02acbe635 };
 
@@ -101,14 +101,17 @@ void XOSHIRO::long_jump() {
 	_state[3] = s3;
 }
 
-
+// Constructor builds vector of XOSHIRO providing non-overlapping
+// streams of random numbers
 RNG::RNG(const size_t n_threads, const uint64_t seed) {
-    XOSHIRO rng(seed);
+    Xoshiro rng(seed);
     for (size_t i = 0; i < n_threads; i++) {
         _generators.push_back(rng);
         rng.jump();
     }
 }
+
+// Standard C++11 distributions
 
 // Should just do rng()/max
 double RNG::runif(const size_t thread_idx) {
@@ -121,6 +124,8 @@ double RNG::rnorm(const size_t thread_idx, const double mu, const double sd) {
     std::normal_distribution<double> norm(mu, sd);
     return(norm(_generators[thread_idx]));
 }
+
+// Bindings for using this in C code
 
 // https://stackoverflow.com/a/24237867
 extern "C" RNG* C_RNG_alloc(const size_t n_threads, const uint64_t seed) noexcept {

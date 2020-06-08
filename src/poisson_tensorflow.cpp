@@ -94,7 +94,7 @@ T RNG::rpois(const size_t thread_idx, double lambda) {
             // The expression below is equivalent to the computation of step 2)
             // in transformed rejection (v <= alpha * F'(G(u)) * G'(u)).
             double s = log(v * inv_alpha / (a / (u_shifted * u_shifted) + b));
-            double t = -lambda + k * log_rate - lgamma(k + 1);
+            double t = -lambda + k * log_rate - std::lgamma(k + 1);
             if (s <= t) {
                 x = k;
                 break;

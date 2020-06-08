@@ -5,16 +5,16 @@
 
 #define XOSHIRO_WIDTH 4
 
-class XOSHIRO {
+class Xoshiro {
     public:
         // Definitions to be used as URNG in C++11
         typedef size_t result_type;
         static size_t min() { return 0; }
         static size_t max() { return ULLONG_MAX; }
-        uint64_t operator()(); // generate random number
+        uint64_t operator()(); // generate random number U(min, max)
 
         // Constructor
-        XOSHIRO(uint64_t seed);
+        Xoshiro(uint64_t seed);
         
         // Change internal state
         void set_seed(uint64_t seed);
@@ -24,6 +24,7 @@ class XOSHIRO {
     private:
         uint64_t _state[XOSHIRO_WIDTH];
 };
+
 class RNG {
     public:
         RNG(const size_t n_threads, const uint64_t seed);
@@ -34,5 +35,5 @@ class RNG {
         template <class T = int> T rpois(const size_t thread_idx, double lambda);
 
     private:
-        std::vector<XOSHIRO> _generators;
+        std::vector<Xoshiro> _generators;
 };
