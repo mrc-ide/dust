@@ -150,6 +150,10 @@ extern "C" int C_rbinom(RNG* r, const size_t thread_idx, const double p, const i
     return static_cast<int>(r->rbinom(thread_idx, p, n));
 }
 
+extern "C" int C_rpois(RNG* r, const size_t thread_idx, const double lambda) {
+    return static_cast<int>(r->rpois(thread_idx, lambda));
+}
+
 extern "C" double C_rnorm(RNG* r, const size_t thread_idx, const double mu, const double sd) {
     return r->rnorm(thread_idx, mu, sd);
 }

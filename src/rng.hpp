@@ -31,6 +31,7 @@ class RNG {
         double runif(const size_t thread_idx);
         double rnorm(const size_t thread_idx, double mu, double sd);
         template <class T = int> T rbinom(const size_t thread_idx, double p, int n);
+        template <class T = int> T rpois(const size_t thread_idx, double lambda);
 
     private:
         std::vector<XOSHIRO> _generators;

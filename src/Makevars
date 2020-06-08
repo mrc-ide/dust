@@ -4,6 +4,7 @@ PKG_LIBS=$(BLAS_LIBS) #$(SHLIB_OPENMP_CFLAGS)
 
 OBJECTS = \
     binomial_tensorflow.o \
+    poisson_tensorflow.o \
     dust.o \
     interface.o \
     rng.o \
