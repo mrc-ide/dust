@@ -1,6 +1,6 @@
 #include "rng.hpp"
 
-template <class T = int>
+template <class T>
 T RNG::rpois(const size_t thread_idx, double lambda) { 
     T x = 0;
     if (lambda < 10) {

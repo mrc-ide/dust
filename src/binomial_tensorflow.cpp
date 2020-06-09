@@ -83,7 +83,7 @@ inline double btrs(double count, double prob,
   }
 }
 
-template <class T = int>
+template <class T>
 T RNG::rbinom(const size_t thread_idx, double p, int n) {
     T draw;
     double q = p;

@@ -1,8 +1,6 @@
 #include <vector>
 #include <climits>
 
-#include <trng/lcg64_shift.hpp>
-
 #define XOSHIRO_WIDTH 4
 
 class Xoshiro {
