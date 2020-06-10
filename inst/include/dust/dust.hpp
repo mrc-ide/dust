@@ -15,6 +15,7 @@ template <typename T>
 class Particle {
 public:
   Particle(SEXP data) : _model(data),
+                        _step(0),
                         _y(_model.size()),
                         _y_swap(_model.size()) {
   }
@@ -28,7 +29,7 @@ public:
   }
 
   void state(const std::vector<size_t>& index_y,
-             std::vector<double>::iterator& end_state) const {
+             std::vector<double>::iterator end_state) const {
     for (size_t i = 0; i < index_y.size(); i++) {
       *(end_state + i) = _y[index_y[i]];
     }
@@ -73,7 +74,7 @@ public:
       for (size_t i = 0; i < _particles.size(); ++i) {
 #pragma omp ordered
         {
-          _particles[i].run(step_end, _index_y, _rng, thread_idx);
+          _particles[i].run(step_end, _rng, thread_idx);
         }
       }
     }
@@ -89,6 +90,7 @@ public:
   void shuffle() {}
 
   size_t n_particles() const { return _particles.size(); }
+  size_t n_state() const { return _index_y.size(); }
 
 private:
   const std::vector<size_t> _index_y;

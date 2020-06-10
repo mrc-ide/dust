@@ -7,10 +7,12 @@
 #include "example_walk.h"
 
 static const R_CallMethodDef call_methods[] = {
-  {"Ctest_rng",      (DL_FUNC) &test_rng,        2},
-  {"Ctest_walk",     (DL_FUNC) &test_walk,       3},
+  {"Ctest_rng",        (DL_FUNC) &test_rng,        2},
 
-  {NULL,              NULL,                      0}
+  {"Ctest_walk_alloc", (DL_FUNC) &test_walk_alloc, 3},
+  {"Ctest_walk_run",   (DL_FUNC) &test_walk_run,   2},
+
+  {NULL,                NULL,                      0}
 };
 
 void R_init_dust(DllInfo *info) {
