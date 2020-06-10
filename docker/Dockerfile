@@ -2,7 +2,6 @@ FROM rocker/r-ver:4.0.0
 
 RUN apt-get update &&  apt-get install -y --no-install-recommends \
         libcurl4-openssl-dev \
-        libtrng-dev \
         libssl-dev \
         libxml2-dev \
         zlib1g-dev \
