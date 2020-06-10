@@ -1,6 +1,5 @@
 #include <dust/dust.hpp>
-#include <R.h>
-#include <Rinternals.h>
+#include <dust/util.hpp>
 
 #include "example_walk.h"
 
@@ -38,7 +37,7 @@ T* read_r_pointer(SEXP r_ptr, bool closed_error) {
 
 
 extern "C" void test_walk_finalise(SEXP ptr) {
-  dust_walk *obj = read_r_pointer<dust_walk>(ptr, false);
+  dust_walk *obj = dust::util::read_r_pointer<dust_walk>(ptr, false);
   if (obj) {
     delete obj;
   }
@@ -49,8 +48,8 @@ extern "C" void test_walk_finalise(SEXP ptr) {
 
 
 extern "C" SEXP test_walk_alloc(SEXP sd, SEXP r_n_particles, SEXP r_seed) {
-  size_t n_particles = INTEGER(r_n_particles)[0];
-  size_t seed = INTEGER(r_seed)[0];
+  size_t n_particles = dust::util::as_size(r_n_particles, "n_particles");
+  size_t seed = dust::util::as_size(r_seed, "seed");
 
   std::vector<size_t> index_y = {0};
   size_t n_threads = 1;
@@ -69,7 +68,7 @@ extern "C" SEXP test_walk_alloc(SEXP sd, SEXP r_n_particles, SEXP r_seed) {
 
 
 extern "C" SEXP test_walk_run(SEXP ptr, SEXP r_step_end) {
-  const size_t step_end = INTEGER(r_step_end)[0];
+  const size_t step_end = dust::util::as_size(r_step_end, "step_end");
 
   dust_walk *obj = read_r_pointer<dust_walk>(ptr, true);
   obj->run(step_end);
