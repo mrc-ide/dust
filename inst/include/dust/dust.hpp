@@ -5,19 +5,16 @@
 #include <omp.h>
 #endif
 
-// These need to be included quite late
-#include <R.h>
-#include <Rinternals.h>
-
 namespace dust {
 
 template <typename T>
 class Particle {
 public:
-  Particle(SEXP data) : _model(data),
-                        _step(0),
-                        _y(_model.size()),
-                        _y_swap(_model.size()) {
+  typedef typename T::init_t init_t;
+  Particle(init_t data) : _model(data),
+                             _step(0),
+                             _y(_model.size()),
+                             _y_swap(_model.size()) {
   }
 
   void run(const size_t step_end, RNG& rng, const size_t thread_idx) {
@@ -48,13 +45,14 @@ private:
 template <typename T>
 class Dust {
 public:
-  Dust(SEXP data, const std::vector<size_t> index_y, const size_t n_threads,
+  typedef typename T::init_t init_t;
+  Dust(init_t data, const std::vector<size_t> index_y, const size_t n_threads,
        const double seed, const size_t n_particles)
     : _index_y(index_y), _n_threads(n_threads), _rng(n_threads, seed),
       _particles(n_particles, data)
   {}
 
-  void reset(SEXP data) {
+  void reset(init_t data) {
     size_t n_particles = _particles.size();
     _particles.clear();
     for (size_t i = 0; i < n_particles; i++) {

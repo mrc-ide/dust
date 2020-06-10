@@ -6,6 +6,7 @@
 
 class walk {
 public:
+  typedef SEXP init_t;
   walk(SEXP data) : sd(REAL(data)[0]) {
   }
   size_t size() const {
