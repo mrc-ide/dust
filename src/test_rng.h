@@ -1,5 +1,7 @@
-#define STRICT_R_HEADERS
 #include <R.h>
 #include <Rinternals.h>
 
-extern "C" SEXP test_rng();
+#ifdef __cplusplus
+extern "C"
+#endif
+SEXP test_rng(SEXP, SEXP);
