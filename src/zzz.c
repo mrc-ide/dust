@@ -4,9 +4,11 @@
 #include <Rversion.h>
 
 #include "test_rng.h"
+#include "example_walk.h"
 
 static const R_CallMethodDef call_methods[] = {
   {"Ctest_rng",      (DL_FUNC) &test_rng,        2},
+  {"Ctest_walk",     (DL_FUNC) &test_walk,       3},
 
   {NULL,              NULL,                      0}
 };
