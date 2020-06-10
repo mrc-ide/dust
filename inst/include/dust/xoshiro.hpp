@@ -3,8 +3,9 @@
 
 // This is derived from http://prng.di.unimi.it/xoshiro256starstar.c
 // and http://prng.di.unimi.it/splitmix64.c, copies of which are
-// included in the package. The original code is CC0 licenced but was
-// written by David Blackman and Sebastiano Vigna.
+// included in the package (in inst/rng in the source package). The
+// original code is CC0 licenced but was written by David Blackman and
+// Sebastiano Vigna.
 //
 // MD5 (splitmix64.c) = 7e38529aa7bb36624ae4a9d6808e7e3f
 // MD5 (xoshiro256starstar.c) = 05f9ecd49bbed98304d982313c91d0f6
