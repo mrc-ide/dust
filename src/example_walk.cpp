@@ -48,8 +48,8 @@ extern "C" void test_walk_finalise(SEXP ptr) {
 
 
 extern "C" SEXP test_walk_alloc(SEXP sd, SEXP r_n_particles, SEXP r_seed) {
-  size_t n_particles = REAL(r_n_particles)[0];
-  size_t seed = REAL(r_seed)[0];
+  size_t n_particles = INTEGER(r_n_particles)[0];
+  size_t seed = INTEGER(r_seed)[0];
 
   std::vector<size_t> index_y = {0};
   size_t n_threads = 1;
