@@ -22,19 +22,6 @@ private:
 
 typedef dust::Dust<walk> dust_walk;
 
-template <typename T>
-T* read_r_pointer(SEXP r_ptr, bool closed_error) {
-  void *ptr = NULL;
-  if (TYPEOF(r_ptr) != EXTPTRSXP) {
-    Rf_error("Expected an external pointer");
-  }
-  ptr = (void*) R_ExternalPtrAddr(r_ptr);
-  if (!ptr && closed_error) {
-    Rf_error("Pointer has been invalidated (perhaps serialised?)");
-  }
-  return static_cast<T*>(ptr);
-}
-
 
 extern "C" void test_walk_finalise(SEXP ptr) {
   dust_walk *obj = dust::util::read_r_pointer<dust_walk>(ptr, false);
@@ -70,7 +57,7 @@ extern "C" SEXP test_walk_alloc(SEXP sd, SEXP r_n_particles, SEXP r_seed) {
 extern "C" SEXP test_walk_run(SEXP ptr, SEXP r_step_end) {
   const size_t step_end = dust::util::as_size(r_step_end, "step_end");
 
-  dust_walk *obj = read_r_pointer<dust_walk>(ptr, true);
+  dust_walk *obj = dust::util::read_r_pointer<dust_walk>(ptr, true);
   obj->run(step_end);
 
   const size_t n_state = obj->n_state();
