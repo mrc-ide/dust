@@ -11,11 +11,11 @@
 template <typename T>
 class Particle {
   public:
-    Particle(SEXP data) : _internal_state(data), 
+    Particle(SEXP data) : _internal_state(data),
                           _y(_internal_state.size()),
                           _y_swap(_internal_state.size())
     {}
-    
+
     std::vector<double> run(const size_t step_end, std::vector<size_t>& _index_y, RNG& rng, const size_t thread_idx) {
       while (_step < step_end) {
         _internal_state.update(_step, _y, rng, thread_idx, _y_swap);
@@ -25,7 +25,7 @@ class Particle {
       return this->state();
     }
 
-    void state(const std::vector<size_t>& index_y, 
+    void state(const std::vector<size_t>& index_y,
                std::vector<double>::iterator& end_state) const {
       for (size_t i = 0; i < index_y.size(); i++) {
         *(end_state + i) = _y[index_y[i]];
@@ -37,7 +37,7 @@ class Particle {
   private:
     T _internal_state;
     size_t _step;
-    
+
     std::vector<double> _y;
     std::vector<double> _y_swap;
 };
@@ -45,14 +45,14 @@ class Particle {
 template <typename T>
 class Dust {
   public:
-    Dust(SEXP data, const std::vector<size_t> index_y, const size_t n_threads, 
-         const double seed, const size_t n_particles) 
-    : _index_y(index_y), _n_threads(n_threads), _rng(n_threads, seed), 
+    Dust(SEXP data, const std::vector<size_t> index_y, const size_t n_threads,
+         const double seed, const size_t n_particles)
+    : _index_y(index_y), _n_threads(n_threads), _rng(n_threads, seed),
       _particles(n_particles, data)
     {}
-    
-    void reset(SEXP data) { 
-      size_t n_particles = _particles.size(); 
+
+    void reset(SEXP data) {
+      size_t n_particles = _particles.size();
       _particles.clear();
       for (size_t i = 0; i < n_particles; i++) {
         _particles.push_back(T(data));
@@ -66,7 +66,7 @@ class Dust {
         #ifdef _OPENMP
         thread_idx = omp_get_thread_num();
         #endif
-        
+
         #pragma omp for schedule(static) ordered
         for (size_t i = 0; i < _particles.size(); ++i) {
           #pragma omp ordered
@@ -91,7 +91,6 @@ class Dust {
   private:
     const size_t _n_threads;
     const std::vector<size_t> _index_y;
-    RNG _rng; 
+    RNG _rng;
     std::vector<Particle<T>> _particles;
 };
-
