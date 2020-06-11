@@ -80,7 +80,7 @@ T rpois(RNG& generator, double lambda) {
 
       if (k > std::numeric_limits<T>::max()) {
         // retry in case of overflow.
-        continue;
+        continue; // # nocov
       }
 
       // When alpha * f(G(U)) * G'(U) is close to 1, it is possible to
