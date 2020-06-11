@@ -7,14 +7,15 @@ namespace dust {
 namespace distr {
 
 template <typename RNG>
-double binomial_inversion(double count, double prob, RNG& generator) {
+double binomial_inversion(double n, double prob, RNG& generator) {
   double geom_sum = 0;
   int num_geom = 0;
 
   while (true) {
-    double geom = ceil(log(generator.unif_rand()) / log1p(-prob));
+    double r = generator.unif_rand();
+    double geom = ceil(log(r) / log1p(-prob));
     geom_sum += geom;
-    if (geom_sum > count) {
+    if (geom_sum > n) {
       break;
     }
     ++num_geom;
@@ -37,19 +38,19 @@ inline double stirling_approx_tail(double k) {
 
 // https://www.tandfonline.com/doi/abs/10.1080/00949659308811496
 template <typename RNG>
-inline double btrs(double count, double prob, RNG& generator) {
+inline double btrs(double n, double p, RNG& generator) {
   // This is spq in the paper.
-  const double stddev = sqrt(count * prob * (1 - prob));
+  const double stddev = sqrt(n * p * (1 - p));
 
   // Other coefficients for Transformed Rejection sampling.
   const double b = 1.15 + 2.53 * stddev;
-  const double a = -0.0873 + 0.0248 * b + 0.01 * prob;
-  const double c = count * prob + 0.5;
+  const double a = -0.0873 + 0.0248 * b + 0.01 * p;
+  const double c = n * p + 0.5;
   const double v_r = 0.92 - 4.2 / b;
-  const double r = prob / (1 - prob);
+  const double r = p / (1 - p);
 
   const double alpha = (2.83 + 5.1 / b) * stddev;
-  const double m = floor((count + 1) * prob);
+  const double m = floor((n + 1) * p);
 
   while (true) {
     double u = generator.unif_rand();
@@ -67,7 +68,7 @@ inline double btrs(double count, double prob, RNG& generator) {
       return k;
     }
     // Reject non-sensical answers.
-    if (k < 0 || k > count) {
+    if (k < 0 || k > n) {
       continue;
     }
 
@@ -76,11 +77,11 @@ inline double btrs(double count, double prob, RNG& generator) {
     // transformed-reject ratio.
     v = log(v * alpha / (a / (us * us) + b));
     double upperbound =
-      ((m + 0.5) * log((m + 1) / (r * (count - m + 1))) +
-       (count + 1) * log((count - m + 1) / (count - k + 1)) +
-       (k + 0.5) * log(r * (count - k + 1) / (k + 1)) +
-       stirling_approx_tail(m) + stirling_approx_tail(count - m) -
-       stirling_approx_tail(k) - stirling_approx_tail(count - k));
+      ((m + 0.5) * log((m + 1) / (r * (n - m + 1))) +
+       (n + 1) * log((n - m + 1) / (n - k + 1)) +
+       (k + 0.5) * log(r * (n - k + 1) / (k + 1)) +
+       stirling_approx_tail(m) + stirling_approx_tail(n - m) -
+       stirling_approx_tail(k) - stirling_approx_tail(n - k));
     if (v <= upperbound) {
       return k;
     }
@@ -88,8 +89,25 @@ inline double btrs(double count, double prob, RNG& generator) {
 }
 
 template <typename T, typename RNG>
-T rbinom(RNG& generator, double p, int n) {
+T rbinom(RNG& generator, int n, double p) {
   T draw;
+
+  // Early exit:
+  if (n == 0 || p == 0) {
+    return 0;
+  }
+  if (p == 1) {
+    return n;
+  }
+
+  // TODO: Should control for this too, but not really clear what we
+  // need to do to safely deal.
+  /*
+  if (n < 0 || p < 0 || p > 1) {
+    return NaN;
+  }
+  */
+
   double q = p;
   if (q > 0.5) {
     q = 1 - q;

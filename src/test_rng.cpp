@@ -54,8 +54,8 @@ extern "C" SEXP test_rng_unif(SEXP r_n, SEXP r_min, SEXP r_max,
 }
 
 
-extern "C" SEXP test_rng_rbinom(SEXP r_n, SEXP r_p,
-                                SEXP r_seed, SEXP r_n_generators) {
+extern "C" SEXP test_rng_binom(SEXP r_n, SEXP r_p,
+                               SEXP r_seed, SEXP r_n_generators) {
   const int seed = dust::util::as_size(r_seed, "seed");
   const int n_generators = dust::util::as_size(r_n_generators, "n_generators");
 

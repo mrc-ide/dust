@@ -25,8 +25,8 @@ public:
     return norm(_generator);
   }
 
-  template <class T = int> T rbinom(double p, int n) {
-    return dust::distr::rbinom<T>(_generator, p, n);
+  template <class T = int> T rbinom(int n, double p) {
+    return dust::distr::rbinom<T>(_generator, n, p);
   }
 
   template <class T = int> T rpois(double lambda);
