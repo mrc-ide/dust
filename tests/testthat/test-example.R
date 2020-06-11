@@ -41,3 +41,29 @@ test_that("Reset particles and resume continues with rng", {
   expect_equal(drop(y1), colSums(m1) * sd1)
   expect_equal(drop(y2), colSums(m2) * sd2)
 })
+
+
+test_that("Basic sir model", {
+  res <- compile_and_load(dust_file("examples/sir.cpp"), "sir", "my_sir")
+
+  obj <- res$new(NULL, 0, 100)
+  ans <- vector("list", 150)
+  for (i in seq_along(ans)) {
+    value <- obj$run(i * 4)
+    ans[[i]] <- list(value = value, state = obj$state(), step = obj$step())
+  }
+
+  step <- vapply(ans, function(x) x$step, numeric(1))
+  state_s <- t(vapply(ans, function(x) x$state[1, ], numeric(100)))
+  state_i <- t(vapply(ans, function(x) x$state[2, ], numeric(100)))
+  state_r <- t(vapply(ans, function(x) x$state[3, ], numeric(100)))
+  value <- t(vapply(ans, function(x) drop(x$value), numeric(100)))
+
+  n <- nrow(state_s)
+  expect_true(all(state_s[-n, ] - state_s[-1, ] >= 0))
+  expect_true(all(state_r[-n, ] - state_r[-1, ] <= 0))
+  expect_false(all(state_i[-n, ] - state_i[-1, ] <= 0))
+  expect_false(all(state_i[-n, ] - state_i[-1, ] >= 0))
+  expect_identical(value, state_s)
+  expect_equal(step, seq(4, by = 4, length.out = n))
+})
