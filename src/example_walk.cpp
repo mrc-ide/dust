@@ -67,7 +67,7 @@ extern "C" SEXP test_walk_run(SEXP ptr, SEXP r_step_end) {
   obj->state(dat);
 
   SEXP ret = PROTECT(allocMatrix(REALSXP, n_state, n_particles));
-  memcpy(REAL(ret), &dat[0], dat.size() * sizeof(double));
+  memcpy(REAL(ret), dat.data(), dat.size() * sizeof(double));
   UNPROTECT(1);
 
   return ret;
