@@ -27,8 +27,8 @@ extern "C" SEXP {{name}}_alloc(SEXP data, SEXP r_step,
   dust::util::validate_n(n_generators, n_threads);
 
   dust::Dust<{{type}}> *d =
-    new dust::Dust<{{type}}>(data, step, index_y, n_threads, n_generators,
-                             seed, n_particles);
+    new dust::Dust<{{type}}>(data, step, index_y, n_particles, n_threads,
+                             n_generators, seed);
 
   SEXP r_ptr = PROTECT(R_MakeExternalPtr(d, R_NilValue, R_NilValue));
   R_RegisterCFinalizer(r_ptr, {{name}}_finalise);

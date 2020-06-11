@@ -62,10 +62,9 @@ template <typename T>
 class Dust {
 public:
   typedef typename T::init_t init_t;
-  Dust(init_t data, size_t step,
-       const std::vector<size_t> index_y,
-       const size_t n_threads, const size_t n_generators,
-       const double seed, const size_t n_particles) :
+  Dust(init_t data, size_t step, const std::vector<size_t> index_y,
+       const size_t n_particles, const size_t n_threads,
+       const size_t n_generators, const double seed) :
     _index_y(index_y),
     _n_threads(n_threads),
     _rng(n_generators, seed) {
