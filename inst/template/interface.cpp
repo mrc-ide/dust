@@ -78,3 +78,10 @@ extern "C" SEXP {{name}}_state(SEXP ptr) {
 
   return ret;
 }
+
+
+extern "C" SEXP {{name}}_step(SEXP ptr) {
+  dust::Dust<{{type}}> *obj =
+    dust::util::read_r_pointer<dust::Dust<{{type}}>>(ptr, true);
+  return ScalarInteger(obj->step());
+}

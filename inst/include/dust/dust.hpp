@@ -46,6 +46,10 @@ public:
     return _y.size();
   }
 
+  size_t step() const {
+    return _step;
+  }
+
 private:
   T _model;
   size_t _step;
@@ -115,6 +119,7 @@ public:
   size_t n_particles() const { return _particles.size(); }
   size_t n_state() const { return _index_y.size(); }
   size_t n_state_full() const { return _particles.front().size(); }
+  size_t step() const { return _particles.front().step(); }
 
 private:
   const std::vector<size_t> _index_y;

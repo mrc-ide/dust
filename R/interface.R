@@ -1,4 +1,4 @@
-dust <- function(alloc, run, reset, state, classname = "dust") {
+dust <- function(alloc, run, reset, state, step, classname = "dust") {
   R6::R6Class(
     classname,
     cloneable = FALSE,
@@ -8,6 +8,7 @@ dust <- function(alloc, run, reset, state, classname = "dust") {
       cpp_run = run,
       cpp_reset = reset,
       cpp_state = state,
+      cpp_step = step,
       ptr = NULL
     ),
 
@@ -26,6 +27,10 @@ dust <- function(alloc, run, reset, state, classname = "dust") {
 
       state = function() {
         .Call(private$cpp_state, private$ptr)
+      },
+
+      step = function() {
+        .Call(private$cpp_step, private$ptr)
       }
     ))
 }

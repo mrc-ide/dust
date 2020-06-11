@@ -38,8 +38,11 @@ test_that("Reset particles and resume continues with rng", {
 
   obj <- res$new(sd1, 0, 10, 1)
   y1 <- obj$run(5)
+  expect_equal(obj$step(), 5)
   obj$reset(sd2, 0)
+  expect_equal(obj$step(), 0)
   y2 <- obj$run(5)
+  expect_equal(obj$step(), 5)
 
   ## Then draw the random numbers:
   cmp <- .Call(Ctest_rng, 100L, 1L)
