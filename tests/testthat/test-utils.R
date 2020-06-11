@@ -10,16 +10,16 @@ test_that("null-or-value works", {
 
 test_that("as_integer/as_size (C++)", {
   expect_error(
-    .Call(Ctest_rng, 100, "string"),
+    .Call(Ctest_rng, 100, "string", 1L),
     "Expected an integer for 'seed'")
   expect_error(
-    .Call(Ctest_rng, 100, 1.5),
+    .Call(Ctest_rng, 100, 1.5, 1L),
     "Expected an integer for 'seed' (rounding error?)", fixed = TRUE)
   expect_error(
-    .Call(Ctest_rng, 100, 1:5),
+    .Call(Ctest_rng, 100, 1:5, 1L),
     "Expected a scalar for 'seed'", fixed = TRUE)
   expect_error(
-    .Call(Ctest_rng, 100, -1),
+    .Call(Ctest_rng, 100, -1, 1L),
     "Expected a non-negative integer for 'seed'", fixed = TRUE)
 })
 

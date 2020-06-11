@@ -6,7 +6,7 @@
 #include "test_rng.h"
 
 static const R_CallMethodDef call_methods[] = {
-  {"Ctest_rng",        (DL_FUNC) &test_rng,        2},
+  {"Ctest_rng",        (DL_FUNC) &test_rng,        3},
 
   {NULL,                NULL,                      0}
 };

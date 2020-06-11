@@ -1,10 +1,31 @@
 context("rng")
 
 test_that("can generate random numbers", {
-  ans1 <- .Call(Ctest_rng, 100L, 1L)
-  ans2 <- .Call(Ctest_rng, 100L, 1L)
-  ans3 <- .Call(Ctest_rng, 100L, 2L)
+  ans1 <- .Call(Ctest_rng, 100L, 1L, 1L)
+  ans2 <- .Call(Ctest_rng, 100L, 1L, 1L)
+  ans3 <- .Call(Ctest_rng, 100L, 2L, 1L)
   expect_equal(length(ans1), 100)
   expect_identical(ans1, ans2)
   expect_false(any(ans1 == ans3))
+})
+
+
+test_that("Create interleaved rng", {
+  n <- 128
+  seed <- 1
+
+  ans1 <- .Call(Ctest_rng, n, seed, 1L)
+  ans2 <- .Call(Ctest_rng, n, seed, 2L)
+  ans3 <- .Call(Ctest_rng, n, seed, 4L)
+  ans4 <- .Call(Ctest_rng, n, seed, 8L)
+
+  ## We can find elements from the first rng through the other
+  ## sequences:
+  expect_identical(ans1[1:64], ans2[seq(1, 128, by = 2)])
+  expect_identical(ans1[1:32], ans3[seq(1, 128, by = 4)])
+  expect_identical(ans1[1:16], ans4[seq(1, 128, by = 8)])
+
+  ## The second also appears:
+  expect_equal(ans2[seq(2, 64, by = 2)], ans3[seq(2, 128, by = 4)])
+  expect_equal(ans2[seq(2, 32, by = 2)], ans4[seq(2, 128, by = 8)])
 })
