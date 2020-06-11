@@ -14,10 +14,11 @@ compile <- function(filename, preclean = FALSE) {
     message("Using previously compiled shared library")
   } else {
     message("Compiling shared library")
-    R <- file.path(R.home(), "bin", "R")
+    r_bin <- file.path(R.home(), "bin", "R")
     args <- c("CMD", "SHLIB", src, "-o", dll,
               if (preclean) c("--preclean", "--clean"))
-    output <- suppressWarnings(system2(R, args, stdout = TRUE, stderr = TRUE))
+    output <- suppressWarnings(system2(r_bin, args,
+                                       stdout = TRUE, stderr = TRUE))
     ok <- attr(output, "status")
     error <- !is.null(ok) && ok != 0L
     if (error) {
