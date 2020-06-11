@@ -25,14 +25,20 @@ test_that("as_integer/as_size (C++)", {
 
 
 test_that("check pointer", {
-  p <- .Call(Ctest_walk_alloc, 1, 0L, 10L, 1L)
-  null <- unserialize(serialize(p, NULL))
+  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "my_walk")
+
+  obj <- res$new(1, 0, 10, 1)
+  private <- r6_private(obj)
+
+  private$ptr <- unserialize(serialize(private$ptr, NULL))
   expect_error(
-    .Call(Ctest_walk_run, null, 1L),
+    obj$run(10),
     "Pointer has been invalidated (perhaps serialised?)",
     fixed = TRUE)
+
+  private$ptr <- NULL
   expect_error(
-    .Call(Ctest_walk_run, NULL, 1L),
+    obj$run(10),
     "Expected an external pointer",
     fixed = TRUE)
 })

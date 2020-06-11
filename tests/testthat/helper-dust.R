@@ -35,3 +35,8 @@ helper_run_dust <- function(n, by, obj) {
   }
   res
 }
+
+
+r6_private <- function(x) {
+  environment(x$initialize)$private
+}
