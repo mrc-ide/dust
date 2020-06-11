@@ -27,6 +27,7 @@ test_that("Create object from external example file", {
 
   cmp <- .Call(Ctest_rng, 50L, 1L)
   expect_equal(drop(y), colSums(matrix(cmp, 5, 10)))
+  expect_identical(obj$state(), y)
 })
 
 

@@ -31,12 +31,20 @@ public:
 
   void state(const std::vector<size_t>& index_y,
              std::vector<double>::iterator end_state) const {
-    for (size_t i = 0; i < index_y.size(); i++) {
+    for (size_t i = 0; i < index_y.size(); ++i) {
       *(end_state + i) = _y[index_y[i]];
     }
   }
 
-  std::vector<double> state() const { return _y; }
+  void state(std::vector<double>::iterator end_state) const {
+    for (size_t i = 0; i < _y.size(); ++i) {
+      *(end_state + i) = _y[i];
+    }
+  }
+
+  size_t size() const {
+    return _y.size();
+  }
 
 private:
   T _model;
@@ -56,7 +64,7 @@ public:
     _index_y(index_y),
     _n_threads(n_threads),
     _rng(n_threads, seed) {
-    for (size_t i = 0; i < n_particles; i++) {
+    for (size_t i = 0; i < n_particles; ++i) {
       _particles.push_back(Particle<T>(data, step));
     }
   }
@@ -64,7 +72,7 @@ public:
   void reset(init_t data, size_t step) {
     size_t n_particles = _particles.size();
     _particles.clear();
-    for (size_t i = 0; i < n_particles; i++) {
+    for (size_t i = 0; i < n_particles; ++i) {
       _particles.push_back(Particle<T>(data, step));
     }
   }
@@ -94,10 +102,19 @@ public:
     }
   }
 
+  void state_full(std::vector<double>& end_state) const {
+    const size_t n = n_state_full();
+#pragma omp parallel for schedule(static) num_threads(_n_threads)
+    for (size_t i = 0; i < _particles.size(); ++i) {
+      _particles[i].state(end_state.begin() + i * n);
+    }
+  }
+
   void shuffle() {}
 
   size_t n_particles() const { return _particles.size(); }
   size_t n_state() const { return _index_y.size(); }
+  size_t n_state_full() const { return _particles.front().size(); }
 
 private:
   const std::vector<size_t> _index_y;

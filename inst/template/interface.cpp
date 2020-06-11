@@ -60,3 +60,21 @@ extern "C" SEXP {{name}}_reset(SEXP ptr, SEXP data, SEXP r_step) {
   obj->reset(data, step);
   return R_NilValue;
 }
+
+
+extern "C" SEXP {{name}}_state(SEXP ptr) {
+  dust::Dust<{{type}}> *obj =
+    dust::util::read_r_pointer<dust::Dust<{{type}}>>(ptr, true);
+
+  const size_t n_state = obj->n_state_full();
+  const size_t n_particles = obj->n_particles();
+
+  std::vector<double> dat(n_state * n_particles);
+  obj->state_full(dat);
+
+  SEXP ret = PROTECT(allocMatrix(REALSXP, n_state, n_particles));
+  memcpy(REAL(ret), dat.data(), dat.size() * sizeof(double));
+  UNPROTECT(1);
+
+  return ret;
+}
