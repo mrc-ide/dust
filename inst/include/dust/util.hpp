@@ -46,6 +46,15 @@ inline size_t as_size(SEXP x, const char * name) {
   return static_cast<size_t>(value);
 }
 
+inline void validate_n(size_t n_generators, size_t n_threads) {
+  if (n_generators < n_threads) {
+    Rf_error("n_generators must be at least n_threads");
+  }
+  if (n_generators % n_threads > 0) {
+    Rf_error("n_generators must be a multiple of n_threads");
+  }
+}
+
 }
 }
 

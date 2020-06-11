@@ -22,10 +22,13 @@ extern "C" SEXP {{name}}_alloc(SEXP data, SEXP r_step,
 
   std::vector<size_t> index_y = {0};
   size_t n_threads = 1;
+  size_t n_generators = 1;
+
+  dust::util::validate_n(n_generators, n_threads);
 
   dust::Dust<{{type}}> *d =
-    new dust::Dust<{{type}}>(data, step, index_y, n_threads, seed,
-                             n_particles);
+    new dust::Dust<{{type}}>(data, step, index_y, n_threads, n_generators,
+                             seed, n_particles);
 
   SEXP r_ptr = PROTECT(R_MakeExternalPtr(d, R_NilValue, R_NilValue));
   R_RegisterCFinalizer(r_ptr, {{name}}_finalise);
