@@ -24,6 +24,19 @@ test_that("as_integer/as_size (C++)", {
 })
 
 
+test_that("as_double (C++)", {
+  expect_error(
+    .Call(Ctest_rng_unif, 100, "string",  1.0,  1L, 1L),
+    "Expected a double for 'min'")
+  expect_error(
+    .Call(Ctest_rng_unif, 100, numeric(3),  1.0,  1L, 1L),
+    "Expected a scalar for 'min'", fixed = TRUE)
+  expect_identical(
+    .Call(Ctest_rng_unif, 100, 0.0, 1L,  1L, 1L),
+    .Call(Ctest_rng_unif, 100, 0.0, 1.0,  1L, 1L))
+})
+
+
 test_that("check pointer", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "my_walk")
 
