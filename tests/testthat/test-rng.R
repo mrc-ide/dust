@@ -91,6 +91,32 @@ test_that("binomial numbers on the 'small' path", {
 })
 
 
+test_that("binomial numbers and their complement are the same (np small)", {
+  m <- 100
+  n <- 20L
+  p <- 0.2
+  nn <- rep(n, m)
+  pp <- rep(p, m)
+
+  ans1 <- .Call(Ctest_rng_binom, nn, pp, 1L, 1L)
+  ans2 <- .Call(Ctest_rng_binom, nn, 1 - pp, 1L, 1L)
+  expect_equal(ans1, n - ans2)
+})
+
+
+test_that("binomial numbers and their complement are the same (np large)", {
+  m <- 100
+  n <- 200L
+  p <- 0.2
+  nn <- rep(n, m)
+  pp <- rep(p, m)
+
+  ans1 <- .Call(Ctest_rng_binom, nn, pp, 1L, 1L)
+  ans2 <- .Call(Ctest_rng_binom, nn, 1 - pp, 1L, 1L)
+  expect_equal(ans1, n - ans2)
+})
+
+
 test_that("poisson numbers", {
   m <- 100000
   lambda <- 5

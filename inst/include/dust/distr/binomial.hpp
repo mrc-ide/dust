@@ -113,7 +113,7 @@ T rbinom(RNG& generator, int n, double p) {
     q = 1 - q;
   }
 
-  if (n * p >= 10) {
+  if (n * q >= 10) {
     // Uses 256 random numbers
     draw = static_cast<T>(btrs(n, q, generator));
   } else {
