@@ -101,8 +101,7 @@ public:
 #pragma omp for schedule(static) ordered
       for (size_t i = 0; i < _particles.size(); ++i) {
 #pragma omp ordered
-        size_t rng_idx = i % m + thread_idx * m;
-        _particles[i].run(step_end, _rng(rng_idx));
+        _particles[i].run(step_end, _rng(i % m + thread_idx * m));
       }
     }
   }
