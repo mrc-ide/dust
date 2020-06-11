@@ -19,6 +19,21 @@ T* read_r_pointer(SEXP r_ptr, bool closed_error) {
   return static_cast<T*>(ptr);
 }
 
+inline int as_double(SEXP x, const char * name) {
+  if (length(x) != 1) {
+    Rf_error("Expected a scalar for '%s'", name);
+  }
+  double ret;
+  if (TYPEOF(x) == INTSXP) {
+    ret = INTEGER(x)[0];
+  } else if (TYPEOF(x) == REALSXP) {
+    ret = REAL(x)[0];
+  } else {
+    Rf_error("Expected a double for '%s'", name);
+  }
+  return ret;
+}
+
 inline int as_integer(SEXP x, const char * name) {
   if (length(x) != 1) {
     Rf_error("Expected a scalar for '%s'", name);

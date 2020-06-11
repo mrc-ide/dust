@@ -7,6 +7,7 @@
 
 static const R_CallMethodDef call_methods[] = {
   {"Ctest_rng",        (DL_FUNC) &test_rng,        3},
+  {"Ctest_rng_unif",   (DL_FUNC) &test_rng_unif,   5},
 
   {NULL,                NULL,                      0}
 };

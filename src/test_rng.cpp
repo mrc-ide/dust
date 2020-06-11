@@ -23,6 +23,37 @@ extern "C" SEXP test_rng(SEXP r_n, SEXP r_seed, SEXP r_n_generators) {
 }
 
 
+extern "C" SEXP test_rng_unif(SEXP r_n, SEXP r_min, SEXP r_max,
+                              SEXP r_seed, SEXP r_n_generators) {
+  const int n = dust::util::as_size(r_n, "n");
+  const int seed = dust::util::as_size(r_seed, "seed");
+  const int n_generators = dust::util::as_size(r_n_generators, "n_generators");
+
+  bool std_unif = r_min == R_NilValue || r_max == R_NilValue;
+  double min = 0, max = 1;
+  if (!std_unif) {
+    min = dust::util::as_double(r_min, "min");
+    max = dust::util::as_double(r_max, "max");
+  }
+
+  dust::pRNG r(n_generators, seed);
+
+  SEXP ret = PROTECT(allocVector(REALSXP, n));
+  double * y = REAL(ret);
+  for (int i = 0; i < n; ++i) {
+    dust::RNG& rng = r(i % n_generators);
+    if (std_unif) {
+      y[i] = rng.unif_rand();
+    } else {
+      y[i] = rng.runif(min, max);
+    }
+  }
+
+  UNPROTECT(1);
+  return ret;
+}
+
+
 extern "C" SEXP test_rng_rbinom(SEXP r_n, SEXP r_p,
                                 SEXP r_seed, SEXP r_n_generators) {
   const int seed = dust::util::as_size(r_seed, "seed");

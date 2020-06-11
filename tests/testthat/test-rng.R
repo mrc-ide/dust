@@ -29,3 +29,16 @@ test_that("Create interleaved rng", {
   expect_equal(ans2[seq(2, 64, by = 2)], ans3[seq(2, 128, by = 4)])
   expect_equal(ans2[seq(2, 32, by = 2)], ans4[seq(2, 128, by = 8)])
 })
+
+
+test_that("run uniform random numbers", {
+  ans1 <- .Call(Ctest_rng_unif, 100, NULL, NULL, 1L, 1L)
+  ans2 <- .Call(Ctest_rng_unif, 100, NULL, NULL, 1L, 1L)
+  ans3 <- .Call(Ctest_rng_unif, 100, 0.0,  1.0,  1L, 1L)
+  ans4 <- .Call(Ctest_rng_unif, 100, NULL, NULL, 2L, 1L)
+  expect_true(all(ans1 >= 0))
+  expect_true(all(ans1 <= 1))
+  expect_identical(ans1, ans2)
+  expect_identical(ans1, ans3)
+  expect_false(any(ans1 == ans4))
+})
