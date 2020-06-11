@@ -1,3 +1,6 @@
+#ifndef DUST_RNG_HPP
+#define DUST_RNG_HPP
+
 #include <random>
 #include <dust/xoshiro.hpp>
 
@@ -40,3 +43,5 @@ inline double RNG::rnorm(const size_t thread_idx, const double mu, const double 
 }
 
 }
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef DUST_UTIL_HPP
+#define DUST_UTIL_HPP
+
 #include <R.h>
 #include <Rinternals.h>
 
@@ -45,3 +48,5 @@ inline size_t as_size(SEXP x, const char * name) {
 
 }
 }
+
+#endif

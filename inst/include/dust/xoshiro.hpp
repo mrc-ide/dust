@@ -1,3 +1,6 @@
+#ifndef DUST_XOSHIRO_HPP
+#define DUST_XOSHIRO_HPP
+
 #include <vector>
 #include <limits>
 
@@ -140,3 +143,5 @@ inline void Xoshiro::long_jump() {
 }
 
 }
+
+#endif
