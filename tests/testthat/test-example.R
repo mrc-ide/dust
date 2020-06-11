@@ -18,3 +18,13 @@ test_that("walk agrees with random number stream", {
   cmp <- .Call(Ctest_rng, 50L, 1L)
   expect_equal(drop(res), colSums(matrix(cmp, 5, 10)))
 })
+
+
+test_that("Create object from external example file", {
+  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "my_walk")
+  obj <- res$new(1, 10, 1)
+  y <- obj$run(5)
+
+  cmp <- .Call(Ctest_rng, 50L, 1L)
+  expect_equal(drop(y), colSums(matrix(cmp, 5, 10)))
+})
