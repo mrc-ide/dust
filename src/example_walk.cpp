@@ -44,9 +44,6 @@ extern "C" SEXP test_walk_alloc(SEXP sd, SEXP r_n_particles, SEXP r_seed) {
 
   dust_walk *d = new dust_walk(sd, index_y, n_threads, seed, n_particles);
 
-  // Now, we need a simple way of getting this back into R as a
-  // pointer
-
   SEXP r_ptr = PROTECT(R_MakeExternalPtr(d, R_NilValue, R_NilValue));
   R_RegisterCFinalizer(r_ptr, test_walk_finalise);
   UNPROTECT(1);

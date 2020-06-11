@@ -15,9 +15,9 @@ class Particle {
 public:
   typedef typename T::init_t init_t;
   Particle(init_t data) : _model(data),
-                             _step(0),
-                             _y(_model.size()),
-                             _y_swap(_model.size()) {
+                          _step(0),
+                          _y(_model.size()),
+                          _y_swap(_model.size()) {
   }
 
   void run(const size_t step_end, RNG& rng, const size_t thread_idx) {
@@ -59,7 +59,7 @@ public:
     size_t n_particles = _particles.size();
     _particles.clear();
     for (size_t i = 0; i < n_particles; i++) {
-      _particles.push_back(T(data));
+      _particles.push_back(Particle<T>(data));
     }
   }
 
