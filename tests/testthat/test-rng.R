@@ -45,7 +45,7 @@ test_that("run uniform random numbers", {
 
 
 test_that("run binomial random numbers", {
-  m <- 1000000
+  m <- 100000
   n <- 100L
   p <- 0.1
 
@@ -75,4 +75,17 @@ test_that("binomial numbers run the short circuit path", {
                    rep(0L, m))
   expect_identical(.Call(Ctest_rng_binom, nn, rep(1, m), 1L, 1L),
                    rep(n, m))
+})
+
+
+test_that("binomial numbers on the 'large' path", {
+  m <- 100000
+  n <- 100L
+  p <- 0.5
+  nn <- rep(n, m)
+  pp <- rep(p, m)
+
+  ans1 <- .Call(Ctest_rng_binom, nn, pp, 1L, 1L)
+  expect_equal(mean(ans1), n * p, tolerance = 1e-3)
+  expect_equal(var(ans1), n * p * (1 - p), tolerance = 1e-2)
 })
