@@ -18,7 +18,7 @@ T rpois(RNG& generator, double lambda) {
     // Thus to simulate a Poisson draw, we can draw X_i ~ Exp(lambda),
     // and N ~ Poisson(lambda), where N is the least number such that
     // \sum_i^N X_i > 1.
-    const double exp_neg_rate = exp(-lambda);
+    const double exp_neg_rate = std::exp(-lambda);
 
     double prod = 1;
 
@@ -56,12 +56,12 @@ T rpois(RNG& generator, double lambda) {
     //
     // G(u) = (2 * a / (2 - |u|) + b) * u + c
 
-    const double log_rate = log(lambda);
+    const double log_rate = std::log(lambda);
 
     // Constants used to define the dominating distribution. Names taken
     // from Hormann's paper. Constants were chosen to define the tightest
     // G(u) for the inverse Poisson CDF.
-    const double b = 0.931 + 2.53 * sqrt(lambda);
+    const double b = 0.931 + 2.53 * std::sqrt(lambda);
     const double a = -0.059 + 0.02483 * b;
 
     // This is the inverse acceptance rate. At a minimum (when rate = 10),
@@ -74,7 +74,7 @@ T rpois(RNG& generator, double lambda) {
       u -= 0.5;
       double v = generator.unif_rand();
 
-      double u_shifted = 0.5 - abs(u);
+      double u_shifted = 0.5 - std::fabs(u);
       T k = floor((2 * a / u_shifted + b) * u + lambda +
                   0.43);
 
@@ -99,7 +99,7 @@ T rpois(RNG& generator, double lambda) {
 
       // The expression below is equivalent to the computation of step 2)
       // in transformed rejection (v <= alpha * F'(G(u)) * G'(u)).
-      double s = log(v * inv_alpha / (a / (u_shifted * u_shifted) + b));
+      double s = std::log(v * inv_alpha / (a / (u_shifted * u_shifted) + b));
       double t = -lambda + k * log_rate - std::lgamma(k + 1);
       if (s <= t) {
         x = k;

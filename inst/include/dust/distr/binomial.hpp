@@ -13,7 +13,7 @@ double binomial_inversion(double n, double prob, RNG& generator) {
 
   while (true) {
     double r = generator.unif_rand();
-    double geom = ceil(log(r) / log1p(-prob));
+    double geom = std::ceil(std::log(r) / std::log1p(-prob));
     geom_sum += geom;
     if (geom_sum > n) {
       break;
@@ -40,7 +40,7 @@ inline double stirling_approx_tail(double k) {
 template <typename RNG>
 inline double btrs(double n, double p, RNG& generator) {
   // This is spq in the paper.
-  const double stddev = sqrt(n * p * (1 - p));
+  const double stddev = std::sqrt(n * p * (1 - p));
 
   // Other coefficients for Transformed Rejection sampling.
   const double b = 1.15 + 2.53 * stddev;
@@ -50,14 +50,14 @@ inline double btrs(double n, double p, RNG& generator) {
   const double r = p / (1 - p);
 
   const double alpha = (2.83 + 5.1 / b) * stddev;
-  const double m = floor((n + 1) * p);
+  const double m = std::floor((n + 1) * p);
 
   while (true) {
     double u = generator.unif_rand();
     double v = generator.unif_rand();
     u = u - 0.5;
-    double us = 0.5 - abs(u);
-    double k = floor((2 * a / us + b) * u + c);
+    double us = 0.5 - std::fabs(u);
+    double k = std::floor((2 * a / us + b) * u + c);
 
     // Region for which the box is tight, and we
     // can return our calculated value This should happen
@@ -75,11 +75,11 @@ inline double btrs(double n, double p, RNG& generator) {
     // This deviates from Hormann's BRTS algorithm, as there is a log missing.
     // For all (u, v) pairs outside of the bounding box, this calculates the
     // transformed-reject ratio.
-    v = log(v * alpha / (a / (us * us) + b));
+    v = std::log(v * alpha / (a / (us * us) + b));
     double upperbound =
-      ((m + 0.5) * log((m + 1) / (r * (n - m + 1))) +
-       (n + 1) * log((n - m + 1) / (n - k + 1)) +
-       (k + 0.5) * log(r * (n - k + 1) / (k + 1)) +
+      ((m + 0.5) * std::log((m + 1) / (r * (n - m + 1))) +
+       (n + 1) * std::log((n - m + 1) / (n - k + 1)) +
+       (k + 0.5) * std::log(r * (n - k + 1) / (k + 1)) +
        stirling_approx_tail(m) + stirling_approx_tail(n - m) -
        stirling_approx_tail(k) - stirling_approx_tail(n - k));
     if (v <= upperbound) {
