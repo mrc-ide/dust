@@ -74,3 +74,23 @@ extern "C" SEXP test_rng_binom(SEXP r_n, SEXP r_p,
   UNPROTECT(1);
   return ret;
 }
+
+
+extern "C" SEXP test_rng_pois(SEXP r_lambda, SEXP r_seed, SEXP r_n_generators) {
+  const int seed = dust::util::as_size(r_seed, "seed");
+  const int n_generators = dust::util::as_size(r_n_generators, "n_generators");
+
+  size_t n_samples = length(r_lambda);
+  double *lambda = REAL(r_lambda);
+
+  dust::pRNG r(n_generators, seed);
+
+  SEXP ret = PROTECT(allocVector(INTSXP, n_samples));
+  int * y = INTEGER(ret);
+  for (size_t i = 0; i < n_samples; ++i) {
+    y[i] = r(i % n_generators).rpois(lambda[i]);
+  }
+
+  UNPROTECT(1);
+  return ret;
+}

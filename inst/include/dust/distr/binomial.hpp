@@ -1,7 +1,7 @@
 #ifndef DUST_DISTR_BINOMIAL_HPP
 #define DUST_DISTR_BINOMIAL_HPP
 
-#include <math.h>
+#include <cmath>
 
 namespace dust {
 namespace distr {

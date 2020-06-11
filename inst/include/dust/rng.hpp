@@ -4,6 +4,7 @@
 #include <random>
 #include <dust/xoshiro.hpp>
 #include <dust/distr/binomial.hpp>
+#include <dust/distr/poisson.hpp>
 
 namespace dust {
 
@@ -29,7 +30,9 @@ public:
     return dust::distr::rbinom<T>(_generator, n, p);
   }
 
-  template <class T = int> T rpois(double lambda);
+  template <class T = int> T rpois(double lambda) {
+    return dust::distr::rpois<T>(_generator, lambda);
+  }
 
 private:
   dust::Xoshiro _generator;

@@ -89,3 +89,18 @@ test_that("binomial numbers on the 'large' path", {
   expect_equal(mean(ans1), n * p, tolerance = 1e-3)
   expect_equal(var(ans1), n * p * (1 - p), tolerance = 1e-2)
 })
+
+
+test_that("poisson numbers", {
+  m <- 100000
+  lambda <- 5
+  ll <- rep(lambda, m)
+  ans1 <- .Call(Ctest_rng_pois, ll, 1L, 1L)
+  ans2 <- .Call(Ctest_rng_pois, ll, 1L, 1L)
+  ans3 <- .Call(Ctest_rng_pois, ll, 2L, 1L)
+  expect_identical(ans1, ans2)
+  expect_false(all(ans1 == ans3))
+
+  expect_equal(mean(ans1), lambda, 1e-2)
+  expect_equal(var(ans1), lambda, 1e-2)
+})
