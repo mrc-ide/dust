@@ -10,12 +10,12 @@ extern "C" SEXP test_rng(SEXP r_n, SEXP r_seed, SEXP r_n_thread) {
 
   const double mean = 0, sd = 1;
 
-  dust::RNG r(n_thread, seed);
+  dust::pRNG r(n_thread, seed);
 
   SEXP ret = PROTECT(allocVector(REALSXP, n));
   double * y = REAL(ret);
   for (int i = 0; i < n; ++i) {
-    y[i] = r.rnorm(i % n_thread, mean, sd);
+    y[i] = r(i % n_thread).rnorm(mean, sd);
   }
 
   UNPROTECT(1);
