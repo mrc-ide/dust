@@ -29,6 +29,11 @@ public:
   }
   uint64_t operator()();
 
+  double unif_rand() {
+    static std::uniform_real_distribution<double> unif_dist(0, 1);
+    return unif_dist(*this);
+  }
+
   Xoshiro(uint64_t seed);
 
   // Change internal state
