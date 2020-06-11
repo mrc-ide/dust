@@ -1,7 +1,7 @@
 context("example")
 
 test_that("create walk, stepping for one step", {
-  p <- .Call(Ctest_walk_alloc, 1, 10L, 1L)
+  p <- .Call(Ctest_walk_alloc, 1, 0L, 10L, 1L)
   expect_is(p, "externalptr")
 
   res <- .Call(Ctest_walk_run, p, 1L)
@@ -11,7 +11,7 @@ test_that("create walk, stepping for one step", {
 
 
 test_that("walk agrees with random number stream", {
-  p <- .Call(Ctest_walk_alloc, 1, 10L, 1L)
+  p <- .Call(Ctest_walk_alloc, 1, 0L, 10L, 1L)
   expect_is(p, "externalptr")
 
   res <- .Call(Ctest_walk_run, p, 5L)
@@ -22,7 +22,7 @@ test_that("walk agrees with random number stream", {
 
 test_that("Create object from external example file", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "my_walk")
-  obj <- res$new(1, 10, 1)
+  obj <- res$new(1, 0, 10, 1)
   y <- obj$run(5)
 
   cmp <- .Call(Ctest_rng, 50L, 1L)
@@ -35,9 +35,9 @@ test_that("Reset particles and resume continues with rng", {
   sd1 <- 2
   sd2 <- 4
 
-  obj <- res$new(sd1, 10, 1)
+  obj <- res$new(sd1, 0, 10, 1)
   y1 <- obj$run(5)
-  obj$reset(sd2)
+  obj$reset(sd2, 0)
   y2 <- obj$run(5)
 
   ## Then draw the random numbers:

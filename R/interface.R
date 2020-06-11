@@ -11,16 +11,16 @@ dust <- function(alloc, run, reset, classname = "dust") {
     ),
 
     public = list(
-      initialize = function(data, n_particles, seed) {
-        private$ptr <- .Call(private$cpp_alloc, data, n_particles, seed)
+      initialize = function(data, step, n_particles, seed) {
+        private$ptr <- .Call(private$cpp_alloc, data, step, n_particles, seed)
       },
 
       run = function(step_end) {
         .Call(private$cpp_run, private$ptr, step_end)
       },
 
-      reset = function(data) {
-        .Call(private$cpp_reset, private$ptr, data)
+      reset = function(data, step) {
+        .Call(private$cpp_reset, private$ptr, data, step)
       }
     ))
 }

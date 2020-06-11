@@ -14,10 +14,11 @@ template <typename T>
 class Particle {
 public:
   typedef typename T::init_t init_t;
-  Particle(init_t data) : _model(data),
-                          _step(0),
-                          _y(_model.size()),
-                          _y_swap(_model.size()) {
+  Particle(init_t data, size_t step) :
+    _model(data),
+    _step(step),
+    _y(_model.initial(_step)),
+    _y_swap(_model.size()) {
   }
 
   void run(const size_t step_end, RNG& rng, const size_t thread_idx) {
@@ -49,17 +50,22 @@ template <typename T>
 class Dust {
 public:
   typedef typename T::init_t init_t;
-  Dust(init_t data, const std::vector<size_t> index_y, const size_t n_threads,
-       const double seed, const size_t n_particles)
-    : _index_y(index_y), _n_threads(n_threads), _rng(n_threads, seed),
-      _particles(n_particles, data)
-  {}
+  Dust(init_t data, size_t step,
+       const std::vector<size_t> index_y, const size_t n_threads,
+       const double seed, const size_t n_particles) :
+    _index_y(index_y),
+    _n_threads(n_threads),
+    _rng(n_threads, seed) {
+    for (size_t i = 0; i < n_particles; i++) {
+      _particles.push_back(Particle<T>(data, step));
+    }
+  }
 
-  void reset(init_t data) {
+  void reset(init_t data, size_t step) {
     size_t n_particles = _particles.size();
     _particles.clear();
     for (size_t i = 0; i < n_particles; i++) {
-      _particles.push_back(Particle<T>(data));
+      _particles.push_back(Particle<T>(data, step));
     }
   }
 

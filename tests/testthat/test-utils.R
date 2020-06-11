@@ -25,7 +25,7 @@ test_that("as_integer/as_size (C++)", {
 
 
 test_that("check pointer", {
-  p <- .Call(Ctest_walk_alloc, 1, 10L, 1L)
+  p <- .Call(Ctest_walk_alloc, 1, 0L, 10L, 1L)
   null <- unserialize(serialize(p, NULL))
   expect_error(
     .Call(Ctest_walk_run, null, 1L),

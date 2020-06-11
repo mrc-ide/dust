@@ -14,15 +14,18 @@ extern "C" void {{name}}_finalise(SEXP ptr) {
   }
 }
 
-extern "C" SEXP {{name}}_alloc(SEXP data, SEXP r_n_particles, SEXP r_seed) {
+extern "C" SEXP {{name}}_alloc(SEXP data, SEXP r_step,
+                               SEXP r_n_particles, SEXP r_seed) {
   size_t n_particles = dust::util::as_size(r_n_particles, "n_particles");
   size_t seed = dust::util::as_size(r_seed, "seed");
+  size_t step = dust::util::as_size(r_step, "step");
 
   std::vector<size_t> index_y = {0};
   size_t n_threads = 1;
 
   dust::Dust<{{type}}> *d =
-    new dust::Dust<{{type}}>(data, index_y, n_threads, seed, n_particles);
+    new dust::Dust<{{type}}>(data, step, index_y, n_threads, seed,
+                             n_particles);
 
   SEXP r_ptr = PROTECT(R_MakeExternalPtr(d, R_NilValue, R_NilValue));
   R_RegisterCFinalizer(r_ptr, {{name}}_finalise);
@@ -50,9 +53,10 @@ extern "C" SEXP {{name}}_run(SEXP ptr, SEXP r_step_end) {
   return ret;
 }
 
-extern "C" SEXP {{name}}_reset(SEXP ptr, SEXP data) {
+extern "C" SEXP {{name}}_reset(SEXP ptr, SEXP data, SEXP r_step) {
   dust::Dust<{{type}}> *obj =
     dust::util::read_r_pointer<dust::Dust<{{type}}>>(ptr, true);
-  obj->reset(data);
+  size_t step = dust::util::as_size(r_step, "step");
+  obj->reset(data, step);
   return R_NilValue;
 }
