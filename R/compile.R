@@ -69,8 +69,3 @@ dust_build_path <- function() {
   }
   normalize_path(cache$workdir)
 }
-
-
-dust_unload_dlls <- function() {
-  gc()
-}

@@ -36,3 +36,39 @@ test_that("check pointer", {
     "Expected an external pointer",
     fixed = TRUE)
 })
+
+
+test_that("compilation caching works", {
+  path <- tempfile()
+  dir.create(path)
+  dest <- file.path(path, "hello.c")
+  writeLines(c(
+    "int add(int a, int b) {",
+    "  return a + b;",
+    "}"),
+    dest)
+  expect_message(
+    res <- compile(dest),
+    "Compiling shared library")
+  expect_true(file.exists(res$dll))
+
+  file.create(res$dll) # truncates file
+  expect_message(
+    res <- compile(dest),
+    "Using previously compiled shared library")
+  expect_equal(file.size(res$dll), 0) # unchanged
+})
+
+
+test_that("compilation failing throws error", {
+  path <- tempfile()
+  dir.create(path)
+  dest <- file.path(path, "hello.c")
+  writeLines(c(
+    "int add(int a, int b) {",
+    "  return a + b;"),
+    dest)
+  expect_error(
+    compile(dest),
+    "Error compiling source")
+})
