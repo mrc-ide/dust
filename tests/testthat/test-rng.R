@@ -78,10 +78,10 @@ test_that("binomial numbers run the short circuit path", {
 })
 
 
-test_that("binomial numbers on the 'large' path", {
+test_that("binomial numbers on the 'small' path", {
   m <- 100000
-  n <- 100L
-  p <- 0.5
+  n <- 20L
+  p <- 0.2
   nn <- rep(n, m)
   pp <- rep(p, m)
 
