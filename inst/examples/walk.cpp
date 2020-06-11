@@ -10,10 +10,10 @@ public:
     std::vector<double> ret = {0};
     return ret;
   }
-  void update(size_t step, const std::vector<double> state, dust::RNG& rng,
-              const size_t thread_idx, std::vector<double>& state_next) {
+  void update(size_t step, const std::vector<double> state, dust::RNG2& rng,
+              std::vector<double>& state_next) {
     double mean = state[0];
-    state_next[0] = rng.rnorm(thread_idx, mean, sd);
+    state_next[0] = rng.rnorm(mean, sd);
   }
 private:
   double sd;

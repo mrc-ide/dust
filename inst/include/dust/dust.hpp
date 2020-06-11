@@ -21,9 +21,9 @@ public:
     _y_swap(_model.size()) {
   }
 
-  void run(const size_t step_end, RNG& rng, const size_t thread_idx) {
+  void run(const size_t step_end, RNG2& rng) {
     while (_step < step_end) {
-      _model.update(_step, _y, rng, thread_idx, _y_swap);
+      _model.update(_step, _y, rng, _y_swap);
       _step++;
       std::swap(_y, _y_swap);
     }
@@ -67,7 +67,7 @@ public:
        const double seed, const size_t n_particles) :
     _index_y(index_y),
     _n_threads(n_threads),
-    _rng(n_threads, seed) {
+    _rng(n_threads, seed) { // TODO - this becomes n_generators
     for (size_t i = 0; i < n_particles; ++i) {
       _particles.push_back(Particle<T>(data, step));
     }
@@ -81,7 +81,16 @@ public:
     }
   }
 
+  // This scheme means that if we have the same number of generators
+  // and threads then work for thread i occurs on generator i.
+  //
+  // If we have more generators than threads then each thread uses m =
+  // n_generators / n_threads (so if we had 8 generators and 2
+  // threads, each thread would use 4 generators).  The first thread
+  // will cycle alternate through the first m generators, the second
+  // thread will cycle through the second m generators, etc.
   void run(const size_t step_end) {
+    size_t m = _rng.size() / _n_threads;
 #pragma omp parallel num_threads(_n_threads)
     {
       size_t thread_idx = 0;
@@ -92,9 +101,8 @@ public:
 #pragma omp for schedule(static) ordered
       for (size_t i = 0; i < _particles.size(); ++i) {
 #pragma omp ordered
-        {
-          _particles[i].run(step_end, _rng, thread_idx);
-        }
+        size_t rng_idx = i % m + thread_idx * m;
+        _particles[i].run(step_end, _rng(rng_idx));
       }
     }
   }
@@ -124,7 +132,7 @@ public:
 private:
   const std::vector<size_t> _index_y;
   const size_t _n_threads;
-  RNG _rng;
+  pRNG _rng;
   std::vector<Particle<T>> _particles;
 };
 
