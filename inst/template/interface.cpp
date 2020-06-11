@@ -15,16 +15,16 @@ extern "C" void {{name}}_finalise(SEXP ptr) {
 }
 
 extern "C" SEXP {{name}}_alloc(SEXP data, SEXP r_step,
-                               SEXP r_n_particles, SEXP r_seed) {
-  size_t n_particles = dust::util::as_size(r_n_particles, "n_particles");
-  size_t seed = dust::util::as_size(r_seed, "seed");
+                               SEXP r_n_particles, SEXP r_n_threads,
+                               SEXP r_n_generators, SEXP r_seed) {
   size_t step = dust::util::as_size(r_step, "step");
+  size_t n_particles = dust::util::as_size(r_n_particles, "n_particles");
+  size_t n_threads = dust::util::as_size(r_n_threads, "n_threads");
+  size_t n_generators = dust::util::as_size(r_n_generators, "n_generators");
+  size_t seed = dust::util::as_size(r_seed, "seed");
+  dust::util::validate_n(n_generators, n_threads);
 
   std::vector<size_t> index_y = {0};
-  size_t n_threads = 1;
-  size_t n_generators = 1;
-
-  dust::util::validate_n(n_generators, n_threads);
 
   dust::Dust<{{type}}> *d =
     new dust::Dust<{{type}}>(data, step, index_y, n_particles, n_threads,

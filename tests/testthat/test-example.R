@@ -2,7 +2,7 @@ context("example")
 
 test_that("create walk, stepping for one step", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "my_walk")
-  obj <- res$new(1, 0, 10, 1)
+  obj <- res$new(1, 0, 10)
   y <- obj$run(1)
   cmp <- .Call(Ctest_rng, 10L, 1L, 1L)
   expect_identical(drop(y), cmp)
@@ -11,7 +11,7 @@ test_that("create walk, stepping for one step", {
 
 test_that("walk agrees with random number stream", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "my_walk")
-  obj <- res$new(1, 0, 10, 1)
+  obj <- res$new(1, 0, 10, seed = 1L)
   y <- obj$run(5)
 
   cmp <- .Call(Ctest_rng, 50L, 1L, 1L)
@@ -25,7 +25,7 @@ test_that("Reset particles and resume continues with rng", {
   sd1 <- 2
   sd2 <- 4
 
-  obj <- res$new(sd1, 0, 10, 1)
+  obj <- res$new(sd1, 0, 10)
   y1 <- obj$run(5)
   expect_equal(obj$step(), 5)
   obj$reset(sd2, 0)
