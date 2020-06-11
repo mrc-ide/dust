@@ -21,7 +21,7 @@ public:
     _y_swap(_model.size()) {
   }
 
-  void run(const size_t step_end, RNG2& rng) {
+  void run(const size_t step_end, RNG& rng) {
     while (_step < step_end) {
       _model.update(_step, _y, rng, _y_swap);
       _step++;

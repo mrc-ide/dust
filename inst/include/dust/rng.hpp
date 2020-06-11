@@ -6,9 +6,9 @@
 
 namespace dust {
 
-class RNG2 {
+class RNG {
 public:
-  RNG2(dust::Xoshiro generator) : _generator(generator) {}
+  RNG(dust::Xoshiro generator) : _generator(generator) {}
 
   double runif(double min, double max) {
     static std::uniform_real_distribution<double> unif_dist(min, max);
@@ -31,12 +31,12 @@ public:
   pRNG(const size_t n, const uint64_t seed) {
     dust::Xoshiro rng(seed);
     for (size_t i = 0; i < n; ++i) {
-      _rngs.push_back(RNG2(rng));
+      _rngs.push_back(RNG(rng));
       rng.jump();
     }
   }
 
-  RNG2& operator()(size_t index) {
+  RNG& operator()(size_t index) {
     return _rngs[index];
   }
 
@@ -45,7 +45,7 @@ public:
   }
 
 private:
-  std::vector<RNG2> _rngs;
+  std::vector<RNG> _rngs;
 };
 
 }
