@@ -13,3 +13,5 @@
 ^\.hadolint\.yaml$
 \.valgrind_ignore$
 ^scripts$
+\.gcda$
+\.gcno$
