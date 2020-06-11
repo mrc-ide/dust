@@ -9,8 +9,6 @@ RUN apt-get update &&  apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 RUN install2.r --error \
-        dde \
         devtools \
-        odin \
         roxygen2 \
         testthat

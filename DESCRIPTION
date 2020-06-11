@@ -16,7 +16,5 @@ Imports:
     R6,
     glue
 Suggests:
-    dde,
-    odin,
     testthat
 RoxygenNote: 7.1.0
