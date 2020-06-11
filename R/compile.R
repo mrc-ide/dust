@@ -37,7 +37,7 @@ compile_and_load <- function(filename, type, name = type) {
   hash <- hash_file(filename)
   data <- list(model = model, name = name, type = type)
 
-  template <- read_lines(dust_file("template/interface.hpp"))
+  template <- read_lines(dust_file("template/interface.cpp"))
   txt <- glue::glue(template, .envir = data, .open = "{{", .close = "}}")
   dest <- sprintf("%s/%s_%s.cpp", path, data$name, hash)
   writeLines(txt, dest)
