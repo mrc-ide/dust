@@ -38,7 +38,7 @@ dust <- function(alloc, run, reset, state, step, reorder, classname = "dust") {
       },
 
       reorder = function(index) {
-        .Call(private$cpp_reorder, private$ptr, index)
+        .Call(private$cpp_reorder, private$ptr, as.integer(index))
         invisible()
       }
     ))

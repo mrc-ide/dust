@@ -118,3 +118,30 @@ test_that("reorder and duplicate", {
   expect_equal(drop(y2), colSums(m2))
   expect_equal(drop(y3), colSums(rbind(m2, m3)))
 })
+
+
+test_that("validate reorder vector is correct length", {
+  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "my_walk")
+  obj <- res$new(1, 0, 10)
+  expect_error(obj$reorder(integer(0)),
+               "Expected a vector of length 10 for 'index'")
+  expect_error(obj$reorder(integer(100)),
+               "Expected a vector of length 10 for 'index'")
+})
+
+
+test_that("validate reorder vector is in correct range", {
+  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "my_walk")
+  obj <- res$new(1, 0, 10)
+  index <- seq_len(10)
+  msg <- "All elements of 'index' must lie in [1, 10]"
+
+  index[5] <- 0L
+  expect_error(obj$reorder(index), msg, fixed = TRUE)
+
+  index[5] <- 11
+  expect_error(obj$reorder(index), msg, fixed = TRUE)
+
+  index[5] <- -1L
+  expect_error(obj$reorder(index), msg, fixed = TRUE)
+})

@@ -95,7 +95,7 @@ extern "C" SEXP {{name}}_reorder(SEXP ptr, SEXP r_index) {
     dust::util::read_r_pointer<dust::Dust<{{type}}>>(ptr, true);
   size_t n = obj->n_particles();
   if (length(r_index) != n) {
-    Rf_error("Expected a vector of length '%d' for index", n);
+    Rf_error("Expected a vector of length %d for 'index'", n);
   }
   int * r_index_data = INTEGER(r_index);
 
@@ -131,7 +131,7 @@ extern "C" SEXP {{name}}_reorder(SEXP ptr, SEXP r_index) {
     // the scope above so it is safe to throw again.  The other way of
     // doing this would be to go through the array twice; once to
     // validate and the other to create the C++ index.
-    Rf_error("All elements of index must lie in [1, %d]", n);
+    Rf_error("All elements of 'index' must lie in [1, %d]", n);
   }
 
   return R_NilValue;
