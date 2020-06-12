@@ -121,7 +121,15 @@ public:
     }
   }
 
-  void shuffle() {}
+  void reorder(const std::vector<size_t>& index) {
+    // Another way of doing this would be to move around just the y
+    // values, which is less churn
+    std::vector<Particle<T>> next;
+    for (auto const& i: index) {
+      next.push_back(_particles[i]);
+    }
+    _particles = next;
+  }
 
   size_t n_particles() const { return _particles.size(); }
   size_t n_state() const { return _index_y.size(); }

@@ -49,11 +49,11 @@ compile_and_load <- function(filename, type, name = type) {
     dyn.load(res$dll)
   }
 
-  v <- c("alloc", "run", "reset", "state", "step")
+  v <- c("alloc", "run", "reset", "state", "step", "reorder")
   sym <- getNativeSymbolInfo(sprintf("%s_%s", data$name, v), res$base)
   names(sym) <- v
 
-  dust(sym$alloc, sym$run, sym$reset, sym$state, sym$step)
+  dust(sym$alloc, sym$run, sym$reset, sym$state, sym$step, sym$reorder)
 }
 
 

@@ -1,4 +1,4 @@
-dust <- function(alloc, run, reset, state, step, classname = "dust") {
+dust <- function(alloc, run, reset, state, step, reorder, classname = "dust") {
   R6::R6Class(
     classname,
     cloneable = FALSE,
@@ -9,6 +9,7 @@ dust <- function(alloc, run, reset, state, step, classname = "dust") {
       cpp_reset = reset,
       cpp_state = state,
       cpp_step = step,
+      cpp_reorder = reorder,
       ptr = NULL
     ),
 
@@ -34,6 +35,11 @@ dust <- function(alloc, run, reset, state, step, classname = "dust") {
 
       step = function() {
         .Call(private$cpp_step, private$ptr)
+      },
+
+      reorder = function(index) {
+        .Call(private$cpp_reorder, private$ptr, index)
+        invisible()
       }
     ))
 }
@@ -46,4 +52,5 @@ private <- list(cpp_alloc = structure(list(), class = "NativeSymbolInfo"),
                 cpp_run = structure(list(), class = "NativeSymbolInfo"),
                 cpp_reset = structure(list(), class = "NativeSymbolInfo"),
                 cpp_state = structure(list(), class = "NativeSymbolInfo"),
-                cpp_step = structure(list(), class = "NativeSymbolInfo"))
+                cpp_step = structure(list(), class = "NativeSymbolInfo"),
+                cpp_reorder = structure(list(), class = "NativeSymbolInfo"))

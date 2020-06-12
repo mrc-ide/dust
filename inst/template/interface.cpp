@@ -88,3 +88,51 @@ extern "C" SEXP {{name}}_step(SEXP ptr) {
     dust::util::read_r_pointer<dust::Dust<{{type}}>>(ptr, true);
   return ScalarInteger(obj->step());
 }
+
+
+extern "C" SEXP {{name}}_reorder(SEXP ptr, SEXP r_index) {
+  dust::Dust<{{type}}> *obj =
+    dust::util::read_r_pointer<dust::Dust<{{type}}>>(ptr, true);
+  size_t n = obj->n_particles();
+  if (length(r_index) != n) {
+    Rf_error("Expected a vector of length '%d' for index", n);
+  }
+  int * r_index_data = INTEGER(r_index);
+
+  // There are two ways of doing the conversion between base-1 and
+  // base-0; we can do the offset here (as we do) or we could do it in
+  // the Dust::reorder method.
+  //
+  // I've opted to do the conversion here (and from int to size_t too)
+  // as that keeps the C++ interface tidy, which has made it easier to
+  // reason about generally.  All the R bits work in native R types
+  // and base-1 and all the C++ bits work in C++ types and base-0.
+  bool ok = true;
+  {
+    std::vector<size_t> index;
+    index.reserve(n);
+
+    for (size_t i = 0; i < n; ++i) {
+      int x = r_index_data[i];
+      if (x < 1 || x > n) {
+        ok = false;
+        break;
+      }
+      index.push_back(x - 1);
+    }
+
+    if (ok) {
+      obj->reorder(index);
+    }
+  }
+
+  if (!ok) {
+    // The std::vector will have been destructed by this point due to
+    // the scope above so it is safe to throw again.  The other way of
+    // doing this would be to go through the array twice; once to
+    // validate and the other to create the C++ index.
+    Rf_error("All elements of index must lie in [1, %d]", n);
+  }
+
+  return R_NilValue;
+}
