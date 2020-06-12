@@ -93,3 +93,28 @@ test_that("reorder", {
   expect_equal(drop(y2), colSums(m2))
   expect_equal(drop(y3), colSums(rbind(m2, m3)))
 })
+
+
+test_that("reorder and duplicate", {
+  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "my_walk")
+
+  obj <- res$new(1, 0, 10)
+  y1 <- obj$run(5)
+
+  index <- c(1L, 4L, 9L, 7L, 7L, 2L, 5L, 9L, 9L, 5L)
+
+  obj$reorder(index)
+  y2 <- obj$state()
+  expect_equal(drop(y2), y1[index])
+
+  y3 <- obj$run(10)
+
+  cmp <- .Call(Ctest_rng, 100L, 1L, 1L)
+  m1 <- matrix(cmp[1:50], 5, 10)
+  m2 <- m1[, index]
+  m3 <- matrix(cmp[51:100], 5, 10)
+
+  expect_equal(drop(y1), colSums(m1))
+  expect_equal(drop(y2), colSums(m2))
+  expect_equal(drop(y3), colSums(rbind(m2, m3)))
+})
