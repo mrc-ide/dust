@@ -1,9 +1,9 @@
 context("example")
 
 test_that("create walk, stepping for one step", {
-  skip("rework")
-  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "my_walk")
-  obj <- res$new(1, 0, 10)
+  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
+                          quiet = TRUE)
+  obj <- res$new(list(sd = 1), 0, 10)
   y <- obj$run(1)
   cmp <- .Call(Ctest_rng, 10L, 1L, 1L)
   expect_identical(drop(y), cmp)
@@ -11,9 +11,9 @@ test_that("create walk, stepping for one step", {
 
 
 test_that("walk agrees with random number stream", {
-  skip("rework")
-  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "my_walk")
-  obj <- res$new(1, 0, 10, seed = 1L)
+  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
+                          quiet = TRUE)
+  obj <- res$new(list(sd = 1), 0, 10, seed = 1L)
   y <- obj$run(5)
 
   cmp <- .Call(Ctest_rng, 50L, 1L, 1L)
@@ -23,15 +23,15 @@ test_that("walk agrees with random number stream", {
 
 
 test_that("Reset particles and resume continues with rng", {
-  skip("rework")
-  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "my_walk")
+  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
+                          quiet = TRUE)
   sd1 <- 2
   sd2 <- 4
 
-  obj <- res$new(sd1, 0, 10)
+  obj <- res$new(list(sd = sd1), 0, 10)
   y1 <- obj$run(5)
   expect_equal(obj$step(), 5)
-  obj$reset(sd2, 0)
+  obj$reset(list(sd = sd2), 0)
   expect_equal(obj$step(), 0)
   y2 <- obj$run(5)
   expect_equal(obj$step(), 5)
@@ -47,10 +47,10 @@ test_that("Reset particles and resume continues with rng", {
 
 
 test_that("Basic sir model", {
-  skip("rework")
-  res <- compile_and_load(dust_file("examples/sir.cpp"), "sir", "my_sir")
+  res <- compile_and_load(dust_file("examples/sir.cpp"), "sir", "mysir",
+                          quiet = TRUE)
 
-  obj <- res$new(NULL, 0, 100)
+  obj <- res$new(list(), 0, 100)
   ans <- vector("list", 150)
   for (i in seq_along(ans)) {
     value <- obj$run(i * 4)
@@ -74,10 +74,10 @@ test_that("Basic sir model", {
 
 
 test_that("reorder", {
-  skip("rework")
-  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "my_walk")
+  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
+                          quiet = TRUE)
 
-  obj <- res$new(1, 0, 10)
+  obj <- res$new(list(sd = 1), 0, 10)
   y1 <- obj$run(5)
 
   ## Simplest permutation:
@@ -101,10 +101,10 @@ test_that("reorder", {
 
 
 test_that("reorder and duplicate", {
-  skip("rework")
-  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "my_walk")
+  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
+                          quiet = TRUE)
 
-  obj <- res$new(1, 0, 10)
+  obj <- res$new(list(sd = 1), 0, 10)
   y1 <- obj$run(5)
 
   index <- c(1L, 4L, 9L, 7L, 7L, 2L, 5L, 9L, 9L, 5L)
@@ -127,9 +127,9 @@ test_that("reorder and duplicate", {
 
 
 test_that("validate reorder vector is correct length", {
-  skip("rework")
-  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "my_walk")
-  obj <- res$new(1, 0, 10)
+  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
+                          quiet = TRUE)
+  obj <- res$new(list(sd = 1), 0, 10)
   expect_error(obj$reorder(integer(0)),
                "Expected a vector of length 10 for 'index'")
   expect_error(obj$reorder(integer(100)),
@@ -138,9 +138,9 @@ test_that("validate reorder vector is correct length", {
 
 
 test_that("validate reorder vector is in correct range", {
-  skip("rework")
-  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "my_walk")
-  obj <- res$new(1, 0, 10)
+  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
+                          quiet = TRUE)
+  obj <- res$new(list(sd = 1), 0, 10)
   index <- seq_len(10)
   msg <- "All elements of 'index' must lie in [1, 10]"
 

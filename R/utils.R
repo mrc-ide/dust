@@ -25,3 +25,10 @@ dust_file <- function(path) {
 read_lines <- function(path) {
   paste(readLines(path), collapse = "\n")
 }
+
+
+assert_valid_name <- function(x, name = deparse(substitute(x))) {
+  if (!grepl("^[A-Za-z][A-Zxa-z0-9]*$", x)) {
+    stop(sprintf("'%s' must contain only letters and numbers", name))
+  }
+}
