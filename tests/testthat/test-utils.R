@@ -38,6 +38,7 @@ test_that("as_double (C++)", {
 
 
 test_that("check pointer", {
+  skip("rework")
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "my_walk")
 
   obj <- res$new(1, 0, 10, 1)
