@@ -3,11 +3,6 @@
 }
 
 
-normalize_path <- function(path) {
-  normalizePath(path, "/", mustWork = TRUE)
-}
-
-
 hash_file <- function(path, short = TRUE) {
   hash <- unname(tools::md5sum(path))
   if (short) {
@@ -29,6 +24,8 @@ read_lines <- function(path) {
 
 assert_valid_name <- function(x, name = deparse(substitute(x))) {
   if (!grepl("^[A-Za-z][A-Zxa-z0-9]*$", x)) {
-    stop(sprintf("'%s' must contain only letters and numbers", name))
+    stop(sprintf(
+      "'%s' must contain only letters and numbers, starting with a letter",
+      name))
   }
 }
