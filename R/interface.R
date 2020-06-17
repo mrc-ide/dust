@@ -28,7 +28,7 @@
 ##'   - `const std::vector<double>& state`: the state at the beginning of the
 ##'      step
 ##'   - `dust::RNG& rng`: the dust random number generator
-##'   - `std::vector<double>& state_next: the end state of the model
+##'   - `std::vector<double>& state_next`: the end state of the model
 ##'     (to be written to by your function)
 ##'
 ##' Your `update` function is the core here and should update the
@@ -56,7 +56,7 @@
 ##'   the returned object must be standard C/C++ (e.g., STL) types and
 ##'   *not* Rcpp types.
 ##'
-##' @section The created object
+##' @section The created object:
 ##'
 ##' The created object is an R6 class.
 ##'
@@ -82,6 +82,7 @@
 ##'   your choosing you can see the generated code.
 ##'
 ##' @export
+##' @examples
 ##'
 ##' # dust includes a couple of very simple examples
 ##' filename <- system.file("examples/walk.cpp", package = "dust")
@@ -132,8 +133,10 @@ dust <- function(filename, type = NULL, name = NULL, quiet = FALSE,
 ## a hack to allow Roxygen's R6 documentation to work.
 
 ##' @rdname dust
-R6::R6Class(
+dust_interface <- R6::R6Class(
   "dust",
+  cloneable = FALSE,
+
   public = list(
     ##' @description
     ##' Create a new model
