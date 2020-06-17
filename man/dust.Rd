@@ -164,7 +164,7 @@ your model.}
 least 1}
 
 \item{\code{n_threads}}{Number of OMP threads to use, if \code{dust} and
-your model wre compiled with OMP support (details to come)}
+your model were compiled with OMP support (details to come)}
 
 \item{\code{n_generators}}{The number of random number generators to
 use. Must be at least \code{n_threads} and a multiple of

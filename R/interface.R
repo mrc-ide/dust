@@ -151,7 +151,7 @@ dust_interface <- R6::R6Class(
     ##' least 1
     ##'
     ##' @param n_threads Number of OMP threads to use, if `dust` and
-    ##' your model wre compiled with OMP support (details to come)
+    ##' your model were compiled with OMP support (details to come)
     ##'
     ##' @param n_generators The number of random number generators to
     ##' use. Must be at least `n_threads` and a multiple of
