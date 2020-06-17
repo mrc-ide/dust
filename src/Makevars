@@ -1,0 +1,2 @@
+# -*- makefile -*-
+PKG_CXXFLAGS=-I../inst/include -DHAVE_INLINE

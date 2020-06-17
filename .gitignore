@@ -10,3 +10,5 @@ docs
 *.dll
 *.dylib
 .valgrind_ignore
+*.gcda
+*.gcno

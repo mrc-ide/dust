@@ -12,8 +12,13 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Language: en-GB
+Imports:
+    R6,
+    Rcpp,
+    glue,
+    pkgbuild
+LinkingTo:
+    Rcpp
 Suggests:
-    dde,
-    odin,
     testthat
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0

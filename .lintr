@@ -4,4 +4,4 @@ linters: with_defaults(
     todo_comment_linter = NULL,
     cyclocomp_linter = NULL
     )
-exclusions: list("tests/testthat.R")
+exclusions: list("tests/testthat.R", "R/RcppExports.R")

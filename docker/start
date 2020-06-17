@@ -2,5 +2,4 @@
 set -e
 HERE=$(dirname $0)
 PACKAGE_ROOT=$(realpath $HERE/..)
-USER_STR="$(id -u):$(id -g)"
-docker run -it --rm --user $USER_STR mrcide/dust
+docker run -it --rm -v $PACKAGE_ROOT:/src mrcide/dust $*

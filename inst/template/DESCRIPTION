@@ -1,0 +1,4 @@
+Package: {{base}}
+LinkingTo: Rcpp
+Imports: Rcpp
+Version: 0.0.1
