@@ -41,7 +41,7 @@ test_that("guess class", {
 
 test_that("dust_workdir uses tempdir() if NULL", {
   p <- dust_workdir(NULL)
-  expect_equal(dirname(p), tempdir())
+  expect_equal(normalizePath(dirname(p)), normalizePath(tempdir()))
   expect_false(file.exists(p))
 })
 
