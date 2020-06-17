@@ -14,7 +14,9 @@ LazyData: true
 Language: en-GB
 Imports:
     R6,
-    glue
+    Rcpp,
+    glue,
+    pkgbuild
 Suggests:
     testthat
 RoxygenNote: 7.1.0
