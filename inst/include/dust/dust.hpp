@@ -119,15 +119,27 @@ public:
     }
   }
 
+  // There are two obvious ways of reordering; we can construct a
+  // completely new set of particles, like
+  //
+  //   std::vector<Particle<T>> next;
+  //   for (auto const& i: index) {
+  //     next.push_back(_particles[i]);
+  //   }
+  //   _particles = next;
+  //
+  // but this seems like a lot of churn.  The other way is to treat it
+  // like a slightly weird state update where we swap around the
+  // contents of the particle state (uses the update() and swap()
+  // methods on particles).
   void reorder(const std::vector<size_t>& index) {
-    // Another way of doing this would be to move around just the y
-    // values, which is less churn, but requires a bit more on the
-    // underlying objects.
-    std::vector<Particle<T>> next;
-    for (auto const& i: index) {
-      next.push_back(_particles[i]);
+    for (size_t i = 0; i < _particles.size(); ++i) {
+      size_t j = index[i];
+      _particles[i].update(_particles[j]);
     }
-    _particles = next;
+    for (auto& p : _particles) {
+      p.swap();
+    }
   }
 
   size_t n_particles() const {
