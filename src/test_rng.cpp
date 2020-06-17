@@ -1,45 +1,29 @@
+#include <Rcpp.h>
 #include <dust/rng.hpp>
-#include <dust/util.hpp>
 
-#include "test_rng.h"
-
-extern "C" SEXP test_rng(SEXP r_n, SEXP r_seed, SEXP r_n_generators) {
-  const int n = dust::util::as_size(r_n, "n");
-  const int seed = dust::util::as_size(r_seed, "seed");
-  const int n_generators = dust::util::as_size(r_n_generators, "n_generators");
-
+// [[Rcpp::export(rng = false)]]
+Rcpp::NumericVector test_rng_norm(int n, int seed, int n_generators) {
   const double mean = 0, sd = 1;
 
   dust::pRNG r(n_generators, seed);
 
-  SEXP ret = PROTECT(allocVector(REALSXP, n));
-  double * y = REAL(ret);
+  Rcpp::NumericVector y(n);
   for (int i = 0; i < n; ++i) {
     y[i] = r(i % n_generators).rnorm(mean, sd);
   }
 
-  UNPROTECT(1);
-  return ret;
+  return y;
 }
 
-
-extern "C" SEXP test_rng_unif(SEXP r_n, SEXP r_min, SEXP r_max,
-                              SEXP r_seed, SEXP r_n_generators) {
-  const int n = dust::util::as_size(r_n, "n");
-  const int seed = dust::util::as_size(r_seed, "seed");
-  const int n_generators = dust::util::as_size(r_n_generators, "n_generators");
-
-  bool std_unif = r_min == R_NilValue || r_max == R_NilValue;
-  double min = 0, max = 1;
-  if (!std_unif) {
-    min = dust::util::as_double(r_min, "min");
-    max = dust::util::as_double(r_max, "max");
-  }
+// [[Rcpp::export(rng = false)]]
+Rcpp::NumericVector test_rng_unif(int n, double min, double max, int seed,
+                                  int n_generators) {
+  bool std_unif =
+    Rcpp::traits::is_na<REALSXP>(min) || Rcpp::traits::is_na<REALSXP>(max);
 
   dust::pRNG r(n_generators, seed);
+  Rcpp::NumericVector y(n);
 
-  SEXP ret = PROTECT(allocVector(REALSXP, n));
-  double * y = REAL(ret);
   for (int i = 0; i < n; ++i) {
     dust::RNG& rng = r(i % n_generators);
     if (std_unif) {
@@ -49,48 +33,33 @@ extern "C" SEXP test_rng_unif(SEXP r_n, SEXP r_min, SEXP r_max,
     }
   }
 
-  UNPROTECT(1);
-  return ret;
+  return y;
 }
 
-
-extern "C" SEXP test_rng_binom(SEXP r_n, SEXP r_p,
-                               SEXP r_seed, SEXP r_n_generators) {
-  const int seed = dust::util::as_size(r_seed, "seed");
-  const int n_generators = dust::util::as_size(r_n_generators, "n_generators");
-
-  size_t n_samples = length(r_n);
-  int *n = INTEGER(r_n);
-  double *p = REAL(r_p);
-
+// [[Rcpp::export(rng = false)]]
+Rcpp::IntegerVector test_rng_binom(std::vector<int> n, std::vector<double> p,
+                                   int seed, int n_generators) {
+  size_t n_samples = n.size();
   dust::pRNG r(n_generators, seed);
 
-  SEXP ret = PROTECT(allocVector(INTSXP, n_samples));
-  int * y = INTEGER(ret);
+  Rcpp::IntegerVector y(n_samples);
   for (size_t i = 0; i < n_samples; ++i) {
     y[i] = r(i % n_generators).rbinom(n[i], p[i]);
   }
 
-  UNPROTECT(1);
-  return ret;
+  return y;
 }
 
-
-extern "C" SEXP test_rng_pois(SEXP r_lambda, SEXP r_seed, SEXP r_n_generators) {
-  const int seed = dust::util::as_size(r_seed, "seed");
-  const int n_generators = dust::util::as_size(r_n_generators, "n_generators");
-
-  size_t n_samples = length(r_lambda);
-  double *lambda = REAL(r_lambda);
-
+// [[Rcpp::export(rng = false)]]
+Rcpp::IntegerVector test_rng_pois(std::vector<double> lambda,
+                                  int seed, int n_generators) {
+  size_t n_samples = lambda.size();
   dust::pRNG r(n_generators, seed);
 
-  SEXP ret = PROTECT(allocVector(INTSXP, n_samples));
-  int * y = INTEGER(ret);
+  Rcpp::IntegerVector y(n_samples);
   for (size_t i = 0; i < n_samples; ++i) {
     y[i] = r(i % n_generators).rpois(lambda[i]);
   }
 
-  UNPROTECT(1);
-  return ret;
+  return y;
 }

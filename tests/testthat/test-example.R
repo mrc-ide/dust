@@ -5,7 +5,7 @@ test_that("create walk, stepping for one step", {
                           quiet = TRUE)
   obj <- res$new(list(sd = 1), 0, 10)
   y <- obj$run(1)
-  cmp <- .Call(Ctest_rng, 10L, 1L, 1L)
+  cmp <- test_rng_norm(10, 1, 1)
   expect_identical(drop(y), cmp)
 })
 
@@ -16,7 +16,7 @@ test_that("walk agrees with random number stream", {
   obj <- res$new(list(sd = 1), 0, 10, seed = 1L)
   y <- obj$run(5)
 
-  cmp <- .Call(Ctest_rng, 50L, 1L, 1L)
+  cmp <- test_rng_norm(50L, 1L, 1L)
   expect_equal(drop(y), colSums(matrix(cmp, 5, 10)))
   expect_identical(obj$state(), y)
 })
@@ -37,7 +37,7 @@ test_that("Reset particles and resume continues with rng", {
   expect_equal(obj$step(), 5)
 
   ## Then draw the random numbers:
-  cmp <- .Call(Ctest_rng, 100L, 1L, 1L)
+  cmp <- test_rng_norm(100L, 1L, 1L)
   m1 <- matrix(cmp[1:50], 5, 10)
   m2 <- matrix(cmp[51:100], 5, 10)
 
@@ -89,7 +89,7 @@ test_that("reorder", {
 
   y3 <- obj$run(10)
 
-  cmp <- .Call(Ctest_rng, 100L, 1L, 1L)
+  cmp <- test_rng_norm(100L, 1L, 1L)
   m1 <- matrix(cmp[1:50], 5, 10)
   m2 <- m1[, index]
   m3 <- matrix(cmp[51:100], 5, 10)
@@ -115,7 +115,7 @@ test_that("reorder and duplicate", {
 
   y3 <- obj$run(10)
 
-  cmp <- .Call(Ctest_rng, 100L, 1L, 1L)
+  cmp <- test_rng_norm(100L, 1L, 1L)
   m1 <- matrix(cmp[1:50], 5, 10)
   m2 <- m1[, index]
   m3 <- matrix(cmp[51:100], 5, 10)

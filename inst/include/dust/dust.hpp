@@ -48,6 +48,14 @@ public:
     return _step;
   }
 
+  void swap() {
+    std::swap(_y, _y_swap);
+  }
+
+  void update(const Particle<T> other) {
+    _y_swap = other._y;
+  }
+
 private:
   T _model;
   size_t _step;

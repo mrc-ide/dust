@@ -17,6 +17,8 @@ Imports:
     Rcpp,
     glue,
     pkgbuild
+LinkingTo:
+    Rcpp
 Suggests:
     testthat
 RoxygenNote: 7.1.0
