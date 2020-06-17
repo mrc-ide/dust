@@ -16,4 +16,3 @@ test_rng_binom <- function(n, p, seed, n_generators) {
 test_rng_pois <- function(lambda, seed, n_generators) {
     .Call(`_dust_test_rng_pois`, lambda, seed, n_generators)
 }
-
