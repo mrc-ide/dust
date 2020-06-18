@@ -29,3 +29,15 @@ assert_valid_name <- function(x, name = deparse(substitute(x))) {
       name))
   }
 }
+
+
+assert_file_exists <- function(path, name = "File") {
+  if (!file.exists(path)) {
+    stop(sprintf("%s '%s' does not exist", name, path))
+  }
+}
+
+
+is_directory <- function(path) {
+  file.info(path)$isdir
+}

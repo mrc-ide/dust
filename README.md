@@ -8,6 +8,8 @@
 [![codecov.io](https://codecov.io/github/mrc-ide/dust/coverage.svg?branch=master)](https://codecov.io/github/mrc-ide/dust?branch=master)
 <!-- badges: end -->
 
+Fast and simple iteration of stochastic models. Designed to work as a component of a particle filter.
+
 ## License
 
 MIT © Imperial College of Science, Technology and Medicine

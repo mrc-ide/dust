@@ -1,4 +1,5 @@
-compile_and_load <- function(filename, type, name = type, quiet = FALSE) {
+compile_and_load <- function(filename, type, name, quiet = FALSE,
+                             workdir = NULL) {
   hash <- hash_file(filename)
   assert_valid_name(name)
   base <- sprintf("%s%s", name, hash)
@@ -8,20 +9,19 @@ compile_and_load <- function(filename, type, name = type, quiet = FALSE) {
     data <- list(model = model, name = name, type = type, base = base,
                  path_dust_include = dust_file("include"))
 
-    path <- tempfile()
-    path_src <- file.path(path, "src")
-    dir.create(path_src, FALSE, TRUE)
+    path <- dust_workdir(workdir)
+    dir.create(file.path(path, "src"), FALSE, TRUE)
     substitute_dust_template(data, "DESCRIPTION",
                              file.path(path, "DESCRIPTION"))
     substitute_dust_template(data, "NAMESPACE",
                              file.path(path, "NAMESPACE"))
-    substitute_dust_template(data, "interface.cpp",
-                             file.path(path, "src", "interface.cpp"))
+    substitute_dust_template(data, "dust.cpp",
+                             file.path(path, "src", "dust.cpp"))
     substitute_dust_template(data, "Makevars",
                              file.path(path, "src", "Makevars"))
 
     pkgbuild::compile_dll(path, compile_attributes = TRUE, quiet = quiet)
-    dll <- file.path(path_src, paste0(base, .Platform$dynlib.ext))
+    dll <- file.path(path, "src", paste0(base, .Platform$dynlib.ext))
     dyn.load(dll)
   }
 
@@ -29,7 +29,7 @@ compile_and_load <- function(filename, type, name = type, quiet = FALSE) {
   sym <- getNativeSymbolInfo(sprintf("_%s_%s_%s", base, name, v), base)
   names(sym) <- v
 
-  dust(sym$alloc, sym$run, sym$reset, sym$state, sym$step, sym$reorder)
+  dust_class(sym$alloc, sym$run, sym$reset, sym$state, sym$step, sym$reorder)
 }
 
 
