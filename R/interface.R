@@ -267,9 +267,13 @@ dust_workdir <- function(path) {
       stop(sprintf("Path '%s' already exists but is not a directory",
                    path))
     }
-    contents <- dir(path, recursive = TRUE, no.. = TRUE, include.dirs = FALSE)
+    contents <- c(
+      dir(path, all.files = TRUE, no.. = TRUE),
+      file.path("src", dir(file.path(path, "src"),
+                           all.files = TRUE, no.. = TRUE)))
     contents <- contents[!grepl(".+\\.(o|so|dll)", contents)]
-    allowed <- c("DESCRIPTION", "NAMESPACE", "src/Makevars", "src/dust.cpp")
+    allowed <- c("DESCRIPTION", "NAMESPACE", "src",
+                 "src/Makevars", "src/dust.cpp")
     extra <- setdiff(contents, allowed)
     if (length(extra)) {
       stop(sprintf("Path '%s' does not look like a dust directory", path))
