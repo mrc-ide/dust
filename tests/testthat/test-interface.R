@@ -92,3 +92,12 @@ test_that("dust_workdir will error in directory with extra files", {
     dust_workdir(p),
     "Path '.+' does not look like a dust directory")
 })
+
+
+test_that("dust_workdir will error if path is not a directory", {
+  p <- tempfile()
+  file.create(p)
+  expect_error(
+    dust_workdir(p),
+    "Path '.+' already exists but is not a directory")
+})

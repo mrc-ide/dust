@@ -17,3 +17,11 @@ test_that("valid name", {
   expect_error(assert_valid_name("foo.bar"),
                "'.+' must contain only letters and numbers")
 })
+
+
+test_that("assert_file_exists", {
+  p <- tempfile()
+  expect_error(assert_file_exists(p), "File '.+' does not exist")
+  file.create(p)
+  expect_silent(assert_file_exists(p))
+})
