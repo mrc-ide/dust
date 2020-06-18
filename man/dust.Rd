@@ -83,12 +83,6 @@ the returned object must be standard C/C++ (e.g., STL) types and
 \emph{not} Rcpp types.
 }
 
-\section{The created object}{
-
-
-The created object is an R6 class.
-}
-
 \examples{
 
 # dust includes a couple of very simple examples

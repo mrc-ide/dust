@@ -56,10 +56,6 @@
 ##'   the returned object must be standard C/C++ (e.g., STL) types and
 ##'   *not* Rcpp types.
 ##'
-##' @section The created object:
-##'
-##' The created object is an R6 class.
-##'
 ##' @title Create a dust model from a C++ input file
 ##'
 ##' @param filename The path to a single C++ file
