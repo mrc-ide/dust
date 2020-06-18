@@ -88,7 +88,7 @@
 ##' writeLines(readLines(filename))
 ##'
 ##' # Compile and load the object:
-##' model <- dust(filename)
+##' model <- dust(filename, quiet = TRUE)
 ##'
 ##' # Print the object and you can see the methods that it provides
 ##' model
