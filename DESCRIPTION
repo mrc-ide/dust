@@ -8,6 +8,8 @@ Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     role = "cph"))
 Description: Fast and simple iteration of stochastic models. Designed
     to work as a component of a particle filter.
+URL: https://github.com/mrc-ide/dust
+BugReports: https://github.com/mrc-ide/dust/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
