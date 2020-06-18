@@ -66,7 +66,7 @@ test_that("dust_workdir allows existing dusty directories", {
   p <- tempfile()
   dir.create(p, FALSE, TRUE)
   dir.create(file.path(p, "src"))
-  files <- c("DESCRIPTION", "NAMESPACE", "src/Makevars", "src/interface.cpp")
+  files <- c("DESCRIPTION", "NAMESPACE", "src/Makevars", "src/dust.cpp")
   for (f in files) {
     file.create(file.path(p, f))
   }

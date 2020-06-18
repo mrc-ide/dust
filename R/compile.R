@@ -15,8 +15,8 @@ compile_and_load <- function(filename, type, name, quiet = FALSE,
                              file.path(path, "DESCRIPTION"))
     substitute_dust_template(data, "NAMESPACE",
                              file.path(path, "NAMESPACE"))
-    substitute_dust_template(data, "interface.cpp",
-                             file.path(path, "src", "interface.cpp"))
+    substitute_dust_template(data, "dust.cpp",
+                             file.path(path, "src", "dust.cpp"))
     substitute_dust_template(data, "Makevars",
                              file.path(path, "src", "Makevars"))
 

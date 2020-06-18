@@ -269,8 +269,7 @@ dust_workdir <- function(path) {
     }
     contents <- dir(path, recursive = TRUE, no.. = TRUE, include.dirs = FALSE)
     contents <- contents[!grepl(".+\\.(o|so|dll)", contents)]
-    allowed <- c("DESCRIPTION", "NAMESPACE", "src/Makevars",
-                 "src/interface.cpp")
+    allowed <- c("DESCRIPTION", "NAMESPACE", "src/Makevars", "src/dust.cpp")
     extra <- setdiff(contents, allowed)
     if (length(extra)) {
       stop(sprintf("Path '%s' does not look like a dust directory", path))
