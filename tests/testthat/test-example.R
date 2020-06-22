@@ -194,3 +194,28 @@ test_that("reset changes info", {
                list(vars = c("S", "I", "R"),
                     pars = list(beta = 0.1, gamma = 0.1)))
 })
+
+
+test_that("Basic threading test", {
+  res <- compile_and_load(dust_file("examples/parallel.cpp"), "parallel",
+                          "myparallel", quiet = TRUE)
+  expect_error(
+    res$new(list(sd = 1), 0, 10, n_threads = 2L),
+    "n_generators must be at least n_threads")
+  expect_error(
+    res$new(list(sd = 1), 0, 10, n_threads = 2L, n_generators = 3L),
+    "n_generators must be a multiple of n_threads")
+  obj <- res$new(list(sd = 1), 0, 10, n_threads = 2L, n_generators = 2L)
+  y0 <- obj$state()
+
+  y1 <- obj$run(5)
+  y2 <- obj$state()
+  expect_equal(y1[1, ], y2[1, ])
+
+  if (has_openmp() && y0[2, 1] == 1) {
+    ## OMP is enabled
+    expect_equal(y2[2, ], rep(0:1, each = 5))
+  } else {
+    expect_equal(y2[2, ], rep(-1, 10))
+  }
+})

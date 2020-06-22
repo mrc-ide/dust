@@ -5,6 +5,15 @@
 
 using namespace Rcpp;
 
+// openmp_info
+Rcpp::List openmp_info();
+RcppExport SEXP _dust_openmp_info() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    rcpp_result_gen = Rcpp::wrap(openmp_info());
+    return rcpp_result_gen;
+END_RCPP
+}
 // test_rng_norm
 Rcpp::NumericVector test_rng_norm(int n, int seed, int n_generators);
 RcppExport SEXP _dust_test_rng_norm(SEXP nSEXP, SEXP seedSEXP, SEXP n_generatorsSEXP) {
@@ -58,6 +67,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_dust_openmp_info", (DL_FUNC) &_dust_openmp_info, 0},
     {"_dust_test_rng_norm", (DL_FUNC) &_dust_test_rng_norm, 3},
     {"_dust_test_rng_unif", (DL_FUNC) &_dust_test_rng_unif, 5},
     {"_dust_test_rng_binom", (DL_FUNC) &_dust_test_rng_binom, 4},
