@@ -32,6 +32,7 @@ public:
     state_next[1] = -1;
 #endif
   }
+
 private:
   init_t data_;
 };
