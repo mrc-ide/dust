@@ -15,9 +15,9 @@ public:
   }
   std::vector<double> initial(size_t step) {
 #ifdef _OPENMP
-    const bool has_openmp = true;
+    static bool has_openmp = true;
 #else
-    const bool has_openmp = false;
+    static bool has_openmp = false;
 #endif
     std::vector<double> ret = {0, (double) has_openmp};
     return ret;
