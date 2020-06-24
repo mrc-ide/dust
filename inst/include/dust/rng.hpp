@@ -30,8 +30,9 @@ public:
     return dust::distr::rbinom<T>(_generator, n, p);
   }
 
-  template <class T = int> T rpois(double lambda) {
-    return dust::distr::rpois<T>(_generator, lambda);
+  template <typename IntType = int, typename FloatType = double>
+  IntType rpois(FloatType lambda) {
+    return dust::distr::rpois<IntType, FloatType>(_generator, lambda);
   }
 
 private:
