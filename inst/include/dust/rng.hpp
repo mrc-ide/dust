@@ -26,13 +26,14 @@ public:
     return norm(_generator);
   }
 
-  template <class T = int> T rbinom(int n, double p) {
-    return dust::distr::rbinom<T>(_generator, n, p);
+  template <typename IntType = int, typename FloatType = double>
+  IntType rbinom(IntType n, FloatType p) {
+    return dust::distr::rbinom(_generator, n, p);
   }
 
   template <typename IntType = int, typename FloatType = double>
   IntType rpois(FloatType lambda) {
-    return dust::distr::rpois<IntType, FloatType>(_generator, lambda);
+    return dust::distr::rpois<IntType>(_generator, lambda);
   }
 
 private:

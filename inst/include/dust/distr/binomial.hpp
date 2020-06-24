@@ -88,9 +88,9 @@ inline double btrs(double n, double p, RNG& generator) {
   }
 }
 
-template <typename T, typename RNG>
-T rbinom(RNG& generator, int n, double p) {
-  T draw;
+template <typename IntType, typename FloatType, typename RNG>
+IntType rbinom(RNG& generator, IntType n, FloatType p) {
+  IntType draw;
 
   // Early exit:
   if (n == 0 || p == 0) {
@@ -108,17 +108,17 @@ T rbinom(RNG& generator, int n, double p) {
   }
   */
 
-  double q = p;
+  FloatType q = p;
   if (q > 0.5) {
     q = 1 - q;
   }
 
   if (n * q >= 10) {
     // Uses 256 random numbers
-    draw = static_cast<T>(btrs(n, q, generator));
+    draw = static_cast<IntType>(btrs(n, q, generator));
   } else {
     // Uses 42 random numbers
-    draw = static_cast<T>(binomial_inversion(n, q, generator));
+    draw = static_cast<IntType>(binomial_inversion(n, q, generator));
   }
 
   if (p > 0.5) {
