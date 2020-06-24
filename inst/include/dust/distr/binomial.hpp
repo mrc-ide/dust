@@ -6,14 +6,14 @@
 namespace dust {
 namespace distr {
 
-template <typename RNG>
-double binomial_inversion(double n, double prob, RNG& generator) {
-  double geom_sum = 0;
-  int num_geom = 0;
+template <typename IntType, typename FloatType, typename RNG>
+IntType binomial_inversion(IntType n, FloatType prob, RNG& generator) {
+  FloatType geom_sum = 0;
+  IntType num_geom = 0;
 
   while (true) {
-    double r = generator.unif_rand();
-    double geom = std::ceil(std::log(r) / std::log1p(-prob));
+    FloatType r = generator.unif_rand();
+    FloatType geom = std::ceil(std::log(r) / std::log1p(-prob));
     geom_sum += geom;
     if (geom_sum > n) {
       break;
@@ -23,19 +23,23 @@ double binomial_inversion(double n, double prob, RNG& generator) {
   return num_geom;
 }
 
-inline double stirling_approx_tail(double k) {
-  static double kTailValues[] = {0.0810614667953272,  0.0413406959554092,
-                                 0.0276779256849983,  0.02079067210376509,
-                                 0.0166446911898211,  0.0138761288230707,
-                                 0.0118967099458917,  0.0104112652619720,
-                                 0.00925546218271273, 0.00833056343336287};
+template <typename FloatType>
+FloatType stirling_approx_tail(FloatType k) {
+  static FloatType kTailValues[] = {0.0810614667953272,  0.0413406959554092,
+                                    0.0276779256849983,  0.02079067210376509,
+                                    0.0166446911898211,  0.0138761288230707,
+                                    0.0118967099458917,  0.0104112652619720,
+                                    0.00925546218271273, 0.00833056343336287};
   if (k <= 9) {
-    return kTailValues[static_cast<int>(k)];
+    return kTailValues[static_cast<short>(k)];
   }
-  double kp1sq = (k + 1) * (k + 1);
+  FloatType kp1sq = (k + 1) * (k + 1);
   return (1.0 / 12 - (1.0 / 360 - 1.0 / 1260 / kp1sq) / kp1sq) / (k + 1);
 }
 
+// TODO: Can't template this until I understand why 'n' is coming in
+// as an double and k coming out as a double
+//
 // https://www.tandfonline.com/doi/abs/10.1080/00949659308811496
 template <typename RNG>
 inline double btrs(double n, double p, RNG& generator) {
