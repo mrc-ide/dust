@@ -10,7 +10,7 @@ namespace dust {
 
 class RNG {
 public:
-  RNG(dust::Xoshiro generator) : _generator(generator) {}
+  RNG(dust::Xoshiro<double> generator) : _generator(generator) {}
 
   double unif_rand() {
     return _generator.unif_rand();
@@ -35,14 +35,14 @@ public:
   }
 
 private:
-  dust::Xoshiro _generator;
+  dust::Xoshiro<double> _generator;
 };
 
 
 class pRNG {
 public:
   pRNG(const size_t n, const uint64_t seed) {
-    dust::Xoshiro rng(seed);
+    dust::Xoshiro<double> rng(seed);
     for (size_t i = 0; i < n; ++i) {
       _rngs.push_back(RNG(rng));
       rng.jump();

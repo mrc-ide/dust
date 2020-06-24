@@ -17,6 +17,7 @@
 
 namespace dust {
 
+template <typename T>
 class Xoshiro {
 public:
   // Definitions to satisfy interface of URNG in C++11
@@ -30,7 +31,7 @@ public:
   uint64_t operator()();
 
   double unif_rand() {
-    static std::uniform_real_distribution<double> unif_dist(0, 1);
+    static std::uniform_real_distribution<T> unif_dist(0, 1);
     return unif_dist(*this);
   }
 
@@ -50,18 +51,21 @@ static inline uint64_t rotl(const uint64_t x, int k) {
 	return (x << k) | (x >> (64 - k));
 }
 
-inline uint64_t Xoshiro::splitmix64(uint64_t seed) {
+template <typename T>
+inline uint64_t Xoshiro<T>::splitmix64(uint64_t seed) {
   uint64_t z = (seed += 0x9e3779b97f4a7c15);
   z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9;
   z = (z ^ (z >> 27)) * 0x94d049bb133111eb;
   return z ^ (z >> 31);
 }
 
-inline Xoshiro::Xoshiro(uint64_t seed) {
+template <typename T>
+inline Xoshiro<T>::Xoshiro(uint64_t seed) {
   set_seed(seed);
 }
 
-inline void Xoshiro::set_seed(uint64_t seed) {
+template <typename T>
+inline void Xoshiro<T>::set_seed(uint64_t seed) {
   // normal brain: for i in 1:4
   // advanced brain: -funroll-loops
   // galaxy brain:
@@ -71,7 +75,8 @@ inline void Xoshiro::set_seed(uint64_t seed) {
   _state[3] = splitmix64(_state[2]);
 }
 
-inline uint64_t Xoshiro::operator()() {
+template <typename T>
+inline uint64_t Xoshiro<T>::operator()() {
   const uint64_t result = rotl(_state[1] * 5, 7) * 9;
 
   const uint64_t t = _state[1] << 17;
@@ -91,7 +96,8 @@ inline uint64_t Xoshiro::operator()() {
 /* This is the jump function for the generator. It is equivalent
    to 2^128 calls to next(); it can be used to generate 2^128
    non-overlapping subsequences for parallel computations. */
-inline void Xoshiro::jump() {
+template <typename T>
+inline void Xoshiro<T>::jump() {
   static const uint64_t JUMP[] = \
     { 0x180ec6d33cfd0aba, 0xd5a61266f0c9392c, 0xa9582618e03fc9aa, 0x39abdc4529b1661c };
 
@@ -121,7 +127,8 @@ inline void Xoshiro::jump() {
    2^192 calls to next(); it can be used to generate 2^64 starting points,
    from each of which jump() will generate 2^64 non-overlapping
    subsequences for parallel distributed computations. */
-inline void Xoshiro::long_jump() {
+template <typename T>
+inline void Xoshiro<T>::long_jump() {
   static const uint64_t LONG_JUMP[] = \
     { 0x76e15d3efefdcbbf, 0xc5004e441c522fb3, 0x77710069854ee241, 0x39109bb02acbe635 };
 
