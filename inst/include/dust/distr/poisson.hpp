@@ -6,9 +6,9 @@
 namespace dust {
 namespace distr {
 
-template <typename IntegerType, typename FloatType, typename RNG>
-IntegerType rpois(RNG& generator, FloatType lambda) {
-  IntegerType x = 0;
+template <typename IntType, typename FloatType, typename RNG>
+IntType rpois(RNG& generator, FloatType lambda) {
+  IntType x = 0;
   if (lambda < 10) {
     // Knuth's algorithm for generating Poisson random variates.
     // Given a Poisson process, the time between events is exponentially
@@ -28,7 +28,7 @@ IntegerType rpois(RNG& generator, FloatType lambda) {
       FloatType u = generator.unif_rand();
       prod = prod * u;
       if (prod <= exp_neg_rate &&
-          x <= std::numeric_limits<IntegerType>::max()) {
+          x <= std::numeric_limits<IntType>::max()) {
         break;
       }
       x++;
@@ -75,10 +75,10 @@ IntegerType rpois(RNG& generator, FloatType lambda) {
       FloatType v = generator.unif_rand();
 
       FloatType u_shifted = 0.5 - std::fabs(u);
-      IntegerType k = floor((2 * a / u_shifted + b) * u + lambda +
+      IntType k = floor((2 * a / u_shifted + b) * u + lambda +
                   0.43);
 
-      if (k > std::numeric_limits<IntegerType>::max()) {
+      if (k > std::numeric_limits<IntType>::max()) {
         // retry in case of overflow.
         continue; // # nocov
       }
