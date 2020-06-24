@@ -205,17 +205,45 @@ test_that("Basic threading test", {
   expect_error(
     res$new(list(sd = 1), 0, 10, n_threads = 2L, n_generators = 3L),
     "n_generators must be a multiple of n_threads")
+
   obj <- res$new(list(sd = 1), 0, 10, n_threads = 2L, n_generators = 2L)
   y0 <- obj$state()
+  y22_1 <- obj$run(5)
+  y22_2 <- obj$state()
 
-  y1 <- obj$run(5)
-  y2 <- obj$state()
-  expect_equal(y1[1, ], y2[1, ])
+  ## And again without parallel
+  obj <- res$new(list(sd = 1), 0, 10, n_threads = 1L, n_generators = 2L)
+  y12_1 <- obj$run(5)
+  y12_2 <- obj$state()
+
+  obj <- res$new(list(sd = 1), 0, 10, n_threads = 1L, n_generators = 1L)
+  y11_1 <- obj$run(5)
+  y11_2 <- obj$state()
+
+  ## Quick easy check:
+  expect_equal(y22_1[1, ], y22_2[1, ])
+  expect_equal(y12_1[1, ], y12_2[1, ])
+  expect_equal(y11_1[1, ], y11_2[1, ])
 
   if (has_openmp() && y0[2, 1] == 1) {
     ## OMP is enabled
-    expect_equal(y2[2, ], rep(0:1, each = 5))
+    expect_equal(y22_2[2, ], rep(0:1, each = 5))
   } else {
-    expect_equal(y2[2, ], rep(-1, 10))
+    expect_equal(y22_2[2, ], rep(-1, 10))
   }
+
+  ## This shows the problem quite easily:
+  rbind(y22_1, y12_1, y11_1)
+
+  ## Hmm
+
+  expect_equal(y12_1, y22_1)
+  expect_equal(y12_1[1,], y12_2[1, ])
+  expect_equal(y12_2[2, ], rep(-1, 10))
+
+
+  expect_identical(y11_1, y12_1)
+  expect_identical(y11_2, y12_2)
+
+
 })

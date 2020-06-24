@@ -189,6 +189,12 @@ private:
   //   thread 2: 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2
   //   thread 3: 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4
   //   thread 4: 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6
+  //
+  // Turns out that this is incorrect.
+  //
+  // What we want is deterministic answers when the number of rng
+  // engines is constant, and allowed to change as number of threads
+  // changes.
   rng_t& pick_generator(const size_t i, const size_t thread_idx) {
     const size_t m = _rng.size() / _n_threads;
     return _rng(i % m + thread_idx * m);
