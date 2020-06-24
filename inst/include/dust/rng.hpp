@@ -8,50 +8,50 @@
 
 namespace dust {
 
+template <typename FloatType, typename IntType>
 class RNG {
 public:
-  RNG(dust::Xoshiro<double> generator) : _generator(generator) {}
+  RNG(dust::Xoshiro<FloatType> generator) : _generator(generator) {}
 
-  double unif_rand() {
+  FloatType unif_rand() {
     return _generator.unif_rand();
   }
 
-  double runif(double min, double max) {
-    std::uniform_real_distribution<double> unif_dist(min, max);
+  FloatType runif(FloatType min, FloatType max) {
+    std::uniform_real_distribution<FloatType> unif_dist(min, max);
     return unif_dist(_generator);
   }
 
-  double rnorm(double mu, double sd) {
-    std::normal_distribution<double> norm(mu, sd);
+  FloatType rnorm(FloatType mu, FloatType sd) {
+    std::normal_distribution<FloatType> norm(mu, sd);
     return norm(_generator);
   }
 
-  template <typename IntType = int, typename FloatType = double>
   IntType rbinom(IntType n, FloatType p) {
     return dust::distr::rbinom(_generator, n, p);
   }
 
-  template <typename IntType = int, typename FloatType = double>
   IntType rpois(FloatType lambda) {
     return dust::distr::rpois<IntType>(_generator, lambda);
   }
 
 private:
-  dust::Xoshiro<double> _generator;
+  dust::Xoshiro<FloatType> _generator;
 };
 
 
+template <typename FloatType, typename IntType>
 class pRNG {
 public:
   pRNG(const size_t n, const uint64_t seed) {
-    dust::Xoshiro<double> rng(seed);
+    dust::Xoshiro<FloatType> rng(seed);
     for (size_t i = 0; i < n; ++i) {
-      _rngs.push_back(RNG(rng));
+      _rngs.push_back(RNG<FloatType, IntType>(rng));
       rng.jump();
     }
   }
 
-  RNG& operator()(size_t index) {
+  RNG<FloatType, IntType>& operator()(size_t index) {
     return _rngs[index];
   }
 
@@ -60,7 +60,7 @@ public:
   }
 
 private:
-  std::vector<RNG> _rngs;
+  std::vector<RNG<FloatType, IntType>> _rngs;
 };
 
 }
