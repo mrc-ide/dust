@@ -42,20 +42,24 @@ assumed to be the class name)
 \item That class must define a type \code{init_t} (so \code{model::init_t}) that
 contains its internal data and the model must be constructable
 with a const reference to this type (\verb{const model::init_t& data})
+\item That class must also include typedefs that describe the standard
+floating point and integer types (\code{float_t} and \code{int_t}
+respectively). Most models can include \verb{typedef double float_t;}
+and \verb{typedef int int_t;} in their public section.
 \item The model must have a method \code{size()} returning \code{size_t} which
 returns the size of the system. This size may depend on values
 in your initialisation object but is constant within a model
 run.
 \item The model must have a method \code{update} (which may not be
 \code{const}), taking a step number (\code{size_t}) and returning a
-\verb{std::vector<double>} of initial state for the model.
+\verb{std::vector<float_t>} of initial state for the model.
 \item The model must have a method \code{update} taking arguments:
 \itemize{
 \item \verb{size_t step}: the step number
-\item \verb{const std::vector<double>& state}: the state at the beginning of the
+\item \verb{const std::vector<float_t>& state}: the state at the beginning of the
 step
-\item \code{dust::RNG& rng}: the dust random number generator
-\item \verb{std::vector<double>& state_next}: the end state of the model
+\item \verb{dust::RNG<float_t, int_t>& rng}: the dust random number generator
+\item \verb{std::vector<float_t>& state_next}: the end state of the model
 (to be written to by your function)
 }
 }
