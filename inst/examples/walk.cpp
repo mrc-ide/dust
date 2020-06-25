@@ -32,6 +32,5 @@ walk::init_t dust_data<walk>(Rcpp::List data) {
 
 template <>
 Rcpp::RObject dust_info<walk>(const walk::init_t& data) {
-  // std::pair<std::string, double> ret("sd", data.sd);
   return Rcpp::wrap(data.sd);
 }

@@ -66,8 +66,8 @@ sir::init_t dust_data<sir>(Rcpp::List data) {
       p_IR, S0, steps_per_day};
 }
 
-template <>
-Rcpp::RObject dust_info<sir>(const sir::init_t& data) {
-  std::vector<std::string> nms{"S", "I", "R"};
-  return Rcpp::wrap(nms);
-}
+// template <>
+// Rcpp::RObject dust_info<sir>(const sir::init_t& data) {
+//   std::vector<std::string> nms{"S", "I", "R"};
+//   return Rcpp::wrap(nms);
+// }

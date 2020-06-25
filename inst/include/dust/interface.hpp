@@ -101,6 +101,13 @@ void dust_reorder(SEXP ptr, Rcpp::IntegerVector r_index) {
   obj->reorder(index);
 }
 
+// Trivial default implementation of a method for getting back
+// arbitrary information from the object.
+template <typename T>
+Rcpp::RObject dust_info(const typename T::init_t& data) {
+  return R_NilValue;
+}
+
 inline void validate_n(size_t n_generators, size_t n_threads) {
   if (n_generators < n_threads) {
     Rcpp::stop("n_generators must be at least n_threads");

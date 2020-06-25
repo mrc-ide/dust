@@ -53,6 +53,8 @@ test_that("Basic sir model", {
                           quiet = TRUE)
 
   obj <- res$new(list(), 0, 100)
+  expect_null(obj$info())
+
   ans <- vector("list", 150)
   for (i in seq_along(ans)) {
     value <- obj$run(i * 4)
@@ -72,8 +74,6 @@ test_that("Basic sir model", {
   expect_false(all(state_i[-n, ] - state_i[-1, ] >= 0))
   expect_identical(value, state_s)
   expect_equal(step, seq(4, by = 4, length.out = n))
-
-  expect_equal(obj$info(), c("S", "I", "R"))
 })
 
 
