@@ -30,7 +30,7 @@ public:
   }
   uint64_t operator()();
 
-  double unif_rand() {
+  T unif_rand() {
     static std::uniform_real_distribution<T> unif_dist(0, 1);
     return unif_dist(*this);
   }
