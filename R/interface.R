@@ -219,14 +219,17 @@ dust_class <- function(alloc, run, reset, state, step, reorder,
       cpp_state = state,
       cpp_step = step,
       cpp_reorder = reorder,
+      data = NULL,
       ptr = NULL
     ),
 
     public = list(
       initialize = function(data, step, n_particles, n_threads = 1L,
                             n_generators = 1L, seed = 1L) {
-        private$ptr <- .Call(private$cpp_alloc, data, step, n_particles,
-                             n_threads, n_generators, seed)
+        res <- .Call(private$cpp_alloc, data, step, n_particles,
+                     n_threads, n_generators, seed)
+        private$ptr <- res[[1L]]
+        private$data <- res[[2L]]
       },
 
       run = function(step_end) {
@@ -234,7 +237,7 @@ dust_class <- function(alloc, run, reset, state, step, reorder,
       },
 
       reset = function(data, step) {
-        .Call(private$cpp_reset, private$ptr, data, step)
+        private$data <- .Call(private$cpp_reset, private$ptr, data, step)
         invisible()
       },
 
@@ -249,6 +252,10 @@ dust_class <- function(alloc, run, reset, state, step, reorder,
       reorder = function(index) {
         .Call(private$cpp_reorder, private$ptr, as.integer(index))
         invisible()
+      },
+
+      info = function() {
+        private$data
       }
     ))
 }

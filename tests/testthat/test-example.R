@@ -29,9 +29,11 @@ test_that("Reset particles and resume continues with rng", {
   sd2 <- 4
 
   obj <- res$new(list(sd = sd1), 0, 10)
+  expect_equal(obj$info(), sd1)
   y1 <- obj$run(5)
   expect_equal(obj$step(), 5)
   obj$reset(list(sd = sd2), 0)
+  expect_equal(obj$info(), sd2)
   expect_equal(obj$step(), 0)
   y2 <- obj$run(5)
   expect_equal(obj$step(), 5)
@@ -70,6 +72,8 @@ test_that("Basic sir model", {
   expect_false(all(state_i[-n, ] - state_i[-1, ] >= 0))
   expect_identical(value, state_s)
   expect_equal(step, seq(4, by = 4, length.out = n))
+
+  expect_equal(obj$info(), c("S", "I", "R"))
 })
 
 
