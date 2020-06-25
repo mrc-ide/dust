@@ -14,6 +14,7 @@ public:
   typedef typename T::init_t init_t;
   typedef typename T::int_t int_t;
   typedef typename T::float_t float_t;
+  typedef typename dust::RNG<float_t, int_t> rng_t;
 
   Particle(init_t data, size_t step) :
     _model(data),
@@ -22,7 +23,7 @@ public:
     _y_swap(_model.size()) {
   }
 
-  void run(const size_t step_end, dust::RNG<float_t, int_t>& rng) {
+  void run(const size_t step_end, rng_t& rng) {
     while (_step < step_end) {
       _model.update(_step, _y, rng, _y_swap);
       _step++;
@@ -73,6 +74,7 @@ public:
   typedef typename T::init_t init_t;
   typedef typename T::int_t int_t;
   typedef typename T::float_t float_t;
+  typedef typename dust::RNG<float_t, int_t> rng_t;
 
   Dust(const init_t data, const size_t step,
        const std::vector<size_t> index_y,
@@ -187,8 +189,7 @@ private:
   //   thread 2: 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2
   //   thread 3: 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4
   //   thread 4: 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6
-  dust::RNG<float_t, int_t>& pick_generator(const size_t i,
-                                            const size_t thread_idx) {
+  rng_t& pick_generator(const size_t i, const size_t thread_idx) {
     const size_t m = _rng.size() / _n_threads;
     return _rng(i % m + thread_idx * m);
   }
