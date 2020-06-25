@@ -6,14 +6,14 @@
 namespace dust {
 namespace distr {
 
-template <typename float_t, typename int_t, typename rng_t>
-int_t binomial_inversion(int_t n, float_t prob, rng_t& generator) {
-  float_t geom_sum = 0;
+template <typename real_t, typename int_t, typename rng_t>
+int_t binomial_inversion(int_t n, real_t prob, rng_t& generator) {
+  real_t geom_sum = 0;
   int_t num_geom = 0;
 
   while (true) {
-    float_t r = generator.unif_rand();
-    float_t geom = std::ceil(std::log(r) / std::log1p(-prob));
+    real_t r = generator.unif_rand();
+    real_t geom = std::ceil(std::log(r) / std::log1p(-prob));
     geom_sum += geom;
     if (geom_sum > n) {
       break;
@@ -23,17 +23,17 @@ int_t binomial_inversion(int_t n, float_t prob, rng_t& generator) {
   return num_geom;
 }
 
-template <typename float_t>
-float_t stirling_approx_tail(float_t k) {
-  static float_t kTailValues[] = {0.0810614667953272,  0.0413406959554092,
-                                  0.0276779256849983,  0.02079067210376509,
-                                  0.0166446911898211,  0.0138761288230707,
-                                  0.0118967099458917,  0.0104112652619720,
-                                  0.00925546218271273, 0.00833056343336287};
+template <typename real_t>
+real_t stirling_approx_tail(real_t k) {
+  static real_t kTailValues[] = {0.0810614667953272,  0.0413406959554092,
+                                 0.0276779256849983,  0.02079067210376509,
+                                 0.0166446911898211,  0.0138761288230707,
+                                 0.0118967099458917,  0.0104112652619720,
+                                 0.00925546218271273, 0.00833056343336287};
   if (k <= 9) {
     return kTailValues[static_cast<short>(k)];
   }
-  float_t kp1sq = (k + 1) * (k + 1);
+  real_t kp1sq = (k + 1) * (k + 1);
   return (1.0 / 12 - (1.0 / 360 - 1.0 / 1260 / kp1sq) / kp1sq) / (k + 1);
 }
 
@@ -92,8 +92,8 @@ inline double btrs(double n, double p, rng_t& generator) {
   }
 }
 
-template <typename float_t, typename int_t, typename rng_t>
-int_t rbinom(rng_t& generator, int_t n, float_t p) {
+template <typename real_t, typename int_t, typename rng_t>
+int_t rbinom(rng_t& generator, int_t n, real_t p) {
   int_t draw;
 
   // Early exit:
@@ -112,7 +112,7 @@ int_t rbinom(rng_t& generator, int_t n, float_t p) {
     }
   */
 
-  float_t q = p;
+  real_t q = p;
   if (q > 0.5) {
     q = 1 - q;
   }

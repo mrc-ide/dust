@@ -1,7 +1,7 @@
 class walk {
 public:
   typedef int int_t;
-  typedef double float_t;
+  typedef double real_t;
   struct init_t {
     double sd;
   };

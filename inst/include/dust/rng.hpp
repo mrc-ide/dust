@@ -8,50 +8,50 @@
 
 namespace dust {
 
-template <typename float_t, typename int_t>
+template <typename real_t, typename int_t>
 class RNG {
 public:
-  RNG(dust::Xoshiro<float_t> generator) : _generator(generator) {}
+  RNG(dust::Xoshiro<real_t> generator) : _generator(generator) {}
 
-  float_t unif_rand() {
+  real_t unif_rand() {
     return _generator.unif_rand();
   }
 
-  float_t runif(float_t min, float_t max) {
-    std::uniform_real_distribution<float_t> unif_dist(min, max);
+  real_t runif(real_t min, real_t max) {
+    std::uniform_real_distribution<real_t> unif_dist(min, max);
     return unif_dist(_generator);
   }
 
-  float_t rnorm(float_t mu, float_t sd) {
-    std::normal_distribution<float_t> norm(mu, sd);
+  real_t rnorm(real_t mu, real_t sd) {
+    std::normal_distribution<real_t> norm(mu, sd);
     return norm(_generator);
   }
 
-  int_t rbinom(int_t n, float_t p) {
-    return dust::distr::rbinom<float_t, int_t>(_generator, n, p);
+  int_t rbinom(int_t n, real_t p) {
+    return dust::distr::rbinom<real_t, int_t>(_generator, n, p);
   }
 
-  int_t rpois(float_t lambda) {
-    return dust::distr::rpois<float_t, int_t>(_generator, lambda);
+  int_t rpois(real_t lambda) {
+    return dust::distr::rpois<real_t, int_t>(_generator, lambda);
   }
 
 private:
-  dust::Xoshiro<float_t> _generator;
+  dust::Xoshiro<real_t> _generator;
 };
 
 
-template <typename float_t, typename int_t>
+template <typename real_t, typename int_t>
 class pRNG {
 public:
   pRNG(const size_t n, const uint64_t seed) {
-    dust::Xoshiro<float_t> rng(seed);
+    dust::Xoshiro<real_t> rng(seed);
     for (size_t i = 0; i < n; ++i) {
-      _rngs.push_back(RNG<float_t, int_t>(rng));
+      _rngs.push_back(RNG<real_t, int_t>(rng));
       rng.jump();
     }
   }
 
-  RNG<float_t, int_t>& operator()(size_t index) {
+  RNG<real_t, int_t>& operator()(size_t index) {
     return _rngs[index];
   }
 
@@ -60,7 +60,7 @@ public:
   }
 
 private:
-  std::vector<RNG<float_t, int_t>> _rngs;
+  std::vector<RNG<real_t, int_t>> _rngs;
 };
 
 }

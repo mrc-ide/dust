@@ -39,7 +39,7 @@ Rcpp::NumericMatrix dust_run(SEXP ptr, int step_end) {
   const size_t n_particles = obj->n_particles();
   const size_t len = n_state * n_particles;
 
-  std::vector<typename T::float_t> dat(len);
+  std::vector<typename T::real_t> dat(len);
   obj->state(dat);
 
   return Rcpp::NumericMatrix(n_state, n_particles, dat.begin());
@@ -61,7 +61,7 @@ SEXP dust_state(SEXP ptr) {
   const size_t n_particles = obj->n_particles();
   const size_t len = n_state_full * n_particles;
 
-  std::vector<typename T::float_t> dat(len);
+  std::vector<typename T::real_t> dat(len);
   obj->state_full(dat);
 
   return Rcpp::NumericMatrix(n_state_full, n_particles, dat.begin());

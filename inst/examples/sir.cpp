@@ -1,7 +1,7 @@
 class sir {
 public:
   typedef int int_t;
-  typedef double float_t;
+  typedef double walk_t;
   struct init_t {
     double beta;
     double dt;
