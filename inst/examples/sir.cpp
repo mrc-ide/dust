@@ -26,8 +26,8 @@ public:
     return ret;
   }
 
-  void update(size_t step, const std::vector<double> state, dust::RNG& rng,
-              std::vector<double>& state_next) {
+  void update(size_t step, const std::vector<double> state,
+              dust::RNG<double, int>& rng, std::vector<double>& state_next) {
     double S = state[0];
     double I = state[1];
     double R = state[2];

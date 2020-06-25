@@ -19,7 +19,7 @@ public:
     _y_swap(_model.size()) {
   }
 
-  void run(const size_t step_end, dust::RNG& rng) {
+  void run(const size_t step_end, dust::RNG<double, int>& rng) {
     while (_step < step_end) {
       _model.update(_step, _y, rng, _y_swap);
       _step++;
@@ -158,7 +158,7 @@ public:
 private:
   const std::vector<size_t> _index_y;
   const size_t _n_threads;
-  dust::pRNG _rng;
+  dust::pRNG<double, int> _rng;
   std::vector<Particle<T>> _particles;
 
   // This scheme means that if we have the same number of generators
@@ -181,7 +181,8 @@ private:
   //   thread 2: 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2
   //   thread 3: 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4
   //   thread 4: 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6
-  dust::RNG& pick_generator(const size_t i, const size_t thread_idx) {
+  dust::RNG<double, int>& pick_generator(const size_t i,
+                                         const size_t thread_idx) {
     const size_t m = _rng.size() / _n_threads;
     return _rng(i % m + thread_idx * m);
   }

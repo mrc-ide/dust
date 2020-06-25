@@ -8,7 +8,7 @@
 
 namespace dust {
 
-template <typename FloatType, typename IntType>
+template <typename FloatType = double, typename IntType = int>
 class RNG {
 public:
   RNG(dust::Xoshiro<FloatType> generator) : _generator(generator) {}
