@@ -13,8 +13,8 @@ class Particle {
 public:
   typedef typename T::init_t init_t;
   typedef typename T::int_t int_t;
-  typedef typename T::dust_t dust_t;
-  typedef typename dust::RNG<dust_t, int_t> rng_t;
+  typedef typename T::real_t real_t;
+  typedef typename dust::RNG<real_t, int_t> rng_t;
 
   Particle(init_t data, size_t step) :
     _model(data),
@@ -32,13 +32,13 @@ public:
   }
 
   void state(const std::vector<size_t>& index_y,
-             typename std::vector<dust_t>::iterator end_state) const {
+             typename std::vector<real_t>::iterator end_state) const {
     for (size_t i = 0; i < index_y.size(); ++i) {
       *(end_state + i) = _y[index_y[i]];
     }
   }
 
-  void state(typename std::vector<dust_t>::iterator end_state) const {
+  void state(typename std::vector<real_t>::iterator end_state) const {
     for (size_t i = 0; i < _y.size(); ++i) {
       *(end_state + i) = _y[i];
     }
@@ -64,8 +64,8 @@ private:
   T _model;
   size_t _step;
 
-  std::vector<dust_t> _y;
-  std::vector<dust_t> _y_swap;
+  std::vector<real_t> _y;
+  std::vector<real_t> _y_swap;
 };
 
 template <typename T>
@@ -73,8 +73,8 @@ class Dust {
 public:
   typedef typename T::init_t init_t;
   typedef typename T::int_t int_t;
-  typedef typename T::dust_t dust_t;
-  typedef typename dust::RNG<dust_t, int_t> rng_t;
+  typedef typename T::real_t real_t;
+  typedef typename dust::RNG<real_t, int_t> rng_t;
 
   Dust(const init_t data, const size_t step,
        const std::vector<size_t> index_y,
@@ -112,14 +112,14 @@ public:
     }
   }
 
-  void state(std::vector<dust_t>& end_state) const {
+  void state(std::vector<real_t>& end_state) const {
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
     for (size_t i = 0; i < _particles.size(); ++i) {
       _particles[i].state(_index_y, end_state.begin() + i * _index_y.size());
     }
   }
 
-  void state_full(std::vector<dust_t>& end_state) const {
+  void state_full(std::vector<real_t>& end_state) const {
     const size_t n = n_state_full();
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
     for (size_t i = 0; i < _particles.size(); ++i) {
@@ -166,7 +166,7 @@ public:
 private:
   const std::vector<size_t> _index_y;
   const size_t _n_threads;
-  dust::pRNG<dust_t, int_t> _rng;
+  dust::pRNG<real_t, int_t> _rng;
   std::vector<Particle<T>> _particles;
 
   // This scheme means that if we have the same number of generators
