@@ -6,9 +6,9 @@
 namespace dust {
 namespace distr {
 
-template <typename IntType, typename FloatType, typename RNG>
-IntType rpois(RNG& generator, FloatType lambda) {
-  IntType x = 0;
+template <typename float_t, typename int_t, typename rng_t>
+int_t rpois(rng_t& generator, float_t lambda) {
+  int_t x = 0;
   if (lambda < 10) {
     // Knuth's algorithm for generating Poisson random variates.
     // Given a Poisson process, the time between events is exponentially
@@ -18,17 +18,17 @@ IntType rpois(RNG& generator, FloatType lambda) {
     // Thus to simulate a Poisson draw, we can draw X_i ~ Exp(lambda),
     // and N ~ Poisson(lambda), where N is the least number such that
     // \sum_i^N X_i > 1.
-    const FloatType exp_neg_rate = std::exp(-lambda);
+    const float_t exp_neg_rate = std::exp(-lambda);
 
-    FloatType prod = 1;
+    float_t prod = 1;
 
     // Keep trying until we surpass e^(-rate). This will take
     // expected time proportional to rate.
     while (true) {
-      FloatType u = generator.unif_rand();
+      float_t u = generator.unif_rand();
       prod = prod * u;
       if (prod <= exp_neg_rate &&
-          x <= std::numeric_limits<IntType>::max()) {
+          x <= std::numeric_limits<int_t>::max()) {
         break;
       }
       x++;
@@ -56,29 +56,29 @@ IntType rpois(RNG& generator, FloatType lambda) {
     //
     // G(u) = (2 * a / (2 - |u|) + b) * u + c
 
-    const FloatType log_rate = std::log(lambda);
+    const float_t log_rate = std::log(lambda);
 
     // Constants used to define the dominating distribution. Names taken
     // from Hormann's paper. Constants were chosen to define the tightest
     // G(u) for the inverse Poisson CDF.
-    const FloatType b = 0.931 + 2.53 * std::sqrt(lambda);
-    const FloatType a = -0.059 + 0.02483 * b;
+    const float_t b = 0.931 + 2.53 * std::sqrt(lambda);
+    const float_t a = -0.059 + 0.02483 * b;
 
     // This is the inverse acceptance rate. At a minimum (when rate = 10),
     // this corresponds to ~75% acceptance. As the rate becomes larger, this
     // approaches ~89%.
-    const FloatType inv_alpha = 1.1239 + 1.1328 / (b - 3.4);
+    const float_t inv_alpha = 1.1239 + 1.1328 / (b - 3.4);
 
     while (true) {
-      FloatType u = generator.unif_rand();
+      float_t u = generator.unif_rand();
       u -= 0.5;
-      FloatType v = generator.unif_rand();
+      float_t v = generator.unif_rand();
 
-      FloatType u_shifted = 0.5 - std::fabs(u);
-      IntType k = floor((2 * a / u_shifted + b) * u + lambda +
-                  0.43);
+      float_t u_shifted = 0.5 - std::fabs(u);
+      int_t k = floor((2 * a / u_shifted + b) * u + lambda +
+                      0.43);
 
-      if (k > std::numeric_limits<IntType>::max()) {
+      if (k > std::numeric_limits<int_t>::max()) {
         // retry in case of overflow.
         continue; // # nocov
       }
@@ -99,8 +99,8 @@ IntType rpois(RNG& generator, FloatType lambda) {
 
       // The expression below is equivalent to the computation of step 2)
       // in transformed rejection (v <= alpha * F'(G(u)) * G'(u)).
-      FloatType s = std::log(v * inv_alpha / (a / (u_shifted * u_shifted) + b));
-      FloatType t = -lambda + k * log_rate - std::lgamma(k + 1);
+      float_t s = std::log(v * inv_alpha / (a / (u_shifted * u_shifted) + b));
+      float_t t = -lambda + k * log_rate - std::lgamma(k + 1);
       if (s <= t) {
         x = k;
         break;

@@ -8,50 +8,50 @@
 
 namespace dust {
 
-template <typename FloatType = double, typename IntType = int>
+template <typename float_t, typename int_t>
 class RNG {
 public:
-  RNG(dust::Xoshiro<FloatType> generator) : _generator(generator) {}
+  RNG(dust::Xoshiro<float_t> generator) : _generator(generator) {}
 
-  FloatType unif_rand() {
+  float_t unif_rand() {
     return _generator.unif_rand();
   }
 
-  FloatType runif(FloatType min, FloatType max) {
-    std::uniform_real_distribution<FloatType> unif_dist(min, max);
+  float_t runif(float_t min, float_t max) {
+    std::uniform_real_distribution<float_t> unif_dist(min, max);
     return unif_dist(_generator);
   }
 
-  FloatType rnorm(FloatType mu, FloatType sd) {
-    std::normal_distribution<FloatType> norm(mu, sd);
+  float_t rnorm(float_t mu, float_t sd) {
+    std::normal_distribution<float_t> norm(mu, sd);
     return norm(_generator);
   }
 
-  IntType rbinom(IntType n, FloatType p) {
-    return dust::distr::rbinom(_generator, n, p);
+  int_t rbinom(int_t n, float_t p) {
+    return dust::distr::rbinom<float_t, int_t>(_generator, n, p);
   }
 
-  IntType rpois(FloatType lambda) {
-    return dust::distr::rpois<IntType>(_generator, lambda);
+  int_t rpois(float_t lambda) {
+    return dust::distr::rpois<float_t, int_t>(_generator, lambda);
   }
 
 private:
-  dust::Xoshiro<FloatType> _generator;
+  dust::Xoshiro<float_t> _generator;
 };
 
 
-template <typename FloatType, typename IntType>
+template <typename float_t, typename int_t>
 class pRNG {
 public:
   pRNG(const size_t n, const uint64_t seed) {
-    dust::Xoshiro<FloatType> rng(seed);
+    dust::Xoshiro<float_t> rng(seed);
     for (size_t i = 0; i < n; ++i) {
-      _rngs.push_back(RNG<FloatType, IntType>(rng));
+      _rngs.push_back(RNG<float_t, int_t>(rng));
       rng.jump();
     }
   }
 
-  RNG<FloatType, IntType>& operator()(size_t index) {
+  RNG<float_t, int_t>& operator()(size_t index) {
     return _rngs[index];
   }
 
@@ -60,7 +60,7 @@ public:
   }
 
 private:
-  std::vector<RNG<FloatType, IntType>> _rngs;
+  std::vector<RNG<float_t, int_t>> _rngs;
 };
 
 }

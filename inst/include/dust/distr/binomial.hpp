@@ -6,14 +6,14 @@
 namespace dust {
 namespace distr {
 
-template <typename IntType, typename FloatType, typename RNG>
-IntType binomial_inversion(IntType n, FloatType prob, RNG& generator) {
-  FloatType geom_sum = 0;
-  IntType num_geom = 0;
+template <typename float_t, typename int_t, typename rng_t>
+int_t binomial_inversion(int_t n, float_t prob, rng_t& generator) {
+  float_t geom_sum = 0;
+  int_t num_geom = 0;
 
   while (true) {
-    FloatType r = generator.unif_rand();
-    FloatType geom = std::ceil(std::log(r) / std::log1p(-prob));
+    float_t r = generator.unif_rand();
+    float_t geom = std::ceil(std::log(r) / std::log1p(-prob));
     geom_sum += geom;
     if (geom_sum > n) {
       break;
@@ -23,17 +23,17 @@ IntType binomial_inversion(IntType n, FloatType prob, RNG& generator) {
   return num_geom;
 }
 
-template <typename FloatType>
-FloatType stirling_approx_tail(FloatType k) {
-  static FloatType kTailValues[] = {0.0810614667953272,  0.0413406959554092,
-                                    0.0276779256849983,  0.02079067210376509,
-                                    0.0166446911898211,  0.0138761288230707,
-                                    0.0118967099458917,  0.0104112652619720,
-                                    0.00925546218271273, 0.00833056343336287};
+template <typename float_t>
+float_t stirling_approx_tail(float_t k) {
+  static float_t kTailValues[] = {0.0810614667953272,  0.0413406959554092,
+                                  0.0276779256849983,  0.02079067210376509,
+                                  0.0166446911898211,  0.0138761288230707,
+                                  0.0118967099458917,  0.0104112652619720,
+                                  0.00925546218271273, 0.00833056343336287};
   if (k <= 9) {
     return kTailValues[static_cast<short>(k)];
   }
-  FloatType kp1sq = (k + 1) * (k + 1);
+  float_t kp1sq = (k + 1) * (k + 1);
   return (1.0 / 12 - (1.0 / 360 - 1.0 / 1260 / kp1sq) / kp1sq) / (k + 1);
 }
 
@@ -41,8 +41,8 @@ FloatType stirling_approx_tail(FloatType k) {
 // as an double and k coming out as a double
 //
 // https://www.tandfonline.com/doi/abs/10.1080/00949659308811496
-template <typename RNG>
-inline double btrs(double n, double p, RNG& generator) {
+template <typename rng_t>
+inline double btrs(double n, double p, rng_t& generator) {
   // This is spq in the paper.
   const double stddev = std::sqrt(n * p * (1 - p));
 
@@ -92,9 +92,9 @@ inline double btrs(double n, double p, RNG& generator) {
   }
 }
 
-template <typename IntType, typename FloatType, typename RNG>
-IntType rbinom(RNG& generator, IntType n, FloatType p) {
-  IntType draw;
+template <typename float_t, typename int_t, typename rng_t>
+int_t rbinom(rng_t& generator, int_t n, float_t p) {
+  int_t draw;
 
   // Early exit:
   if (n == 0 || p == 0) {
@@ -107,22 +107,22 @@ IntType rbinom(RNG& generator, IntType n, FloatType p) {
   // TODO: Should control for this too, but not really clear what we
   // need to do to safely deal.
   /*
-  if (n < 0 || p < 0 || p > 1) {
+    if (n < 0 || p < 0 || p > 1) {
     return NaN;
-  }
+    }
   */
 
-  FloatType q = p;
+  float_t q = p;
   if (q > 0.5) {
     q = 1 - q;
   }
 
   if (n * q >= 10) {
     // Uses 256 random numbers
-    draw = static_cast<IntType>(btrs(n, q, generator));
+    draw = static_cast<int_t>(btrs(n, q, generator));
   } else {
     // Uses 42 random numbers
-    draw = static_cast<IntType>(binomial_inversion(n, q, generator));
+    draw = static_cast<int_t>(binomial_inversion(n, q, generator));
   }
 
   if (p > 0.5) {
