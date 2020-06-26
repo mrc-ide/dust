@@ -153,3 +153,26 @@ test_that("validate reorder vector is in correct range", {
   index[5] <- -1L
   expect_error(obj$reorder(index), msg, fixed = TRUE)
 })
+
+
+test_that("run in float mode", {
+  res_d <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
+                            quiet = TRUE)
+
+  path <- tempfile(fileext = ".cpp")
+  code <- readLines(dust_file("examples/walk.cpp"))
+  pat <- "typedef double real_t"
+  stopifnot(sum(grepl(pat, code)) == 1)
+  writeLines(sub(pat, "typedef float real_t", code), path)
+  res_f <- compile_and_load(path, "walk", "mywalkf", quiet = TRUE)
+
+  n <- 1000
+  obj_d <- res_d$new(list(sd = 10), 0, n)
+  obj_f <- res_f$new(list(sd = 10), 0, n)
+
+  y_d <- obj_d$run(10)
+  y_f <- obj_f$run(10)
+
+  expect_equal(y_d, y_f, tolerance = 1e-5)
+  expect_false(identical(y_d, y_f))
+})
