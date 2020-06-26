@@ -36,9 +36,6 @@ inline double stirling_approx_tail(double k) {
   return (1.0 / 12 - (1.0 / 360 - 1.0 / 1260 / kp1sq) / kp1sq) / (k + 1);
 }
 
-// TODO: Can't template this until I understand why 'n' is coming in
-// as an double and k coming out as a double
-//
 // https://www.tandfonline.com/doi/abs/10.1080/00949659308811496
 template <typename rng_t>
 inline double btrs(double n, double p, rng_t& generator) {
