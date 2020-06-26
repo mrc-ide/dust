@@ -14,6 +14,11 @@
 ##'   with a const reference to this type (`const model::init_t&
 ##'   data`)
 ##'
+##' * That class must also include typedefs that describe the standard
+##'   floating point and integer types (`real_t` and `int_t`
+##'   respectively). Most models can include `typedef double real_t;`
+##'   and `typedef int int_t;` in their public section.
+##'
 ##' * The model must have a method `size()` returning `size_t` which
 ##'   returns the size of the system. This size may depend on values
 ##'   in your initialisation object but is constant within a model
@@ -21,14 +26,14 @@
 ##'
 ##' * The model must have a method `update` (which may not be
 ##'   `const`), taking a step number (`size_t`) and returning a
-##'   `std::vector<double>` of initial state for the model.
+##'   `std::vector<real_t>` of initial state for the model.
 ##'
 ##' * The model must have a method `update` taking arguments:
 ##'   - `size_t step`: the step number
-##'   - `const std::vector<double>& state`: the state at the beginning of the
+##'   - `const std::vector<real_t>& state`: the state at the beginning of the
 ##'      step
-##'   - `dust::RNG& rng`: the dust random number generator
-##'   - `std::vector<double>& state_next`: the end state of the model
+##'   - `dust::RNG<real_t, int_t>& rng`: the dust random number generator
+##'   - `std::vector<real_t>& state_next`: the end state of the model
 ##'     (to be written to by your function)
 ##'
 ##' Your `update` function is the core here and should update the

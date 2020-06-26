@@ -6,10 +6,10 @@
 namespace dust {
 namespace distr {
 
-template <typename RNG>
-double binomial_inversion(double n, double prob, RNG& generator) {
+template <typename rng_t>
+double binomial_inversion(double n, double prob, rng_t& generator) {
   double geom_sum = 0;
-  int num_geom = 0;
+  double num_geom = 0;
 
   while (true) {
     double r = generator.unif_rand();
@@ -37,8 +37,8 @@ inline double stirling_approx_tail(double k) {
 }
 
 // https://www.tandfonline.com/doi/abs/10.1080/00949659308811496
-template <typename RNG>
-inline double btrs(double n, double p, RNG& generator) {
+template <typename rng_t>
+inline double btrs(double n, double p, rng_t& generator) {
   // This is spq in the paper.
   const double stddev = std::sqrt(n * p * (1 - p));
 
@@ -88,9 +88,9 @@ inline double btrs(double n, double p, RNG& generator) {
   }
 }
 
-template <typename T, typename RNG>
-T rbinom(RNG& generator, int n, double p) {
-  T draw;
+template <typename real_t, typename int_t, typename rng_t>
+int_t rbinom(rng_t& generator, int_t n, real_t p) {
+  int_t draw;
 
   // Early exit:
   if (n == 0 || p == 0) {
@@ -103,22 +103,22 @@ T rbinom(RNG& generator, int n, double p) {
   // TODO: Should control for this too, but not really clear what we
   // need to do to safely deal.
   /*
-  if (n < 0 || p < 0 || p > 1) {
+    if (n < 0 || p < 0 || p > 1) {
     return NaN;
-  }
+    }
   */
 
-  double q = p;
-  if (q > 0.5) {
+  real_t q = p;
+  if (p > 0.5) {
     q = 1 - q;
   }
 
   if (n * q >= 10) {
     // Uses 256 random numbers
-    draw = static_cast<T>(btrs(n, q, generator));
+    draw = static_cast<int_t>(btrs(n, q, generator));
   } else {
     // Uses 42 random numbers
-    draw = static_cast<T>(binomial_inversion(n, q, generator));
+    draw = static_cast<int_t>(binomial_inversion(n, q, generator));
   }
 
   if (p > 0.5) {

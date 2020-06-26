@@ -5,7 +5,7 @@
 Rcpp::NumericVector test_rng_norm(int n, int seed, int n_generators) {
   const double mean = 0, sd = 1;
 
-  dust::pRNG r(n_generators, seed);
+  dust::pRNG<double, int> r(n_generators, seed);
 
   Rcpp::NumericVector y(n);
   for (int i = 0; i < n; ++i) {
@@ -21,11 +21,11 @@ Rcpp::NumericVector test_rng_unif(int n, double min, double max, int seed,
   bool std_unif =
     Rcpp::traits::is_na<REALSXP>(min) || Rcpp::traits::is_na<REALSXP>(max);
 
-  dust::pRNG r(n_generators, seed);
+  dust::pRNG<double, int> r(n_generators, seed);
   Rcpp::NumericVector y(n);
 
   for (int i = 0; i < n; ++i) {
-    dust::RNG& rng = r(i % n_generators);
+    dust::RNG<double, int>& rng = r(i % n_generators);
     if (std_unif) {
       y[i] = rng.unif_rand();
     } else {
@@ -40,7 +40,7 @@ Rcpp::NumericVector test_rng_unif(int n, double min, double max, int seed,
 Rcpp::IntegerVector test_rng_binom(std::vector<int> n, std::vector<double> p,
                                    int seed, int n_generators) {
   size_t n_samples = n.size();
-  dust::pRNG r(n_generators, seed);
+  dust::pRNG<double, int> r(n_generators, seed);
 
   Rcpp::IntegerVector y(n_samples);
   for (size_t i = 0; i < n_samples; ++i) {
@@ -54,7 +54,7 @@ Rcpp::IntegerVector test_rng_binom(std::vector<int> n, std::vector<double> p,
 Rcpp::IntegerVector test_rng_pois(std::vector<double> lambda,
                                   int seed, int n_generators) {
   size_t n_samples = lambda.size();
-  dust::pRNG r(n_generators, seed);
+  dust::pRNG<double, int> r(n_generators, seed);
 
   Rcpp::IntegerVector y(n_samples);
   for (size_t i = 0; i < n_samples; ++i) {

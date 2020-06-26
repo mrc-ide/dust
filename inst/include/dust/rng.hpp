@@ -8,48 +8,50 @@
 
 namespace dust {
 
+template <typename real_t, typename int_t>
 class RNG {
 public:
-  RNG(dust::Xoshiro generator) : _generator(generator) {}
+  RNG(dust::Xoshiro<real_t> generator) : _generator(generator) {}
 
-  double unif_rand() {
+  real_t unif_rand() {
     return _generator.unif_rand();
   }
 
-  double runif(double min, double max) {
-    std::uniform_real_distribution<double> unif_dist(min, max);
+  real_t runif(real_t min, real_t max) {
+    std::uniform_real_distribution<real_t> unif_dist(min, max);
     return unif_dist(_generator);
   }
 
-  double rnorm(double mu, double sd) {
-    std::normal_distribution<double> norm(mu, sd);
+  real_t rnorm(real_t mu, real_t sd) {
+    std::normal_distribution<real_t> norm(mu, sd);
     return norm(_generator);
   }
 
-  template <class T = int> T rbinom(int n, double p) {
-    return dust::distr::rbinom<T>(_generator, n, p);
+  int_t rbinom(int_t n, real_t p) {
+    return dust::distr::rbinom<real_t, int_t>(_generator, n, p);
   }
 
-  template <class T = int> T rpois(double lambda) {
-    return dust::distr::rpois<T>(_generator, lambda);
+  int_t rpois(real_t lambda) {
+    return dust::distr::rpois<real_t, int_t>(_generator, lambda);
   }
 
 private:
-  dust::Xoshiro _generator;
+  dust::Xoshiro<real_t> _generator;
 };
 
 
+template <typename real_t, typename int_t>
 class pRNG {
 public:
   pRNG(const size_t n, const uint64_t seed) {
-    dust::Xoshiro rng(seed);
+    dust::Xoshiro<real_t> rng(seed);
     for (size_t i = 0; i < n; ++i) {
-      _rngs.push_back(RNG(rng));
+      _rngs.push_back(RNG<real_t, int_t>(rng));
       rng.jump();
     }
   }
 
-  RNG& operator()(size_t index) {
+  RNG<real_t, int_t>& operator()(size_t index) {
     return _rngs[index];
   }
 
@@ -58,7 +60,7 @@ public:
   }
 
 private:
-  std::vector<RNG> _rngs;
+  std::vector<RNG<real_t, int_t>> _rngs;
 };
 
 }
