@@ -6,14 +6,14 @@
 namespace dust {
 namespace distr {
 
-template <typename real_t, typename int_t, typename rng_t>
-int_t binomial_inversion(int_t n, real_t prob, rng_t& generator) {
-  real_t geom_sum = 0;
-  int_t num_geom = 0;
+template <typename rng_t>
+double binomial_inversion(double n, double prob, rng_t& generator) {
+  double geom_sum = 0;
+  double num_geom = 0;
 
   while (true) {
-    real_t r = generator.unif_rand();
-    real_t geom = std::ceil(std::log(r) / std::log1p(-prob));
+    double r = generator.unif_rand();
+    double geom = std::ceil(std::log(r) / std::log1p(-prob));
     geom_sum += geom;
     if (geom_sum > n) {
       break;
@@ -23,17 +23,16 @@ int_t binomial_inversion(int_t n, real_t prob, rng_t& generator) {
   return num_geom;
 }
 
-template <typename real_t>
-real_t stirling_approx_tail(real_t k) {
-  static real_t kTailValues[] = {0.0810614667953272,  0.0413406959554092,
+inline double stirling_approx_tail(double k) {
+  static double kTailValues[] = {0.0810614667953272,  0.0413406959554092,
                                  0.0276779256849983,  0.02079067210376509,
                                  0.0166446911898211,  0.0138761288230707,
                                  0.0118967099458917,  0.0104112652619720,
                                  0.00925546218271273, 0.00833056343336287};
   if (k <= 9) {
-    return kTailValues[static_cast<short>(k)];
+    return kTailValues[static_cast<int>(k)];
   }
-  real_t kp1sq = (k + 1) * (k + 1);
+  double kp1sq = (k + 1) * (k + 1);
   return (1.0 / 12 - (1.0 / 360 - 1.0 / 1260 / kp1sq) / kp1sq) / (k + 1);
 }
 
