@@ -112,7 +112,7 @@ int_t rbinom(rng_t& generator, int_t n, real_t p) {
   */
 
   real_t q = p;
-  if (q > 0.5) {
+  if (p > 0.5) {
     q = 1 - q;
   }
 
