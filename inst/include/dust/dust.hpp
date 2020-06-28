@@ -99,13 +99,9 @@ public:
   void run(const size_t step_end) {
     #pragma omp parallel num_threads(_n_threads)
     {
-      size_t thread_idx = 0;
-#ifdef _OPENMP
-      thread_idx = omp_get_thread_num();
-#endif
       #pragma omp for schedule(monotonic:static, 1)
       for (size_t i = 0; i < _particles.size(); ++i) {
-        _particles[i].run(step_end, pick_generator(i, thread_idx));
+        _particles[i].run(step_end, pick_generator(i));
       }
     }
   }
@@ -167,53 +163,29 @@ private:
   dust::pRNG<real_t, int_t> _rng;
   std::vector<Particle<T>> _particles;
 
-  // This scheme means that if we have the same number of generators
-  // and threads then work for thread i occurs on generator i.
-  //
-  // If we have more generators than threads then each thread uses m =
-  // n_generators / n_threads (so if we had 8 generators and 2
-  // threads, each thread would use 4 generators).  The first thread
-  // will cycle alternate through the first m generators, the second
-  // thread will cycle through the second m generators, etc.
-  //
-  // So for 8 generators, 2 threads:
-  //
-  //   thread 1: 0 1 2 3 0 1 2 3 0 1 2 3 0 1 2 3 0 1 2 3 0 1 2 3 0
-  //   thread 2: 4 5 6 7 4 5 6 7 4 5 6 7 4 5 6 7 4 5 6 7 4 5 6 7 4
-  //
-  // For 8 generators, 4 threads:
-  //
-  //   thread 1: 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0
-  //   thread 2: 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2
-  //   thread 3: 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4 5 4
-  //   thread 4: 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6 7 6
-  //
-  // Turns out that this is incorrect.
-  //
   // For 10 particles, 4 generators and 1, 2, 4 threads we want this:
   //
   // i:  0 1 2 3 4 5 6 7 8 9
-  // g:  0 1 2 3 0 1 2 3 0 1
-  // t1: 0 0 0 0 0 0 0 0 0 0
-  // t2: 0 1 0 1 0 1 0 1 0 1
-  // t4: 0 1 2 3 0 1 2 3 0 1
+  // g:  0 1 2 3 0 1 2 3 0 1 - rng used for the iteration
+  // t1: 0 0 0 0 0 0 0 0 0 0 - thread index that executes each with 1 thread
+  // t2: 0 1 0 1 0 1 0 1 0 1 - ...with 2
+  // t4: 0 1 2 3 0 1 2 3 0 1 - ...with 4
   //
   // So with
   // - 1 thread: 0: (0 1 2 3)
   // - 2 threads 0: (0 2), 1: (1 3)
   // - 4 threads 0: (0), 1: (1), 2: (2), 3: (3)
   //
-  // With appropriate chunk sizing we can do
+  // So the rng number can be picked up directly by doing
   //
-  //   _rng(i % _rng.size())
+  //   i % _rng.size()
   //
-  // though this relies on the openmp scheduler
-  //
-  // But we could drive it off of the thread_idx too...
-  rng_t& pick_generator(const size_t i, const size_t thread_idx) {
+  // though this relies on the openmp scheduler, which technically I
+  // think we should not be doing. We could derive it from the thread
+  // index to provide a set of allowable rngs but this will be harder
+  // to get deterministic.
+  rng_t& pick_generator(const size_t i) {
     return _rng(i % _rng.size());
-    // const size_t m = _rng.size() / _n_threads;
-    // return _rng(i % m + thread_idx * m);
   }
 };
 
