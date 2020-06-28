@@ -227,23 +227,11 @@ test_that("Basic threading test", {
 
   if (has_openmp() && y0[2, 1] == 1) {
     ## OMP is enabled
-    expect_equal(y22_2[2, ], rep(0:1, each = 5))
+    expect_equal(y22_2[2, ], rep(0:1, 5))
   } else {
     expect_equal(y22_2[2, ], rep(-1, 10))
   }
 
-  ## This shows the problem quite easily:
-  rbind(y22_1, y12_1, y11_1)
-
-  ## Hmm
-
-  expect_equal(y12_1, y22_1)
-  expect_equal(y12_1[1,], y12_2[1, ])
-  expect_equal(y12_2[2, ], rep(-1, 10))
-
-
-  expect_identical(y11_1, y12_1)
-  expect_identical(y11_2, y12_2)
-
-
+  expect_equal(y22_1, y12_1)
+  expect_equal(y22_1[c(1, 3, 5, 7, 9)], y11_1[1:5])
 })
