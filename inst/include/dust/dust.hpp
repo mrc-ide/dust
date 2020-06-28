@@ -99,7 +99,10 @@ public:
   void run(const size_t step_end) {
     #pragma omp parallel num_threads(_n_threads)
     {
-      #pragma omp for schedule(monotonic:static, 1)
+      // making this monotonic:static would seem to be more likely to
+      // give us a reliable sequence through the data but this
+      // requires a more recent openmp than at least we have on travis
+      #pragma omp for schedule(static, 1)
       for (size_t i = 0; i < _particles.size(); ++i) {
         _particles[i].run(step_end, pick_generator(i));
       }
