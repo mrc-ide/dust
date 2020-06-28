@@ -5,6 +5,8 @@
 
 class parallel {
 public:
+  typedef int int_t;
+  typedef double real_t;
   struct init_t {
     double sd;
   };
@@ -22,8 +24,8 @@ public:
     std::vector<double> ret = {0, (double) has_openmp};
     return ret;
   }
-  void update(size_t step, const std::vector<double>& state, dust::RNG& rng,
-              std::vector<double>& state_next) {
+  void update(size_t step, const std::vector<double>& state,
+              dust::RNG<double, int>& rng, std::vector<double>& state_next) {
     double mean = state[0];
     state_next[0] = rng.rnorm(mean, data_.sd);
 #ifdef _OPENMP
