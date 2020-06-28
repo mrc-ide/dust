@@ -187,6 +187,9 @@ private:
   // think we should not be doing. We could derive it from the thread
   // index to provide a set of allowable rngs but this will be harder
   // to get deterministic.
+  //
+  // I'm not convinced that this will always do the Right Thing with
+  // loop leftovers either.
   rng_t& pick_generator(const size_t i) {
     return _rng(i % _rng.size());
   }
