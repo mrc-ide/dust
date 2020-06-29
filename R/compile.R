@@ -26,7 +26,7 @@ compile_and_load <- function(filename, type, name, quiet = FALSE,
   }
 
   v <- c("alloc", "run", "reset", "state", "step", "reorder")
-  sym <- getNativeSymbolInfo(sprintf("_%s_%s_%s", base, name, v), base)
+  sym <- getNativeSymbolInfo(sprintf("_%s_dust_%s_%s", base, name, v), base)
   names(sym) <- v
 
   dust_class(sym$alloc, sym$run, sym$reset, sym$state, sym$step, sym$reorder)
@@ -35,11 +35,16 @@ compile_and_load <- function(filename, type, name, quiet = FALSE,
 
 substitute_template <- function(data, src, dest) {
   template <- read_lines(src)
-  txt <- glue::glue(template, .envir = data, .open = "{{", .close = "}}")
+  txt <- glue_whisker(template, data)
   writeLines(txt, dest)
 }
 
 
 substitute_dust_template <- function(data, src, dest) {
   substitute_template(data, dust_file(file.path("template", src)), dest)
+}
+
+
+glue_whisker <- function(template, data) {
+  glue::glue(template, .envir = data, .open = "{{", .close = "}}")
 }

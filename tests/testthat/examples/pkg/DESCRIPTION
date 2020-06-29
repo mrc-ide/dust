@@ -1,0 +1,10 @@
+Package: {{name}}
+LinkingTo: Rcpp, dust
+Imports: Rcpp
+Version: 0.0.1
+Authors@R: c(person("A", "Person", role = c("aut", "cre"),
+                    email = "person@example.com"))
+Title: An Example Using Dust
+Description: Provides an example of dust within a packge. Not intended to
+    be used for anything really.
+License: CC0
