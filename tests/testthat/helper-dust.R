@@ -4,5 +4,5 @@ r6_private <- function(x) {
 
 
 has_openmp <- function() {
-  !is.na(openmp_info()$max_threads)
+  openmp_info()$has_openmp
 }
