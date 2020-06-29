@@ -5,6 +5,9 @@
 
 #include <utility>
 #ifdef _OPENMP
+#if _OPENMP >= 201511
+#define OPENMP_HAS_MONOTONIC 1
+#endif
 #include <omp.h>
 #endif
 
@@ -102,8 +105,15 @@ public:
       // making this monotonic:static would seem to be more likely to
       // give us a reliable sequence through the data but this
       // requires a more recent openmp than at least we have on travis
-      #pragma omp for schedule(static, 1)
+#ifdef OPENMP_HAS_MONOTONIC
+      #pragma omp for schedule(monotonic:static, 1)
+#else
+      #pragma omp for schedule(static, 1) ordered
+#endif
       for (size_t i = 0; i < _particles.size(); ++i) {
+#ifndef OPENMP_HAS_MONOTONIC
+        #pragma omp ordered
+#endif
         _particles[i].run(step_end, pick_generator(i));
       }
     }
