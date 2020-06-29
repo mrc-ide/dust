@@ -1,6 +1,7 @@
 context("package")
 
 test_that("validate package", {
+  skip_if_not_installed("pkgload")
   path <- tempfile()
   dir.create(path)
   dir.create(file.path(path, "inst/dust"), FALSE, TRUE)
