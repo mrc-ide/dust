@@ -13,6 +13,7 @@ test_that("validate package", {
   writeLines(glue_whisker(read_lines("examples/pkg/NAMESPACE"), data),
              file.path(path, "NAMESPACE"))
   file.copy(dust_file("examples/walk.cpp"), file.path(path, "inst/dust"))
+  file.copy(dust_file("examples/sir.cpp"), file.path(path, "inst/dust"))
 
   path <- dust_package(path)
 
