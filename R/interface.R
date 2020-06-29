@@ -61,6 +61,23 @@
 ##'   the returned object must be standard C/C++ (e.g., STL) types and
 ##'   *not* Rcpp types.
 ##'
+##' Your model *may* provided a template specialisation
+##'   `dust_data<model::init_t>()` returning a `Rcpp::RObject` for
+##'   returning arbitrary information back to the R session:
+##'
+##' ```
+##' template <>
+##' Rcpp::RObject dust_info<model>(const model::init_t& data) {
+##'   return Rcpp::wrap(...);
+##' }
+##' ```
+##'
+##' What you do with this is up to you. If not present then the
+##'   `info()` method on the created object will return `NULL`.
+##'   Potential use cases for this are to return information about
+##'   variable ordering, or any processing done while accepting the
+##'   data object used to create the data fed into the particles.
+##'
 ##' @title Create a dust model from a C++ input file
 ##'
 ##' @param filename The path to a single C++ file
@@ -201,6 +218,13 @@ dust_interface <- R6::R6Class(
     ##' indicating the index of the current particles that new particles should
     ##' take.
     reorder = function(index) {
+    },
+
+    ##' @description
+    ##' Returns information about the data that your model was created with.
+    ##' Only returns non-NULL if the model provides a `dust_info` template
+    ##' specialisation.
+    info = function() {
     }
   ))
 
