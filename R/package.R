@@ -14,13 +14,11 @@
 ##'
 ##' @param path Path to the package
 ##'
-##' @param compile Should the package be compiled?
-##'
 ##' @title Create dust model in package
 ##' @return Nothing, this function is called for its side effects
 ##' @export
 ##' @author Rich Fitzjohn
-dust_package <- function(path, compile = TRUE) {
+dust_package <- function(path, path_models = NULL) {
   ## 1. check that the package is legit
   root <- package_validate(path)
   path_dust <- file.path(root, "inst/dust")
