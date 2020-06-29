@@ -85,6 +85,20 @@ With the body interacting with \code{data} to create an object of type
 in serial and may use anything in the Rcpp API.  All elements of
 the returned object must be standard C/C++ (e.g., STL) types and
 \emph{not} Rcpp types.
+
+Your model \emph{may} provided a template specialisation
+\verb{dust_data<model::init_t>()} returning a \code{Rcpp::RObject} for
+returning arbitrary information back to the R session:\preformatted{template <>
+Rcpp::RObject dust_info<model>(const model::init_t& data) \{
+  return Rcpp::wrap(...);
+\}
+}
+
+What you do with this is up to you. If not present then the
+\code{info()} method on the created object will return \code{NULL}.
+Potential use cases for this are to return information about
+variable ordering, or any processing done while accepting the
+data object used to create the data fed into the particles.
 }
 
 \examples{
@@ -131,6 +145,7 @@ obj$state()
 \item \href{#method-state}{\code{dust_interface$state()}}
 \item \href{#method-step}{\code{dust_interface$step()}}
 \item \href{#method-reorder}{\code{dust_interface$reorder()}}
+\item \href{#method-info}{\code{dust_interface$info()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -254,5 +269,17 @@ take.}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-info"></a>}}
+\if{latex}{\out{\hypertarget{method-info}{}}}
+\subsection{Method \code{info()}}{
+Returns information about the data that your model was created with.
+Only returns non-NULL if the model provides a \code{dust_info} template
+specialisation.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_interface$info()}\if{html}{\out{</div>}}
+}
+
 }
 }

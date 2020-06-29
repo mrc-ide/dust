@@ -2,13 +2,17 @@
 
 template <typename T>
 typename T::init_t dust_data(Rcpp::List data);
+
+template <typename T>
+typename Rcpp::RObject dust_info(const typename T::init_t& data);
+
 inline void validate_n(size_t n_generators, size_t n_threads);
 inline void validate_size(int x, const char * name);
 
 template <typename T>
-Rcpp::XPtr<Dust<T>> dust_alloc(Rcpp::List r_data, int step,
-                               int n_particles, int n_threads,
-                               int n_generators, int seed) {
+Rcpp::List dust_alloc(Rcpp::List r_data, int step,
+                      int n_particles, int n_threads,
+                      int n_generators, int seed) {
   validate_size(step, "step");
   validate_size(n_particles, "n_particles");
   validate_size(n_threads, "n_threads");
@@ -26,7 +30,9 @@ Rcpp::XPtr<Dust<T>> dust_alloc(Rcpp::List r_data, int step,
     new Dust<T>(data, step, index_y, n_particles, n_threads, n_generators,
                 seed);
   Rcpp::XPtr<Dust<T>> ptr(d, false);
-  return ptr;
+  Rcpp::RObject info = dust_info<T>(data);
+
+  return Rcpp::List::create(ptr, info);
 }
 
 template <typename T>
@@ -46,11 +52,12 @@ Rcpp::NumericMatrix dust_run(SEXP ptr, int step_end) {
 }
 
 template <typename T>
-void dust_reset(SEXP ptr, Rcpp::List r_data, int step) {
+Rcpp::RObject dust_reset(SEXP ptr, Rcpp::List r_data, int step) {
   validate_size(step, "step");
   typename T::init_t data = dust_data<T>(r_data);
   Dust<T> *obj = Rcpp::as<Rcpp::XPtr<Dust<T>>>(ptr);
   obj->reset(data, step);
+  return dust_info<T>(data);
 }
 
 template <typename T>
@@ -92,6 +99,13 @@ void dust_reorder(SEXP ptr, Rcpp::IntegerVector r_index) {
   }
 
   obj->reorder(index);
+}
+
+// Trivial default implementation of a method for getting back
+// arbitrary information from the object.
+template <typename T>
+Rcpp::RObject dust_info(const typename T::init_t& data) {
+  return R_NilValue;
 }
 
 inline void validate_n(size_t n_generators, size_t n_threads) {

@@ -55,13 +55,29 @@ sir::init_t dust_data<sir>(Rcpp::List data) {
   double I0 = 10.0;
   double S0 = 1000.0;
   double steps_per_day = 4;
-  // Some boilerplate needed here in order to set user parameters
-  // given a default that exists, though we'll never be using it like
-  // that?
   double dt = 1 / (double) steps_per_day;
   double initial_I = I0;
   double initial_S = S0;
   double p_IR = 1 - std::exp(-(gamma));
+
+  if (data.containsElementNamed("beta")) {
+    beta = Rcpp::as<double>(data["beta"]);
+  }
+  if (data.containsElementNamed("gamma")) {
+    gamma = Rcpp::as<double>(data["gamma"]);
+  }
+
   return sir::init_t{beta, dt, gamma, I0, initial_I, initial_R, initial_S,
       p_IR, S0, steps_per_day};
+}
+
+template <>
+Rcpp::RObject dust_info<sir>(const sir::init_t& data) {
+  // Information about state order
+  Rcpp::CharacterVector vars = Rcpp::CharacterVector::create("S", "I", "R");
+  // Information about parameter values
+  Rcpp::List pars = Rcpp::List::create(Rcpp::Named("beta") = data.beta,
+                                       Rcpp::Named("gamma") = data.gamma);
+  return Rcpp::List::create(Rcpp::Named("vars") = vars,
+                            Rcpp::Named("pars") = pars);
 }
