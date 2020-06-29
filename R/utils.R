@@ -59,3 +59,8 @@ openmp_info <- function() {
   info <- cpp_openmp_info()
   c(info, env)
 }
+
+
+vcapply <- function(x, fun, ...) {
+  vapply(x, fun, character(1), ...)
+}
