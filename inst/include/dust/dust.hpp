@@ -102,9 +102,13 @@ public:
   void run(const size_t step_end) {
     #pragma omp parallel num_threads(_n_threads)
     {
-      // making this monotonic:static would seem to be more likely to
-      // give us a reliable sequence through the data but this
-      // requires a more recent openmp than at least we have on travis
+      // Making this monotonic:static gives us a reliable sequence
+      // through the data, forcing each thread to move through with a
+      // stride of n_threads. However, this requires relatively recent
+      // openmp (>= 4.5, released in 2015) so we will fall back on
+      // ordered which will work over more versions at the risk of
+      // being slower if there is any variation in how long each
+      // iteration takes.
 #ifdef OPENMP_HAS_MONOTONIC
       #pragma omp for schedule(monotonic:static, 1)
 #else
