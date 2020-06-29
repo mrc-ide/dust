@@ -25,3 +25,21 @@ test_that("assert_file_exists", {
   file.create(p)
   expect_silent(assert_file_exists(p))
 })
+
+
+test_that("openmp_info returns environment variables", {
+  skip_if_not_installed("withr")
+  withr::with_envvar(
+    c("OMP_THREAD_LIMIT" = "64", "OMP_NUM_THREADS" = "2"), {
+      info <- openmp_info()
+      expect_identical(info[["OMP_THREAD_LIMIT"]], 64L)
+      expect_identical(info[["OMP_NUM_THREADS"]], 2L)
+    })
+
+  withr::with_envvar(
+    c("OMP_THREAD_LIMIT" = NA, "OMP_NUM_THREADS" = NA), {
+      info <- openmp_info()
+      expect_identical(info[["OMP_THREAD_LIMIT"]], NA_integer_)
+      expect_identical(info[["OMP_NUM_THREADS"]], NA_integer_)
+    })
+})

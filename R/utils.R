@@ -41,3 +41,21 @@ assert_file_exists <- function(path, name = "File") {
 is_directory <- function(path) {
   file.info(path)$isdir
 }
+
+
+set_names <- function(x, nms) {
+  names(x) <- nms
+  x
+}
+
+
+## NOTE: This does not return if the *compiler* supports openmp, just
+## the runtime.  While we are testing that will be the same thing, but
+## after installation from binary this requires really a compile time
+## test of a simple openmp program.
+openmp_info <- function() {
+  env <- Sys.getenv(c("OMP_THREAD_LIMIT", "OMP_NUM_THREADS"))
+  env <- set_names(as.list(as.integer(env)), names(env))
+  info <- cpp_openmp_info()
+  c(info, env)
+}

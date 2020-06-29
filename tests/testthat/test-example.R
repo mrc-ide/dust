@@ -194,3 +194,44 @@ test_that("reset changes info", {
                list(vars = c("S", "I", "R"),
                     pars = list(beta = 0.1, gamma = 0.1)))
 })
+
+
+test_that("Basic threading test", {
+  res <- compile_and_load(dust_file("examples/parallel.cpp"), "parallel",
+                          "myparallel", quiet = TRUE)
+  expect_error(
+    res$new(list(sd = 1), 0, 10, n_threads = 2L),
+    "n_generators must be at least n_threads")
+  expect_error(
+    res$new(list(sd = 1), 0, 10, n_threads = 2L, n_generators = 3L),
+    "n_generators must be a multiple of n_threads")
+
+  obj <- res$new(list(sd = 1), 0, 10, n_threads = 2L, n_generators = 2L)
+  y0 <- obj$state()
+  y22_1 <- obj$run(5)
+  y22_2 <- obj$state()
+
+  ## And again without parallel
+  obj <- res$new(list(sd = 1), 0, 10, n_threads = 1L, n_generators = 2L)
+  y12_1 <- obj$run(5)
+  y12_2 <- obj$state()
+
+  obj <- res$new(list(sd = 1), 0, 10, n_threads = 1L, n_generators = 1L)
+  y11_1 <- obj$run(5)
+  y11_2 <- obj$state()
+
+  ## Quick easy check:
+  expect_equal(y22_1[1, ], y22_2[1, ])
+  expect_equal(y12_1[1, ], y12_2[1, ])
+  expect_equal(y11_1[1, ], y11_2[1, ])
+
+  if (has_openmp() && y0[2, 1] == 1) {
+    ## OMP is enabled
+    expect_equal(y22_2[2, ], rep(0:1, 5))
+  } else {
+    expect_equal(y22_2[2, ], rep(-1, 10))
+  }
+
+  expect_equal(y22_1, y12_1)
+  expect_equal(y22_1[c(1, 3, 5, 7, 9)], y11_1[1:5])
+})
