@@ -4,6 +4,8 @@ test_that("create walk, stepping for one step", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
                           quiet = TRUE)
   obj <- res$new(list(sd = 1), 0, 10)
+  expect_null(obj$info())
+
   y <- obj$run(1)
   cmp <- test_rng_norm(10, 1, 1)
   expect_identical(drop(y), cmp)
@@ -29,11 +31,10 @@ test_that("Reset particles and resume continues with rng", {
   sd2 <- 4
 
   obj <- res$new(list(sd = sd1), 0, 10)
-  expect_equal(obj$info(), sd1)
+
   y1 <- obj$run(5)
   expect_equal(obj$step(), 5)
   obj$reset(list(sd = sd2), 0)
-  expect_equal(obj$info(), sd2)
   expect_equal(obj$step(), 0)
   y2 <- obj$run(5)
   expect_equal(obj$step(), 5)
@@ -53,7 +54,6 @@ test_that("Basic sir model", {
                           quiet = TRUE)
 
   obj <- res$new(list(), 0, 100)
-  expect_null(obj$info())
 
   ans <- vector("list", 150)
   for (i in seq_along(ans)) {
@@ -179,4 +179,18 @@ test_that("run in float mode", {
 
   expect_equal(y_d, y_f, tolerance = 1e-5)
   expect_false(identical(y_d, y_f))
+})
+
+
+test_that("reset changes info", {
+  res <- compile_and_load(dust_file("examples/sir.cpp"), "sir", "mysir",
+                          quiet = TRUE)
+  obj <- res$new(list(), 0, 100)
+  expect_equal(obj$info(),
+               list(vars = c("S", "I", "R"),
+                    pars = list(beta = 0.2, gamma = 0.1)))
+  obj$reset(list(beta = 0.1), 0)
+  expect_equal(obj$info(),
+               list(vars = c("S", "I", "R"),
+                    pars = list(beta = 0.1, gamma = 0.1)))
 })

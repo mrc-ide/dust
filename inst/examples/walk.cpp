@@ -29,8 +29,3 @@ walk::init_t dust_data<walk>(Rcpp::List data) {
   walk::real_t sd = Rcpp::as<walk::real_t>(data["sd"]);
   return walk::init_t{sd};
 }
-
-template <>
-Rcpp::RObject dust_info<walk>(const walk::init_t& data) {
-  return Rcpp::wrap(data.sd);
-}
