@@ -1,0 +1,2 @@
+useDynLib("{{name}}", .registration = TRUE)
+import(Rcpp)

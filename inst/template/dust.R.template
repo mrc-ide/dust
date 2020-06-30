@@ -1,0 +1,46 @@
+{{name}} <- R6::R6Class(
+  "dust",
+  cloneable = FALSE,
+
+  private = list(
+    data = NULL,
+    ptr = NULL
+  ),
+
+  public = list(
+    name = "{{name}}",
+
+    initialize = function(data, step, n_particles, n_threads = 1L,
+                          n_generators = 1L, seed = 1L) {
+      res <- dust_{{name}}_alloc(data, step, n_particles,
+                        n_threads, n_generators, seed)
+      private$ptr <- res[[1L]]
+      private$data <- res[[2L]]
+    },
+
+    run = function(step_end) {
+      dust_{{name}}_run(private$ptr, step_end)
+    },
+
+    reset = function(data, step) {
+      private$data <- dust_{{name}}_reset(private$ptr, data, step)
+      invisible()
+    },
+
+    state = function() {
+      dust_{{name}}_state(private$ptr)
+    },
+
+    step = function() {
+      dust_{{name}}_step(private$ptr)
+    },
+
+    reorder = function(index) {
+      dust_{{name}}_reorder(private$ptr, as.integer(index))
+      invisible()
+    },
+
+    info = function() {
+      private$data
+    }
+  ))
