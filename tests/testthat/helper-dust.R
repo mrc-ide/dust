@@ -11,9 +11,8 @@ has_openmp <- function() {
 create_test_package <- function(name = "pkg", path = tempfile()) {
   dir.create(path)
   dir.create(file.path(path, "inst/dust"), FALSE, TRUE)
+  dir.create(file.path(path, "R"), FALSE, TRUE)
   dir.create(file.path(path, "src"), FALSE, TRUE)
-
-  name <- "pkg"
 
   data <- list(name = name)
   writeLines(glue_whisker(read_lines("examples/pkg/DESCRIPTION"), data),
