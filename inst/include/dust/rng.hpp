@@ -54,7 +54,7 @@ private:
 
 
 template <typename real_t, typename int_t>
-class pRNG {
+class pRNG { // # nocov
 public:
   pRNG(const size_t n, const uint64_t seed) {
     dust::Xoshiro<real_t> rng(seed);
