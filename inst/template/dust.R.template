@@ -27,8 +27,8 @@
       invisible()
     },
 
-    state = function() {
-      dust_{{name}}_state(private$ptr)
+    state = function(index) {
+      dust_{{name}}_state(private$ptr, index)
     },
 
     step = function() {

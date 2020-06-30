@@ -265,8 +265,8 @@ dust_class <- function(alloc, run, reset, state, step, reorder,
         invisible()
       },
 
-      state = function() {
-        .Call(private$cpp_state, private$ptr)
+      state = function(index = NULL) {
+        .Call(private$cpp_state, private$ptr, index)
       },
 
       step = function() {

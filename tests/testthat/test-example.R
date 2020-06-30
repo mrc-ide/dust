@@ -74,6 +74,18 @@ test_that("Basic sir model", {
   expect_false(all(state_i[-n, ] - state_i[-1, ] >= 0))
   expect_identical(value, state_s)
   expect_equal(step, seq(4, by = 4, length.out = n))
+
+  s <- ans[[150]]$state
+  expect_equal(obj$state(), s)
+  expect_equal(obj$state(1), s[1, , drop = FALSE])
+  expect_equal(obj$state(3:1), s[3:1, , drop = FALSE])
+  expect_equal(obj$state(c(2, 2)), s[c(2, 2), , drop = FALSE])
+  expect_error(obj$state(0),
+               "All elements of 'index' must lie in [1, 3]",
+               fixed = TRUE)
+  expect_error(obj$state(1:4),
+               "All elements of 'index' must lie in [1, 3]",
+               fixed = TRUE)
 })
 
 
