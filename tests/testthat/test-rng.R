@@ -176,3 +176,14 @@ test_that("continue stream", {
   y2 <- c(y2_1, y2_2)
   expect_identical(y1, y2)
 })
+
+
+test_that("recycle failure", {
+  p <- runif(10)
+  expect_equal(recycle(p[[1]], 10), rep(p[[1]], 10))
+  expect_equal(recycle(p, 10), p)
+  expect_error(recycle(p, 5),
+               "Invalid length for 'p', expected 1 or 5")
+  expect_error(recycle(p, 15),
+               "Invalid length for 'p', expected 1 or 15")
+})
