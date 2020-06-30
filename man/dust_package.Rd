@@ -4,7 +4,7 @@
 \alias{dust_package}
 \title{Create dust model in package}
 \usage{
-dust_package(path, path_models = NULL)
+dust_package(path)
 }
 \arguments{
 \item{path}{Path to the package}
