@@ -27,6 +27,7 @@
 ##' rng$rpois(5, 2)
 dust_rng <- R6::R6Class(
   "dust_rng",
+  cloneable = FALSE,
 
   private = list(
     ptr = NULL,

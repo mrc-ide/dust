@@ -44,7 +44,6 @@ Create a `dust_rng` object
 \item \href{#method-rnorm}{\code{dust_rng$rnorm()}}
 \item \href{#method-rbinom}{\code{dust_rng$rbinom()}}
 \item \href{#method-rpois}{\code{dust_rng$rpois()}}
-\item \href{#method-clone}{\code{dust_rng$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -212,23 +211,6 @@ Generate \code{n} numbers from a Poisson distribution}
 \item{\code{n}}{Number of samples to draw}
 
 \item{\code{lambda}}{The mean (zero or more, length 1 or n)}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$clone(deep = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
 }
 \if{html}{\out{</div>}}
 }
