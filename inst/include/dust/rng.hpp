@@ -18,7 +18,8 @@ public:
   }
 
   real_t norm_rand() {
-    return _generator.norm_rand();
+    static std::normal_distribution<real_t> norm(0, 1);
+    return norm(_generator);
   }
 
   real_t runif(real_t min, real_t max) {

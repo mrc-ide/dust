@@ -35,11 +35,6 @@ public:
     return unif_dist(*this);
   }
 
-  T norm_rand() {
-    static std::normal_distribution<T> norm_dist(0, 1);
-    return norm_dist(*this);
-  }
-
   Xoshiro(uint64_t seed);
 
   // Change internal state

@@ -145,3 +145,12 @@ test_that("Big poisson numbers", {
   expect_equal(mean(ans1), lambda, 1e-2)
   expect_equal(var(ans1), lambda, 1e-2)
 })
+
+
+test_that("norm_rand agrees with rnorm", {
+  n <- 100000
+  ans <- dust_rng$new(2, 1)$norm_rand(n)
+  expect_equal(mean(ans), 0, tolerance = 1e-2)
+  expect_equal(var(ans), 1, tolerance = 1e-2)
+  expect_gt(ks.test(ans, "pnorm")$p.value, 0.1)
+})
