@@ -11,6 +11,18 @@ SEXP dust_rng_alloc(int seed, int n_generators) {
 }
 
 // [[Rcpp::export(rng = false)]]
+void dust_rng_jump(SEXP ptr) {
+  dust_rng_t *rng = Rcpp::as<Rcpp::XPtr<dust_rng_t>>(ptr);
+  rng->jump();
+}
+
+// [[Rcpp::export(rng = false)]]
+void dust_rng_long_jump(SEXP ptr) {
+  dust_rng_t *rng = Rcpp::as<Rcpp::XPtr<dust_rng_t>>(ptr);
+  rng->long_jump();
+}
+
+// [[Rcpp::export(rng = false)]]
 std::vector<double> dust_rng_unif_rand(SEXP ptr, int n) {
   dust_rng_t *rng = Rcpp::as<Rcpp::XPtr<dust_rng_t>>(ptr);
   const size_t n_generators = rng->size();

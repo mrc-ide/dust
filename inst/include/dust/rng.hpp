@@ -40,6 +40,14 @@ public:
     return dust::distr::rpois<real_t, int_t>(_generator, lambda);
   }
 
+  void jump() {
+    _generator.jump();
+  }
+
+  void long_jump() {
+    _generator.long_jump();
+  }
+
 private:
   dust::Xoshiro<real_t> _generator;
 };
@@ -66,6 +74,18 @@ public:
 
   size_t size() const {
     return _rngs.size();
+  }
+
+  void jump() {
+    for (size_t i = 0; i < _rngs.size(); ++i) {
+      _rngs[i].jump();
+    }
+  }
+
+  void long_jump() {
+    for (size_t i = 0; i < _rngs.size(); ++i) {
+      _rngs[i].long_jump();
+    }
   }
 
 private:

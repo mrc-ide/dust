@@ -187,3 +187,21 @@ test_that("recycle failure", {
   expect_error(recycle(p, 15),
                "Invalid length for 'p', expected 1 or 15")
 })
+
+
+test_that("jump", {
+  seed <- 1
+  rng1a <- dust_rng$new(seed, 1L)
+  rng1b <- dust_rng$new(seed, 1L)
+  rng2 <- dust_rng$new(seed, 2L)
+  rng1b$jump()
+
+
+  r2 <- rng2$unif_rand(20)
+  r1a <- rng1a$unif_rand(10)
+  r1b <- rng1b$unif_rand(10)
+
+  m1 <- rbind(r1a, r1b, deparse.level = 0)
+  m2 <- matrix(r2, 2)
+  expect_equal(m1, m2)
+})

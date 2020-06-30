@@ -16,6 +16,14 @@ dust_rng <- R6::R6Class(
       private$n_generators
     },
 
+    jump = function() {
+      dust_rng_jump(private$ptr)
+    },
+
+    long_jump = function() {
+      dust_rng_long_jump(private$ptr)
+    },
+
     unif_rand = function(n) {
       dust_rng_unif_rand(private$ptr, n)
     },

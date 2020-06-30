@@ -16,6 +16,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// dust_rng_jump
+void dust_rng_jump(SEXP ptr);
+RcppExport SEXP _dust_dust_rng_jump(SEXP ptrSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
+    dust_rng_jump(ptr);
+    return R_NilValue;
+END_RCPP
+}
+// dust_rng_long_jump
+void dust_rng_long_jump(SEXP ptr);
+RcppExport SEXP _dust_dust_rng_long_jump(SEXP ptrSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
+    dust_rng_long_jump(ptr);
+    return R_NilValue;
+END_RCPP
+}
 // dust_rng_unif_rand
 std::vector<double> dust_rng_unif_rand(SEXP ptr, int n);
 RcppExport SEXP _dust_dust_rng_unif_rand(SEXP ptrSEXP, SEXP nSEXP) {
@@ -101,6 +119,8 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_rng_alloc", (DL_FUNC) &_dust_dust_rng_alloc, 2},
+    {"_dust_dust_rng_jump", (DL_FUNC) &_dust_dust_rng_jump, 1},
+    {"_dust_dust_rng_long_jump", (DL_FUNC) &_dust_dust_rng_long_jump, 1},
     {"_dust_dust_rng_unif_rand", (DL_FUNC) &_dust_dust_rng_unif_rand, 2},
     {"_dust_dust_rng_norm_rand", (DL_FUNC) &_dust_dust_rng_norm_rand, 2},
     {"_dust_dust_rng_runif", (DL_FUNC) &_dust_dust_rng_runif, 4},

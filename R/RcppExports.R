@@ -5,6 +5,14 @@ dust_rng_alloc <- function(seed, n_generators) {
     .Call(`_dust_dust_rng_alloc`, seed, n_generators)
 }
 
+dust_rng_jump <- function(ptr) {
+    invisible(.Call(`_dust_dust_rng_jump`, ptr))
+}
+
+dust_rng_long_jump <- function(ptr) {
+    invisible(.Call(`_dust_dust_rng_long_jump`, ptr))
+}
+
 dust_rng_unif_rand <- function(ptr, n) {
     .Call(`_dust_dust_rng_unif_rand`, ptr, n)
 }
