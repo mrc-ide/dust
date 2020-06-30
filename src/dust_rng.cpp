@@ -11,6 +11,12 @@ SEXP dust_rng_alloc(int seed, int n_generators) {
 }
 
 // [[Rcpp::export(rng = false)]]
+int dust_rng_size(SEXP ptr) {
+  dust_rng_t *rng = Rcpp::as<Rcpp::XPtr<dust_rng_t>>(ptr);
+  return static_cast<int>(rng->size());
+}
+
+// [[Rcpp::export(rng = false)]]
 void dust_rng_jump(SEXP ptr) {
   dust_rng_t *rng = Rcpp::as<Rcpp::XPtr<dust_rng_t>>(ptr);
   rng->jump();

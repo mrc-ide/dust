@@ -5,6 +5,10 @@ dust_rng_alloc <- function(seed, n_generators) {
     .Call(`_dust_dust_rng_alloc`, seed, n_generators)
 }
 
+dust_rng_size <- function(ptr) {
+    .Call(`_dust_dust_rng_size`, ptr)
+}
+
 dust_rng_jump <- function(ptr) {
     invisible(.Call(`_dust_dust_rng_jump`, ptr))
 }

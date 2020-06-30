@@ -43,13 +43,12 @@ dust_rng <- R6::R6Class(
     ##'   function never runs in parallel, this is used to create a set of
     ##'   interleaved independent generators as dust would use in a model.
     initialize = function(seed, n_generators = 1L) {
-      private$n_generators <- n_generators
       private$ptr <- dust_rng_alloc(seed, n_generators)
     },
 
     ##' @description Number of generators available
     size = function() {
-      private$n_generators
+      dust_rng_size(private$ptr)
     },
 
     ##' @description The jump function for the generator, equivalent to

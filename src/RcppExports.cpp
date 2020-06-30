@@ -16,6 +16,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// dust_rng_size
+int dust_rng_size(SEXP ptr);
+RcppExport SEXP _dust_dust_rng_size(SEXP ptrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
+    rcpp_result_gen = Rcpp::wrap(dust_rng_size(ptr));
+    return rcpp_result_gen;
+END_RCPP
+}
 // dust_rng_jump
 void dust_rng_jump(SEXP ptr);
 RcppExport SEXP _dust_dust_rng_jump(SEXP ptrSEXP) {
@@ -119,6 +129,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_rng_alloc", (DL_FUNC) &_dust_dust_rng_alloc, 2},
+    {"_dust_dust_rng_size", (DL_FUNC) &_dust_dust_rng_size, 1},
     {"_dust_dust_rng_jump", (DL_FUNC) &_dust_dust_rng_jump, 1},
     {"_dust_dust_rng_long_jump", (DL_FUNC) &_dust_dust_rng_long_jump, 1},
     {"_dust_dust_rng_unif_rand", (DL_FUNC) &_dust_dust_rng_unif_rand, 2},
