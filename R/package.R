@@ -75,8 +75,8 @@ package_validate <- function(path) {
   package_validate_has_dep(deps, "Rcpp", "LinkingTo")
   package_validate_has_dep(deps, "dust", "LinkingTo")
 
-  ## TODO: check namespace file - parse it directly and look for the
-  ## useDynLib expression.
+  name <- desc$get_field("Package")
+  package_validate_namespace(file.path(path, "NAMESPACE"), name)
 
   path
 }
@@ -102,6 +102,46 @@ package_validate_destination <- function(path, files) {
         f))
     }
   }
+}
+
+
+package_validate_namespace <- function(path, name) {
+  exprs <- as.list(parse(path))
+  package_validate_namespace_usedynlib(exprs, name)
+  package_validate_namespace_import(exprs)
+}
+
+
+package_validate_namespace_usedynlib <- function(exprs, name) {
+  for (e in exprs) {
+    if (is_call(e, "useDynLib")) {
+      lib <- e[[2]]
+      if (is.name(lib)) {
+        lib <- deparse(lib)
+      }
+      if (identical(lib, name)) {
+        return()
+      }
+      stop(sprintf("Found a useDynLib call but not for '%s'", name))
+    }
+  }
+  stop("Did not find a useDynLib call in NAMESPACE")
+}
+
+
+package_validate_namespace_import <- function(exprs) {
+  for (e in exprs) {
+    if (is_call(e, "import") || is_call(e, "importFrom")) {
+      lib <- e[[2]]
+      if (is.name(lib)) {
+        lib <- deparse(lib)
+      }
+      if (identical(lib, "Rcpp")) {
+        return()
+      }
+    }
+  }
+  stop("Did not find an import or importFrom call to Rcpp in NAMESPACE")
 }
 
 

@@ -64,3 +64,8 @@ openmp_info <- function() {
 vcapply <- function(x, fun, ...) {
   vapply(x, fun, character(1), ...)
 }
+
+
+is_call <- function(x, name) {
+  is.call(x) && identical(deparse(x[[1]]), name)
+}

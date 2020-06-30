@@ -106,3 +106,56 @@ test_that("Fail to run if DESCRIPTION missing", {
     package_validate(path),
     "Expected a file 'DESCRIPTION' at path '.+'")
 })
+
+
+test_that("Validate NAMESPACE has correct useDynLib call", {
+  path <- create_test_package()
+  path_ns <- file.path(path, "NAMESPACE")
+
+  expect_null(package_validate_namespace(path_ns, "pkg"))
+  expect_error(
+    package_validate_namespace(path_ns, "other"),
+    "Found a useDynLib call but not for 'other'")
+
+  txt <- readLines(path_ns)
+  writeLines(gsub('"', "", txt), path_ns)
+  expect_null(package_validate_namespace(path_ns, "pkg"))
+  expect_error(
+    package_validate_namespace(path_ns, "other"),
+    "Found a useDynLib call but not for 'other'")
+
+  file.create(path_ns)
+  expect_error(
+    package_validate_namespace(path_ns, "other"),
+    "Did not find a useDynLib call in NAMESPACE")
+})
+
+
+test_that("Validate NAMESPACE has correct import call", {
+  path_ns <- tempfile()
+
+  f <- function(code) {
+    writeLines(c('useDynLib("pkg", .registration = TRUE)', code), path_ns)
+    package_validate_namespace(path_ns, "pkg")
+  }
+
+  expect_null(f("import(Rcpp)"))
+  expect_null(f("importFrom(Rcpp, evalCpp)"))
+  expect_null(f('import("Rcpp")'))
+  expect_null(f('import("Rcpp", "evalCpp")'))
+
+  expect_null(f(c("import(dust)", "import(Rcpp)")))
+
+  expect_error(
+    f("import(dust)"),
+    "Did not find an import or importFrom call to Rcpp in NAMESPACE")
+})
+
+
+test_that("Validate NAMESPACE from dust_package", {
+  path <- create_test_package()
+  file.create(file.path(path, "NAMESPACE"))
+  expect_error(
+    dust_package(path),
+    "Did not find a useDynLib call in NAMESPACE")
+})
