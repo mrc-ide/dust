@@ -38,8 +38,8 @@ dust_package <- function(path) {
   package_validate_destination(root, files)
 
   ## 4. generate code
-  template_r <- read_lines(dust_file("template/dust.R"))
-  template_cpp <- read_lines(dust_file("template/dust.cpp"))
+  template_r <- read_lines(dust_file("template/dust.R.template"))
+  template_cpp <- read_lines(dust_file("template/dust.cpp.template"))
   data <- lapply(file.path(path_dust, files), package_generate,
                  template_cpp, template_r)
 
