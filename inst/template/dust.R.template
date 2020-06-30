@@ -27,7 +27,7 @@
       invisible()
     },
 
-    state = function(index) {
+    state = function(index = NULL) {
       dust_{{name}}_state(private$ptr, index)
     },
 
