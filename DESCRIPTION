@@ -24,7 +24,7 @@ LinkingTo:
 Suggests:
     mockery,
     pkgload,
-    withr,
-    testthat
+    testthat,
+    withr
 RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)
