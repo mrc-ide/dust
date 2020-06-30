@@ -17,7 +17,6 @@
 ##' @title Create dust model in package
 ##' @return Nothing, this function is called for its side effects
 ##' @export
-##' @author Rich Fitzjohn
 dust_package <- function(path) {
   ## 1. check that the package is legit
   root <- package_validate(path)
