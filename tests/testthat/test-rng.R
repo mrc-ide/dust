@@ -164,3 +164,15 @@ test_that("norm_rand agrees with rnorm", {
   expect_equal(var(ans), 1, tolerance = 1e-2)
   expect_gt(ks.test(ans, "pnorm")$p.value, 0.1)
 })
+
+
+test_that("continue stream", {
+  rng1 <- dust_rng$new(1, 1L)
+  rng2 <- dust_rng$new(1, 1L)
+
+  y1 <- rng1$runif(100, 0, 1)
+  y2_1 <- rng2$runif(50, 0, 1)
+  y2_2 <- rng2$runif(50, 0, 1)
+  y2 <- c(y2_1, y2_2)
+  expect_identical(y1, y2)
+})
