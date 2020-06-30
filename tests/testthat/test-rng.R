@@ -210,12 +210,17 @@ test_that("long jump", {
   rng1 <- dust_rng$new(seed, 1L)
   rng2 <- dust_rng$new(seed, 1L)$jump()
   rng3 <- dust_rng$new(seed, 1L)$long_jump()
+  rng4 <- dust_rng$new(seed, 1L)$long_jump()$jump()
 
   r1 <- rng1$unif_rand(20)
   r2 <- rng2$unif_rand(20)
   r3 <- rng3$unif_rand(20)
+  r4 <- rng3$unif_rand(20)
 
   expect_true(all(r1 != r2))
   expect_true(all(r1 != r3))
+  expect_true(all(r1 != r4))
   expect_true(all(r2 != r3))
+  expect_true(all(r2 != r4))
+  expect_true(all(r3 != r4))
 })
