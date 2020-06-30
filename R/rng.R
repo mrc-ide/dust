@@ -13,7 +13,7 @@ dust_rng <- R6::R6Class(
     },
 
     size = function() {
-      self$n_generators
+      private$n_generators
     },
 
     unif_rand = function(n) {

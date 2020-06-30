@@ -14,10 +14,15 @@ test_that("Create interleaved rng", {
   n <- 128
   seed <- 1
 
-  ans1 <- dust_rng$new(seed, 1L)$unif_rand(n)
-  ans2 <- dust_rng$new(seed, 2L)$unif_rand(n)
-  ans3 <- dust_rng$new(seed, 4L)$unif_rand(n)
-  ans4 <- dust_rng$new(seed, 8L)$unif_rand(n)
+  rng1 <- dust_rng$new(seed, 1L)
+  rng2 <- dust_rng$new(seed, 2L)
+  rng3 <- dust_rng$new(seed, 4L)
+  rng4 <- dust_rng$new(seed, 8L)
+
+  ans1 <- rng1$unif_rand(n)
+  ans2 <- rng2$unif_rand(n)
+  ans3 <- rng3$unif_rand(n)
+  ans4 <- rng4$unif_rand(n)
 
   ## We can find elements from the first rng through the other
   ## sequences:
@@ -28,6 +33,11 @@ test_that("Create interleaved rng", {
   ## The second also appears:
   expect_equal(ans2[seq(2, 64, by = 2)], ans3[seq(2, 128, by = 4)])
   expect_equal(ans2[seq(2, 32, by = 2)], ans4[seq(2, 128, by = 8)])
+
+  expect_equal(rng1$size(), 1)
+  expect_equal(rng2$size(), 2)
+  expect_equal(rng3$size(), 4)
+  expect_equal(rng4$size(), 8)
 })
 
 
