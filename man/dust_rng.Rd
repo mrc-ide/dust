@@ -28,8 +28,6 @@ rng$rbinom(5, 10, 0.3)
 
 # Poisson distributed random numbers with mean lambda
 rng$rpois(5, 2)
-Create a `dust_rng` object
-
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -50,6 +48,7 @@ Create a `dust_rng` object
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
+Create a \code{dust_rng} object
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng$new(seed, n_generators = 1L)}\if{html}{\out{</div>}}
 }

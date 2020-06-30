@@ -35,7 +35,7 @@ dust_rng <- R6::R6Class(
   ),
 
   public = list(
-    ##' Create a `dust_rng` object
+    ##' @description Create a `dust_rng` object
     ##'
     ##' @param seed The seed, as an integer
     ##'
