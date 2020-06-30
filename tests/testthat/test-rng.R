@@ -192,10 +192,8 @@ test_that("recycle failure", {
 test_that("jump", {
   seed <- 1
   rng1a <- dust_rng$new(seed, 1L)
-  rng1b <- dust_rng$new(seed, 1L)
+  rng1b <- dust_rng$new(seed, 1L)$jump()
   rng2 <- dust_rng$new(seed, 2L)
-  rng1b$jump()
-
 
   r2 <- rng2$unif_rand(20)
   r1a <- rng1a$unif_rand(10)
@@ -204,4 +202,20 @@ test_that("jump", {
   m1 <- rbind(r1a, r1b, deparse.level = 0)
   m2 <- matrix(r2, 2)
   expect_equal(m1, m2)
+})
+
+
+test_that("long jump", {
+  seed <- 1
+  rng1 <- dust_rng$new(seed, 1L)
+  rng2 <- dust_rng$new(seed, 1L)$jump()
+  rng3 <- dust_rng$new(seed, 1L)$long_jump()
+
+  r1 <- rng1$unif_rand(20)
+  r2 <- rng2$unif_rand(20)
+  r3 <- rng3$unif_rand(20)
+
+  expect_true(all(r1 != r2))
+  expect_true(all(r1 != r3))
+  expect_true(all(r2 != r3))
 })

@@ -18,10 +18,12 @@ dust_rng <- R6::R6Class(
 
     jump = function() {
       dust_rng_jump(private$ptr)
+      invisible(self)
     },
 
     long_jump = function() {
       dust_rng_long_jump(private$ptr)
+      invisible(self)
     },
 
     unif_rand = function(n) {
