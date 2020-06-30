@@ -79,3 +79,30 @@ test_that("validate destination notices existing R code", {
   expect_silent(
     package_validate_destination(path, character()))
 })
+
+
+test_that("Fail to run if no dust files found", {
+  path <- create_test_package()
+  unlink(dir(file.path(path, "inst", "dust"), full.names = TRUE))
+  expect_error(
+    dust_package(path),
+    "No dust files found in '.+/inst/dust'")
+})
+
+
+test_that("Fail to run if NAMESPACE missing", {
+  path <- create_test_package()
+  unlink(file.path(path, "NAMESPACE"))
+  expect_error(
+    package_validate(path),
+    "Expected a file 'NAMESPACE' at path '.+'")
+})
+
+
+test_that("Fail to run if DESCRIPTION missing", {
+  path <- create_test_package()
+  unlink(file.path(path, "DESCRIPTION"))
+  expect_error(
+    package_validate(path),
+    "Expected a file 'DESCRIPTION' at path '.+'")
+})

@@ -18,7 +18,7 @@
 ##' @return Nothing, this function is called for its side effects
 ##' @export
 ##' @author Rich Fitzjohn
-dust_package <- function(path, path_models = NULL) {
+dust_package <- function(path) {
   ## 1. check that the package is legit
   root <- package_validate(path)
   path_dust <- file.path(root, "inst/dust")
@@ -62,7 +62,7 @@ dust_package <- function(path, path_models = NULL) {
 
 
 package_validate <- function(path) {
-  paths <- c("DESCRIPTION", "NAMESPACE", "inst/dust")
+  paths <- c("DESCRIPTION", "NAMESPACE")
   for (p in paths) {
     if (!file.exists(file.path(path, p))) {
       stop(sprintf("Expected a file '%s' at path '%s'", p, path))
