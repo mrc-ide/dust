@@ -108,6 +108,16 @@ test_that("work with index_y", {
 })
 
 
+test_that("reset clears the index", {
+  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  mod <- res$new(list(len = 10), 0, 1)
+  mod$set_index_y(2:4)
+  expect_equal(mod$run(0), matrix(2:4))
+  mod$reset(list(len = 10), 0)
+  expect_equal(mod$run(0), matrix(numeric(0), 0, 1))
+})
+
+
 test_that("set model state", {
   res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
   mod <- res$new(list(len = 10), 0, 1)
@@ -122,7 +132,7 @@ test_that("set model state", {
 })
 
 
-test_that("set model state", {
+test_that("set model state into multiple particles", {
   res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
   mod <- res$new(list(len = 10), 0, 20)
   expect_equal(mod$state(), matrix(1:10, 10, 20))

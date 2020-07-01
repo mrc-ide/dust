@@ -95,6 +95,7 @@ public:
 
   void reset(const init_t data, const size_t step) {
     const size_t n_particles = _particles.size();
+    _index_y.clear();
     _particles.clear();
     for (size_t i = 0; i < n_particles; ++i) {
       _particles.push_back(Particle<T>(data, step));
