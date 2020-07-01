@@ -285,8 +285,6 @@ dust_class <- function(alloc, run, set_index, set_state, reset, state,
         .Call(private$cpp_run, private$ptr, step_end)
       },
 
-      ## TODO: this probably needs changing as we can't set state and
-      ## index until data has been set.
       reset = function(data, step) {
         private$data <- .Call(private$cpp_reset, private$ptr, data, step)
         invisible()
