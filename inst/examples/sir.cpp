@@ -3,16 +3,12 @@ public:
   typedef int int_t;
   typedef double real_t;
   struct init_t {
-    double beta;
-    double dt;
-    double gamma;
-    double I0;
-    double initial_I;
-    double initial_R;
-    double initial_S;
-    double p_IR;
     double S0;
-    double steps_per_day;
+    double I0;
+    double R0;
+    double beta;
+    double gamma;
+    double dt;
   };
 
   sir(const init_t& data) : data_(data) {
@@ -23,8 +19,7 @@ public:
   }
 
   std::vector<double> initial(size_t step) {
-    std::vector<double> ret =
-      {data_.initial_S, data_.initial_I, data_.initial_R};
+    std::vector<double> ret = {data_.S0, data_.I0, data_.R0};
     return ret;
   }
 
@@ -34,12 +29,15 @@ public:
     double I = state[1];
     double R = state[2];
     double N = S + I + R;
-    double n_IR = rng.rbinom(round(I), data_.p_IR * data_.dt);
-    double p_SI = 1 - std::exp(-(data_.beta) * I / (double) N);
+
+    double p_SI = 1 - std::exp(-(data_.beta) * I / N);
+    double p_IR = 1 - std::exp(-(data_.gamma));
+    double n_IR = rng.rbinom(round(I), p_IR * data_.dt);
     double n_SI = rng.rbinom(round(S), p_SI * data_.dt);
-    state_next[2] = R + n_IR;
-    state_next[1] = I + n_SI - n_IR;
+
     state_next[0] = S - n_SI;
+    state_next[1] = I + n_SI - n_IR;
+    state_next[2] = R + n_IR;
   }
 
 private:
@@ -49,17 +47,19 @@ private:
 #include <Rcpp.h>
 template <>
 sir::init_t dust_data<sir>(Rcpp::List data) {
-  double initial_R = 0.0;
-  double beta = 0.2;
-  double gamma = 0.1;
+  // Initial state values
   double I0 = 10.0;
   double S0 = 1000.0;
-  double steps_per_day = 4;
-  double dt = 1 / (double) steps_per_day;
-  double initial_I = I0;
-  double initial_S = S0;
-  double p_IR = 1 - std::exp(-(gamma));
+  double R0 = 0.0;
 
+  // Default rates
+  double beta = 0.2;
+  double gamma = 0.1;
+
+  // Time scaling
+  double dt = 0.25;
+
+  // Accept beta and gamma as optional elements
   if (data.containsElementNamed("beta")) {
     beta = Rcpp::as<double>(data["beta"]);
   }
@@ -67,8 +67,7 @@ sir::init_t dust_data<sir>(Rcpp::List data) {
     gamma = Rcpp::as<double>(data["gamma"]);
   }
 
-  return sir::init_t{beta, dt, gamma, I0, initial_I, initial_R, initial_S,
-      p_IR, S0, steps_per_day};
+  return sir::init_t{S0, I0, R0, beta, gamma, dt};
 }
 
 template <>
