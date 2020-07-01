@@ -201,10 +201,10 @@ dust_interface <- R6::R6Class(
     ##' call to `reset()` as `reset()` may change the size of the state
     ##' and that will invalidate the index.
     ##'
-    ##' @param index_y The index vector - must be an integer vector with
+    ##' @param index The index vector - must be an integer vector with
     ##' elements between 1 and the length of the state (this will be
     ##' validated, and an error thrown if an invalid index is given).
-    set_index_y = function(index_y) {
+    set_index = function(index) {
     },
 
     ##' @description
@@ -253,7 +253,7 @@ dust_interface <- R6::R6Class(
   ))
 
 
-dust_class <- function(alloc, run, set_index_y, set_state, reset, state,
+dust_class <- function(alloc, run, set_index, set_state, reset, state,
                        step, reorder, classname = "dust") {
   R6::R6Class(
     classname,
@@ -262,7 +262,7 @@ dust_class <- function(alloc, run, set_index_y, set_state, reset, state,
     private = list(
       cpp_alloc = alloc,
       cpp_run = run,
-      cpp_set_index_y = set_index_y,
+      cpp_set_index = set_index,
       cpp_set_state = set_state,
       cpp_reset = reset,
       cpp_state = state,
@@ -292,8 +292,8 @@ dust_class <- function(alloc, run, set_index_y, set_state, reset, state,
         invisible()
       },
 
-      set_index_y = function(index_y) {
-        .Call(private$cpp_set_index_y, private$ptr, index_y)
+      set_index = function(index) {
+        .Call(private$cpp_set_index, private$ptr, index)
         invisible()
       },
 

@@ -4,7 +4,7 @@ test_that("create walk, stepping for one step", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
                           quiet = TRUE)
   obj <- res$new(list(sd = 1), 0, 10)
-  obj$set_index_y(1)
+  obj$set_index(1)
   expect_null(obj$info())
 
   y <- obj$run(1)
@@ -17,7 +17,7 @@ test_that("walk agrees with random number stream", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
                           quiet = TRUE)
   obj <- res$new(list(sd = 1), 0, 10, seed = 1L)
-  obj$set_index_y(1)
+  obj$set_index(1)
   y <- obj$run(5)
 
   cmp <- dust_rng$new(1, 1)$rnorm(50, 0, 1)
@@ -33,12 +33,12 @@ test_that("Reset particles and resume continues with rng", {
   sd2 <- 4
 
   obj <- res$new(list(sd = sd1), 0, 10)
-  obj$set_index_y(1)
+  obj$set_index(1)
 
   y1 <- obj$run(5)
   expect_equal(obj$step(), 5)
   obj$reset(list(sd = sd2), 0)
-  obj$set_index_y(1)
+  obj$set_index(1)
   expect_equal(obj$step(), 0)
   y2 <- obj$run(5)
   expect_equal(obj$step(), 5)
@@ -58,7 +58,7 @@ test_that("Basic sir model", {
                           quiet = TRUE)
 
   obj <- res$new(list(), 0, 100)
-  obj$set_index_y(1)
+  obj$set_index(1)
 
   ans <- vector("list", 150)
   for (i in seq_along(ans)) {
@@ -94,13 +94,13 @@ test_that("Basic sir model", {
 })
 
 
-test_that("work with index_y", {
+test_that("set index", {
   res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
   mod <- res$new(list(len = 10), 0, 1)
   expect_equal(mod$state(), matrix(1:10))
   expect_equal(mod$run(0), matrix(numeric(), nrow = 0, ncol = 1))
 
-  mod$set_index_y(2:4)
+  mod$set_index(2:4)
   expect_equal(mod$run(0), matrix(2:4))
 
   y <- mod$run(1)
@@ -112,7 +112,7 @@ test_that("work with index_y", {
 test_that("reset clears the index", {
   res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
   mod <- res$new(list(len = 10), 0, 1)
-  mod$set_index_y(2:4)
+  mod$set_index(2:4)
   expect_equal(mod$run(0), matrix(2:4))
   mod$reset(list(len = 10), 0)
   expect_equal(mod$run(0), matrix(numeric(0), 0, 1))
@@ -152,7 +152,7 @@ test_that("reorder", {
                           quiet = TRUE)
 
   obj <- res$new(list(sd = 1), 0, 10)
-  obj$set_index_y(1)
+  obj$set_index(1)
   y1 <- obj$run(5)
 
   ## Simplest permutation:
@@ -180,7 +180,7 @@ test_that("reorder and duplicate", {
                           quiet = TRUE)
 
   obj <- res$new(list(sd = 1), 0, 10)
-  obj$set_index_y(1)
+  obj$set_index(1)
   y1 <- obj$run(5)
 
   index <- c(1L, 4L, 9L, 7L, 7L, 2L, 5L, 9L, 9L, 5L)
@@ -246,8 +246,8 @@ test_that("run in float mode", {
   obj_d <- res_d$new(list(sd = 10), 0, n)
   obj_f <- res_f$new(list(sd = 10), 0, n)
 
-  obj_d$set_index_y(1)
-  obj_f$set_index_y(1)
+  obj_d$set_index(1)
+  obj_f$set_index(1)
 
   y_d <- obj_d$run(10)
   y_f <- obj_f$run(10)
@@ -282,19 +282,19 @@ test_that("Basic threading test", {
     "n_generators must be a multiple of n_threads")
 
   obj <- res$new(list(sd = 1), 0, 10, n_threads = 2L, n_generators = 2L)
-  obj$set_index_y(1)
+  obj$set_index(1)
   y0 <- obj$state()
   y22_1 <- obj$run(5)
   y22_2 <- obj$state()
 
   ## And again without parallel
   obj <- res$new(list(sd = 1), 0, 10, n_threads = 1L, n_generators = 2L)
-  obj$set_index_y(1)
+  obj$set_index(1)
   y12_1 <- obj$run(5)
   y12_2 <- obj$state()
 
   obj <- res$new(list(sd = 1), 0, 10, n_threads = 1L, n_generators = 1L)
-  obj$set_index_y(1)
+  obj$set_index(1)
   y11_1 <- obj$run(5)
   y11_2 <- obj$state()
 

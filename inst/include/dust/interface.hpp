@@ -33,11 +33,11 @@ Rcpp::List dust_alloc(Rcpp::List r_data, int step,
 }
 
 template <typename T>
-void dust_set_index_y(SEXP ptr, Rcpp::IntegerVector r_index_y) {
+void dust_set_index(SEXP ptr, Rcpp::IntegerVector r_index) {
   Dust<T> *obj = Rcpp::as<Rcpp::XPtr<Dust<T>>>(ptr);
   const size_t index_max = obj->n_state_full();
-  const std::vector<size_t> index = r_index_to_index(r_index_y, index_max);
-  obj->set_index_y(index);
+  const std::vector<size_t> index = r_index_to_index(r_index, index_max);
+  obj->set_index(index);
 }
 
 template <typename T>

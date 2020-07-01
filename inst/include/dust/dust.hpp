@@ -34,10 +34,10 @@ public:
     }
   }
 
-  void state(const std::vector<size_t>& index_y,
+  void state(const std::vector<size_t>& index,
              typename std::vector<real_t>::iterator end_state) const {
-    for (size_t i = 0; i < index_y.size(); ++i) {
-      *(end_state + i) = _y[index_y[i]];
+    for (size_t i = 0; i < index.size(); ++i) {
+      *(end_state + i) = _y[index[i]];
     }
   }
 
@@ -95,17 +95,17 @@ public:
 
   void reset(const init_t data, const size_t step) {
     const size_t n_particles = _particles.size();
-    _index_y.clear();
+    _index.clear();
     _particles.clear();
     for (size_t i = 0; i < n_particles; ++i) {
       _particles.push_back(Particle<T>(data, step));
     }
   }
 
-  // It's the callee's responsibility to ensure that index_y is in
+  // It's the callee's responsibility to ensure that index is in
   // range [0, n-1]
-  void set_index_y(const std::vector<size_t>& index_y) {
-    _index_y = index_y;
+  void set_index(const std::vector<size_t>& index) {
+    _index = index;
   }
 
   // It's the callee's responsibility to ensure this is the correct length
@@ -143,15 +143,15 @@ public:
   void state(std::vector<real_t>& end_state) const {
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
     for (size_t i = 0; i < _particles.size(); ++i) {
-      _particles[i].state(_index_y, end_state.begin() + i * _index_y.size());
+      _particles[i].state(_index, end_state.begin() + i * _index.size());
     }
   }
 
-  void state(std::vector<size_t> index_y,
+  void state(std::vector<size_t> index,
              std::vector<real_t>& end_state) const {
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
     for (size_t i = 0; i < _particles.size(); ++i) {
-      _particles[i].state(index_y, end_state.begin() + i * index_y.size());
+      _particles[i].state(index, end_state.begin() + i * index.size());
     }
   }
 
@@ -191,7 +191,7 @@ public:
   }
 
   size_t n_state() const {
-    return _index_y.size();
+    return _index.size();
   }
 
   size_t n_state_full() const {
@@ -203,7 +203,7 @@ public:
   }
 
 private:
-  std::vector<size_t> _index_y;
+  std::vector<size_t> _index;
   const size_t _n_threads;
   dust::pRNG<real_t, int_t> _rng;
   std::vector<Particle<T>> _particles;
