@@ -315,8 +315,8 @@ head(c(y2))
 Everything looks reasonable until you plot the data:
 
 ```{r}
-plot(y1, y2, asp = 1)
-abline(0, 2, col = "red", lty = 2)
+plot(y1 ~ y2, asp = 1)
+abline(0, 0.5, col = "red", lty = 2)
 ```
 
 because of the way normal random numbers are drawn, these are the same results, scaled!
@@ -330,6 +330,6 @@ y1 <- model$run(100)
 model$reset(list(sd = 2), 0)
 y2 <- model$run(100)
 
-plot(y1, y2, asp = 1)
-abline(0, 2, col = "red", lty = 2)
+plot(y1 ~ y2, asp = 1)
+abline(0, 0.5, col = "red", lty = 2)
 ```
