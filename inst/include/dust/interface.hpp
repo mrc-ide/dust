@@ -47,8 +47,8 @@ void dust_set_state(SEXP ptr, Rcpp::NumericVector r_state) {
   if (static_cast<size_t>(r_state.size()) != n_state) {
     Rcpp::stop("Expected a vector with %d elements for 'state'", n_state);
   }
-  // TODO: make flexible with types
-  const std::vector<double> state = Rcpp::as<std::vector<double>>(r_state);
+  const std::vector<typename T::real_t> state =
+    Rcpp::as<std::vector<typename T::real_t>>(r_state);
   obj->set_state(state);
 }
 
