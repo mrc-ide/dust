@@ -5,6 +5,7 @@
 ##'   primarily meant for debugging and testing.
 ##'
 ##' @export
+##' @importFrom Rcpp evalCpp
 ##' @examples
 ##' rng <- dust_rng$new(42)
 ##'

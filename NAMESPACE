@@ -3,4 +3,5 @@
 export(dust)
 export(dust_package)
 export(dust_rng)
+importFrom(Rcpp,evalCpp)
 useDynLib(dust, .registration = TRUE)
