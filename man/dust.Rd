@@ -141,7 +141,7 @@ obj$state()
 \itemize{
 \item \href{#method-new}{\code{dust_interface$new()}}
 \item \href{#method-run}{\code{dust_interface$run()}}
-\item \href{#method-set_index_y}{\code{dust_interface$set_index_y()}}
+\item \href{#method-set_index}{\code{dust_interface$set_index()}}
 \item \href{#method-set_state}{\code{dust_interface$set_state()}}
 \item \href{#method-reset}{\code{dust_interface$reset()}}
 \item \href{#method-state}{\code{dust_interface$state()}}
@@ -215,22 +215,22 @@ step(),silently nothing will happen)}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set_index_y"></a>}}
-\if{latex}{\out{\hypertarget{method-set_index_y}{}}}
-\subsection{Method \code{set_index_y()}}{
+\if{html}{\out{<a id="method-set_index"></a>}}
+\if{latex}{\out{\hypertarget{method-set_index}{}}}
+\subsection{Method \code{set_index()}}{
 Set the "index" vector that is used to return a subset of data
 after using \code{run()}. If this is not used then \code{run()} returns
 an empty (zero-row) matrix. This method must be called after any
 call to \code{reset()} as \code{reset()} may change the size of the state
 and that will invalidate the index.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_interface$set_index_y(index_y)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_interface$set_index(index)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{index_y}}{The index vector - must be an integer vector with
+\item{\code{index}}{The index vector - must be an integer vector with
 elements between 1 and the length of the state (this will be
 validated, and an error thrown if an invalid index is given).}
 }
