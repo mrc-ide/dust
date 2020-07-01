@@ -243,7 +243,7 @@ Return full model state
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{index}}{Optional index to filter state by}
+\item{\code{index}}{Optional index to select state using}
 }
 \if{html}{\out{</div>}}
 }
