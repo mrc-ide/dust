@@ -23,14 +23,9 @@ Rcpp::List dust_alloc(Rcpp::List r_data, int step,
   validate_n(n_generators, n_threads);
 
   typename T::init_t data = dust_data<T>(r_data);
-  std::vector<size_t> index_y = {0};
-
-  // TODO: can't customise initial state
-  // TODO: can't customise index y
 
   Dust<T> *d =
-    new Dust<T>(data, step, index_y, n_particles, n_threads, n_generators,
-                seed);
+    new Dust<T>(data, step, n_particles, n_threads, n_generators, seed);
   Rcpp::XPtr<Dust<T>> ptr(d, false);
   Rcpp::RObject info = dust_info<T>(data);
 

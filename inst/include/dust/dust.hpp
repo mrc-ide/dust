@@ -80,10 +80,8 @@ public:
   typedef typename dust::RNG<real_t, int_t> rng_t;
 
   Dust(const init_t data, const size_t step,
-       const std::vector<size_t> index_y,
        const size_t n_particles, const size_t n_threads,
        const size_t n_generators, const size_t seed) :
-    _index_y(index_y),
     _n_threads(n_threads),
     _rng(n_generators, seed) {
     for (size_t i = 0; i < n_particles; ++i) {
