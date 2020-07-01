@@ -13,3 +13,4 @@ docs
 *.gcda
 *.gcno
 inst/doc
+pkgdown
