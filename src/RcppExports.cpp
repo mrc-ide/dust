@@ -5,6 +5,118 @@
 
 using namespace Rcpp;
 
+// dust_rng_alloc
+SEXP dust_rng_alloc(int seed, int n_generators);
+RcppExport SEXP _dust_dust_rng_alloc(SEXP seedSEXP, SEXP n_generatorsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    Rcpp::traits::input_parameter< int >::type n_generators(n_generatorsSEXP);
+    rcpp_result_gen = Rcpp::wrap(dust_rng_alloc(seed, n_generators));
+    return rcpp_result_gen;
+END_RCPP
+}
+// dust_rng_size
+int dust_rng_size(SEXP ptr);
+RcppExport SEXP _dust_dust_rng_size(SEXP ptrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
+    rcpp_result_gen = Rcpp::wrap(dust_rng_size(ptr));
+    return rcpp_result_gen;
+END_RCPP
+}
+// dust_rng_jump
+void dust_rng_jump(SEXP ptr);
+RcppExport SEXP _dust_dust_rng_jump(SEXP ptrSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
+    dust_rng_jump(ptr);
+    return R_NilValue;
+END_RCPP
+}
+// dust_rng_long_jump
+void dust_rng_long_jump(SEXP ptr);
+RcppExport SEXP _dust_dust_rng_long_jump(SEXP ptrSEXP) {
+BEGIN_RCPP
+    Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
+    dust_rng_long_jump(ptr);
+    return R_NilValue;
+END_RCPP
+}
+// dust_rng_unif_rand
+std::vector<double> dust_rng_unif_rand(SEXP ptr, int n);
+RcppExport SEXP _dust_dust_rng_unif_rand(SEXP ptrSEXP, SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(dust_rng_unif_rand(ptr, n));
+    return rcpp_result_gen;
+END_RCPP
+}
+// dust_rng_norm_rand
+std::vector<double> dust_rng_norm_rand(SEXP ptr, int n);
+RcppExport SEXP _dust_dust_rng_norm_rand(SEXP ptrSEXP, SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(dust_rng_norm_rand(ptr, n));
+    return rcpp_result_gen;
+END_RCPP
+}
+// dust_rng_runif
+std::vector<double> dust_rng_runif(SEXP ptr, int n, std::vector<double> min, std::vector<double> max);
+RcppExport SEXP _dust_dust_rng_runif(SEXP ptrSEXP, SEXP nSEXP, SEXP minSEXP, SEXP maxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type min(minSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type max(maxSEXP);
+    rcpp_result_gen = Rcpp::wrap(dust_rng_runif(ptr, n, min, max));
+    return rcpp_result_gen;
+END_RCPP
+}
+// dust_rng_rnorm
+std::vector<double> dust_rng_rnorm(SEXP ptr, int n, std::vector<double> mean, std::vector<double> sd);
+RcppExport SEXP _dust_dust_rng_rnorm(SEXP ptrSEXP, SEXP nSEXP, SEXP meanSEXP, SEXP sdSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type mean(meanSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type sd(sdSEXP);
+    rcpp_result_gen = Rcpp::wrap(dust_rng_rnorm(ptr, n, mean, sd));
+    return rcpp_result_gen;
+END_RCPP
+}
+// dust_rng_rbinom
+std::vector<int> dust_rng_rbinom(SEXP ptr, int n, std::vector<int> size, std::vector<double> prob);
+RcppExport SEXP _dust_dust_rng_rbinom(SEXP ptrSEXP, SEXP nSEXP, SEXP sizeSEXP, SEXP probSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< std::vector<int> >::type size(sizeSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type prob(probSEXP);
+    rcpp_result_gen = Rcpp::wrap(dust_rng_rbinom(ptr, n, size, prob));
+    return rcpp_result_gen;
+END_RCPP
+}
+// dust_rng_rpois
+std::vector<int> dust_rng_rpois(SEXP ptr, int n, std::vector<double> lambda);
+RcppExport SEXP _dust_dust_rng_rpois(SEXP ptrSEXP, SEXP nSEXP, SEXP lambdaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type lambda(lambdaSEXP);
+    rcpp_result_gen = Rcpp::wrap(dust_rng_rpois(ptr, n, lambda));
+    return rcpp_result_gen;
+END_RCPP
+}
 // openmp_info
 Rcpp::List openmp_info();
 RcppExport SEXP _dust_openmp_info() {
@@ -14,64 +126,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// test_rng_norm
-Rcpp::NumericVector test_rng_norm(int n, int seed, int n_generators);
-RcppExport SEXP _dust_test_rng_norm(SEXP nSEXP, SEXP seedSEXP, SEXP n_generatorsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
-    Rcpp::traits::input_parameter< int >::type n_generators(n_generatorsSEXP);
-    rcpp_result_gen = Rcpp::wrap(test_rng_norm(n, seed, n_generators));
-    return rcpp_result_gen;
-END_RCPP
-}
-// test_rng_unif
-Rcpp::NumericVector test_rng_unif(int n, double min, double max, int seed, int n_generators);
-RcppExport SEXP _dust_test_rng_unif(SEXP nSEXP, SEXP minSEXP, SEXP maxSEXP, SEXP seedSEXP, SEXP n_generatorsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< double >::type min(minSEXP);
-    Rcpp::traits::input_parameter< double >::type max(maxSEXP);
-    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
-    Rcpp::traits::input_parameter< int >::type n_generators(n_generatorsSEXP);
-    rcpp_result_gen = Rcpp::wrap(test_rng_unif(n, min, max, seed, n_generators));
-    return rcpp_result_gen;
-END_RCPP
-}
-// test_rng_binom
-Rcpp::IntegerVector test_rng_binom(std::vector<int> n, std::vector<double> p, int seed, int n_generators);
-RcppExport SEXP _dust_test_rng_binom(SEXP nSEXP, SEXP pSEXP, SEXP seedSEXP, SEXP n_generatorsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< std::vector<int> >::type n(nSEXP);
-    Rcpp::traits::input_parameter< std::vector<double> >::type p(pSEXP);
-    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
-    Rcpp::traits::input_parameter< int >::type n_generators(n_generatorsSEXP);
-    rcpp_result_gen = Rcpp::wrap(test_rng_binom(n, p, seed, n_generators));
-    return rcpp_result_gen;
-END_RCPP
-}
-// test_rng_pois
-Rcpp::IntegerVector test_rng_pois(std::vector<double> lambda, int seed, int n_generators);
-RcppExport SEXP _dust_test_rng_pois(SEXP lambdaSEXP, SEXP seedSEXP, SEXP n_generatorsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< std::vector<double> >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
-    Rcpp::traits::input_parameter< int >::type n_generators(n_generatorsSEXP);
-    rcpp_result_gen = Rcpp::wrap(test_rng_pois(lambda, seed, n_generators));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_dust_dust_rng_alloc", (DL_FUNC) &_dust_dust_rng_alloc, 2},
+    {"_dust_dust_rng_size", (DL_FUNC) &_dust_dust_rng_size, 1},
+    {"_dust_dust_rng_jump", (DL_FUNC) &_dust_dust_rng_jump, 1},
+    {"_dust_dust_rng_long_jump", (DL_FUNC) &_dust_dust_rng_long_jump, 1},
+    {"_dust_dust_rng_unif_rand", (DL_FUNC) &_dust_dust_rng_unif_rand, 2},
+    {"_dust_dust_rng_norm_rand", (DL_FUNC) &_dust_dust_rng_norm_rand, 2},
+    {"_dust_dust_rng_runif", (DL_FUNC) &_dust_dust_rng_runif, 4},
+    {"_dust_dust_rng_rnorm", (DL_FUNC) &_dust_dust_rng_rnorm, 4},
+    {"_dust_dust_rng_rbinom", (DL_FUNC) &_dust_dust_rng_rbinom, 4},
+    {"_dust_dust_rng_rpois", (DL_FUNC) &_dust_dust_rng_rpois, 3},
     {"_dust_openmp_info", (DL_FUNC) &_dust_openmp_info, 0},
-    {"_dust_test_rng_norm", (DL_FUNC) &_dust_test_rng_norm, 3},
-    {"_dust_test_rng_unif", (DL_FUNC) &_dust_test_rng_unif, 5},
-    {"_dust_test_rng_binom", (DL_FUNC) &_dust_test_rng_binom, 4},
-    {"_dust_test_rng_pois", (DL_FUNC) &_dust_test_rng_pois, 3},
     {NULL, NULL, 0}
 };
 

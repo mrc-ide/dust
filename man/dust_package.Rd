@@ -28,6 +28,3 @@ We add "Rcpp attributes" to the created functions, and will run
 \code{\link{compileAttributes}} on them once the generated code
 has been created.
 }
-\author{
-Rich Fitzjohn
-}
