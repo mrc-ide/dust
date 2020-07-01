@@ -63,6 +63,10 @@ public:
     _y_swap = other._y;
   }
 
+  void update(const std::vector<real_t>& state) {
+    std::copy(state.begin(), state.end(), _y.begin());
+  }
+
 private:
   T _model;
   size_t _step;
@@ -90,20 +94,25 @@ public:
   }
 
   void reset(const init_t data, const size_t step) {
-    size_t n_particles = _particles.size();
+    const size_t n_particles = _particles.size();
     _particles.clear();
     for (size_t i = 0; i < n_particles; ++i) {
       _particles.push_back(Particle<T>(data, step));
     }
   }
 
-  // It's the call-ee's responsibility to ensure that index_y is in
+  // It's the callee's responsibility to ensure that index_y is in
   // range [0, n-1]
-  //
-  // This method will likely change to also accept the starting state,
-  // I think (see #6), and when it does it will change name.
-  void set_index_y(std::vector<size_t> index_y) {
+  void set_index_y(const std::vector<size_t>& index_y) {
     _index_y = index_y;
+  }
+
+  // It's the callee's responsibility to ensure this is the correct length
+  void set_state(const std::vector<real_t>& state) {
+    const size_t n_particles = _particles.size();
+    for (size_t i = 0; i < n_particles; ++i) {
+      _particles[i].update(state);
+    }
   }
 
   void run(const size_t step_end) {

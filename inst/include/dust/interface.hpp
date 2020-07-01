@@ -41,6 +41,18 @@ void dust_set_index_y(SEXP ptr, Rcpp::IntegerVector r_index_y) {
 }
 
 template <typename T>
+void dust_set_state(SEXP ptr, Rcpp::NumericVector r_state) {
+  Dust<T> *obj = Rcpp::as<Rcpp::XPtr<Dust<T>>>(ptr);
+  const size_t n_state = obj->n_state_full();
+  if (static_cast<size_t>(r_state.size()) != n_state) {
+    Rcpp::stop("Expected a vector with %d elements for 'state'", n_state);
+  }
+  // TODO: make flexible with types
+  const std::vector<double> state = Rcpp::as<std::vector<double>>(r_state);
+  obj->set_state(state);
+}
+
+template <typename T>
 Rcpp::NumericMatrix dust_run(SEXP ptr, int step_end) {
   validate_size(step_end, "step_end");
   Dust<T> *obj = Rcpp::as<Rcpp::XPtr<Dust<T>>>(ptr);

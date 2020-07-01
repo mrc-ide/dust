@@ -108,6 +108,34 @@ test_that("work with index_y", {
 })
 
 
+test_that("set model state", {
+  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  mod <- res$new(list(len = 10), 0, 1)
+  expect_equal(mod$state(), matrix(1:10))
+  x <- runif(10)
+  mod$set_state(x)
+  expect_equal(mod$state(), matrix(x))
+  expect_error(
+    mod$set_state(1),
+    "Expected a vector with 10 elements for 'state'")
+  expect_equal(mod$state(), matrix(x))
+})
+
+
+test_that("set model state", {
+  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  mod <- res$new(list(len = 10), 0, 20)
+  expect_equal(mod$state(), matrix(1:10, 10, 20))
+  x <- runif(10)
+  mod$set_state(x)
+  expect_equal(mod$state(), matrix(x, 10, 20))
+  expect_error(
+    mod$set_state(1),
+    "Expected a vector with 10 elements for 'state'")
+  expect_equal(mod$state(), matrix(x, 10, 20))
+})
+
+
 test_that("reorder", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
                           quiet = TRUE)

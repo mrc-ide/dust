@@ -230,8 +230,8 @@ dust_interface <- R6::R6Class(
   ))
 
 
-dust_class <- function(alloc, run, set_index_y, reset, state, step, reorder,
-                       classname = "dust") {
+dust_class <- function(alloc, run, set_index_y, set_state, reset, state,
+                       step, reorder, classname = "dust") {
   R6::R6Class(
     classname,
     cloneable = FALSE,
@@ -240,6 +240,7 @@ dust_class <- function(alloc, run, set_index_y, reset, state, step, reorder,
       cpp_alloc = alloc,
       cpp_run = run,
       cpp_set_index_y = set_index_y,
+      cpp_set_state = set_state,
       cpp_reset = reset,
       cpp_state = state,
       cpp_step = step,
@@ -270,6 +271,11 @@ dust_class <- function(alloc, run, set_index_y, reset, state, step, reorder,
 
       set_index_y = function(index_y) {
         .Call(private$cpp_set_index_y, private$ptr, index_y)
+        invisible()
+      },
+
+      set_state = function(state) {
+        .Call(private$cpp_set_state, private$ptr, state)
         invisible()
       },
 
