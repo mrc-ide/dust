@@ -100,7 +100,7 @@ This has returned a matrix with zero rows because we've not specified what part 
 model$state()
 ```
 
-At this point our particles have been run for 100 steps with standard deviation 1 at each step so they will be distributed following Normal(0, 10).  This is easier to see if we simulate a lot of particles:
+At this point our particles have been run for 100 steps with standard deviation 1 at each step so they [will be distributed following Normal(0, 10)](https://en.wikipedia.org/wiki/Random_walk#Gaussian_random_walk).  This is easier to see if we simulate a lot of particles:
 
 ```{r walk_simulate_many}
 model <- walk$new(list(sd = 1), 0, 20000)
