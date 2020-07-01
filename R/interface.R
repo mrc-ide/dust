@@ -360,6 +360,8 @@ dust_workdir <- function(path) {
 ## above.
 private <- list(cpp_alloc = structure(list(), class = "NativeSymbolInfo"),
                 cpp_run = structure(list(), class = "NativeSymbolInfo"),
+                cpp_set_index = structure(list(), class = "NativeSymbolInfo"),
+                cpp_set_state = structure(list(), class = "NativeSymbolInfo"),
                 cpp_reset = structure(list(), class = "NativeSymbolInfo"),
                 cpp_state = structure(list(), class = "NativeSymbolInfo"),
                 cpp_step = structure(list(), class = "NativeSymbolInfo"),
