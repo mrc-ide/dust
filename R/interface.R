@@ -230,8 +230,7 @@ dust_interface <- R6::R6Class(
   ))
 
 
-
-dust_class <- function(alloc, run, reset, state, step, reorder,
+dust_class <- function(alloc, run, set_index_y, reset, state, step, reorder,
                        classname = "dust") {
   R6::R6Class(
     classname,
@@ -240,6 +239,7 @@ dust_class <- function(alloc, run, reset, state, step, reorder,
     private = list(
       cpp_alloc = alloc,
       cpp_run = run,
+      cpp_set_index_y = set_index_y,
       cpp_reset = reset,
       cpp_state = state,
       cpp_step = step,
@@ -261,8 +261,15 @@ dust_class <- function(alloc, run, reset, state, step, reorder,
         .Call(private$cpp_run, private$ptr, step_end)
       },
 
+      ## TODO: this probably needs changing as we can't set state and
+      ## index until data has been set.
       reset = function(data, step) {
         private$data <- .Call(private$cpp_reset, private$ptr, data, step)
+        invisible()
+      },
+
+      set_index_y = function(index_y) {
+        .Call(private$cpp_set_index_y, private$ptr, index_y)
         invisible()
       },
 

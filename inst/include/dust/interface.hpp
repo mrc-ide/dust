@@ -38,6 +38,14 @@ Rcpp::List dust_alloc(Rcpp::List r_data, int step,
 }
 
 template <typename T>
+void dust_set_index_y(SEXP ptr, Rcpp::IntegerVector r_index_y) {
+  Dust<T> *obj = Rcpp::as<Rcpp::XPtr<Dust<T>>>(ptr);
+  const size_t index_max = obj->n_state_full();
+  const std::vector<size_t> index = r_index_to_index(r_index_y, index_max);
+  obj->set_index_y(index);
+}
+
+template <typename T>
 Rcpp::NumericMatrix dust_run(SEXP ptr, int step_end) {
   validate_size(step_end, "step_end");
   Dust<T> *obj = Rcpp::as<Rcpp::XPtr<Dust<T>>>(ptr);

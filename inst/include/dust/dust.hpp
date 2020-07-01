@@ -99,6 +99,15 @@ public:
     }
   }
 
+  // It's the call-ee's responsibility to ensure that index_y is in
+  // range [0, n-1]
+  //
+  // This method will likely change to also accept the starting state,
+  // I think (see #6), and when it does it will change name.
+  void set_index_y(std::vector<size_t> index_y) {
+    _index_y = index_y;
+  }
+
   void run(const size_t step_end) {
     #pragma omp parallel num_threads(_n_threads)
     {
@@ -172,18 +181,21 @@ public:
   size_t n_particles() const {
     return _particles.size();
   }
+
   size_t n_state() const {
     return _index_y.size();
   }
+
   size_t n_state_full() const {
     return _particles.front().size();
   }
+
   size_t step() const {
     return _particles.front().step();
   }
 
 private:
-  const std::vector<size_t> _index_y;
+  std::vector<size_t> _index_y;
   const size_t _n_threads;
   dust::pRNG<real_t, int_t> _rng;
   std::vector<Particle<T>> _particles;

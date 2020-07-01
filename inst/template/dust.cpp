@@ -16,6 +16,12 @@ SEXP dust_{{name}}_run(SEXP ptr, size_t step_end) {
 }
 
 // [[Rcpp::export(rng = false)]]
+SEXP dust_{{name}}_set_index_y(SEXP ptr, Rcpp::IntegerVector r_index_y) {
+  dust_set_index_y<{{type}}>(ptr, r_index_y);
+  return R_NilValue;
+}
+
+// [[Rcpp::export(rng = false)]]
 SEXP dust_{{name}}_reset(SEXP ptr, Rcpp::List r_data, size_t step) {
   return dust_reset<{{type}}>(ptr, r_data, step);
 }

@@ -89,6 +89,21 @@ test_that("Basic sir model", {
 })
 
 
+test_that("work with index_y", {
+  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  mod <- res$new(list(len = 10), 0, 1)
+  expect_equal(mod$state(), matrix(1:10))
+  expect_equal(mod$run(0), matrix(1))
+
+  mod$set_index_y(2:4)
+  expect_equal(mod$run(0), matrix(2:4))
+
+  y <- mod$run(1)
+  expect_equal(y, mod$state(2:4))
+  expect_equal(y, mod$state()[2:4, , drop = FALSE])
+})
+
+
 test_that("reorder", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
                           quiet = TRUE)
