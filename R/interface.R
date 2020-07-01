@@ -204,7 +204,8 @@ dust_interface <- R6::R6Class(
 
     ##' @description
     ##' Return full model state
-    state = function() {
+    ##' @param index Optional index to select state using
+    state = function(index = NULL) {
     },
 
     ##' @description
@@ -265,8 +266,8 @@ dust_class <- function(alloc, run, reset, state, step, reorder,
         invisible()
       },
 
-      state = function() {
-        .Call(private$cpp_state, private$ptr)
+      state = function(index = NULL) {
+        .Call(private$cpp_state, private$ptr, index)
       },
 
       step = function() {

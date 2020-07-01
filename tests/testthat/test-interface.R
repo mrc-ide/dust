@@ -101,3 +101,35 @@ test_that("dust_workdir will error if path is not a directory", {
     dust_workdir(p),
     "Path '.+' already exists but is not a directory")
 })
+
+
+test_that("validate interface", {
+  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
+                          quiet = TRUE)
+  cmp <- dust_interface
+
+  expect_setequal(names(res$public_methods),
+                  names(cmp$public_methods))
+  for (m in names(res$public_methods)) {
+    expect_identical(formals(res$public_methods[[m]]),
+                     formals(cmp$public_methods[[m]]))
+  }
+})
+
+
+test_that("validate package interface", {
+  tmp <- tempfile(fileext = ".R")
+  template <- read_lines(dust_file("template/dust.R.template"))
+  writeLines(glue_whisker(template, list(name = "testing")), tmp)
+  env <- new.env()
+  sys.source(tmp, env)
+  res <- env$testing
+  cmp <- dust_interface
+
+  expect_setequal(names(res$public_methods),
+                  names(cmp$public_methods))
+  for (m in names(res$public_methods)) {
+    expect_identical(formals(res$public_methods[[m]]),
+                     formals(cmp$public_methods[[m]]))
+  }
+})

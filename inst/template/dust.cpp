@@ -21,8 +21,8 @@ SEXP dust_{{name}}_reset(SEXP ptr, Rcpp::List r_data, size_t step) {
 }
 
 // [[Rcpp::export(rng = false)]]
-SEXP dust_{{name}}_state(SEXP ptr) {
-  return dust_state<{{type}}>(ptr);
+SEXP dust_{{name}}_state(SEXP ptr, SEXP r_index) {
+  return dust_state<{{type}}>(ptr, r_index);
 }
 
 // [[Rcpp::export(rng = false)]]

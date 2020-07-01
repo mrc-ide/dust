@@ -237,9 +237,16 @@ Reset the model while preserving the random number stream state
 \subsection{Method \code{state()}}{
 Return full model state
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_interface$state()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_interface$state(index = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{index}}{Optional index to select state using}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-step"></a>}}

@@ -8,6 +8,8 @@ typename Rcpp::RObject dust_info(const typename T::init_t& data);
 
 inline void validate_n(size_t n_generators, size_t n_threads);
 inline void validate_size(int x, const char * name);
+inline std::vector<size_t> r_index_to_index(Rcpp::IntegerVector r_index,
+                                            size_t nmax);
 
 template <typename T>
 Rcpp::List dust_alloc(Rcpp::List r_data, int step,
@@ -61,9 +63,17 @@ Rcpp::RObject dust_reset(SEXP ptr, Rcpp::List r_data, int step) {
 }
 
 template <typename T>
-SEXP dust_state(SEXP ptr) {
+SEXP dust_state(SEXP ptr, SEXP r_index) {
   Dust<T> *obj = Rcpp::as<Rcpp::XPtr<Dust<T>>>(ptr);
+  if (r_index == R_NilValue) {
+    return dust_state_full(obj);
+  } else {
+    return dust_state_select(obj, Rcpp::as<Rcpp::IntegerVector>(r_index));
+  }
+}
 
+template <typename T>
+SEXP dust_state_full(Dust<T> *obj) {
   const size_t n_state_full = obj->n_state_full();
   const size_t n_particles = obj->n_particles();
   const size_t len = n_state_full * n_particles;
@@ -72,6 +82,20 @@ SEXP dust_state(SEXP ptr) {
   obj->state_full(dat);
 
   return Rcpp::NumericMatrix(n_state_full, n_particles, dat.begin());
+}
+
+template <typename T>
+SEXP dust_state_select(Dust<T> *obj, Rcpp::IntegerVector r_index) {
+  const size_t n_state = static_cast<size_t>(r_index.size());
+  const size_t n_particles = obj->n_particles();
+  const size_t len = n_state * n_particles;
+  const size_t index_max = obj->n_state_full();
+  const std::vector<size_t> index = r_index_to_index(r_index, index_max);
+
+  std::vector<typename T::real_t> dat(len);
+  obj->state(index, dat);
+
+  return Rcpp::NumericMatrix(n_state, n_particles, dat.begin());
 }
 
 template <typename T>
@@ -88,17 +112,7 @@ void dust_reorder(SEXP ptr, Rcpp::IntegerVector r_index) {
     Rcpp::stop("Expected a vector of length %d for 'index'", n);
   }
 
-  std::vector<size_t> index;
-  index.reserve(n);
-  for (size_t i = 0; i < n; ++i) {
-    int x = r_index[i];
-    if (x < 1 || (size_t)x > n) {
-      Rcpp::stop("All elements of 'index' must lie in [1, %d]", n);
-    }
-    index.push_back(x - 1);
-  }
-
-  obj->reorder(index);
+  obj->reorder(r_index_to_index(r_index, n));
 }
 
 // Trivial default implementation of a method for getting back
@@ -121,4 +135,19 @@ inline void validate_size(int x, const char * name) {
   if (x < 0) {
     Rcpp::stop("%s must be non-negative", name);
   }
+}
+
+inline std::vector<size_t> r_index_to_index(Rcpp::IntegerVector r_index,
+                                            size_t nmax) {
+  const size_t n = static_cast<size_t>(r_index.size());
+  std::vector<size_t> index;
+  index.reserve(n);
+  for (size_t i = 0; i < n; ++i) {
+    int x = r_index[i];
+    if (x < 1 || (size_t)x > nmax) {
+      Rcpp::stop("All elements of 'index' must lie in [1, %d]", nmax);
+    }
+    index.push_back(x - 1);
+  }
+  return index;
 }
