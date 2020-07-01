@@ -88,13 +88,13 @@ This returns an R6 object that can be used to simulate from or interact with the
 model$state()
 ```
 
-and we can run the model for 100 steps:
+and we can run the model for 100 steps, which returns the state at the end of the walk (and not at any intermediate steps):
 
 ```{r walk_run_1}
 model$run(100)
 ```
 
-This has returned a matrix with zero rows because we've not specified what part of the state we want out by default - see below for details on this. However, we can retrieve the model state:
+We can also directly retrieve the state from our object
 
 ```{r walk_state_1}
 model$state()
@@ -124,7 +124,6 @@ Provided that your system can compile with openmp the following code will execut
 ```{r, walk_parallel}
 model <- walk$new(list(sd = 1), 0, 20, n_generators = 8, n_threads = 2)
 model$run(100)
-model$state()
 ```
 
 Running this same code in series will give the same results:
@@ -132,7 +131,6 @@ Running this same code in series will give the same results:
 ```{r, walk_serial}
 model <- walk$new(list(sd = 1), 0, 20, n_generators = 8, n_threads = 1)
 model$run(100)
-model$state()
 ```
 
 ## A more interesting example
@@ -192,6 +190,18 @@ model$run(20)
 
 This is useful when you have many compartments or variables that you are not that interested in during running the model. For a particle filter you might be fitting to the sum of all infected individuals over a number of compartments, so rather than returning hundreds of values back (times hundreds of particles) you can return back much less data and keep things nice and fast.
 
+We can always use `$state()` to get the whole state vector:
+
+```{r sir_state}
+model$state()
+```
+
+or select only variables of interest:
+
+```{r sir_state_select}
+model$state(c(1, 3))
+```
+
 `dust` does not (yet) provide a friendly wrapper for running a model like this and collecting output because the intention is that you would write your own (see [`mcstate`](https://mrc-ide.github.io/mcstate) for example.  However, we can write one like so:
 
 ```{r dust_wrapper}
@@ -231,7 +241,6 @@ This method exists to support particle filtering, and allows resampling or reord
 ```{r reorder_setup}
 model <- walk$new(list(sd = 1), 0, 20)
 model$run(1)
-model$state()
 ```
 
 Suppose that we wanted to reorder these particles so that they were in decreasing order:
@@ -294,11 +303,9 @@ To illustrate the problem, here is a naive simulation of a random walk, first si
 
 ```{r}
 model <- walk$new(list(sd = 1), 0, 200)
-model$set_index(1)
 y1 <- model$run(100)
 
 model <- walk$new(list(sd = 2), 0, 200)
-model$set_index(1)
 y2 <- model$run(100)
 
 head(c(y1))
@@ -318,11 +325,9 @@ Instead, we should use `reset()`
 
 ```{r}
 model <- walk$new(list(sd = 1), 0, 200)
-model$set_index(1)
 y1 <- model$run(100)
 
 model$reset(list(sd = 2), 0)
-model$set_index(1)
 y2 <- model$run(100)
 
 plot(y1, y2)
