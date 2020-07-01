@@ -1,0 +1,71 @@
+---
+title: "Random number generation"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Random number generation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+We provide an interface to the "Xoshiro256**" generator (Xoshiro is derived from XOR/shift/rotate). These are designed to allow use in parallel by "jumping ahead" in the sequence and we use this below to interleave generators. The stream is unrelated to and unaffected by R's random number generation. `set.seed` has no effect, for example. **The random numbers are not cryptopgraphically secure**; for that see the excellent [sodium](https://cran.r-project.org/package=sodium) package.
+
+Ordinarily this is used from C++; the model as discussed in [the main vignette](dust.html) uses `dust::RNG<real_t, int_t>` to interact with the generator. However, an R interface is provided for debugging and testing purposes.
+
+```{r}
+rng <- dust::dust_rng$new(seed = 1)
+rng
+```
+
+Currently only a few distributions are supported, with an interface that mimics R's interface both in names of functions and of arguments, with the exception that there are no default arguments:
+
+```{r}
+rng$rnorm(100, 0, 1)
+```
+
+One feature that we use here is to allow multiple streams of random numbers within a rng object. If running in parallel (via a dust model) these different random number streams can be given to different threads.
+
+```{r}
+rng1 <- dust::dust_rng$new(seed = 1, n_generators = 1)
+rng2 <- dust::dust_rng$new(seed = 1, n_generators = 2)
+rng1$unif_rand(5)
+rng2$unif_rand(10)
+```
+
+Notice here how in the output from `rng2`, values 1, 3, ..., 9 correspond to the 5 numbers out of `rng1`.
+
+This is achieved by "jumping" the random number streams forward.  Here are the random numbers 2, 4, ..., 10 from the output of rng2:
+
+```
+rng3 <- dust::dust_rng$new(seed = 1, n_generators = 1)$jump()
+rng3$unif_rand(5)
+```
+
+A jump is equivalent to 2^128 draws from the random number generator (about 10^38). There are 2^128 of these non-overlapping subsequences in the generator, which is quite a lot. If this feels too close together, then the `$long_jump()` method jumps even further (2^192 draws, or about 10^57). There are 2^64 (10^20) of these sequences.
+
+Performance should be on par with R's random number generator, though here the timings are likely to be mostly due to allocations and copies of memory:
+
+```{r}
+bench::mark(
+  rng1$unif_rand(1000),
+  rng1$runif(1000, 0, 1),
+  runif(1000),
+  time_unit = "us",
+  check = FALSE)
+```
+
+However, note that our `rbinom` implementation is about twice as slow as R's (it is derived from TensorFlow and has been written to facilitate running on a GPU).
+
+```{r}
+bench::mark(
+  rng1$rbinom(1000, 10, 0.2),
+  rbinom(1000, 10, 0.2),
+  time_unit = "us",
+  check = FALSE)
+```

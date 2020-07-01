@@ -46,9 +46,9 @@ clean:
 	$(RM) src/*.o src/dust.so src/dust.dll \
 		tests/testthat/example/*.o tests/testthat/example/*.so
 
-vignettes: vignettes/traduire.Rmd
+vignettes: vignettes/dust.Rmd vignettes/rng.Rmd
 	${RSCRIPT} -e 'tools::buildVignettes(dir = ".")'
 	mkdir -p inst/doc
 	cp vignettes/*.html vignettes/*.Rmd inst/doc
 
-.PHONY: all test document install vignettes
+.PHONY: all test document install vignettes pkgdown
