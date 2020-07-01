@@ -205,8 +205,6 @@ dust_interface <- R6::R6Class(
     ##' elements between 1 and the length of the state (this will be
     ##' validated, and an error thrown if an invalid index is given).
     set_index_y = function(index_y) {
-      .Call(private$cpp_set_index_y, private$ptr, index_y)
-      invisible()
     },
 
     ##' @description
@@ -217,8 +215,6 @@ dust_interface <- R6::R6Class(
     ##' @param state The state vector - must be a numeric vector with the
     ##' same length as the model's current state.
     set_state = function(state) {
-      .Call(private$cpp_set_state, private$ptr, state)
-      invisible()
     },
 
     ##' @description

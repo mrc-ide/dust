@@ -22,6 +22,14 @@
       dust_{{name}}_run(private$ptr, step_end)
     },
 
+    set_index_y = function(index_y) {
+      dust_{{name}}_set_index_y(private$ptr, index_y)
+    },
+
+    set_state = function(state) {
+      dust_{{name}}_set_state(private$ptr, state)
+    },
+
     reset = function(data, step) {
       private$data <- dust_{{name}}_reset(private$ptr, data, step)
       invisible()
