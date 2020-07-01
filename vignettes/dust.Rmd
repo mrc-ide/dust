@@ -30,7 +30,7 @@ The goal of `dust` is to help write stochastic models that can be evaluated in p
 
 ## A simple example - random walk
 
-Consider an biased random walk; at each time step we move our position with a draw from a normal distribution with mean 0 and some standard deviation. We consider a single individal moving but will eventually simulate a family of these individuals, each independent. All simulations have a sense of time - a unitless measure of time "step" will be used but it's up to you how it is interpreted (step is a non-negative integer, implemented using `size_t`).
+Consider an biased random walk; at each time step we move our position with a draw from a normal distribution with mean 0 and some standard deviation. We consider a single individual moving but will eventually simulate a family of these individuals, each independent. All simulations have a sense of time - a unitless measure of time "step" will be used but it's up to you how it is interpreted (step is a non-negative integer, implemented using `size_t`).
 
 ### Model code
 
@@ -47,13 +47,13 @@ The class is what does most of the work. It is important that this does not use 
 * the types `int_t` and `real_t` have to exist and indicate what sort of numeric type you use for "integers" and "real numbers". Typically this will be `int` and `double` respectively, but if you need different types (longer or shorter) you can use them here.
 * the type `init_t` is whatever internal data your model needs, and an object of this type will be passed to your constructor (see `dust_data` below)
 * the constructor must take only one argument, being `const init_t&`. You can do what you want in the constructor - here we just copy the data into the object (we use the private member `data_` here but this can be anything you want)
-* the method `size()` must return the "size" of the system - how many state variables it has. Here we're considering a single invidivual moving randomly so the size is always 1
+* the method `size()` must return the "size" of the system - how many state variables it has. Here we're considering a single individual moving randomly so the size is always 1
 * the method `initial()` returns the initial state of the model system. It must have length `size()` and it can vary based on the "step" of the system
 * the method `update()` is the core of the system and specifies how the state changes from one step to another. It will always have the signature as above with arguments `size_t step` (the current step), `const std::vector<real_t>& state` (a read-only copy of the state when entering this step), `dust::RNG<real_t, int>& rng` (a reference to the random number generator object) and `std::vector<real_t>& state_next` (a reference to the state to be updated). Your method reads from `state` and writes to `state_next`. Here, we unpack the mean and draw a new normally distributed random number - note how the standard deviation is retrieved from the `data_` object.
 
 The function below the class is a template specialisation of a dust function `dust_data`; it is used to create your `init_t` object from an R list (`Rcpp::List`). You should include `Rcpp.h` at this point and can use any Rcpp function that you need. Avoid direct use of the R's C API as this is not always safe to call from C++. In particular, use `Rcpp::stop()` rather than `Rf_error()`.
 
-Here we retrieve the `sd` element of the list and convert it to a "real number" type. This roughtly equivalent to writing
+Here we retrieve the `sd` element of the list and convert it to a "real number" type. This roughly equivalent to writing
 
 ```r
 sd <- as.numeric(data[["sd"]])
@@ -137,7 +137,7 @@ model$state()
 
 ## A more interesting example
 
-Consider now an SIR model (Susceptible - Infected - Recovered). This sort of model is common in epidemiology, and is often extended to add additional compartements (e.g., SEIR which adds an Exposed compartment) or by structuring each compartement based on properties such as age.  Here, we show a simple example with just 3 compartments:
+Consider now an SIR model (Susceptible - Infected - Recovered). This sort of model is common in epidemiology, and is often extended to add additional compartments (e.g., SEIR which adds an Exposed compartment) or by structuring each compartment based on properties such as age.  Here, we show a simple example with just 3 compartments:
 
 ```{r sir_code, echo = FALSE, results = "asis"}
 cc_output(readLines(dust:::dust_file("examples/sir.cpp")))
@@ -175,7 +175,7 @@ and get its state as before:
 model$state()
 ```
 
-Suppose that as we run the model we mostly want information on the "I" compartment. So we'll run the model for a bit and retrieve the number of infecteds, then continue, etc.  To do this we use the `$set_index()` method to indicate which state elements should be returned after using `$run()`:
+Suppose that as we run the model we mostly want information on the "I" compartment. So we'll run the model for a bit and retrieve the number of infected individuals, then continue, etc.  To do this we use the `$set_index()` method to indicate which state elements should be returned after using `$run()`:
 
 ```{r sir_set_index}
 model$set_index(2)
@@ -190,7 +190,7 @@ model$run(10)
 model$run(20)
 ```
 
-This is useful when you have many compartments or variables that you are not that interested in during running the model. For a particle filter you might be fitting to the sum of all infected individuals over a number of compartements, so rather than returning hundreds of values back (times hundreds of particles) you can return back much less data and keep things nice and fast.
+This is useful when you have many compartments or variables that you are not that interested in during running the model. For a particle filter you might be fitting to the sum of all infected individuals over a number of compartments, so rather than returning hundreds of values back (times hundreds of particles) you can return back much less data and keep things nice and fast.
 
 `dust` does not (yet) provide a friendly wrapper for running a model like this and collecting output because the intention is that you would write your own (see [`mcstate`](https://mrc-ide.github.io/mcstate) for example.  However, we can write one like so:
 
