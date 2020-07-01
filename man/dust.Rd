@@ -220,7 +220,8 @@ step(),silently nothing will happen)}
 \subsection{Method \code{set_index()}}{
 Set the "index" vector that is used to return a subset of data
 after using \code{run()}. If this is not used then \code{run()} returns
-an empty (zero-row) matrix. This method must be called after any
+all elements in your state vector, which may be excessive and slower
+than necessary. This method must be called after any
 call to \code{reset()} as \code{reset()} may change the size of the state
 and that will invalidate the index.
 \subsection{Usage}{

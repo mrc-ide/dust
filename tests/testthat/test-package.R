@@ -15,11 +15,11 @@ test_that("validate package", {
   w <- res$env$walk$new(list(sd = 1), 0, 100)
   expect_equal(w$state(), matrix(0, 1, 100))
 
-  expect_equal(w$run(0), matrix(numeric(0), 0, 100))
-  w$set_index(1)
   expect_equal(w$run(0), matrix(0, 1, 100))
   w$set_state(pi)
   expect_equal(w$run(0), matrix(pi, 1, 100))
+  w$set_index(integer(0))
+  expect_equal(w$run(0), matrix(0, 0, 100))
 
   rm(w)
   gc()

@@ -88,18 +88,12 @@ public:
        const size_t n_generators, const size_t seed) :
     _n_threads(n_threads),
     _rng(n_generators, seed) {
-    for (size_t i = 0; i < n_particles; ++i) {
-      _particles.push_back(Particle<T>(data, step));
-    }
+    initialise(data, step, n_particles);
   }
 
   void reset(const init_t data, const size_t step) {
     const size_t n_particles = _particles.size();
-    _index.clear();
-    _particles.clear();
-    for (size_t i = 0; i < n_particles; ++i) {
-      _particles.push_back(Particle<T>(data, step));
-    }
+    initialise(data, step, n_particles);
   }
 
   // It's the callee's responsibility to ensure that index is in
@@ -234,6 +228,22 @@ private:
   // loop leftovers either.
   rng_t& pick_generator(const size_t i) {
     return _rng(i % _rng.size());
+  }
+
+  void initialise(const init_t data, const size_t step,
+                  const size_t n_particles) {
+    _particles.clear();
+    _particles.reserve(n_particles);
+    for (size_t i = 0; i < n_particles; ++i) {
+      _particles.push_back(Particle<T>(data, step));
+    }
+
+    const size_t n = n_state_full();
+    _index.clear();
+    _index.reserve(n);
+    for (size_t i = 0; i < n; ++i) {
+      _index.push_back(i);
+    }
   }
 };
 
