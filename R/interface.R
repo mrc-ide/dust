@@ -195,6 +195,33 @@ dust_interface <- R6::R6Class(
     },
 
     ##' @description
+    ##' Set the "index" vector that is used to return a subset of data
+    ##' after using `run()`. If this is not used then `run()` returns
+    ##' an empty (zero-row) matrix. This method must be called after any
+    ##' call to `reset()` as `reset()` may change the size of the state
+    ##' and that will invalidate the index.
+    ##'
+    ##' @param index_y The index vector - must be an integer vector with
+    ##' elements between 1 and the length of the state (this will be
+    ##' validated, and an error thrown if an invalid index is given).
+    set_index_y = function(index_y) {
+      .Call(private$cpp_set_index_y, private$ptr, index_y)
+      invisible()
+    },
+
+    ##' @description
+    ##' Set the "state" vector for all particles, overriding whatever your
+    ##' models `initial()` method provides. Currently all particles are set
+    ##' to the same state.
+    ##'
+    ##' @param state The state vector - must be a numeric vector with the
+    ##' same length as the model's current state.
+    set_state = function(state) {
+      .Call(private$cpp_set_state, private$ptr, state)
+      invisible()
+    },
+
+    ##' @description
     ##' Reset the model while preserving the random number stream state
     ##'
     ##' @param data New data for the model (see constructor)
