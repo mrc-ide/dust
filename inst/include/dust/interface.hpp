@@ -68,7 +68,7 @@ SEXP dust_state(SEXP ptr, SEXP r_index) {
   if (r_index == R_NilValue) {
     return dust_state_full(obj);
   } else {
-    return dust_state_filter(obj, Rcpp::as<Rcpp::IntegerVector>(r_index));
+    return dust_state_select(obj, Rcpp::as<Rcpp::IntegerVector>(r_index));
   }
 }
 
@@ -85,7 +85,7 @@ SEXP dust_state_full(Dust<T> *obj) {
 }
 
 template <typename T>
-SEXP dust_state_filter(Dust<T> *obj, Rcpp::IntegerVector r_index) {
+SEXP dust_state_select(Dust<T> *obj, Rcpp::IntegerVector r_index) {
   const size_t n_state = static_cast<size_t>(r_index.size());
   const size_t n_particles = obj->n_particles();
   const size_t len = n_state * n_particles;

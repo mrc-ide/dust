@@ -204,7 +204,7 @@ dust_interface <- R6::R6Class(
 
     ##' @description
     ##' Return full model state
-    ##' @param index Optional index to filter state by
+    ##' @param index Optional index to select state using
     state = function(index = NULL) {
     },
 
