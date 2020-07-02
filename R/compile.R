@@ -4,7 +4,7 @@ compile_and_load <- function(filename, type, name, quiet = FALSE,
   assert_valid_name(name)
   base <- sprintf("%s%s", name, hash)
 
-  if (!(base %in% names(getLoadedDLLs()))) {
+  if (!base %in% names(cache)) {
     model <- read_lines(filename)
     data <- list(model = model, name = name, type = type, base = base,
                  path_dust_include = dust_file("include"))
@@ -23,15 +23,20 @@ compile_and_load <- function(filename, type, name, quiet = FALSE,
     pkgbuild::compile_dll(path, compile_attributes = TRUE, quiet = quiet)
     dll <- file.path(path, "src", paste0(base, .Platform$dynlib.ext))
     dyn.load(dll)
+
+    template_r <- read_lines(dust_file("template/dust.R.template"))
+    writeLines(glue_whisker(template_r, data),
+               file.path(path, "R", "dust.R"))
+
+    env <- new.env(parent = topenv())
+    for (f in dir(file.path(path, "R"), full.names = TRUE)) {
+      sys.source(f, env)
+    }
+
+    cache[[base]] <- env[[name]]
   }
 
-  v <- c("alloc", "run", "set_index", "set_state", "reset", "state",
-         "step", "reorder")
-  sym <- getNativeSymbolInfo(sprintf("_%s_dust_%s_%s", base, name, v), base)
-  names(sym) <- v
-
-  dust_class(sym$alloc, sym$run, sym$set_index, sym$set_state, sym$reset,
-             sym$state, sym$step, sym$reorder)
+  cache[[base]]
 }
 
 
