@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 We provide an interface to the "Xoshiro256" generators (Xoshiro is derived from XOR/shift/rotate). These are designed to allow use in parallel by "jumping ahead" in the sequence and we use this below to interleave generators. The stream is unrelated to and unaffected by R's random number generation. `set.seed` has no effect, for example. **The random numbers are not cryptographically secure**; for that see the excellent [sodium](https://cran.r-project.org/package=sodium) package.
 
-Ordinarily this is used from C++; the model as discussed in [the main vignette](dust.html) uses `dust::RNG<real_t, int_t>` to interact with the generator. However, an R interface is provided for debugging and testing purposes.
+Ordinarily this is used from C++; the model as discussed in `vignette("dust")` uses `dust::RNG<real_t, int_t>` to interact with the generator. However, an R interface is provided for debugging and testing purposes.
 
 ```{r}
 rng <- dust::dust_rng$new(seed = 1)
@@ -50,6 +50,78 @@ rng3$unif_rand(5)
 
 A jump is equivalent to 2^128 draws from the random number generator (about 10^38). There are 2^128 of these non-overlapping subsequences in the generator, which is quite a lot. If this feels too close together, then the `$long_jump()` method jumps even further (2^192 draws, or about 10^57). There are 2^64 (10^20) of these sequences.
 
+## Supported distributions
+
+We do not yet support the full set of distributions provided by R. Like with R, the *R* interface to these functions takes an argument `n` for the number of samples but the C++ interface omits this argument
+
+**Uniform distribution** between `min` and `max`:
+
+```{r}
+rng$runif(10, 3, 6)
+```
+
+From C++
+
+```cc
+real_t u = rng.unif(3, 6);
+```
+
+**Normal distribution** with parameters `mean` and `sd`
+
+```{r}
+rng$runif(10, 3, 6)
+```
+
+```cc
+real_t z = rng.rnorm(3, 6);
+```
+
+**Poisson distribution** with mean `lambda`
+
+```{r}
+rng$rpois(10, 4.5)
+```
+
+```cc
+int_t n = rng.rpois(4.5)
+```
+
+**Binomial distribution** with mean `size` and `prob`
+
+```{r}
+rng$rbinom(10, 10, 0.3)
+```
+
+```cc
+int_t n = rng.rbinom(10, 0.3)
+```
+
+There are also helpers for some common special case distributions:
+
+**Standard uniform distribution** (between 0 and 1) - faster than using `$runif(n, 0, 1)`:
+
+```{r}
+rng$unif_rand(10)
+```
+
+```cc
+real_t u = rng.unif_rand()
+```
+
+**Standard normal distribution** (mean 0 and sd 1) - faster than using `$rnorm(n, 0, 1)`:
+
+```{r}
+rng$norm_rand(10)
+```
+
+```cc
+real_t z = rng.norm_rand()
+```
+
+Supported distributions are documented more-fully in `?dust::dust_rng`.
+
+## Performance
+
 Performance should be on par with R's random number generator, though here the timings are likely to be mostly due to allocations and copies of memory:
 
 ```{r}
@@ -70,3 +142,5 @@ bench::mark(
   time_unit = "us",
   check = FALSE)
 ```
+
+Practically, performance will vary based on the parameters of the distributions and the underlying algorithms, and the principle performance gain we hope to get here is driven by the ability to parallelise safely.
