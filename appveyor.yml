@@ -24,6 +24,8 @@ environment:
 
 build_script:
   - travis-tool.sh install_deps
+  - travis-tool.sh install_github r-lib/cpp11
+  - travis-tool.sh install_github r-lib/pkgbuild@cpp11
 
 test_script:
   - travis-tool.sh run_tests
