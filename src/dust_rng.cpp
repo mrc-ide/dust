@@ -1,13 +1,13 @@
+#include <cpp11/external_pointer.hpp>
 #include <Rcpp.h>
 #include <dust/rng.hpp>
 
 typedef dust::pRNG<double, int> dust_rng_t;
 
-// [[Rcpp::export(rng = false)]]
+[[cpp11::register]]
 SEXP dust_rng_alloc(int seed, int n_generators) {
   dust_rng_t *rng = new dust_rng_t(n_generators, seed);
-  Rcpp::XPtr<dust_rng_t> ptr(rng, false);
-  return ptr;
+  return cpp11::external_pointer<dust_rng_t>(rng);
 }
 
 // [[Rcpp::export(rng = false)]]

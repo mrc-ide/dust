@@ -20,7 +20,8 @@ Imports:
     glue,
     pkgbuild
 LinkingTo:
-    Rcpp
+    Rcpp,
+    cpp11
 Suggests:
     bench,
     fs,

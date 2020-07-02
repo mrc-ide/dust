@@ -5,17 +5,6 @@
 
 using namespace Rcpp;
 
-// dust_rng_alloc
-SEXP dust_rng_alloc(int seed, int n_generators);
-RcppExport SEXP _dust_dust_rng_alloc(SEXP seedSEXP, SEXP n_generatorsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
-    Rcpp::traits::input_parameter< int >::type n_generators(n_generatorsSEXP);
-    rcpp_result_gen = Rcpp::wrap(dust_rng_alloc(seed, n_generators));
-    return rcpp_result_gen;
-END_RCPP
-}
 // dust_rng_size
 int dust_rng_size(SEXP ptr);
 RcppExport SEXP _dust_dust_rng_size(SEXP ptrSEXP) {
@@ -125,24 +114,4 @@ BEGIN_RCPP
     rcpp_result_gen = Rcpp::wrap(openmp_info());
     return rcpp_result_gen;
 END_RCPP
-}
-
-static const R_CallMethodDef CallEntries[] = {
-    {"_dust_dust_rng_alloc", (DL_FUNC) &_dust_dust_rng_alloc, 2},
-    {"_dust_dust_rng_size", (DL_FUNC) &_dust_dust_rng_size, 1},
-    {"_dust_dust_rng_jump", (DL_FUNC) &_dust_dust_rng_jump, 1},
-    {"_dust_dust_rng_long_jump", (DL_FUNC) &_dust_dust_rng_long_jump, 1},
-    {"_dust_dust_rng_unif_rand", (DL_FUNC) &_dust_dust_rng_unif_rand, 2},
-    {"_dust_dust_rng_norm_rand", (DL_FUNC) &_dust_dust_rng_norm_rand, 2},
-    {"_dust_dust_rng_runif", (DL_FUNC) &_dust_dust_rng_runif, 4},
-    {"_dust_dust_rng_rnorm", (DL_FUNC) &_dust_dust_rng_rnorm, 4},
-    {"_dust_dust_rng_rbinom", (DL_FUNC) &_dust_dust_rng_rbinom, 4},
-    {"_dust_dust_rng_rpois", (DL_FUNC) &_dust_dust_rng_rpois, 3},
-    {"_dust_openmp_info", (DL_FUNC) &_dust_openmp_info, 0},
-    {NULL, NULL, 0}
-};
-
-RcppExport void R_init_dust(DllInfo *dll) {
-    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
-    R_useDynamicSymbols(dll, FALSE);
 }
