@@ -31,7 +31,7 @@ cpp11::list dust_alloc(cpp11::list r_data, int step,
   typename T::init_t data = dust_data<T>(r_data);
 
   Dust<T> *d = new Dust<T>(data, step, n_particles, n_threads, seed);
-  cpp11::external_pointer<Dust<T>> ptr(d);
+  cpp11::external_pointer<Dust<T>> ptr(d, false, true);
   cpp11::sexp info = dust_info<T>(data);
 
   return cpp11::writable::list({ptr, info});
