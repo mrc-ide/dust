@@ -33,17 +33,6 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// dust_rng_unif_rand
-std::vector<double> dust_rng_unif_rand(SEXP ptr, int n);
-RcppExport SEXP _dust_dust_rng_unif_rand(SEXP ptrSEXP, SEXP nSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< SEXP >::type ptr(ptrSEXP);
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(dust_rng_unif_rand(ptr, n));
-    return rcpp_result_gen;
-END_RCPP
-}
 // dust_rng_norm_rand
 std::vector<double> dust_rng_norm_rand(SEXP ptr, int n);
 RcppExport SEXP _dust_dust_rng_norm_rand(SEXP ptrSEXP, SEXP nSEXP) {

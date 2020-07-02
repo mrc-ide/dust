@@ -3,6 +3,7 @@
 #include <dust/rng.hpp>
 
 typedef dust::pRNG<double, int> dust_rng_t;
+typedef cpp11::external_pointer<dust_rng_t> dust_rng_ptr_t;
 
 [[cpp11::register]]
 SEXP dust_rng_alloc(int seed, int n_generators) {
@@ -28,9 +29,9 @@ void dust_rng_long_jump(SEXP ptr) {
   rng->long_jump();
 }
 
-// [[Rcpp::export(rng = false)]]
+[[cpp11::register]]
 std::vector<double> dust_rng_unif_rand(SEXP ptr, int n) {
-  dust_rng_t *rng = Rcpp::as<Rcpp::XPtr<dust_rng_t>>(ptr);
+  dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
   const size_t n_generators = rng->size();
   std::vector<double> y(n);
   for (size_t i = 0; i < (size_t)n; ++i) {

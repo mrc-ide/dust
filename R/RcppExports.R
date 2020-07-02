@@ -13,10 +13,6 @@ dust_rng_long_jump <- function(ptr) {
     invisible(.Call(`_dust_dust_rng_long_jump`, ptr))
 }
 
-dust_rng_unif_rand <- function(ptr, n) {
-    .Call(`_dust_dust_rng_unif_rand`, ptr, n)
-}
-
 dust_rng_norm_rand <- function(ptr, n) {
     .Call(`_dust_dust_rng_norm_rand`, ptr, n)
 }
@@ -40,3 +36,4 @@ dust_rng_rpois <- function(ptr, n, lambda) {
 cpp_openmp_info <- function() {
     .Call(`_dust_openmp_info`)
 }
+

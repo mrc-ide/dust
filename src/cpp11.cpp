@@ -12,6 +12,13 @@ extern "C" SEXP _dust_dust_rng_alloc(SEXP seed, SEXP n_generators) {
     return cpp11::as_sexp(dust_rng_alloc(cpp11::unmove(cpp11::as_cpp<int>(seed)), cpp11::unmove(cpp11::as_cpp<int>(n_generators))));
   END_CPP11
 }
+// dust_rng.cpp
+std::vector<double> dust_rng_unif_rand(SEXP ptr, int n);
+extern "C" SEXP _dust_dust_rng_unif_rand(SEXP ptr, SEXP n) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_rng_unif_rand(cpp11::unmove(cpp11::as_cpp<SEXP>(ptr)), cpp11::unmove(cpp11::as_cpp<int>(n))));
+  END_CPP11
+}
 
 extern "C" {
 /* .Call calls */
@@ -47,3 +54,4 @@ extern "C" void R_init_dust(DllInfo* dll){
   R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
   R_useDynamicSymbols(dll, FALSE);
 }
+
