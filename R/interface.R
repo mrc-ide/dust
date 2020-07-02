@@ -195,6 +195,30 @@ dust_interface <- R6::R6Class(
     },
 
     ##' @description
+    ##' Set the "index" vector that is used to return a subset of data
+    ##' after using `run()`. If this is not used then `run()` returns
+    ##' all elements in your state vector, which may be excessive and slower
+    ##' than necessary. This method must be called after any
+    ##' call to `reset()` as `reset()` may change the size of the state
+    ##' and that will invalidate the index.
+    ##'
+    ##' @param index The index vector - must be an integer vector with
+    ##' elements between 1 and the length of the state (this will be
+    ##' validated, and an error thrown if an invalid index is given).
+    set_index = function(index) {
+    },
+
+    ##' @description
+    ##' Set the "state" vector for all particles, overriding whatever your
+    ##' models `initial()` method provides. Currently all particles are set
+    ##' to the same state.
+    ##'
+    ##' @param state The state vector - must be a numeric vector with the
+    ##' same length as the model's current state.
+    set_state = function(state) {
+    },
+
+    ##' @description
     ##' Reset the model while preserving the random number stream state
     ##'
     ##' @param data New data for the model (see constructor)
@@ -230,9 +254,8 @@ dust_interface <- R6::R6Class(
   ))
 
 
-
-dust_class <- function(alloc, run, reset, state, step, reorder,
-                       classname = "dust") {
+dust_class <- function(alloc, run, set_index, set_state, reset, state,
+                       step, reorder, classname = "dust") {
   R6::R6Class(
     classname,
     cloneable = FALSE,
@@ -240,6 +263,8 @@ dust_class <- function(alloc, run, reset, state, step, reorder,
     private = list(
       cpp_alloc = alloc,
       cpp_run = run,
+      cpp_set_index = set_index,
+      cpp_set_state = set_state,
       cpp_reset = reset,
       cpp_state = state,
       cpp_step = step,
@@ -263,6 +288,16 @@ dust_class <- function(alloc, run, reset, state, step, reorder,
 
       reset = function(data, step) {
         private$data <- .Call(private$cpp_reset, private$ptr, data, step)
+        invisible()
+      },
+
+      set_index = function(index) {
+        .Call(private$cpp_set_index, private$ptr, index)
+        invisible()
+      },
+
+      set_state = function(state) {
+        .Call(private$cpp_set_state, private$ptr, state)
         invisible()
       },
 
@@ -325,6 +360,8 @@ dust_workdir <- function(path) {
 ## above.
 private <- list(cpp_alloc = structure(list(), class = "NativeSymbolInfo"),
                 cpp_run = structure(list(), class = "NativeSymbolInfo"),
+                cpp_set_index = structure(list(), class = "NativeSymbolInfo"),
+                cpp_set_state = structure(list(), class = "NativeSymbolInfo"),
                 cpp_reset = structure(list(), class = "NativeSymbolInfo"),
                 cpp_state = structure(list(), class = "NativeSymbolInfo"),
                 cpp_step = structure(list(), class = "NativeSymbolInfo"),

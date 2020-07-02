@@ -23,18 +23,33 @@ Rcpp::List dust_alloc(Rcpp::List r_data, int step,
   validate_n(n_generators, n_threads);
 
   typename T::init_t data = dust_data<T>(r_data);
-  std::vector<size_t> index_y = {0};
-
-  // TODO: can't customise initial state
-  // TODO: can't customise index y
 
   Dust<T> *d =
-    new Dust<T>(data, step, index_y, n_particles, n_threads, n_generators,
-                seed);
+    new Dust<T>(data, step, n_particles, n_threads, n_generators, seed);
   Rcpp::XPtr<Dust<T>> ptr(d, false);
   Rcpp::RObject info = dust_info<T>(data);
 
   return Rcpp::List::create(ptr, info);
+}
+
+template <typename T>
+void dust_set_index(SEXP ptr, Rcpp::IntegerVector r_index) {
+  Dust<T> *obj = Rcpp::as<Rcpp::XPtr<Dust<T>>>(ptr);
+  const size_t index_max = obj->n_state_full();
+  const std::vector<size_t> index = r_index_to_index(r_index, index_max);
+  obj->set_index(index);
+}
+
+template <typename T>
+void dust_set_state(SEXP ptr, Rcpp::NumericVector r_state) {
+  Dust<T> *obj = Rcpp::as<Rcpp::XPtr<Dust<T>>>(ptr);
+  const size_t n_state = obj->n_state_full();
+  if (static_cast<size_t>(r_state.size()) != n_state) {
+    Rcpp::stop("Expected a vector with %d elements for 'state'", n_state);
+  }
+  const std::vector<typename T::real_t> state =
+    Rcpp::as<std::vector<typename T::real_t>>(r_state);
+  obj->set_state(state);
 }
 
 template <typename T>

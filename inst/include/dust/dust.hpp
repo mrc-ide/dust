@@ -34,10 +34,10 @@ public:
     }
   }
 
-  void state(const std::vector<size_t>& index_y,
+  void state(const std::vector<size_t>& index,
              typename std::vector<real_t>::iterator end_state) const {
-    for (size_t i = 0; i < index_y.size(); ++i) {
-      *(end_state + i) = _y[index_y[i]];
+    for (size_t i = 0; i < index.size(); ++i) {
+      *(end_state + i) = _y[index[i]];
     }
   }
 
@@ -63,6 +63,10 @@ public:
     _y_swap = other._y;
   }
 
+  void update(const std::vector<real_t>& state) {
+    std::copy(state.begin(), state.end(), _y.begin());
+  }
+
 private:
   T _model;
   size_t _step;
@@ -80,22 +84,29 @@ public:
   typedef typename dust::RNG<real_t, int_t> rng_t;
 
   Dust(const init_t data, const size_t step,
-       const std::vector<size_t> index_y,
        const size_t n_particles, const size_t n_threads,
        const size_t n_generators, const size_t seed) :
-    _index_y(index_y),
     _n_threads(n_threads),
     _rng(n_generators, seed) {
-    for (size_t i = 0; i < n_particles; ++i) {
-      _particles.push_back(Particle<T>(data, step));
-    }
+    initialise(data, step, n_particles);
   }
 
   void reset(const init_t data, const size_t step) {
-    size_t n_particles = _particles.size();
-    _particles.clear();
+    const size_t n_particles = _particles.size();
+    initialise(data, step, n_particles);
+  }
+
+  // It's the callee's responsibility to ensure that index is in
+  // range [0, n-1]
+  void set_index(const std::vector<size_t>& index) {
+    _index = index;
+  }
+
+  // It's the callee's responsibility to ensure this is the correct length
+  void set_state(const std::vector<real_t>& state) {
+    const size_t n_particles = _particles.size();
     for (size_t i = 0; i < n_particles; ++i) {
-      _particles.push_back(Particle<T>(data, step));
+      _particles[i].update(state);
     }
   }
 
@@ -126,15 +137,15 @@ public:
   void state(std::vector<real_t>& end_state) const {
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
     for (size_t i = 0; i < _particles.size(); ++i) {
-      _particles[i].state(_index_y, end_state.begin() + i * _index_y.size());
+      _particles[i].state(_index, end_state.begin() + i * _index.size());
     }
   }
 
-  void state(std::vector<size_t> index_y,
+  void state(std::vector<size_t> index,
              std::vector<real_t>& end_state) const {
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
     for (size_t i = 0; i < _particles.size(); ++i) {
-      _particles[i].state(index_y, end_state.begin() + i * index_y.size());
+      _particles[i].state(index, end_state.begin() + i * index.size());
     }
   }
 
@@ -172,18 +183,21 @@ public:
   size_t n_particles() const {
     return _particles.size();
   }
+
   size_t n_state() const {
-    return _index_y.size();
+    return _index.size();
   }
+
   size_t n_state_full() const {
     return _particles.front().size();
   }
+
   size_t step() const {
     return _particles.front().step();
   }
 
 private:
-  const std::vector<size_t> _index_y;
+  std::vector<size_t> _index;
   const size_t _n_threads;
   dust::pRNG<real_t, int_t> _rng;
   std::vector<Particle<T>> _particles;
@@ -214,6 +228,22 @@ private:
   // loop leftovers either.
   rng_t& pick_generator(const size_t i) {
     return _rng(i % _rng.size());
+  }
+
+  void initialise(const init_t data, const size_t step,
+                  const size_t n_particles) {
+    _particles.clear();
+    _particles.reserve(n_particles);
+    for (size_t i = 0; i < n_particles; ++i) {
+      _particles.push_back(Particle<T>(data, step));
+    }
+
+    const size_t n = n_state_full();
+    _index.clear();
+    _index.reserve(n);
+    for (size_t i = 0; i < n; ++i) {
+      _index.push_back(i);
+    }
   }
 };
 

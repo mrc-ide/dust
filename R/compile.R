@@ -25,11 +25,13 @@ compile_and_load <- function(filename, type, name, quiet = FALSE,
     dyn.load(dll)
   }
 
-  v <- c("alloc", "run", "reset", "state", "step", "reorder")
+  v <- c("alloc", "run", "set_index", "set_state", "reset", "state",
+         "step", "reorder")
   sym <- getNativeSymbolInfo(sprintf("_%s_dust_%s_%s", base, name, v), base)
   names(sym) <- v
 
-  dust_class(sym$alloc, sym$run, sym$reset, sym$state, sym$step, sym$reorder)
+  dust_class(sym$alloc, sym$run, sym$set_index, sym$set_state, sym$reset,
+             sym$state, sym$step, sym$reorder)
 }
 
 

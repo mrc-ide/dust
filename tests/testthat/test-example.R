@@ -54,6 +54,7 @@ test_that("Basic sir model", {
                           quiet = TRUE)
 
   obj <- res$new(list(), 0, 100)
+  obj$set_index(1)
 
   ans <- vector("list", 150)
   for (i in seq_along(ans)) {
@@ -86,6 +87,62 @@ test_that("Basic sir model", {
   expect_error(obj$state(1:4),
                "All elements of 'index' must lie in [1, 3]",
                fixed = TRUE)
+})
+
+
+test_that("set index", {
+  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  mod <- res$new(list(len = 10), 0, 1)
+  expect_equal(mod$state(), matrix(1:10))
+  expect_equal(mod$run(0), matrix(1:10, nrow = 10, ncol = 1))
+
+  mod$set_index(2:4)
+  expect_equal(mod$run(0), matrix(2:4))
+
+  y <- mod$run(1)
+  expect_equal(y, mod$state(2:4))
+  expect_equal(y, mod$state()[2:4, , drop = FALSE])
+
+  mod$set_index(integer(0))
+  expect_equal(mod$run(1), matrix(numeric(0), nrow = 0, ncol = 1))
+})
+
+
+test_that("reset clears the index", {
+  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  mod <- res$new(list(len = 10), 0, 1)
+  mod$set_index(2:4)
+  expect_equal(mod$run(0), matrix(2:4))
+  mod$reset(list(len = 10), 0)
+  expect_equal(mod$run(0), matrix(1:10, 10, 1))
+})
+
+
+test_that("set model state", {
+  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  mod <- res$new(list(len = 10), 0, 1)
+  expect_equal(mod$state(), matrix(1:10))
+  x <- runif(10)
+  mod$set_state(x)
+  expect_equal(mod$state(), matrix(x))
+  expect_error(
+    mod$set_state(1),
+    "Expected a vector with 10 elements for 'state'")
+  expect_equal(mod$state(), matrix(x))
+})
+
+
+test_that("set model state into multiple particles", {
+  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  mod <- res$new(list(len = 10), 0, 20)
+  expect_equal(mod$state(), matrix(1:10, 10, 20))
+  x <- runif(10)
+  mod$set_state(x)
+  expect_equal(mod$state(), matrix(x, 10, 20))
+  expect_error(
+    mod$set_state(1),
+    "Expected a vector with 10 elements for 'state'")
+  expect_equal(mod$state(), matrix(x, 10, 20))
 })
 
 
@@ -219,16 +276,19 @@ test_that("Basic threading test", {
     "n_generators must be a multiple of n_threads")
 
   obj <- res$new(list(sd = 1), 0, 10, n_threads = 2L, n_generators = 2L)
+  obj$set_index(1)
   y0 <- obj$state()
   y22_1 <- obj$run(5)
   y22_2 <- obj$state()
 
   ## And again without parallel
   obj <- res$new(list(sd = 1), 0, 10, n_threads = 1L, n_generators = 2L)
+  obj$set_index(1)
   y12_1 <- obj$run(5)
   y12_2 <- obj$state()
 
   obj <- res$new(list(sd = 1), 0, 10, n_threads = 1L, n_generators = 1L)
+  obj$set_index(1)
   y11_1 <- obj$run(5)
   y11_2 <- obj$state()
 

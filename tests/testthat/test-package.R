@@ -14,6 +14,13 @@ test_that("validate package", {
   res <- pkgload::load_all(path)
   w <- res$env$walk$new(list(sd = 1), 0, 100)
   expect_equal(w$state(), matrix(0, 1, 100))
+
+  expect_equal(w$run(0), matrix(0, 1, 100))
+  w$set_state(pi)
+  expect_equal(w$run(0), matrix(pi, 1, 100))
+  w$set_index(integer(0))
+  expect_equal(w$run(0), matrix(0, 0, 100))
+
   rm(w)
   gc()
   pkgload::unload("pkg")
