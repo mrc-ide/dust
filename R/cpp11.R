@@ -43,4 +43,3 @@ dust_rng_rpois <- function(ptr, n, lambda) {
 cpp_openmp_info <- function() {
   .Call("_dust_cpp_openmp_info")
 }
-
