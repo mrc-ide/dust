@@ -1,0 +1,107 @@
+## NOTE: R6 classes do not support interfaces and inheritence is not
+## really needed here as this does not *do* anything, so consider this
+## a hack to allow Roxygen's R6 documentation to work.
+
+##' @rdname dust
+##' @name dust
+dust_interface <- R6::R6Class(
+  "dust",
+  cloneable = FALSE,
+
+  public = list(
+    ##' @description
+    ##' Create a new model
+    ##'
+    ##' @param data Data to initialise your model with; a `list`
+    ##' object, but the required elements will depend on the details of
+    ##' your model.
+    ##'
+    ##' @param step Initial step - must be nonnegative
+    ##'
+    ##' @param n_particles Number of particles to create - must be at
+    ##' least 1
+    ##'
+    ##' @param n_threads Number of OMP threads to use, if `dust` and
+    ##' your model were compiled with OMP support (details to come)
+    ##'
+    ##' @param n_generators The number of random number generators to
+    ##' use. Must be at least `n_threads` and a multiple of
+    ##' `n_threads`.  You can use this to ensure reproducible results
+    ##' when changing the number of threads, while preserving
+    ##' statistically reasonable random numbers (for example setting
+    ##' `n_generators = 64` and then using 1, 2, 4, 8, ..., 64 threads
+    ##' as your computational capacity allows).
+    ##'
+    ##' @param seed Seed to use for the random number generator
+    ##' (positive integer)
+    initialize = function(data, step, n_particles, n_threads = 1L,
+                          n_generators = 1L, seed = 1L) {
+    },
+
+    ##' @description
+    ##' Run the model up to a point in time, returning the filtered state
+    ##' at that point.
+    ##'
+    ##' @param step_end Step to run to (if less than or equal to the current
+    ##' step(),silently nothing will happen)
+    run = function(step_end) {
+    },
+
+    ##' @description
+    ##' Set the "index" vector that is used to return a subset of data
+    ##' after using `run()`. If this is not used then `run()` returns
+    ##' all elements in your state vector, which may be excessive and slower
+    ##' than necessary. This method must be called after any
+    ##' call to `reset()` as `reset()` may change the size of the state
+    ##' and that will invalidate the index.
+    ##'
+    ##' @param index The index vector - must be an integer vector with
+    ##' elements between 1 and the length of the state (this will be
+    ##' validated, and an error thrown if an invalid index is given).
+    set_index = function(index) {
+    },
+
+    ##' @description
+    ##' Set the "state" vector for all particles, overriding whatever your
+    ##' models `initial()` method provides. Currently all particles are set
+    ##' to the same state.
+    ##'
+    ##' @param state The state vector - must be a numeric vector with the
+    ##' same length as the model's current state.
+    set_state = function(state) {
+    },
+
+    ##' @description
+    ##' Reset the model while preserving the random number stream state
+    ##'
+    ##' @param data New data for the model (see constructor)
+    ##' @param step New initial step for the model (see constructor)
+    reset = function(data, step) {
+    },
+
+    ##' @description
+    ##' Return full model state
+    ##' @param index Optional index to select state using
+    state = function(index = NULL) {
+    },
+
+    ##' @description
+    ##' Return current model step
+    step = function() {
+    },
+
+    ##' @description
+    ##' Reorder or resample particles.
+    ##' @param index An integer vector, with values between 1 and n_particles,
+    ##' indicating the index of the current particles that new particles should
+    ##' take.
+    reorder = function(index) {
+    },
+
+    ##' @description
+    ##' Returns information about the data that your model was created with.
+    ##' Only returns non-NULL if the model provides a `dust_info` template
+    ##' specialisation.
+    info = function() {
+    }
+  ))
