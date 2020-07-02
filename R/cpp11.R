@@ -4,7 +4,43 @@ dust_rng_alloc <- function(seed, n_generators) {
   .Call("_dust_dust_rng_alloc", seed, n_generators)
 }
 
+dust_rng_size <- function(ptr) {
+  .Call("_dust_dust_rng_size", ptr)
+}
+
+dust_rng_jump <- function(ptr) {
+  invisible(.Call("_dust_dust_rng_jump", ptr))
+}
+
+dust_rng_long_jump <- function(ptr) {
+  invisible(.Call("_dust_dust_rng_long_jump", ptr))
+}
+
 dust_rng_unif_rand <- function(ptr, n) {
   .Call("_dust_dust_rng_unif_rand", ptr, n)
+}
+
+dust_rng_norm_rand <- function(ptr, n) {
+  .Call("_dust_dust_rng_norm_rand", ptr, n)
+}
+
+dust_rng_runif <- function(ptr, n, min, max) {
+  .Call("_dust_dust_rng_runif", ptr, n, min, max)
+}
+
+dust_rng_rnorm <- function(ptr, n, mean, sd) {
+  .Call("_dust_dust_rng_rnorm", ptr, n, mean, sd)
+}
+
+dust_rng_rbinom <- function(ptr, n, size, prob) {
+  .Call("_dust_dust_rng_rbinom", ptr, n, size, prob)
+}
+
+dust_rng_rpois <- function(ptr, n, lambda) {
+  .Call("_dust_dust_rng_rpois", ptr, n, lambda)
+}
+
+cpp_openmp_info <- function() {
+  .Call("_dust_cpp_openmp_info")
 }
 

@@ -85,7 +85,7 @@ test_that("binomial numbers run the short circuit path", {
   n <- 100L
   p <- 0.1
 
-  expect_identical(dust_rng$new(1, 1)$rbinom(m, 0, p),
+  expect_identical(dust_rng$new(1, 1)$rbinom(m, 0L, p),
                    rep(0L, m))
   expect_identical(dust_rng$new(1, 1)$rbinom(m, n, 0),
                    rep(0L, m))

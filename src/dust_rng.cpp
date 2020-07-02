@@ -1,5 +1,4 @@
 #include <cpp11/external_pointer.hpp>
-#include <Rcpp.h>
 #include <dust/rng.hpp>
 
 typedef dust::pRNG<double, int> dust_rng_t;
@@ -11,21 +10,21 @@ SEXP dust_rng_alloc(int seed, int n_generators) {
   return cpp11::external_pointer<dust_rng_t>(rng);
 }
 
-// [[Rcpp::export(rng = false)]]
+[[cpp11::register]]
 int dust_rng_size(SEXP ptr) {
-  dust_rng_t *rng = Rcpp::as<Rcpp::XPtr<dust_rng_t>>(ptr);
+  dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
   return static_cast<int>(rng->size());
 }
 
-// [[Rcpp::export(rng = false)]]
+[[cpp11::register]]
 void dust_rng_jump(SEXP ptr) {
-  dust_rng_t *rng = Rcpp::as<Rcpp::XPtr<dust_rng_t>>(ptr);
+  dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
   rng->jump();
 }
 
-// [[Rcpp::export(rng = false)]]
+[[cpp11::register]]
 void dust_rng_long_jump(SEXP ptr) {
-  dust_rng_t *rng = Rcpp::as<Rcpp::XPtr<dust_rng_t>>(ptr);
+  dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
   rng->long_jump();
 }
 
@@ -40,9 +39,9 @@ std::vector<double> dust_rng_unif_rand(SEXP ptr, int n) {
   return y;
 }
 
-// [[Rcpp::export(rng = false)]]
+[[cpp11::register]]
 std::vector<double> dust_rng_norm_rand(SEXP ptr, int n) {
-  dust_rng_t *rng = Rcpp::as<Rcpp::XPtr<dust_rng_t>>(ptr);
+  dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
   const size_t n_generators = rng->size();
   std::vector<double> y(n);
   for (size_t i = 0; i < (size_t)n; ++i) {
@@ -51,10 +50,10 @@ std::vector<double> dust_rng_norm_rand(SEXP ptr, int n) {
   return y;
 }
 
-// [[Rcpp::export(rng = false)]]
+[[cpp11::register]]
 std::vector<double> dust_rng_runif(SEXP ptr, int n, std::vector<double> min,
                                    std::vector<double> max) {
-  dust_rng_t *rng = Rcpp::as<Rcpp::XPtr<dust_rng_t>>(ptr);
+  dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
   const size_t n_generators = rng->size();
   std::vector<double> y(n);
   for (size_t i = 0; i < (size_t)n; ++i) {
@@ -63,10 +62,10 @@ std::vector<double> dust_rng_runif(SEXP ptr, int n, std::vector<double> min,
   return y;
 }
 
-// [[Rcpp::export(rng = false)]]
+[[cpp11::register]]
 std::vector<double> dust_rng_rnorm(SEXP ptr, int n, std::vector<double> mean,
                                    std::vector<double> sd) {
-  dust_rng_t *rng = Rcpp::as<Rcpp::XPtr<dust_rng_t>>(ptr);
+  dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
   const size_t n_generators = rng->size();
   std::vector<double> y(n);
   for (size_t i = 0; i < (size_t)n; ++i) {
@@ -75,10 +74,10 @@ std::vector<double> dust_rng_rnorm(SEXP ptr, int n, std::vector<double> mean,
   return y;
 }
 
-// [[Rcpp::export(rng = false)]]
+[[cpp11::register]]
 std::vector<int> dust_rng_rbinom(SEXP ptr, int n, std::vector<int> size,
                                  std::vector<double> prob) {
-  dust_rng_t *rng = Rcpp::as<Rcpp::XPtr<dust_rng_t>>(ptr);
+  dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
   const size_t n_generators = rng->size();
   std::vector<int> y(n);
   for (size_t i = 0; i < (size_t)n; ++i) {
@@ -87,10 +86,10 @@ std::vector<int> dust_rng_rbinom(SEXP ptr, int n, std::vector<int> size,
   return y;
 }
 
-// [[Rcpp::export(rng = false)]]
+[[cpp11::register]]
 std::vector<int>  dust_rng_rpois(SEXP ptr, int n,
                                     std::vector<double> lambda) {
-  dust_rng_t *rng = Rcpp::as<Rcpp::XPtr<dust_rng_t>>(ptr);
+  dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
   const size_t n_generators = rng->size();
   std::vector<int> y(n);
   for (size_t i = 0; i < (size_t)n; ++i) {
