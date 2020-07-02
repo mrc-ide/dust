@@ -9,9 +9,11 @@ vignette: >
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
+  error = FALSE,
   collapse = TRUE,
-  comment = "#>"
-)
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5)
 lang_output <- function(x, lang) {
   cat(c(sprintf("```%s", lang), x, "```"), sep = "\n")
 }
@@ -173,7 +175,7 @@ model$state()
 Suppose that as we run the model we mostly want information on the "I" compartment. So we'll run the model for a bit and retrieve the number of infected individuals, then continue, etc.  To do this we use the `$set_index()` method to indicate which state elements should be returned after using `$run()`:
 
 ```{r sir_set_index}
-model$set_index(2)
+model$set_index(2L)
 ```
 
 (you can pass any integer vector here, of any length, provided all the indices lie between 1 and the length of your state vector)
@@ -196,7 +198,7 @@ model$state()
 or select only variables of interest:
 
 ```{r sir_state_select}
-model$state(c(1, 3))
+model$state(c(1L, 3L))
 ```
 
 In order to run the simulation beginning-to-end, we use `dust::dust_simulate()`; this function is purely a convenience function and the intention is that you would write your own (see [`mcstate`](https://mrc-ide.github.io/mcstate) for example).

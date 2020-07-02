@@ -21,7 +21,7 @@
 ##' rng$rnorm(5, 4, 2)
 ##'
 ##' # Binomially distributed random numbers with size and prob
-##' rng$rbinom(5, 10, 0.3)
+##' rng$rbinom(5, 10L, 0.3)
 ##'
 ##' # Poisson distributed random numbers with mean lambda
 ##' rng$rpois(5, 2)
