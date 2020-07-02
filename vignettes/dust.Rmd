@@ -24,7 +24,7 @@ Stochastic models can be used in statistical inference via methods such as [part
 
 The `dust` package provides tools to help write stochastic models that can be evaluated in parallel. It does not itself provide any statistical support such as particle filter; see the [mcstate](https://mrc-ide.github.io/mcstate) package for that. Instead, it focuses on providing:
 
-* a fast random number generator that can be evaluated in parallel (see the ["rng"](rng.html) vignette) for details
+* a fast random number generator that can be evaluated in parallel (see `vignette("rng") for details)
 * a way of wrapping a user-provided model, itself written as a C++ class
 * a lightweight interface that drives this model from R
 
@@ -117,7 +117,7 @@ The approach above still runs everything in serial, one particle after another. 
 * `n_generators`: the number of independent random number generators to use
 * `n_threads`: the number of threads to run on
 
-The idea here is that you set `n_generators` to be the maximum number of threads you might ever run the model on (say, 32) and `n_threads` to the number of threads that you want to use now (say, 4).  Subject to the constraint that `n_generators` is divisible by `n_threads` you will then get the same results as you change the number of available threads. If you change the number of generators you will get different results.  See the [rng vignette](rng.html) for more detail.
+The idea here is that you set `n_generators` to be the maximum number of threads you might ever run the model on (say, 32) and `n_threads` to the number of threads that you want to use now (say, 4).  Subject to the constraint that `n_generators` is divisible by `n_threads` you will then get the same results as you change the number of available threads. If you change the number of generators you will get different results.  See `vignette("rng")` for more detail.
 
 Provided that your system can compile with openmp the following code will execute in parallel using 2 threads
 
@@ -132,6 +132,8 @@ Running this same code in series will give the same results:
 model <- walk$new(list(sd = 1), 0, 20, n_generators = 8, n_threads = 1)
 model$run(100)
 ```
+
+If run in parallel with `k` threads then particles 1, 2, ..., k will be run first, one per thread, followed by k+1, ..., 2k and so on.  If you have more generators than threads then each thread will cycle through a set of generators but never use another thread's generator.
 
 ## A more interesting example
 
