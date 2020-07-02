@@ -24,7 +24,7 @@ functions such as \code{dust_model_alloc} - if your code also includes
 names such as this, compilation will fail due to duplicate
 symbols.
 
-We add "Rcpp attributes" to the created functions, and will run
-\code{\link{compileAttributes}} on them once the generated code
+We add "cpp11 attributes" to the created functions, and will run
+\code{\link{cpp_register}} on them once the generated code
 has been created.
 }

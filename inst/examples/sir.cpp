@@ -44,9 +44,9 @@ private:
   init_t data_;
 };
 
-#include <Rcpp.h>
+#include <cpp11/list.hpp>
 template <>
-sir::init_t dust_data<sir>(Rcpp::List data) {
+sir::init_t dust_data<sir>(cpp11::list data) {
   // Initial state values
   double I0 = 10.0;
   double S0 = 1000.0;
@@ -60,23 +60,25 @@ sir::init_t dust_data<sir>(Rcpp::List data) {
   double dt = 0.25;
 
   // Accept beta and gamma as optional elements
-  if (data.containsElementNamed("beta")) {
-    beta = Rcpp::as<double>(data["beta"]);
+  SEXP r_beta = data["beta"];
+  if (r_beta != R_NilValue) {
+    beta = cpp11::as_cpp<double>(r_beta);
   }
-  if (data.containsElementNamed("gamma")) {
-    gamma = Rcpp::as<double>(data["gamma"]);
+  SEXP r_gamma = data["gamma"];
+  if (r_gamma != R_NilValue) {
+    gamma = cpp11::as_cpp<double>(r_gamma);
   }
 
   return sir::init_t{S0, I0, R0, beta, gamma, dt};
 }
 
 template <>
-Rcpp::RObject dust_info<sir>(const sir::init_t& data) {
+cpp11::sexp dust_info<sir>(const sir::init_t& data) {
+  using namespace cpp11::literals;
   // Information about state order
-  Rcpp::CharacterVector vars = Rcpp::CharacterVector::create("S", "I", "R");
+  cpp11::writable::strings vars({"S", "I", "R"});
   // Information about parameter values
-  Rcpp::List pars = Rcpp::List::create(Rcpp::Named("beta") = data.beta,
-                                       Rcpp::Named("gamma") = data.gamma);
-  return Rcpp::List::create(Rcpp::Named("vars") = vars,
-                            Rcpp::Named("pars") = pars);
+  cpp11::list pars = cpp11::writable::list({"beta"_nm = data.beta,
+                                            "gamma"_nm = data.gamma});
+  return cpp11::writable::list({"vars"_nm = vars, "pars"_nm = pars});
 }

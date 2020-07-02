@@ -45,30 +45,30 @@
 ##'   parallel.
 ##'
 ##' You must also provide a data-wrangling function for producing an
-##'   object of type `model::init_t` from an R list.  We use Rcpp for
+##'   object of type `model::init_t` from an R list.  We use cpp11 for
 ##'   this.  Your function will look like:
 ##'
 ##' ```
 ##' template <>
-##' model::init_t dust_data<model>(Rcpp::List data) {
+##' model::init_t dust_data<model>(cpp11::list data) {
 ##'   return ...;
 ##' }
 ##' ```
 ##'
 ##' With the body interacting with `data` to create an object of type
 ##'   `model::init_t` and returning it.  This function will be called
-##'   in serial and may use anything in the Rcpp API.  All elements of
+##'   in serial and may use anything in the cpp11 API.  All elements of
 ##'   the returned object must be standard C/C++ (e.g., STL) types and
-##'   *not* Rcpp types.
+##'   *not* cpp11/R types.
 ##'
 ##' Your model *may* provided a template specialisation
-##'   `dust_data<model::init_t>()` returning a `Rcpp::RObject` for
+##'   `dust_data<model::init_t>()` returning a `cpp11::sexp` for
 ##'   returning arbitrary information back to the R session:
 ##'
 ##' ```
 ##' template <>
-##' Rcpp::RObject dust_info<model>(const model::init_t& data) {
-##'   return Rcpp::wrap(...);
+##' cpp11::sexp dust_info<model>(const model::init_t& data) {
+##'   return cpp11::wrap(...);
 ##' }
 ##' ```
 ##'

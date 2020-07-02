@@ -1,4 +1,3 @@
 Package: {{base}}
-LinkingTo: Rcpp
-Imports: Rcpp
+LinkingTo: cpp11
 Version: 0.0.1

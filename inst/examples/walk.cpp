@@ -23,9 +23,9 @@ private:
   init_t data_;
 };
 
-#include <Rcpp.h>
+#include <cpp11/list.hpp>
 template <>
-walk::init_t dust_data<walk>(Rcpp::List data) {
-  walk::real_t sd = Rcpp::as<walk::real_t>(data["sd"]);
+walk::init_t dust_data<walk>(cpp11::list data) {
+  walk::real_t sd = cpp11::as_cpp<walk::real_t>(data["sd"]);
   return walk::init_t{sd};
 }

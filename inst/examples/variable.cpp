@@ -34,16 +34,21 @@ private:
   init_t data_;
 };
 
-#include <Rcpp.h>
+#include <cpp11/list.hpp>
 template <>
-variable::init_t dust_data<variable>(Rcpp::List data) {
-  const size_t len = Rcpp::as<int>(data["len"]);
+variable::init_t dust_data<variable>(cpp11::list data) {
+  const size_t len = cpp11::as_cpp<int>(data["len"]);
   double mean = 0, sd = 1;
-  if (data.containsElementNamed("mean")) {
-    mean = Rcpp::as<double>(data["mean"]);
+
+  SEXP r_mean = data["mean"];
+  if (r_mean != R_NilValue) {
+    mean = cpp11::as_cpp<double>(r_mean);
   }
-  if (data.containsElementNamed("sd")) {
-    sd = Rcpp::as<double>(data["sd"]);
+
+  SEXP r_sd = data["sd"];
+  if (r_sd != R_NilValue) {
+    sd = cpp11::as_cpp<double>(r_sd);
   }
+
   return variable::init_t{len, mean, sd};
 }

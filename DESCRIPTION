@@ -16,7 +16,7 @@ LazyData: true
 Language: en-GB
 Imports:
     R6,
-    Rcpp,
+    cpp11,
     glue,
     pkgbuild
 LinkingTo:
