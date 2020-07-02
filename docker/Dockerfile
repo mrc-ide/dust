@@ -12,8 +12,16 @@ RUN apt-get update &&  apt-get install -y --no-install-recommends \
 RUN install2.r --error \
         R6 \
         Rcpp \
+        brio \
+        decor \
         devtools \
         glue \
         pkgbuild \
+        pkgload \
+        remotes \
         roxygen2 \
         testthat
+
+RUN installGithub.r \
+        r-lib/cpp11 \
+        r-lib/pkgbuild@cpp11
