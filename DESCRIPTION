@@ -23,6 +23,8 @@ LinkingTo:
     cpp11
 Suggests:
     bench,
+    brio,
+    decor,
     fs,
     knitr,
     mockery,
