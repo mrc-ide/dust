@@ -53,5 +53,6 @@ substitute_dust_template <- function(data, src, dest) {
 
 
 glue_whisker <- function(template, data) {
-  glue::glue(template, .envir = data, .open = "{{", .close = "}}")
+  glue::glue(template, .envir = data, .open = "{{", .close = "}}",
+             .trim = FALSE)
 }
