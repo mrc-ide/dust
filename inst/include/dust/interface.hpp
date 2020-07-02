@@ -83,8 +83,7 @@ void dust_set_state(Dust<T> *obj, cpp11::doubles r_state) {
   if (static_cast<size_t>(r_state.size()) != n_state) {
     cpp11::stop("Expected a vector with %d elements for 'state'", n_state);
   }
-  const std::vector<typename T::real_t> state =
-    cpp11::as_cpp<std::vector<typename T::real_t>>(r_state);
+  const std::vector<typename T::real_t> state(r_state.begin(), r_state.end());
   obj->set_state(state);
 }
 
