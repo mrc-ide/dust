@@ -106,7 +106,7 @@ test_that("dust_workdir will error if path is not a directory", {
 test_that("validate interface", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
                           quiet = TRUE)
-  cmp <- dust_interface
+  cmp <- dust_class
 
   expect_setequal(names(res$public_methods),
                   names(cmp$public_methods))
@@ -124,7 +124,7 @@ test_that("validate package interface", {
   env <- new.env()
   sys.source(tmp, env)
   res <- env$testing
-  cmp <- dust_interface
+  cmp <- dust_class
 
   expect_setequal(names(res$public_methods),
                   names(cmp$public_methods))
