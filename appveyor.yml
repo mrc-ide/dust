@@ -23,6 +23,7 @@ environment:
 
 build_script:
   - travis-tool.sh install_deps
+  - travis-tool.sh install_github r-lib/decor
   - travis-tool.sh install_github r-lib/cpp11
   - travis-tool.sh install_github r-lib/pkgbuild@cpp11
 
