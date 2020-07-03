@@ -9,6 +9,7 @@ test_that("validate package", {
   file.remove(file.path(path, "src"))
 
   path <- dust_package(path)
+  expect_false(any(grepl("##'", readLines(file.path(path, "R", "dust.R")))))
 
   pkgbuild::compile_dll(path, quiet = TRUE)
   res <- pkgload::load_all(path)

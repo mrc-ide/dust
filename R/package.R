@@ -37,7 +37,14 @@ dust_package <- function(path) {
   package_validate_destination(root, files)
 
   ## 4. generate code
-  template_r <- read_lines(dust_file("template/dust.R.template"))
+  template_r <- readLines(dust_file("template/dust.R.template"))
+  ## Drop all the roxygen comments here before writing out the R
+  ## code. The reasoning here is that we have no way of tying this to
+  ## the correct help page, and the user may not be using roxygen at
+  ## all, and they could just link to the help file ?dust to get the
+  ## same documentation.
+  template_r <- paste(template_r[!grepl("\\s*#+'", template_r)],
+                      collapse = "\n")
   template_cpp <- read_lines(dust_file("template/dust.cpp"))
   data <- lapply(file.path(path_dust, files), package_generate,
                  template_cpp, template_r)
