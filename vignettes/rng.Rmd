@@ -108,7 +108,7 @@ rng$unif_rand(10)
 real_t u = rng.unif_rand()
 ```
 
-**Standard normal distribution** (mean 0 and sd 1) - faster than using `$rnorm(n, 0, 1)`:
+**Standard normal distribution** (mean 0 and standard deviation 1) - faster than using `$rnorm(n, 0, 1)`:
 
 ```{r}
 rng$norm_rand(10)
