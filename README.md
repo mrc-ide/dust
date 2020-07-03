@@ -10,6 +10,30 @@
 
 Fast and simple iteration of stochastic models. Designed to work as a component of a particle filter.
 
+## Background
+
+Stochastic models appear in many domains as they are easy to write out, but hard to analyse without running many realisations of the process. `dust` provides a light interface to run models that are written in C++ in parallel from R. It provides very little functionality aside from a random number generator that is designed to be run in parallel, and is mostly interested in providing an _interface_, which which more powerful tools can be developed.
+
+See `vignette("dust")` for instructions for using `dust` to create basic models. See the [`mcstate`](https://mrc-ide.github.io/mcstate) for a package that uses `dust` to implement a particle filter and particle MCMC.
+
+As a (much) higher-level interface, the [`odin.dust`](https://mrc-ide.github.io/odin.dust) provides a way of compiling stochastic [`odin`](https://mrc-ide.github.io/odin) models to work with `dust`.
+
+## Installation
+
+```r
+# install.packages("drat") # -- if you don't have drat installed
+drat:::add("mrc-ide")
+install.packages("dust")
+```
+
+You will need a compiler to install dependencies for the package, and to build any models with dust.  `dust` uses `pkgbuild` to build its shared libraries so use `pkgbuild::check_build_tools()` to see if your system is ok to use.
+
+The development version of the package can be installed directly from GitHub if you prefer with:
+
+```r
+devtools::install_github("mrc-ide/dust", upgrade = FALSE)
+```
+
 ## License
 
 MIT © Imperial College of Science, Technology and Medicine
