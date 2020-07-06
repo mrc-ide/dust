@@ -1,0 +1,337 @@
+---
+title: "dust"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{dust}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+lang_output <- function(x, lang) {
+  cat(c(sprintf("```%s", lang), x, "```"), sep = "\n")
+}
+cc_output <- function(x) lang_output(x, "cc")
+r_output <- function(x) lang_output(x, "r")
+plain_output <- function(x) lang_output(x, "plain")
+```
+
+Stochastic models can be used in statistical inference via methods such as [particle filtering](https://en.wikipedia.org/wiki/Particle_filter) but doing so requires that the models can be run over and over again very quickly. While R has excellent support for sampling from distributions, it is not necessarily well suited for this sort of problem because R is single threaded, so we are forced to evaluate realisations of the stochastic process in series (one after another) rather than in parallel.
+
+The `dust` package provides tools to help write stochastic models that can be evaluated in parallel. It does not itself provide any statistical support such as particle filter; see the [mcstate](https://mrc-ide.github.io/mcstate) package for that. Instead, it focuses on providing:
+
+* a fast random number generator that can be evaluated in parallel (see `vignette("rng")` for details)
+* a way of wrapping a user-provided model, itself written as a C++ class
+* a lightweight interface that drives this model from R
+
+## A simple example - random walk
+
+Consider a unbiased random walk; at each time step we move our position with a draw from a normal distribution with mean 0 and some standard deviation. We consider a single individual moving but will eventually simulate a family of these individuals, each independent. All simulations have a sense of time - a unitless measure of time "step" will be used but it's up to you how it is interpreted (step is a non-negative integer, implemented using `size_t`).
+
+### Model code
+
+To implement this model in dust we write out a C++ file that looks like:
+
+```{r walk_code, echo = FALSE, results = "asis"}
+cc_output(readLines(dust:::dust_file("examples/walk.cpp")))
+```
+
+There are two main parts here; the class (`walk`) and an interface function (`dust_data`).
+
+The class is what does most of the work. It is important that this does not use anything in the R api as it may be called in parallel. Therefore use only C++ standard library types.  It has to provide every public type or method as the example above:
+
+* the types `int_t` and `real_t` have to exist and indicate what sort of numeric type you use for "integers" and "real numbers". Typically this will be `int` and `double` respectively, but if you need different types (longer or shorter) you can use them here.
+* the type `init_t` is whatever internal data your model needs, and an object of this type will be passed to your constructor (see `dust_data` below)
+* the constructor must take only one argument, being `const init_t&`. You can do what you want in the constructor - here we just copy the data into the object (we use the private member `data_` here but this can be anything you want)
+* the method `size()` must return the "size" of the system - how many state variables it has. Here we're considering a single individual moving randomly so the size is always 1
+* the method `initial()` returns the initial state of the model system. It must have length `size()` and it can vary based on the "step" of the system
+* the method `update()` is the core of the system and specifies how the state changes from one step to another. It will always have the signature as above with arguments `size_t step` (the current step), `const std::vector<real_t>& state` (a read-only copy of the state when entering this step), `dust::RNG<real_t, int>& rng` (a reference to the random number generator object) and `std::vector<real_t>& state_next` (a reference to the state to be updated). Your method reads from `state` and writes to `state_next`. Here, we unpack the mean and draw a new normally distributed random number - note how the standard deviation is retrieved from the `data_` object.
+
+The function below the class is a template specialisation of a dust function `dust_data`; it is used to create your `init_t` object from an R list (`Rcpp::List`). You should include `Rcpp.h` at this point and can use any Rcpp function that you need. Avoid direct use of the R's C API as this is not always safe to call from C++. In particular, use `Rcpp::stop()` rather than `Rf_error()`.
+
+Here we retrieve the `sd` element of the list and convert it to a "real number" type. This roughly equivalent to writing
+
+```r
+sd <- as.numeric(data[["sd"]])
+```
+
+in R, except that it will throw an error if `sd` is not present in the list `data`.  Then we construct the struct and return it.
+
+### Constructing a model
+
+The function `dust::dust` will "compile" a model as above and return an R6ClassGenerator object that can be used to create instances of our model
+
+```{r walk_compile}
+path_walk <- system.file("examples/walk.cpp", package = "dust")
+walk <- dust::dust(path_walk, quiet = TRUE)
+walk
+```
+
+Create an instance of the model using `walk$new`. There are three required arguments:
+
+* `data`: passed to `dust_data` to initialise the model
+* `step`: the initial step (0 seems like a sensible choice here given our model has no internal sense of time)
+* `n_particles`: the number of particles to create
+
+```{r walk_create}
+model <- walk$new(list(sd = 1), 0, 20)
+model
+```
+
+This returns an R6 object that can be used to simulate from or interact with the model.  For example, our initial model state is
+
+```{r walk_initial_state}
+model$state()
+```
+
+and we can run the model for 100 steps, which returns the state at the end of the walk (and not at any intermediate steps):
+
+```{r walk_run_1}
+model$run(100)
+```
+
+We can also directly retrieve the state from our object
+
+```{r walk_state_1}
+model$state()
+```
+
+At this point our particles have been run for 100 steps with standard deviation 1 at each step so they [will be distributed following Normal(0, 10)](https://en.wikipedia.org/wiki/Random_walk#Gaussian_random_walk).  This is easier to see if we simulate a lot of particles:
+
+```{r walk_simulate_many}
+model <- walk$new(list(sd = 1), 0, 20000)
+invisible(model$run(100))
+hist(model$state(), freq = FALSE, las = 1, col = "steelblue2", main = "",
+     ylim = c(0., 0.04), xlab = "State")
+curve(dnorm(x, 0, 10), col = "orange", add = TRUE, lwd = 2)
+```
+
+### Running a model in parallel
+
+The approach above still runs everything in serial, one particle after another. We can configure this system to run in parallel by providing two extra arguments to the constructor:
+
+* `n_generators`: the number of independent random number generators to use
+* `n_threads`: the number of threads to run on
+
+The idea here is that you set `n_generators` to be the maximum number of threads you might ever run the model on (say, 32) and `n_threads` to the number of threads that you want to use now (say, 4).  Subject to the constraint that `n_generators` is divisible by `n_threads` you will then get the same results as you change the number of available threads. If you change the number of generators you will get different results.  See `vignette("rng")` for more detail.
+
+Provided that your system can compile with openmp the following code will execute in parallel using 2 threads
+
+```{r, walk_parallel}
+model <- walk$new(list(sd = 1), 0, 20, n_generators = 8, n_threads = 2)
+model$run(100)
+```
+
+Running this same code in series will give the same results:
+
+```{r, walk_serial}
+model <- walk$new(list(sd = 1), 0, 20, n_generators = 8, n_threads = 1)
+model$run(100)
+```
+
+If run in parallel with `k` threads then particles 1, 2, ..., k will be run first, one per thread, followed by k+1, ..., 2k and so on.  If you have more generators than threads then each thread will cycle through a set of generators but never use another thread's generator.
+
+## A more interesting example
+
+Consider now an SIR model (Susceptible - Infected - Recovered). This sort of model is common in epidemiology, and is often extended to add additional compartments (e.g., SEIR which adds an Exposed compartment) or by structuring each compartment based on properties such as age.  Here, we show a simple example with just 3 compartments:
+
+```{r sir_code, echo = FALSE, results = "asis"}
+cc_output(readLines(dust:::dust_file("examples/sir.cpp")))
+```
+
+There is not much different here to the version that is shown before for the walk model;
+
+* the `initial` method is slightly more complicated as we initialise a 3-element vector
+* our `init_t` object has significantly more elements
+* the `dust_data` function is much more complicated
+
+The other difference is a new template specialisation of `dust_info` - this is optional but can be used to report back to R information about the model based on the input data. Here it returns information about variable order and core parameters.
+
+```{r sir_compile}
+path_sir <- system.file("examples/sir.cpp", package = "dust")
+sir <- dust::dust(path_sir, quiet = TRUE)
+sir
+```
+
+The model is initialised the same way as before:
+
+```{r sir_create}
+model <- sir$new(list(), 0, 20)
+```
+
+We can use the `$info()` method to retrieve information about our model:
+
+```{r sir_info}
+model$info()
+```
+
+and get its state as before:
+
+```{r sir_initial_state}
+model$state()
+```
+
+Suppose that as we run the model we mostly want information on the "I" compartment. So we'll run the model for a bit and retrieve the number of infected individuals, then continue, etc.  To do this we use the `$set_index()` method to indicate which state elements should be returned after using `$run()`:
+
+```{r sir_set_index}
+model$set_index(2)
+```
+
+(you can pass any integer vector here, of any length, provided all the indices lie between 1 and the length of your state vector)
+
+Now, when using `run`, the number of infected individuals is returned
+
+```{r sir_run}
+model$run(10)
+model$run(20)
+```
+
+This is useful when you have many compartments or variables that you are not that interested in during running the model. For a particle filter you might be fitting to the sum of all infected individuals over a number of compartments, so rather than returning hundreds of values back (times hundreds of particles) you can return back much less data and keep things nice and fast.
+
+We can always use `$state()` to get the whole state vector:
+
+```{r sir_state}
+model$state()
+```
+
+or select only variables of interest:
+
+```{r sir_state_select}
+model$state(c(1, 3))
+```
+
+`dust` does not (yet) provide a friendly wrapper for running a model like this and collecting output because the intention is that you would write your own (see [`mcstate`](https://mrc-ide.github.io/mcstate) for example).  However, we can write one like so:
+
+```{r dust_wrapper}
+run_dust <- function(model, steps) {
+  ret <- vector("list", length(steps))
+  for (i in seq_along(steps)) {
+    ret[[i]] <- model$run(steps[[i]])
+  }
+  matrix(unlist(ret), nrow = length(ret), byrow = TRUE)
+}
+```
+
+```{r sir_run_collect}
+model <- sir$new(list(), 0, 200)
+model$set_index(2)
+steps <- seq(0, 600, by = 5)
+state <- run_dust(model, steps)
+```
+
+Plotting this over time (with 4 steps per day - see the sir code above)
+
+```{r sir_average}
+time <- steps / 4
+matplot(time, state, type = "l", lty = 1, col = "#00000022",
+        xlab = "Time", ylab = "Number infected (I)")
+lines(time, rowMeans(state), col = "red", lwd = 2)
+```
+
+## Other methods
+
+There are a few other methods on the walk objects that may be useful.
+
+### Reordering particles
+
+This method exists to support particle filtering, and allows resampling or reordering of particles.
+
+```{r reorder_setup}
+model <- walk$new(list(sd = 1), 0, 20)
+model$run(1)
+```
+
+Suppose that we wanted to reorder these particles so that they were in decreasing order:
+
+```{r reorder_index}
+index <- order(model$state())
+index
+```
+
+We then pass this `index` to the reorder method:
+
+```{r reorder_apply}
+model$reorder(index)
+model$state()
+```
+
+We can then continue our random walk. There is no need to sample every particle and particles can appear multiple times in the sample, but the total number must be conserved.  Suppose that we want to to sample particles based on how close they are to 0:
+
+```{r reorder_weighted_index}
+p <- dnorm(model$state())
+index <- sample(length(p), replace = TRUE , prob = p)
+index
+```
+
+We can then apply this sampling:
+
+```{r reorder_weighted_apply}
+model$reorder(index)
+model$state()
+```
+
+This is not terribly useful on its own but is a key part of a particle filter.
+
+### Set initial state
+
+By default every particle starts from the initial condition specified by your model classes `initial()` method. However, you can specify a state directly using the `$set_state()` method. Here, we initialise our SIR model with only 1 infected individual rather than 10:
+
+```{r set_state}
+model <- sir$new(list(), 0, 20)
+model$set_state(c(1000, 1, 0))
+model$state()
+```
+
+Now, when we run the model, far more of the epidemics fail to take off as the infected individual goes disappears before infecting anyone.
+
+```{r}
+model$set_index(2)
+steps <- seq(0, 600, by = 5)
+state <- run_dust(model, steps)
+time <- steps / 4
+matplot(time, state, type = "l", lty = 1, col = "#00000022",
+        xlab = "Time", ylab = "Number infected (I)")
+```
+
+### Reset the model
+
+A model can be "reset" rather than recreated. This is important in a simulation context because if you recreate the model you will reset the seed. So if you are performing stochastic realisations you should continue with your random number stream, not start again from the same seed.
+
+To illustrate the problem, here is a naive simulation of a random walk, first simulating with a standard deviation of 1, then of 2, each time with 20 particles:
+
+```{r}
+model <- walk$new(list(sd = 1), 0, 200)
+y1 <- model$run(100)
+
+model <- walk$new(list(sd = 2), 0, 200)
+y2 <- model$run(100)
+
+head(c(y1))
+head(c(y2))
+```
+
+Everything looks reasonable until you plot the data:
+
+```{r}
+plot(y1 ~ y2, asp = 1)
+abline(0, 0.5, col = "red", lty = 2)
+```
+
+because of the way normal random numbers are drawn, these are the same results, scaled!
+
+Instead, we should use `reset()`
+
+```{r}
+model <- walk$new(list(sd = 1), 0, 200)
+y1 <- model$run(100)
+
+model$reset(list(sd = 2), 0)
+y2 <- model$run(100)
+
+plot(y1 ~ y2, asp = 1)
+abline(0, 0.5, col = "red", lty = 2)
+```

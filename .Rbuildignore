@@ -15,3 +15,5 @@
 ^scripts$
 \.gcda$
 \.gcno$
+^pkgdown$
+^LICENSE\.md$
