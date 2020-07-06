@@ -4,10 +4,13 @@
 \alias{dust_package}
 \title{Create dust model in package}
 \usage{
-dust_package(path)
+dust_package(path, quiet = FALSE)
 }
 \arguments{
 \item{path}{Path to the package}
+
+\item{quiet}{Passed to \code{cpp11::cpp_register}, if \code{TRUE} suppresses
+informational notices about updates to the cpp11 files}
 }
 \value{
 Nothing, this function is called for its side effects

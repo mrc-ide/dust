@@ -14,10 +14,13 @@
 ##'
 ##' @param path Path to the package
 ##'
+##' @param quiet Passed to `cpp11::cpp_register`, if `TRUE` suppresses
+##'   informational notices about updates to the cpp11 files
+##'
 ##' @title Create dust model in package
 ##' @return Nothing, this function is called for its side effects
 ##' @export
-dust_package <- function(path) {
+dust_package <- function(path, quiet = FALSE) {
   ## 1. check that the package is legit
   root <- package_validate(path)
   path_dust <- file.path(root, "inst/dust")
@@ -60,7 +63,7 @@ dust_package <- function(path) {
   writeLines(code_r, file.path(path_r, "dust.R"))
 
   ## 5. compile attributes
-  cpp11::cpp_register(path)
+  cpp11::cpp_register(path, quiet = quiet)
 
   ## 6. return path, invisibly
   invisible(path)

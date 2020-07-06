@@ -20,7 +20,7 @@ compile_and_load <- function(filename, type, name, quiet = FALSE,
     substitute_dust_template(data, "Makevars",
                              file.path(path, "src", "Makevars"))
 
-    cpp11::cpp_register(path)
+    cpp11::cpp_register(path, quiet = quiet)
     pkgbuild::compile_dll(path, compile_attributes = TRUE, quiet = quiet)
     dll <- file.path(path, "src", paste0(base, .Platform$dynlib.ext))
     dyn.load(dll)
