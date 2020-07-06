@@ -20,6 +20,14 @@ As a (much) higher-level interface, the [`odin.dust`](https://mrc-ide.github.io/
 
 ## Installation
 
+You will need [`cpp11`](https://github.com/r-lib/cpp11) and the development version of [`pkgbuild`](https://github.com/r-lib/pkgbuild), both from r-lib:
+
+```r
+remotes::install_github(c("r-lib/cpp11", "r-lib/pkgbuild"), upgrade = FALSE)
+```
+
+To install `dust` itself:
+
 ```r
 # install.packages("drat") # -- if you don't have drat installed
 drat:::add("mrc-ide")
@@ -31,7 +39,7 @@ You will need a compiler to install dependencies for the package, and to build a
 The development version of the package can be installed directly from GitHub if you prefer with:
 
 ```r
-devtools::install_github("mrc-ide/dust", upgrade = FALSE)
+remotes::install_github("mrc-ide/dust", upgrade = FALSE)
 ```
 
 ## License
