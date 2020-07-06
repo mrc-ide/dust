@@ -62,8 +62,8 @@ dust_package <- function(path) {
   ## 5. compile attributes
   Rcpp::compileAttributes(path)
 
-  ## 6. return path
-  path
+  ## 6. return path, invisibly
+  invisible(path)
 }
 
 
