@@ -307,3 +307,28 @@ test_that("Basic threading test", {
   expect_equal(y22_1, y12_1)
   expect_equal(y22_1[c(1, 3, 5, 7, 9)], y11_1[1:5])
 })
+
+
+## It's quite hard to test the cache well; we might wrap it up a bit
+## nicer than it is. The trick is we can't safely unload things
+## (because the finalisers might run) and we can't easily purge the
+## cache and show that it *would* compile either. And we can't just
+## compile and load the same thing twice because the names of the dlls
+## will clash.
+##
+## This at least shows that on the second time round we don't compile
+## and we get the right data out.
+test_that("cache hits do not compile", {
+  cmp <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
+                          quiet = TRUE)
+
+  mock <- mockery::mock()
+  res <- with_mock(
+    "pkgbuild::compile_dll" = mock,
+    compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
+                     quiet = TRUE))
+  ## Never called
+  expect_equal(mockery::mock_calls(mock), list())
+  ## Same object
+  expect_identical(res, cmp)
+})
