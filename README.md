@@ -12,7 +12,7 @@ Fast and simple iteration of stochastic models. Designed to work as a component 
 
 ## Background
 
-Stochastic models appear in many domains as they are easy to write out, but hard to analyse without running many realisations of the process. `dust` provides a light interface to run models that are written in C++ in parallel from R. It provides very little functionality aside from a random number generator that is designed to be run in parallel, and is mostly interested in providing an _interface_, which which more powerful tools can be developed.
+Stochastic models appear in many domains as they are easy to write out, but hard to analyse without running many realisations of the process. `dust` provides a light interface to run models that are written in C++ in parallel from R. It provides very little functionality aside from a random number generator that is designed to be run in parallel, and is mostly interested in providing an _interface_, with which more powerful tools can be developed.
 
 See `vignette("dust")` for instructions for using `dust` to create basic models. See the [`mcstate`](https://mrc-ide.github.io/mcstate) for a package that uses `dust` to implement a particle filter and particle MCMC.
 

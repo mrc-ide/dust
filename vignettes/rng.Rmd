@@ -69,7 +69,7 @@ real_t u = rng.unif(3, 6);
 **Normal distribution** with parameters `mean` and `sd`
 
 ```{r}
-rng$runif(10, 3, 6)
+rng$rnorm(10, 3, 6)
 ```
 
 ```cc

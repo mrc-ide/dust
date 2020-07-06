@@ -24,13 +24,13 @@ Stochastic models can be used in statistical inference via methods such as [part
 
 The `dust` package provides tools to help write stochastic models that can be evaluated in parallel. It does not itself provide any statistical support such as particle filter; see the [mcstate](https://mrc-ide.github.io/mcstate) package for that. Instead, it focuses on providing:
 
-* a fast random number generator that can be evaluated in parallel (see `vignette("rng") for details)
+* a fast random number generator that can be evaluated in parallel (see `vignette("rng")` for details)
 * a way of wrapping a user-provided model, itself written as a C++ class
 * a lightweight interface that drives this model from R
 
 ## A simple example - random walk
 
-Consider an biased random walk; at each time step we move our position with a draw from a normal distribution with mean 0 and some standard deviation. We consider a single individual moving but will eventually simulate a family of these individuals, each independent. All simulations have a sense of time - a unitless measure of time "step" will be used but it's up to you how it is interpreted (step is a non-negative integer, implemented using `size_t`).
+Consider a unbiased random walk; at each time step we move our position with a draw from a normal distribution with mean 0 and some standard deviation. We consider a single individual moving but will eventually simulate a family of these individuals, each independent. All simulations have a sense of time - a unitless measure of time "step" will be used but it's up to you how it is interpreted (step is a non-negative integer, implemented using `size_t`).
 
 ### Model code
 
@@ -204,7 +204,7 @@ or select only variables of interest:
 model$state(c(1, 3))
 ```
 
-`dust` does not (yet) provide a friendly wrapper for running a model like this and collecting output because the intention is that you would write your own (see [`mcstate`](https://mrc-ide.github.io/mcstate) for example.  However, we can write one like so:
+`dust` does not (yet) provide a friendly wrapper for running a model like this and collecting output because the intention is that you would write your own (see [`mcstate`](https://mrc-ide.github.io/mcstate) for example).  However, we can write one like so:
 
 ```{r dust_wrapper}
 run_dust <- function(model, steps) {
