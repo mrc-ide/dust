@@ -254,8 +254,7 @@ validated, and an error thrown if an invalid index is given).}
 \if{latex}{\out{\hypertarget{method-set_state}{}}}
 \subsection{Method \code{set_state()}}{
 Set the "state" vector for all particles, overriding whatever your
-models \code{initial()} method provides. Currently all particles are set
-to the same state.
+models \code{initial()} method provides.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$set_state(state)}\if{html}{\out{</div>}}
 }
@@ -263,8 +262,12 @@ to the same state.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{state}}{The state vector - must be a numeric vector with the
-same length as the model's current state.}
+\item{\code{state}}{The state vector - can be either a numeric vector with the
+same length as the model's current state (in which case the same
+state is applied to all particles), or a numeric matrix with as
+many rows as your model's state and as many rows as you have particles
+(in which case you can set a number of different starting states at
+once).}
 }
 \if{html}{\out{</div>}}
 }
