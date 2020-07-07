@@ -41,15 +41,44 @@ void dust_set_index(SEXP ptr, Rcpp::IntegerVector r_index) {
 }
 
 template <typename T>
-void dust_set_state(SEXP ptr, Rcpp::NumericVector r_state) {
+void dust_set_state(SEXP ptr, SEXP r_state) {
   Dust<T> *obj = Rcpp::as<Rcpp::XPtr<Dust<T>>>(ptr);
+  if (Rf_isMatrix(r_state)) {
+    dust_set_state(obj, Rcpp::as<Rcpp::NumericMatrix>(r_state));
+  } else {
+    dust_set_state(obj, Rcpp::as<Rcpp::NumericVector>(r_state));
+  }
+}
+
+template <typename T>
+void dust_set_state(Dust<T> *obj, Rcpp::NumericVector r_state) {
   const size_t n_state = obj->n_state_full();
   if (static_cast<size_t>(r_state.size()) != n_state) {
     Rcpp::stop("Expected a vector with %d elements for 'state'", n_state);
   }
   const std::vector<typename T::real_t> state =
     Rcpp::as<std::vector<typename T::real_t>>(r_state);
-  obj->set_state(state);
+  obj->set_state(state, false);
+}
+
+template <typename T>
+void dust_set_state(Dust<T> *obj, Rcpp::NumericMatrix r_state) {
+  const size_t n_state = obj->n_state_full();
+  const size_t n_particles = obj->n_particles();
+
+  if (static_cast<size_t>(r_state.nrow()) != n_state) {
+    Rcpp::stop("Expected a matrix with %d rows for 'state'", n_state);
+  }
+  if (static_cast<size_t>(r_state.ncol()) != n_particles) {
+    Rcpp::stop("Expected a matrix with %d columns for 'state'", n_particles);
+  }
+
+  const std::vector<typename T::real_t> state =
+    Rcpp::as<std::vector<typename T::real_t>>(r_state);
+  if (state.size() != n_state * n_particles) {
+    Rcpp::stop("check this");
+  }
+  obj->set_state(state, true);
 }
 
 template <typename T>
