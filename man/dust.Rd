@@ -256,7 +256,7 @@ validated, and an error thrown if an invalid index is given).}
 Set the "state" vector for all particles, overriding whatever your
 models \code{initial()} method provides.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$set_state(state)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$set_state(state, step = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -268,6 +268,11 @@ state is applied to all particles), or a numeric matrix with as
 many rows as your model's state and as many columns as you have
 particles (in which case you can set a number of different starting
 states at once).}
+
+\item{\code{step}}{If not \code{NULL}, then this sets the initial step. If this
+is a vector (with the same length as the number of particles), then
+particles are started from different initial steps and run up to the
+larges step given (i.e., \code{max(step)})}
 }
 \if{html}{\out{</div>}}
 }

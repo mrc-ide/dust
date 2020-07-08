@@ -22,8 +22,8 @@ SEXP dust_{{name}}_set_index(SEXP ptr, Rcpp::IntegerVector r_index) {
 }
 
 // [[Rcpp::export(rng = false)]]
-SEXP dust_{{name}}_set_state(SEXP ptr, SEXP r_state) {
-  dust_set_state<{{type}}>(ptr, r_state);
+SEXP dust_{{name}}_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
+  dust_set_state<{{type}}>(ptr, r_state, r_step);
   return R_NilValue;
 }
 
