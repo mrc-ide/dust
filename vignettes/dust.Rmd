@@ -297,6 +297,55 @@ matplot(time, state, type = "l", lty = 1, col = "#00000022",
         xlab = "Time", ylab = "Number infected (I)")
 ```
 
+You can optionally set the initial step at the same time as the state. This is useful in two cases; if your model depends on time (e.g., you use the step in a calculation by transforming it into some measure of time) or if your particles start at different points. For example, suppose we start 10 individuals in the infected state but we do so with a number of possible starting points sampled from between step 0 and step 30:
+
+```{r initial_step}
+step0 <- sample(0:30, 20, replace = TRUE)
+model <- sir$new(list(), 0, 20)
+model$set_state(c(1000, 10, 0), step0)
+```
+
+After initialisation, our model is now at `r max(step0)`, the last step referenced in `step0`
+
+```{r}
+model$step()
+```
+
+and the initial states are a mix of states, despite having been seeded with the same 10 infected individuals, as different particles have run for the same time to reach this time point:
+
+```{r}
+model$state()
+```
+
+From this point we can continue to run the simulation as before:
+
+```{r}
+model$set_index(2)
+steps <- seq(max(step0), 600, by = 5)
+state <- run_dust(model, steps)
+time <- steps / 4
+matplot(time, state, type = "l", lty = 1, col = "#00000022",
+        xlab = "Time", ylab = "Number infected (I)")
+```
+
+You can also set the initial state to a range of different values. Suppose we set the initial number of infections to be poisson distributed with a mean of 10, we might write:
+
+```{r}
+I0 <- rpois(20, 10)
+state0 <- rbind(1010 - I0, I0, 0, deparse.level = 0)
+model$set_state(state0, 0)
+model$step()
+model$state()
+```
+
+Here, we have our variable initial state and all particles starting at step 0. You can combine the two approaches to have a variable initial state and variable initial time by running
+
+```{r}
+model$set_state(state0, step0)
+model$step()
+model$state()
+```
+
 ### Reset the model
 
 A model can be "reset" rather than recreated. This is important in a simulation context because if you recreate the model you will reset the seed. So if you are performing stochastic realisations you should continue with your random number stream, not start again from the same seed.
