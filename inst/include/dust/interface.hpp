@@ -75,9 +75,6 @@ void dust_set_state(Dust<T> *obj, Rcpp::NumericMatrix r_state) {
 
   const std::vector<typename T::real_t> state =
     Rcpp::as<std::vector<typename T::real_t>>(r_state);
-  if (state.size() != n_state * n_particles) {
-    Rcpp::stop("check this");
-  }
   obj->set_state(state, true);
 }
 
