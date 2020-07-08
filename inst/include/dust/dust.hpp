@@ -3,6 +3,7 @@
 
 #include <dust/rng.hpp>
 
+#include <algorithm>
 #include <utility>
 #ifdef _OPENMP
 #if _OPENMP >= 201511
