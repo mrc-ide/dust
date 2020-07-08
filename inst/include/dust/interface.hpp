@@ -52,7 +52,7 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
   std::vector<size_t> step;
   if (r_step != R_NilValue) {
     step = validate_size(Rcpp::as<Rcpp::IntegerVector>(r_step), "step");
-    if (!(step.size() == 1 || step.size() != obj->n_particles())) {
+    if (!(step.size() == 1 || step.size() == obj->n_particles())) {
       Rcpp::stop("Expected 'size' to be scalar or length %d",
                  obj->n_particles());
     }
