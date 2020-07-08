@@ -74,11 +74,14 @@
 
     ##' @description
     ##' Set the "state" vector for all particles, overriding whatever your
-    ##' models `initial()` method provides. Currently all particles are set
-    ##' to the same state.
+    ##' models `initial()` method provides.
     ##'
-    ##' @param state The state vector - must be a numeric vector with the
-    ##' same length as the model's current state.
+    ##' @param state The state vector - can be either a numeric vector with the
+    ##' same length as the model's current state (in which case the same
+    ##' state is applied to all particles), or a numeric matrix with as
+    ##' many rows as your model's state and as many columns as you have
+    ##' particles (in which case you can set a number of different starting
+    ##' states at once).
     set_state = function(state) {
       dust_{{name}}_set_state(private$ptr, state)
     },

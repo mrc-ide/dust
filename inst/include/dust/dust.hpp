@@ -59,12 +59,14 @@ public:
     std::swap(_y, _y_swap);
   }
 
-  void update(const Particle<T> other) {
+  void set_state(const Particle<T> other) {
     _y_swap = other._y;
   }
 
-  void update(const std::vector<real_t>& state) {
-    std::copy(state.begin(), state.end(), _y.begin());
+  void set_state(typename std::vector<real_t>::const_iterator state) {
+    for (size_t i = 0; i < _y.size(); ++i, ++state) {
+      _y[i] = *state;
+    }
   }
 
 private:
@@ -103,10 +105,15 @@ public:
   }
 
   // It's the callee's responsibility to ensure this is the correct length
-  void set_state(const std::vector<real_t>& state) {
+  void set_state(const std::vector<real_t>& state, bool is_matrix) {
     const size_t n_particles = _particles.size();
+    const size_t n_state = n_state_full();
+    auto it = state.begin();
     for (size_t i = 0; i < n_particles; ++i) {
-      _particles[i].update(state);
+      _particles[i].set_state(it);
+      if (is_matrix) {
+        it += n_state;
+      }
     }
   }
 
@@ -168,12 +175,12 @@ public:
   //
   // but this seems like a lot of churn.  The other way is to treat it
   // like a slightly weird state update where we swap around the
-  // contents of the particle state (uses the update() and swap()
+  // contents of the particle state (uses the set_state() and swap()
   // methods on particles).
   void reorder(const std::vector<size_t>& index) {
     for (size_t i = 0; i < _particles.size(); ++i) {
       size_t j = index[i];
-      _particles[i].update(_particles[j]);
+      _particles[i].set_state(_particles[j]);
     }
     for (auto& p : _particles) {
       p.swap();

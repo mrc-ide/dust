@@ -146,6 +146,23 @@ test_that("set model state into multiple particles", {
 })
 
 
+test_that("set model state with a matrix", {
+  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  mod <- res$new(list(len = 10), 0, 2)
+  m <- matrix(runif(20), 10, 2)
+  mod$set_state(m)
+
+  expect_equal(mod$state(), m)
+  expect_error(
+    mod$set_state(m[, c(1, 1, 2, 2)]),
+    "Expected a matrix with 2 columns for 'state'")
+  expect_error(
+    mod$set_state(m[1:5, ]),
+    "Expected a matrix with 10 rows for 'state'")
+  expect_equal(mod$state(), m)
+})
+
+
 test_that("reorder", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
                           quiet = TRUE)
