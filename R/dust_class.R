@@ -82,9 +82,9 @@ dust_class <- R6::R6Class(
     ##' @param state The state vector - can be either a numeric vector with the
     ##' same length as the model's current state (in which case the same
     ##' state is applied to all particles), or a numeric matrix with as
-    ##' many rows as your model's state and as many rows as you have particles
-    ##' (in which case you can set a number of different starting states at
-    ##' once).
+    ##' many rows as your model's state and as many columns as you have
+    ##' particles (in which case you can set a number of different starting
+    ##' states at once).
     set_state = function(state) {
     },
 
