@@ -349,3 +349,31 @@ test_that("cache hits do not compile", {
   ## Same object
   expect_identical(res, cmp)
 })
+
+
+test_that("set model state and time, varying time", {
+  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  mod <- res$new(list(len = 10), 0, 2)
+  m <- matrix(rep(1:2, each = 10), 10, 2)
+  step <- 0:1
+  mod$set_state(m, step)
+  cmp <- dust_rng$new(1, 1)$rnorm(10, 0, 1)
+
+  state <- mod$state()
+  expect_equal(mod$step(), 1)
+  expect_equal(state[, 2], m[, 2])
+  expect_equal(state[, 1], m[, 1] + cmp)
+})
+
+
+test_that("set model state and time, constant time", {
+  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  mod <- res$new(list(len = 10), 0, 2)
+  m <- matrix(runif(20), 10, 2)
+  step <- 10
+  mod$set_state(m, step)
+
+  state <- mod$state()
+  expect_equal(mod$step(), 10)
+  expect_equal(state, m)
+})

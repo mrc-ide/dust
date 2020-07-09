@@ -8,6 +8,8 @@ typename Rcpp::RObject dust_info(const typename T::init_t& data);
 
 inline void validate_n(size_t n_generators, size_t n_threads);
 inline void validate_size(int x, const char * name);
+inline std::vector<size_t> validate_size(Rcpp::IntegerVector x,
+                                         const char *name);
 inline std::vector<size_t> r_index_to_index(Rcpp::IntegerVector r_index,
                                             size_t nmax);
 
@@ -41,12 +43,31 @@ void dust_set_index(SEXP ptr, Rcpp::IntegerVector r_index) {
 }
 
 template <typename T>
-void dust_set_state(SEXP ptr, SEXP r_state) {
+void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
   Dust<T> *obj = Rcpp::as<Rcpp::XPtr<Dust<T>>>(ptr);
+
+  // Do the validation here so that we leave this function having
+  // dealt with both or neither (i.e., do not fail on step after
+  // succeeding on state).
+  std::vector<size_t> step;
+  if (r_step != R_NilValue) {
+    step = validate_size(Rcpp::as<Rcpp::IntegerVector>(r_step), "step");
+    if (!(step.size() == 1 || step.size() == obj->n_particles())) {
+      Rcpp::stop("Expected 'size' to be scalar or length %d",
+                 obj->n_particles());
+    }
+  }
+
   if (Rf_isMatrix(r_state)) {
     dust_set_state(obj, Rcpp::as<Rcpp::NumericMatrix>(r_state));
   } else {
     dust_set_state(obj, Rcpp::as<Rcpp::NumericVector>(r_state));
+  }
+
+  if (step.size() == 1) {
+    obj->set_step(step[0]);
+  } else if (step.size() > 1) {
+    obj->set_step(step);
   }
 }
 
@@ -176,6 +197,21 @@ inline void validate_size(int x, const char * name) {
   if (x < 0) {
     Rcpp::stop("%s must be non-negative", name);
   }
+}
+
+inline std::vector<size_t> validate_size(Rcpp::IntegerVector r_x,
+                                         const char * name) {
+  const size_t n = static_cast<size_t>(r_x.size());
+  std::vector<size_t> x;
+  x.reserve(n);
+  for (size_t i = 0; i < n; ++i) {
+    int el = r_x[i];
+    if (el < 0) {
+      Rcpp::stop("All elements of '%s' must be non-negative", name);
+    }
+    x.push_back(el);
+  }
+  return x;
 }
 
 inline std::vector<size_t> r_index_to_index(Rcpp::IntegerVector r_index,

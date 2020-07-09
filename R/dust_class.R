@@ -85,7 +85,12 @@ dust_class <- R6::R6Class(
     ##' many rows as your model's state and as many columns as you have
     ##' particles (in which case you can set a number of different starting
     ##' states at once).
-    set_state = function(state) {
+    ##'
+    ##' @param step If not `NULL`, then this sets the initial step. If this
+    ##' is a vector (with the same length as the number of particles), then
+    ##' particles are started from different initial steps and run up to the
+    ##' larges step given (i.e., `max(step)`)
+    set_state = function(state, step = NULL) {
     },
 
     ##' @description

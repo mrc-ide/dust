@@ -3,6 +3,7 @@
 
 #include <dust/rng.hpp>
 
+#include <algorithm>
 #include <utility>
 #ifdef _OPENMP
 #if _OPENMP >= 201511
@@ -57,6 +58,10 @@ public:
 
   void swap() {
     std::swap(_y, _y_swap);
+  }
+
+  void set_step(const size_t step) {
+    _step = step;
   }
 
   void set_state(const Particle<T> other) {
@@ -114,6 +119,24 @@ public:
       if (is_matrix) {
         it += n_state;
       }
+    }
+  }
+
+  void set_step(const size_t step) {
+    const size_t n_particles = _particles.size();
+    for (size_t i = 0; i < n_particles; ++i) {
+      _particles[i].set_step(step);
+    }
+  }
+
+  void set_step(const std::vector<size_t>& step) {
+    const size_t n_particles = _particles.size();
+    for (size_t i = 0; i < n_particles; ++i) {
+      _particles[i].set_step(step[i]);
+    }
+    const auto r = std::minmax_element(step.begin(), step.end());
+    if (*r.second > *r.first) {
+      run(*r.second);
     }
   }
 
