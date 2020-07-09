@@ -1,5 +1,6 @@
 #include <cpp11/doubles.hpp>
 #include <cpp11/external_pointer.hpp>
+#include <cpp11/integers.hpp>
 #include <cpp11/list.hpp>
 #include <cpp11/matrix.hpp>
 #include <cpp11/strings.hpp>
@@ -78,17 +79,16 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
 
 template <typename T>
 void dust_set_state(Dust<T> *obj, cpp11::doubles r_state) {
-  Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   const size_t n_state = obj->n_state_full();
   if (static_cast<size_t>(r_state.size()) != n_state) {
     cpp11::stop("Expected a vector with %d elements for 'state'", n_state);
   }
   const std::vector<typename T::real_t> state(r_state.begin(), r_state.end());
-  obj->set_state(state);
+  obj->set_state(state, false);
 }
 
 template <typename T>
-void dust_set_state(Dust<T> *obj, cpp11::doubles_matrix> r_state) {
+void dust_set_state(Dust<T> *obj, cpp11::doubles_matrix r_state) {
   const size_t n_state = obj->n_state_full();
   const size_t n_particles = obj->n_particles();
 

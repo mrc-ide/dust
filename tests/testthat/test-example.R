@@ -346,7 +346,7 @@ test_that("cache hits do not compile", {
 test_that("set model state and time, varying time", {
   res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
   mod <- res$new(list(len = 10), 0, 2)
-  m <- matrix(rep(1:2, each = 10), 10, 2)
+  m <- matrix(rep(as.numeric(1:2), each = 10), 10, 2)
   step <- 0:1
   mod$set_state(m, step)
   cmp <- dust_rng$new(1, 1)$rnorm(10, 0, 1)
@@ -362,7 +362,7 @@ test_that("set model state and time, constant time", {
   res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
   mod <- res$new(list(len = 10), 0, 2)
   m <- matrix(runif(20), 10, 2)
-  step <- 10
+  step <- 10L
   mod$set_state(m, step)
 
   state <- mod$state()
@@ -378,7 +378,7 @@ test_that("set model time but not state", {
   expect_equal(mod$step(), 0)
   expect_equal(mod$state(), matrix(1:10, 10, 2))
 
-  expect_null(mod$set_state(NULL, 10))
+  expect_null(mod$set_state(NULL, 10L))
   expect_equal(mod$step(), 10)
   expect_equal(mod$state(), matrix(1:10, 10, 2))
 })
@@ -392,7 +392,7 @@ test_that("NULL state leaves state untouched", {
   expect_equal(mod$state(), m)
   expect_equal(mod$step(), 0)
 
-  mod$set_state(NULL, 10)
+  mod$set_state(NULL, 10L)
   expect_equal(mod$state(), m)
   expect_equal(mod$step(), 10)
 
