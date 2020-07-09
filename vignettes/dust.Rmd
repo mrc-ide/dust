@@ -311,7 +311,7 @@ After initialisation, our model is now at `r max(step0)`, the last step referenc
 model$step()
 ```
 
-and the initial states are a mix of states, despite having been seeded with the same 10 infected individuals, as different particles have run for the same time to reach this time point:
+and the initial states are a mix of states, despite having been seeded with the same 10 infected individuals, as different particles have run for different numbers of steps to reach this common time point:
 
 ```{r}
 model$state()
