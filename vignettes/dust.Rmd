@@ -323,7 +323,7 @@ You can also set the initial state to a range of different values. Suppose we se
 ```{r}
 I0 <- rpois(20, 10)
 state0 <- rbind(1010 - I0, I0, 0, deparse.level = 0)
-model$set_state(state0, 0)
+model$set_state(state0, 0L)
 model$step()
 model$state()
 ```
