@@ -99,8 +99,14 @@ void dust_set_state(Dust<T> *obj, cpp11::doubles_matrix r_state) {
     cpp11::stop("Expected a matrix with %d columns for 'state'", n_particles);
   }
 
-  const std::vector<typename T::real_t> state =
-    cpp11::as_cpp<std::vector<typename T::real_t>>(r_state);
+  const size_t len = n_state * n_particles;
+  std::vector<typename T::real_t> state;
+  const double * r_state_data = REAL(r_state.data());
+  state.reserve(len);
+  for (size_t i = 0; i < len; ++i) {
+    state[i] = r_state_data[i];
+  }
+
   obj->set_state(state, true);
 }
 
