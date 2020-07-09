@@ -58,10 +58,12 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
     }
   }
 
-  if (Rf_isMatrix(r_state)) {
-    dust_set_state(obj, Rcpp::as<Rcpp::NumericMatrix>(r_state));
-  } else {
-    dust_set_state(obj, Rcpp::as<Rcpp::NumericVector>(r_state));
+  if (r_state != R_NilValue) {
+    if (Rf_isMatrix(r_state)) {
+      dust_set_state(obj, Rcpp::as<Rcpp::NumericMatrix>(r_state));
+    } else {
+      dust_set_state(obj, Rcpp::as<Rcpp::NumericVector>(r_state));
+    }
   }
 
   if (step.size() == 1) {
