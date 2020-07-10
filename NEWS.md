@@ -1,5 +1,9 @@
 # dust 0.1.3
 
+* New function `dust::dust_simulate` which provides a helper for running a simulation while collecting output (#7)
+
+# dust 0.1.3
+
 * Allow `$set_state()` to accept an initial state of `NULL`, in which case only the time is set (#48)
 
 # dust 0.1.2
