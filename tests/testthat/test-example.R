@@ -377,3 +377,34 @@ test_that("set model state and time, constant time", {
   expect_equal(mod$step(), 10)
   expect_equal(state, m)
 })
+
+
+test_that("set model time but not state", {
+  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  mod <- res$new(list(len = 10), 0, 2)
+  expect_null(mod$set_state(NULL, NULL))
+  expect_equal(mod$step(), 0)
+  expect_equal(mod$state(), matrix(1:10, 10, 2))
+
+  expect_null(mod$set_state(NULL, 10))
+  expect_equal(mod$step(), 10)
+  expect_equal(mod$state(), matrix(1:10, 10, 2))
+})
+
+
+test_that("NULL state leaves state untouched", {
+  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  mod <- res$new(list(len = 10), 0, 2)
+  m <- matrix(runif(20), 10, 2)
+  mod$set_state(m, NULL)
+  expect_equal(mod$state(), m)
+  expect_equal(mod$step(), 0)
+
+  mod$set_state(NULL, 10)
+  expect_equal(mod$state(), m)
+  expect_equal(mod$step(), 10)
+
+  mod$set_state(NULL, NULL)
+  expect_equal(mod$state(), m)
+  expect_equal(mod$step(), 10)
+})

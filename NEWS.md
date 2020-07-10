@@ -1,3 +1,7 @@
+# dust 0.1.3
+
+* Allow `$set_state()` to accept an initial state of `NULL`, in which case only the time is set (#48)
+
 # dust 0.1.2
 
 * Allow `$set_state()` to accept an initial step too. This can be a vector if particles start at different initial steps, in which case all particles are run up to the latest step (#45)
