@@ -6,9 +6,6 @@
 #include <algorithm>
 #include <utility>
 #ifdef _OPENMP
-#if _OPENMP >= 201511
-#define OPENMP_HAS_MONOTONIC 1
-#endif
 #include <omp.h>
 #endif
 
@@ -140,26 +137,9 @@ public:
   }
 
   void run(const size_t step_end) {
-    #pragma omp parallel num_threads(_n_threads)
-    {
-      // Making this monotonic:static gives us a reliable sequence
-      // through the data, forcing each thread to move through with a
-      // stride of n_threads. However, this requires relatively recent
-      // openmp (>= 4.5, released in 2015) so we will fall back on
-      // ordered which will work over more versions at the risk of
-      // being slower if there is any variation in how long each
-      // iteration takes.
-#ifdef OPENMP_HAS_MONOTONIC
-      #pragma omp for schedule(monotonic:static, 1)
-#else
-      #pragma omp for schedule(static, 1) ordered
-#endif
-      for (size_t i = 0; i < _particles.size(); ++i) {
-#ifndef OPENMP_HAS_MONOTONIC
-        #pragma omp ordered
-#endif
-        _particles[i].run(step_end, pick_generator(i));
-      }
+    #pragma omp parallel for schedule(static) num_threads(_n_threads)
+    for (size_t i = 0; i < _particles.size(); ++i) {
+      _particles[i].run(step_end, _rng(i));
     }
   }
 
@@ -230,34 +210,6 @@ private:
   const size_t _n_threads;
   dust::pRNG<real_t, int_t> _rng;
   std::vector<Particle<T>> _particles;
-
-  // For 10 particles, 4 generators and 1, 2, 4 threads we want this:
-  //
-  // i:  0 1 2 3 4 5 6 7 8 9
-  // g:  0 1 2 3 0 1 2 3 0 1 - rng used for the iteration
-  // t1: 0 0 0 0 0 0 0 0 0 0 - thread index that executes each with 1 thread
-  // t2: 0 1 0 1 0 1 0 1 0 1 - ...with 2
-  // t4: 0 1 2 3 0 1 2 3 0 1 - ...with 4
-  //
-  // So with
-  // - 1 thread: 0: (0 1 2 3)
-  // - 2 threads 0: (0 2), 1: (1 3)
-  // - 4 threads 0: (0), 1: (1), 2: (2), 3: (3)
-  //
-  // So the rng number can be picked up directly by doing
-  //
-  //   i % _rng.size()
-  //
-  // though this relies on the openmp scheduler, which technically I
-  // think we should not be doing. We could derive it from the thread
-  // index to provide a set of allowable rngs but this will be harder
-  // to get deterministic.
-  //
-  // I'm not convinced that this will always do the Right Thing with
-  // loop leftovers either.
-  rng_t& pick_generator(const size_t i) {
-    return _rng(i % _rng.size());
-  }
 
   void initialise(const init_t data, const size_t step,
                   const size_t n_particles) {
