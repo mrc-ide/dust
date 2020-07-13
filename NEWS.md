@@ -1,4 +1,8 @@
-# dust 0.1.3
+# dust 0.1.5
+
+* Simpler RNG interface; we now always use as many RNG streams as there are particles (#51)
+
+# dust 0.1.4
 
 * New function `dust::dust_simulate` which provides a helper for running a simulation while collecting output (#7)
 
