@@ -400,3 +400,16 @@ test_that("NULL state leaves state untouched", {
   expect_equal(mod$state(), m)
   expect_equal(mod$step(), 10)
 })
+
+
+test_that("type coersion in setting index", {
+  res <- compile_and_load(dust_file("examples/sir.cpp"), "sir", "mysir",
+                          quiet = TRUE)
+  obj <- res$new(list(), 0, 100)
+  expect_null(obj$set_index(1L))
+  expect_null(obj$set_index(1))
+  expect_error(
+    obj$set_index(1.5),
+    "All elements of 'index' must be integer-like",
+    fixed = TRUE)
+})

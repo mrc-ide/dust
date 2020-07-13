@@ -242,3 +242,25 @@ cpp11::writable::doubles_matrix create_matrix(size_t nrow, size_t ncol,
   }
   return ret;
 }
+
+inline cpp11::integers as_integer(cpp11::sexp x, const char * name) {
+  if (TYPEOF(x) == INTSXP) {
+    return cpp11::as_cpp<cpp11::integers>(x);
+  } else if (TYPEOF(x) == REALSXP) {
+    cpp11::doubles xn = cpp11::as_cpp<cpp11::doubles>(x);
+    size_t len = xn.size();
+    cpp11::writable::integers ret = cpp11::writable::integers(len);
+    for (size_t i = 0; i < len; ++i) {
+      double el = xn[i];
+      if (!cpp11::is_convertable_without_loss_to_integer(el)) {
+        cpp11::stop("All elements of '%s' must be integer-like",
+                    name, i + 1);
+      }
+      ret[i] = static_cast<int>(el);
+    }
+    return ret;
+  } else {
+    cpp11::stop("Expected a numeric vector for '%s'", name);
+    return cpp11::integers(); // never reached
+  }
+}
