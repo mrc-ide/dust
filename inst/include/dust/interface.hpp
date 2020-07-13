@@ -6,7 +6,6 @@ typename T::init_t dust_data(Rcpp::List data);
 template <typename T>
 typename Rcpp::RObject dust_info(const typename T::init_t& data);
 
-inline void validate_n(size_t n_generators, size_t n_threads);
 inline void validate_size(int x, const char * name);
 inline std::vector<size_t> validate_size(Rcpp::IntegerVector x,
                                          const char *name);
@@ -16,18 +15,15 @@ inline std::vector<size_t> r_index_to_index(Rcpp::IntegerVector r_index,
 template <typename T>
 Rcpp::List dust_alloc(Rcpp::List r_data, int step,
                       int n_particles, int n_threads,
-                      int n_generators, int seed) {
+                      int seed) {
   validate_size(step, "step");
   validate_size(n_particles, "n_particles");
   validate_size(n_threads, "n_threads");
-  validate_size(n_generators, "n_generators");
   validate_size(seed, "seed");
-  validate_n(n_generators, n_threads);
 
   typename T::init_t data = dust_data<T>(r_data);
 
-  Dust<T> *d =
-    new Dust<T>(data, step, n_particles, n_threads, n_generators, seed);
+  Dust<T> *d = new Dust<T>(data, step, n_particles, n_threads, seed);
   Rcpp::XPtr<Dust<T>> ptr(d, false);
   Rcpp::RObject info = dust_info<T>(data);
 
@@ -184,15 +180,6 @@ void dust_reorder(SEXP ptr, Rcpp::IntegerVector r_index) {
 template <typename T>
 Rcpp::RObject dust_info(const typename T::init_t& data) {
   return R_NilValue;
-}
-
-inline void validate_n(size_t n_generators, size_t n_threads) {
-  if (n_generators < n_threads) {
-    Rcpp::stop("n_generators must be at least n_threads");
-  }
-  if (n_generators % n_threads > 0) {
-    Rcpp::stop("n_generators must be a multiple of n_threads");
-  }
 }
 
 inline void validate_size(int x, const char * name) {

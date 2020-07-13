@@ -7,7 +7,7 @@ test_that("create walk, stepping for one step", {
   expect_null(obj$info())
 
   y <- obj$run(1)
-  cmp <- dust_rng$new(1, 1)$rnorm(10, 0, 1)
+  cmp <- dust_rng$new(1, 10)$rnorm(10, 0, 1)
   expect_identical(drop(y), cmp)
 })
 
@@ -18,8 +18,8 @@ test_that("walk agrees with random number stream", {
   obj <- res$new(list(sd = 1), 0, 10, seed = 1L)
   y <- obj$run(5)
 
-  cmp <- dust_rng$new(1, 1)$rnorm(50, 0, 1)
-  expect_equal(drop(y), colSums(matrix(cmp, 5, 10)))
+  cmp <- dust_rng$new(1, 10)$rnorm(50, 0, 1)
+  expect_equal(drop(y), colSums(matrix(cmp, 5, 10, byrow = TRUE)))
   expect_identical(obj$state(), y)
 })
 
@@ -40,9 +40,9 @@ test_that("Reset particles and resume continues with rng", {
   expect_equal(obj$step(), 5)
 
   ## Then draw the random numbers:
-  cmp <- dust_rng$new(1, 1)$rnorm(100, 0, 1)
-  m1 <- matrix(cmp[1:50], 5, 10)
-  m2 <- matrix(cmp[51:100], 5, 10)
+  cmp <- dust_rng$new(1, 10)$rnorm(100, 0, 1)
+  m1 <- matrix(cmp[1:50], 5, 10, byrow = TRUE)
+  m2 <- matrix(cmp[51:100], 5, 10, byrow = TRUE)
 
   expect_equal(drop(y1), colSums(m1) * sd1)
   expect_equal(drop(y2), colSums(m2) * sd2)
@@ -179,10 +179,10 @@ test_that("reorder", {
 
   y3 <- obj$run(10)
 
-  cmp <- dust_rng$new(1, 1)$rnorm(100, 0, 1)
-  m1 <- matrix(cmp[1:50], 5, 10)
+  cmp <- dust_rng$new(1, 10)$rnorm(100, 0, 1)
+  m1 <- matrix(cmp[1:50], 5, 10, byrow = TRUE)
   m2 <- m1[, index]
-  m3 <- matrix(cmp[51:100], 5, 10)
+  m3 <- matrix(cmp[51:100], 5, 10, byrow = TRUE)
 
   expect_equal(drop(y1), colSums(m1))
   expect_equal(drop(y2), colSums(m2))
@@ -205,10 +205,10 @@ test_that("reorder and duplicate", {
 
   y3 <- obj$run(10)
 
-  cmp <- dust_rng$new(1, 1)$rnorm(100, 0, 1)
-  m1 <- matrix(cmp[1:50], 5, 10)
+  cmp <- dust_rng$new(1, 10)$rnorm(100, 0, 1)
+  m1 <- matrix(cmp[1:50], 5, 10, byrow = TRUE)
   m2 <- m1[, index]
-  m3 <- matrix(cmp[51:100], 5, 10)
+  m3 <- matrix(cmp[51:100], 5, 10, byrow = TRUE)
 
   expect_equal(drop(y1), colSums(m1))
   expect_equal(drop(y2), colSums(m2))
@@ -285,44 +285,36 @@ test_that("reset changes info", {
 test_that("Basic threading test", {
   res <- compile_and_load(dust_file("examples/parallel.cpp"), "parallel",
                           "myparallel", quiet = TRUE)
-  expect_error(
-    res$new(list(sd = 1), 0, 10, n_threads = 2L),
-    "n_generators must be at least n_threads")
-  expect_error(
-    res$new(list(sd = 1), 0, 10, n_threads = 2L, n_generators = 3L),
-    "n_generators must be a multiple of n_threads")
 
-  obj <- res$new(list(sd = 1), 0, 10, n_threads = 2L, n_generators = 2L)
+  obj <- res$new(list(sd = 1), 0, 10, n_threads = 2L)
   obj$set_index(1)
   y0 <- obj$state()
   y22_1 <- obj$run(5)
   y22_2 <- obj$state()
 
   ## And again without parallel
-  obj <- res$new(list(sd = 1), 0, 10, n_threads = 1L, n_generators = 2L)
+  obj <- res$new(list(sd = 1), 0, 10, n_threads = 1L)
   obj$set_index(1)
   y12_1 <- obj$run(5)
   y12_2 <- obj$state()
 
-  obj <- res$new(list(sd = 1), 0, 10, n_threads = 1L, n_generators = 1L)
-  obj$set_index(1)
-  y11_1 <- obj$run(5)
-  y11_2 <- obj$state()
-
   ## Quick easy check:
   expect_equal(y22_1[1, ], y22_2[1, ])
   expect_equal(y12_1[1, ], y12_2[1, ])
-  expect_equal(y11_1[1, ], y11_2[1, ])
 
   if (has_openmp() && y0[2, 1] == 1) {
-    ## OMP is enabled
-    expect_equal(y22_2[2, ], rep(0:1, 5))
+    ## OMP is enabled (note: this relies on implementation details of
+    ## openmp and we'd need to change this for a CRAN release - what
+    ## we'd expect to see is that 0 and 1 are both present, but as
+    ## we're leaving it up to the compiler to set the schedule I
+    ## believe this is not reliable theoretically, even though it is
+    ## empirically)
+    expect_equal(y22_2[2, ], rep(0:1, each = 5))
   } else {
     expect_equal(y22_2[2, ], rep(-1, 10))
   }
 
   expect_equal(y22_1, y12_1)
-  expect_equal(y22_1[c(1, 3, 5, 7, 9)], y11_1[1:5])
 })
 
 

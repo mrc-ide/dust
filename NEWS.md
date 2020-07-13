@@ -1,3 +1,11 @@
+# dust 0.1.5
+
+* Simpler RNG interface; we now always use as many RNG streams as there are particles (#51)
+
+# dust 0.1.4
+
+* New function `dust::dust_simulate` which provides a helper for running a simulation while collecting output (#7)
+
 # dust 0.1.3
 
 * Allow `$set_state()` to accept an initial state of `NULL`, in which case only the time is set (#48)
