@@ -112,28 +112,23 @@ curve(dnorm(x, 0, 10), col = "orange", add = TRUE, lwd = 2)
 
 ### Running a model in parallel
 
-The approach above still runs everything in serial, one particle after another. We can configure this system to run in parallel by providing two extra arguments to the constructor:
-
-* `n_generators`: the number of independent random number generators to use
-* `n_threads`: the number of threads to run on
-
-The idea here is that you set `n_generators` to be the maximum number of threads you might ever run the model on (say, 32) and `n_threads` to the number of threads that you want to use now (say, 4).  Subject to the constraint that `n_generators` is divisible by `n_threads` you will then get the same results as you change the number of available threads. If you change the number of generators you will get different results.  See `vignette("rng")` for more detail.
+The approach above still runs everything in serial, one particle after another. We can configure this system to run in parallel by providing the extra argument `n_threads` to the constructor.
 
 Provided that your system can compile with openmp the following code will execute in parallel using 2 threads
 
 ```{r, walk_parallel}
-model <- walk$new(list(sd = 1), 0, 20, n_generators = 8, n_threads = 2)
+model <- walk$new(list(sd = 1), 0, 20, n_threads = 2)
 model$run(100)
 ```
 
 Running this same code in series will give the same results:
 
 ```{r, walk_serial}
-model <- walk$new(list(sd = 1), 0, 20, n_generators = 8, n_threads = 1)
+model <- walk$new(list(sd = 1), 0, 20, n_threads = 1)
 model$run(100)
 ```
 
-If run in parallel with `k` threads then particles 1, 2, ..., k will be run first, one per thread, followed by k+1, ..., 2k and so on.  If you have more generators than threads then each thread will cycle through a set of generators but never use another thread's generator.
+We use as many random number generators as their are threads, so if you run fewer particles or more, increase the threads or decrease, the results will be the same.
 
 ## A more interesting example
 
