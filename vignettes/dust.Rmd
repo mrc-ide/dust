@@ -204,32 +204,27 @@ or select only variables of interest:
 model$state(c(1, 3))
 ```
 
-`dust` does not (yet) provide a friendly wrapper for running a model like this and collecting output because the intention is that you would write your own (see [`mcstate`](https://mrc-ide.github.io/mcstate) for example).  However, we can write one like so:
-
-```{r dust_wrapper}
-run_dust <- function(model, steps) {
-  ret <- vector("list", length(steps))
-  for (i in seq_along(steps)) {
-    ret[[i]] <- model$run(steps[[i]])
-  }
-  matrix(unlist(ret), nrow = length(ret), byrow = TRUE)
-}
-```
+In order to run the simulation beginning-to-end, we use `dust::dust_simulate()`; this function is purely a convenience function and the intention is that you would write your own (see [`mcstate`](https://mrc-ide.github.io/mcstate) for example).
 
 ```{r sir_run_collect}
 model <- sir$new(list(), 0, 200)
-model$set_index(2)
 steps <- seq(0, 600, by = 5)
-state <- run_dust(model, steps)
+state <- dust::dust_simulate(model, steps, 2L)
+```
+
+The output here is a 1 x 200 x 121 matrix (n state x n particles x n steps) and we need to drop the first dimension and transpose the others for ease of plotting:
+
+```{r sir_transform}
+traces <- t(drop(state))
 ```
 
 Plotting this over time (with 4 steps per day - see the sir code above)
 
 ```{r sir_average}
 time <- steps / 4
-matplot(time, state, type = "l", lty = 1, col = "#00000022",
+matplot(time, traces, type = "l", lty = 1, col = "#00000022",
         xlab = "Time", ylab = "Number infected (I)")
-lines(time, rowMeans(state), col = "red", lwd = 2)
+lines(time, rowMeans(traces), col = "red", lwd = 2)
 ```
 
 ## Other methods
@@ -289,9 +284,8 @@ model$state()
 Now, when we run the model, far more of the epidemics fail to take off as the infected individual goes disappears before infecting anyone.
 
 ```{r}
-model$set_index(2)
 steps <- seq(0, 600, by = 5)
-state <- run_dust(model, steps)
+state <- t(drop(dust::dust_simulate(model, steps, 2L)))
 time <- steps / 4
 matplot(time, state, type = "l", lty = 1, col = "#00000022",
         xlab = "Time", ylab = "Number infected (I)")
@@ -320,9 +314,8 @@ model$state()
 From this point we can continue to run the simulation as before:
 
 ```{r}
-model$set_index(2)
 steps <- seq(max(step0), 600, by = 5)
-state <- run_dust(model, steps)
+state <- t(drop(dust::dust_simulate(model, steps, 2L)))
 time <- steps / 4
 matplot(time, state, type = "l", lty = 1, col = "#00000022",
         xlab = "Time", ylab = "Number infected (I)")
