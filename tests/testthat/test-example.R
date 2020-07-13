@@ -220,9 +220,9 @@ test_that("validate reorder vector is correct length", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
                           quiet = TRUE)
   obj <- res$new(list(sd = 1), 0, 10)
-  expect_error(obj$reorder(integer(0)),
+  expect_error(obj$reorder(1L),
                "Expected a vector of length 10 for 'index'")
-  expect_error(obj$reorder(integer(100)),
+  expect_error(obj$reorder(rep(1L, 100)),
                "Expected a vector of length 10 for 'index'")
 })
 
