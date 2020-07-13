@@ -5,9 +5,8 @@
 
 // [[Rcpp::export(rng = false)]]
 SEXP dust_{{name}}_alloc(Rcpp::List r_data, size_t step, size_t n_particles,
-                size_t n_threads, size_t n_generators, size_t seed) {
-  return dust_alloc<{{type}}>(r_data, step, n_particles, n_threads,
-                              n_generators, seed);
+                size_t n_threads, size_t seed) {
+  return dust_alloc<{{type}}>(r_data, step, n_particles, n_threads, seed);
 }
 
 // [[Rcpp::export(rng = false)]]

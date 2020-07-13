@@ -90,11 +90,10 @@ public:
   typedef typename T::real_t real_t;
   typedef typename dust::RNG<real_t, int_t> rng_t;
 
-  Dust(const init_t data, const size_t step,
-       const size_t n_particles, const size_t n_threads,
-       const size_t n_generators, const size_t seed) :
+  Dust(const init_t data, const size_t step, const size_t n_particles,
+       const size_t n_threads, const size_t seed) :
     _n_threads(n_threads),
-    _rng(n_generators, seed) {
+    _rng(n_particles, seed) {
     initialise(data, step, n_particles);
   }
 

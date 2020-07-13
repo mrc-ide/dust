@@ -157,14 +157,7 @@ obj$state()
 \subsection{Method \code{new()}}{
 Create a new model
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$new(
-  data,
-  step,
-  n_particles,
-  n_threads = 1L,
-  n_generators = 1L,
-  seed = 1L
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$new(data, step, n_particles, n_threads = 1L, seed = 1L)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -180,15 +173,10 @@ your model.}
 least 1}
 
 \item{\code{n_threads}}{Number of OMP threads to use, if \code{dust} and
-your model were compiled with OMP support (details to come)}
-
-\item{\code{n_generators}}{The number of random number generators to
-use. Must be at least \code{n_threads} and a multiple of
-\code{n_threads}.  You can use this to ensure reproducible results
-when changing the number of threads, while preserving
-statistically reasonable random numbers (for example setting
-\code{n_generators = 64} and then using 1, 2, 4, 8, ..., 64 threads
-as your computational capacity allows).}
+your model were compiled with OMP support (details to come).
+\code{n_particles} should be a multiple of \code{n_threads} (e.g., if you use 8
+threads, then you should have 8, 16, 24, etc particles). However, this
+is not compulsary.}
 
 \item{\code{seed}}{Seed to use for the random number generator
 (positive integer)}

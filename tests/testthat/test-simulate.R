@@ -3,12 +3,16 @@ context("simulate")
 test_that("simulate simple walk", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
                           quiet = TRUE)
-  obj <- res$new(list(sd = 1), 0, 10)
-  m <- dust_simulate(obj, 0:100)
-  expect_equal(dim(m), c(1, 10, 101))
+  ns <- 100
+  np <- 10
+
+  obj <- res$new(list(sd = 1), 0, np)
+  m <- dust_simulate(obj, 0:ns)
+  expect_equal(dim(m), c(1, np, ns + 1))
 
   ## Compare against the direct version:
-  rand <- matrix(dust_rng$new(1)$rnorm(10 * 100, 0, 1), 10, 100)
+  rng <- dust_rng$new(1, np)
+  rand <- matrix(rng$rnorm(np * ns, 0, 1), np, ns)
   expect_equal(t(rbind(0, apply(rand, 1, cumsum))),
                drop(m))
 })
