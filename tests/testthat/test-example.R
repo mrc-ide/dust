@@ -303,8 +303,13 @@ test_that("Basic threading test", {
   expect_equal(y12_1[1, ], y12_2[1, ])
 
   if (has_openmp() && y0[2, 1] == 1) {
-    ## OMP is enabled
-    expect_equal(y22_2[2, ], rep(0:1, 5))
+    ## OMP is enabled (note: this relies on implementation details of
+    ## openmp and we'd need to change this for a CRAN release - what
+    ## we'd expect to see is that 0 and 1 are both present, but as
+    ## we're leaving it up to the compiler to set the schedule I
+    ## believe this is not reliable theoretically, even though it is
+    ## empirically)
+    expect_equal(y22_2[2, ], rep(0:1, each = 5))
   } else {
     expect_equal(y22_2[2, ], rep(-1, 10))
   }
