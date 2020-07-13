@@ -7,8 +7,5 @@ addons:
       - libnode-dev
 r_packages:
   - covr
-r_github_packages:
-  - r-lib/cpp11
-  - r-lib/pkgbuild@cpp11
 after_success:
   - Rscript -e 'covr::codecov(quiet = FALSE)'
