@@ -12,9 +12,9 @@ template <typename T>
 typename cpp11::sexp dust_info(const typename T::init_t& data);
 
 inline void validate_size(int x, const char * name);
-inline std::vector<size_t> validate_size(cpp11::integers x, const char *name);
-inline std::vector<size_t> r_index_to_index(cpp11::integers r_index,
-                                            size_t nmax);
+inline std::vector<size_t> validate_size(cpp11::sexp x, const char *name);
+inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax);
+inline cpp11::integers as_integer(cpp11::sexp x, const char * name);
 
 template <typename T>
 cpp11::writable::doubles_matrix create_matrix(size_t nrow, size_t ncol,
@@ -39,7 +39,7 @@ cpp11::list dust_alloc(cpp11::list r_data, int step,
 }
 
 template <typename T>
-void dust_set_index(SEXP ptr, cpp11::integers r_index) {
+void dust_set_index(SEXP ptr, cpp11::sexp r_index) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   const size_t index_max = obj->n_state_full();
   const std::vector<size_t> index = r_index_to_index(r_index, index_max);
@@ -55,7 +55,7 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
   // succeeding on state).
   std::vector<size_t> step;
   if (r_step != R_NilValue) {
-    step = validate_size(cpp11::as_cpp<cpp11::integers>(r_step), "step");
+    step = validate_size(r_step, "step");
     if (!(step.size() == 1 || step.size() == obj->n_particles())) {
       cpp11::stop("Expected 'size' to be scalar or length %d",
                   obj->n_particles());
@@ -141,7 +141,7 @@ SEXP dust_state(SEXP ptr, SEXP r_index) {
   if (r_index == R_NilValue) {
     return dust_state_full(obj);
   } else {
-    return dust_state_select(obj, cpp11::as_cpp<cpp11::integers>(r_index));
+    return dust_state_select(obj, r_index);
   }
 }
 
@@ -158,12 +158,12 @@ SEXP dust_state_full(Dust<T> *obj) {
 }
 
 template <typename T>
-SEXP dust_state_select(Dust<T> *obj, cpp11::integers r_index) {
-  const size_t n_state = static_cast<size_t>(r_index.size());
-  const size_t n_particles = obj->n_particles();
-  const size_t len = n_state * n_particles;
+SEXP dust_state_select(Dust<T> *obj, cpp11::sexp r_index) {
   const size_t index_max = obj->n_state_full();
   const std::vector<size_t> index = r_index_to_index(r_index, index_max);
+  const size_t n_state = static_cast<size_t>(index.size());
+  const size_t n_particles = obj->n_particles();
+  const size_t len = n_state * n_particles;
 
   std::vector<typename T::real_t> dat(len);
   obj->state(index, dat);
@@ -178,14 +178,15 @@ size_t dust_step(SEXP ptr) {
 }
 
 template <typename T>
-void dust_reorder(SEXP ptr, cpp11::integers r_index) {
+void dust_reorder(SEXP ptr, cpp11::sexp r_index) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   size_t n = obj->n_particles();
-  if ((size_t)r_index.size() != obj->n_particles()) {
+  std::vector<size_t> index = r_index_to_index(r_index, n);
+  if ((size_t)index.size() != obj->n_particles()) {
     cpp11::stop("Expected a vector of length %d for 'index'", n);
   }
 
-  obj->reorder(r_index_to_index(r_index, n));
+  obj->reorder(index);
 }
 
 // Trivial default implementation of a method for getting back
@@ -201,13 +202,13 @@ inline void validate_size(int x, const char * name) {
   }
 }
 
-inline std::vector<size_t> validate_size(cpp11::integers r_x,
-                                         const char * name) {
-  const size_t n = static_cast<size_t>(r_x.size());
+inline std::vector<size_t> validate_size(cpp11::sexp r_x, const char * name) {
+  cpp11::integers r_xi = as_integer(r_x, name);
+  const size_t n = static_cast<size_t>(r_xi.size());
   std::vector<size_t> x;
   x.reserve(n);
   for (size_t i = 0; i < n; ++i) {
-    int el = r_x[i];
+    int el = r_xi[i];
     if (el < 0) {
       cpp11::stop("All elements of '%s' must be non-negative", name);
     }
@@ -216,13 +217,14 @@ inline std::vector<size_t> validate_size(cpp11::integers r_x,
   return x;
 }
 
-inline std::vector<size_t> r_index_to_index(cpp11::integers r_index,
+inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index,
                                             size_t nmax) {
-  const int n = r_index.size();
+  cpp11::integers r_index_int = as_integer(r_index, "index");
+  const int n = r_index_int.size();
   std::vector<size_t> index;
   index.reserve(n);
   for (int i = 0; i < n; ++i) {
-    int x = r_index[i];
+    int x = r_index_int[i];
     if (x < 1 || x > (int)nmax) {
       cpp11::stop("All elements of 'index' must lie in [1, %d]", nmax);
     }

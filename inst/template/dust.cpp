@@ -17,7 +17,7 @@ SEXP dust_{{name}}_run(SEXP ptr, size_t step_end) {
 
 [[cpp11::register]]
 SEXP dust_{{name}}_set_index(SEXP ptr, cpp11::sexp r_index) {
-  dust_set_index<{{type}}>(ptr, as_integer(r_index, "index"));
+  dust_set_index<{{type}}>(ptr, r_index);
   return R_NilValue;
 }
 
@@ -44,5 +44,5 @@ size_t dust_{{name}}_step(SEXP ptr) {
 
 [[cpp11::register]]
 void dust_{{name}}_reorder(SEXP ptr, cpp11::sexp r_index) {
-  return dust_reorder<{{type}}>(ptr, as_integer(r_index, "index"));
+  return dust_reorder<{{type}}>(ptr, r_index);
 }
