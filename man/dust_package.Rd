@@ -4,10 +4,13 @@
 \alias{dust_package}
 \title{Create dust model in package}
 \usage{
-dust_package(path)
+dust_package(path, quiet = FALSE)
 }
 \arguments{
 \item{path}{Path to the package}
+
+\item{quiet}{Passed to \code{cpp11::cpp_register}, if \code{TRUE} suppresses
+informational notices about updates to the cpp11 files}
 }
 \value{
 Nothing, this function is called for its side effects
@@ -24,7 +27,7 @@ functions such as \code{dust_model_alloc} - if your code also includes
 names such as this, compilation will fail due to duplicate
 symbols.
 
-We add "Rcpp attributes" to the created functions, and will run
-\code{\link{compileAttributes}} on them once the generated code
+We add "cpp11 attributes" to the created functions, and will run
+\code{\link{cpp_register}} on them once the generated code
 has been created.
 }

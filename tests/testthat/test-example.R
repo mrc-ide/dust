@@ -54,7 +54,7 @@ test_that("Basic sir model", {
                           quiet = TRUE)
 
   obj <- res$new(list(), 0, 100)
-  obj$set_index(1)
+  obj$set_index(1L)
 
   ans <- vector("list", 150)
   for (i in seq_along(ans)) {
@@ -78,10 +78,10 @@ test_that("Basic sir model", {
 
   s <- ans[[150]]$state
   expect_equal(obj$state(), s)
-  expect_equal(obj$state(1), s[1, , drop = FALSE])
+  expect_equal(obj$state(1L), s[1, , drop = FALSE])
   expect_equal(obj$state(3:1), s[3:1, , drop = FALSE])
-  expect_equal(obj$state(c(2, 2)), s[c(2, 2), , drop = FALSE])
-  expect_error(obj$state(0),
+  expect_equal(obj$state(c(2L, 2L)), s[c(2, 2), , drop = FALSE])
+  expect_error(obj$state(0L),
                "All elements of 'index' must lie in [1, 3]",
                fixed = TRUE)
   expect_error(obj$state(1:4),
@@ -220,9 +220,9 @@ test_that("validate reorder vector is correct length", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
                           quiet = TRUE)
   obj <- res$new(list(sd = 1), 0, 10)
-  expect_error(obj$reorder(integer(0)),
+  expect_error(obj$reorder(1L),
                "Expected a vector of length 10 for 'index'")
-  expect_error(obj$reorder(integer(100)),
+  expect_error(obj$reorder(rep(1L, 100)),
                "Expected a vector of length 10 for 'index'")
 })
 
@@ -287,14 +287,14 @@ test_that("Basic threading test", {
                           "myparallel", quiet = TRUE)
 
   obj <- res$new(list(sd = 1), 0, 10, n_threads = 2L)
-  obj$set_index(1)
+  obj$set_index(1L)
   y0 <- obj$state()
   y22_1 <- obj$run(5)
   y22_2 <- obj$state()
 
   ## And again without parallel
   obj <- res$new(list(sd = 1), 0, 10, n_threads = 1L)
-  obj$set_index(1)
+  obj$set_index(1L)
   y12_1 <- obj$run(5)
   y12_2 <- obj$state()
 
@@ -346,7 +346,7 @@ test_that("cache hits do not compile", {
 test_that("set model state and time, varying time", {
   res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
   mod <- res$new(list(len = 10), 0, 2)
-  m <- matrix(rep(1:2, each = 10), 10, 2)
+  m <- matrix(rep(as.numeric(1:2), each = 10), 10, 2)
   step <- 0:1
   mod$set_state(m, step)
   cmp <- dust_rng$new(1, 1)$rnorm(10, 0, 1)
@@ -362,7 +362,7 @@ test_that("set model state and time, constant time", {
   res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
   mod <- res$new(list(len = 10), 0, 2)
   m <- matrix(runif(20), 10, 2)
-  step <- 10
+  step <- 10L
   mod$set_state(m, step)
 
   state <- mod$state()
@@ -378,7 +378,7 @@ test_that("set model time but not state", {
   expect_equal(mod$step(), 0)
   expect_equal(mod$state(), matrix(1:10, 10, 2))
 
-  expect_null(mod$set_state(NULL, 10))
+  expect_null(mod$set_state(NULL, 10L))
   expect_equal(mod$step(), 10)
   expect_equal(mod$state(), matrix(1:10, 10, 2))
 })
@@ -392,11 +392,24 @@ test_that("NULL state leaves state untouched", {
   expect_equal(mod$state(), m)
   expect_equal(mod$step(), 0)
 
-  mod$set_state(NULL, 10)
+  mod$set_state(NULL, 10L)
   expect_equal(mod$state(), m)
   expect_equal(mod$step(), 10)
 
   mod$set_state(NULL, NULL)
   expect_equal(mod$state(), m)
   expect_equal(mod$step(), 10)
+})
+
+
+test_that("type coersion in setting index", {
+  res <- compile_and_load(dust_file("examples/sir.cpp"), "sir", "mysir",
+                          quiet = TRUE)
+  obj <- res$new(list(), 0, 100)
+  expect_null(obj$set_index(1L))
+  expect_null(obj$set_index(1))
+  expect_error(
+    obj$set_index(1.5),
+    "All elements of 'index' must be integer-like",
+    fixed = TRUE)
 })

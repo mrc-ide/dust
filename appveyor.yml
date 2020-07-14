@@ -14,16 +14,18 @@ cache:
   - C:\RLibrary
 
 environment:
-  NOT_CRAN: true
-  # env vars that may need to be set, at least temporarily, from time to time
-  # see https://github.com/krlmlr/r-appveyor#readme for details
-  # USE_RTOOLS: true
-  # R_REMOTES_STANDALONE: true
+  global:
+    R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
+    USE_RTOOLS: true
+    NOT_CRAN: true
 
 # Adapt as necessary starting from here
 
 build_script:
   - travis-tool.sh install_deps
+  - travis-tool.sh install_github r-lib/decor
+  - travis-tool.sh install_github r-lib/cpp11
+  - travis-tool.sh install_github r-lib/pkgbuild@cpp11
 
 test_script:
   - travis-tool.sh run_tests

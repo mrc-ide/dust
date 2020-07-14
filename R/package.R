@@ -8,16 +8,19 @@
 ##' names such as this, compilation will fail due to duplicate
 ##' symbols.
 ##'
-##' We add "Rcpp attributes" to the created functions, and will run
-##' \code{\link{compileAttributes}} on them once the generated code
+##' We add "cpp11 attributes" to the created functions, and will run
+##' \code{\link{cpp_register}} on them once the generated code
 ##' has been created.
 ##'
 ##' @param path Path to the package
 ##'
+##' @param quiet Passed to `cpp11::cpp_register`, if `TRUE` suppresses
+##'   informational notices about updates to the cpp11 files
+##'
 ##' @title Create dust model in package
 ##' @return Nothing, this function is called for its side effects
 ##' @export
-dust_package <- function(path) {
+dust_package <- function(path, quiet = FALSE) {
   ## 1. check that the package is legit
   root <- package_validate(path)
   path_dust <- file.path(root, "inst/dust")
@@ -60,7 +63,7 @@ dust_package <- function(path) {
   writeLines(code_r, file.path(path_r, "dust.R"))
 
   ## 5. compile attributes
-  Rcpp::compileAttributes(path)
+  cpp11::cpp_register(path, quiet = quiet)
 
   ## 6. return path, invisibly
   invisible(path)
@@ -77,8 +80,7 @@ package_validate <- function(path) {
 
   desc <- pkgload::pkg_desc(path)
   deps <- desc$get_deps()
-  package_validate_has_dep(deps, "Rcpp", "Imports")
-  package_validate_has_dep(deps, "Rcpp", "LinkingTo")
+  package_validate_has_dep(deps, "cpp11", "LinkingTo")
   package_validate_has_dep(deps, "dust", "LinkingTo")
 
   name <- desc$get_field("Package")
@@ -114,7 +116,6 @@ package_validate_destination <- function(path, files) {
 package_validate_namespace <- function(path, name) {
   exprs <- as.list(parse(path))
   package_validate_namespace_usedynlib(exprs, name)
-  package_validate_namespace_import(exprs)
 }
 
 
@@ -132,22 +133,6 @@ package_validate_namespace_usedynlib <- function(exprs, name) {
     }
   }
   stop("Did not find a useDynLib call in NAMESPACE")
-}
-
-
-package_validate_namespace_import <- function(exprs) {
-  for (e in exprs) {
-    if (is_call(e, "import") || is_call(e, "importFrom")) {
-      lib <- e[[2]]
-      if (is.name(lib)) {
-        lib <- deparse(lib)
-      }
-      if (identical(lib, "Rcpp")) {
-        return()
-      }
-    }
-  }
-  stop("Did not find an import or importFrom call to Rcpp in NAMESPACE")
 }
 
 

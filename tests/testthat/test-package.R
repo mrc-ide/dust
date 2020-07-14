@@ -30,15 +30,14 @@ test_that("validate package", {
 
 test_that("validate package dependencies", {
   deps <- data.frame(
-    type = c("LinkingTo", "LinkingTo", "Imports"),
-    package = c("Rcpp", "dust", "Rcpp"),
+    type = c("LinkingTo", "LinkingTo"),
+    package = c("cpp11", "dust"),
     version = "*",
     stringsAsFactors = FALSE)
-  expect_silent(package_validate_has_dep(deps, "Rcpp", "LinkingTo"))
-  expect_silent(package_validate_has_dep(deps, "Rcpp", "Imports"))
+  expect_silent(package_validate_has_dep(deps, "cpp11", "LinkingTo"))
   expect_error(
-    package_validate_has_dep(deps, "Rcpp", "Depends"),
-    "Expected package 'Rcpp' as 'Depends' in DESCRIPTION")
+    package_validate_has_dep(deps, "cpp11", "Depends"),
+    "Expected package 'cpp11' as 'Depends' in DESCRIPTION")
   expect_error(
     package_validate_has_dep(deps, "other", "Imports"),
     "Expected package 'other' as 'Imports' in DESCRIPTION")
@@ -136,27 +135,6 @@ test_that("Validate NAMESPACE has correct useDynLib call", {
   expect_error(
     package_validate_namespace(path_ns, "other"),
     "Did not find a useDynLib call in NAMESPACE")
-})
-
-
-test_that("Validate NAMESPACE has correct import call", {
-  path_ns <- tempfile()
-
-  f <- function(code) {
-    writeLines(c('useDynLib("pkg", .registration = TRUE)', code), path_ns)
-    package_validate_namespace(path_ns, "pkg")
-  }
-
-  expect_null(f("import(Rcpp)"))
-  expect_null(f("importFrom(Rcpp, evalCpp)"))
-  expect_null(f('import("Rcpp")'))
-  expect_null(f('import("Rcpp", "evalCpp")'))
-
-  expect_null(f(c("import(dust)", "import(Rcpp)")))
-
-  expect_error(
-    f("import(dust)"),
-    "Did not find an import or importFrom call to Rcpp in NAMESPACE")
 })
 
 

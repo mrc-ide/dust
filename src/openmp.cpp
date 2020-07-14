@@ -1,11 +1,12 @@
+#include "cpp11/list.hpp"
+#include "cpp11/list_of.hpp"
+
 #ifdef _OPENMP
 #include <omp.h>
 #endif
 
-#include <Rcpp.h>
-
-// [[Rcpp::export(rng = false, name = "cpp_openmp_info")]]
-Rcpp::List openmp_info() {
+[[cpp11::register]]
+cpp11::writable::list cpp_openmp_info() {
 #ifdef _OPENMP
   const int num_procs = omp_get_num_procs();
   const int max_threads = omp_get_max_threads();
@@ -21,11 +22,11 @@ Rcpp::List openmp_info() {
   static bool has_openmp = false;
   static bool has_monotonic = false;
 #endif
-  using Rcpp::_;
-  return Rcpp::List::create(_["num_procs"] = num_procs,
-                            _["max_threads"] = max_threads,
-                            _["thread_limit"] = thread_limit,
-                            _["openmp_version"] = openmp_version,
-                            _["has_openmp"] = has_openmp,
-                            _["has_monotonic"] = has_monotonic);
+  using namespace cpp11::literals;
+  return cpp11::writable::list({"num_procs"_nm = num_procs,
+                                "max_threads"_nm = max_threads,
+                                "thread_limit"_nm = thread_limit,
+                                "openmp_version"_nm = openmp_version,
+                                "has_openmp"_nm = has_openmp,
+                                "has_monotonic"_nm = has_monotonic});
 }

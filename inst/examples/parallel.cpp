@@ -39,9 +39,9 @@ private:
   init_t data_;
 };
 
-#include <Rcpp.h>
+#include <cpp11/list.hpp>
 template <>
-parallel::init_t dust_data<parallel>(Rcpp::List data) {
-  double sd = Rcpp::as<double>(data["sd"]);
+parallel::init_t dust_data<parallel>(cpp11::list data) {
+  parallel::real_t sd = cpp11::as_cpp<parallel::real_t>(data["sd"]);
   return parallel::init_t{sd};
 }

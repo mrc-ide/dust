@@ -73,24 +73,24 @@ the R API in any way as these functions will be called in
 parallel.
 
 You must also provide a data-wrangling function for producing an
-object of type \code{model::init_t} from an R list.  We use Rcpp for
+object of type \code{model::init_t} from an R list.  We use cpp11 for
 this.  Your function will look like:\preformatted{template <>
-model::init_t dust_data<model>(Rcpp::List data) \{
+model::init_t dust_data<model>(cpp11::list data) \{
   return ...;
 \}
 }
 
 With the body interacting with \code{data} to create an object of type
 \code{model::init_t} and returning it.  This function will be called
-in serial and may use anything in the Rcpp API.  All elements of
+in serial and may use anything in the cpp11 API.  All elements of
 the returned object must be standard C/C++ (e.g., STL) types and
-\emph{not} Rcpp types.
+\emph{not} cpp11/R types.
 
 Your model \emph{may} provided a template specialisation
-\verb{dust_data<model::init_t>()} returning a \code{Rcpp::RObject} for
+\verb{dust_data<model::init_t>()} returning a \code{cpp11::sexp} for
 returning arbitrary information back to the R session:\preformatted{template <>
-Rcpp::RObject dust_info<model>(const model::init_t& data) \{
-  return Rcpp::wrap(...);
+cpp11::sexp dust_info<model>(const model::init_t& data) \{
+  return cpp11::wrap(...);
 \}
 }
 

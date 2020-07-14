@@ -1,2 +1,1 @@
 useDynLib("{{base}}")
-import(Rcpp)

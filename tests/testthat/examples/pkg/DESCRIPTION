@@ -1,6 +1,5 @@
 Package: {{name}}
-LinkingTo: Rcpp, dust
-Imports: Rcpp
+LinkingTo: cpp11, dust
 Version: 0.0.1
 Authors@R: c(person("A", "Person", role = c("aut", "cre"),
                     email = "person@example.com"))

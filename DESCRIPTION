@@ -1,6 +1,6 @@
 Package: dust
 Title: Iterate Multiple Realisations of Stochastic Models
-Version: 0.1.5
+Version: 0.2.0
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     email = "rich.fitzjohn@gmail.com"),
              person("John", "Lees", role = "aut"),
@@ -10,19 +10,22 @@ Description: Fast and simple iteration of stochastic models. Designed
     to work as a component of a particle filter.
 URL: https://github.com/mrc-ide/dust
 BugReports: https://github.com/mrc-ide/dust/issues
+SystemRequirements: C++11
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Language: en-GB
 Imports:
     R6,
-    Rcpp,
+    cpp11,
     glue,
     pkgbuild
 LinkingTo:
-    Rcpp
+    cpp11
 Suggests:
     bench,
+    brio,
+    decor,
     fs,
     knitr,
     mockery,
