@@ -224,3 +224,23 @@ test_that("long jump", {
   expect_true(all(r2 != r4))
   expect_true(all(r3 != r4))
 })
+
+
+test_that("get state", {
+  seed <- 1
+  rng1 <- dust_rng$new(seed, 1L)
+  rng2 <- dust_rng$new(seed, 1L)
+  rng3 <- dust_rng$new(seed, 2L)
+
+  s1 <- rng1$state()
+  expect_type(s1, "raw")
+  expect_equal(length(s1), 32)
+
+  s2 <- rng2$state()
+  expect_identical(s2, s1)
+
+  s3 <- rng3$state()
+  expect_equal(length(s3), 64)
+  expect_identical(s3[seq_len(32)], s1)
+  expect_identical(s3[-seq_len(32)], rng2$jump()$state())
+})

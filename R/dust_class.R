@@ -120,5 +120,13 @@ dust_class <- R6::R6Class(
     ##' Only returns non-NULL if the model provides a `dust_info` template
     ##' specialisation.
     info = function() {
+    },
+
+    ##' @description
+    ##' Returns the state of the random number generator. This returns a
+    ##' raw vector of length 32 * n_particles. It is primarily intended for
+    ##' debugging as one cannot (yet) initialise a dust object with this
+    ##' state.
+    rng_state = function() {
     }
   ))

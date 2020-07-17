@@ -48,6 +48,10 @@ public:
     _generator.long_jump();
   }
 
+  void get_state(std::vector<uint64_t>& state) {
+    _generator.get_state(state);
+  }
+
 private:
   dust::Xoshiro<real_t> _generator;
 };
@@ -86,6 +90,15 @@ public:
     for (size_t i = 0; i < _rngs.size(); ++i) {
       _rngs[i].long_jump();
     }
+  }
+
+  std::vector<uint64_t> get_state() {
+    std::vector<uint64_t> state;
+    //state.reserve(size() * XOSHIRO_WIDTH);
+    for (size_t i = 0; i < size(); ++i) {
+      _rngs[i].get_state(state);
+    }
+    return state;
   }
 
 private:

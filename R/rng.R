@@ -120,6 +120,15 @@ dust_rng <- R6::R6Class(
     ##' @param lambda The mean (zero or more, length 1 or n)
     rpois = function(n, lambda) {
       dust_rng_rpois(private$ptr, n, recycle(lambda, n))
+    },
+
+    ##' @description
+    ##' Returns the state of the random number generator. This returns a
+    ##' raw vector of length 32 * n_generators. It is primarily intended for
+    ##' debugging as one cannot (yet) initialise a dust_rng object with this
+    ##' state.
+    state = function() {
+      dust_rng_state(private$ptr)
     }
   ))
 

@@ -205,6 +205,10 @@ public:
     return _particles.front().step();
   }
 
+  std::vector<uint64_t> rng_state() {
+    return _rng.get_state();
+  }
+
 private:
   std::vector<size_t> _index;
   const size_t _n_threads;

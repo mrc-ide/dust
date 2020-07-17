@@ -42,6 +42,7 @@ rng$rpois(5, 2)
 \item \href{#method-rnorm}{\code{dust_rng$rnorm()}}
 \item \href{#method-rbinom}{\code{dust_rng$rbinom()}}
 \item \href{#method-rpois}{\code{dust_rng$rpois()}}
+\item \href{#method-state}{\code{dust_rng$state()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -213,5 +214,18 @@ Generate \code{n} numbers from a Poisson distribution}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-state"></a>}}
+\if{latex}{\out{\hypertarget{method-state}{}}}
+\subsection{Method \code{state()}}{
+Returns the state of the random number generator. This returns a
+raw vector of length 32 * n_generators. It is primarily intended for
+debugging as one cannot (yet) initialise a dust_rng object with this
+state.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$state()}\if{html}{\out{</div>}}
+}
+
 }
 }

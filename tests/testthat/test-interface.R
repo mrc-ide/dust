@@ -136,3 +136,15 @@ test_that("validate package interface", {
                      formals(cmp$public_methods[[m]]))
   }
 })
+
+
+test_that("get rng state", {
+  seed <- 1
+  np <- 10
+  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
+                          quiet = TRUE)
+  obj <- res$new(list(sd = 1), 0L, np, seed = seed)
+  expect_identical(
+    obj$rng_state(),
+    dust_rng$new(seed, np)$state())
+})

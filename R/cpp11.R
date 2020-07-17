@@ -40,6 +40,10 @@ dust_rng_rpois <- function(ptr, n, lambda) {
   .Call("_dust_dust_rng_rpois", ptr, n, lambda)
 }
 
+dust_rng_state <- function(ptr) {
+  .Call("_dust_dust_rng_state", ptr)
+}
+
 cpp_openmp_info <- function() {
   .Call("_dust_cpp_openmp_info")
 }

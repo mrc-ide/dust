@@ -75,6 +75,13 @@ extern "C" SEXP _dust_dust_rng_rpois(SEXP ptr, SEXP n, SEXP lambda) {
     return cpp11::as_sexp(dust_rng_rpois(cpp11::unmove(cpp11::as_cpp<SEXP>(ptr)), cpp11::unmove(cpp11::as_cpp<int>(n)), cpp11::unmove(cpp11::as_cpp<std::vector<double>>(lambda))));
   END_CPP11
 }
+// dust_rng.cpp
+cpp11::writable::raws dust_rng_state(SEXP ptr);
+extern "C" SEXP _dust_dust_rng_state(SEXP ptr) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_rng_state(cpp11::unmove(cpp11::as_cpp<SEXP>(ptr))));
+  END_CPP11
+}
 // openmp.cpp
 cpp11::writable::list cpp_openmp_info();
 extern "C" SEXP _dust_cpp_openmp_info() {
@@ -95,6 +102,7 @@ extern SEXP _dust_dust_rng_rnorm(SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_rng_rpois(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_rng_runif(SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_rng_size(SEXP);
+extern SEXP _dust_dust_rng_state(SEXP);
 extern SEXP _dust_dust_rng_unif_rand(SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
@@ -108,6 +116,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_rng_rpois",     (DL_FUNC) &_dust_dust_rng_rpois,     3},
     {"_dust_dust_rng_runif",     (DL_FUNC) &_dust_dust_rng_runif,     4},
     {"_dust_dust_rng_size",      (DL_FUNC) &_dust_dust_rng_size,      1},
+    {"_dust_dust_rng_state",     (DL_FUNC) &_dust_dust_rng_state,     1},
     {"_dust_dust_rng_unif_rand", (DL_FUNC) &_dust_dust_rng_unif_rand, 2},
     {NULL, NULL, 0}
 };

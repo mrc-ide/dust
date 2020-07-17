@@ -42,6 +42,8 @@ public:
   void jump();
   void long_jump();
 
+  void get_state(std::vector<uint64_t>& state);
+
 private:
   static uint64_t splitmix64(uint64_t seed);
   uint64_t _state[XOSHIRO_WIDTH];
@@ -152,6 +154,13 @@ inline void Xoshiro<T>::long_jump() {
   _state[1] = s1;
   _state[2] = s2;
   _state[3] = s3;
+}
+
+template <typename T>
+inline void Xoshiro<T>::get_state(std::vector<uint64_t>& state) {
+  for (size_t i = 0; i < XOSHIRO_WIDTH; ++i) {
+    state.push_back(_state[i]);
+  }
 }
 
 }
