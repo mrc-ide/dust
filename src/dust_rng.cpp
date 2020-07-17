@@ -1,3 +1,4 @@
+#include <cstring>
 #include <cpp11/external_pointer.hpp>
 #include <cpp11/raws.hpp>
 #include <dust/rng.hpp>
@@ -106,6 +107,6 @@ cpp11::writable::raws dust_rng_state(SEXP ptr) {
   auto state = rng->get_state();
   size_t len = sizeof(uint64_t) * state.size();
   cpp11::writable::raws ret(len);
-  memcpy(RAW(ret), state.data(), len);
+  std::memcpy(RAW(ret), state.data(), len);
   return ret;
 }

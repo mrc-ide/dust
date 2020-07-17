@@ -1,3 +1,4 @@
+#include <cstring>
 #include <cpp11/doubles.hpp>
 #include <cpp11/external_pointer.hpp>
 #include <cpp11/integers.hpp>
@@ -196,7 +197,7 @@ SEXP dust_rng_state(SEXP ptr) {
   auto state = obj->rng_state();
   size_t len = sizeof(uint64_t) * state.size();
   cpp11::writable::raws ret(len);
-  memcpy(RAW(ret), state.data(), len);
+  std::memcpy(RAW(ret), state.data(), len);
   return ret;
 }
 
