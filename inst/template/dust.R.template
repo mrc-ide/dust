@@ -125,5 +125,11 @@
     ##' specialisation.
     info = function() {
       private$data
+    },
+
+    ##' @description
+    ##' Returns the state of the random number generator
+    rng_state = function() {
+      dust_{{name}}_rng_state(private$ptr)
     }
   ))

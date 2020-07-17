@@ -3,6 +3,7 @@
 #include <cpp11/integers.hpp>
 #include <cpp11/list.hpp>
 #include <cpp11/matrix.hpp>
+#include <cpp11/raws.hpp>
 #include <cpp11/strings.hpp>
 
 template <typename T>
@@ -187,6 +188,16 @@ void dust_reorder(SEXP ptr, cpp11::sexp r_index) {
   }
 
   obj->reorder(index);
+}
+
+template <typename T>
+SEXP dust_rng_state(SEXP ptr) {
+  Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  auto state = obj->rng_state();
+  size_t len = sizeof(uint64_t) * state.size();
+  cpp11::writable::raws ret(len);
+  memcpy(RAW(ret), state.data(), len);
+  return ret;
 }
 
 // Trivial default implementation of a method for getting back
