@@ -210,8 +210,7 @@ Generate \code{n} numbers from a Poisson distribution}
 \describe{
 \item{\code{n}}{Number of samples to draw}
 
-\item{\code{lambda}}{The mean (zero or more, length 1 or n)
-Dump the rng state}
+\item{\code{lambda}}{The mean (zero or more, length 1 or n)}
 }
 \if{html}{\out{</div>}}
 }
@@ -220,6 +219,10 @@ Dump the rng state}
 \if{html}{\out{<a id="method-state"></a>}}
 \if{latex}{\out{\hypertarget{method-state}{}}}
 \subsection{Method \code{state()}}{
+Returns the state of the random number generator. This returns a
+raw vector of length 32 * n_generators. It is primarily intended for
+debugging as one cannot (yet) initialise a dust_rng object with this
+state.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng$state()}\if{html}{\out{</div>}}
 }

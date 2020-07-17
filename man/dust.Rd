@@ -347,7 +347,10 @@ specialisation.
 \if{html}{\out{<a id="method-rng_state"></a>}}
 \if{latex}{\out{\hypertarget{method-rng_state}{}}}
 \subsection{Method \code{rng_state()}}{
-Returns the state of the random number generator
+Returns the state of the random number generator. This returns a
+raw vector of length 32 * n_particles. It is primarily intended for
+debugging as one cannot (yet) initialise a dust object with this
+state.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$rng_state()}\if{html}{\out{</div>}}
 }

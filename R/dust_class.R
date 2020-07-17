@@ -123,7 +123,10 @@ dust_class <- R6::R6Class(
     },
 
     ##' @description
-    ##' Returns the state of the random number generator
+    ##' Returns the state of the random number generator. This returns a
+    ##' raw vector of length 32 * n_particles. It is primarily intended for
+    ##' debugging as one cannot (yet) initialise a dust object with this
+    ##' state.
     rng_state = function() {
     }
   ))
