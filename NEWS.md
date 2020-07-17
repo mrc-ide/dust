@@ -1,3 +1,11 @@
+# dust 0.2.2
+
+* New `$rng_state()` method for getting the RNG state as a raw vector
+
+# dust 0.2.0
+
+* Use cpp11 as the backend (#22)
+
 # dust 0.1.5
 
 * Simpler RNG interface; we now always use as many RNG streams as there are particles (#51)
