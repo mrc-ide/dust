@@ -1,4 +1,5 @@
 #include <cpp11/external_pointer.hpp>
+#include <cpp11/raws.hpp>
 #include <dust/rng.hpp>
 
 typedef dust::pRNG<double, int> dust_rng_t;
@@ -96,4 +97,15 @@ std::vector<int>  dust_rng_rpois(SEXP ptr, int n,
     y[i] = rng->get(i % n_generators).rpois(lambda[i]);
   }
   return y;
+}
+
+
+[[cpp11::register]]
+cpp11::writable::raws dust_rng_state(SEXP ptr) {
+  dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
+  auto state = rng->get_state();
+  size_t len = sizeof(uint64_t) * state.size();
+  cpp11::writable::raws ret(len);
+  memcpy(RAW(ret), state.data(), len);
+  return ret;
 }

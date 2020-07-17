@@ -120,6 +120,11 @@ dust_rng <- R6::R6Class(
     ##' @param lambda The mean (zero or more, length 1 or n)
     rpois = function(n, lambda) {
       dust_rng_rpois(private$ptr, n, recycle(lambda, n))
+    },
+
+    ##' Dump the rng state
+    state = function() {
+      dust_rng_state(private$ptr)
     }
   ))
 
