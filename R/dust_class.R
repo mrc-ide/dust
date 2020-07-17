@@ -120,5 +120,10 @@ dust_class <- R6::R6Class(
     ##' Only returns non-NULL if the model provides a `dust_info` template
     ##' specialisation.
     info = function() {
+    },
+
+    ##' @description
+    ##' Returns the state of the random number generator
+    rng_state = function() {
     }
   ))

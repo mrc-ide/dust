@@ -149,6 +149,7 @@ obj$state()
 \item \href{#method-step}{\code{dust_class$step()}}
 \item \href{#method-reorder}{\code{dust_class$reorder()}}
 \item \href{#method-info}{\code{dust_class$info()}}
+\item \href{#method-rng_state}{\code{dust_class$rng_state()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -339,6 +340,16 @@ Only returns non-NULL if the model provides a \code{dust_info} template
 specialisation.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$info()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-rng_state"></a>}}
+\if{latex}{\out{\hypertarget{method-rng_state}{}}}
+\subsection{Method \code{rng_state()}}{
+Returns the state of the random number generator
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$rng_state()}\if{html}{\out{</div>}}
 }
 
 }
