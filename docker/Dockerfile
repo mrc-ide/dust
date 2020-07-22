@@ -10,7 +10,7 @@ RUN apt-get update &&  apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Without this, we are unable to pick up more recent packages
-COPY Rprofile.site /usr/local/lib/R/etc/Rprofile.site
+COPY docker/Rprofile.site /usr/local/lib/R/etc/Rprofile.site
 
 RUN install2.r --error \
         R6 \
