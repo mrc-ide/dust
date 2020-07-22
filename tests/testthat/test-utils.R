@@ -73,7 +73,8 @@ test_that("Can avoid debug in compile_dll", {
     compile_dll(path, compile_attributes, quiet))
 
   expect_equal(res[[1]], res[[2]])
-  expect_equal(dirname(res[[1]]), tempdir())
+  expect_equal(normalizePath(dirname(res[[1]])),
+               normalizePath(tempdir()))
 
   mockery::expect_called(mock_has_user_makevars, 1)
   mockery::expect_called(mock_compile_dll, 1)
