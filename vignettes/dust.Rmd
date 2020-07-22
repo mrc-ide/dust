@@ -318,7 +318,7 @@ matplot(time, state, type = "l", lty = 1, col = "#00000022",
         xlab = "Time", ylab = "Number infected (I)")
 ```
 
-You can also set the initial state to a range of different values. Suppose we set the initial number of infections to be poisson distributed with a mean of 10, we might write:
+You can also set the initial state to a range of different values. Suppose we set the initial number of infections to be Poisson distributed with a mean of 10, we might write:
 
 ```{r}
 I0 <- rpois(20, 10)

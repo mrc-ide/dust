@@ -34,7 +34,7 @@ dust_class <- R6::R6Class(
     ##' your model were compiled with OMP support (details to come).
     ##' `n_particles` should be a multiple of `n_threads` (e.g., if you use 8
     ##' threads, then you should have 8, 16, 24, etc particles). However, this
-    ##' is not compulsary.
+    ##' is not compulsory.
     ##'
     ##' @param seed Seed to use for the random number generator
     ##' (positive integer)
@@ -84,7 +84,7 @@ dust_class <- R6::R6Class(
     ##' @param step If not `NULL`, then this sets the initial step. If this
     ##' is a vector (with the same length as the number of particles), then
     ##' particles are started from different initial steps and run up to the
-    ##' larges step given (i.e., `max(step)`)
+    ##' largest step given (i.e., `max(step)`)
     set_state = function(state, step = NULL) {
     },
 

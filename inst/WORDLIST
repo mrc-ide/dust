@@ -1,4 +1,5 @@
 AppVeyor
+Benchmarking
 ClassGenerator
 CodeFactor
 OMP
@@ -12,11 +13,14 @@ Xoshiro
 api
 codecov
 const
+cpp
 etc
 io
 mcstate
 openmp
 rng
+src
 struct
+th
 typedefs
 unitless
