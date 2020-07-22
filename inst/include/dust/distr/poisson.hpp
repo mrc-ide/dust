@@ -6,9 +6,9 @@
 namespace dust {
 namespace distr {
 
-template <typename real_t, typename int_t, typename rng_t>
-int_t rpois(rng_t& generator, real_t lambda) {
-  int_t x = 0;
+template <typename real_t>
+int rpois(rng_state_t& rng_state, real_t lambda) {
+  int x = 0;
   if (lambda < 10) {
     // Knuth's algorithm for generating Poisson random variates.
     // Given a Poisson process, the time between events is exponentially
@@ -25,10 +25,10 @@ int_t rpois(rng_t& generator, real_t lambda) {
     // Keep trying until we surpass e^(-rate). This will take
     // expected time proportional to rate.
     while (true) {
-      real_t u = generator.unif_rand();
+      real_t u = dust::unif_rand<real_t>(rng_state);
       prod = prod * u;
       if (prod <= exp_neg_rate &&
-          x <= std::numeric_limits<int_t>::max()) {
+          x <= std::numeric_limits<int>::max()) {
         break;
       }
       x++;
@@ -70,15 +70,14 @@ int_t rpois(rng_t& generator, real_t lambda) {
     const real_t inv_alpha = 1.1239 + 1.1328 / (b - 3.4);
 
     while (true) {
-      real_t u = generator.unif_rand();
+      real_t u = dust::unif_rand<real_t>(rng_state);
       u -= 0.5;
-      real_t v = generator.unif_rand();
+      real_t v = dust::unif_rand<real_t>(rng_state);
 
       real_t u_shifted = 0.5 - std::fabs(u);
-      int_t k = floor((2 * a / u_shifted + b) * u + lambda +
-                      0.43);
+      int k = floor((2 * a / u_shifted + b) * u + lambda + 0.43);
 
-      if (k > std::numeric_limits<int_t>::max()) {
+      if (k > std::numeric_limits<int>::max()) {
         // retry in case of overflow.
         continue; // # nocov
       }

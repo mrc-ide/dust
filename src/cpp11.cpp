@@ -69,7 +69,7 @@ extern "C" SEXP _dust_dust_rng_rbinom(SEXP ptr, SEXP n, SEXP size, SEXP prob) {
   END_CPP11
 }
 // dust_rng.cpp
-std::vector<int>  dust_rng_rpois(SEXP ptr, int n, std::vector<double> lambda);
+std::vector<int> dust_rng_rpois(SEXP ptr, int n, std::vector<double> lambda);
 extern "C" SEXP _dust_dust_rng_rpois(SEXP ptr, SEXP n, SEXP lambda) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_rng_rpois(cpp11::unmove(cpp11::as_cpp<SEXP>(ptr)), cpp11::unmove(cpp11::as_cpp<int>(n)), cpp11::unmove(cpp11::as_cpp<std::vector<double>>(lambda))));
