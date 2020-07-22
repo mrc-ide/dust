@@ -9,6 +9,9 @@ RUN apt-get update &&  apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Without this, we are unable to pick up more recent packages
+COPY Rprofile.site /usr/local/lib/R/etc/Rprofile.site
+
 RUN install2.r --error \
         R6 \
         brio \
@@ -20,7 +23,3 @@ RUN install2.r --error \
         remotes \
         roxygen2 \
         testthat
-
-RUN installGithub.r \
-        r-lib/cpp11 \
-        r-lib/pkgbuild@cpp11
