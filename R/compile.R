@@ -21,7 +21,7 @@ compile_and_load <- function(filename, type, name, quiet = FALSE,
                              file.path(path, "src", "Makevars"))
 
     cpp11::cpp_register(path, quiet = quiet)
-    pkgbuild::compile_dll(path, compile_attributes = TRUE, quiet = quiet)
+    compile_dll(path, compile_attributes = TRUE, quiet = quiet)
     dll <- file.path(path, "src", paste0(base, .Platform$dynlib.ext))
     dyn.load(dll)
 
@@ -56,4 +56,26 @@ substitute_dust_template <- function(data, src, dest) {
 glue_whisker <- function(template, data) {
   glue::glue(template, .envir = data, .open = "{{", .close = "}}",
              .trim = FALSE)
+}
+
+
+## This is a workaround for pkgbuild wanting to build
+## debug/unoptimised dlls by default, unless the user has provided a
+## Makevars
+has_user_makevars <- function() {
+  length(environment(pkgbuild::compile_dll)$makevars_user()) > 0
+}
+
+
+compile_dll <- function(...) {
+  if (has_user_makevars()) {
+    pkgbuild::compile_dll(...)
+  } else {
+    makevars <- tempfile()
+    file.create(makevars)
+    on.exit(unlink(makevars))
+    withr::with_envvar(
+      c("R_MAKEVARS_USER" = makevars),
+      pkgbuild::compile_dll(...))
+  }
 }

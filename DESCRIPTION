@@ -19,7 +19,8 @@ Imports:
     R6,
     cpp11,
     glue,
-    pkgbuild
+    pkgbuild,
+    withr
 LinkingTo:
     cpp11
 Suggests:
@@ -31,8 +32,7 @@ Suggests:
     mockery,
     pkgload,
     rmarkdown,
-    testthat,
-    withr
+    testthat
 RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
