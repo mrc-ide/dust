@@ -17,3 +17,4 @@
 \.gcno$
 ^pkgdown$
 ^LICENSE\.md$
+^buildkite$
