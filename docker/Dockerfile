@@ -16,6 +16,7 @@ RUN install2.r --error \
         R6 \
         bench \
         brio \
+        cpp11 \
         decor \
         devtools \
         glue \
