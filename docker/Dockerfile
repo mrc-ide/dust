@@ -24,3 +24,5 @@ RUN install2.r --error \
         remotes \
         roxygen2 \
         testthat
+
+RUN R CMD INSTALL .
