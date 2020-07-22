@@ -25,4 +25,5 @@ RUN install2.r --error \
         roxygen2 \
         testthat
 
-RUN R CMD INSTALL .
+COPY . /src
+RUN R CMD INSTALL /src && rm -rf /src
