@@ -14,6 +14,7 @@ COPY docker/Rprofile.site /usr/local/lib/R/etc/Rprofile.site
 
 RUN install2.r --error \
         R6 \
+        bench \
         brio \
         decor \
         devtools \
