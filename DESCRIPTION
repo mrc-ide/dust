@@ -1,6 +1,6 @@
 Package: dust
 Title: Iterate Multiple Realisations of Stochastic Models
-Version: 0.2.2
+Version: 0.2.3
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     email = "rich.fitzjohn@gmail.com"),
              person("John", "Lees", role = "aut"),
@@ -19,7 +19,8 @@ Imports:
     R6,
     cpp11,
     glue,
-    pkgbuild
+    pkgbuild,
+    withr
 LinkingTo:
     cpp11
 Suggests:
@@ -31,8 +32,7 @@ Suggests:
     mockery,
     pkgload,
     rmarkdown,
-    testthat,
-    withr
+    testthat
 RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr

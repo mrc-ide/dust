@@ -9,9 +9,14 @@ RUN apt-get update &&  apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Without this, we are unable to pick up more recent packages
+COPY docker/Rprofile.site /usr/local/lib/R/etc/Rprofile.site
+
 RUN install2.r --error \
         R6 \
+        bench \
         brio \
+        cpp11 \
         decor \
         devtools \
         glue \
@@ -21,6 +26,5 @@ RUN install2.r --error \
         roxygen2 \
         testthat
 
-RUN installGithub.r \
-        r-lib/cpp11 \
-        r-lib/pkgbuild@cpp11
+COPY . /src
+RUN R CMD INSTALL /src && rm -rf /src
