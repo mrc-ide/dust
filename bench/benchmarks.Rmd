@@ -1,0 +1,121 @@
+---
+title: "benchmarks"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{benchmarks}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  error = FALSE,
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5)
+lang_output <- function(x, lang) {
+  cat(c(sprintf("```%s", lang), x, "```"), sep = "\n")
+}
+cc_output <- function(x) lang_output(x, "cc")
+r_output <- function(x) lang_output(x, "r")
+plain_output <- function(x) lang_output(x, "plain")
+```
+
+> Lies, damn lines, and benchmarks
+
+Benchmarking is very sensitive to *your* problem at hand.  The benchmarks here are designed to show performance of specific parts of `dust` under essentially ideal conditions.
+
+This is not a vignette for the package as it uses more packages than the package needs to depend on, and takes longer than ideal. Once we add the GPU-capable code, then it will be impossible to run on any CI system that we have access to, and certainly not on CRAN. It also uses more cores than we have access to on CRAN or any CI system (up to 32).
+
+## Simple model, performance across cores
+
+We use a SIRS model (Susceptible - Infected - Recovered - Susceptible), as unlike the SIR model there is no simple steady state (all R) and so we can easily run the model for longer:
+
+```{r sirs_code, results = "asis"}
+cc_output(readLines(dust:::dust_file("examples/sirs.cpp")))
+```
+
+We run `dust()` on this file to create our object (see `vignette("dust")` for details)
+
+```{r}
+path <- system.file("examples/sirs.cpp", package = "dust", mustWork = TRUE)
+gen <- dust::dust(path, quiet = TRUE)
+```
+
+The three axes we will vary here are
+
+* `n_particles`: the number of independent simulations
+* `n_steps`: how long the model runs for
+* `n_threads`: how many threads will work on the simulations
+
+In a perfect world, we'd expect computational cost to go up linearly with `n_particles` and `n_steps` and go down linearly with `n_threads`. We allow for the overhead of creating the object, and returning a full 3 * `n_particles` state matrix at the end of the simulation.
+
+```{r}
+test1 <- function(gen, n_particles, n_steps, n_threads = 1L) {
+  gen$new(list(), 0, n_particles, n_threads)$run(n_steps)
+}
+```
+
+First, varying the number of particles between 1 and 256:
+
+```{r}
+res <- bench::press(
+  n_particles = 2^(0:8),
+  n_steps = 1e4,
+  bench::mark(" " = test1(gen, n_particles, n_steps)))
+res[c("n_particles", "min", "median", "itr/sec")]
+```
+
+This shows, as we'd expect, that more particles costs more time in a roughly linear pattern. The range on the number of particles per second is low, and the order here is usually pretty stochastic, depending on what else is running on the system.
+
+```{r}
+par(mfrow = c(1, 2), mar = c(4.1, 4.1, 0.5, 0.5))
+plot(median ~ n_particles, res, log = "xy", las = 1, ylab = "Median time")
+plot(n_particles / min ~ n_particles, res, log = "x", las = 1,
+     ylab = "Rate (higher better)")
+```
+
+Next, varying the length of time we run for, and holding the number of particles constant:
+
+```{r}
+res <- bench::press(
+  n_particles = 32,
+  n_steps = 2^(6:13),
+  bench::mark(" " = test1(gen, n_particles, n_steps)))
+res[c("n_steps", "min", "median", "itr/sec")]
+```
+
+Again, this is linear in the number of steps, though there is drop off in the rate as the runs last longer. I am not currently sure why this is as I'd have thought that the relationship would be inverse (shorter runs suffering more overhead than longer ones).
+
+```{r}
+par(mfrow = c(1, 2), mar = c(4.1, 4.1, 0.5, 0.5))
+plot(median ~ n_steps, res, log = "xy", las = 1, ylab = "Median time")
+plot(I(n_steps * n_particles / 1000 / median) ~ n_steps, res,
+     log = "x", las = 1, ylab = "Rate (higher better)")
+```
+
+For one particle we do seem to see this:
+
+```{r}
+res <- bench::press(
+  n_particles = 1,
+  n_steps = 2^(6:13),
+  bench::mark(" " = test1(gen, n_particles, n_steps)))
+res[c("n_steps", "min", "median", "itr/sec")]
+par(mfrow = c(1, 2), mar = c(4.1, 4.1, 0.5, 0.5))
+plot(median ~ n_steps, res, log = "xy", las = 1, ylab = "Median time")
+plot(I(n_steps * n_particles / 1000 / median) ~ n_steps, res,
+     log = "x", las = 1, ylab = "Rate (higher better)")
+```
+
+Holding the number of particles and steps constant, how does adding more threads help? Note that this only helps as far as your system has cores available to you, and if dust has openmp support
+
+```{r}
+res <- bench::press(
+  n_particles = 128,
+  n_steps = 1000,
+  n_threads = 2^(0:5),
+  bench::mark(test1(gen, n_particles, n_steps, n_threads)))
+res[c("n_steps", "min", "median", "itr/sec")]
+```
