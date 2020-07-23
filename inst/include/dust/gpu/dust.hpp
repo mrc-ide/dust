@@ -18,13 +18,13 @@
 template <typename T>
 __global__
 void run_particles(T** models,
-                  real_t** particle_y,
-                  real_t** particle_y_swap,
-                  dust::RNGptr rng_state,
-                  size_t y_len,
-                  size_t n_particles,
-                  size_t step,
-                  size_t step_end) {
+                   real_t** particle_y,
+                   real_t** particle_y_swap,
+                   dust::RNGptr rng_state,
+                   size_t y_len,
+                   size_t n_particles,
+                   size_t step,
+                   size_t step_end) {
   int index = blockIdx.x * blockDim.x + threadIdx.x;
   int stride = blockDim.x * gridDim.x;
   for (int p_idx = index; p_idx < n_particles; p_idx += stride) {
