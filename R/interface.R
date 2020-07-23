@@ -101,6 +101,8 @@
 ##'   uses a temporary directory.  By using a different directory of
 ##'   your choosing you can see the generated code.
 ##'
+##' @param gpu Create GPU code
+##'
 ##' @export
 ##' @examples
 ##'
@@ -137,7 +139,7 @@
 ##' # See the state again
 ##' obj$state()
 dust <- function(filename, type = NULL, name = NULL, quiet = FALSE,
-                 workdir = NULL) {
+                 workdir = NULL, gpu = FALSE) {
   assert_file_exists(filename)
   if (is.null(type)) {
     type <- dust_guess_type(readLines(filename))
@@ -145,7 +147,7 @@ dust <- function(filename, type = NULL, name = NULL, quiet = FALSE,
   if (is.null(name)) {
     name <- type
   }
-  compile_and_load(filename, type, name, quiet, workdir)
+  compile_and_load(filename, type, name, quiet, workdir, gpu)
 }
 
 

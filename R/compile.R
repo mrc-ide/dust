@@ -1,4 +1,4 @@
-generate_dust <- function(filename, base, type, name, workdir = NULL) {
+generate_dust <- function(filename, base, type, name, gpu, workdir = NULL) {
   model <- read_lines(filename)
   data <- list(model = model, name = name, type = type, base = base,
                path_dust_include = dust_file("include"))
@@ -9,10 +9,19 @@ generate_dust <- function(filename, base, type, name, workdir = NULL) {
                            file.path(path, "DESCRIPTION"))
   substitute_dust_template(data, "NAMESPACE",
                            file.path(path, "NAMESPACE"))
-  substitute_dust_template(data, "dust.cpp",
-                           file.path(path, "src", "dust.cpp"))
-  substitute_dust_template(data, "Makevars",
-                           file.path(path, "src", "Makevars"))
+  if (gpu) {
+    substitute_dust_template(data, "gpu/dust.cu",
+                             file.path(path, "src", "dust.cu"))
+    substitute_dust_template(data, "gpu/dust.hpp",
+                             file.path(path, "src", "dust.hpp"))
+    substitute_dust_template(data, "gpu/Makevars",
+                             file.path(path, "src", "Makevars"))
+  } else {
+    substitute_dust_template(data, "dust.cpp",
+                             file.path(path, "src", "dust.cpp"))
+    substitute_dust_template(data, "Makevars",
+                             file.path(path, "src", "Makevars"))
+  }
 
   data$path <- path
   data
@@ -20,13 +29,16 @@ generate_dust <- function(filename, base, type, name, workdir = NULL) {
 
 
 compile_and_load <- function(filename, type, name, quiet = FALSE,
-                             workdir = NULL) {
+                             workdir = NULL, gpu = FALSE) {
   hash <- hash_file(filename)
   assert_valid_name(name)
+  if (gpu) {
+    name <- paste0(name, "_gpu")
+  }
   base <- sprintf("%s%s", name, hash)
 
   if (!base %in% names(cache)) {
-    data <- generate_dust(filename, base, type, name, workdir)
+    data <- generate_dust(filename, base, type, name, gpu, workdir)
 
     cpp11::cpp_register(data$path, quiet = quiet)
     compile_dll(data$path, compile_attributes = TRUE, quiet = quiet)
