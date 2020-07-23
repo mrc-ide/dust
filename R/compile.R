@@ -33,7 +33,7 @@ compile_and_load <- function(filename, type, name, quiet = FALSE,
   hash <- hash_file(filename)
   assert_valid_name(name)
   if (gpu) {
-    name <- paste0(name, "_gpu")
+    name <- paste0(name, "gpu")
   }
   base <- sprintf("%s%s", name, hash)
 
