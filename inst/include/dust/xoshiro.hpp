@@ -142,53 +142,6 @@ inline void xoshiro_long_jump(rng_state_t<T>& state) {
   state[3] = s3;
 }
 
-/*
-class Xoshiro {
-public:
-  // Definitions to satisfy interface of URNG in C++11
-  typedef uint64_t result_type;
-  static constexpr uint64_t min() {
-    return std::numeric_limits<uint64_t>::min();
-  }
-  static constexpr uint64_t max() {
-    return std::numeric_limits<uint64_t>::max();
-  }
-  uint64_t operator()() {
-    return xoshiro_next(_state);
-  }
-
-  Xoshiro(uint64_t seed) {
-    set_seed(seed);
-  }
-
-  // Change internal state
-  void set_seed(uint64_t seed) {
-    xoshiro_set_seed(_state, seed);
-  }
-
-  void jump() {
-    xoshiro_jump(_state);
-  }
-
-  void long_jump() {
-    xoshiro_long_jump(_state);
-  }
-
-  uint64_t* state() {
-    return _state.data();
-  }
-
-  void get_state(std::vector<uint64_t>& state) {
-    for (size_t i = 0; i < XOSHIRO_WIDTH; ++i) {
-      state.push_back(_state[i]);
-    }
-  }
-
-private:
-  std::array<uint64_t, 4> _state;
-};
-*/
-
 template <typename T, typename U = T>
 U unif_rand(rng_state_t<T>& state) {
   const uint64_t value = xoshiro_next(state);
