@@ -8,7 +8,7 @@ namespace distr {
 
 template <typename real_t>
 __device__
-inline void BoxMuller(RNGState& rng_state, real_t* d0, real_t* d1) {
+inline void box_muller(rng_state_t<real_t>& rng_state, real_t* d0, real_t* d1) {
   // This function implements the Box-Muller transform:
   // http://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform#Basic_form
   // Do not send a really small number to log().
@@ -27,10 +27,12 @@ inline void BoxMuller(RNGState& rng_state, real_t* d0, real_t* d1) {
 
 template <typename real_t>
 __device__
-inline real_t rnorm(RNGState& rng_state, real_t mean, real_t sd) {
+inline real_t rnorm(rng_state_t<real_t>& rng_state,
+                    typename rng_state_t<real_t>::real_t mean,
+                    typename rng_state_t<real_t>::real_t sd) {
   real_t r0, r1; // r1 currently thrown away
-  BoxMuller(rng_state, &r0, &r1);
-  return(r0 * sd + mean);
+  box_muller(rng_state, &r0, &r1);
+  return r0 * sd + mean;
 }
 
 // Device class which saves both values from the BoxMuller transform
@@ -42,7 +44,7 @@ class rnorm_buffer {
   rnorm_buffer() : _buffered(false) {}
 
   __device__
-  inline real_t operator()(RNGState& rng_state, real_t mean, real_t sd) {
+  inline real_t operator()(rng_state_t<real_t>& rng_state, real_t mean, real_t sd) {
     real_t z0;
     if (_buffered) {
       _buffered = false;

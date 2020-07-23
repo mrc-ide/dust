@@ -23,6 +23,9 @@ public:
     return ret;
   }
 
+#ifdef __NVCC__
+  __device__
+#endif
   void update(size_t step, const std::vector<real_t>& state,
               dust::rng_state_t<real_t>& rng_state,
               std::vector<real_t>& state_next) {

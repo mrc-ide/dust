@@ -6,10 +6,11 @@
 namespace dust {
 namespace distr {
 
-template <typename real_t, typename int_t>
+template <typename real_t>
 __device__
-int_t rpois(RNGState& rng_state, real_t lambda) {
-  int_t x = 0;
+int rpois(rng_state_t<real_t>& rng_state,
+          typename rng_state_t<real_t>::real_t lambda) {
+  int x = 0;
   if (lambda < 10) {
     // Knuth's algorithm for generating Poisson random variates.
     // Given a Poisson process, the time between events is exponentially
@@ -76,8 +77,7 @@ int_t rpois(RNGState& rng_state, real_t lambda) {
       real_t v = device_unif_rand(rng_state);
 
       real_t u_shifted = 0.5 - fabs(u);
-      int_t k = floor((2 * a / u_shifted + b) * u + lambda +
-                      0.43);
+      int k = floor((2 * a / u_shifted + b) * u + lambda + 0.43);
 
       if (k > INT_MAX) {
         // retry in case of overflow.

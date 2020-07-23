@@ -7,8 +7,8 @@ namespace dust {
 namespace distr {
 
 template <typename T>
-inline double binomial_inversion(rng_state_t<T>& rng_state,
-                                 double n, double prob) {
+double binomial_inversion(rng_state_t<T>& rng_state,
+                          double n, double prob) {
   double geom_sum = 0;
   double num_geom = 0;
 
@@ -116,10 +116,8 @@ int rbinom(rng_state_t<real_t>& rng_state, int n,
   }
 
   if (n * q >= 10) {
-    // Uses 256 random numbers
     draw = static_cast<int>(btrs(rng_state, n, q));
   } else {
-    // Uses 42 random numbers
     draw = static_cast<int>(binomial_inversion(rng_state, n, q));
   }
 

@@ -28,7 +28,7 @@ void run_particles(T** models,
   int index = blockIdx.x * blockDim.x + threadIdx.x;
   int stride = blockDim.x * gridDim.x;
   for (int p_idx = index; p_idx < n_particles; p_idx += stride) {
-    dust::RNGState rng = dust::loadRNG(rng_state, p_idx);
+    dust::rng_state_t<real_t> rng = dust::loadRNG<real_t>(rng_state, p_idx);
     int curr_step = step;
     while (curr_step < step_end) {
       // Run the model forward a step
@@ -350,6 +350,10 @@ public:
 
   size_t step() const {
     return _particles.front().step();
+  }
+
+  std::vector<uint64_t> rng_state() {
+    return _rng.export_state();
   }
 
 private:

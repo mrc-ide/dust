@@ -19,20 +19,27 @@
 
 namespace dust {
 
-struct RNGState {
+template <typename T>
+struct rng_state_t {
+  typedef T real_t;
+  static size_t size() {
+    return XOSHIRO_WIDTH;
+  }
   uint64_t s[XOSHIRO_WIDTH];
+  uint64_t& operator[](size_t i) {
+    return s[i];
+  }
 };
 
 __host__ __device__
 static inline uint64_t rotl(const uint64_t x, int k) {
-	return (x << k) | (x >> (64 - k));
+  return (x << k) | (x >> (64 - k));
 }
 
 // Call with non-interleaved state only
 __host__ __device__
-inline uint64_t gen_rand(uint64_t * state) {
+inline uint64_t xoshiro_next(uint64_t * state) {
   const uint64_t result = rotl(state[1] * 5, 7) * 9;
-  //printf("r:%lu s:%lu %lu %lu %lu\n", result, state[0], state[1], state[2], state[3]);
 
   const uint64_t t = state[1] << 17;
 
@@ -49,10 +56,12 @@ inline uint64_t gen_rand(uint64_t * state) {
 }
 
 __device__
-inline uint64_t gen_rand(RNGState& state) {
-  return gen_rand(state.s);
+template <typename T>
+inline uint64_t xoshiro_next(rng_state_t<T>& state) {
+  return xoshiro_next(state.state);
 }
 
+// TODO: this should come out at some point
 class Xoshiro {
 public:
   // Definitions to satisfy interface of URNG in C++11
@@ -67,15 +76,9 @@ public:
   }
 
   __host__
-  uint64_t operator()() { return(gen_rand(_state)); };
-
-  /*
-  __host__
-  T unif_rand() {
-    static std::uniform_real_distribution<T> unif_dist(0, 1);
-    return unif_dist(*this);
-  }
-  */
+  uint64_t operator()() {
+    return(xoshiro_next(_state));
+  };
 
   __host__
   Xoshiro(uint64_t seed);
@@ -92,7 +95,9 @@ public:
 
   // Get state
   __host__
-  uint64_t* get_rng_state() { return _state; }
+  uint64_t* get_rng_state() {
+    return _state;
+  }
 
 private:
   static uint64_t splitmix64(uint64_t seed);
@@ -100,14 +105,16 @@ private:
 };
 
 __device__
-inline double device_unif_rand(RNGState& state) {
+template <typename T>
+inline double device_unif_rand(rng_state_t<T>& state) {
   const double max_double_val = __ull2double_rn(UINT64_MAX);
-  double rand = (__ddiv_rn(__ull2double_rn(gen_rand(state)), max_double_val));
+  double rand = (__ddiv_rn(__ull2double_rn(xoshiro_next(state)), max_double_val));
   return rand;
 }
 
 __device__
-inline float device_unif_randf(RNGState& state) {
+template <typename T>
+inline float device_unif_randf(rng_state_t<T>& state) {
   return(__double2float_rn(device_unif_rand(state)));
 }
 

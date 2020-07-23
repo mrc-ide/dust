@@ -6,8 +6,10 @@
 namespace dust {
 namespace distr {
 
+template <typename T>
 __device__
-double binomial_inversion(double n, double prob, RNGState& rng_state) {
+double binomial_inversion(rng_state_t<T>& rng_state,
+                          double n, double prob) {
   double geom_sum = 0;
   double num_geom = 0;
 
@@ -36,16 +38,17 @@ inline double stirling_approx_tail(double k) {
   if (k <= 9) {
     tail = kTailValues[static_cast<int>(k)];
   } else {
-      double kp1sq = (k + 1) * (k + 1);
-      tail = (1.0 / 12 - (1.0 / 360 - 1.0 / 1260 / kp1sq) / kp1sq) / (k + 1);
+    double kp1sq = (k + 1) * (k + 1);
+    tail = (1.0 / 12 - (1.0 / 360 - 1.0 / 1260 / kp1sq) / kp1sq) / (k + 1);
   }
   __syncwarp();
-  return(tail);
+  return tail;
 }
 
 // https://www.tandfonline.com/doi/abs/10.1080/00949659308811496
+template <typename T>
 __device__
-inline double btrs(double n, double p, RNGState& rng_state) {
+inline double btrs(rng_state_t<T>& rng_state, double n, double p) {
   // This is spq in the paper.
   const double stddev = sqrt(n * p * (1 - p));
 
@@ -100,10 +103,11 @@ inline double btrs(double n, double p, RNGState& rng_state) {
   return draw;
 }
 
-template <typename real_t, typename int_t>
+template <typename real_t>
 __device__
-int_t rbinom(RNGState& rng_state, int_t n, real_t p) {
-  int_t draw;
+int rbinom(rng_state_t<real_t>& rng_state, int n,
+           typename rng_state_t<real_t>::real_t p) {
+  int draw;
 
   // Early exit:
   if (n == 0 || p == 0) {
@@ -127,9 +131,9 @@ int_t rbinom(RNGState& rng_state, int_t n, real_t p) {
   }
 
   if (n * q >= 10) {
-    draw = static_cast<int_t>(btrs(n, q, rng_state));
+    draw = static_cast<int>(btrs(rng_state, n, q));
   } else {
-    draw = static_cast<int_t>(binomial_inversion(n, q, rng_state));
+    draw = static_cast<int>(binomial_inversion(rng_state, n, q));
   }
   __syncwarp();
 
