@@ -130,7 +130,7 @@ model <- walk$new(list(sd = 1), 0, 20, n_threads = 1)
 model$run(100)
 ```
 
-We use as many random number generators as their are threads, so if you run fewer particles or more, increase the threads or decrease, the results will be the same.
+We use as many random number generators as there are particles, so if you run fewer particles or more, increase the threads or decrease, the results will be the same.
 
 ## A more interesting example
 
