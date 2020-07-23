@@ -112,7 +112,7 @@ inline double device_unif_rand(rng_state_t<T>& state) {
   return rand;
 }
 
-template <typename T>i
+template <typename T>
 __device__
 nline float device_unif_randf(rng_state_t<T>& state) {
   return(__double2float_rn(device_unif_rand(state)));
