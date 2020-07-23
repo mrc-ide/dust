@@ -24,3 +24,12 @@ create_test_package <- function(name = "pkg", path = tempfile()) {
 
   path
 }
+
+
+skip_if_no_gpu <- function() {
+  testthat::skip_on_travis()
+  testthat::skip_on_appveyor()
+  if (!nzchar(Sys.which("nvcc"))) {
+    testthat::skip("No nvcc found")
+  }
+}
