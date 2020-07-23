@@ -1,6 +1,5 @@
 class walk {
 public:
-  typedef int int_t;
   typedef double real_t;
   struct init_t {
     real_t sd;
@@ -15,9 +14,10 @@ public:
     return ret;
   }
   void update(size_t step, const std::vector<real_t>& state,
-              dust::RNG<real_t, int>& rng, std::vector<real_t>& state_next) {
+              dust::rng_state_t<real_t>& rng_state,
+              std::vector<real_t>& state_next) {
     real_t mean = state[0];
-    state_next[0] = rng.rnorm(mean, data_.sd);
+    state_next[0] = dust::distr::rnorm(rng_state, mean, data_.sd);
   }
 private:
   init_t data_;

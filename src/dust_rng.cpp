@@ -1,7 +1,7 @@
 #include <cstring>
 #include <cpp11/external_pointer.hpp>
 #include <cpp11/raws.hpp>
-#include <dust/rng2.hpp>
+#include <dust/rng.hpp>
 
 typedef dust::pRNG<double> dust_rng_t;
 typedef cpp11::external_pointer<dust_rng_t> dust_rng_ptr_t;
