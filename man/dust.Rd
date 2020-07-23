@@ -58,7 +58,9 @@ run.
 \item \verb{size_t step}: the step number
 \item \verb{const std::vector<real_t>& state}: the state at the beginning of the
 step
-\item \verb{dust::RNG<real_t, int_t>& rng}: the dust random number generator
+\item \verb{dust::rng_state_t<real_t>& rng_state}: the dust random number
+generator state - this \emph{must} be a reference, as it will be modified
+as random numbers are drawn
 \item \verb{std::vector<real_t>& state_next}: the end state of the model
 (to be written to by your function)
 }
