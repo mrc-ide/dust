@@ -59,7 +59,7 @@ public:
     _step = step;
   }
 
-  void set_state(const Particle<T> other) {
+  void set_state(const Particle<T>& other) {
     _y_swap = other._y;
   }
 
@@ -101,7 +101,12 @@ public:
     _index = index;
   }
 
-  // It's the callee's responsibility to ensure this is the correct length
+  // It's the callee's responsibility to ensure this is the correct length:
+  //
+  // * if is_matrix is false then state must be length n_state_full()
+  //   and all particles get the state
+  // * if is_matrix is true, state must be length (n_state_full() *
+  //   n_particles()) and every particle gets a different state.
   void set_state(const std::vector<real_t>& state, bool is_matrix) {
     const size_t n_particles = _particles.size();
     const size_t n_state = n_state_full();
@@ -133,14 +138,14 @@ public:
   }
 
   void run(const size_t step_end) {
-    #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#pragma omp parallel for schedule(static) num_threads(_n_threads)
     for (size_t i = 0; i < _particles.size(); ++i) {
       _particles[i].run(step_end, _rng.state(i));
     }
   }
 
   void state(std::vector<real_t>& end_state) const {
-    #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#pragma omp parallel for schedule(static) num_threads(_n_threads)
     for (size_t i = 0; i < _particles.size(); ++i) {
       _particles[i].state(_index, end_state.begin() + i * _index.size());
     }
@@ -148,7 +153,7 @@ public:
 
   void state(std::vector<size_t> index,
              std::vector<real_t>& end_state) const {
-    #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#pragma omp parallel for schedule(static) num_threads(_n_threads)
     for (size_t i = 0; i < _particles.size(); ++i) {
       _particles[i].state(index, end_state.begin() + i * index.size());
     }
@@ -156,7 +161,7 @@ public:
 
   void state_full(std::vector<real_t>& end_state) const {
     const size_t n = n_state_full();
-    #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#pragma omp parallel for schedule(static) num_threads(_n_threads)
     for (size_t i = 0; i < _particles.size(); ++i) {
       _particles[i].state_full(end_state.begin() + i * n);
     }
