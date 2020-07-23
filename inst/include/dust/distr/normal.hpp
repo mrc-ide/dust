@@ -23,8 +23,12 @@ inline real_t box_muller(rng_state_t<real_t>& rng_state) {
   return std::sqrt(-2.0 * std::log(u1)) * std::cos(two_pi * u2);
 }
 
+// The type declarations for mean and sd are ugly but prevent the
+// compiler complaining about conflicting inferred types for real_t
 template <typename real_t>
-real_t rnorm(rng_state_t<real_t>& rng_state, real_t mean, real_t sd) {
+real_t rnorm(rng_state_t<real_t>& rng_state,
+             typename rng_state_t<real_t>::real_t mean,
+             typename rng_state_t<real_t>::real_t sd) {
   real_t z = box_muller<real_t>(rng_state);
   return z * sd + mean;
 }

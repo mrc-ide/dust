@@ -13,7 +13,7 @@ inline double binomial_inversion(rng_state_t<T>& rng_state,
   double num_geom = 0;
 
   while (true) {
-    double r = dust::unif_rand(rng_state);
+    double r = dust::unif_rand<T, double>(rng_state);
     double geom = std::ceil(std::log(r) / std::log1p(-prob));
     geom_sum += geom;
     if (geom_sum > n) {
@@ -54,8 +54,8 @@ inline double btrs(rng_state_t<T>& rng_state, double n, double p) {
   const double m = std::floor((n + 1) * p);
 
   while (true) {
-    double u = dust::unif_rand(rng_state);
-    double v = dust::unif_rand(rng_state);
+    double u = dust::unif_rand<T, double>(rng_state);
+    double v = dust::unif_rand<T, double>(rng_state);
     u = u - 0.5;
     double us = 0.5 - std::fabs(u);
     double k = std::floor((2 * a / us + b) * u + c);

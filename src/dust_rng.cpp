@@ -48,7 +48,7 @@ std::vector<double> dust_rng_norm_rand(SEXP ptr, int n) {
   const size_t n_generators = rng->size();
   std::vector<double> y(n);
   for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::distr::rnorm<double>(rng->state(i % n_generators), 0, 1);
+    y[i] = dust::distr::rnorm(rng->state(i % n_generators), 0, 1);
   }
   return y;
 }

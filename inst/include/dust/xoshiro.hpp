@@ -189,10 +189,10 @@ private:
 };
 */
 
-template <typename real_t>
-real_t unif_rand(rng_state_t<real_t>& state) {
+template <typename T, typename U = T>
+U unif_rand(rng_state_t<T>& state) {
   const uint64_t value = xoshiro_next(state);
-  return real_t(value) / real_t(std::numeric_limits<uint64_t>::max());
+  return U(value) / U(std::numeric_limits<uint64_t>::max());
 }
 
 }
