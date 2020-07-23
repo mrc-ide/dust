@@ -1,6 +1,6 @@
 class sir {
 public:
-  typedef double real_t;
+  typedef float real_t;
   struct init_t {
     double S0;
     double I0;
