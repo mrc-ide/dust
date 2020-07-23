@@ -1,5 +1,5 @@
-#ifndef DUST_RNG2_HPP
-#define DUST_RNG2_HPP
+#ifndef DUST_RNG_HPP
+#define DUST_RNG_HPP
 
 #include "xoshiro.hpp"
 #include "distr/binomial.hpp"
