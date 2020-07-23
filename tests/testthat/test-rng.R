@@ -176,6 +176,17 @@ test_that("norm_rand agrees with rnorm", {
 })
 
 
+test_that("rnorm agrees with stats::rnorm", {
+  n <- 100000
+  mu <- exp(1)
+  sd <- pi
+  ans <- dust_rng$new(2, 1)$rnorm(n, mu, sd)
+  expect_equal(mean(ans), mu, tolerance = 1e-2)
+  expect_equal(sd(ans), sd, tolerance = 1e-2)
+  expect_gt(ks.test(ans, "pnorm", mu, sd)$p.value, 0.1)
+})
+
+
 test_that("continue stream", {
   rng1 <- dust_rng$new(1, 1L)
   rng2 <- dust_rng$new(1, 1L)
