@@ -178,7 +178,7 @@ private:
 template <typename real_t>
 real_t unif_rand(rng_state_t& state) {
   const uint64_t value = xoshiro_next(state);
-  return value / std::numeric_limits<uint64_t>::max();
+  return real_t(value) / real_t(std::numeric_limits<uint64_t>::max());
 }
 
 }

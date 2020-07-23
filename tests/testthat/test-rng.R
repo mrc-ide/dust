@@ -64,6 +64,16 @@ test_that("run uniform random numbers with odd bounds", {
 })
 
 
+test_that("distribution of uniform numbers", {
+  m <- 100000
+  a <- exp(1)
+  b <- pi
+  ans <- dust_rng$new(1, 1)$runif(m, a, b)
+  expect_equal(mean(ans), (a + b) / 2, tolerance = 1e-3)
+  expect_equal(var(ans), (b - a)^2 / 12, tolerance = 1e-2)
+})
+
+
 test_that("run binomial random numbers", {
   m <- 100000
   n <- 100L
