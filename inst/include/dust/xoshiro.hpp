@@ -27,14 +27,25 @@ constexpr size_t xoshiro_size() {
 // we could store it interleaved or adjacent. For now, let's use
 // adjacent. To do interleaved we just need to know the stride here,
 // so could store a struct with *uint64_t state and size_t stride
-typedef std::array<uint64_t, 4> rng_state_t;
+template <typename T>
+struct rng_state_t {
+  typedef T real_t;
+  static size_t size() {
+    return 4;
+  }
+  std::array<uint64_t, 4> state;
+  uint64_t& operator[](size_t i) {
+    return state[i];
+  }
+};
 
 static inline uint64_t rotl(const uint64_t x, int k) {
   return (x << k) | (x >> (64 - k));
 }
 
 // This is the core generator (next() in the original C code)
-inline uint64_t xoshiro_next(rng_state_t& state) {
+template <typename T>
+inline uint64_t xoshiro_next(rng_state_t<T>& state) {
   const uint64_t result = rotl(state[1] * 5, 7) * 9;
 
   const uint64_t t = state[1] << 17;
@@ -58,7 +69,8 @@ inline uint64_t splitmix64(uint64_t seed) {
   return z ^ (z >> 31);
 }
 
-inline void xoshiro_set_seed(rng_state_t& state, uint64_t seed) {
+template <typename T>
+inline void xoshiro_set_seed(rng_state_t<T>& state, uint64_t seed) {
   // normal brain: for i in 1:4
   // advanced brain: -funroll-loops
   // galaxy brain:
@@ -71,7 +83,8 @@ inline void xoshiro_set_seed(rng_state_t& state, uint64_t seed) {
 /* This is the jump function for the generator. It is equivalent
    to 2^128 calls to next(); it can be used to generate 2^128
    non-overlapping subsequences for parallel computations. */
-inline void xoshiro_jump(rng_state_t& state) {
+template <typename T>
+inline void xoshiro_jump(rng_state_t<T>& state) {
   static const uint64_t JUMP[] = { 0x180ec6d33cfd0aba, 0xd5a61266f0c9392c,
                                    0xa9582618e03fc9aa, 0x39abdc4529b1661c };
 
@@ -101,7 +114,8 @@ inline void xoshiro_jump(rng_state_t& state) {
    2^192 calls to next(); it can be used to generate 2^64 starting points,
    from each of which jump() will generate 2^64 non-overlapping
    subsequences for parallel distributed computations. */
-inline void xoshiro_long_jump(rng_state_t& state) {
+template <typename T>
+inline void xoshiro_long_jump(rng_state_t<T>& state) {
   static const uint64_t LONG_JUMP[] =
     { 0x76e15d3efefdcbbf, 0xc5004e441c522fb3,
       0x77710069854ee241, 0x39109bb02acbe635 };
@@ -176,7 +190,7 @@ private:
 */
 
 template <typename real_t>
-real_t unif_rand(rng_state_t& state) {
+real_t unif_rand(rng_state_t<real_t>& state) {
   const uint64_t value = xoshiro_next(state);
   return real_t(value) / real_t(std::numeric_limits<uint64_t>::max());
 }

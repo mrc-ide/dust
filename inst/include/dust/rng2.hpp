@@ -10,15 +10,17 @@
 namespace dust {
 
 // This is just a container class for state
+template <typename T>
 class pRNG { // # nocov
 public:
   pRNG(const size_t n, const uint64_t seed) {
-    rng_state_t s;
+    rng_state_t<T> s;
     xoshiro_set_seed(s, seed);
 
-    for (size_t i = 0; i < n; ++i) {
-      _state.push_back(s);
+    _state.push_back(s);
+    for (size_t i = 1; i < n; ++i) {
       xoshiro_jump(s);
+      _state.push_back(s);
     }
   }
 
@@ -38,7 +40,7 @@ public:
     }
   }
 
-  rng_state_t& state(size_t i) {
+  rng_state_t<T>& state(size_t i) {
     return _state[i];
   }
 
@@ -55,7 +57,7 @@ public:
   }
 
 private:
-  std::vector<rng_state_t> _state;
+  std::vector<rng_state_t<T>> _state;
 };
 
 }
