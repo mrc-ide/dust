@@ -37,7 +37,7 @@ void putRNG(rng_state_t<T>& rng, RNGptr& rng_state, int p_idx) {
   }
 }
 
-template <typename real_t, typename int_t>
+template <typename real_t>
 class pRNG { // # nocov
 public:
   pRNG(const size_t n, const uint64_t seed) {

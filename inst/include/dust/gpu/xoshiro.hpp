@@ -55,8 +55,8 @@ inline uint64_t xoshiro_next(uint64_t * state) {
   return result;
 }
 
-__device__
 template <typename T>
+__device__
 inline uint64_t xoshiro_next(rng_state_t<T>& state) {
   return xoshiro_next(state.state);
 }
@@ -104,17 +104,17 @@ private:
   uint64_t _state[XOSHIRO_WIDTH];
 };
 
-__device__
 template <typename T>
+__device__
 inline double device_unif_rand(rng_state_t<T>& state) {
   const double max_double_val = __ull2double_rn(UINT64_MAX);
   double rand = (__ddiv_rn(__ull2double_rn(xoshiro_next(state)), max_double_val));
   return rand;
 }
 
+template <typename T>i
 __device__
-template <typename T>
-inline float device_unif_randf(rng_state_t<T>& state) {
+nline float device_unif_randf(rng_state_t<T>& state) {
   return(__double2float_rn(device_unif_rand(state)));
 }
 
