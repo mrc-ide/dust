@@ -64,6 +64,16 @@ test_that("run uniform random numbers with odd bounds", {
 })
 
 
+test_that("distribution of uniform numbers", {
+  m <- 100000
+  a <- exp(1)
+  b <- pi
+  ans <- dust_rng$new(1, 1)$runif(m, a, b)
+  expect_equal(mean(ans), (a + b) / 2, tolerance = 1e-3)
+  expect_equal(var(ans), (b - a)^2 / 12, tolerance = 1e-2)
+})
+
+
 test_that("run binomial random numbers", {
   m <- 100000
   n <- 100L
@@ -163,6 +173,17 @@ test_that("norm_rand agrees with rnorm", {
   expect_equal(mean(ans), 0, tolerance = 1e-2)
   expect_equal(var(ans), 1, tolerance = 1e-2)
   expect_gt(ks.test(ans, "pnorm")$p.value, 0.1)
+})
+
+
+test_that("rnorm agrees with stats::rnorm", {
+  n <- 100000
+  mu <- exp(1)
+  sd <- pi
+  ans <- dust_rng$new(2, 1)$rnorm(n, mu, sd)
+  expect_equal(mean(ans), mu, tolerance = 1e-2)
+  expect_equal(sd(ans), sd, tolerance = 1e-2)
+  expect_gt(ks.test(ans, "pnorm", mu, sd)$p.value, 0.1)
 })
 
 

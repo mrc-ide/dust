@@ -25,9 +25,10 @@ public:
     return ret;
   }
   void update(size_t step, const std::vector<double>& state,
-              dust::RNG<double, int>& rng, std::vector<double>& state_next) {
+              dust::rng_state_t<real_t>& rng_state,
+              std::vector<real_t>& state_next) {
     double mean = state[0];
-    state_next[0] = rng.rnorm(mean, data_.sd);
+    state_next[0] = dust::distr::rnorm(rng_state, mean, data_.sd);
 #ifdef _OPENMP
     state_next[1] = (double) omp_get_thread_num();
 #else

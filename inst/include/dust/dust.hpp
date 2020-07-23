@@ -13,9 +13,7 @@ template <typename T>
 class Particle {
 public:
   typedef typename T::init_t init_t;
-  typedef typename T::int_t int_t;
   typedef typename T::real_t real_t;
-  typedef typename dust::RNG<real_t, int_t> rng_t;
 
   Particle(init_t data, size_t step) :
     _model(data),
@@ -24,9 +22,9 @@ public:
     _y_swap(_model.size()) {
   }
 
-  void run(const size_t step_end, rng_t& rng) {
+  void run(const size_t step_end, dust::rng_state_t<real_t>& rng_state) {
     while (_step < step_end) {
-      _model.update(_step, _y, rng, _y_swap);
+      _model.update(_step, _y, rng_state, _y_swap);
       _step++;
       std::swap(_y, _y_swap);
     }
@@ -83,9 +81,7 @@ template <typename T>
 class Dust {
 public:
   typedef typename T::init_t init_t;
-  typedef typename T::int_t int_t;
   typedef typename T::real_t real_t;
-  typedef typename dust::RNG<real_t, int_t> rng_t;
 
   Dust(const init_t data, const size_t step, const size_t n_particles,
        const size_t n_threads, const size_t seed) :
@@ -139,7 +135,7 @@ public:
   void run(const size_t step_end) {
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
     for (size_t i = 0; i < _particles.size(); ++i) {
-      _particles[i].run(step_end, _rng(i));
+      _particles[i].run(step_end, _rng.state(i));
     }
   }
 
@@ -206,13 +202,13 @@ public:
   }
 
   std::vector<uint64_t> rng_state() {
-    return _rng.get_state();
+    return _rng.export_state();
   }
 
 private:
   std::vector<size_t> _index;
   const size_t _n_threads;
-  dust::pRNG<real_t, int_t> _rng;
+  dust::pRNG<real_t> _rng;
   std::vector<Particle<T>> _particles;
 
   void initialise(const init_t data, const size_t step,

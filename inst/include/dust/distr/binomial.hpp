@@ -6,13 +6,14 @@
 namespace dust {
 namespace distr {
 
-template <typename rng_t>
-double binomial_inversion(double n, double prob, rng_t& generator) {
+template <typename T>
+inline double binomial_inversion(rng_state_t<T>& rng_state,
+                                 double n, double prob) {
   double geom_sum = 0;
   double num_geom = 0;
 
   while (true) {
-    double r = generator.unif_rand();
+    double r = dust::unif_rand<T, double>(rng_state);
     double geom = std::ceil(std::log(r) / std::log1p(-prob));
     geom_sum += geom;
     if (geom_sum > n) {
@@ -37,8 +38,8 @@ inline double stirling_approx_tail(double k) {
 }
 
 // https://www.tandfonline.com/doi/abs/10.1080/00949659308811496
-template <typename rng_t>
-inline double btrs(double n, double p, rng_t& generator) {
+template <typename T>
+inline double btrs(rng_state_t<T>& rng_state, double n, double p) {
   // This is spq in the paper.
   const double stddev = std::sqrt(n * p * (1 - p));
 
@@ -53,8 +54,8 @@ inline double btrs(double n, double p, rng_t& generator) {
   const double m = std::floor((n + 1) * p);
 
   while (true) {
-    double u = generator.unif_rand();
-    double v = generator.unif_rand();
+    double u = dust::unif_rand<T, double>(rng_state);
+    double v = dust::unif_rand<T, double>(rng_state);
     u = u - 0.5;
     double us = 0.5 - std::fabs(u);
     double k = std::floor((2 * a / us + b) * u + c);
@@ -88,9 +89,10 @@ inline double btrs(double n, double p, rng_t& generator) {
   }
 }
 
-template <typename real_t, typename int_t, typename rng_t>
-int_t rbinom(rng_t& generator, int_t n, real_t p) {
-  int_t draw;
+template <typename real_t>
+int rbinom(rng_state_t<real_t>& rng_state, int n,
+           typename rng_state_t<real_t>::real_t p) {
+  int draw;
 
   // Early exit:
   if (n == 0 || p == 0) {
@@ -115,10 +117,10 @@ int_t rbinom(rng_t& generator, int_t n, real_t p) {
 
   if (n * q >= 10) {
     // Uses 256 random numbers
-    draw = static_cast<int_t>(btrs(n, q, generator));
+    draw = static_cast<int>(btrs(rng_state, n, q));
   } else {
     // Uses 42 random numbers
-    draw = static_cast<int_t>(binomial_inversion(n, q, generator));
+    draw = static_cast<int>(binomial_inversion(rng_state, n, q));
   }
 
   if (p > 0.5) {

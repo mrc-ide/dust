@@ -23,8 +23,9 @@ public:
     return ret;
   }
 
-  void update(size_t step, const std::vector<double> state,
-              dust::RNG<double, int>& rng, std::vector<double>& state_next) {
+  void update(size_t step, const std::vector<real_t>& state,
+              dust::rng_state_t<real_t>& rng_state,
+              std::vector<real_t>& state_next) {
     double S = state[0];
     double I = state[1];
     double R = state[2];
@@ -32,8 +33,8 @@ public:
 
     double p_SI = 1 - std::exp(-(data_.beta) * I / N);
     double p_IR = 1 - std::exp(-(data_.gamma));
-    double n_IR = rng.rbinom(round(I), p_IR * data_.dt);
-    double n_SI = rng.rbinom(round(S), p_SI * data_.dt);
+    double n_IR = dust::distr::rbinom(rng_state, I, p_IR * data_.dt);
+    double n_SI = dust::distr::rbinom(rng_state, S, p_SI * data_.dt);
 
     state_next[0] = S - n_SI;
     state_next[1] = I + n_SI - n_IR;

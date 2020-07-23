@@ -1,108 +1,63 @@
 #ifndef DUST_RNG_HPP
 #define DUST_RNG_HPP
 
-#include <random>
-#include <dust/xoshiro.hpp>
-#include <dust/distr/binomial.hpp>
-#include <dust/distr/poisson.hpp>
+#include "xoshiro.hpp"
+#include "distr/binomial.hpp"
+#include "distr/normal.hpp"
+#include "distr/poisson.hpp"
+#include "distr/uniform.hpp"
 
 namespace dust {
 
-template <typename real_t, typename int_t>
-class RNG {
-public:
-  RNG(dust::Xoshiro<real_t> generator) : _generator(generator) {}
-
-  real_t unif_rand() {
-    return _generator.unif_rand();
-  }
-
-  real_t norm_rand() {
-    static std::normal_distribution<real_t> norm(0, 1);
-    return norm(_generator);
-  }
-
-  real_t runif(real_t min, real_t max) {
-    std::uniform_real_distribution<real_t> unif_dist(min, max);
-    return unif_dist(_generator);
-  }
-
-  real_t rnorm(real_t mean, real_t sd) {
-    std::normal_distribution<real_t> norm(mean, sd);
-    return norm(_generator);
-  }
-
-  int_t rbinom(int_t size, real_t prob) {
-    return dust::distr::rbinom<real_t, int_t>(_generator, size, prob);
-  }
-
-  int_t rpois(real_t lambda) {
-    return dust::distr::rpois<real_t, int_t>(_generator, lambda);
-  }
-
-  void jump() {
-    _generator.jump();
-  }
-
-  void long_jump() {
-    _generator.long_jump();
-  }
-
-  void get_state(std::vector<uint64_t>& state) {
-    _generator.get_state(state);
-  }
-
-private:
-  dust::Xoshiro<real_t> _generator;
-};
-
-
-template <typename real_t, typename int_t>
+// This is just a container class for state
+template <typename T>
 class pRNG { // # nocov
 public:
   pRNG(const size_t n, const uint64_t seed) {
-    dust::Xoshiro<real_t> rng(seed);
-    for (size_t i = 0; i < n; ++i) {
-      _rngs.push_back(RNG<real_t, int_t>(rng));
-      rng.jump();
+    rng_state_t<T> s;
+    xoshiro_set_seed(s, seed);
+
+    _state.push_back(s);
+    for (size_t i = 1; i < n; ++i) {
+      xoshiro_jump(s);
+      _state.push_back(s);
     }
   }
 
-  RNG<real_t, int_t>& operator()(size_t index) {
-    return get(index);
-  }
-
-  RNG<real_t, int_t>& get(size_t index) {
-    return _rngs[index];
-  }
-
   size_t size() const {
-    return _rngs.size();
+    return _state.size();
   }
 
   void jump() {
-    for (size_t i = 0; i < _rngs.size(); ++i) {
-      _rngs[i].jump();
+    for (size_t i = 0; i < _state.size(); ++i) {
+      xoshiro_jump(_state[i]);
     }
   }
 
   void long_jump() {
-    for (size_t i = 0; i < _rngs.size(); ++i) {
-      _rngs[i].long_jump();
+    for (size_t i = 0; i < _state.size(); ++i) {
+      xoshiro_long_jump(_state[i]);
     }
   }
 
-  std::vector<uint64_t> get_state() {
+  rng_state_t<T>& state(size_t i) {
+    return _state[i];
+  }
+
+  std::vector<uint64_t> export_state() {
     std::vector<uint64_t> state;
-    //state.reserve(size() * XOSHIRO_WIDTH);
+    const size_t n = rng_state_t<T>::size();
+    state.reserve(size() * n);
     for (size_t i = 0; i < size(); ++i) {
-      _rngs[i].get_state(state);
+      for (size_t j = 0; j < n; ++j) {
+        state.push_back(_state[i][j]);
+      }
     }
     return state;
   }
 
 private:
-  std::vector<RNG<real_t, int_t>> _rngs;
+  std::vector<rng_state_t<T>> _state;
 };
 
 }
