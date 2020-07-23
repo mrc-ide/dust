@@ -15,6 +15,7 @@
 // TODO: For reasons unknown, this does not get found on raplab
 // #include <cub/device/device_select.cuh>
 
+template <typename T>
 __global__
 void run_particles(T** models,
                   real_t** particle_y,
