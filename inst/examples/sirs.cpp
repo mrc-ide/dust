@@ -28,6 +28,7 @@ public:
   }
 
 #ifdef __NVCC__
+  __device__
   void update(size_t step, const real_t * state,
               dust::rng_state_t<real_t>& rng_state,
               real_t * state_next) {
