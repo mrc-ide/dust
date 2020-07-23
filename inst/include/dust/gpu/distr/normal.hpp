@@ -50,7 +50,7 @@ class rnorm_buffer {
       _buffered = false;
       z0 = result[1];
     } else {
-      BoxMuller<real_t>(rng_state, &result[0], &result[1]);
+      box_muller<real_t>(rng_state, &result[0], &result[1]);
       _buffered = true;
       z0 = result[0];
     }
