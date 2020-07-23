@@ -7,7 +7,8 @@ namespace dust {
 namespace distr {
 
 template <typename real_t>
-int rpois(rng_state_t<real_t>& rng_state, real_t lambda) {
+int rpois(rng_state_t<real_t>& rng_state,
+          typename rng_state_t<real_t>::real_t lambda) {
   int x = 0;
   if (lambda < 10) {
     // Knuth's algorithm for generating Poisson random variates.
