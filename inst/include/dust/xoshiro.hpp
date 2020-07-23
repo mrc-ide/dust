@@ -15,13 +15,7 @@
 // MD5 (splitmix64.c) = 7e38529aa7bb36624ae4a9d6808e7e3f
 // MD5 (xoshiro256starstar.c) = 05f9ecd49bbed98304d982313c91d0f6
 
-#define XOSHIRO_WIDTH 4
-
 namespace dust {
-
-constexpr size_t xoshiro_size() {
-  return 4;
-}
 
 // It is not really clear what the best way of storing the state is;
 // we could store it interleaved or adjacent. For now, let's use

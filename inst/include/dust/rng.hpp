@@ -46,7 +46,7 @@ public:
 
   std::vector<uint64_t> export_state() {
     std::vector<uint64_t> state;
-    const size_t n = xoshiro_size();
+    const size_t n = rng_state_t<T>::size();
     state.reserve(size() * n);
     for (size_t i = 0; i < size(); ++i) {
       for (size_t j = 0; j < n; ++j) {
