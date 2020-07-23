@@ -1,3 +1,7 @@
+# dust 0.3.0
+
+* Overhaul of the RNG interface, where we now pass state and use free functions; this is needed to support future development work (#60)
+
 # dust 0.2.2
 
 * New `$rng_state()` method for getting the RNG state as a raw vector
