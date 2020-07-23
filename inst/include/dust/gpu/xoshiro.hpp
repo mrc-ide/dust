@@ -58,7 +58,7 @@ inline uint64_t xoshiro_next(uint64_t * state) {
 template <typename T>
 __device__
 inline uint64_t xoshiro_next(rng_state_t<T>& state) {
-  return xoshiro_next(state.state);
+  return xoshiro_next(state.s);
 }
 
 // TODO: this should come out at some point
