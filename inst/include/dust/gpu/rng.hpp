@@ -18,22 +18,22 @@ struct RNGptr {
 // Read state from global memory
 template <typename T>
 __device__
-rng_state_t<T> loadRNG(RNGptr& rng_state, int p_idx) {
-  rng_state_t<T> state;
+rng_state_t<T> loadRNG(RNGptr& d_rng_state, int p_idx) {
+  rng_state_t<T> rng_state;
   for (int i = 0; i < XOSHIRO_WIDTH; i++) {
-    state.s[i] = rng_state.state_ptr[p_idx * rng_state.particle_stride +
-                                     i * rng_state.state_stride];
+    int j = p_idx * d_rng_state.particle_stride + i * d_rng_state.state_stride;
+    state.s[i] = d_rng_state.state_ptr[j];
   }
-  return state;
+  return rng_state;
 }
 
 // Write state into global memory
 template <typename T>
 __device__
-void putRNG(rng_state_t<T>& rng, RNGptr& rng_state, int p_idx) {
+void putRNG(rng_state_t<T>& rng, RNGptr& d_rng_state, int p_idx) {
   for (int i = 0; i < XOSHIRO_WIDTH; i++) {
-    rng_state.state_ptr[p_idx * rng_state.particle_stride +
-                        i * rng_state.state_stride] = rng.s[i];
+    int j = p_idx * d_rng_state.particle_stride + i * d_rng_state.state_stride;
+    d_rng_state.state_ptr[j] = rng_state.s[i];
   }
 }
 
