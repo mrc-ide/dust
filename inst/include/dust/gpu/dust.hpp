@@ -127,7 +127,7 @@ public:
   // object) which does not change
   void state(const bool * index,
              real_t * device_out,
-             real_t * device_tmp,
+             void * device_tmp,
              size_t tmp_bytes,
              const size_t index_size,
              real_t * end_state) {
@@ -398,7 +398,8 @@ private:
   real_t** _particle_y_addrs;
   real_t** _particle_y_swap_addrs;
   bool* _d_index;
-  real_t *_d_y_out, *_d_tmp;
+  real_t* _d_y_out;
+  void* _d_tmp;
   size_t _temp_storage_bytes;
 
   void initialise(const init_t data, const size_t step,
