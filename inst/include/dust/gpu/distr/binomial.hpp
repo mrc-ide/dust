@@ -22,8 +22,7 @@ double binomial_inversion(rng_state_t<T>& rng_state,
     }
     ++num_geom;
   }
-  __syncwarp(); // CHECK: ok to call this here, when some threads in warp
-                // may be on the btrs path?
+  __syncwarp();
   return num_geom;
 }
 
