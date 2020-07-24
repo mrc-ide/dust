@@ -1,14 +1,29 @@
-generate_dust <- function(filename, base, type, name, gpu, workdir = NULL) {
+generate_dust <- function(filename, type, name, gpu, quiet, workdir, cache) {
+  hash <- hash_file(filename)
+  if (gpu) {
+    name <- paste0(name, "gpu")
+  }
+  base <- sprintf("%s%s", name, hash)
+
+  if (base %in% names(cache)) {
+    return(cache[[base]])
+  }
+
+  assert_valid_name(name)
   model <- read_lines(filename)
   data <- list(model = model, name = name, type = type, base = base,
                path_dust_include = dust_file("include"))
 
   path <- dust_workdir(workdir)
+  dir.create(file.path(path, "R"), FALSE, TRUE)
   dir.create(file.path(path, "src"), FALSE, TRUE)
+
   substitute_dust_template(data, "DESCRIPTION",
                            file.path(path, "DESCRIPTION"))
   substitute_dust_template(data, "NAMESPACE",
                            file.path(path, "NAMESPACE"))
+  substitute_dust_template(data, "dust.R.template",
+                           file.path(path, "R/dust.R"))
   if (gpu) {
     substitute_dust_template(data, "gpu/dust.cu",
                              file.path(path, "src", "dust.cu"))
@@ -23,41 +38,37 @@ generate_dust <- function(filename, base, type, name, gpu, workdir = NULL) {
                              file.path(path, "src", "Makevars"))
   }
 
-  data$path <- path
-  data
+  cpp11::cpp_register(path, quiet = quiet)
+
+  res <- list(key = base, data = data, path = path)
+  cache[[res$key]] <- res
+  res
 }
 
 
 compile_and_load <- function(filename, type, name, quiet = FALSE,
                              workdir = NULL, gpu = FALSE) {
-  hash <- hash_file(filename)
-  assert_valid_name(name)
-  if (gpu) {
-    name <- paste0(name, "gpu")
-  }
-  base <- sprintf("%s%s", name, hash)
+  res <- generate_dust(filename, type, name, gpu, quiet, workdir, cache)
 
-  if (!base %in% names(cache)) {
-    data <- generate_dust(filename, base, type, name, gpu, workdir)
+  if (is.null(res$env)) {
+    path <- res$path
 
-    cpp11::cpp_register(data$path, quiet = quiet)
-    compile_dll(data$path, compile_attributes = TRUE, quiet = quiet)
-    dll <- file.path(data$path, "src", paste0(base, .Platform$dynlib.ext))
+    compile_dll(path, compile_attributes = TRUE, quiet = quiet)
+    dll <- file.path(path, "src", paste0(res$data$base, .Platform$dynlib.ext))
     dyn.load(dll)
 
-    template_r <- read_lines(dust_file("template/dust.R.template"))
-    writeLines(glue_whisker(template_r, data),
-               file.path(data$path, "R", "dust.R"))
-
     env <- new.env(parent = topenv())
-    for (f in dir(file.path(data$path, "R"), full.names = TRUE)) {
+    for (f in dir(file.path(path, "R"), full.names = TRUE)) {
       sys.source(f, env)
     }
 
-    cache[[base]] <- env[[name]]
+    res$dll <- dll
+    res$env <- env
+    res$gen <- env[[res$data$name]]
+    cache[[res$key]] <- res
   }
 
-  cache[[base]]
+  res$gen
 }
 
 
