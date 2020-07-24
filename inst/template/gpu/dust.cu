@@ -1,5 +1,3 @@
-typedef float real_t;
-
 #include <dust/gpu/cuda.cuh>
 #include <dust/gpu/dust.hpp>
 #include <dust/gpu/interface.hpp>
