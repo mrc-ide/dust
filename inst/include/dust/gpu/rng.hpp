@@ -30,7 +30,7 @@ rng_state_t<T> loadRNG(RNGptr& d_rng_state, int p_idx) {
 // Write state into global memory
 template <typename T>
 __device__
-void putRNG(rng_state_t<T>& rng, RNGptr& d_rng_state, int p_idx) {
+void putRNG(rng_state_t<T>& rng_state, RNGptr& d_rng_state, int p_idx) {
   for (int i = 0; i < XOSHIRO_WIDTH; i++) {
     int j = p_idx * d_rng_state.particle_stride + i * d_rng_state.state_stride;
     d_rng_state.state_ptr[j] = rng_state.s[i];
