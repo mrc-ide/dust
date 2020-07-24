@@ -24,6 +24,5 @@ static void HandleCUDAError(const char *file, int line,
 }
 
 #define CUDA_CALL( err ) (HandleCUDAError(__FILE__, __LINE__ , err))
-#define CUDA_CHECK() (HandleCUDAError(__FILE__, __LINE__))
 
 #endif

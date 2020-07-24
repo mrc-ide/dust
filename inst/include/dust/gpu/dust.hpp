@@ -1,6 +1,7 @@
 #ifndef DUST_GPU_DUST_HPP
 #define DUST_GPU_DUST_HPP
 
+#include <dust/gpu/cuda.cuh>
 #include <dust/gpu/rng.hpp>
 
 #include <algorithm>
