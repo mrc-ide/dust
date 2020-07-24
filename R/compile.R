@@ -54,7 +54,7 @@ compile_and_load <- function(filename, type, name, quiet = FALSE,
     path <- res$path
 
     compile_dll(path, compile_attributes = TRUE, quiet = quiet)
-    dll <- file.path(path, "src", paste0(res$data$base, .Platform$dynlib.ext))
+    dll <- file.path(path, "src", paste0(res$key, .Platform$dynlib.ext))
     dyn.load(dll)
 
     env <- new.env(parent = topenv())
