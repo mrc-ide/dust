@@ -129,13 +129,12 @@ public:
              real_t * device_out,
              void * device_tmp,
              size_t tmp_bytes,
-             const size_t index_size,
              size_t * num_selected,
              real_t * end_state) {
     // Run selection
     cub::DeviceSelect::Flagged(device_tmp, tmp_bytes,
                                _y_device, index,
-                               device_out, index_size, num_selected);
+                               device_out, num_selected, size());
     cudaDeviceSynchronize();
     CUDA_CALL(cudaMemcpy(end_state, device_out, index_size * sizeof(real_t),
                          cudaMemcpyDefault));
