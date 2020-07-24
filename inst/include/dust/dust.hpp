@@ -59,7 +59,7 @@ public:
     _step = step;
   }
 
-  void set_state(const Particle<T> other) {
+  void set_state(const Particle<T>& other) {
     _y_swap = other._y;
   }
 
@@ -101,7 +101,12 @@ public:
     _index = index;
   }
 
-  // It's the callee's responsibility to ensure this is the correct length
+  // It's the callee's responsibility to ensure this is the correct length:
+  //
+  // * if is_matrix is false then state must be length n_state_full()
+  //   and all particles get the state
+  // * if is_matrix is true, state must be length (n_state_full() *
+  //   n_particles()) and every particle gets a different state.
   void set_state(const std::vector<real_t>& state, bool is_matrix) {
     const size_t n_particles = _particles.size();
     const size_t n_state = n_state_full();

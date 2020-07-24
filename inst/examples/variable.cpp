@@ -1,6 +1,5 @@
 class variable {
 public:
-  typedef int int_t;
   typedef double real_t;
   struct init_t {
     size_t len;

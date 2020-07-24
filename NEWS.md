@@ -1,3 +1,7 @@
+# dust 0.4.0
+
+* Can now generate dust objects that run on the GPU (#69)
+
 # dust 0.3.0
 
 * Overhaul of the RNG interface, where we now pass state and use free functions; this is needed to support future development work (#60)
