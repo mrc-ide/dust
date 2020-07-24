@@ -22,9 +22,9 @@ public:
     return ret;
   }
 
-  void update(size_t step, const std::vector<double>& state,
+  void update(size_t step, const std::vector<real_t>& state,
               dust::rng_state_t<double>& rng_state,
-              std::vector<double>& state_next) {
+              std::vector<real_t>& state_next) {
     double S = state[0];
     double I = state[1];
     double R = state[2];
