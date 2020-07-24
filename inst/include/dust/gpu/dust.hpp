@@ -457,11 +457,11 @@ private:
                          cudaMemcpyHostToDevice));
 
     // Determine temporary device storage requirements
-    cub::DeviceSelect::Flagged(_d_tmp, temp_storage_bytes,
+    cub::DeviceSelect::Flagged(_d_tmp, _temp_storage_bytes,
                                _particle_y_addrs[0], _d_index, _d_y_out,
                                n_state(), n_state_full());
     // Allocate temporary and output storage
-    CUDA_CALL(cudaMalloc(&_d_tmp, temp_storage_bytes));
+    CUDA_CALL(cudaMalloc(&_d_tmp, _temp_storage_bytes));
     CUDA_CALL(cudaMalloc(&_d_y_out, n_state() * sizeof(real_t)));
   }
 };
