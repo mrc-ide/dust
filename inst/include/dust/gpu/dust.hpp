@@ -129,14 +129,14 @@ public:
              real_t * device_out,
              real_t * device_tmp,
              size_t tmp_bytes,
-             size_t index_size,
-             typename std::vector<real_t>::iterator end_state) {
+             const size_t index_size,
+             real_t * end_state) {
     // Run selection
     cub::DeviceSelect::Flagged(device_tmp, tmp_bytes,
                                _y_device, index,
                                device_out, index_size, size());
     cudaDeviceSynchronize();
-    CUDA_CALL(cudaMemcpy(&(*end_state), device_out, index_size * sizeof(real_t),
+    CUDA_CALL(cudaMemcpy(end_state, device_out, index_size * sizeof(real_t),
                          cudaMemcpyDefault));
     cudaDeviceSynchronize();
   }
@@ -320,7 +320,7 @@ public:
     for (size_t i = 0; i < _particles.size(); ++i) {
       _particles[i].state(_d_index, _d_y_out, _d_tmp,
                           _temp_storage_bytes, n_state(),
-                          end_state.begin() + i * _index.size());
+                          end_state.data() + i * _index.size());
     }
   }
 
