@@ -23,9 +23,9 @@ public:
     std::vector<double> ret = {0, (double) has_openmp};
     return ret;
   }
-  void update(size_t step, const std::vector<double>& state,
+  void update(size_t step, const double * state,
               dust::rng_state_t<real_t>& rng_state,
-              std::vector<real_t>& state_next) {
+              double * state_next) {
     double mean = state[0];
     state_next[0] = dust::distr::rnorm(rng_state, mean, data_.sd);
 #ifdef _OPENMP
