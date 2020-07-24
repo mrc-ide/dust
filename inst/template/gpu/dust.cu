@@ -1,7 +1,7 @@
 #include <dust/gpu/dust.hpp>
 #include <dust/interface.hpp>
 
-{{model}}
+// {{model}}
 
 SEXP dust_{{name}}_alloc(cpp11::list r_data, size_t step, size_t n_particles,
                 size_t n_threads, size_t seed) {
