@@ -1,6 +1,7 @@
 #ifndef DUST_GPU_RNG_HPP
 #define DUST_GPU_RNG_HPP
 
+#include <cassert>
 #include <dust/gpu/xoshiro.hpp>
 #include <dust/gpu/distr/binomial.hpp>
 #include <dust/gpu/distr/normal.hpp>
