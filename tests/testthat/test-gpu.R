@@ -13,7 +13,7 @@ test_that("can generate GPU code", {
 })
 
 test_that("sirs smoke test", {
-  #  skip_if_no_nvcc()
+  skip_if_no_nvcc()
   gen_g <- dust(dust_file("examples/sirs.cpp"), quiet = TRUE, gpu = TRUE)
 
   skip_if_no_gpu()
