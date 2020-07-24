@@ -26,10 +26,20 @@ create_test_package <- function(name = "pkg", path = tempfile()) {
 }
 
 
-skip_if_no_gpu <- function() {
-  testthat::skip_on_travis()
-  testthat::skip_on_appveyor()
+skip_if_no_nvcc <- function() {
   if (!nzchar(Sys.which("nvcc"))) {
     testthat::skip("No nvcc found")
+  }
+}
+
+
+skip_if_no_gpu <- function() {
+  skip_if_no_nvcc()
+  testthat::skip_on_travis()
+  testthat::skip_on_appveyor()
+  code <- suppressWarnings(
+    system2("nvidia-smi", "-L", stdout = FALSE, stderr = FALSE))
+  if (code != 0) {
+    testthat::skip("Did not find GPU")
   }
 }
