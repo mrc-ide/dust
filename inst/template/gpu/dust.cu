@@ -1,5 +1,5 @@
 #include <dust/gpu/dust.hpp>
-#include <dust/gpu/interface.hpp>
+#include <dust/interface.hpp>
 
 {{model}}
 
