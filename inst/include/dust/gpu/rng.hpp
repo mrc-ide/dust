@@ -22,7 +22,7 @@ rng_state_t<T> loadRNG(RNGptr& rng_state, int p_idx) {
   rng_state_t<T> state;
   for (int i = 0; i < XOSHIRO_WIDTH; i++) {
     state.s[i] = rng_state.state_ptr[p_idx * rng_state.particle_stride +
-                                      i * rng_state.state_stride];
+                                     i * rng_state.state_stride];
   }
   return state;
 }
