@@ -52,6 +52,10 @@ public:
     // Set to be interleaved
     _d_rng_state.state_stride = n;
     _d_rng_state.particle_stride = 1;
+    // This might be replaced by runtime error if it becomes more
+    // tuneable than above, or a static_assert if it stays n and 1
+    // always.
+    assert(_d_rng_state.state_stride * _d_rng_state.particle_stride == n)
     put_state_device();
   }
 
