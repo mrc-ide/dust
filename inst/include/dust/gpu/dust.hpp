@@ -398,7 +398,7 @@ private:
   real_t** _particle_y_addrs;
   real_t** _particle_y_swap_addrs;
   bool* _d_index;
-  real_t* _d_y_out, _d_tmp;
+  real_t *_d_y_out, *_d_tmp;
   size_t _temp_storage_bytes;
 
   void initialise(const init_t data, const size_t step,
@@ -461,8 +461,8 @@ private:
                                _particle_y_addrs[0], _d_index, _d_y_out,
                                n_state(), n_state_full());
     // Allocate temporary and output storage
-    CUDA_CALL(cudaMalloc(&_d_tmp, _temp_storage_bytes));
-    CUDA_CALL(cudaMalloc(&_d_y_out, n_state() * sizeof(real_t)));
+    CUDA_CALL(cudaMalloc((void**)&_d_tmp, _temp_storage_bytes));
+    CUDA_CALL(cudaMalloc((void**)&_d_y_out, n_state() * sizeof(real_t)));
   }
 };
 
