@@ -12,9 +12,7 @@
 
 #include <thrust/device_vector.h>
 #include <thrust/swap.h>
-
-// TODO: For reasons unknown, this does not get found on raplab
-// #include <cub/device/device_select.cuh>
+#include <cub/device/device_select.cuh>
 
 template <typename T, typename real_t>
 __global__
@@ -125,10 +123,28 @@ public:
     return _model;
   }
 
+  // State copy which uses cub to extract an index (the one on the dust
+  // object) which does not change
+  void state(const bool * index,
+             real_t * device_out,
+             real_t * device_tmp,
+             size_t tmp_bytes,
+             size_t index_size,
+             typename std::vector<real_t>::iterator end_state) {
+    // Run selection
+    cub::DeviceSelect::Flagged(device_tmp, tmp_bytes,
+                               _y_device, index,
+                               device_out, index_size, size());
+    cudaDeviceSynchronize();
+    CUDA_CALL(cudaMemcpy(&(*end_state), device_out, index_size * sizeof(real_t),
+                         cudaMemcpyDefault));
+    cudaDeviceSynchronize();
+  }
+
+  // State copy which uses any index, copying the whole y vector back to the
+  // device
   void state(const std::vector<size_t>& index,
              typename std::vector<real_t>::iterator end_state) {
-    // TODO: efficiency of copying whole state each time, when only some of it
-    // is used? Random access would be better, if possible
     y_to_host();
     for (size_t i = 0; i < index.size(); ++i) {
       *(end_state + i) = _y[index[i]];
@@ -214,16 +230,24 @@ public:
     _rng(n_particles, seed),
     _model_addrs(nullptr),
     _particle_y_addrs(nullptr),
-    _particle_y_swap_addrs(nullptr) {
+    _particle_y_swap_addrs(nullptr),
+    _d_index(nullptr),
+    _d_y_out(nullptr),
+    _d_tmp(nullptr),
+    _temp_storage_bytes(0) {
     initialise(data, step, n_particles);
     cudaDeviceSynchronize();
   }
 
-  // NB - if you call cudaDeviceReset() this destructor will segfault
+  // NB - if you call cudaDeviceReset() this destructor will error due to
+  // double free
   ~Dust() {
     CUDA_CALL(cudaFree(_model_addrs));
     CUDA_CALL(cudaFree(_particle_y_addrs));
     CUDA_CALL(cudaFree(_particle_y_swap_addrs));
+    CUDA_CALL(cudaFree(_d_index));
+    CUDA_CALL(cudaFree(_d_y_out));
+    CUDA_CALL(cudaFree(_d_tmp));
   }
 
   void reset(const init_t data, const size_t step) {
@@ -235,6 +259,7 @@ public:
   // range [0, n-1]
   void set_index(const std::vector<size_t>& index) {
     _index = index;
+    index_to_device();
   }
 
   // It's the callee's responsibility to ensure this is the correct length:
@@ -292,9 +317,10 @@ public:
   }
 
   void state(std::vector<real_t>& end_state) {
-    #pragma omp parallel for schedule(static) num_threads(_n_threads)
     for (size_t i = 0; i < _particles.size(); ++i) {
-      _particles[i].state(_index, end_state.begin() + i * _index.size());
+      _particles[i].state(_d_index, _d_y_out, _d_tmp,
+                          _temp_storage_bytes, n_state(),
+                          end_state.begin() + i * _index.size());
     }
   }
 
@@ -367,9 +393,13 @@ private:
   dust::pRNG<real_t> _rng;
   std::vector<Particle<T>> _particles;
 
+  // Device memory
   T** _model_addrs;
   real_t** _particle_y_addrs;
   real_t** _particle_y_swap_addrs;
+  bool* _d_index;
+  real_t* _d_y_out, _d_tmp;
+  size_t _temp_storage_bytes;
 
   void initialise(const init_t data, const size_t step,
                   const size_t n_particles) {
@@ -379,6 +409,9 @@ private:
     CUDA_CALL(cudaFree(_particle_y_addrs));
     CUDA_CALL(cudaFree(_particle_y_swap_addrs));
     CUDA_CALL(cudaFree(_model_addrs));
+    CUDA_CALL(cudaFree(_d_index));
+    CUDA_CALL(cudaFree(_d_y_out));
+    CUDA_CALL(cudaFree(_d_tmp));
 
     std::vector<real_t*> y_ptrs;
     std::vector<real_t*> y_swap_ptrs;
@@ -401,12 +434,35 @@ private:
     CUDA_CALL(cudaMemcpy(_model_addrs, model_ptrs.data(), model_ptrs.size() * sizeof(T*),
                          cudaMemcpyHostToDevice));
 
+    // Set the index
     const size_t n = n_state_full();
     _index.clear();
     _index.reserve(n);
     for (size_t i = 0; i < n; ++i) {
       _index.push_back(i);
     }
+    CUDA_CALL(cudaMalloc((void** )&_d_index, n_state_full() * sizeof(bool)));
+    index_to_device();
+  }
+
+  void index_to_device() {
+    CUDA_CALL(cudaFree(_d_tmp));
+    CUDA_CALL(cudaFree(_d_y_out));
+
+    std::vector<bool> bool_idx(n_state_full(), 0);
+    for (auto idx_pos = _index.cbegin(); idx_pos != _index.cend(); idx_pos++) {
+      bool_idx[*idx_pos] = 1;
+    }
+    CUDA_CALL(cudaMemcpy(_d_index, bool_idx.data(), bool_idx.size() * sizeof(bool),
+                         cudaMemcpyHostToDevice));
+
+    // Determine temporary device storage requirements
+    cub::DeviceSelect::Flagged(_d_tmp, temp_storage_bytes,
+                               _particle_y_addrs[0], _d_index, _d_y_out,
+                               n_state(), n_state_full());
+    // Allocate temporary and output storage
+    CUDA_CALL(cudaMalloc(&_d_tmp, temp_storage_bytes));
+    CUDA_CALL(cudaMalloc(&_d_y_out, n_state() * sizeof(real_t)));
   }
 };
 
