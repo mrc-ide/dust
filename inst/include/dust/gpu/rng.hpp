@@ -100,33 +100,33 @@ private:
   pRNG ( pRNG && ) = delete;
 
   void put_state_device() {
-    std::vector<uint64_t> interleaved_state(size() * XOSHIRO_WIDTH);
+    std::vector<uint64_t> flattened_state(size() * XOSHIRO_WIDTH);
     for (int i = 0; i < size(); i++) {
       uint64_t* current_state = _rngs[i].get_rng_state();
       for (int state_idx = 0; state_idx < XOSHIRO_WIDTH; state_idx++) {
-        interleaved_state[i * _d_rng_state.particle_stride +
-                          state_idx * _d_rng_state.state_stride] =
+        flattened_state[i * _d_rng_state.particle_stride +
+                        state_idx * _d_rng_state.state_stride] =
           current_state[state_idx];
       }
     }
-    CUDA_CALL(cudaMemcpy(_d_rng_state.state_ptr, interleaved_state.data(),
-                         interleaved_state.size() * sizeof(uint64_t),
+    CUDA_CALL(cudaMemcpy(_d_rng_state.state_ptr, flattened_state.data(),
+                         flattened_state.size() * sizeof(uint64_t),
                          cudaMemcpyDefault));
     cudaDeviceSynchronize();
   }
 
   void get_state_device() {
-    std::vector<uint64_t> interleaved_state(size() * XOSHIRO_WIDTH);
-    CUDA_CALL(cudaMemcpy(interleaved_state.data(), _d_rng_state.state_ptr,
-                         interleaved_state.size() * sizeof(uint64_t),
+    std::vector<uint64_t> flattened_state(size() * XOSHIRO_WIDTH);
+    CUDA_CALL(cudaMemcpy(flattened_state.data(), _d_rng_state.state_ptr,
+                         flattened_state.size() * sizeof(uint64_t),
                          cudaMemcpyDefault));
     cudaDeviceSynchronize();
 
     for (int i = 0; i < size(); i++) {
       std::vector<uint64_t> state(XOSHIRO_WIDTH);
       for (int state_idx = 0; state_idx < XOSHIRO_WIDTH; state_idx++) {
-        state[i] = interleaved_state[i * _d_rng_state.particle_stride +
-                                     state_idx * _d_rng_state.state_stride];
+        state[i] = flattened_state[i * _d_rng_state.particle_stride +
+                                   state_idx * _d_rng_state.state_stride];
       }
       _rngs[i].set_state(state);
     }
