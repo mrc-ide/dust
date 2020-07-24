@@ -19,6 +19,7 @@ public:
     real_t mean = state[0];
     state_next[0] = dust::distr::rnorm(rng_state, mean, data_.sd);
   }
+
 private:
   init_t data_;
 };

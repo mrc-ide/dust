@@ -50,6 +50,7 @@ public:
     state_next[1] = I + n_SI - n_IR;
     state_next[2] = R + n_IR - n_RS;
   }
+
 private:
   init_t internal;
 };
