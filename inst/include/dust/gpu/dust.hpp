@@ -130,11 +130,12 @@ public:
              void * device_tmp,
              size_t tmp_bytes,
              const size_t index_size,
+             size_t * num_selected,
              real_t * end_state) {
     // Run selection
     cub::DeviceSelect::Flagged(device_tmp, tmp_bytes,
                                _y_device, index,
-                               device_out, index_size, size());
+                               device_out, index_size, num_selected);
     cudaDeviceSynchronize();
     CUDA_CALL(cudaMemcpy(end_state, device_out, index_size * sizeof(real_t),
                          cudaMemcpyDefault));
@@ -234,6 +235,7 @@ public:
     _d_index(nullptr),
     _d_y_out(nullptr),
     _d_tmp(nullptr),
+    _d_num_selected_out(nullptr),
     _temp_storage_bytes(0) {
     initialise(data, step, n_particles);
     cudaDeviceSynchronize();
@@ -248,6 +250,7 @@ public:
     CUDA_CALL(cudaFree(_d_index));
     CUDA_CALL(cudaFree(_d_y_out));
     CUDA_CALL(cudaFree(_d_tmp));
+    CUDA_CALL(cudaFree(_d_num_selected_out));
   }
 
   void reset(const init_t data, const size_t step) {
@@ -319,7 +322,7 @@ public:
   void state(std::vector<real_t>& end_state) {
     for (size_t i = 0; i < _particles.size(); ++i) {
       _particles[i].state(_d_index, _d_y_out, _d_tmp,
-                          _temp_storage_bytes, n_state(),
+                          _temp_storage_bytes, _d_num_selected_out,
                           end_state.data() + i * _index.size());
     }
   }
@@ -400,6 +403,7 @@ private:
   bool* _d_index;
   real_t* _d_y_out;
   void* _d_tmp;
+  size_t* _d_num_selected_out;
   size_t _temp_storage_bytes;
 
   void initialise(const init_t data, const size_t step,
@@ -411,8 +415,6 @@ private:
     CUDA_CALL(cudaFree(_particle_y_swap_addrs));
     CUDA_CALL(cudaFree(_model_addrs));
     CUDA_CALL(cudaFree(_d_index));
-    CUDA_CALL(cudaFree(_d_y_out));
-    CUDA_CALL(cudaFree(_d_tmp));
 
     std::vector<real_t*> y_ptrs;
     std::vector<real_t*> y_swap_ptrs;
@@ -449,21 +451,23 @@ private:
   void index_to_device() {
     CUDA_CALL(cudaFree(_d_tmp));
     CUDA_CALL(cudaFree(_d_y_out));
+    CUDA_CALL(cudaFree(_d_num_selected_out));
 
-    std::vector<bool> bool_idx(n_state_full(), 0);
+    std::vector<char> bool_idx(n_state_full(), 0); // NB: vector<bool> is specialised and can't be used here
     for (auto idx_pos = _index.cbegin(); idx_pos != _index.cend(); idx_pos++) {
       bool_idx[*idx_pos] = 1;
     }
-    CUDA_CALL(cudaMemcpy(_d_index, bool_idx.data(), bool_idx.size() * sizeof(bool),
+    CUDA_CALL(cudaMemcpy(_d_index, bool_idx.data(), bool_idx.size() * sizeof(char),
                          cudaMemcpyHostToDevice));
 
+    // Allocate temporary and output storage
+    CUDA_CALL(cudaMalloc((void**)&_d_y_out, n_state() * sizeof(real_t)));
+    CUDA_CALL(cudaMalloc((void**)&_d_num_selected_out, 1 * sizeof(size_t)));
     // Determine temporary device storage requirements
     cub::DeviceSelect::Flagged(_d_tmp, _temp_storage_bytes,
                                _particle_y_addrs[0], _d_index, _d_y_out,
-                               n_state(), n_state_full());
-    // Allocate temporary and output storage
+                               _d_num_selected_out, n_state_full());
     CUDA_CALL(cudaMalloc((void**)&_d_tmp, _temp_storage_bytes));
-    CUDA_CALL(cudaMalloc((void**)&_d_y_out, n_state() * sizeof(real_t)));
   }
 };
 
