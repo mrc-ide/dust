@@ -59,18 +59,18 @@ and \verb{typedef int int_t;} in their public section.
 returns the size of the system. This size may depend on values
 in your initialisation object but is constant within a model
 run.
-\item The model must have a method \code{update} (which may not be
+\item The model must have a method \code{initial} (which may not be
 \code{const}), taking a step number (\code{size_t}) and returning a
 \verb{std::vector<real_t>} of initial state for the model.
 \item The model must have a method \code{update} taking arguments:
 \itemize{
 \item \verb{size_t step}: the step number
-\item \verb{const std::vector<real_t>& state}: the state at the beginning of the
+\item \verb{const double * state}: the state at the beginning of the
 step
 \item \verb{dust::rng_state_t<real_t>& rng_state}: the dust random number
 generator state - this \emph{must} be a reference, as it will be modified
 as random numbers are drawn
-\item \verb{std::vector<real_t>& state_next}: the end state of the model
+\item \code{double *state_next}: the end state of the model
 (to be written to by your function)
 }
 }

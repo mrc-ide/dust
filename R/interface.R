@@ -24,18 +24,18 @@
 ##'   in your initialisation object but is constant within a model
 ##'   run.
 ##'
-##' * The model must have a method `update` (which may not be
+##' * The model must have a method `initial` (which may not be
 ##'   `const`), taking a step number (`size_t`) and returning a
 ##'   `std::vector<real_t>` of initial state for the model.
 ##'
 ##' * The model must have a method `update` taking arguments:
 ##'   - `size_t step`: the step number
-##'   - `const std::vector<real_t>& state`: the state at the beginning of the
+##'   - `const double * state`: the state at the beginning of the
 ##'      step
 ##'   - `dust::rng_state_t<real_t>& rng_state`: the dust random number
 ##'     generator state - this *must* be a reference, as it will be modified
 ##'     as random numbers are drawn
-##'   - `std::vector<real_t>& state_next`: the end state of the model
+##'   - `double *state_next`: the end state of the model
 ##'     (to be written to by your function)
 ##'
 ##' Your `update` function is the core here and should update the

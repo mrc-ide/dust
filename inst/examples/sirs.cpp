@@ -29,14 +29,10 @@ public:
 
 #ifdef __NVCC__
   __device__
+#endif
   void update(size_t step, const real_t * state,
               dust::rng_state_t<real_t>& rng_state,
               real_t * state_next) {
-#else
-  void update(size_t step, const std::vector<real_t>& state,
-              dust::rng_state_t<real_t>& rng_state,
-              std::vector<real_t>& state_next) {
-#endif
     real_t S = state[0];
     real_t I = state[1];
     real_t R = state[2];
@@ -54,6 +50,7 @@ public:
     state_next[1] = I + n_SI - n_IR;
     state_next[2] = R + n_IR - n_RS;
   }
+
 private:
   init_t internal;
 };
