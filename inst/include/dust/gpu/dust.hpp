@@ -292,7 +292,7 @@ public:
   }
 
   void state(std::vector<real_t>& end_state) {
-#pragma omp parallel for schedule(static) num_threads(_n_threads)
+    #pragma omp parallel for schedule(static) num_threads(_n_threads)
     for (size_t i = 0; i < _particles.size(); ++i) {
       _particles[i].state(_index, end_state.begin() + i * _index.size());
     }
@@ -300,7 +300,7 @@ public:
 
   void state(std::vector<size_t> index,
              std::vector<real_t>& end_state) {
-#pragma omp parallel for schedule(static) num_threads(_n_threads)
+    #pragma omp parallel for schedule(static) num_threads(_n_threads)
     for (size_t i = 0; i < _particles.size(); ++i) {
       _particles[i].state(index, end_state.begin() + i * index.size());
     }
@@ -308,7 +308,7 @@ public:
 
   void state_full(std::vector<real_t>& end_state) {
     const size_t n = n_state_full();
-#pragma omp parallel for schedule(static) num_threads(_n_threads)
+    #pragma omp parallel for schedule(static) num_threads(_n_threads)
     for (size_t i = 0; i < _particles.size(); ++i) {
       _particles[i].state_full(end_state.begin() + i * n);
     }
