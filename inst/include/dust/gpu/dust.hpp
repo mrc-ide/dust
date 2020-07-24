@@ -126,6 +126,7 @@ public:
   // State copy which uses cub to extract an index (the one on the dust
   // object) which does not change
   void state(const bool * index,
+             const size_t index_size,
              real_t * device_out,
              void * device_tmp,
              size_t tmp_bytes,
@@ -320,7 +321,7 @@ public:
 
   void state(std::vector<real_t>& end_state) {
     for (size_t i = 0; i < _particles.size(); ++i) {
-      _particles[i].state(_d_index, _d_y_out, _d_tmp,
+      _particles[i].state(_d_index, _index.size(), _d_y_out, _d_tmp,
                           _temp_storage_bytes, _d_num_selected_out,
                           end_state.data() + i * _index.size());
     }
