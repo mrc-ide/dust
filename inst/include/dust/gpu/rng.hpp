@@ -22,7 +22,7 @@ rng_state_t<T> loadRNG(RNGptr& d_rng_state, int p_idx) {
   rng_state_t<T> rng_state;
   for (int i = 0; i < XOSHIRO_WIDTH; i++) {
     int j = p_idx * d_rng_state.particle_stride + i * d_rng_state.state_stride;
-    state.s[i] = d_rng_state.state_ptr[j];
+    rng_state.s[i] = d_rng_state.state_ptr[j];
   }
   return rng_state;
 }
@@ -55,7 +55,7 @@ public:
     // This might be replaced by runtime error if it becomes more
     // tuneable than above, or a static_assert if it stays n and 1
     // always.
-    assert(_d_rng_state.state_stride * _d_rng_state.particle_stride == n)
+    assert(_d_rng_state.state_stride * _d_rng_state.particle_stride == n);
     put_state_device();
   }
 
