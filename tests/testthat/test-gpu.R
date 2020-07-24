@@ -1,5 +1,17 @@
 context("gpu")
 
+test_that("can generate GPU code", {
+  cache <- new.env(parent = emptyenv())
+
+  res <- generate_dust(dust_file("examples/sirs.cpp"), "sirs", "sirs",
+                       gpu = TRUE, quiet = TRUE, workdir = NULL, cache = cache)
+  expect_match(res$key, "^sirsgpu[[:xdigit:]]+$")
+
+  path_src <- file.path(res$path, "src")
+  expect_setequal(dir(path_src), c("cpp11.cpp", "dust.cu", "dust.hpp",
+                                   "Makevars"))
+})
+
 test_that("sirs smoke test", {
   skip_if_no_gpu()
 
