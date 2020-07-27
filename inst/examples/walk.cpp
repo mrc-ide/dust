@@ -13,12 +13,13 @@ public:
     std::vector<real_t> ret = {0};
     return ret;
   }
-  void update(size_t step, const std::vector<real_t>& state,
+  void update(size_t step, const real_t * state,
               dust::rng_state_t<real_t>& rng_state,
-              std::vector<real_t>& state_next) {
+              real_t * state_next) {
     real_t mean = state[0];
     state_next[0] = dust::distr::rnorm(rng_state, mean, data_.sd);
   }
+
 private:
   init_t data_;
 };

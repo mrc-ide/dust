@@ -1,0 +1,21 @@
+#!/usr/bin/env Rscript
+"Usage:
+  profile_compute [options] <model>
+
+Options:
+  --particles=PARTICLES  Number of particles [default: 100000]
+" -> usage
+
+main <- function(args = commandArgs(TRUE)) {
+  args <- docopt::docopt(usage, args)
+  gen_g <- dust::dust(args$model, gpu = FALSE)
+  mod_g <- gen_g$new(list(), 0, as.integer(args$particles))
+  mod_g$set_index(2L)
+  times <- seq(10, 50, by = 10)
+  for (t in times) {
+    y_g <- mod_g$run(t)
+  }
+  invisible(NULL)
+}
+
+main()

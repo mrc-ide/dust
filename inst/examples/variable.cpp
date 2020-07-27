@@ -22,9 +22,9 @@ public:
     return ret;
   }
 
-  void update(size_t step, const std::vector<real_t>& state,
+  void update(size_t step, const real_t * state,
               dust::rng_state_t<real_t>& rng_state,
-              std::vector<real_t>& state_next) {
+              real_t * state_next) {
     for (size_t i = 0; i < data_.len; ++i) {
       state_next[i] =
         dust::distr::rnorm(rng_state, state[i] + data_.mean, data_.sd);

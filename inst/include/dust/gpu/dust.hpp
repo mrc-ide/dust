@@ -10,9 +10,11 @@
 #include <omp.h>
 #endif
 
+#include <cuda_profiler_api.h>
 #include <thrust/device_vector.h>
 #include <thrust/swap.h>
 #include <cub/device/device_select.cuh>
+
 
 template <typename T, typename real_t>
 __global__
@@ -71,6 +73,7 @@ public:
     _d_tmp(nullptr),
     _d_num_selected_out(nullptr),
     _temp_storage_bytes(0) {
+    cudaProfilerStart();
     initialise(data, step, n_particles);
   }
 
@@ -84,6 +87,7 @@ public:
     CUDA_CALL(cudaFree(_d_tmp));
     CUDA_CALL(cudaFree(_d_y_out));
     CUDA_CALL(cudaFree(_d_num_selected_out));
+    cudaProfilerStop();
   }
 
   void reset(const init_t data, const size_t step) {

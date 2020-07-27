@@ -24,7 +24,7 @@ public:
 
   void run(const size_t step_end, dust::rng_state_t<real_t>& rng_state) {
     while (_step < step_end) {
-      _model.update(_step, _y, rng_state, _y_swap);
+      _model.update(_step, _y.data(), rng_state, _y_swap.data());
       _step++;
       std::swap(_y, _y_swap);
     }
