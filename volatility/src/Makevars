@@ -1,3 +1,0 @@
-# -*- makefile -*-
-PKG_CXXFLAGS=-I/home/u00u4okau8eQTz5amJ357/dust/inst/include -DHAVE_INLINE $(SHLIB_OPENMP_CXXFLAGS)
-PKG_LIBS=$(SHLIB_OPENMP_CXXFLAGS)
