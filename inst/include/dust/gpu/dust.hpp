@@ -61,7 +61,7 @@ public:
     // Copy the model
     CUDA_CALL(cudaMallocManaged((void** )&_model, sizeof(T)));
     *_model = T(data);
-    cudaDeviceSynchronize();
+    //cudaDeviceSynchronize();
 
     _y = std::vector<real_t>(_model->initial(_step));
     _y_swap = std::vector<real_t>(_model->size());
@@ -189,17 +189,17 @@ private:
   void y_to_host() {
     CUDA_CALL(cudaMemcpy(_y.data(), _y_device, _y.size() * sizeof(real_t),
                          cudaMemcpyDefault));
-    cudaDeviceSynchronize();
+    //cudaDeviceSynchronize();
   }
   void y_swap_to_device() {
     CUDA_CALL(cudaMemcpy(_y_swap_device, _y_swap.data(), _y_swap.size() * sizeof(real_t),
                          cudaMemcpyDefault));
-    cudaDeviceSynchronize();
+    //cudaDeviceSynchronize();
   }
   void y_to_device() {
     CUDA_CALL(cudaMemcpy(_y_device, _y.data(), _y.size() * sizeof(real_t),
                          cudaMemcpyDefault));
-    cudaDeviceSynchronize();
+    //cudaDeviceSynchronize();
   }
 };
 
@@ -218,7 +218,7 @@ public:
     _particle_y_swap_addrs(nullptr) {
     cudaProfilerStart();
     initialise(data, step, n_particles);
-    cudaDeviceSynchronize();
+    //cudaDeviceSynchronize();
   }
 
   // NB - if you call cudaDeviceReset() this destructor will segfault
