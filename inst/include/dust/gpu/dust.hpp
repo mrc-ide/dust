@@ -12,6 +12,7 @@
 
 #include <thrust/device_vector.h>
 #include <thrust/swap.h>
+#include <cuda_profiler_api.h>
 
 // TODO: For reasons unknown, this does not get found on raplab
 // #include <cub/device/device_select.cuh>
