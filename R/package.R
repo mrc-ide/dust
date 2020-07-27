@@ -54,7 +54,7 @@ dust_package <- function(path, quiet = FALSE, gpu = FALSE) {
   if (gpu) {
     template_cpp <- read_lines(dust_file("template/gpu/dust.cu"))
   } else {
-    template_cpp <- read_lines(dust_file("template/gpu/dust.cpp"))
+    template_cpp <- read_lines(dust_file("template/dust.cpp"))
   }
   data <- lapply(file.path(path_dust, files), package_generate,
                  template_cpp, gpu)
