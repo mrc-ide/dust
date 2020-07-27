@@ -153,7 +153,7 @@ package_generate <- function(filename, gpu) {
   model <- read_lines(filename)
   data <- list(model = model, name = name, type = type)
 
-  template_r <- read_lines(dust_file("template/gpu/dust.cu"))
+  template_r <- read_lines(dust_file("template/dust.R.template"))
   code_r <- glue_whisker(template_r, data)
 
   if (gpu) {
