@@ -25,9 +25,29 @@ struct rng_state_t {
   static size_t size() {
     return XOSHIRO_WIDTH;
   }
-  uint64_t s[XOSHIRO_WIDTH];
+  uint64_t s0;
+  uint64_t s1;
+  uint64_t s2;
+  uint64_t s3;
   uint64_t& operator[](size_t i) {
     return s[i];
+  }
+
+  uint64_t next() {
+    const uint64_t result = rotl(state[1] * 5, 7) * 9;
+
+    const uint64_t t = state[1] << 17;
+
+    s2 ^= s0;
+    s3 ^= s1;
+    s1 ^= s2;
+    s0 ^= s3;
+
+    s2 ^= t;
+
+    s3 = rotl(s3, 45);
+
+    return result;
   }
 };
 
@@ -37,6 +57,7 @@ static inline uint64_t rotl(const uint64_t x, int k) {
 }
 
 // Call with non-interleaved state only
+/*
 __host__ __device__
 inline uint64_t xoshiro_next(uint64_t * state) {
   const uint64_t result = rotl(state[1] * 5, 7) * 9;
@@ -54,11 +75,12 @@ inline uint64_t xoshiro_next(uint64_t * state) {
 
   return result;
 }
+*/
 
 template <typename T>
 __device__
 inline uint64_t xoshiro_next(rng_state_t<T>& state) {
-  return xoshiro_next(state.s);
+  return state.next();
 }
 
 // TODO: this should come out at some point
@@ -77,7 +99,7 @@ public:
 
   __host__
   uint64_t operator()() {
-    return(xoshiro_next(_state));
+    return xoshiro_next(_state);
   };
 
   __host__
@@ -108,7 +130,7 @@ template <typename T>
 __device__
 inline double device_unif_rand(rng_state_t<T>& state) {
   const double max_double_val = __ull2double_rn(UINT64_MAX);
-  double rand = (__ddiv_rn(__ull2double_rn(xoshiro_next(state)), max_double_val));
+  double rand = (__ddiv_rn(__ull2double_rn(state.next()), max_double_val));
   return rand;
 }
 
