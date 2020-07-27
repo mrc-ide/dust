@@ -15,7 +15,7 @@
 #include <thrust/swap.h>
 #include <cub/device/device_select.cuh>
 
-namespace dust {}
+namespace dust {
 
 template <typename real_t>
 struct state_t {

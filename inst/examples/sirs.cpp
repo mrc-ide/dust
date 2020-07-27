@@ -30,9 +30,9 @@ public:
 #ifdef __NVCC__
   __device__
 #endif
-  void update(size_t step, const state_t& state,
+  void update(size_t step, const dust::state_t& state,
               dust::rng_state_t<real_t>& rng_state,
-              state_t& state_next) {
+              dust::state_t& state_next) {
     real_t S = state.state_ptr[0 * state.state_stride];
     real_t I = state.state_ptr[1 * state.state_stride];
     real_t R = state.state_ptr[2 * state.state_stride];
