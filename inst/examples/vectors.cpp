@@ -30,8 +30,8 @@ public:
     const real_t * x = state + 1;
     const real_t y = state[0];
     state_next[0] = y + internal.n;
-    for (int i = 1; i <= internal.dim_x; ++i) {
-      state_next[1 + i - 1] = x[i - 1] + internal.r[i - 1];
+    for (int i = 0; i < internal.dim_x; ++i) {
+      state_next[i] = x[i] + internal.r[i];
     }
   }
 
@@ -49,11 +49,11 @@ vectors::init_t dust_data<vectors>(cpp11::list user) {
   internal.dim_x = internal.n;
   internal.initial_x = std::vector<real_t>(internal.dim_x);
   internal.r = std::vector<real_t>(internal.dim_r);
-  for (int i = 1; i <= internal.dim_x; ++i) {
-    internal.initial_x[i - 1] = 1;
+  for (int i = 0; i < internal.dim_x; ++i) {
+    internal.initial_x[i] = 1;
   }
-  for (int i = 1; i <= internal.dim_r; ++i) {
-    internal.r[i - 1] = i;
+  for (int i = 0; i < internal.dim_r; ++i) {
+    internal.r[i] = i;
   }
   return internal;
 }
