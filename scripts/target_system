@@ -7,8 +7,9 @@ Options:
 " -> usage
 
 main <- function(args = commandArgs(TRUE)) {
-  gen_g <- dust::dust(args$model, gpu = TRUE)
-  mod_g <- gen_g$new(list(), 0, args$particles, 2)
+  args <- docopt::docopt(usage, args)
+  gen_g <- dust::dust(args$model, gpu = FALSE)
+  mod_g <- gen_g$new(list(), 0, as.integer(args$particles))
   mod_g$set_index(2L)
   times <- seq(10, 50, by = 10)
   for (t in times) {
