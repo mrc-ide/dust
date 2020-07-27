@@ -17,10 +17,12 @@
 ##' @param quiet Passed to `cpp11::cpp_register`, if `TRUE` suppresses
 ##'   informational notices about updates to the cpp11 files
 ##'
+##' @param gpu Create GPU code (currently must be shared across all models)
+##'
 ##' @title Create dust model in package
 ##' @return Nothing, this function is called for its side effects
 ##' @export
-dust_package <- function(path, quiet = FALSE) {
+dust_package <- function(path, quiet = FALSE, gpu = FALSE) {
   ## 1. check that the package is legit
   root <- package_validate(path)
   path_dust <- file.path(root, "inst/dust")
@@ -48,19 +50,34 @@ dust_package <- function(path, quiet = FALSE) {
   ## same documentation.
   template_r <- paste(template_r[!grepl("\\s*#+'", template_r)],
                       collapse = "\n")
-  template_cpp <- read_lines(dust_file("template/dust.cpp"))
+
+  if (gpu) {
+    template_cpp <- read_lines(dust_file("template/gpu/dust.cu"))
+  } else {
+    template_cpp <- read_lines(dust_file("template/gpu/dust.cpp"))
+  }
   data <- lapply(file.path(path_dust, files), package_generate,
-                 template_cpp, template_r)
+                 template_cpp, gpu)
 
   dir.create(path_src, FALSE, TRUE)
   dir.create(path_r, FALSE, TRUE)
+
   for (d in data) {
-    code_cpp <- c(dust_header("//"), d$cpp)
-    writeLines(code_cpp, file.path(path_src, d$filename))
+    for (p in names(d$src)) {
+      writeLines(c(dust_header("//"), d$src[[p]]), file.path(path_src, p))
+    }
   }
 
   code_r <- c(dust_header("##"), vcapply(data, "[[", "r"))
   writeLines(code_r, file.path(path_r, "dust.R"))
+
+  if (gpu) {
+    template <- read_lines(dust_file("template/gpu/Makevars.pkg"))
+    objects <- paste(sort(c(sub("\\.cpp", ".o", files), "cpp11.o")),
+                     collapse = " ")
+    writeLines(glue_whisker(template, list(objects = objects)),
+               file.path(path, "src/Makevars"))
+  }
 
   ## 5. compile attributes
   cpp11::cpp_register(path, quiet = quiet)
@@ -136,13 +153,28 @@ package_validate_namespace_usedynlib <- function(exprs, name) {
 }
 
 
-package_generate <- function(filename, template_cpp, template_r) {
+package_generate <- function(filename, template_cpp, gpu) {
   type <- dust_guess_type(readLines(filename))
   name <- type
   model <- read_lines(filename)
   data <- list(model = model, name = name, type = type)
-  list(
-    filename = basename(filename),
-    cpp = glue_whisker(template_cpp, data),
-    r = glue_whisker(template_r, data))
+
+  template_r <- read_lines(dust_file("template/gpu/dust.cu"))
+  code_r <- glue_whisker(template_r, data)
+
+  if (gpu) {
+    template_cu <- read_lines(dust_file("template/gpu/dust.cu"))
+    template_hpp <- read_lines(dust_file("template/gpu/dust.hpp"))
+    code_cu <- glue_whisker(template_cu, data)
+    code_hpp <- glue_whisker(template_hpp, data)
+    filename_cu <- sub("\\.cpp", ".cu", basename(filename))
+    filename_hpp <- sub("\\.cpp", ".hpp", basename(filename))
+    src <- set_names(c(code_cu, code_hpp), c(filename_cu, filename_hpp))
+    list(src = src, r = code_r)
+  } else {
+    template_cpp <- read_lines(dust_file("template/gpu/dust.cpp"))
+    code_cpp <- glue_whisker(template_cpp, data)
+    src <- set_names(code_cpp, basename(filename))
+    list(src = src, r = code_r)
+  }
 }

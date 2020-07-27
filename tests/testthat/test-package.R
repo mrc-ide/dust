@@ -145,3 +145,14 @@ test_that("Validate NAMESPACE from dust_package", {
     dust_package(path),
     "Did not find a useDynLib call in NAMESPACE")
 })
+
+
+test_that("Create gpu package", {
+  path <- create_test_package(examples = c("sirs.cpp", "volatility.cpp"))
+  path <- dust_package(path, gpu = TRUE)
+  expect_setequal(
+    dir(file.path(path, "src")),
+    c("Makevars", "cpp11.cpp",
+      "sirs.cu", "sirs.hpp",
+      "volatility.cu", "volatility.hpp"))
+})
