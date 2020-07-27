@@ -67,8 +67,7 @@ dust_package <- function(path, quiet = FALSE, gpu = FALSE) {
 
   if (gpu) {
     template <- read_lines(dust_file("template/gpu/Makevars.pkg"))
-    objects <- paste(sort(c(sub("\\.cpp", ".o", files), "cpp11.o")),
-                     collapse = " ")
+    objects <- paste(sort(sub("\\.cpp", ".o", files)), collapse = " ")
     writeLines(glue_whisker(template, list(objects = objects)),
                file.path(path, "src/Makevars"))
   }
