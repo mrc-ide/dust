@@ -49,12 +49,3 @@ volatility::init_t dust_data<volatility>(cpp11::list data) {
 
   return volatility::init_t{alpha, sigma, x0};
 }
-
-
-gen <- odin.dust::odin_dust({
-  update(X) <- alpha * X + sigma * rnorm(0, 1)
-  initial(X) <- X0
-  X0 <- user()
-  alpha <- user()
-  sigma <- user()
-  }, gpu = TRUE)
