@@ -15,6 +15,15 @@
 #include <thrust/swap.h>
 #include <cub/device/device_select.cuh>
 
+namespace dust {}
+
+template <typename real_t>
+struct state_t {
+  real_t* state_ptr;
+  unsigned int state_stride;
+}
+
+}
 
 template <typename T, typename real_t>
 __global__
@@ -31,8 +40,8 @@ void run_particles(T* models,
   for (int p_idx = index; p_idx < n_particles; p_idx += stride) {
     int curr_step = step;
     dust::rng_state_t<real_t> rng = dust::loadRNG<real_t>(rng_state, p_idx);
-    real_t* particle_y_p = particle_y + p_idx;
-    real_t* particle_y_p_swap = particle_y_swap + p_idx;
+    dust::state_t<real_t> particle_y_p = {particle_y + p_idx, n_particles};
+    dust::state_t<real_t> particle_y_p_swap = {particle_y_swap + p_idx, n_particles};
     while (curr_step < step_end) {
       // Run the model forward a step
       models[p_idx].update(curr_step,
@@ -43,9 +52,9 @@ void run_particles(T* models,
       curr_step++;
 
       // Update state
-      real_t* tmp = particle_y_p;
-      particle_y_p = particle_y_p_swap;
-      particle_y_p_swap = tmp;
+      real_t* tmp = particle_y_p.state_ptr;
+      particle_y_p.state_ptr = particle_y_p_swap.state_ptr;
+      particle_y_p_swap.state_ptr = tmp;
     }
     dust::putRNG(rng, rng_state, p_idx);
   }
