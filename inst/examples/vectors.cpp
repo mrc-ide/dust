@@ -1,17 +1,17 @@
-#include <array>
+#include <vector>
 
-class arrays {
+class vectors {
 public:
   typedef double real_t;
   struct init_t {
     int dim_r;
     int dim_x;
-    std::array<real_t, 3> initial_x;
+    std::vector<real_t> initial_x;
     real_t initial_y;
     int n;
-    std::array<real_t, 3> r;
+    std::vector<real_t> r;
   };
-  arrays(const init_t& data): internal(data) {
+  vectors(const init_t& data): internal(data) {
   }
   size_t size() {
     return 1 + internal.dim_x;
@@ -40,12 +40,15 @@ private:
 };
 
 template<>
-arrays::init_t dust_data<arrays>(cpp11::list user) {
-  arrays::init_t internal;
+vectors::init_t dust_data<vectors>(cpp11::list user) {
+  typedef typename vectors::real_t real_t;
+  vectors::init_t internal;
   internal.initial_y = 2;
   internal.n = 3;
   internal.dim_r = internal.n;
   internal.dim_x = internal.n;
+  internal.initial_x = std::vector<real_t>(internal.dim_x);
+  internal.r = std::vector<real_t>(internal.dim_r);
   for (int i = 1; i <= internal.dim_x; ++i) {
     internal.initial_x[i - 1] = 1;
   }
@@ -56,7 +59,7 @@ arrays::init_t dust_data<arrays>(cpp11::list user) {
 }
 
 template <>
-cpp11::sexp dust_info<arrays>(const arrays::init_t& internal) {
+cpp11::sexp dust_info<vectors>(const vectors::init_t& internal) {
   cpp11::writable::list ret(2);
   ret[0] = cpp11::writable::integers({1});
   ret[1] = cpp11::writable::integers({internal.dim_x});
