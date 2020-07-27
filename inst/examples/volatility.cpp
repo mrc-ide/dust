@@ -1,4 +1,4 @@
-class volitility {
+class volatility {
 public:
   typedef int int_t;
   typedef double real_t;
@@ -7,7 +7,7 @@ public:
     real_t sigma;
     real_t x0;
   };
-  volitility(const init_t& data): data_(data) {
+  volatility(const init_t& data): data_(data) {
   }
   size_t size() {
     return 1;
@@ -33,19 +33,28 @@ private:
 
 #include <cpp11/list.hpp>
 template <>
-volitility::init_t dust_data<volitility>(cpp11::list data) {
-  volitility::real_t x0 = 0;
-  volitility::real_t alpha = 0.91;
-  volitility::real_t sigma = 1;
+volatility::init_t dust_data<volatility>(cpp11::list data) {
+  volatility::real_t x0 = 0;
+  volatility::real_t alpha = 0.91;
+  volatility::real_t sigma = 1;
 
   SEXP r_alpha = data["alpha"];
   if (r_alpha != R_NilValue) {
-    alpha = cpp11::as_cpp<volitility::real_t>(r_alpha);
+    alpha = cpp11::as_cpp<volatility::real_t>(r_alpha);
   }
   SEXP r_sigma = data["sigma"];
   if (r_sigma != R_NilValue) {
-    sigma = cpp11::as_cpp<volitility::real_t>(r_sigma);
+    sigma = cpp11::as_cpp<volatility::real_t>(r_sigma);
   }
 
-  return volitility::init_t{alpha, sigma, x0};
+  return volatility::init_t{alpha, sigma, x0};
 }
+
+
+gen <- odin.dust::odin_dust({
+  update(X) <- alpha * X + sigma * rnorm(0, 1)
+  initial(X) <- X0
+  X0 <- user()
+  alpha <- user()
+  sigma <- user()
+  }, gpu = TRUE)
