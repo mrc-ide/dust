@@ -8,7 +8,7 @@ Options:
 
 main <- function(args = commandArgs(TRUE)) {
   args <- docopt::docopt(usage, args)
-  gen_g <- dust::dust(args$model, gpu = FALSE)
+  gen_g <- dust::dust(args$model, gpu = TRUE)
   mod_g <- gen_g$new(list(), 0, as.integer(args$particles))
   mod_g$set_index(2L)
   times <- seq(10, 50, by = 10)
