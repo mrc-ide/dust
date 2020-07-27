@@ -1,4 +1,11 @@
 #!/usr/bin/env Rscript
+"Usage:
+  profile_compute [options] <model>
+
+Options:
+  --particles=PARTICLES  Number of particles [default: 100000]
+" -> usage
+
 args <- docopt::docopt(usage, args)
 gen_g <- dust::dust(args$model, gpu = TRUE)
 system.time({

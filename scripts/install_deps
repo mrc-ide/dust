@@ -7,4 +7,4 @@ err <- setdiff(msg, .packages(TRUE))
 if (length(err) > 0L) {
   stop("Failed to install package: ", paste(err, collapse = ", "))
 }
-remotes::install_local(".")
+remotes::install_local(".", force = TRUE)
