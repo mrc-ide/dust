@@ -19,6 +19,11 @@
 
 namespace dust {
 
+__host__ __device__
+static inline uint64_t rotl(const uint64_t x, int k) {
+  return (x << k) | (x >> (64 - k));
+}
+
 template <typename T>
 struct rng_state_t {
   typedef T real_t;
@@ -34,7 +39,7 @@ struct rng_state_t {
   }
 
   uint64_t next() {
-    const uint64_t result = rotl(state[1] * 5, 7) * 9;
+    const uint64_t result = rotl(s1 * 5, 7) * 9;
 
     const uint64_t t = state[1] << 17;
 
@@ -50,11 +55,6 @@ struct rng_state_t {
     return result;
   }
 };
-
-__host__ __device__
-static inline uint64_t rotl(const uint64_t x, int k) {
-  return (x << k) | (x >> (64 - k));
-}
 
 // Call with non-interleaved state only
 /*
