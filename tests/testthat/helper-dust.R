@@ -8,8 +8,9 @@ has_openmp <- function() {
 }
 
 
-create_test_package <- function(name = "pkg", path = tempfile()) {
-  dir.create(path)
+create_test_package <- function(name = "pkg", path = tempfile(),
+                                examples = c("walk.cpp", "sir.cpp")) {
+  dir.create(path, FALSE, TRUE)
   dir.create(file.path(path, "inst/dust"), FALSE, TRUE)
   dir.create(file.path(path, "R"), FALSE, TRUE)
   dir.create(file.path(path, "src"), FALSE, TRUE)
@@ -19,8 +20,8 @@ create_test_package <- function(name = "pkg", path = tempfile()) {
              file.path(path, "DESCRIPTION"))
   writeLines(glue_whisker(read_lines("examples/pkg/NAMESPACE"), data),
              file.path(path, "NAMESPACE"))
-  file.copy(dust_file("examples/walk.cpp"), file.path(path, "inst/dust"))
-  file.copy(dust_file("examples/sir.cpp"), file.path(path, "inst/dust"))
+  file.copy(dust_file(file.path("examples", examples)),
+            file.path(path, "inst/dust"))
 
   path
 }
