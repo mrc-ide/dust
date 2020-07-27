@@ -1,0 +1,1 @@
+useDynLib("gpupkg", .registration = TRUE)
