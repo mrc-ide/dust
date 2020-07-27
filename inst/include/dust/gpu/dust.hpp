@@ -216,6 +216,7 @@ public:
     _particle_y_addrs(nullptr),
     _particle_y_swap_addrs(nullptr) {
     initialise(data, step, n_particles);
+    cudaProfilerStart();
     cudaDeviceSynchronize();
   }
 
@@ -224,6 +225,7 @@ public:
     CUDA_CALL(cudaFree(_model_addrs));
     CUDA_CALL(cudaFree(_particle_y_addrs));
     CUDA_CALL(cudaFree(_particle_y_swap_addrs));
+    cudaProfilerStop();
   }
 
   void reset(const init_t data, const size_t step) {
