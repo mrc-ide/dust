@@ -28,3 +28,27 @@ test_that("sirs smoke test", {
 
   expect_equal(y_c, y_g)
 })
+
+
+## This test really does nothing interesting asid
+test_that("Create gpu package", {
+  path <- create_test_package("gpupkg",
+                              examples = c("sirs.cpp", "volatility.cpp"))
+  path <- dust_package(path, gpu = TRUE)
+  expect_setequal(
+    dir(file.path(path, "src")),
+    c("Makevars", "cpp11.cpp",
+      "sirs.cu", "sirs.hpp",
+      "volatility.cu", "volatility.hpp"))
+
+  skip_if_no_nvcc()
+
+  pkgbuild::compile_dll(path, quiet = TRUE)
+
+  skip_if_no_gpu()
+
+  res <- pkgload::load_all(path)
+
+  mod <- res$env$volatility$new(list(), 0, 100)
+  expect_equal(mod$state(), matrix(0, 1, 100))
+})
