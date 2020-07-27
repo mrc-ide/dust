@@ -277,7 +277,18 @@ public:
   }
 
   void run(const size_t step_end) {
-    const size_t blockSize = 32; // Check later
+#define AUTO_BLOCK_SIZE
+#ifdef AUTO_BLOCK_SIZE
+    // Automatically find largest viable block size
+    int blockSize = 0;
+    int minGridSize = 0;
+    cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, run_particles, 0, _particles.size());
+#else
+    // Presumed best case for binomial rng models
+    // Due to high levels of divergence
+    // Some threads do 200 iterations, others 50
+    int blockSize = 64;
+#endif
     const size_t blockCount = (_particles.size() + blockSize - 1) / blockSize;
     run_particles<<<blockCount, blockSize>>>(_model_addrs,
                                              _particle_y_addrs,
