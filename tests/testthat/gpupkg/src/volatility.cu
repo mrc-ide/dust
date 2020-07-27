@@ -28,7 +28,6 @@ public:
               dust::rng_state_t<real_t>& rng_state,
               dust::state_t<real_t>& state_next) {
     const real_t x = state.state_ptr[0];
-    const real_t x = state[0];
     state_next.state_ptr[0] = data_.alpha * x +
       data_.sigma * dust::distr::rnorm(rng_state, 0, 1);
   }
