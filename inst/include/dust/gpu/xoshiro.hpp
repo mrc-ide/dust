@@ -144,7 +144,7 @@ inline void Xoshiro::set_seed(uint64_t seed) {
 
 // This is used when reading the state back from the device
 __host__
-void Xoshiro::set_state(const std::vector<uint64_t>& new_state) {
+inline void Xoshiro::set_state(const std::vector<uint64_t>& new_state) {
   _state[0] = new_state[0];
   _state[1] = new_state[1];
   _state[2] = new_state[2];
