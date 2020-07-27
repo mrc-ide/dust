@@ -51,13 +51,7 @@ dust_package <- function(path, quiet = FALSE, gpu = FALSE) {
   template_r <- paste(template_r[!grepl("\\s*#+'", template_r)],
                       collapse = "\n")
 
-  if (gpu) {
-    template_cpp <- read_lines(dust_file("template/gpu/dust.cu"))
-  } else {
-    template_cpp <- read_lines(dust_file("template/dust.cpp"))
-  }
-  data <- lapply(file.path(path_dust, files), package_generate,
-                 template_cpp, gpu)
+  data <- lapply(file.path(path_dust, files), package_generate, gpu)
 
   dir.create(path_src, FALSE, TRUE)
   dir.create(path_r, FALSE, TRUE)
@@ -153,7 +147,7 @@ package_validate_namespace_usedynlib <- function(exprs, name) {
 }
 
 
-package_generate <- function(filename, template_cpp, gpu) {
+package_generate <- function(filename, gpu) {
   type <- dust_guess_type(readLines(filename))
   name <- type
   model <- read_lines(filename)
@@ -172,7 +166,7 @@ package_generate <- function(filename, template_cpp, gpu) {
     src <- set_names(c(code_cu, code_hpp), c(filename_cu, filename_hpp))
     list(src = src, r = code_r)
   } else {
-    template_cpp <- read_lines(dust_file("template/gpu/dust.cpp"))
+    template_cpp <- read_lines(dust_file("template/dust.cpp"))
     code_cpp <- glue_whisker(template_cpp, data)
     src <- set_names(code_cpp, basename(filename))
     list(src = src, r = code_r)
