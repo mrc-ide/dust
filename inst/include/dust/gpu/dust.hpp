@@ -12,6 +12,7 @@
 
 #include <thrust/device_vector.h>
 #include <thrust/swap.h>
+#include <cuda_profiler_api.h>
 
 // TODO: For reasons unknown, this does not get found on raplab
 // #include <cub/device/device_select.cuh>
@@ -215,8 +216,8 @@ public:
     _model_addrs(nullptr),
     _particle_y_addrs(nullptr),
     _particle_y_swap_addrs(nullptr) {
-    initialise(data, step, n_particles);
     cudaProfilerStart();
+    initialise(data, step, n_particles);
     cudaDeviceSynchronize();
   }
 
