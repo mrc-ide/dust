@@ -1,0 +1,10 @@
+#!/usr/bin/env Rscript
+args <- docopt::docopt(usage, args)
+gen_g <- dust::dust(args$model, gpu = TRUE)
+system.time({
+  mod_g <- gen_g$new(list(), 0, as.integer(args$particles))
+  mod_g$set_index(2L)
+  times <- seq(10, 50, by = 10)
+  y_g <- mod_g$run(10)
+  invisible(NULL)
+})
