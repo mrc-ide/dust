@@ -6,7 +6,7 @@ Options:
   --particles=PARTICLES  Number of particles [default: 100000]
 " -> usage
 
-args <- docopt::docopt(usage, args)
+args <- docopt::docopt(usage)
 gen_g <- dust::dust(args$model, gpu = TRUE)
 system.time({
   mod_g <- gen_g$new(list(), 0, as.integer(args$particles))
