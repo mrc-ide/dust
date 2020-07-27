@@ -288,7 +288,7 @@ private:
     CUDA_CALL(cudaMalloc((void** )&_models, models.size() * sizeof(T)));
     CUDA_CALL(cudaMemcpy(_models, models.data(), models.size() * sizeof(T),
                          cudaMemcpyDefault));
-    _state_size = models.size();
+    _state_size = model.size();
 
     _y_flat.clear();
     _y_flat.resize(n_particles * model.size());
