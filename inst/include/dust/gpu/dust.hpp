@@ -5,6 +5,7 @@
 #include <dust/gpu/rng.hpp>
 
 #include <algorithm>
+#include <numeric>
 #include <utility>
 #ifdef _OPENMP
 #include <omp.h>
@@ -20,8 +21,8 @@ namespace dust {
 template <typename real_t>
 struct state_t {
   real_t* state_ptr;
-  unsigned int state_stride;
-}
+  size_t state_stride;
+};
 
 }
 
@@ -100,8 +101,7 @@ public:
   }
 
   void reset(const init_t data, const size_t step) {
-    const size_t n_particles = _particles.size();
-    initialise(data, step, n_particles);
+    initialise(data, step, _n_particles);
   }
 
   // It's the callee's responsibility to ensure that index is in
@@ -118,15 +118,13 @@ public:
   // * if is_matrix is true, state must be length (n_state_full() *
   //   n_particles()) and every particle gets a different state.
   void set_state(const std::vector<real_t>& state, bool is_matrix) {
-    const size_t n_particles = _particles.size();
-    const size_t n_state = n_state_full();
     auto it = state.begin();
-    for (size_t i = 0; i < n_particles; ++i) {
-      for (size_t j = 0; j < n_state; ++j, ++it) {
-        _y_flat[i + j * n_particles] = *it;
+    for (size_t i = 0; i < _n_particles; ++i) {
+      for (size_t j = 0; j < _state_size; ++j, ++it) {
+        _y_flat[i + j * _n_particles] = *it;
       }
       if (!is_matrix) {
-        it += state.begin();
+        it = state.begin();
       }
     }
     y_to_device();
@@ -137,9 +135,8 @@ public:
   }
 
   void set_step(const std::vector<size_t>& step) {
-    const size_t n_particles = _particles.size();
-    for (size_t i = 0; i < n_particles; ++i) {
-      _steps[i] = step[i]
+    for (size_t i = 0; i < _n_particles; ++i) {
+      _steps[i] = step[i];
     }
     const auto r = std::minmax_element(step.begin(), step.end());
     if (*r.second > *r.first) {
@@ -149,7 +146,7 @@ public:
 
   void run(const size_t step_end) {
     const size_t blockSize = 32; // Check later
-    const size_t blockCount = (_particles.size() + blockSize - 1) / blockSize;
+    const size_t blockCount = (_n_particles + blockSize - 1) / blockSize;
     run_particles<<<blockCount, blockSize>>>(_models,
                                              _y_device,
                                              _y_swap_device,
@@ -159,7 +156,7 @@ public:
                                              this->step(),
                                              step_end);
     // write step end back to particles
-    for (size_t i = 0; i < _particles.size(); ++i) {
+    for (size_t i = 0; i < _n_particles; ++i) {
       _steps[i] = step_end;
     }
     cudaDeviceSynchronize();
@@ -170,7 +167,7 @@ public:
                                _y_device, _d_index,
                                _d_y_out, _d_num_selected_out,
                                _n_particles * _state_size);
-    std::vector<real_t> y_flat_selected(_n_particles * _index.size())
+    std::vector<real_t> y_flat_selected(_n_particles * _index.size());
     CUDA_CALL(cudaMemcpy(y_flat_selected.data(), _d_y_out, y_flat_selected.size() * sizeof(real_t),
                          cudaMemcpyDefault));
 
@@ -287,18 +284,18 @@ private:
     CUDA_CALL(cudaFree(_d_index));
 
     T model(data);
-    std::vector<T> models(model, n_particles);
+    std::vector<T> models(n_particles, model);
     CUDA_CALL(cudaMalloc((void** )&_models, models.size() * sizeof(T)));
     CUDA_CALL(cudaMemcpy(_models, models.data(), models.size() * sizeof(T),
                          cudaMemcpyDefault));
     _state_size = models.size();
 
     _y_flat.clear();
-    _y_flat.resize(n_particles * model->size());
+    _y_flat.resize(n_particles * model.size());
     _y_swap_flat.clear();
-    _y_swap_flat.resize(n_particles * model->size());
-    y = std::vector<real_t>(model->initial(step));
-    y_swap = std::vector<real_t>(model->size());
+    _y_swap_flat.resize(n_particles * model.size());
+    std::vector<real_t> y(model.initial(step));
+    std::vector<real_t> y_swap(model.size());
     auto y_flat_it = _y_flat.begin();
     auto y_flat_swap_it = _y_swap_flat.begin();
     for (auto i = 0; i < y.size(); i++) {
@@ -311,8 +308,8 @@ private:
     CUDA_CALL(cudaMalloc((void** )&_y_device, _y_flat.size() * sizeof(real_t)));
     CUDA_CALL(cudaMemcpy(_y_device, _y_flat.data(), _y_flat.size() * sizeof(real_t),
                          cudaMemcpyDefault));
-    CUDA_CALL(cudaMalloc((void** )&_y_swap_device, _y_flat_swap.size() * sizeof(real_t)));
-    CUDA_CALL(cudaMemcpy(_y_swap_device, _y_flat_swap.data(), _y_flat_swap.size() * sizeof(real_t),
+    CUDA_CALL(cudaMalloc((void** )&_y_swap_device, _y_swap_flat.size() * sizeof(real_t)));
+    CUDA_CALL(cudaMemcpy(_y_swap_device, _y_swap_flat.data(), _y_swap_flat.size() * sizeof(real_t),
                          cudaMemcpyDefault));
 
     // Set the index
@@ -329,9 +326,9 @@ private:
     CUDA_CALL(cudaFree(_d_y_out));
     CUDA_CALL(cudaFree(_d_num_selected_out));
 
-    std::vector<char> bool_idx(n_state_full() * n_particles, 0); // NB: vector<bool> is specialised and can't be used here
+    std::vector<char> bool_idx(n_state_full() * _n_particles, 0); // NB: vector<bool> is specialised and can't be used here
     for (auto idx_pos = _index.cbegin(); idx_pos != _index.cend(); idx_pos++) {
-      std::fill_n(bool_idx.begin() + *idx_pos, n_particles, 1);
+      std::fill_n(bool_idx.begin() + *idx_pos, _n_particles, 1);
     }
     CUDA_CALL(cudaMemcpy(_d_index, bool_idx.data(), bool_idx.size() * sizeof(char),
                          cudaMemcpyHostToDevice));
@@ -341,21 +338,21 @@ private:
     CUDA_CALL(cudaMalloc((void**)&_d_num_selected_out, 1 * sizeof(size_t)));
     // Determine temporary device storage requirements
     cub::DeviceSelect::Flagged(_d_tmp, _temp_storage_bytes,
-                               _particle_y_addrs[0], _d_index, _d_y_out,
-                               _d_num_selected_out, n_state_full() * _n_particles);
+                               _y_device, _d_index, _d_y_out,
+                               _d_num_selected_out, _state_size * _n_particles);
     CUDA_CALL(cudaMalloc((void**)&_d_tmp, _temp_storage_bytes));
   }
 
   void y_to_host() {
-    CUDA_CALL(cudaMemcpy(_y.data(), _y_device, _y.size() * sizeof(real_t),
+    CUDA_CALL(cudaMemcpy(_y_flat.data(), _y_device, _y_flat.size() * sizeof(real_t),
                          cudaMemcpyDefault));
   }
   void y_swap_to_device() {
-    CUDA_CALL(cudaMemcpy(_y_swap_device, _y_swap.data(), _y_swap.size() * sizeof(real_t),
+    CUDA_CALL(cudaMemcpy(_y_swap_device, _y_swap_flat.data(), _y_swap_flat.size() * sizeof(real_t),
                          cudaMemcpyDefault));
   }
   void y_to_device() {
-    CUDA_CALL(cudaMemcpy(_y_device, _y.data(), _y.size() * sizeof(real_t),
+    CUDA_CALL(cudaMemcpy(_y_device, _y_flat.data(), _y_flat.size() * sizeof(real_t),
                          cudaMemcpyDefault));
   }
 };
