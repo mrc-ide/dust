@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 req <- c("R6", "cpp11", "glue", "pkgbuild", "withr", "brio", "decor",
-         "fs", "pkgload", "docopt", "remotes")
+         "fs", "pkgload", "docopt", "remotes", "testthat")
 msg <- setdiff(req, .packages(TRUE))
 install.packages(msg)
 err <- setdiff(msg, .packages(TRUE))
