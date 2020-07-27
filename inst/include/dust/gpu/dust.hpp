@@ -282,7 +282,7 @@ public:
     // Automatically find largest viable block size
     int blockSize = 0;
     int minGridSize = 0;
-    cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, run_particles, 0, _particles.size());
+    cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, run_particles<T, T::real_t>, 0, _particles.size());
 #else
     // Presumed best case for binomial rng models
     // Due to high levels of divergence
