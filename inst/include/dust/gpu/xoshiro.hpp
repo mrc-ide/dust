@@ -107,8 +107,8 @@ private:
 template <typename T>
 __device__
 inline double device_unif_rand(rng_state_t<T>& state) {
-  const double max_double_val = __ull2double_rn(UINT64_MAX);
-  double rand = (__ddiv_rn(__ull2double_rn(xoshiro_next(state)), max_double_val));
+  // 18446744073709551616.0 == __ull2double_rn(UINT64_MAX)
+  double rand = (__ddiv_rn(__ull2double_rn(xoshiro_next(state)), 18446744073709551616.0));
   return rand;
 }
 

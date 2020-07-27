@@ -227,8 +227,8 @@ public:
     }
   }
   */
- void reorder(const std::vector<size_t>& index) {
- }
+  void reorder(const std::vector<size_t>& index) {
+  }
 
   size_t n_particles() const {
     return _n_particles;
@@ -328,7 +328,7 @@ private:
 
     std::vector<char> bool_idx(n_state_full() * _n_particles, 0); // NB: vector<bool> is specialised and can't be used here
     for (auto idx_pos = _index.cbegin(); idx_pos != _index.cend(); idx_pos++) {
-      std::fill_n(bool_idx.begin() + *idx_pos, _n_particles, 1);
+      std::fill_n(bool_idx.begin() + (*idx_pos * _n_particles), _n_particles, 1);
     }
     CUDA_CALL(cudaMemcpy(_d_index, bool_idx.data(), bool_idx.size() * sizeof(char),
                          cudaMemcpyHostToDevice));
