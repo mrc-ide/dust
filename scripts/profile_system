@@ -13,4 +13,4 @@ export TMPDIR=/raid/${SLURM_JOBID}/tmp
 
 nsys profile --force-overwrite true -o "$DEST" \
   --trace cuda,nvtx,osrt,openacc -c cudaProfilerApi \
-  $ROOT/scripts/target_system_pkg ${NAME} --particles=50000
+  $ROOT/scripts/target_system_pkg ${NAME} --particles=81920
