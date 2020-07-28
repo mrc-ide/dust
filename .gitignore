@@ -14,3 +14,4 @@ docs
 *.gcno
 inst/doc
 pkgdown
+inst/include/cub
