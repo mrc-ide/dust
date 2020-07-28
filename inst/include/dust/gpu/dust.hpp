@@ -42,7 +42,7 @@ void run_particles(T* models,
 
     // Read state into shared memory
     extern __shared__ real_t y_shared[];
-    for (int state_idx = 0; state_idx < y_len, state_idx++) {
+    for (int state_idx = 0; state_idx < y_len; state_idx++) {
       y_shared[threadIdx.x + state_idx * blockDim.x] =
         particle_y[p_idx + state_idx * n_particles];
       y_shared[threadIdx.x + state_idx * blockDim.x + blockDim.x * y_len] =
@@ -67,7 +67,7 @@ void run_particles(T* models,
     }
     dust::putRNG(rng, rng_state, p_idx);
     // Write back state from shared memory
-    for (int state_idx = 0; state_idx < y_len, state_idx++) {
+    for (int state_idx = 0; state_idx < y_len; state_idx++) {
       particle_y[p_idx + state_idx * n_particles] =
         y_shared[threadIdx.x + state_idx * blockDim.x];
       particle_y_swap[p_idx + state_idx * n_particles] =
