@@ -6,7 +6,7 @@ PKG_LIBS = -lcudart $(SHLIB_OPENMP_CXXFLAGS)
 PKG_CXXFLAGS=-DHAVE_INLINE $(SHLIB_OPENMP_CXXFLAGS)
 
 NVCC = nvcc
-NVCC_FLAGS = -std=c++14 -O2 -I. -I$(R_INCLUDE_DIR) $(CLINK_CPPFLAGS) -gencode=arch=compute_70,code=sm_70 -gencode=arch=compute_75,code=sm_75 -pg --generate-line-info ---use_fast_math -Xcompiler -fPIC -x cu
+NVCC_FLAGS = -std=c++14 -O2 -I. -I$(R_INCLUDE_DIR) $(CLINK_CPPFLAGS) -gencode=arch=compute_70,code=sm_70 -gencode=arch=compute_75,code=sm_75 -pg --generate-line-info --use_fast_math -Xcompiler -fPIC -x cu
 
 %.o: %.cu
 	$(NVCC) $(NVCC_FLAGS) -c $< -o $@
