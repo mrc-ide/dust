@@ -3,7 +3,7 @@ context("gpu")
 test_that("can generate GPU code", {
   cache <- new.env(parent = emptyenv())
 
-  res <- generate_dust(dust_file("examples/sirs.cpp"), "sirs", "sirs",
+  res <- generate_dust(dust_file("examples/gpu/sirs.cpp"), "sirs", "sirs",
                        gpu = TRUE, quiet = TRUE, workdir = NULL, cache = cache)
   expect_match(res$key, "^sirsgpu[[:xdigit:]]+$")
 
@@ -14,7 +14,7 @@ test_that("can generate GPU code", {
 
 test_that("sirs smoke test", {
   skip_if_no_nvcc()
-  gen_g <- dust(dust_file("examples/sirs.cpp"), quiet = TRUE, gpu = TRUE)
+  gen_g <- dust(dust_file("examples/gpu/sirs.cpp"), quiet = TRUE, gpu = TRUE)
 
   skip_if_no_gpu()
 
@@ -32,8 +32,9 @@ test_that("sirs smoke test", {
 
 ## This test really does nothing interesting asid
 test_that("Create gpu package", {
-  path <- create_test_package("gpupkg",
-                              examples = c("sirs.cpp", "volatility.cpp"))
+  path <- create_test_package(
+    "gpupkg",
+    examples = c("gpu/sirs.cpp", "gpu/volatility.cpp"))
   path <- dust_package(path, gpu = TRUE)
   expect_setequal(
     dir(file.path(path, "src")),
