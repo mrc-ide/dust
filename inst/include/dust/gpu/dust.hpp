@@ -34,7 +34,6 @@ void run_particles(T* models,
                    dust::RNGptr rng_state,
                    size_t y_len,
                    size_t n_particles,
-                   size_t state_size,
                    size_t step,
                    size_t step_end) {
   int p_idx = blockIdx.x * blockDim.x + threadIdx.x;
