@@ -1,6 +1,5 @@
 #define alpha 0.91
 #define sigma 1
-#define x0 0
 
 class volatility {
 public:
