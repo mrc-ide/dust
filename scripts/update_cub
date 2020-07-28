@@ -1,6 +1,8 @@
 #!/usr/bin/env Rscript
 local({
-  root <- here::here()
+  ## Getting the root could be done better with here::here but we
+  ## really want the root relative to the script.
+  root <- getwd()
   cub_version <- "1.9.10"
   url <- sprintf("https://github.com/NVlabs/cub/archive/%s.tar.gz", cub_version)
   tgz <- tempfile(fileext = ".tar.gz")
