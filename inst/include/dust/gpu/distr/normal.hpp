@@ -13,13 +13,13 @@ inline void box_muller(rng_state_t<real_t>& rng_state, real_t* d0, real_t* d1) {
   // http://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform#Basic_form
   // Do not send a really small number to log().
   // We cannot mark "epsilon" as "static const" because NVCC would complain
-  const double epsilon = 1.0e-7;
-  double u1 = device_unif_rand(rng_state);
+  const real_t epsilon = 1.0e-7;
+  real_t u1 = device_unif_rand(rng_state);
   if (u1 < epsilon) {
     u1 = epsilon;
   }
-  const double v1 = 2 * M_PI * device_unif_rand(rng_state);
-  const double u2 = sqrt(-2.0 * log(u1));
+  const real_t v1 = 2 * M_PI * device_unif_rand(rng_state);
+  const real_t u2 = sqrt(-2.0 * log(u1));
   sincos(v1, d0, d1);
   *d0 *= u2;
   *d1 *= u2;
