@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -ex
+HERE=$(dirname $0)
+ROOT=$(realpath $HERE/..)
+(cd $ROOT/tests/testthat && Rscript gpupkg.R)

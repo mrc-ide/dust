@@ -17,6 +17,9 @@ main <- function(args = commandArgs(TRUE)) {
     stop(sprintf("Unknown model '%s'", args$model))
   }
 
+  message(sprintf("Running %s model with %s particles",
+                  args$model, args$particles))
+
   mod$set_index(1L)
   times <- seq(10, 50, by = 10)
   for (t in times) {

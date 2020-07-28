@@ -18,3 +18,4 @@
 ^pkgdown$
 ^LICENSE\.md$
 ^buildkite$
+^tests/testthat/gpupkg\.R$

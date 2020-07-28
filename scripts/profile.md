@@ -23,35 +23,44 @@ From within the `dust` directory
 ./scripts/install_deps
 ```
 
+## Updating the package sources
+
+Run
+
+```
+./scripts/update_gpupkg
+```
+
+after changing the example files or Makevars
+
 ## Running the profiles
 
+Run
 
-### System/Timeline volatility (~30s including installation)
+```
+./scripts/update_for_profile
+```
+
+### System/Timeline volatility (~15s)
 
 ```
 ./scripts/profile_system volatility
 ```
 
-### System/Timeline sirs (~30s including installation)
+### System/Timeline sirs (~15s)
 
 ```
 ./scripts/profile_system sirs
 ```
 
-### Kernel/Compute volatility (~30s including installation)
+### Kernel/Compute volatility (~15s)
 
 ```
 ./scripts/profile_compute volatility
 ```
 
-### Kernel/Compute sirs (~7 mins including installation)
+### Kernel/Compute sirs (~7 mins)
 
 ```
 ./scripts/profile_compute sirs
-```
-
-For all of these, if the packages do not need updating then
-
-```
-DUST_NO_INSTALL=true ./scripts/profile_system volatility
 ```

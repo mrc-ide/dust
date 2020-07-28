@@ -17,6 +17,8 @@ main <- function(args = commandArgs(TRUE)) {
   } else {
     stop(sprintf("Unknown model '%s'", args$model))
   }
+  message(sprintf("Running %s model with %s particles and %s steps",
+                  args$model, args$particles, args$steps))
   y <- mod$run(as.integer(args$steps))
   invisible(NULL)
 }
