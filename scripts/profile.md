@@ -44,7 +44,7 @@ From within the `dust` directory
 ./scripts/profile_compute volatility
 ```
 
-### Kernel/Compute sirs (~200s including installation)
+### Kernel/Compute sirs (~7 mins including installation)
 
 ```
 ./scripts/profile_compute sirs

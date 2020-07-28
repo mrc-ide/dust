@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 HERE=$(dirname $0)
 ROOT=$(realpath $HERE/..)
 NAME=$1
@@ -12,7 +13,7 @@ if [ -z $DUST_NO_INSTALL ]; then
     R CMD INSTALL --preclean $ROOT/tests/testthat/gpupkg
 fi
 
-mkdir /raid/${SLURM_JOBID}/tmp
+mkdir -p /raid/${SLURM_JOBID}/tmp
 export TMPDIR=/raid/${SLURM_JOBID}/tmp
 
 ncu -o "$DEST" --set full --target-processes all \
