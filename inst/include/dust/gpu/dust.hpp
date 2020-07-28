@@ -39,7 +39,6 @@ void run_particles(T* models,
                    size_t step_end) {
   int p_idx = blockIdx.x * blockDim.x + threadIdx.x;
   if (p_idx < n_particles) {
-    int curr_step = step;
     dust::rng_state_t<real_t> rng = dust::loadRNG<real_t>(rng_state, p_idx);
 
     // Read state into shared memory
@@ -54,14 +53,13 @@ void run_particles(T* models,
     dust::state_t<real_t> particle_y_p_swap =
       {y_shared + threadIdx.x + blockDim.x * y_len, blockDim.x};
 
-    while (curr_step < step_end) {
+    for (int curr_step = step; curr_step < step_end; ++curr_step) {
       // Run the model forward a step
       models[p_idx].update(curr_step,
-                            particle_y_p,
-                            rng,
-                            particle_y_p_swap);
+                           particle_y_p,
+                           rng,
+                           particle_y_p_swap);
       __syncwarp();
-      curr_step++;
 
       // Update state
       real_t* tmp = particle_y_p.state_ptr;

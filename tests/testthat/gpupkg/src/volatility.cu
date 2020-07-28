@@ -2,13 +2,16 @@
 #include <dust/gpu/dust.hpp>
 #include <dust/interface.hpp>
 
+#define alpha 0.91
+#define sigma 1
+
 class volatility {
 public:
   typedef int int_t;
   typedef float real_t;
   struct init_t {
-    real_t alpha;
-    real_t sigma;
+    //real_t alpha;
+    //real_t sigma;
     real_t x0;
   };
   volatility(const init_t& data): data_(data) {
@@ -28,8 +31,8 @@ public:
               dust::rng_state_t<real_t>& rng_state,
               dust::state_t<real_t>& state_next) {
     const real_t x = state.state_ptr[0];
-    state_next.state_ptr[0] = data_.alpha * x +
-      data_.sigma * dust::distr::rnorm(rng_state, 0, 1);
+    state_next.state_ptr[0] = alpha * x +
+      sigma * dust::distr::rnorm(rng_state, 0, 1);
   }
 
 private:
@@ -40,6 +43,7 @@ private:
 template <>
 volatility::init_t dust_data<volatility>(cpp11::list data) {
   volatility::real_t x0 = 0;
+  /*
   volatility::real_t alpha = 0.91;
   volatility::real_t sigma = 1;
 
@@ -51,8 +55,9 @@ volatility::init_t dust_data<volatility>(cpp11::list data) {
   if (r_sigma != R_NilValue) {
     sigma = cpp11::as_cpp<volatility::real_t>(r_sigma);
   }
+  */
 
-  return volatility::init_t{alpha, sigma, x0};
+  return volatility::init_t{x0};
 }
 
 SEXP dust_volatility_alloc(cpp11::list r_data, size_t step, size_t n_particles,

@@ -30,6 +30,26 @@ test_that("sirs smoke test", {
 })
 
 
+test_that("volatility smoke test", {
+  skip_if_no_nvcc()
+  gen_g <- dust(dust_file("examples/gpu/volatility.cpp"),
+                quiet = TRUE, gpu = TRUE)
+
+  skip_if_no_gpu()
+
+  gen_c <- dust(dust_file("examples/volatility.cpp"),
+                quiet = TRUE, gpu = FALSE)
+
+  mod_c <- gen_c$new(list(), 0, 100)
+  mod_g <- gen_g$new(list(), 0, 100)
+
+  y_c <- mod_c$run(10)
+  y_g <- mod_g$run(10)
+
+  expect_equal(y_c, y_g, tolerance = 1e-6)
+})
+
+
 ## This test really does nothing interesting asid
 test_that("Create gpu package", {
   path <- create_test_package(
