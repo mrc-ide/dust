@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+HERE=$(dirname $0)
+ROOT=$(realpath $HERE/..)
+NAME=$1
+HASH=$(git -C $ROOT rev-parse --short HEAD)
+DEST="${ROOT}/profiles/${NAME}-compute-${HASH}"
+
+mkdir -p $ROOT/profiles/
+R CMD INSTALL --preclean $ROOT
+R CMD INSTALL --preclean $ROOT/tests/testthat/gpupkg
+HASH=$(git rev-parse --short HEAD)
+ncu -o "$DEST" --set full --target-processes all \
+    $ROOT/scripts/target_compute_package ${NAME}

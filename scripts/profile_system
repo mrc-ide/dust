@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+HERE=$(dirname $0)
+ROOT=$(realpath $HERE/..)
+NAME=$1
+HASH=$(git -C $ROOT rev-parse --short HEAD)
+DEST="${ROOT}/profiles/${NAME}-system-${HASH}"
+
+mkdir -p $ROOT/profiles/
+R CMD INSTALL --preclean $ROOT
+R CMD INSTALL --preclean $ROOT/tests/testthat/gpupkg
+
+nsys profile --force-overwrite true -o "$DEST" \
+  --trace cuda,nvtx,osrt,openacc -c cudaProfilerApi \
+  $ROOT/scripts/target_system_pkg ${NAME} --particles=50000
