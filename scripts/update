@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -ex
+HERE=$(dirname $0)
+ROOT=$(realpath $HERE/..)
+
+git -C $ROOT pull
+R CMD INSTALL --preclean $ROOT
+R CMD INSTALL --preclean $ROOT/tests/testthat/gpupkg
