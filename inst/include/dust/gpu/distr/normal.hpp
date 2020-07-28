@@ -19,7 +19,7 @@ inline void box_muller(rng_state_t<real_t>& rng_state, real_t* d0, real_t* d1) {
     u1 = epsilon;
   }
   const real_t v1 = 2 * M_PI * device_unif_rand(rng_state);
-  const real_t u2 = sqrt(-2.0 * log(u1));
+  const real_t u2 = std::sqrt(-static_cast<real_t>(2.0) * std::log(u1));
   sincos(v1, d0, d1);
   *d0 *= u2;
   *d1 *= u2;
