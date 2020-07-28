@@ -34,14 +34,26 @@ void run_particles(T* models,
                    dust::RNGptr rng_state,
                    size_t y_len,
                    size_t n_particles,
+                   size_t state_size,
                    size_t step,
                    size_t step_end) {
   int p_idx = blockIdx.x * blockDim.x + threadIdx.x;
   if (p_idx < n_particles) {
     int curr_step = step;
     dust::rng_state_t<real_t> rng = dust::loadRNG<real_t>(rng_state, p_idx);
-    dust::state_t<real_t> particle_y_p = {particle_y + p_idx, n_particles};
-    dust::state_t<real_t> particle_y_p_swap = {particle_y_swap + p_idx, n_particles};
+
+    // Read state into shared memory
+    extern __shared__ real_t y_shared[];
+    for (int state_idx = 0; state_idx < y_len, state_idx++) {
+      y_shared[threadIdx.x + state_idx * blockDim.x] =
+        particle_y[p_idx + state_idx * n_particles];
+      y_shared[threadIdx.x + state_idx * blockDim.x + blockDim.x * y_len] =
+        particle_y_p_swap[p_idx + state_idx * n_particles];
+    }
+    dust::state_t<real_t> particle_y_p = {y_shared + threadIdx.x, blockDim.x};
+    dust::state_t<real_t> particle_y_p_swap =
+      {y_shared + threadIdx.x + blockDim.x * y_len, blockDim.x};
+
     while (curr_step < step_end) {
       // Run the model forward a step
       models[p_idx].update(curr_step,
@@ -57,6 +69,13 @@ void run_particles(T* models,
       particle_y_p_swap.state_ptr = tmp;
     }
     dust::putRNG(rng, rng_state, p_idx);
+    // Write back state from shared memory
+    for (int state_idx = 0; state_idx < y_len, state_idx++) {
+      particle_y[p_idx + state_idx * n_particles] =
+        y_shared[threadIdx.x + state_idx * blockDim.x];
+      particle_y_p_swap[p_idx + state_idx * n_particles] =
+        y_shared[threadIdx.x + state_idx * blockDim.x + blockDim.x * y_len];
+    }
   }
 }
 
@@ -146,14 +165,17 @@ public:
   void run(const size_t step_end) {
     const size_t blockSize = 32; // Check later
     const size_t blockCount = (_n_particles + blockSize - 1) / blockSize;
-    run_particles<<<blockCount, blockSize>>>(_models,
-                                             _y_device,
-                                             _y_swap_device,
-                                             _rng.state_ptr(),
-                                             _state_size,
-                                             _n_particles,
-                                             this->step(),
-                                             step_end);
+    run_particles<<<blockCount, blockSize, 2 * _state_size * blockSize * sizeof(real_t)>>>
+    (
+      _models,
+      _y_device,
+      _y_swap_device,
+      _rng.state_ptr(),
+      _state_size,
+      _n_particles,
+      this->step(),
+      step_end
+    );
     // write step end back to particles
     for (size_t i = 0; i < _n_particles; ++i) {
       _steps[i] = step_end;
