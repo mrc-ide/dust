@@ -25,7 +25,7 @@ before_script:
     else
         CUBLAS_PKG=libcublas-dev
     fi
-  - travis_retry sudo apt-get install -y --no-install-recommends --allow-unauthenticated cuda-core-$CUDA_PKG_VERSION  cuda-cudart-dev-$CUDA_PKG_VERSION  ${CUBLAS_PKG} cuda-curand-dev-$CUDA_PKG_VERSION
+  - travis_retry sudo apt-get install -y --no-install-recommends --allow-unauthenticated cuda-compiler-$CUDA_PKG_VERSION  cuda-cudart-dev-$CUDA_PKG_VERSION  ${CUBLAS_PKG} cuda-curand-dev-$CUDA_PKG_VERSION
   - sudo ln -s /usr/local/cuda-${CUDA_VERSION_MAJOR}.${CUDA_VERSION_MINOR} /usr/local/cuda
   - export PATH=/usr/local/cuda/bin:$PATH
   - export LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
