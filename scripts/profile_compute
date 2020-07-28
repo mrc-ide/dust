@@ -6,8 +6,11 @@ HASH=$(git -C $ROOT rev-parse --short HEAD)
 DEST="${ROOT}/profiles/${NAME}-compute-${HASH}"
 
 mkdir -p $ROOT/profiles/
-R CMD INSTALL --preclean $ROOT
-R CMD INSTALL --preclean $ROOT/tests/testthat/gpupkg
+
+if [ -z $DUST_NO_INSTALL ]; then
+    R CMD INSTALL --preclean $ROOT
+    R CMD INSTALL --preclean $ROOT/tests/testthat/gpupkg
+fi
 
 mkdir /raid/${SLURM_JOBID}/tmp
 export TMPDIR=/raid/${SLURM_JOBID}/tmp
