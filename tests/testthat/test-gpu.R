@@ -32,8 +32,9 @@ test_that("sirs smoke test", {
 
 ## This test really does nothing interesting asid
 test_that("Create gpu package", {
-  path <- create_test_package("gpupkg",
-                              examples = c("gpu/sirs.cpp", "gpu/volatility.cpp"))
+  path <- create_test_package(
+    "gpupkg",
+    examples = c("gpu/sirs.cpp", "gpu/volatility.cpp"))
   path <- dust_package(path, gpu = TRUE)
   expect_setequal(
     dir(file.path(path, "src")),
