@@ -38,7 +38,7 @@ after changing the example files or Makevars
 Run
 
 ```
-./scripts/update
+./scripts/update_for_profile
 ```
 
 ### System/Timeline volatility (~15s)
