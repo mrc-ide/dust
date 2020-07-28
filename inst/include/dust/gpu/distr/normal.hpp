@@ -30,9 +30,8 @@ __device__
 inline real_t rnorm(rng_state_t<real_t>& rng_state,
                     typename rng_state_t<real_t>::real_t mean,
                     typename rng_state_t<real_t>::real_t sd) {
-  real_t r0, r1; // r1 currently thrown away
   real_t z = box_muller<real_t>(rng_state);
-  return r0 * sd + mean;
+  return z * sd + mean;
 }
 
 }
