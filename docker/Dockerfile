@@ -15,7 +15,7 @@ RUN apt-get update &&  apt-get install -y --no-install-recommends \
 # Install cuda
 RUN wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-repo-ubuntu1804_10.2.89-1_amd64.deb \
     && apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub \
-    && dpkg -i cuda-repo-ubuntu1804_10.2.89-1_amd64.deb && \
+    && dpkg -i cuda-repo-ubuntu1804_10.2.89-1_amd64.deb \
     && rm cuda-repo-ubuntu1804_10.2.89-1_amd64.deb \
     && apt-get -y update \
     && apt-get install -y --no-install-recommends --allow-unauthenticated \
