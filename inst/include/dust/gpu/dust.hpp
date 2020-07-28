@@ -36,9 +36,8 @@ void run_particles(T* models,
                    size_t n_particles,
                    size_t step,
                    size_t step_end) {
-  int index = blockIdx.x * blockDim.x + threadIdx.x;
-  int stride = blockDim.x * gridDim.x;
-  for (int p_idx = index; p_idx < n_particles; p_idx += stride) {
+  int p_idx = blockIdx.x * blockDim.x + threadIdx.x;
+  if (p_idx < n_particles) {
     int curr_step = step;
     dust::rng_state_t<real_t> rng = dust::loadRNG<real_t>(rng_state, p_idx);
     dust::state_t<real_t> particle_y_p = {particle_y + p_idx, n_particles};
