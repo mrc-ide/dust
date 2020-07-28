@@ -10,4 +10,4 @@ R CMD INSTALL --preclean $ROOT
 R CMD INSTALL --preclean $ROOT/tests/testthat/gpupkg
 HASH=$(git rev-parse --short HEAD)
 ncu -o "$DEST" --set full --target-processes all \
-    $ROOT/scripts/target_compute_package ${NAME}
+    $ROOT/scripts/target_compute_pkg ${NAME}
