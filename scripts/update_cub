@@ -1,13 +1,17 @@
 #!/usr/bin/env Rscript
-root <- here::here()
-cub_version <- "1.9.10"
-url <- sprintf("https://github.com/NVlabs/cub/archive/%s.tar.gz", cub_version)
-tgz <- tempfile(fileext = ".tar.gz")
-download.file(url, tgz)
-tmp <- tempfile()
-untar(tgz, exdir = tmp)
-path <- dir(tmp, full.names = TRUE)
-dest <- file.path(root, "inst/include/cub")
-unlink(dest, recursive = TRUE)
-file.copy(file.path(path, "cub"), "inst/include", recursive = TRUE)
-file.copy(file.path(path, "LICENSE.TXT"), "inst/include/cub")
+local({
+  root <- here::here()
+  cub_version <- "1.9.10"
+  url <- sprintf("https://github.com/NVlabs/cub/archive/%s.tar.gz", cub_version)
+  tgz <- tempfile(fileext = ".tar.gz")
+  download.file(url, tgz)
+  tmp <- tempfile()
+  untar(tgz, exdir = tmp)
+  path <- dir(tmp, full.names = TRUE)
+  dest <- file.path(root, "inst/include/cub")
+  unlink(dest, recursive = TRUE)
+  file.copy(file.path(path, "cub"), "inst/include", recursive = TRUE)
+  file.copy(file.path(path, "LICENSE.TXT"), "inst/include/cub")
+  message(sprintf("Installed cub '%s' into dust (@ %s)",
+                  cub_version, dest))
+})
