@@ -46,7 +46,7 @@ void run_particles(T* models,
       y_shared[threadIdx.x + state_idx * blockDim.x] =
         particle_y[p_idx + state_idx * n_particles];
       y_shared[threadIdx.x + state_idx * blockDim.x + blockDim.x * y_len] =
-        particle_y_p_swap[p_idx + state_idx * n_particles];
+        particle_y_swap[p_idx + state_idx * n_particles];
     }
     dust::state_t<real_t> particle_y_p = {y_shared + threadIdx.x, blockDim.x};
     dust::state_t<real_t> particle_y_p_swap =
@@ -70,7 +70,7 @@ void run_particles(T* models,
     for (int state_idx = 0; state_idx < y_len, state_idx++) {
       particle_y[p_idx + state_idx * n_particles] =
         y_shared[threadIdx.x + state_idx * blockDim.x];
-      particle_y_p_swap[p_idx + state_idx * n_particles] =
+      particle_y_swap[p_idx + state_idx * n_particles] =
         y_shared[threadIdx.x + state_idx * blockDim.x + blockDim.x * y_len];
     }
   }
