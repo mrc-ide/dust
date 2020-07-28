@@ -23,6 +23,16 @@ From within the `dust` directory
 ./scripts/install_deps
 ```
 
+## Updating the package sources
+
+Run
+
+```
+./scripts/update_gpupkg
+```
+
+after changing the example files or Makevars
+
 ## Running the profiles
 
 
