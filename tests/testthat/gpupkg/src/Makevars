@@ -1,4 +1,5 @@
 # -*-makefile-*-
+CXX_STD = CXX14
 OBJECTS = cpp11.o sirs.o volatility.o
 PKG_LIBS = -lcudart $(SHLIB_OPENMP_CXXFLAGS)
 
