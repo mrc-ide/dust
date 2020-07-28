@@ -9,6 +9,9 @@ mkdir -p $ROOT/profiles/
 R CMD INSTALL --preclean $ROOT
 R CMD INSTALL --preclean $ROOT/tests/testthat/gpupkg
 
+mkdir /raid/${SLURM_JOBID}/tmp
+export TMPDIR=/raid/${SLURM_JOBID}/tmp
+
 nsys profile --force-overwrite true -o "$DEST" \
   --trace cuda,nvtx,osrt,openacc -c cudaProfilerApi \
   $ROOT/scripts/target_system_pkg ${NAME} --particles=50000

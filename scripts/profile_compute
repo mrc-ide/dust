@@ -8,6 +8,9 @@ DEST="${ROOT}/profiles/${NAME}-compute-${HASH}"
 mkdir -p $ROOT/profiles/
 R CMD INSTALL --preclean $ROOT
 R CMD INSTALL --preclean $ROOT/tests/testthat/gpupkg
-HASH=$(git rev-parse --short HEAD)
+
+mkdir /raid/${SLURM_JOBID}/tmp
+export TMPDIR=/raid/${SLURM_JOBID}/tmp
+
 ncu -o "$DEST" --set full --target-processes all \
     $ROOT/scripts/target_compute_pkg ${NAME}
