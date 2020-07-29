@@ -29,16 +29,16 @@ float binomial_inversion(rng_state_t<T>& rng_state,
 __device__
 inline float stirling_approx_tail(float k) {
   static float kTailValues[] = {0.0810614667953272,  0.0413406959554092,
-                                 0.0276779256849983,  0.02079067210376509,
-                                 0.0166446911898211,  0.0138761288230707,
-                                 0.0118967099458917,  0.0104112652619720,
-                                 0.00925546218271273, 0.00833056343336287};
+                                0.0276779256849983,  0.02079067210376509,
+                                0.0166446911898211,  0.0138761288230707,
+                                0.0118967099458917,  0.0104112652619720,
+                                0.00925546218271273, 0.00833056343336287};
   float tail;
   if (k <= 9) {
     tail = kTailValues[static_cast<int>(k)];
   } else {
     float kp1sq = (k + 1) * (k + 1);
-    tail = (1.0 / 12 - (1.0 / 360 - 1.0 / 1260 / kp1sq) / kp1sq) / (k + 1);
+    tail = (1.0f / 12.0f - (1.0f / 360.0f - 1.0f / 1260.0f / kp1sq) / kp1sq) / (k + 1);
   }
   //__syncwarp();
   return tail;
@@ -52,13 +52,13 @@ inline float btrs(rng_state_t<T>& rng_state, float n, float p) {
   const float stddev = sqrt(n * p * (1 - p));
 
   // Other coefficients for Transformed Rejection sampling.
-  const float b = 1.15 + 2.53 * stddev;
-  const float a = -0.0873 + 0.0248 * b + 0.01 * p;
-  const float c = n * p + 0.5;
-  const float v_r = 0.92 - 4.2 / b;
+  const float b = 1.15f + 2.53f * stddev;
+  const float a = -0.0873f + 0.0248f * b + 0.01f * p;
+  const float c = n * p + 0.5f;
+  const float v_r = 0.92f - 4.2f / b;
   const float r = p / (1 - p);
 
-  const float alpha = (2.83 + 5.1 / b) * stddev;
+  const float alpha = (2.83f + 5.1f / b) * stddev;
   const float m = floor((n + 1) * p);
 
   float draw;
@@ -67,7 +67,7 @@ inline float btrs(rng_state_t<T>& rng_state, float n, float p) {
     float v = device_unif_rand(rng_state);
     u = u - 0.5;
     float us = 0.5 - fabs(u);
-    float k = floor((2 * a / us + b) * u + c);
+    float k = floor((2f * a / us + b) * u + c);
 
     // Region for which the box is tight, and we
     // can return our calculated value This should happen
