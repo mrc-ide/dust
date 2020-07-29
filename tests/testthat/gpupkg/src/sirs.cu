@@ -50,6 +50,8 @@ public:
     real_t n_IR = dust::distr::rbinom(rng_state, I, p_IR * internal.dt);
     real_t n_RS = dust::distr::rbinom(rng_state, R, p_RS * internal.dt);
 
+    __syncwarp();
+
     state_next.state_ptr[0 * state.state_stride] = S - n_SI + n_RS;
     state_next.state_ptr[1 * state.state_stride] = I + n_SI - n_IR;
     state_next.state_ptr[2 * state.state_stride] = R + n_IR - n_RS;

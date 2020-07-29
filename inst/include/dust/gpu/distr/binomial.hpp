@@ -22,7 +22,7 @@ float binomial_inversion(rng_state_t<T>& rng_state,
     }
     ++num_geom;
   }
-  __syncwarp();
+  //__syncwarp();
   return num_geom;
 }
 
@@ -40,7 +40,7 @@ inline float stirling_approx_tail(float k) {
     float kp1sq = (k + 1) * (k + 1);
     tail = (1.0 / 12 - (1.0 / 360 - 1.0 / 1260 / kp1sq) / kp1sq) / (k + 1);
   }
-  __syncwarp();
+  //__syncwarp();
   return tail;
 }
 
@@ -98,7 +98,7 @@ inline float btrs(rng_state_t<T>& rng_state, float n, float p) {
       break;
     }
   }
-  __syncwarp();
+  //__syncwarp();
   return draw;
 }
 
@@ -134,7 +134,7 @@ int rbinom(rng_state_t<real_t>& rng_state, int n,
   //} else {
   //draw = static_cast<int>(binomial_inversion(rng_state, n, q));
   //}
-  __syncwarp();
+  //__syncwarp();
 
   if (p > 0.5) {
     draw = n - draw;
