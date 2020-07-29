@@ -22,7 +22,7 @@ double binomial_inversion(rng_state_t<T>& rng_state,
     }
     ++num_geom;
   }
-  __syncwarp();
+  //__syncwarp();
   return num_geom;
 }
 
@@ -62,7 +62,7 @@ inline double btrs(rng_state_t<T>& rng_state, double n, double p) {
   const double m = floor((n + 1) * p);
 
   double draw = 0;
-  for (int i = 0; i < 10; ++i) {
+  for (int i = 0; i < 1; ++i) {
     double u = device_unif_rand(rng_state);
     double v = device_unif_rand(rng_state);
     u = u - 0.5;
@@ -98,7 +98,7 @@ inline double btrs(rng_state_t<T>& rng_state, double n, double p) {
       break;
     }
   }
-  __syncwarp();
+  // __syncwarp();
   return draw;
 }
 
@@ -134,7 +134,7 @@ int rbinom(rng_state_t<real_t>& rng_state, int n,
   //} else {
   //draw = static_cast<int>(binomial_inversion(rng_state, n, q));
   //}
-  __syncwarp();
+  //__syncwarp();
 
   if (p > 0.5) {
     draw = n - draw;
