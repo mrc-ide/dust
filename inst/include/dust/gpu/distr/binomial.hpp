@@ -8,14 +8,14 @@ namespace distr {
 
 template <typename T>
 __device__
-double binomial_inversion(rng_state_t<T>& rng_state,
-                          double n, double prob) {
-  double geom_sum = 0;
-  double num_geom = 0;
+float binomial_inversion(rng_state_t<T>& rng_state,
+                          float n, float prob) {
+  float geom_sum = 0;
+  float num_geom = 0;
 
   while (true) {
-    double r = device_unif_rand(rng_state);
-    double geom = ceil(log(r) / log1p(-prob));
+    float r = device_unif_rand(rng_state);
+    float geom = ceil(log(r) / log1p(-prob));
     geom_sum += geom;
     if (geom_sum > n) {
       break;
@@ -27,17 +27,17 @@ double binomial_inversion(rng_state_t<T>& rng_state,
 }
 
 __device__
-inline double stirling_approx_tail(double k) {
-  static double kTailValues[] = {0.0810614667953272,  0.0413406959554092,
+inline float stirling_approx_tail(float k) {
+  static float kTailValues[] = {0.0810614667953272,  0.0413406959554092,
                                  0.0276779256849983,  0.02079067210376509,
                                  0.0166446911898211,  0.0138761288230707,
                                  0.0118967099458917,  0.0104112652619720,
                                  0.00925546218271273, 0.00833056343336287};
-  double tail;
+  float tail;
   if (k <= 9) {
     tail = kTailValues[static_cast<int>(k)];
   } else {
-    double kp1sq = (k + 1) * (k + 1);
+    float kp1sq = (k + 1) * (k + 1);
     tail = (1.0 / 12 - (1.0 / 360 - 1.0 / 1260 / kp1sq) / kp1sq) / (k + 1);
   }
   __syncwarp();
@@ -47,27 +47,27 @@ inline double stirling_approx_tail(double k) {
 // https://www.tandfonline.com/doi/abs/10.1080/00949659308811496
 template <typename T>
 __device__
-inline double btrs(rng_state_t<T>& rng_state, double n, double p) {
+inline float btrs(rng_state_t<T>& rng_state, float n, float p) {
   // This is spq in the paper.
-  const double stddev = sqrt(n * p * (1 - p));
+  const float stddev = sqrt(n * p * (1 - p));
 
   // Other coefficients for Transformed Rejection sampling.
-  const double b = 1.15 + 2.53 * stddev;
-  const double a = -0.0873 + 0.0248 * b + 0.01 * p;
-  const double c = n * p + 0.5;
-  const double v_r = 0.92 - 4.2 / b;
-  const double r = p / (1 - p);
+  const float b = 1.15 + 2.53 * stddev;
+  const float a = -0.0873 + 0.0248 * b + 0.01 * p;
+  const float c = n * p + 0.5;
+  const float v_r = 0.92 - 4.2 / b;
+  const float r = p / (1 - p);
 
-  const double alpha = (2.83 + 5.1 / b) * stddev;
-  const double m = floor((n + 1) * p);
+  const float alpha = (2.83 + 5.1 / b) * stddev;
+  const float m = floor((n + 1) * p);
 
-  double draw;
+  float draw;
   while (true) {
-    double u = device_unif_rand(rng_state);
-    double v = device_unif_rand(rng_state);
+    float u = device_unif_rand(rng_state);
+    float v = device_unif_rand(rng_state);
     u = u - 0.5;
-    double us = 0.5 - fabs(u);
-    double k = floor((2 * a / us + b) * u + c);
+    float us = 0.5 - fabs(u);
+    float k = floor((2 * a / us + b) * u + c);
 
     // Region for which the box is tight, and we
     // can return our calculated value This should happen
@@ -87,7 +87,7 @@ inline double btrs(rng_state_t<T>& rng_state, double n, double p) {
     // For all (u, v) pairs outside of the bounding box, this calculates the
     // transformed-reject ratio.
     v = log(v * alpha / (a / (us * us) + b));
-    double upperbound =
+    float upperbound =
       ((m + 0.5) * log((m + 1) / (r * (n - m + 1))) +
        (n + 1) * log((n - m + 1) / (n - k + 1)) +
        (k + 0.5) * log(r * (n - k + 1) / (k + 1)) +
