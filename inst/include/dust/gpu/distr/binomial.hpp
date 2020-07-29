@@ -61,7 +61,7 @@ inline double btrs(rng_state_t<T>& rng_state, double n, double p) {
   const double alpha = (2.83 + 5.1 / b) * stddev;
   const double m = floor((n + 1) * p);
 
-  double draw;
+  double draw = 0;
   for (int i = 0; i < 10; ++i) {
     double u = device_unif_rand(rng_state);
     double v = device_unif_rand(rng_state);
