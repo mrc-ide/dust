@@ -129,11 +129,11 @@ int rbinom(rng_state_t<real_t>& rng_state, int n,
     q = 1 - q;
   }
 
-  //if (n * q >= 10) {
-  draw = static_cast<int>(btrs(rng_state, n, q));
-  //} else {
-  //draw = static_cast<int>(binomial_inversion(rng_state, n, q));
-  //}
+  if (n * q >= 10) {
+    draw = static_cast<int>(btrs(rng_state, n, q));
+  } else {
+    draw = static_cast<int>(binomial_inversion(rng_state, n, q));
+  }
   //__syncwarp();
 
   if (p > 0.5) {
