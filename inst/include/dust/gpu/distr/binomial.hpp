@@ -49,7 +49,7 @@ template <typename T>
 __device__
 inline float btrs(rng_state_t<T>& rng_state, float n, float p) {
   // This is spq in the paper.
-  const float stddev = std::sqrt<float>(n * p * (1 - p));
+  const float stddev = sqrtf(n * p * (1 - p));
 
   // Other coefficients for Transformed Rejection sampling.
   const float b = 1.15f + 2.53f * stddev;
@@ -59,15 +59,15 @@ inline float btrs(rng_state_t<T>& rng_state, float n, float p) {
   const float r = p / (1 - p);
 
   const float alpha = (2.83f + 5.1f / b) * stddev;
-  const float m = std::floor<float>((n + 1) * p);
+  const float m = floorf((n + 1) * p);
 
   float draw;
   while (true) {
     float u = device_unif_randf(rng_state);
     float v = device_unif_randf(rng_state);
     u = u - 0.5;
-    float us = 0.5 - std::abs<float>(u);
-    float k = std::floor<float>((2 * a / us + b) * u + c);
+    float us = 0.5 - fabsf(u);
+    float k = floorf((2 * a / us + b) * u + c);
 
     // Region for which the box is tight, and we
     // can return our calculated value This should happen
