@@ -86,11 +86,11 @@ inline float btrs(rng_state_t<T>& rng_state, float n, float p) {
     // This deviates from Hormann's BRTS algorithm, as there is a log missing.
     // For all (u, v) pairs outside of the bounding box, this calculates the
     // transformed-reject ratio.
-    v = std::log<float>(v * alpha / (a / (us * us) + b));
+    v = logf(v * alpha / (a / (us * us) + b));
     float upperbound =
-      ((m + 0.5) * std::log<float>((m + 1) / (r * (n - m + 1))) +
-       (n + 1) * std::log<float>((n - m + 1) / (n - k + 1)) +
-       (k + 0.5) * std::log<float>(r * (n - k + 1) / (k + 1)) +
+      ((m + 0.5) * logf((m + 1) / (r * (n - m + 1))) +
+       (n + 1) * logf((n - m + 1) / (n - k + 1)) +
+       (k + 0.5) * logf(r * (n - k + 1) / (k + 1)) +
        stirling_approx_tail(m) + stirling_approx_tail(n - m) -
        stirling_approx_tail(k) - stirling_approx_tail(n - k));
     if (v <= upperbound) {
