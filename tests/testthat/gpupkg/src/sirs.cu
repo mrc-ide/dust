@@ -37,6 +37,7 @@ public:
   void update(size_t step, const dust::state_t<real_t>& state,
               dust::rng_state_t<real_t>& rng_state,
               dust::state_t<real_t>& state_next) {
+    __syncwarp();
     real_t S = state.state_ptr[0 * state.state_stride];
     real_t I = state.state_ptr[1 * state.state_stride];
     real_t R = state.state_ptr[2 * state.state_stride];
@@ -50,6 +51,7 @@ public:
     real_t n_IR = dust::distr::rbinom(rng_state, I, p_IR * internal.dt);
     real_t n_RS = dust::distr::rbinom(rng_state, R, p_RS * internal.dt);
 
+    __syncwarp();
     state_next.state_ptr[0 * state.state_stride] = S - n_SI + n_RS;
     state_next.state_ptr[1 * state.state_stride] = I + n_SI - n_IR;
     state_next.state_ptr[2 * state.state_stride] = R + n_IR - n_RS;
