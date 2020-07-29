@@ -12,4 +12,4 @@ mkdir -p /raid/${SLURM_JOBID}/tmp
 export TMPDIR=/raid/${SLURM_JOBID}/tmp
 
 ncu -o "$DEST" --set full --target-processes all \
-    $ROOT/scripts/target_compute_pkg ${NAME} --particles=51200
+    $ROOT/scripts/target_compute_pkg ${NAME} --particles=71680
