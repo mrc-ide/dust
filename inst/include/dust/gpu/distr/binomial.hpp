@@ -140,6 +140,8 @@ int rbinom(rng_state_t<real_t>& rng_state, int n,
     draw = n - draw;
   }
 
+  __syncwarp();
+
   return draw;
 }
 
