@@ -115,7 +115,8 @@ inline double device_unif_rand(rng_state_t<T>& state) {
 template <typename T>
 __device__
 inline float device_unif_randf(rng_state_t<T>& state) {
-  return(__double2float_rn(device_unif_rand(state)));
+  float rand = (__fdiv_rn(__ull2float_rn(xoshiro_next(state)), 18446744073709551616.0f));
+  return rand;
 }
 
 __host__

@@ -14,7 +14,7 @@ float binomial_inversion(rng_state_t<T>& rng_state,
   float num_geom = 0;
 
   while (true) {
-    float r = device_unif_rand(rng_state);
+    float r = device_unif_randf(rng_state);
     float geom = ceil(log(r) / log1p(-prob));
     geom_sum += geom;
     if (geom_sum > n) {
@@ -63,8 +63,8 @@ inline float btrs(rng_state_t<T>& rng_state, float n, float p) {
 
   float draw;
   while (true) {
-    float u = device_unif_rand(rng_state);
-    float v = device_unif_rand(rng_state);
+    float u = device_unif_randf(rng_state);
+    float v = device_unif_randf(rng_state);
     u = u - 0.5;
     float us = 0.5 - fabs(u);
     float k = floor((2 * a / us + b) * u + c);
