@@ -5,7 +5,7 @@ main <- function(model, dest) {
     gen_g <- gpupkg:::volatility
   } else {
     gen_c <- dust::dust("inst/examples/sirs.cpp")
-    gen_g <- gpupkg:::sirst
+    gen_g <- gpupkg:::sirs
   }
 
   test <- function(gen, n_particles, n_steps, n_threads = 1L) {
