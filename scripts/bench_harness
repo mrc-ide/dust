@@ -8,4 +8,5 @@ echo "*** ${HASH} ***"
 git reset --hard "${HASH}"
 R CMD INSTALL --preclean "${ROOT}"
 R CMD INSTALL --preclean "${ROOT}/tests/testthat/gpupkg"
-(cd "$ROOT"&& Rscript scripts/bench_volatility.R "bench/${HASH}.rds")
+(cd "$ROOT"&&
+     Rscript scripts/bench_run.R "$MODEL" "bench/${MODEL}-${HASH}.rds")

@@ -1,7 +1,12 @@
-main <- function(dest) {
+main <- function(model, dest) {
   ## Check out each commit, then run:
-  vol_c <- dust::dust("inst/examples/volatility.cpp")
-  vol_g <- gpupkg:::volatility
+  if (model == "volatility") {
+    gen_c <- dust::dust("inst/examples/volatility.cpp")
+    gen_g <- gpupkg:::volatility
+  } else {
+    gen_c <- dust::dust("inst/examples/sirs.cpp")
+    gen_g <- gpupkg:::sirst
+  }
 
   test <- function(gen, n_particles, n_steps, n_threads = 1L) {
     gen$new(list(), 0, n_particles, n_threads)$run(n_steps)
@@ -15,13 +20,13 @@ main <- function(dest) {
     n_steps = n_steps,
     model = "volatility",
     on = "cpu",
-    bench::mark(test(vol_c, n_particles, n_steps)))
+    bench::mark(test(gen_c, n_particles, n_steps)))
   res_g <- bench::press(
     n_particles = n_particles,
     n_steps = n_steps,
     model = "volatility",
     on = "gpu",
-    bench::mark(test(vol_g, n_particles, n_steps)))
+    bench::mark(test(gen_g, n_particles, n_steps)))
 
   res <- rbind(res_c, res_g)
   res$expression <- NULL
@@ -32,4 +37,4 @@ main <- function(dest) {
   saveRDS(res, dest)
 }
 
-main(commandArgs(TRUE)[[1]])
+main(commandArgs(TRUE)[[1]], commandArgs(TRUE)[[2]])
