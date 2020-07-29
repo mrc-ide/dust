@@ -28,18 +28,18 @@ float binomial_inversion(rng_state_t<T>& rng_state,
 
 __device__
 inline float stirling_approx_tail(float k) {
-  static float kTailValues[] = {0.0810614667953272,  0.0413406959554092,
-                                0.0276779256849983,  0.02079067210376509,
-                                0.0166446911898211,  0.0138761288230707,
-                                0.0118967099458917,  0.0104112652619720,
-                                0.00925546218271273, 0.00833056343336287};
-  float tail;
-  if (k <= 9) {
-    tail = kTailValues[static_cast<int>(k)];
-  } else {
+  // static float kTailValues[] = {0.0810614667953272,  0.0413406959554092,
+  //                               0.0276779256849983,  0.02079067210376509,
+  //                               0.0166446911898211,  0.0138761288230707,
+  //                               0.0118967099458917,  0.0104112652619720,
+  //                               0.00925546218271273, 0.00833056343336287};
+  // float tail;
+  // if (k <= 9) {
+  //   tail = kTailValues[static_cast<int>(k)];
+  // } else {
     float kp1sq = (k + 1) * (k + 1);
-    tail = (1.0f / 12.0f - (1.0f / 360.0f - 1.0f / 1260.0f / kp1sq) / kp1sq) / (k + 1);
-  }
+    float tail = (1.0f / 12.0f - (1.0f / 360.0f - 1.0f / 1260.0f / kp1sq) / kp1sq) / (k + 1);
+    //}
   //__syncwarp();
   return tail;
 }
