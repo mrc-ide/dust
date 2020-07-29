@@ -67,7 +67,7 @@ inline float btrs(rng_state_t<T>& rng_state, float n, float p) {
     float v = device_unif_rand(rng_state);
     u = u - 0.5;
     float us = 0.5 - fabs(u);
-    float k = floor((2f * a / us + b) * u + c);
+    float k = floor((2 * a / us + b) * u + c);
 
     // Region for which the box is tight, and we
     // can return our calculated value This should happen
