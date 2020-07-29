@@ -88,9 +88,9 @@ inline float btrs(rng_state_t<T>& rng_state, float n, float p) {
     // transformed-reject ratio.
     v = std::log(v * alpha / (a / (us * us) + b));
     float upperbound =
-      ((m + 0.5) * std::log((m + 1) / (r * (n - m + 1))) +
+      ((m + 0.5f) * std::log((m + 1) / (r * (n - m + 1))) +
        (n + 1) * std::log((n - m + 1) / (n - k + 1)) +
-       (k + 0.5) * std::log(r * (n - k + 1) / (k + 1)) +
+       (k + 0.5f) * std::log(r * (n - k + 1) / (k + 1)) +
        stirling_approx_tail(m) + stirling_approx_tail(n - m) -
        stirling_approx_tail(k) - stirling_approx_tail(n - k));
     if (v <= upperbound) {
