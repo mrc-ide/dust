@@ -160,7 +160,7 @@ public:
   }
 
   void run(const size_t step_end) {
-    const size_t blockSize = 64; // Check later
+    const size_t blockSize = 128; // Check later
     const size_t blockCount = (_n_particles + blockSize - 1) / blockSize;
     run_particles<<<blockCount, blockSize, 2 * _state_size * blockSize * sizeof(real_t)>>>
     (
