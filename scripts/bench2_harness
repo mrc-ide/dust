@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -eu
+HERE=$(dirname $0)
+ROOT=$(realpath $HERE/..)
+HASH=$1
+
+echo "*** ${HASH} ***"
+git reset --hard "${HASH}"
+R CMD INSTALL --preclean "${ROOT}"
+R CMD INSTALL --preclean "${ROOT}/tests/testthat/gpupkg"
+(cd "$ROOT"&&
+     Rscript scripts/bench2_run.R "$MODEL" "bench/${MODEL}-${HASH}.rds")
