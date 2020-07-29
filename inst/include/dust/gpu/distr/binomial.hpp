@@ -49,7 +49,7 @@ template <typename T>
 __device__
 inline float btrs(rng_state_t<T>& rng_state, float n, float p) {
   // This is spq in the paper.
-  const float stddev = sqrt(n * p * (1 - p));
+  const float stddev = std::sqrt<float>(n * p * (1 - p));
 
   // Other coefficients for Transformed Rejection sampling.
   const float b = 1.15f + 2.53f * stddev;
@@ -59,15 +59,15 @@ inline float btrs(rng_state_t<T>& rng_state, float n, float p) {
   const float r = p / (1 - p);
 
   const float alpha = (2.83f + 5.1f / b) * stddev;
-  const float m = floor((n + 1) * p);
+  const float m = std::floor<float>((n + 1) * p);
 
   float draw;
   while (true) {
     float u = device_unif_randf(rng_state);
     float v = device_unif_randf(rng_state);
     u = u - 0.5;
-    float us = 0.5 - fabs(u);
-    float k = floor((2 * a / us + b) * u + c);
+    float us = 0.5 - std::abs<float>(u);
+    float k = std::floor<float>((2 * a / us + b) * u + c);
 
     // Region for which the box is tight, and we
     // can return our calculated value This should happen
@@ -86,11 +86,11 @@ inline float btrs(rng_state_t<T>& rng_state, float n, float p) {
     // This deviates from Hormann's BRTS algorithm, as there is a log missing.
     // For all (u, v) pairs outside of the bounding box, this calculates the
     // transformed-reject ratio.
-    v = log(v * alpha / (a / (us * us) + b));
+    v = std::log<float>(v * alpha / (a / (us * us) + b));
     float upperbound =
-      ((m + 0.5) * log((m + 1) / (r * (n - m + 1))) +
-       (n + 1) * log((n - m + 1) / (n - k + 1)) +
-       (k + 0.5) * log(r * (n - k + 1) / (k + 1)) +
+      ((m + 0.5) * std::log<float>((m + 1) / (r * (n - m + 1))) +
+       (n + 1) * std::log<float>((n - m + 1) / (n - k + 1)) +
+       (k + 0.5) * std::log<float>(r * (n - k + 1) / (k + 1)) +
        stirling_approx_tail(m) + stirling_approx_tail(n - m) -
        stirling_approx_tail(k) - stirling_approx_tail(n - k));
     if (v <= upperbound) {
