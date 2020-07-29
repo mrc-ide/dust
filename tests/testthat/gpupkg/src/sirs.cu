@@ -46,9 +46,9 @@ public:
     real_t p_IR = 1 - exp(-(internal.gamma));
     real_t p_RS = 1 - exp(- internal.alpha);
 
-    real_t n_SI = 0; // dust::distr::rbinom(rng_state, S, p_SI * internal.dt);
-    real_t n_IR = 0; // dust::distr::rbinom(rng_state, I, p_IR * internal.dt);
-    real_t n_RS = 0; // dust::distr::rbinom(rng_state, R, p_RS * internal.dt);
+    real_t n_SI = dust::distr::rbinom(rng_state, S, p_SI * internal.dt);
+    real_t n_IR = dust::distr::rbinom(rng_state, I, p_IR * internal.dt);
+    real_t n_RS = dust::distr::rbinom(rng_state, R, p_RS * internal.dt);
 
     state_next.state_ptr[0 * state.state_stride] = S - n_SI + n_RS;
     state_next.state_ptr[1 * state.state_stride] = I + n_SI - n_IR;
