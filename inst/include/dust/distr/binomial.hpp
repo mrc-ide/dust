@@ -277,9 +277,9 @@ inline double btrd(rng_state_t<T>& rng_state, double n, double p) {
       // Step 3.1
       double f = 1;
       if (m < k) {
-        f = recursive_f(f, nr, n, r, k, m);
+        f = recursive_f<double>(f, nr, n, r, k, m);
       } else {
-        v = recursive_f(v, nr, n, r, m, k);
+        v = recursive_f<double>(v, nr, n, r, m, k);
       }
 
       if (v <= f) {
