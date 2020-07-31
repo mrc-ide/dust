@@ -154,7 +154,7 @@ inline double stirling_approx_tail(double k) {
                                   0.00065616662294344468,
                                   0.00065104034214210325,
                                   0.00064599353808116348};
-  if (k <= 9) {
+  if (k <= 128) {
     return kTailValues[static_cast<int>(k)];
   }
   double kp1sq = (k + 1) * (k + 1);
