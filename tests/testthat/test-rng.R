@@ -75,7 +75,7 @@ test_that("distribution of uniform numbers", {
 
 
 test_that("run binomial random numbers", {
-  # np = 1
+  # Test with np = 1
   m <- 500000
   n <- 10L
   p <- 0.1
@@ -89,7 +89,7 @@ test_that("run binomial random numbers", {
   expect_equal(mean(ans1), n * p, tolerance = 5e-3 * (n * p))
   expect_equal(var(ans1), n * p * (1 - p), tolerance = 1e-2 * (n * p * (1 - p)))
 
-  # np = 10
+  # Test with np = 10
   m <- 100000
   n <- 100L
   p <- 0.1
@@ -97,7 +97,7 @@ test_that("run binomial random numbers", {
   expect_equal(mean(ans3), n * p, tolerance = 5e-3 * (n * p))
   expect_equal(var(ans3), n * p * (1 - p), tolerance = 1e-2 * (n * p * (1 - p)))
 
-  # np = 250
+  # Test with np = 250
   m <- 100000
   n <- 500L
   p <- 0.5
@@ -108,7 +108,7 @@ test_that("run binomial random numbers", {
 
 
 test_that("binomial numbers run the short circuit path", {
-  # np = 10
+  # Test with np = 10
   m <- 10000
   n <- 100L
   p <- 0.1
@@ -123,7 +123,7 @@ test_that("binomial numbers run the short circuit path", {
 
 
 test_that("binomial numbers on the 'small' path", {
-  # np = 4
+  # Test with np = 4
   m <- 100000
   n <- 20L
   p <- 0.2
@@ -135,7 +135,7 @@ test_that("binomial numbers on the 'small' path", {
 
 
 test_that("binomial numbers and their complement are the same (np small)", {
-  # np = 4
+  # Test with np = 4
   m <- 100
   n <- 20L
   p <- 0.2
@@ -147,7 +147,7 @@ test_that("binomial numbers and their complement are the same (np small)", {
 
 
 test_that("binomial numbers and their complement are the same (np large)", {
-  # np = 40
+  # Test with np = 40
   m <- 100
   n <- 200L
   p <- 0.2
