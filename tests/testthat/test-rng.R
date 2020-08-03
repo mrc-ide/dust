@@ -75,8 +75,9 @@ test_that("distribution of uniform numbers", {
 
 
 test_that("run binomial random numbers", {
+  # np = 1
   m <- 100000
-  n <- 100L
+  n <- 10L
   p <- 0.1
 
   ans1 <- dust_rng$new(1, 1)$rbinom(m, n, p)
@@ -87,10 +88,27 @@ test_that("run binomial random numbers", {
   ## pretty good.
   expect_equal(mean(ans1), n * p, tolerance = 1e-3)
   expect_equal(var(ans1), n * p * (1 - p), tolerance = 1e-2)
+
+  # np = 10
+  m <- 100000
+  n <- 100L
+  p <- 0.1
+  ans3 <- dust_rng$new(1, 1)$rbinom(m, n, p)
+  expect_equal(mean(ans3), n * p, tolerance = 1e-3)
+  expect_equal(var(ans3), n * p * (1 - p), tolerance = 1e-2)
+
+  # np = 250
+  m <- 100000
+  n <- 500L
+  p <- 0.5
+  ans4 <- dust_rng$new(1, 1)$rbinom(m, n, p)
+  expect_equal(mean(ans4), n * p, tolerance = 1e-3)
+  expect_equal(var(ans4), n * p * (1 - p), tolerance = 1e-2)
 })
 
 
 test_that("binomial numbers run the short circuit path", {
+  # np = 10
   m <- 10000
   n <- 100L
   p <- 0.1
@@ -105,6 +123,7 @@ test_that("binomial numbers run the short circuit path", {
 
 
 test_that("binomial numbers on the 'small' path", {
+  # np = 4
   m <- 100000
   n <- 20L
   p <- 0.2
@@ -116,6 +135,7 @@ test_that("binomial numbers on the 'small' path", {
 
 
 test_that("binomial numbers and their complement are the same (np small)", {
+  # np = 4
   m <- 100
   n <- 20L
   p <- 0.2
@@ -127,10 +147,10 @@ test_that("binomial numbers and their complement are the same (np small)", {
 
 
 test_that("binomial numbers and their complement are the same (np large)", {
+  # np = 40
   m <- 100
   n <- 200L
   p <- 0.2
-
   ans1 <- dust_rng$new(1, 1)$rbinom(m, n, p)
   ans2 <- dust_rng$new(1, 1)$rbinom(m, n, 1 - p)
   expect_equal(ans1, n - ans2)

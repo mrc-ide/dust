@@ -25,6 +25,9 @@ double binomial_inversion(rng_state_t<T>& rng_state,
 }
 
 inline double stirling_approx_tail(double k) {
+  // Exact function for this table is
+  // std::lgamma(k + 1) - (std::log(std::sqrt(2 * M_PI)) +
+  //    (k + 0.5) * std::log(k + 1) - (k + 1))
   static double kTailValues[] = {0.08106146679532733,
                                   0.041340695955409457,
                                   0.027677925684998161,
@@ -219,7 +222,7 @@ inline double btrd(rng_state_t<T>& rng_state, double n, double p) {
     if (k < 0 || k > n) {
       continue;
     }
-    v = v * alpha / (a / (us * us) + b); // TF code suggests this should be logged
+    v = v * alpha / (a / (us * us) + b);
     double km = std::fabs(k - m);
 
     if (km <= 15) {
