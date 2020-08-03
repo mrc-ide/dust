@@ -2,10 +2,10 @@
 #define DUST_RNG_HPP
 
 #include "xoshiro.hpp"
-#include "distr/binomial.hpp"
-#include "distr/normal.hpp"
-#include "distr/poisson.hpp"
 #include "distr/uniform.hpp"
+#include "distr/normal.hpp"
+#include "distr/binomial.hpp"
+#include "distr/poisson.hpp"
 
 namespace dust {
 
