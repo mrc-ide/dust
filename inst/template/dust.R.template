@@ -68,7 +68,7 @@
     ##' validated, and an error thrown if an invalid index is given).
     set_index = function(index) {
       dust_{{name}}_set_index(private$ptr, index)
-      private$index_names <- index_names(index)
+      private$index_names <- names(index)
       invisible()
     },
 
