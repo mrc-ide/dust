@@ -148,3 +148,53 @@ test_that("get rng state", {
     obj$rng_state(),
     dust_rng$new(seed, np)$state())
 })
+
+
+test_that("setting a named index returns names", {
+  res <- dust(dust_file("examples/sirs.cpp"), quiet = TRUE)
+  mod <- res$new(list(), 0, 10)
+
+  mod$set_index(3:1)
+  expect_identical(
+    mod$run(0),
+    rbind(rep(0, 10), rep(10, 10), rep(1000, 10)))
+
+  mod$set_index(c(S = 1L, I = 2L, R = 3L))
+  expect_identical(
+    mod$run(0),
+    rbind(S = rep(1000, 10), I = rep(10, 10), R = rep(0, 10)))
+
+  mod$set_index(seq_len(3))
+  expect_identical(
+    mod$run(0),
+    rbind(rep(1000, 10), rep(10, 10), rep(0, 10)))
+
+})
+
+
+test_that("resetting removes index names", {
+  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  mod <- res$new(list(len = 10), 0, 5)
+
+  mod$set_index(setNames(1:3, c("x", "y", "z")))
+  expect_equal(
+    mod$run(0),
+    matrix(1:3, 3, 5, dimnames = list(c("x", "y", "z"), NULL)))
+
+  mod$reset(list(len = 2), 0)
+  expect_equal(
+    mod$run(0),
+    matrix(1:2, 2, 5))
+})
+
+
+test_that("names are copied when using state()", {
+  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  mod <- res$new(list(len = 10), 0, 5)
+  expect_equal(
+    mod$state(4:5),
+    matrix(4:5, 2, 5))
+  expect_equal(
+    mod$state(c(x = 4L, y = 5L)),
+    matrix(4:5, 2, 5, dimnames = list(c("x", "y"), NULL)))
+})

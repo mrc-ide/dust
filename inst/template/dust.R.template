@@ -4,6 +4,7 @@
 
   private = list(
     data = NULL,
+    index_names = NULL,
     ptr = NULL
   ),
 
@@ -47,9 +48,11 @@
     ##' at that point.
     ##'
     ##' @param step_end Step to run to (if less than or equal to the current
-    ##' step(),silently nothing will happen)
+    ##' step(), silently nothing will happen)
     run = function(step_end) {
-      dust_{{name}}_run(private$ptr, step_end)
+      m <- dust_{{name}}_run(private$ptr, step_end)
+      rownames(m) <- private$index_names
+      m
     },
 
     ##' @description
@@ -65,6 +68,8 @@
     ##' validated, and an error thrown if an invalid index is given).
     set_index = function(index) {
       dust_{{name}}_set_index(private$ptr, index)
+      private$index_names <- names(index)
+      invisible()
     },
 
     ##' @description
@@ -93,6 +98,7 @@
     ##' @param step New initial step for the model (see constructor)
     reset = function(data, step) {
       private$data <- dust_{{name}}_reset(private$ptr, data, step)
+      private$index_names <- NULL
       invisible()
     },
 
@@ -100,7 +106,9 @@
     ##' Return full model state
     ##' @param index Optional index to select state using
     state = function(index = NULL) {
-      dust_{{name}}_state(private$ptr, index)
+      m <- dust_{{name}}_state(private$ptr, index)
+      rownames(m) <- names(index)
+      m
     },
 
     ##' @description
