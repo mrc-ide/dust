@@ -1,3 +1,7 @@
+# dust 0.4.3
+
+* If `$set_index()` uses a named index vector, then those names are copied back as rownames on the returned matrix. Similarly, if `$state()` is used with a named index then those names are used as rownames (#81)
+
 # dust 0.4.0
 
 * Can now generate dust objects that run on the GPU (#69)
