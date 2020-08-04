@@ -189,6 +189,13 @@ model$run(20)
 
 This is useful when you have many compartments or variables that you are not that interested in during running the model. For a particle filter you might be fitting to the sum of all infected individuals over a number of compartments, so rather than returning hundreds of values back (times hundreds of particles) you can return back much less data and keep things nice and fast.
 
+If the index vector is named, then those names will be used as row names on the returned object:
+
+```{r sir_run_named}
+model$set_index(c(I = 2L))
+model$run(30)
+```
+
 We can always use `$state()` to get the whole state vector:
 
 ```{r sir_state}
@@ -198,8 +205,10 @@ model$state()
 or select only variables of interest:
 
 ```{r sir_state_select}
-model$state(c(1L, 3L))
+model$state(c(S = 1L, R = 3L))
 ```
+
+Again, this copies names from the index if they are present.
 
 In order to run the simulation beginning-to-end, we use `dust::dust_simulate()`; this function is purely a convenience function and the intention is that you would write your own (see [`mcstate`](https://mrc-ide.github.io/mcstate) for example).
 
