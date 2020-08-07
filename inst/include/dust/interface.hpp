@@ -40,6 +40,39 @@ cpp11::list dust_alloc(cpp11::list r_data, int step,
   return cpp11::writable::list({ptr, info});
 }
 
+// think about rng seeding here carefully; should accept either a raw
+// vector or an integer I think.
+template <typename T>
+cpp11::writable::doubles dust_simulate(cpp11::list r_data,
+                                       cpp11::doubles_matrix r_state,
+                                       cpp11::sexp r_steps,
+                                       cpp11::sexp r_index,
+                                       const size_t n_threads,
+                                       const size_t seed) {
+  typedef typename T::real_t real_t;
+  std::vector<size_t> steps = validate_size(r_steps, "steps");
+  std::vector<double> state = cpp11::as_cpp<std::vector<real_t>>(r_state);
+  std::vector<size_t> index = r_index_to_index(r_index, r_state.nrow());
+
+  std::vector<typename T::init_t> data;
+  data.reserve(r_data.size());
+  for (int i = 0; i < r_data.size(); ++i) {
+    data.push_back(dust_data<T>(r_data[i]));
+  }
+
+  cpp11::writable::doubles ret(index.size() * data.size() * steps.size());
+
+  std::vector<real_t> dat =
+    dust_simulate<T>(data, state, steps, index, n_threads, seed);
+  std::copy(dat.begin(), dat.end(), REAL(ret));
+
+  ret.attr("dim") = cpp11::writable::integers({(int)index.size(),
+                                               (int)data.size(),
+                                               (int)steps.size()});
+
+  return ret;
+}
+
 template <typename T>
 void dust_set_index(SEXP ptr, cpp11::sexp r_index) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();

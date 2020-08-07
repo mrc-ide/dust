@@ -233,4 +233,45 @@ private:
   }
 };
 
+
+template <typename T>
+std::vector<typename T::real_t>
+dust_simulate(const std::vector<typename T::init_t> data,
+              const std::vector<typename T::real_t> state,
+              const std::vector<size_t> steps,
+              const std::vector<size_t> index,
+              const size_t n_threads,
+              const size_t seed) {
+  size_t n_particles = data.size();
+  std::vector<Particle<T>> particles;
+  particles.reserve(n_particles);
+  for (size_t i = 0; i < n_particles; ++i) {
+    particles.push_back(Particle<T>(data[i], steps[0]));
+    if (i > 0 && particles.back().size() != particles.front().size()) {
+      throw "Particles have different size states";
+    }
+  }
+  const size_t n_state = particles.front().size();
+  if (n_state * data.size() != state.size()) {
+    throw "Unexpected state size";
+  }
+
+  dust::pRNG<typename T::real_t> rng(n_particles, seed);
+  std::vector<double> ret(n_particles * n_state * steps.size());
+  size_t n_steps = steps.size();
+  const size_t stride_ret = index.size() * (n_steps + 1);
+
+#pragma omp parallel for schedule(static) num_threads(n_threads)
+  for (size_t i = 0; i < particles.size(); ++i) {
+    particles[i].set_state(state.begin() + n_state * i);
+    for (size_t t = 0; t < n_steps; ++t) {
+      auto dest = ret.begin() + i * stride_ret + t * index.size();
+      particles[i].run(steps[t], rng.state(i));
+      particles[i].state(index, dest);
+    }
+  }
+
+  return ret;
+}
+
 #endif
