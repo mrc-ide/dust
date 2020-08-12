@@ -24,3 +24,31 @@ test_that("simulate trajectories with multiple starting points/parameters", {
   expect_equal(ans[, , 2], cmp[, , 2] * sd + drop(y0))
   expect_equal(ans, cmp * sd + drop(y0))
 })
+
+
+test_that("simulate multi-state model", {
+  res <- dust(dust_file("examples/sir.cpp"), quiet = FALSE)
+
+  np <- 13
+
+  data <- replicate(np, list(beta = runif(1, 0.15, 0.25),
+                             alpha = runif(1, 0.05, 0.15)), simplify = FALSE)
+  y0 <- matrix(c(1000, 10, 0), 3, np)
+  steps <- seq(0, 200, by = 20)
+
+  ans <- dust_simulate(res, steps, data, y0)
+
+  expect_equal(dim(ans), c(3, np, length(steps)))
+  ## Basic checks on the model:
+  expect_true(all(diff(t(ans[1, , ])) <= 0))
+  expect_true(all(diff(t(ans[3, , ])) >= 0))
+  expect_true(all(apply(ans, 2:3, sum) == 1010))
+
+  ## And we can filter
+  expect_equal(
+    dust_simulate(res, steps, data, y0, index = 1L),
+    ans[1, , , drop = FALSE])
+  expect_equal(
+    dust_simulate(res, steps, data, y0, index = c(1L, 3L)),
+    ans[c(1, 3), , , drop = FALSE])
+})
