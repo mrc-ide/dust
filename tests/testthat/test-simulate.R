@@ -95,3 +95,13 @@ test_that("simulate requires that particles have the same size", {
     paste("Particles have different state sizes:",
           "particle 5 had length 10 but expected 9"))
 })
+
+
+test_that("data must be an unnamed list", {
+  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  data <- list(len = 10)
+  y0 <- matrix(1, 10, 1)
+  expect_error(
+    dust_simulate(res, 0:10, data, y0),
+    "Expected 'data' to be an unnamed list")
+})
