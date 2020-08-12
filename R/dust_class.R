@@ -14,8 +14,9 @@ dust_class <- R6::R6Class(
 
   private = list(
     data_ = NULL,
-    info_ = NULL,
     index_ = NULL,
+    info_ = NULL,
+    n_threads_ = NULL,
     ptr_ = NULL,
 
     simulate = function(steps, data, state, index = NULL,
@@ -79,6 +80,11 @@ dust_class <- R6::R6Class(
     ##' @description
     ##' Returns the `index` as set by `$set_index`
     index = function() {
+    },
+
+    ##' @description
+    ##' Returns the number of threads that the model was constructed with
+    n_threads = function() {
     },
 
     ##' @description

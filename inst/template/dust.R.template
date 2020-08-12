@@ -4,8 +4,9 @@
 
   private = list(
     data_ = NULL,
-    info_ = NULL,
     index_ = NULL,
+    info_ = NULL,
+    n_threads_ = NULL,
     ptr_ = NULL,
 
     simulate = function(steps, data, state, index = NULL,
@@ -40,6 +41,7 @@
       res <- dust_{{name}}_alloc(data, step, n_particles,
                         n_threads, seed)
       private$data_ <- data
+      private$n_threads_ <- n_threads
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
     },
@@ -83,6 +85,12 @@
     ##' Returns the `index` as set by `$set_index`
     index = function() {
       private$index_
+    },
+
+    ##' @description
+    ##' Returns the number of threads that the model was constructed with
+    n_threads = function() {
+      private$n_threads_
     },
 
     ##' @description
