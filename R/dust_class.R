@@ -14,6 +14,7 @@ dust_class <- R6::R6Class(
 
   private = list(
     data = NULL,
+    index_names = NULL,
     ptr = NULL
   ),
 
@@ -52,7 +53,7 @@ dust_class <- R6::R6Class(
     ##' at that point.
     ##'
     ##' @param step_end Step to run to (if less than or equal to the current
-    ##' step(),silently nothing will happen)
+    ##' step(), silently nothing will happen)
     run = function(step_end) {
     },
 

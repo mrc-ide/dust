@@ -51,6 +51,7 @@ cpp11::writable::doubles dust_simulate(cpp11::list r_data,
                                        const size_t seed) {
   typedef typename T::real_t real_t;
   std::vector<size_t> steps = validate_size(r_steps, "steps");
+  // TODO: broken for floats
   std::vector<double> state = cpp11::as_cpp<std::vector<real_t>>(r_state);
   std::vector<size_t> index = r_index_to_index(r_index, r_state.nrow());
 

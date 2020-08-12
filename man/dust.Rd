@@ -220,7 +220,7 @@ at that point.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{step_end}}{Step to run to (if less than or equal to the current
-step(),silently nothing will happen)}
+step(), silently nothing will happen)}
 }
 \if{html}{\out{</div>}}
 }

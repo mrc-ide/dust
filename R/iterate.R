@@ -1,9 +1,9 @@
-##' Simulate a dust model over time. This is a wrapper around calling
+##' Iterate a dust model over time. This is a wrapper around calling
 ##' `$run()` and `$state()` repeatedly without doing anything very
 ##' interesting with the data. It is provided mostly as a
 ##' quick-and-dirty way of getting started with a model.
 ##'
-##' @title Simulate a dust model
+##' @title Iterate a dust model
 ##'
 ##' @param model A model, compiled with `dust::dust()` and initialised
 ##'
@@ -30,7 +30,7 @@
 ##' steps <- seq(0, 400, by = 4)
 ##'
 ##' # Run the simulation:
-##' res <- dust::dust_simulate(obj, steps)
+##' res <- dust::dust_iterate(obj, steps)
 ##'
 ##' # Output is 1 x 100 x 100 (state, particle, time)
 ##' dim(res)
@@ -42,7 +42,7 @@
 ##'         xlab = "Step", ylab = "Value")
 ##' abline(h = 0, lty = 2, col = "blue")
 ##' lines(steps, rowMeans(xy), col = "red", lwd = 2)
-dust_simulate <- function(model, steps, index = NULL) {
+dust_iterate <- function(model, steps, index = NULL) {
   assert_is(model, "dust")
   if (model$step() != steps[[1]]) {
     stop(sprintf("Expected first 'steps' element to be %d", model$step()))

@@ -7,7 +7,7 @@ test_that("simulate simple walk", {
   np <- 10
 
   obj <- res$new(list(sd = 1), 0, np)
-  m <- dust_simulate(obj, 0:ns)
+  m <- dust_iterate(obj, 0:ns)
   expect_equal(dim(m), c(1, np, ns + 1))
 
   ## Compare against the direct version:
@@ -23,9 +23,9 @@ test_that("filter output", {
                           quiet = TRUE)
 
   obj <- res$new(list(), 0, 100)
-  m1 <- dust_simulate(res$new(list(), 0, 100), 0:100)
-  m2 <- dust_simulate(res$new(list(), 0, 100), 0:100, 2L)
-  m3 <- dust_simulate(res$new(list(), 0, 100), 0:100, c(1L, 3L))
+  m1 <- dust_iterate(res$new(list(), 0, 100), 0:100)
+  m2 <- dust_iterate(res$new(list(), 0, 100), 0:100, 2L)
+  m3 <- dust_iterate(res$new(list(), 0, 100), 0:100, c(1L, 3L))
 
   expect_equal(dim(m1), c(3, 100, 101))
   expect_equal(dim(m2), c(1, 100, 101))
@@ -39,9 +39,9 @@ test_that("validate start time", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
                           quiet = TRUE)
   obj <- res$new(list(sd = 1), 4, 10)
-  expect_error(dust_simulate(obj, 0:100),
+  expect_error(dust_iterate(obj, 0:100),
                "Expected first 'steps' element to be 4")
-  expect_error(dust_simulate(obj, 10:100),
+  expect_error(dust_iterate(obj, 10:100),
                "Expected first 'steps' element to be 4")
 })
 
@@ -61,7 +61,7 @@ test_that("simulate trajectories with multiple starting points/parameters", {
   expect_equal(dim(ans), c(1, np, ns + 1L))
   expect_equal(ans[1, , 1], drop(y0))
 
-  cmp <- dust_simulate(res$new(list(sd = 1), 0, np), steps)
+  cmp <- dust_iterate(res$new(list(sd = 1), 0, np), steps)
   expect_equal(ans[, , 2], cmp[, , 2] * sd + drop(y0), )
   expect_equal(ans, cmp * sd + drop(y0))
 })

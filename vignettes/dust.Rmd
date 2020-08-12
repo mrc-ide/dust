@@ -210,12 +210,12 @@ model$state(c(S = 1L, R = 3L))
 
 Again, this copies names from the index if they are present.
 
-In order to run the simulation beginning-to-end, we use `dust::dust_simulate()`; this function is purely a convenience function and the intention is that you would write your own (see [`mcstate`](https://mrc-ide.github.io/mcstate) for example).
+In order to run the simulation beginning-to-end, we use `dust::dust_iterate()`; this function is purely a convenience function and the intention is that you would write your own (see [`mcstate`](https://mrc-ide.github.io/mcstate) for example).
 
 ```{r sir_run_collect}
 model <- sir$new(list(), 0, 200)
 steps <- seq(0, 600, by = 5)
-state <- dust::dust_simulate(model, steps, 2L)
+state <- dust::dust_iterate(model, steps, 2L)
 ```
 
 The output here is a 1 x 200 x 121 matrix (n state x n particles x n steps) and we need to drop the first dimension and transpose the others for ease of plotting:
@@ -291,7 +291,7 @@ Now, when we run the model, far more of the epidemics fail to take off as the in
 
 ```{r}
 steps <- seq(0, 600, by = 5)
-state <- t(drop(dust::dust_simulate(model, steps, 2L)))
+state <- t(drop(dust::dust_iterate(model, steps, 2L)))
 time <- steps / 4
 matplot(time, state, type = "l", lty = 1, col = "#00000022",
         xlab = "Time", ylab = "Number infected (I)")
@@ -321,7 +321,7 @@ From this point we can continue to run the simulation as before:
 
 ```{r}
 steps <- seq(max(step0), 600, by = 5)
-state <- t(drop(dust::dust_simulate(model, steps, 2L)))
+state <- t(drop(dust::dust_iterate(model, steps, 2L)))
 time <- steps / 4
 matplot(time, state, type = "l", lty = 1, col = "#00000022",
         xlab = "Time", ylab = "Number infected (I)")
