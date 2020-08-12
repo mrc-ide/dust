@@ -6,10 +6,11 @@ dust_simulate <- function(model, steps,
     index <- index %||% model$index()
     state <- state %||% model$state()
     data <- data %||% rep(list(model$data()), ncol(state))
-    model$simulate(steps, data, state, index, n_threads, seed)
+    environment(model$run)$private$simulate(steps, data, state, index,
+                                            n_threads, seed)
   } else if (inherits(model, "R6ClassGenerator") &&
              identical(model$classname, "dust")) {
-    model$public_methods$simulate(steps, data, state, index, n_threads, seed)
+    model$private_methods$simulate(steps, data, state, index, n_threads, seed)
   } else {
     stop("Expected a model object or generator for 'model'")
   }

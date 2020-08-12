@@ -6,7 +6,12 @@
     data_ = NULL,
     info_ = NULL,
     index_ = NULL,
-    ptr_ = NULL
+    ptr_ = NULL,
+
+    simulate = function(steps, data, state, index = NULL,
+                        n_threads = 1L, seed = 1L) {
+      dust_{{name}}_simulate(steps, data, state, index, n_threads, seed)
+    }
   ),
 
   public = list(
@@ -74,6 +79,8 @@
       invisible()
     },
 
+    ##' @description
+    ##' Returns the `index` as set by `$set_index`
     index = function() {
       private$index_
     },
@@ -155,10 +162,5 @@
     ##' state.
     rng_state = function() {
       dust_{{name}}_rng_state(private$ptr_)
-    },
-
-    simulate = function(steps, data, state, index = NULL,
-                        n_threads = 1L, seed = 1L) {
-      dust_{{name}}_simulate(steps, data, state, index, n_threads, seed)
     }
   ))

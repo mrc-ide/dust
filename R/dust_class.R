@@ -16,7 +16,11 @@ dust_class <- R6::R6Class(
     data_ = NULL,
     info_ = NULL,
     index_ = NULL,
-    ptr_ = NULL
+    ptr_ = NULL,
+
+    simulate = function(steps, data, state, index = NULL,
+                        n_threads = 1L, seed = 1L) {
+    }
   ),
 
   public = list(
@@ -72,6 +76,8 @@ dust_class <- R6::R6Class(
     set_index = function(index) {
     },
 
+    ##' @description
+    ##' Returns the `index` as set by `$set_index`
     index = function() {
     },
 
@@ -138,9 +144,5 @@ dust_class <- R6::R6Class(
     ##' debugging as one cannot (yet) initialise a dust object with this
     ##' state.
     rng_state = function() {
-    },
-
-    simulate = function(steps, data, state, index = NULL,
-                        n_threads = 1L, seed = 1L) {
     }
   ))

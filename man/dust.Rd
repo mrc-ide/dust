@@ -154,6 +154,7 @@ obj$state()
 \item \href{#method-name}{\code{dust_class$name()}}
 \item \href{#method-run}{\code{dust_class$run()}}
 \item \href{#method-set_index}{\code{dust_class$set_index()}}
+\item \href{#method-index}{\code{dust_class$index()}}
 \item \href{#method-set_state}{\code{dust_class$set_state()}}
 \item \href{#method-reset}{\code{dust_class$reset()}}
 \item \href{#method-state}{\code{dust_class$state()}}
@@ -162,7 +163,6 @@ obj$state()
 \item \href{#method-info}{\code{dust_class$info()}}
 \item \href{#method-data}{\code{dust_class$data()}}
 \item \href{#method-rng_state}{\code{dust_class$rng_state()}}
-\item \href{#method-simulate}{\code{dust_class$simulate()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -250,6 +250,16 @@ validated, and an error thrown if an invalid index is given).}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-index"></a>}}
+\if{latex}{\out{\hypertarget{method-index}{}}}
+\subsection{Method \code{index()}}{
+Returns the \code{index} as set by \verb{$set_index}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$index()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-set_state"></a>}}
@@ -376,22 +386,6 @@ debugging as one cannot (yet) initialise a dust object with this
 state.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$rng_state()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-simulate"></a>}}
-\if{latex}{\out{\hypertarget{method-simulate}{}}}
-\subsection{Method \code{simulate()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$simulate(
-  steps,
-  data,
-  state,
-  index = NULL,
-  n_threads = 1L,
-  seed = 1L
-)}\if{html}{\out{</div>}}
 }
 
 }
