@@ -1,3 +1,8 @@
+# dust 0.4.4
+
+* Helper function `dust::dust_simulate` is renamed to `dust::dust_iterate`
+* New function `dust::dust_simulate` which simulates many parameter sets and starting points at once, possibly in parallel (#84)
+
 # dust 0.4.3
 
 * If `$set_index()` uses a named index vector, then those names are copied back as rownames on the returned matrix. Similarly, if `$state()` is used with a named index then those names are used as rownames (#81)
