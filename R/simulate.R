@@ -19,7 +19,8 @@
 ##'   initial object has.  This is resolvable with some support for
 ##'   setting rng state directly from a raw vector and with jumping
 ##'   forward for the the component (model object or simulation) that
-##'   has fewer particles.
+##'   has fewer particles. There are similar issues with carrying over
+##'   the number of threads.
 ##'
 ##' @title Simulate from a model or generator
 ##'
