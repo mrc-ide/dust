@@ -202,6 +202,6 @@ test_that("names are copied when using state()", {
 
 test_that("can return the number of threads initialised with", {
   res <- dust(dust_file("examples/walk.cpp"), quiet = TRUE)
-  mod <- res$new(list(sd = 1), 0, 5, n_threads = 2)
-  expect_equal(n_threads(), 2)
+  expect_equal(res$new(list(sd = 1), 0, 5)$n_threads(), 1)
+  expect_equal(res$new(list(sd = 1), 0, 5, n_threads = 2)$n_threads(), 2)
 })
