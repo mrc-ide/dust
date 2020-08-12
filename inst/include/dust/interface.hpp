@@ -332,13 +332,7 @@ template <typename T>
 std::vector<T> matrix_to_vector(cpp11::doubles_matrix x) {
   const size_t len = x.nrow() * x.ncol();
   const double * x_data = REAL(x.data());
-
   std::vector<T> ret(len);
-  for (size_t i = 0; i < len; ++i) {
-    ret[i] = x_data[i];
-  }
-
-  // std::copy(x_data, x_data + len, ret.begin());
-
+  std::copy(x_data, x_data + len, ret.begin());
   return ret;
 }
