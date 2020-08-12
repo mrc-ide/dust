@@ -53,6 +53,26 @@
 ##'   (positive integer)
 ##'
 ##' @export
+##' @examples
+##'
+##' filename <- system.file("examples/walk.cpp", package = "dust")
+##' model <- dust::dust(filename, quiet = TRUE)
+##'
+##' # Start with 40 parameter sets; for this model each is list with
+##' # an element 'sd'
+##' data <- replicate(40, list(sd = runif(1)), simplify = FALSE)
+##'
+##' # We also need a matrix of initial states
+##' y0 <- matrix(rnorm(40), 1, 40)
+##'
+##' # Run from steps 0..50
+##' steps <- 0:50
+##'
+##' # The simulated output:
+##' res <- dust::dust_simulate(model, steps, data, y0)
+##'
+##' # The result of the simulation, plotted over time
+##' matplot(steps, t(drop(res)), type = "l", col = "#00000055", lty = 1)
 dust_simulate <- function(model, steps, data, state, index = NULL,
                           n_threads = 1L, seed = 1L) {
   if (inherits(model, "dust")) {
