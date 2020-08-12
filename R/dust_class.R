@@ -72,6 +72,9 @@ dust_class <- R6::R6Class(
     set_index = function(index) {
     },
 
+    index = function() {
+    },
+
     ##' @description
     ##' Set the "state" vector for all particles, overriding whatever your
     ##' models `initial()` method provides.
@@ -135,5 +138,9 @@ dust_class <- R6::R6Class(
     ##' debugging as one cannot (yet) initialise a dust object with this
     ##' state.
     rng_state = function() {
+    },
+
+    simulate = function(steps, data, state, index = NULL,
+                        n_threads = 1L, seed = 1L) {
     }
   ))

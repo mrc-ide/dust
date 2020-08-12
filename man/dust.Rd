@@ -162,6 +162,7 @@ obj$state()
 \item \href{#method-info}{\code{dust_class$info()}}
 \item \href{#method-data}{\code{dust_class$data()}}
 \item \href{#method-rng_state}{\code{dust_class$rng_state()}}
+\item \href{#method-simulate}{\code{dust_class$simulate()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -375,6 +376,22 @@ debugging as one cannot (yet) initialise a dust object with this
 state.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$rng_state()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-simulate"></a>}}
+\if{latex}{\out{\hypertarget{method-simulate}{}}}
+\subsection{Method \code{simulate()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$simulate(
+  steps,
+  data,
+  state,
+  index = NULL,
+  n_threads = 1L,
+  seed = 1L
+)}\if{html}{\out{</div>}}
 }
 
 }

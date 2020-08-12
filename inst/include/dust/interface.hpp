@@ -16,6 +16,7 @@ typename cpp11::sexp dust_info(const typename T::init_t& data);
 inline void validate_size(int x, const char * name);
 inline std::vector<size_t> validate_size(cpp11::sexp x, const char *name);
 inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax);
+inline std::vector<size_t> r_index_to_index_default(size_t n);
 inline cpp11::integers as_integer(cpp11::sexp x, const char * name);
 
 template <typename T>
@@ -262,8 +263,11 @@ inline std::vector<size_t> validate_size(cpp11::sexp r_x, const char * name) {
   return x;
 }
 
-inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index,
-                                            size_t nmax) {
+inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax) {
+  if (r_index == R_NilValue) {
+    return r_index_to_index_default(nmax);
+  }
+
   cpp11::integers r_index_int = as_integer(r_index, "index");
   const int n = r_index_int.size();
   std::vector<size_t> index;
@@ -274,6 +278,15 @@ inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index,
       cpp11::stop("All elements of 'index' must lie in [1, %d]", nmax);
     }
     index.push_back(x - 1);
+  }
+  return index;
+}
+
+inline std::vector<size_t> r_index_to_index_default(size_t n) {
+  std::vector<size_t> index;
+  index.reserve(n);
+  for (size_t i = 0; i < n; ++i) {
+    index.push_back(i);
   }
   return index;
 }
