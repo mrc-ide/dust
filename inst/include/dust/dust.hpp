@@ -267,9 +267,10 @@ dust_simulate(const std::vector<size_t> steps,
   #pragma omp parallel for schedule(static) num_threads(n_threads)
   for (size_t i = 0; i < particles.size(); ++i) {
     particles[i].set_state(state.begin() + n_state_full * i);
+    size_t offset = i * n_state_return;
     for (size_t t = 0; t < n_steps; ++t) {
       particles[i].run(steps[t], rng.state(i));
-      size_t offset = t * n_state_return * n_particles + i * n_state_return;
+      offset += t * n_state_return * n_particles;
       particles[i].state(index, ret.begin() + offset);
     }
   }
