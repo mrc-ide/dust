@@ -259,14 +259,15 @@ dust_simulate(const std::vector<typename T::init_t> data,
   dust::pRNG<typename T::real_t> rng(n_particles, seed);
   std::vector<double> ret(n_particles * n_state * steps.size());
   size_t n_steps = steps.size();
-  const size_t stride_ret = index.size() * (n_steps + 1);
+  const size_t stride_ret = index.size() * n_steps;
 
 #pragma omp parallel for schedule(static) num_threads(n_threads)
   for (size_t i = 0; i < particles.size(); ++i) {
     particles[i].set_state(state.begin() + n_state * i);
     for (size_t t = 0; t < n_steps; ++t) {
-      auto dest = ret.begin() + i * stride_ret + t * index.size();
       particles[i].run(steps[t], rng.state(i));
+
+      auto dest = ret.begin() + i * stride_ret + t * index.size();
       particles[i].state(index, dest);
     }
   }
