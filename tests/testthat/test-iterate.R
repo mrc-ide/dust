@@ -57,7 +57,7 @@ test_that("simulate trajectories with multiple starting points/parameters", {
 
   steps <- seq(0, to = ns, by = 1L)
 
-  ans <- res$parent_env$dust_walk_simulate(data, y0, steps, 1L, 1L, 1L)
+  ans <- res$parent_env$dust_walk_simulate(steps, data, y0, 1L, 1L, 1L)
   expect_equal(dim(ans), c(1, np, ns + 1L))
   expect_equal(ans[1, , 1], drop(y0))
 

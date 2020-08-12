@@ -43,9 +43,9 @@ cpp11::list dust_alloc(cpp11::list r_data, int step,
 // think about rng seeding here carefully; should accept either a raw
 // vector or an integer I think.
 template <typename T>
-cpp11::writable::doubles dust_simulate(cpp11::list r_data,
+cpp11::writable::doubles dust_simulate(cpp11::sexp r_steps,
+                                       cpp11::list r_data,
                                        cpp11::doubles_matrix r_state,
-                                       cpp11::sexp r_steps,
                                        cpp11::sexp r_index,
                                        const size_t n_threads,
                                        const size_t seed) {
@@ -64,7 +64,7 @@ cpp11::writable::doubles dust_simulate(cpp11::list r_data,
   cpp11::writable::doubles ret(index.size() * data.size() * steps.size());
 
   std::vector<real_t> dat =
-    dust_simulate<T>(data, state, steps, index, n_threads, seed);
+    dust_simulate<T>(steps, data, state, index, n_threads, seed);
   std::copy(dat.begin(), dat.end(), REAL(ret));
 
   ret.attr("dim") = cpp11::writable::integers({(int)index.size(),

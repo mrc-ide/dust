@@ -53,12 +53,12 @@ SEXP dust_{{name}}_rng_state(SEXP ptr) {
 }
 
 [[cpp11::register]]
-SEXP dust_{{name}}_simulate(cpp11::list r_data,
+SEXP dust_{{name}}_simulate(cpp11::sexp r_steps,
+                            cpp11::list r_data,
                             cpp11::doubles_matrix r_state,
-                            cpp11::sexp r_steps,
                             cpp11::sexp r_index,
                             const size_t n_threads,
                             const size_t seed) {
-  return dust_simulate<{{type}}>(r_data, r_state, r_steps, r_index,
+  return dust_simulate<{{type}}>(r_steps, r_data, r_state, r_index,
                                  n_threads, seed);
 }
