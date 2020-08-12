@@ -67,8 +67,8 @@ cpp11::writable::doubles dust_simulate(cpp11::list r_data,
   std::copy(dat.begin(), dat.end(), REAL(ret));
 
   ret.attr("dim") = cpp11::writable::integers({(int)index.size(),
-                                               (int)steps.size(),
-                                               (int)data.size()});
+                                               (int)data.size(),
+                                               (int)steps.size()});
   return ret;
 }
 
