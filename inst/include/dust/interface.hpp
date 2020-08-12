@@ -265,6 +265,10 @@ inline std::vector<size_t> validate_size(cpp11::sexp r_x, const char * name) {
   return x;
 }
 
+// Converts an R vector of integers (in base-1) to a C++ std::vector
+// of size_t values in base-0 having checked that the values of the
+// vectors are approproate; that they will not fall outside of the
+// range [1, nmax] in base-1.
 inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax) {
   if (r_index == R_NilValue) {
     return r_index_to_index_default(nmax);
@@ -284,6 +288,8 @@ inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax) {
   return index;
 }
 
+// Helper for the above; in the case where index is not given we
+// assume it would have been given as 1..n so generate out 0..(n-1)
 inline std::vector<size_t> r_index_to_index_default(size_t n) {
   std::vector<size_t> index;
   index.reserve(n);
