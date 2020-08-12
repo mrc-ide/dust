@@ -20,6 +20,9 @@ inline std::vector<size_t> r_index_to_index_default(size_t n);
 inline cpp11::integers as_integer(cpp11::sexp x, const char * name);
 
 template <typename T>
+std::vector<T> matrix_to_vector(cpp11::doubles_matrix x);
+
+template <typename T>
 cpp11::writable::doubles_matrix create_matrix(size_t nrow, size_t ncol,
                                               const T& data);
 
@@ -53,7 +56,7 @@ cpp11::writable::doubles dust_simulate(cpp11::sexp r_steps,
   typedef typename T::real_t real_t;
   std::vector<size_t> steps = validate_size(r_steps, "steps");
   // TODO: broken for floats
-  std::vector<double> state = cpp11::as_cpp<std::vector<real_t>>(r_state);
+  std::vector<real_t> state = matrix_to_vector<real_t>(r_state);
   std::vector<size_t> index = r_index_to_index(r_index, r_state.nrow());
 
   if (r_data.size() != r_state.ncol()) {
@@ -130,6 +133,7 @@ void dust_set_state(Dust<T> *obj, cpp11::doubles r_state) {
 
 template <typename T>
 void dust_set_state(Dust<T> *obj, cpp11::doubles_matrix r_state) {
+  typedef typename T::real_t real_t;
   const size_t n_state = obj->n_state_full();
   const size_t n_particles = obj->n_particles();
 
@@ -140,13 +144,7 @@ void dust_set_state(Dust<T> *obj, cpp11::doubles_matrix r_state) {
     cpp11::stop("Expected a matrix with %d columns for 'state'", n_particles);
   }
 
-  const size_t len = n_state * n_particles;
-  std::vector<typename T::real_t> state;
-  const double * r_state_data = REAL(r_state.data());
-  state.reserve(len);
-  for (size_t i = 0; i < len; ++i) {
-    state[i] = r_state_data[i];
-  }
+  std::vector<real_t> state = matrix_to_vector<real_t>(r_state);
 
   obj->set_state(state, true);
 }
@@ -328,4 +326,19 @@ inline cpp11::integers as_integer(cpp11::sexp x, const char * name) {
     cpp11::stop("Expected a numeric vector for '%s'", name);
     return cpp11::integers(); // never reached
   }
+}
+
+template <typename T>
+std::vector<T> matrix_to_vector(cpp11::doubles_matrix x) {
+  const size_t len = x.nrow() * x.ncol();
+  const double * x_data = REAL(x.data());
+
+  std::vector<T> ret(len);
+  for (size_t i = 0; i < len; ++i) {
+    ret[i] = x_data[i];
+  }
+
+  // std::copy(x_data, x_data + len, ret.begin());
+
+  return ret;
 }

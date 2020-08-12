@@ -246,7 +246,6 @@ test_that("validate reorder vector is in correct range", {
 
 
 test_that("run in float mode", {
-  skip("FIXME")
   res_d <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
                             quiet = TRUE)
 
