@@ -27,7 +27,7 @@ test_that("simulate trajectories with multiple starting points/parameters", {
 
 
 test_that("simulate multi-state model", {
-  res <- dust(dust_file("examples/sir.cpp"), quiet = FALSE)
+  res <- dust(dust_file("examples/sir.cpp"), quiet = TRUE)
 
   np <- 13
 
@@ -51,4 +51,47 @@ test_that("simulate multi-state model", {
   expect_equal(
     dust_simulate(res, steps, data, y0, index = c(1L, 3L)),
     ans[c(1, 3), , , drop = FALSE])
+})
+
+
+test_that("simulate requires a compatible object", {
+  expect_error(
+    dust_simulate(NULL, 0:10, list(list()), matrix(1, 1)),
+    "Expected a dust object or generator for 'model'")
+})
+
+
+test_that("simulate requires a matrix for initial state", {
+  res <- dust(dust_file("examples/sir.cpp"), quiet = TRUE)
+  expect_error(
+    dust_simulate(res, 0:10, list(list()), 1),
+    "Expected 'state' to be a matrix")
+})
+
+
+test_that("simulate requires that data and state are compatible", {
+  res <- dust(dust_file("examples/sir.cpp"), quiet = TRUE)
+  y0 <- matrix(1, 1, 5)
+  data <- rep(list(list(sd = 1)), 4)
+
+  expect_error(
+    dust_simulate(res, 0:10, data, y0),
+    "Expected 'state' to be a matrix with 4 columns")
+})
+
+
+test_that("simulate requires that particles have the same size", {
+  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  data <- list(list(len = 10), list(len = 9))
+  y0 <- matrix(1, 10, 2)
+  expect_error(
+    dust_simulate(res, 0:10, data, y0),
+    paste("Particles have different state sizes:",
+          "particle 2 had length 10 but expected 9"))
+
+  i <- rep(1:2, each = 4)
+  expect_error(
+    dust_simulate(res, 0:10, data[i], y0[, i, drop = FALSE]),
+    paste("Particles have different state sizes:",
+          "particle 5 had length 10 but expected 9"))
 })

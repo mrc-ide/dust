@@ -81,7 +81,7 @@ dust_simulate <- function(model, steps, data, state, index = NULL,
              identical(model$classname, "dust")) {
     simulate <- model$private_methods$simulate
   } else {
-    stop("Expected a model object or generator for 'model'")
+    stop("Expected a dust object or generator for 'model'")
   }
   if (!is.matrix(state)) {
     stop("Expected 'state' to be a matrix")

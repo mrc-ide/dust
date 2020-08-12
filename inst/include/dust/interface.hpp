@@ -56,6 +56,11 @@ cpp11::writable::doubles dust_simulate(cpp11::sexp r_steps,
   std::vector<double> state = cpp11::as_cpp<std::vector<real_t>>(r_state);
   std::vector<size_t> index = r_index_to_index(r_index, r_state.nrow());
 
+  if (r_data.size() != r_state.ncol()) {
+    cpp11::stop("Expected 'state' to be a matrix with %d columns",
+                r_data.size());
+  }
+
   std::vector<typename T::init_t> data;
   data.reserve(r_data.size());
   for (int i = 0; i < r_data.size(); ++i) {

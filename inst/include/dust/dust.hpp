@@ -4,6 +4,7 @@
 #include <dust/rng.hpp>
 
 #include <algorithm>
+#include <sstream>
 #include <utility>
 #ifdef _OPENMP
 #include <omp.h>
@@ -249,13 +250,14 @@ dust_simulate(const std::vector<size_t> steps,
   for (size_t i = 0; i < n_particles; ++i) {
     particles.push_back(Particle<T>(data[i], steps[0]));
     if (i > 0 && particles.back().size() != particles.front().size()) {
-      throw "Particles have different size states";
+      std::stringstream msg;
+      msg << "Particles have different state sizes: particle " << i + 1 <<
+        " had length " << particles.front().size() << " but expected " <<
+        particles.back().size();
+      throw std::invalid_argument(msg.str());
     }
   }
   const size_t n_state_full = particles.front().size();
-  if (n_state_full * data.size() != state.size()) {
-    throw "Unexpected state size";
-  }
 
   dust::pRNG<typename T::real_t> rng(n_particles, seed);
   std::vector<double> ret(n_particles * n_state_return * steps.size());
