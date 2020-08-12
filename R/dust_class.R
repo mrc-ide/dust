@@ -13,9 +13,10 @@ dust_class <- R6::R6Class(
   cloneable = FALSE,
 
   private = list(
-    data = NULL,
-    index_names = NULL,
-    ptr = NULL
+    data_ = NULL,
+    info_ = NULL,
+    index_ = NULL,
+    ptr_ = NULL
   ),
 
   public = list(
@@ -121,6 +122,11 @@ dust_class <- R6::R6Class(
     ##' Only returns non-NULL if the model provides a `dust_info` template
     ##' specialisation.
     info = function() {
+    },
+
+    ##' @description
+    ##' Returns the `data` object that your model was constructed with.
+    data = function() {
     },
 
     ##' @description

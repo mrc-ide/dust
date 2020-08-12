@@ -160,6 +160,7 @@ obj$state()
 \item \href{#method-step}{\code{dust_class$step()}}
 \item \href{#method-reorder}{\code{dust_class$reorder()}}
 \item \href{#method-info}{\code{dust_class$info()}}
+\item \href{#method-data}{\code{dust_class$data()}}
 \item \href{#method-rng_state}{\code{dust_class$rng_state()}}
 }
 }
@@ -351,6 +352,16 @@ Only returns non-NULL if the model provides a \code{dust_info} template
 specialisation.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$info()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-data"></a>}}
+\if{latex}{\out{\hypertarget{method-data}{}}}
+\subsection{Method \code{data()}}{
+Returns the \code{data} object that your model was constructed with.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$data()}\if{html}{\out{</div>}}
 }
 
 }

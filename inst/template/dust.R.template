@@ -3,8 +3,9 @@
   cloneable = FALSE,
 
   private = list(
+    data_ = NULL,
     info_ = NULL,
-    index_names_ = NULL,
+    index_ = NULL,
     ptr_ = NULL
   ),
 
@@ -33,6 +34,7 @@
                           seed = 1L) {
       res <- dust_{{name}}_alloc(data, step, n_particles,
                         n_threads, seed)
+      private$data_ <- data
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
     },
@@ -51,7 +53,7 @@
     ##' step(), silently nothing will happen)
     run = function(step_end) {
       m <- dust_{{name}}_run(private$ptr_, step_end)
-      rownames(m) <- private$index_names_
+      rownames(m) <- names(private$index_)
       m
     },
 
@@ -68,7 +70,7 @@
     ##' validated, and an error thrown if an invalid index is given).
     set_index = function(index) {
       dust_{{name}}_set_index(private$ptr_, index)
-      private$index_names_ <- names(index)
+      private$index_ <- index
       invisible()
     },
 
@@ -98,7 +100,8 @@
     ##' @param step New initial step for the model (see constructor)
     reset = function(data, step) {
       private$info_ <- dust_{{name}}_reset(private$ptr_, data, step)
-      private$index_names_ <- NULL
+      private$index_ <- NULL
+      private$data_ <- data
       invisible()
     },
 
@@ -133,6 +136,12 @@
     ##' specialisation.
     info = function() {
       private$info_
+    },
+
+    ##' @description
+    ##' Returns the `data` object that your model was constructed with.
+    data = function() {
+      private$data_
     },
 
     ##' @description
