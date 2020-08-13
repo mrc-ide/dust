@@ -27,14 +27,13 @@ public:
   // Initialise from a vector of seed
   pRNG(const size_t n, const std::vector<uint64_t> seed) {
     rng_state_t<T> s;
-    auto it = seed.begin();
     auto len = rng_state_t<T>::size();
+    auto n_seed = seed.size() / len;
     for (size_t i = 0; i < n; ++i) {
-      if (it == seed.end()) {
-        xoshiro_jump(s);
+      if (i < n_seed) {
+        std::copy_n(seed.begin() + i * len, len, s.state.begin());
       } else {
-        std::copy_n(it, len, s.state.begin());
-        it += len;
+        xoshiro_jump(s);
       }
       _state.push_back(s);
     }

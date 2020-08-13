@@ -268,12 +268,53 @@ test_that("get state", {
 
 
 test_that("initialise single rng with binary state", {
-  seed <- 1
+  seed <- 42
   rng1 <- dust_rng$new(seed, 1L)
   state <- rng1$state()
   rng2 <- dust_rng$new(state, 1L)
+  expect_identical(rng1$state(), rng2$state())
   r1 <- rng1$unif_rand(10)
   r2 <- rng2$unif_rand(10)
   expect_identical(r1, r2)
   expect_identical(rng1$state(), rng2$state())
+})
+
+
+test_that("initialise parallel rng with binary state", {
+  seed <- 42
+  rng1 <- dust_rng$new(seed, 5L)
+  state <- rng1$state()
+  rng2 <- dust_rng$new(state, 5L)
+  r1 <- rng1$unif_rand(10)
+  r2 <- rng2$unif_rand(10)
+  expect_identical(r1, r2)
+  expect_identical(rng1$state(), rng2$state())
+})
+
+
+test_that("initialise parallel rng with single binary state and jump", {
+  seed <- 42
+  rng1 <- dust_rng$new(seed, 1L)
+  rng2 <- dust_rng$new(seed, 2L)
+  state <- rng1$state()
+  rng3 <- dust_rng$new(state, 2L)
+  expect_identical(rng3$state(), rng2$state())
+})
+
+
+test_that("initialise parallel rng with binary state and drop", {
+  seed <- 42
+  rng10 <- dust_rng$new(seed, 10L)
+  rng5 <- dust_rng$new(rng10$state(), 5L)
+  expect_identical(rng5$state(), rng10$state()[seq_len(5 * 4 * 8)])
+})
+
+
+test_that("require that raw vector is of sensible size", {
+  expect_error(dust_rng$new(raw(), 1L),
+               "Expected a raw vector with length as multiple of 32")
+  expect_error(dust_rng$new(raw(31), 1L),
+               "Expected a raw vector with length as multiple of 32")
+  expect_error(dust_rng$new(raw(63), 1L),
+               "Expected a raw vector with length as multiple of 32")
 })

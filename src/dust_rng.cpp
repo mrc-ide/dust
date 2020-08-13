@@ -14,14 +14,14 @@ SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators) {
     int seed = cpp11::as_cpp<int>(r_seed);
     rng = new dust_rng_t(n_generators, seed);
   } else if (seed_type == RAWSXP) {
-    const size_t seed_len = dust::rng_state_t<double>::size();
     cpp11::raws seed_data = cpp11::as_cpp<cpp11::raws>(r_seed);
-    if (seed_data.size() % seed_len != 0) {
-      cpp11::stop("Expected a raw vector with a length of a multiple of %d",
-                  seed_len);
+    const auto len = sizeof(uint64_t) * dust::rng_state_t<double>::size();
+    if (seed_data.size() == 0 || seed_data.size() % len != 0) {
+      cpp11::stop("Expected a raw vector with length as multiple of %d",
+                  len);
     }
-    std::vector<uint64_t> seed(seed_data.size() / seed_len);
-    std::memcpy(seed.data(), RAW(seed_data), sizeof(uint64_t) * seed.size());
+    std::vector<uint64_t> seed(seed_data.size() / sizeof(uint64_t));
+    std::memcpy(seed.data(), RAW(seed_data), seed_data.size());
     rng = new dust_rng_t(n_generators, seed);
   } else {
     cpp11::stop("Invalid type for 'seed'");
