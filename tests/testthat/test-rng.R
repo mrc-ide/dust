@@ -312,11 +312,11 @@ test_that("initialise parallel rng with binary state and drop", {
 
 test_that("require that raw vector is of sensible size", {
   expect_error(dust_rng$new(raw(), 1L),
-               "Expected a raw vector with length as multiple of 32")
+               "Expected raw vector of length as multiple of 32 for 'seed'")
   expect_error(dust_rng$new(raw(31), 1L),
-               "Expected a raw vector with length as multiple of 32")
+               "Expected raw vector of length as multiple of 32 for 'seed'")
   expect_error(dust_rng$new(raw(63), 1L),
-               "Expected a raw vector with length as multiple of 32")
+               "Expected raw vector of length as multiple of 32 for 'seed'")
 })
 
 
