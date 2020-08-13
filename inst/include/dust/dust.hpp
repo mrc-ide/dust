@@ -4,6 +4,7 @@
 #include <dust/rng.hpp>
 
 #include <algorithm>
+#include <sstream>
 #include <utility>
 #ifdef _OPENMP
 #include <omp.h>
@@ -232,5 +233,48 @@ private:
     }
   }
 };
+
+
+template <typename T>
+std::vector<typename T::real_t>
+dust_simulate(const std::vector<size_t> steps,
+              const std::vector<typename T::init_t> data,
+              const std::vector<typename T::real_t> state,
+              const std::vector<size_t> index,
+              const size_t n_threads,
+              const size_t seed) {
+  typedef typename T::real_t real_t;
+  const size_t n_state_return = index.size();
+  const size_t n_particles = data.size();
+  std::vector<Particle<T>> particles;
+  particles.reserve(n_particles);
+  for (size_t i = 0; i < n_particles; ++i) {
+    particles.push_back(Particle<T>(data[i], steps[0]));
+    if (i > 0 && particles.back().size() != particles.front().size()) {
+      std::stringstream msg;
+      msg << "Particles have different state sizes: particle " << i + 1 <<
+        " had length " << particles.front().size() << " but expected " <<
+        particles.back().size();
+      throw std::invalid_argument(msg.str());
+    }
+  }
+  const size_t n_state_full = particles.front().size();
+
+  dust::pRNG<real_t> rng(n_particles, seed);
+  std::vector<real_t> ret(n_particles * n_state_return * steps.size());
+  size_t n_steps = steps.size();
+
+  #pragma omp parallel for schedule(static) num_threads(n_threads)
+  for (size_t i = 0; i < particles.size(); ++i) {
+    particles[i].set_state(state.begin() + n_state_full * i);
+    for (size_t t = 0; t < n_steps; ++t) {
+      particles[i].run(steps[t], rng.state(i));
+      size_t offset = t * n_state_return * n_particles + i * n_state_return;
+      particles[i].state(index, ret.begin() + offset);
+    }
+  }
+
+  return ret;
+}
 
 #endif

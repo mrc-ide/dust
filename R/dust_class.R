@@ -13,8 +13,15 @@ dust_class <- R6::R6Class(
   cloneable = FALSE,
 
   private = list(
-    data = NULL,
-    ptr = NULL
+    data_ = NULL,
+    index_ = NULL,
+    info_ = NULL,
+    n_threads_ = NULL,
+    ptr_ = NULL,
+
+    simulate = function(steps, data, state, index = NULL,
+                        n_threads = 1L, seed = 1L) {
+    }
   ),
 
   public = list(
@@ -52,7 +59,7 @@ dust_class <- R6::R6Class(
     ##' at that point.
     ##'
     ##' @param step_end Step to run to (if less than or equal to the current
-    ##' step(),silently nothing will happen)
+    ##' step(), silently nothing will happen)
     run = function(step_end) {
     },
 
@@ -68,6 +75,16 @@ dust_class <- R6::R6Class(
     ##' elements between 1 and the length of the state (this will be
     ##' validated, and an error thrown if an invalid index is given).
     set_index = function(index) {
+    },
+
+    ##' @description
+    ##' Returns the `index` as set by `$set_index`
+    index = function() {
+    },
+
+    ##' @description
+    ##' Returns the number of threads that the model was constructed with
+    n_threads = function() {
     },
 
     ##' @description
@@ -120,6 +137,11 @@ dust_class <- R6::R6Class(
     ##' Only returns non-NULL if the model provides a `dust_info` template
     ##' specialisation.
     info = function() {
+    },
+
+    ##' @description
+    ##' Returns the `data` object that your model was constructed with.
+    data = function() {
     },
 
     ##' @description

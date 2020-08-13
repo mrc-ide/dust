@@ -3,9 +3,16 @@
   cloneable = FALSE,
 
   private = list(
-    data = NULL,
-    index_names = NULL,
-    ptr = NULL
+    data_ = NULL,
+    index_ = NULL,
+    info_ = NULL,
+    n_threads_ = NULL,
+    ptr_ = NULL,
+
+    simulate = function(steps, data, state, index = NULL,
+                        n_threads = 1L, seed = 1L) {
+      dust_{{name}}_simulate(steps, data, state, index, n_threads, seed)
+    }
   ),
 
   public = list(
@@ -33,8 +40,10 @@
                           seed = 1L) {
       res <- dust_{{name}}_alloc(data, step, n_particles,
                         n_threads, seed)
-      private$ptr <- res[[1L]]
-      private$data <- res[[2L]]
+      private$data_ <- data
+      private$n_threads_ <- n_threads
+      private$ptr_ <- res[[1L]]
+      private$info_ <- res[[2L]]
     },
 
     ##' @description
@@ -50,8 +59,8 @@
     ##' @param step_end Step to run to (if less than or equal to the current
     ##' step(), silently nothing will happen)
     run = function(step_end) {
-      m <- dust_{{name}}_run(private$ptr, step_end)
-      rownames(m) <- private$index_names
+      m <- dust_{{name}}_run(private$ptr_, step_end)
+      rownames(m) <- names(private$index_)
       m
     },
 
@@ -67,9 +76,21 @@
     ##' elements between 1 and the length of the state (this will be
     ##' validated, and an error thrown if an invalid index is given).
     set_index = function(index) {
-      dust_{{name}}_set_index(private$ptr, index)
-      private$index_names <- names(index)
+      dust_{{name}}_set_index(private$ptr_, index)
+      private$index_ <- index
       invisible()
+    },
+
+    ##' @description
+    ##' Returns the `index` as set by `$set_index`
+    index = function() {
+      private$index_
+    },
+
+    ##' @description
+    ##' Returns the number of threads that the model was constructed with
+    n_threads = function() {
+      private$n_threads_
     },
 
     ##' @description
@@ -88,7 +109,7 @@
     ##' particles are started from different initial steps and run up to the
     ##' larges step given (i.e., `max(step)`)
     set_state = function(state, step = NULL) {
-      dust_{{name}}_set_state(private$ptr, state, step)
+      dust_{{name}}_set_state(private$ptr_, state, step)
     },
 
     ##' @description
@@ -97,8 +118,9 @@
     ##' @param data New data for the model (see constructor)
     ##' @param step New initial step for the model (see constructor)
     reset = function(data, step) {
-      private$data <- dust_{{name}}_reset(private$ptr, data, step)
-      private$index_names <- NULL
+      private$info_ <- dust_{{name}}_reset(private$ptr_, data, step)
+      private$index_ <- NULL
+      private$data_ <- data
       invisible()
     },
 
@@ -106,7 +128,7 @@
     ##' Return full model state
     ##' @param index Optional index to select state using
     state = function(index = NULL) {
-      m <- dust_{{name}}_state(private$ptr, index)
+      m <- dust_{{name}}_state(private$ptr_, index)
       rownames(m) <- names(index)
       m
     },
@@ -114,7 +136,7 @@
     ##' @description
     ##' Return current model step
     step = function() {
-      dust_{{name}}_step(private$ptr)
+      dust_{{name}}_step(private$ptr_)
     },
 
     ##' @description
@@ -123,7 +145,7 @@
     ##' indicating the index of the current particles that new particles should
     ##' take.
     reorder = function(index) {
-      dust_{{name}}_reorder(private$ptr, as.integer(index))
+      dust_{{name}}_reorder(private$ptr_, as.integer(index))
       invisible()
     },
 
@@ -132,7 +154,13 @@
     ##' Only returns non-NULL if the model provides a `dust_info` template
     ##' specialisation.
     info = function() {
-      private$data
+      private$info_
+    },
+
+    ##' @description
+    ##' Returns the `data` object that your model was constructed with.
+    data = function() {
+      private$data_
     },
 
     ##' @description
@@ -141,6 +169,6 @@
     ##' debugging as one cannot (yet) initialise a dust object with this
     ##' state.
     rng_state = function() {
-      dust_{{name}}_rng_state(private$ptr)
+      dust_{{name}}_rng_state(private$ptr_)
     }
   ))

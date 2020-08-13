@@ -1,57 +1,94 @@
-##' Simulate a dust model over time. This is a wrapper around calling
-##' `$run()` and `$state()` repeatedly without doing anything very
-##' interesting with the data. It is provided mostly as a
-##' quick-and-dirty way of getting started with a model.
+##' Simulate a dust model.  This is a helper function that is subject
+##' to change; see Details below.
 ##'
-##' @title Simulate a dust model
+##' This function has an interface that we expect to change once
+##' multi-parameter "dust" objects are fully supported.  For now, it
+##' is designed to be used where we want to simulate a number of
+##' trajectories given a vector of model data and a matrix of initial
+##' state.  For our immediate use case this is for simulating at the
+##' end of an MCMC where want to generate a posterior distribution of
+##' trajectories.
 ##'
-##' @param model A model, compiled with `dust::dust()` and initialised
+##' @section Random number generation:
 ##'
-##' @param steps A vector of steps - the first step must be same as
-##'   the model's step (i.e., `$step()`)
+##' This implementation leaves a number of issues that we will resolve
+##'   in future versions. Most pressing is that the RNG is uncoupled
+##'   between a `model` object and the simulation; ideally this would
+##'   advance the RNG on the `model`, but this needs care in the case
+##'   where either more or fewer simulations are carried out than the
+##'   initial object has.  This is resolvable with some support for
+##'   setting rng state directly from a raw vector and with jumping
+##'   forward for the the component (model object or simulation) that
+##'   has fewer particles. There are similar issues with carrying over
+##'   the number of threads.
 ##'
-##' @param index An optional index to filter the results with.
+##' @title Simulate from a model or generator
 ##'
-##' @return A 3d array of model outputs. The first dimension is model
-##'   state, the second is particle number and the third is time, so
-##'   that `output[i, j, k]` is the `i`th variable, `j`th particle and
-##'   `k`th step.
+##' @param model A [dust] model or generator object
+##'
+##' @param steps The vector of steps used to simulate over. The first
+##'   step in this vector is the starting step (corresponding to the
+##'   initial `state` of the model) and subsequent values are steps
+##'   where state should be returned.
+##'
+##' @param data An unnamed list of model initialisation data (see
+##'   [dust]).  It must have the same length as the number of columns
+##'   in `state`.
+##'
+##' @param state A matrix of initial states. It must have the number
+##'   of rows corresponding to the number of initial state values your
+##'   model requires, and the number of columns corresponding to the
+##'   number of independent simulations to perform (i.e.,
+##'   `length(data)`).
+##'
+##' @param index An optional index, indicating the indicies of the
+##'   state vectors that you want output recorded for.
+##'
+##' @param n_threads Number of OMP threads to use, if `dust` and your
+##'   model were compiled with OMP support.  The number of simulations
+##'   (`length(data)`) should be a multiple of `n_threads` (e.g., if
+##'   you use 8 threads, then you should have 8, 16, 24, etc
+##'   particles). However, this is not compulsary.
+##'
+##' @param seed The seed to use for the random number generator
+##'   (positive integer)
 ##'
 ##' @export
 ##' @examples
-##' # Same random walk example as in ?dust
+##'
 ##' filename <- system.file("examples/walk.cpp", package = "dust")
 ##' model <- dust::dust(filename, quiet = TRUE)
 ##'
-##' # Create a model with 100 particles, starting at step 0
-##' obj <- model$new(list(sd = 1), 0, 100)
+##' # Start with 40 parameter sets; for this model each is list with
+##' # an element 'sd'
+##' data <- replicate(40, list(sd = runif(1)), simplify = FALSE)
 ##'
-##' # Steps that we want to report at:
-##' steps <- seq(0, 400, by = 4)
+##' # We also need a matrix of initial states
+##' y0 <- matrix(rnorm(40), 1, 40)
 ##'
-##' # Run the simulation:
-##' res <- dust::dust_simulate(obj, steps)
+##' # Run from steps 0..50
+##' steps <- 0:50
 ##'
-##' # Output is 1 x 100 x 100 (state, particle, time)
-##' dim(res)
+##' # The simulated output:
+##' res <- dust::dust_simulate(model, steps, data, y0)
 ##'
-##' # Dropping the first dimension and plotting, with the mean in red
-##' # and the expectation in blue:
-##' xy <- t(res[1, , , drop = TRUE])
-##' matplot(steps, xy, type = "l", lty = 1, col = "#00000033",
-##'         xlab = "Step", ylab = "Value")
-##' abline(h = 0, lty = 2, col = "blue")
-##' lines(steps, rowMeans(xy), col = "red", lwd = 2)
-dust_simulate <- function(model, steps, index = NULL) {
-  assert_is(model, "dust")
-  if (model$step() != steps[[1]]) {
-    stop(sprintf("Expected first 'steps' element to be %d", model$step()))
+##' # The result of the simulation, plotted over time
+##' matplot(steps, t(drop(res)), type = "l", col = "#00000055", lty = 1)
+dust_simulate <- function(model, steps, data, state, index = NULL,
+                          n_threads = 1L, seed = 1L) {
+  if (inherits(model, "dust")) {
+    simulate <- environment(model$run)$private$simulate
+  } else if (inherits(model, "R6ClassGenerator") &&
+             identical(model$classname, "dust")) {
+    simulate <- model$private_methods$simulate
+  } else {
+    stop("Expected a dust object or generator for 'model'")
   }
-  y <- model$state(index)
-  res <- array(NA_real_, dim = c(dim(y), length(steps)))
-  for (i in seq_along(steps)) {
-    model$run(steps[[i]])
-    res[, , i] <- model$state(index)
+  if (!is.matrix(state)) {
+    stop("Expected 'state' to be a matrix")
   }
-  res
+  if (is.list(data) && !is.null(names(data))) {
+    stop("Expected 'data' to be an unnamed list")
+  }
+  simulate(steps, data, state, index, n_threads, seed)
 }

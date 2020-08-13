@@ -1,6 +1,6 @@
 Package: dust
 Title: Iterate Multiple Realisations of Stochastic Models
-Version: 0.4.3
+Version: 0.4.4
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     email = "rich.fitzjohn@gmail.com"),
              person("John", "Lees", role = "aut"),
@@ -17,7 +17,7 @@ LazyData: true
 Language: en-GB
 Imports:
     R6,
-    cpp11,
+    cpp11 (>= 0.2.1),
     glue,
     pkgbuild,
     withr

@@ -154,12 +154,15 @@ obj$state()
 \item \href{#method-name}{\code{dust_class$name()}}
 \item \href{#method-run}{\code{dust_class$run()}}
 \item \href{#method-set_index}{\code{dust_class$set_index()}}
+\item \href{#method-index}{\code{dust_class$index()}}
+\item \href{#method-n_threads}{\code{dust_class$n_threads()}}
 \item \href{#method-set_state}{\code{dust_class$set_state()}}
 \item \href{#method-reset}{\code{dust_class$reset()}}
 \item \href{#method-state}{\code{dust_class$state()}}
 \item \href{#method-step}{\code{dust_class$step()}}
 \item \href{#method-reorder}{\code{dust_class$reorder()}}
 \item \href{#method-info}{\code{dust_class$info()}}
+\item \href{#method-data}{\code{dust_class$data()}}
 \item \href{#method-rng_state}{\code{dust_class$rng_state()}}
 }
 }
@@ -220,7 +223,7 @@ at that point.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{step_end}}{Step to run to (if less than or equal to the current
-step(),silently nothing will happen)}
+step(), silently nothing will happen)}
 }
 \if{html}{\out{</div>}}
 }
@@ -248,6 +251,26 @@ validated, and an error thrown if an invalid index is given).}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-index"></a>}}
+\if{latex}{\out{\hypertarget{method-index}{}}}
+\subsection{Method \code{index()}}{
+Returns the \code{index} as set by \verb{$set_index}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$index()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-n_threads"></a>}}
+\if{latex}{\out{\hypertarget{method-n_threads}{}}}
+\subsection{Method \code{n_threads()}}{
+Returns the number of threads that the model was constructed with
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$n_threads()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-set_state"></a>}}
@@ -351,6 +374,16 @@ Only returns non-NULL if the model provides a \code{dust_info} template
 specialisation.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$info()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-data"></a>}}
+\if{latex}{\out{\hypertarget{method-data}{}}}
+\subsection{Method \code{data()}}{
+Returns the \code{data} object that your model was constructed with.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$data()}\if{html}{\out{</div>}}
 }
 
 }

@@ -16,7 +16,11 @@ typename cpp11::sexp dust_info(const typename T::init_t& data);
 inline void validate_size(int x, const char * name);
 inline std::vector<size_t> validate_size(cpp11::sexp x, const char *name);
 inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax);
+inline std::vector<size_t> r_index_to_index_default(size_t n);
 inline cpp11::integers as_integer(cpp11::sexp x, const char * name);
+
+template <typename T>
+std::vector<T> matrix_to_vector(cpp11::doubles_matrix x);
 
 template <typename T>
 cpp11::writable::doubles_matrix create_matrix(size_t nrow, size_t ncol,
@@ -38,6 +42,43 @@ cpp11::list dust_alloc(cpp11::list r_data, int step,
   cpp11::sexp info = dust_info<T>(data);
 
   return cpp11::writable::list({ptr, info});
+}
+
+// think about rng seeding here carefully; should accept either a raw
+// vector or an integer I think.
+template <typename T>
+cpp11::writable::doubles dust_simulate(cpp11::sexp r_steps,
+                                       cpp11::list r_data,
+                                       cpp11::doubles_matrix r_state,
+                                       cpp11::sexp r_index,
+                                       const size_t n_threads,
+                                       const size_t seed) {
+  typedef typename T::real_t real_t;
+  std::vector<size_t> steps = validate_size(r_steps, "steps");
+  std::vector<real_t> state = matrix_to_vector<real_t>(r_state);
+  std::vector<size_t> index = r_index_to_index(r_index, r_state.nrow());
+
+  if (r_data.size() != r_state.ncol()) {
+    cpp11::stop("Expected 'state' to be a matrix with %d columns",
+                r_data.size());
+  }
+
+  std::vector<typename T::init_t> data;
+  data.reserve(r_data.size());
+  for (int i = 0; i < r_data.size(); ++i) {
+    data.push_back(dust_data<T>(r_data[i]));
+  }
+
+  cpp11::writable::doubles ret(index.size() * data.size() * steps.size());
+
+  std::vector<real_t> dat =
+    dust_simulate<T>(steps, data, state, index, n_threads, seed);
+  std::copy(dat.begin(), dat.end(), REAL(ret));
+
+  ret.attr("dim") = cpp11::writable::integers({(int)index.size(),
+                                               (int)data.size(),
+                                               (int)steps.size()});
+  return ret;
 }
 
 template <typename T>
@@ -91,6 +132,7 @@ void dust_set_state(Dust<T> *obj, cpp11::doubles r_state) {
 
 template <typename T>
 void dust_set_state(Dust<T> *obj, cpp11::doubles_matrix r_state) {
+  typedef typename T::real_t real_t;
   const size_t n_state = obj->n_state_full();
   const size_t n_particles = obj->n_particles();
 
@@ -101,13 +143,7 @@ void dust_set_state(Dust<T> *obj, cpp11::doubles_matrix r_state) {
     cpp11::stop("Expected a matrix with %d columns for 'state'", n_particles);
   }
 
-  const size_t len = n_state * n_particles;
-  std::vector<typename T::real_t> state;
-  const double * r_state_data = REAL(r_state.data());
-  state.reserve(len);
-  for (size_t i = 0; i < len; ++i) {
-    state[i] = r_state_data[i];
-  }
+  std::vector<real_t> state = matrix_to_vector<real_t>(r_state);
 
   obj->set_state(state, true);
 }
@@ -229,8 +265,15 @@ inline std::vector<size_t> validate_size(cpp11::sexp r_x, const char * name) {
   return x;
 }
 
-inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index,
-                                            size_t nmax) {
+// Converts an R vector of integers (in base-1) to a C++ std::vector
+// of size_t values in base-0 having checked that the values of the
+// vectors are approproate; that they will not fall outside of the
+// range [1, nmax] in base-1.
+inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax) {
+  if (r_index == R_NilValue) {
+    return r_index_to_index_default(nmax);
+  }
+
   cpp11::integers r_index_int = as_integer(r_index, "index");
   const int n = r_index_int.size();
   std::vector<size_t> index;
@@ -241,6 +284,17 @@ inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index,
       cpp11::stop("All elements of 'index' must lie in [1, %d]", nmax);
     }
     index.push_back(x - 1);
+  }
+  return index;
+}
+
+// Helper for the above; in the case where index is not given we
+// assume it would have been given as 1..n so generate out 0..(n-1)
+inline std::vector<size_t> r_index_to_index_default(size_t n) {
+  std::vector<size_t> index;
+  index.reserve(n);
+  for (size_t i = 0; i < n; ++i) {
+    index.push_back(i);
   }
   return index;
 }
@@ -277,4 +331,13 @@ inline cpp11::integers as_integer(cpp11::sexp x, const char * name) {
     cpp11::stop("Expected a numeric vector for '%s'", name);
     return cpp11::integers(); // never reached
   }
+}
+
+template <typename T>
+std::vector<T> matrix_to_vector(cpp11::doubles_matrix x) {
+  const size_t len = x.nrow() * x.ncol();
+  const double * x_data = REAL(x.data());
+  std::vector<T> ret(len);
+  std::copy(x_data, x_data + len, ret.begin());
+  return ret;
 }

@@ -198,3 +198,10 @@ test_that("names are copied when using state()", {
     mod$state(c(x = 4L, y = 5L)),
     matrix(4:5, 2, 5, dimnames = list(c("x", "y"), NULL)))
 })
+
+
+test_that("can return the number of threads initialised with", {
+  res <- dust(dust_file("examples/walk.cpp"), quiet = TRUE)
+  expect_equal(res$new(list(sd = 1), 0, 5)$n_threads(), 1)
+  expect_equal(res$new(list(sd = 1), 0, 5, n_threads = 2)$n_threads(), 2)
+})
