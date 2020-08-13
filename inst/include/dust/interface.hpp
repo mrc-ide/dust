@@ -106,7 +106,7 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
   if (r_step != R_NilValue) {
     step = validate_size(r_step, "step");
     if (!(step.size() == 1 || step.size() == obj->n_particles())) {
-      cpp11::stop("Expected 'size' to be scalar or length %d",
+      cpp11::stop("Expected 'step' to be scalar or length %d",
                   obj->n_particles());
     }
   }

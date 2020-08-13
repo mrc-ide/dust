@@ -139,10 +139,9 @@ test_that("validate package interface", {
 
 
 test_that("get rng state", {
+  res <- dust_example("walk")
   seed <- 1
   np <- 10
-  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
-                          quiet = TRUE)
   obj <- res$new(list(sd = 1), 0L, np, seed = seed)
   s <- dust_rng$new(seed, np)$state()
   expect_identical(obj$rng_state(), s)
@@ -173,7 +172,7 @@ test_that("setting a named index returns names", {
 
 
 test_that("resetting removes index names", {
-  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 5)
 
   mod$set_index(setNames(1:3, c("x", "y", "z")))
@@ -189,7 +188,7 @@ test_that("resetting removes index names", {
 
 
 test_that("names are copied when using state()", {
-  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 5)
   expect_equal(
     mod$state(4:5),
@@ -201,7 +200,7 @@ test_that("names are copied when using state()", {
 
 
 test_that("can return the number of threads initialised with", {
-  res <- dust(dust_file("examples/walk.cpp"), quiet = TRUE)
+  res <- dust_example("walk")
   expect_equal(res$new(list(sd = 1), 0, 5)$n_threads(), 1)
   expect_equal(res$new(list(sd = 1), 0, 5, n_threads = 2)$n_threads(), 2)
 })
