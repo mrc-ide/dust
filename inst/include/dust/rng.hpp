@@ -1,6 +1,7 @@
 #ifndef DUST_RNG_HPP
 #define DUST_RNG_HPP
 
+#include <algorithm>
 #include "xoshiro.hpp"
 #include "distr/binomial.hpp"
 #include "distr/normal.hpp"
