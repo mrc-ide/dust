@@ -333,3 +333,16 @@ test_that("initialise with NULL, generating a seed from R", {
   rng4 <- dust_rng$new(u, 1L)
   expect_identical(rng4$state(), rng1$state())
 })
+
+
+test_that("can't create rng with silly things", {
+  expect_error(
+    dust_rng$new(mtcars, 1L),
+    "Invalid type for 'seed'")
+  expect_error(
+    dust_rng$new(function(x) 2, 1L),
+    "Invalid type for 'seed'")
+  expect_error(
+    dust_rng$new(-1, 1L),
+    "seed must be non-negative")
+})
