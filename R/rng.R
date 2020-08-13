@@ -37,7 +37,7 @@ dust_rng <- R6::R6Class(
   public = list(
     ##' @description Create a `dust_rng` object
     ##'
-    ##' @param seed The seed, as an integer
+    ##' @param seed The seed, as an integer or as a raw vector.
     ##'
     ##' @param n_generators The number of generators to use. While this
     ##'   function never runs in parallel, this is used to create a set of

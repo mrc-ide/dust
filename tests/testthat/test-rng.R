@@ -265,3 +265,15 @@ test_that("get state", {
   expect_identical(s3[seq_len(32)], s1)
   expect_identical(s3[-seq_len(32)], rng2$jump()$state())
 })
+
+
+test_that("initialise single rng with binary state", {
+  seed <- 1
+  rng1 <- dust_rng$new(seed, 1L)
+  state <- rng1$state()
+  rng2 <- dust_rng$new(state, 1L)
+  r1 <- rng1$unif_rand(10)
+  r2 <- rng2$unif_rand(10)
+  expect_identical(r1, r2)
+  expect_identical(rng1$state(), rng2$state())
+})

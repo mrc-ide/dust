@@ -7,8 +7,25 @@ typedef dust::pRNG<double> dust_rng_t;
 typedef cpp11::external_pointer<dust_rng_t> dust_rng_ptr_t;
 
 [[cpp11::register]]
-SEXP dust_rng_alloc(int seed, int n_generators) {
-  dust_rng_t *rng = new dust_rng_t(n_generators, seed);
+SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators) {
+  dust_rng_t *rng = NULL;
+  auto seed_type = TYPEOF(r_seed);
+  if (seed_type == INTSXP || seed_type == REALSXP) {
+    int seed = cpp11::as_cpp<int>(r_seed);
+    rng = new dust_rng_t(n_generators, seed);
+  } else if (seed_type == RAWSXP) {
+    const size_t seed_len = dust::rng_state_t<double>::size();
+    cpp11::raws seed_data = cpp11::as_cpp<cpp11::raws>(r_seed);
+    if (seed_data.size() % seed_len != 0) {
+      cpp11::stop("Expected a raw vector with a length of a multiple of %d",
+                  seed_len);
+    }
+    std::vector<uint64_t> seed(seed_data.size() / seed_len);
+    std::memcpy(seed.data(), RAW(seed_data), sizeof(uint64_t) * seed.size());
+    rng = new dust_rng_t(n_generators, seed);
+  } else {
+    cpp11::stop("Invalid type for 'seed'");
+  }
   return cpp11::external_pointer<dust_rng_t>(rng);
 }
 

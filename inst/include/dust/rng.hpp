@@ -24,6 +24,22 @@ public:
     }
   }
 
+  // Initialise from a vector of seed
+  pRNG(const size_t n, const std::vector<uint64_t> seed) {
+    rng_state_t<T> s;
+    auto it = seed.begin();
+    auto len = rng_state_t<T>::size();
+    for (size_t i = 0; i < n; ++i) {
+      if (it == seed.end()) {
+        xoshiro_jump(s);
+      } else {
+        std::copy_n(it, len, s.state.begin());
+        it += len;
+      }
+      _state.push_back(s);
+    }
+  }
+
   size_t size() const {
     return _state.size();
   }
