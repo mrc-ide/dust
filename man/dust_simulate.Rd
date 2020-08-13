@@ -11,7 +11,7 @@ dust_simulate(
   state,
   index = NULL,
   n_threads = 1L,
-  seed = 1L
+  seed = NULL
 )
 }
 \arguments{
@@ -41,8 +41,11 @@ model were compiled with OMP support.  The number of simulations
 you use 8 threads, then you should have 8, 16, 24, etc
 particles). However, this is not compulsary.}
 
-\item{seed}{The seed to use for the random number generator
-(positive integer)}
+\item{seed}{The seed to use for the random number generator. Can
+be a positive integer, \code{NULL} (initialise with R's random number
+generator) or a \code{raw} vector of a length that is a multiple of
+32 to directly initialise the generator (e..g., from the
+\code{\link{dust}} object's \verb{$rng_state()} method).}
 }
 \description{
 Simulate a dust model.  This is a helper function that is subject

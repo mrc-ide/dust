@@ -172,7 +172,7 @@ obj$state()
 \subsection{Method \code{new()}}{
 Create a new model
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$new(data, step, n_particles, n_threads = 1L, seed = 1L)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$new(data, step, n_particles, n_threads = 1L, seed = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -193,8 +193,11 @@ your model were compiled with OMP support (details to come).
 threads, then you should have 8, 16, 24, etc particles). However, this
 is not compulsary.}
 
-\item{\code{seed}}{Seed to use for the random number generator
-(positive integer)}
+\item{\code{seed}}{The seed to use for the random number generator. Can
+be a positive integer, \code{NULL} (initialise with R's random number
+generator) or a \code{raw} vector of a length that is a multiple of
+32 to directly initialise the generator (e..g., from the
+\code{\link{dust}} object's \verb{$rng_state()} method).}
 }
 \if{html}{\out{</div>}}
 }

@@ -12,7 +12,7 @@ test_that("simulate trajectories with multiple starting points/parameters", {
 
   steps <- seq(0, to = ns, by = 1L)
 
-  mod <- res$new(list(sd = 1), 0, np)
+  mod <- res$new(list(sd = 1), 0, np, seed = 1L)
 
   ans <- dust_simulate(res, steps, data, y0, 1L, 1L, 1L)
   expect_equal(dim(ans), c(1, np, ns + 1L))
@@ -36,7 +36,7 @@ test_that("simulate multi-state model", {
   y0 <- matrix(c(1000, 10, 0), 3, np)
   steps <- seq(0, 200, by = 20)
 
-  ans <- dust_simulate(res, steps, data, y0)
+  ans <- dust_simulate(res, steps, data, y0, seed = 1L)
 
   expect_equal(dim(ans), c(3, np, length(steps)))
   ## Basic checks on the model:
@@ -46,10 +46,10 @@ test_that("simulate multi-state model", {
 
   ## And we can filter
   expect_equal(
-    dust_simulate(res, steps, data, y0, index = 1L),
+    dust_simulate(res, steps, data, y0, index = 1L, seed = 1L),
     ans[1, , , drop = FALSE])
   expect_equal(
-    dust_simulate(res, steps, data, y0, index = c(1L, 3L)),
+    dust_simulate(res, steps, data, y0, index = c(1L, 3L), seed = 1L),
     ans[c(1, 3), , , drop = FALSE])
 })
 

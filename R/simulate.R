@@ -50,8 +50,11 @@
 ##'   you use 8 threads, then you should have 8, 16, 24, etc
 ##'   particles). However, this is not compulsary.
 ##'
-##' @param seed The seed to use for the random number generator
-##'   (positive integer)
+##' @param seed The seed to use for the random number generator. Can
+##'   be a positive integer, `NULL` (initialise with R's random number
+##'   generator) or a `raw` vector of a length that is a multiple of
+##'   32 to directly initialise the generator (e..g., from the
+##'   [`dust`] object's `$rng_state()` method).
 ##'
 ##' @export
 ##' @examples
@@ -75,7 +78,7 @@
 ##' # The result of the simulation, plotted over time
 ##' matplot(steps, t(drop(res)), type = "l", col = "#00000055", lty = 1)
 dust_simulate <- function(model, steps, data, state, index = NULL,
-                          n_threads = 1L, seed = 1L) {
+                          n_threads = 1L, seed = NULL) {
   if (inherits(model, "dust")) {
     simulate <- environment(model$run)$private$simulate
   } else if (inherits(model, "R6ClassGenerator") &&

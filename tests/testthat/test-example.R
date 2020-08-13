@@ -3,7 +3,7 @@ context("example")
 test_that("create walk, stepping for one step", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
                           quiet = TRUE)
-  obj <- res$new(list(sd = 1), 0, 10)
+  obj <- res$new(list(sd = 1), 0, 10, seed = 1L)
   expect_null(obj$info())
 
   y <- obj$run(1)
@@ -30,7 +30,7 @@ test_that("Reset particles and resume continues with rng", {
   sd1 <- 2
   sd2 <- 4
 
-  obj <- res$new(list(sd = sd1), 0, 10)
+  obj <- res$new(list(sd = sd1), 0, 10, seed = 1L)
 
   y1 <- obj$run(5)
   expect_equal(obj$step(), 5)
@@ -53,7 +53,7 @@ test_that("Basic sir model", {
   res <- compile_and_load(dust_file("examples/sir.cpp"), "sir", "mysir",
                           quiet = TRUE)
 
-  obj <- res$new(list(), 0, 100)
+  obj <- res$new(list(), 0, 100, seed = 1L)
   obj$set_index(1L)
 
   ans <- vector("list", 150)
@@ -92,7 +92,7 @@ test_that("Basic sir model", {
 
 test_that("set index", {
   res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
-  mod <- res$new(list(len = 10), 0, 1)
+  mod <- res$new(list(len = 10), 0, 1, seed = 1L)
   expect_equal(mod$state(), matrix(1:10))
   expect_equal(mod$run(0), matrix(1:10, nrow = 10, ncol = 1))
 
@@ -110,7 +110,7 @@ test_that("set index", {
 
 test_that("reset clears the index", {
   res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
-  mod <- res$new(list(len = 10), 0, 1)
+  mod <- res$new(list(len = 10), 0, 1, seed = 1L)
   mod$set_index(2:4)
   expect_equal(mod$run(0), matrix(2:4))
   mod$reset(list(len = 10), 0)
@@ -120,7 +120,7 @@ test_that("reset clears the index", {
 
 test_that("set model state", {
   res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
-  mod <- res$new(list(len = 10), 0, 1)
+  mod <- res$new(list(len = 10), 0, 1, seed = 1L)
   expect_equal(mod$state(), matrix(1:10))
   x <- runif(10)
   mod$set_state(x)
@@ -134,7 +134,7 @@ test_that("set model state", {
 
 test_that("set model state into multiple particles", {
   res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
-  mod <- res$new(list(len = 10), 0, 20)
+  mod <- res$new(list(len = 10), 0, 20, seed = 1L)
   expect_equal(mod$state(), matrix(1:10, 10, 20))
   x <- runif(10)
   mod$set_state(x)
@@ -148,7 +148,7 @@ test_that("set model state into multiple particles", {
 
 test_that("set model state with a matrix", {
   res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
-  mod <- res$new(list(len = 10), 0, 2)
+  mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(runif(20), 10, 2)
   mod$set_state(m)
 
@@ -167,7 +167,7 @@ test_that("reorder", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
                           quiet = TRUE)
 
-  obj <- res$new(list(sd = 1), 0, 10)
+  obj <- res$new(list(sd = 1), 0, 10, seed = 1L)
   y1 <- obj$run(5)
 
   ## Simplest permutation:
@@ -194,7 +194,7 @@ test_that("reorder and duplicate", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
                           quiet = TRUE)
 
-  obj <- res$new(list(sd = 1), 0, 10)
+  obj <- res$new(list(sd = 1), 0, 10, seed = 1L)
   y1 <- obj$run(5)
 
   index <- c(1L, 4L, 9L, 7L, 7L, 2L, 5L, 9L, 9L, 5L)
@@ -219,7 +219,7 @@ test_that("reorder and duplicate", {
 test_that("validate reorder vector is correct length", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
                           quiet = TRUE)
-  obj <- res$new(list(sd = 1), 0, 10)
+  obj <- res$new(list(sd = 1), 0, 10, seed = 1L)
   expect_error(obj$reorder(1L),
                "Expected a vector of length 10 for 'index'")
   expect_error(obj$reorder(rep(1L, 100)),
@@ -230,7 +230,7 @@ test_that("validate reorder vector is correct length", {
 test_that("validate reorder vector is in correct range", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
                           quiet = TRUE)
-  obj <- res$new(list(sd = 1), 0, 10)
+  obj <- res$new(list(sd = 1), 0, 10, seed = 1L)
   index <- seq_len(10)
   msg <- "All elements of 'index' must lie in [1, 10]"
 
@@ -257,8 +257,8 @@ test_that("run in float mode", {
   res_f <- compile_and_load(path, "walk", "mywalkf", quiet = TRUE)
 
   n <- 1000
-  obj_d <- res_d$new(list(sd = 10), 0, n)
-  obj_f <- res_f$new(list(sd = 10), 0, n)
+  obj_d <- res_d$new(list(sd = 10), 0, n, seed = 1L)
+  obj_f <- res_f$new(list(sd = 10), 0, n, seed = 1L)
 
   y_d <- obj_d$run(10)
   y_f <- obj_f$run(10)
@@ -271,7 +271,7 @@ test_that("run in float mode", {
 test_that("reset changes info", {
   res <- compile_and_load(dust_file("examples/sir.cpp"), "sir", "mysir",
                           quiet = TRUE)
-  obj <- res$new(list(), 0, 100)
+  obj <- res$new(list(), 0, 100, seed = 1L)
   expect_equal(obj$info(),
                list(vars = c("S", "I", "R"),
                     pars = list(beta = 0.2, gamma = 0.1)))
@@ -286,14 +286,14 @@ test_that("Basic threading test", {
   res <- compile_and_load(dust_file("examples/parallel.cpp"), "parallel",
                           "myparallel", quiet = TRUE)
 
-  obj <- res$new(list(sd = 1), 0, 10, n_threads = 2L)
+  obj <- res$new(list(sd = 1), 0, 10, n_threads = 2L, seed = 1L)
   obj$set_index(1L)
   y0 <- obj$state()
   y22_1 <- obj$run(5)
   y22_2 <- obj$state()
 
   ## And again without parallel
-  obj <- res$new(list(sd = 1), 0, 10, n_threads = 1L)
+  obj <- res$new(list(sd = 1), 0, 10, n_threads = 1L, seed = 1L)
   obj$set_index(1L)
   y12_1 <- obj$run(5)
   y12_2 <- obj$state()
@@ -345,7 +345,7 @@ test_that("cache hits do not compile", {
 
 test_that("set model state and time, varying time", {
   res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
-  mod <- res$new(list(len = 10), 0, 2)
+  mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(rep(as.numeric(1:2), each = 10), 10, 2)
   step <- 0:1
   mod$set_state(m, step)
@@ -360,7 +360,7 @@ test_that("set model state and time, varying time", {
 
 test_that("set model state and time, constant time", {
   res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
-  mod <- res$new(list(len = 10), 0, 2)
+  mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(runif(20), 10, 2)
   step <- 10L
   mod$set_state(m, step)
@@ -373,7 +373,7 @@ test_that("set model state and time, constant time", {
 
 test_that("set model time but not state", {
   res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
-  mod <- res$new(list(len = 10), 0, 2)
+  mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   expect_null(mod$set_state(NULL, NULL))
   expect_equal(mod$step(), 0)
   expect_equal(mod$state(), matrix(1:10, 10, 2))
@@ -386,7 +386,7 @@ test_that("set model time but not state", {
 
 test_that("NULL state leaves state untouched", {
   res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
-  mod <- res$new(list(len = 10), 0, 2)
+  mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(runif(20), 10, 2)
   mod$set_state(m, NULL)
   expect_equal(mod$state(), m)
@@ -405,7 +405,7 @@ test_that("NULL state leaves state untouched", {
 test_that("type coersion in setting index", {
   res <- compile_and_load(dust_file("examples/sir.cpp"), "sir", "mysir",
                           quiet = TRUE)
-  obj <- res$new(list(), 0, 100)
+  obj <- res$new(list(), 0, 100, seed = 1L)
   expect_null(obj$set_index(1L))
   expect_null(obj$set_index(1))
   expect_error(

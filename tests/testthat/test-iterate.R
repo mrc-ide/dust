@@ -6,7 +6,7 @@ test_that("simulate simple walk", {
   ns <- 100
   np <- 10
 
-  obj <- res$new(list(sd = 1), 0, np)
+  obj <- res$new(list(sd = 1), 0, np, seed = 1L)
   m <- dust_iterate(obj, 0:ns)
   expect_equal(dim(m), c(1, np, ns + 1))
 
@@ -22,10 +22,9 @@ test_that("filter output", {
   res <- compile_and_load(dust_file("examples/sir.cpp"), "sir", "mysir",
                           quiet = TRUE)
 
-  obj <- res$new(list(), 0, 100)
-  m1 <- dust_iterate(res$new(list(), 0, 100), 0:100)
-  m2 <- dust_iterate(res$new(list(), 0, 100), 0:100, 2L)
-  m3 <- dust_iterate(res$new(list(), 0, 100), 0:100, c(1L, 3L))
+  m1 <- dust_iterate(res$new(list(), 0, 100, seed = 1L), 0:100)
+  m2 <- dust_iterate(res$new(list(), 0, 100, seed = 1L), 0:100, 2L)
+  m3 <- dust_iterate(res$new(list(), 0, 100, seed = 1L), 0:100, c(1L, 3L))
 
   expect_equal(dim(m1), c(3, 100, 101))
   expect_equal(dim(m2), c(1, 100, 101))
@@ -38,7 +37,7 @@ test_that("filter output", {
 test_that("validate start time", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
                           quiet = TRUE)
-  obj <- res$new(list(sd = 1), 4, 10)
+  obj <- res$new(list(sd = 1), 4, 10, seed = 1L)
   expect_error(dust_iterate(obj, 0:100),
                "Expected first 'steps' element to be 4")
   expect_error(dust_iterate(obj, 10:100),

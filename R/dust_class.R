@@ -20,7 +20,7 @@ dust_class <- R6::R6Class(
     ptr_ = NULL,
 
     simulate = function(steps, data, state, index = NULL,
-                        n_threads = 1L, seed = 1L) {
+                        n_threads = 1L, seed = NULL) {
     }
   ),
 
@@ -43,10 +43,13 @@ dust_class <- R6::R6Class(
     ##' threads, then you should have 8, 16, 24, etc particles). However, this
     ##' is not compulsary.
     ##'
-    ##' @param seed Seed to use for the random number generator
-    ##' (positive integer)
+    ##' @param seed The seed to use for the random number generator. Can
+    ##' be a positive integer, `NULL` (initialise with R's random number
+    ##' generator) or a `raw` vector of a length that is a multiple of
+    ##' 32 to directly initialise the generator (e..g., from the
+    ##' [`dust`] object's `$rng_state()` method).
     initialize = function(data, step, n_particles, n_threads = 1L,
-                          seed = 1L) {
+                          seed = NULL) {
     },
 
     ##' @description
