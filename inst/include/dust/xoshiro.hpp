@@ -74,6 +74,19 @@ inline void xoshiro_set_seed(rng_state_t<T>& state, uint64_t seed) {
   state[3] = splitmix64(state[2]);
 }
 
+template <typename T>
+inline std::vector<uint64_t> xoshiro_initial_seed(uint64_t seed) {
+  // normal brain: for i in 1:4
+  // advanced brain: -funroll-loops
+  // galaxy brain:
+  std::vector<uint64_t> state(rng_state_t<T>::size());
+  state[0] = splitmix64(seed);
+  state[1] = splitmix64(state[0]);
+  state[2] = splitmix64(state[1]);
+  state[3] = splitmix64(state[2]);
+  return state;
+}
+
 /* This is the jump function for the generator. It is equivalent
    to 2^128 calls to next(); it can be used to generate 2^128
    non-overlapping subsequences for parallel computations. */
