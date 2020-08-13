@@ -6,6 +6,7 @@
 #include <cpp11/matrix.hpp>
 #include <cpp11/raws.hpp>
 #include <cpp11/strings.hpp>
+#include <dust/dust.hpp>
 
 template <typename T>
 typename T::init_t dust_data(cpp11::list data);
@@ -340,4 +341,25 @@ std::vector<T> matrix_to_vector(cpp11::doubles_matrix x) {
   std::vector<T> ret(len);
   std::copy(x_data, x_data + len, ret.begin());
   return ret;
+}
+
+template <typename T>
+std::vector<uint64_t> as_rng_seed(cpp11::sexp r_seed) {
+  auto seed_type = TYPEOF(r_seed);
+  std::vector<uint64_t> seed;
+  if (seed_type == INTSXP || seed_type == REALSXP) {
+    seed = dust::xoshiro_initial_seed<T>(cpp11::as_cpp<int>(r_seed));
+  } else if (seed_type == RAWSXP) {
+    cpp11::raws seed_data = cpp11::as_cpp<cpp11::raws>(r_seed);
+    const auto len = sizeof(uint64_t) * dust::rng_state_t<T>::size();
+    if (seed_data.size() == 0 || seed_data.size() % len != 0) {
+      cpp11::stop("Expected a raw vector with length as multiple of %d",
+                  len);
+    }
+    seed.resize(seed_data.size() / sizeof(uint64_t));
+    std::memcpy(seed.data(), RAW(seed_data), seed_data.size());
+  } else {
+    cpp11::stop("Invalid type for 'seed'");
+  }
+  return seed;
 }
