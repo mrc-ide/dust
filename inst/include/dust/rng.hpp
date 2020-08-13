@@ -25,7 +25,7 @@ public:
   }
 
   // Initialise from a vector of seed
-  pRNG(const size_t n, const std::vector<uint64_t> seed) {
+  pRNG(const size_t n, const std::vector<uint64_t>& seed) {
     rng_state_t<T> s;
     auto len = rng_state_t<T>::size();
     auto n_seed = seed.size() / len;

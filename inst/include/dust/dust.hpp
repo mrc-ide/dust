@@ -85,7 +85,7 @@ public:
   typedef typename T::real_t real_t;
 
   Dust(const init_t data, const size_t step, const size_t n_particles,
-       const size_t n_threads, const size_t seed) :
+       const size_t n_threads, const std::vector<uint64_t>& seed) :
     _n_threads(n_threads),
     _rng(n_particles, seed) {
     initialise(data, step, n_particles);
@@ -242,7 +242,7 @@ dust_simulate(const std::vector<size_t> steps,
               const std::vector<typename T::real_t> state,
               const std::vector<size_t> index,
               const size_t n_threads,
-              const size_t seed) {
+              const std::vector<uint64_t>& seed) {
   typedef typename T::real_t real_t;
   const size_t n_state_return = index.size();
   const size_t n_particles = data.size();
