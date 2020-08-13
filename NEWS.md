@@ -1,3 +1,8 @@
+# dust 0.4.5
+
+* Change of behaviour for `seed`, which now seeds from R's random number if given the default value of `NULL` (#85, #87)
+* The `rng_state` method can optionally advance the random number stream, making it more suitable for use with `dust::dust_simulate`
+
 # dust 0.4.4
 
 * Helper function `dust::dust_simulate` is renamed to `dust::dust_iterate`
