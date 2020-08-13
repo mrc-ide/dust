@@ -113,8 +113,10 @@
 ##' # R representing the standard deviation of the walk
 ##' writeLines(readLines(filename))
 ##'
-##' # Compile and load the object:
-##' model <- dust(filename, quiet = TRUE)
+##' # The model can be compiled and loaded with dust::dust(filename)
+##' # but it's faster in this example to use the prebuilt version in
+##' # the package
+##' model <- dust::dust_example("walk")
 ##'
 ##' # Print the object and you can see the methods that it provides
 ##' model

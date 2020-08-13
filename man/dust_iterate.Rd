@@ -28,8 +28,7 @@ quick-and-dirty way of getting started with a model.
 }
 \examples{
 # Same random walk example as in ?dust
-filename <- system.file("examples/walk.cpp", package = "dust")
-model <- dust::dust(filename, quiet = TRUE)
+model <- dust::dust_example("walk")
 
 # Create a model with 100 particles, starting at step 0
 obj <- model$new(list(sd = 1), 0, 100)
