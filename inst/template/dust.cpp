@@ -48,8 +48,8 @@ void dust_{{name}}_reorder(SEXP ptr, cpp11::sexp r_index) {
 }
 
 [[cpp11::register]]
-SEXP dust_{{name}}_rng_state(SEXP ptr) {
-  return dust_rng_state<{{type}}>(ptr);
+SEXP dust_{{name}}_rng_state(SEXP ptr, bool advance) {
+  return dust_rng_state<{{type}}>(ptr, advance);
 }
 
 [[cpp11::register]]

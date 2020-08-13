@@ -145,8 +145,25 @@ test_that("get rng state", {
                           quiet = TRUE)
   obj <- res$new(list(sd = 1), 0L, np, seed = seed)
   expect_identical(
-    obj$rng_state(),
+    obj$rng_state(FALSE),
     dust_rng$new(seed, np)$state())
+  ## State does not update if called with advance = FALSE
+  expect_identical(
+    obj$rng_state(FALSE),
+    dust_rng$new(seed, np)$state())
+})
+
+
+test_that("get rng state and advancing changes the state", {
+  seed <- 1
+  np <- 10
+  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
+                          quiet = TRUE)
+  obj <- res$new(list(sd = 1), 0L, np, seed = seed)
+  rng <- dust_rng$new(seed, np)
+  expect_identical(obj$rng_state(TRUE), rng$state())
+  expect_false(identical(obj$rng_state(FALSE), rng$state()))
+  expect_identical(obj$rng_state(TRUE), rng$long_jump()$state())
 })
 
 

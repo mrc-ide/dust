@@ -392,12 +392,26 @@ Returns the \code{data} object that your model was constructed with.
 \if{latex}{\out{\hypertarget{method-rng_state}{}}}
 \subsection{Method \code{rng_state()}}{
 Returns the state of the random number generator. This returns a
-raw vector of length 32 * n_particles. It is primarily intended for
-debugging as one cannot (yet) initialise a dust object with this
-state.
+raw vector of length 32 * n_particles. This can be useful for
+debugging or for initialising other dust objects.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$rng_state()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$rng_state(advance)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{advance}}{Logical, indicating if the act of reading the RNG
+should cause it to advance the RNG state. If \code{FALSE} then reading the
+RNG state has no effect on the state, and the state that you retrieve
+should not be used in another dust object as it is perfectly
+correlated with your current dust object (the exception being if
+you want to record your state for reproducibility purposes). If
+\code{TRUE}, then immediately after reading the state, we do a "long jump"
+on the generator (see \code{\link{dust_rng}} for details). By doing this the two
+generators stay uncoupled.}
+}
+\if{html}{\out{</div>}}
+}
 }
 }

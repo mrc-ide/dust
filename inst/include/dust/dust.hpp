@@ -211,6 +211,12 @@ public:
     return _rng.export_state();
   }
 
+  // NOTE: it only makes sense to expose long_jump, and not jump,
+  // because each rng stream is one jump away from the next.
+  void rng_long_jump() {
+    _rng.long_jump();
+  }
+
 private:
   std::vector<size_t> _index;
   const size_t _n_threads;
