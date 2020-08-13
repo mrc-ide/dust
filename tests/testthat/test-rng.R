@@ -318,3 +318,18 @@ test_that("require that raw vector is of sensible size", {
   expect_error(dust_rng$new(raw(63), 1L),
                "Expected a raw vector with length as multiple of 32")
 })
+
+
+test_that("initialise with NULL, generating a seed from R", {
+  set.seed(1)
+  rng1 <- dust_rng$new(NULL, 1L)
+  set.seed(1)
+  rng2 <- dust_rng$new(NULL, 1L)
+  rng3 <- dust_rng$new(NULL, 1L)
+  expect_identical(rng2$state(), rng1$state())
+  expect_false(identical(rng3$state(), rng2$state()))
+  set.seed(1)
+  u <- ceiling(abs(runif(1)) * .Machine$integer.max)
+  rng4 <- dust_rng$new(u, 1L)
+  expect_identical(rng4$state(), rng1$state())
+})
