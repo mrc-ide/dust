@@ -64,17 +64,6 @@ inline uint64_t splitmix64(uint64_t seed) {
 }
 
 template <typename T>
-inline void xoshiro_set_seed(rng_state_t<T>& state, uint64_t seed) {
-  // normal brain: for i in 1:4
-  // advanced brain: -funroll-loops
-  // galaxy brain:
-  state[0] = splitmix64(seed);
-  state[1] = splitmix64(state[0]);
-  state[2] = splitmix64(state[1]);
-  state[3] = splitmix64(state[2]);
-}
-
-template <typename T>
 inline std::vector<uint64_t> xoshiro_initial_seed(uint64_t seed) {
   // normal brain: for i in 1:4
   // advanced brain: -funroll-loops

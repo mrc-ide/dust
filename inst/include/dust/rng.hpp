@@ -14,17 +14,6 @@ namespace dust {
 template <typename T>
 class pRNG { // # nocov
 public:
-  pRNG(const size_t n, const uint64_t seed) {
-    rng_state_t<T> s;
-    xoshiro_set_seed(s, seed);
-
-    _state.push_back(s);
-    for (size_t i = 1; i < n; ++i) {
-      xoshiro_jump(s);
-      _state.push_back(s);
-    }
-  }
-
   // Initialise from a vector of seed
   pRNG(const size_t n, const std::vector<uint64_t>& seed) {
     rng_state_t<T> s;
