@@ -147,10 +147,6 @@ test_that("get rng state", {
   expect_identical(
     obj$rng_state(FALSE),
     dust_rng$new(seed, np)$state())
-  ## State does not update if called with advance = FALSE
-  expect_identical(
-    obj$rng_state(FALSE),
-    dust_rng$new(seed, np)$state())
 })
 
 
