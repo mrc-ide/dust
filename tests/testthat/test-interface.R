@@ -204,3 +204,22 @@ test_that("can return the number of threads initialised with", {
   expect_equal(res$new(list(sd = 1), 0, 5)$n_threads(), 1)
   expect_equal(res$new(list(sd = 1), 0, 5, n_threads = 2)$n_threads(), 2)
 })
+
+
+test_that("number of threads must be positive", {
+  res <- dust_example("walk")
+  expect_error(
+    res$new(list(sd = 1), 0, 5, n_threads = 0),
+    "'n_threads' must be positive")
+  expect_error(
+    res$new(list(sd = 1), 0, 5, n_threads = -1),
+    "'n_threads' must be positive")
+})
+
+
+test_that("step must be nonnegative", {
+  res <- dust_example("walk")
+  expect_error(
+    res$new(list(), -1, 4),
+    "'step' must be non-negative")
+})
