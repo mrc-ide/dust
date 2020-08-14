@@ -136,21 +136,19 @@ dust_rng <- R6::R6Class(
 ##' Advance a saved random number state by performing a "long jump" on
 ##' it. If you have serialised the state using the `$rng_state()`
 ##' method of a [`dust`] object but want create a new seed that is
-##' uncorrelated.  Ordinarily, if seed is extracted with
-##' `$rng_seed(advance = TRUE)`, then the state has already been
-##' decoupled from your source object. But if you needed to reuse the
-##' state several times, you should either collect the state at the
-##' end of each run, or use this function to create a new, advanced,
-##' state each time.
+##' uncorrelated.  If seed is extracted with `$rng_seed()` is to be
+##' reused multiple times, or if it will be used *and* the source
+##' object will also be used, then the state needs jumping to prevent
+##' generating the same sequence of random numbers.
 ##'
 ##' @title Advance a dust random number state
 ##'
 ##' @param state A raw vector representing `dust` random number
 ##'   generator; see [`dust_rng`].
 ##'
-##' @param times An integer indicating the number of times the state
-##'   should be advanced. The default is one, but values larger than
-##'   one will repeatedly long jump the state.
+##' @param times An integer indicating the number of times the
+##'   `long_jump` should be performed. The default is one, but values
+##'   larger than one will repeatedly advance the state.
 ##'
 ##' @export
 ##' @examples
@@ -161,15 +159,15 @@ dust_rng <- R6::R6Class(
 ##' state <- rng$state()
 ##'
 ##' # We can advance this state
-##' dust_rng_state_advance(state)
+##' dust_rng_state_long_jump(state)
 ##'
 ##' # Which gives the same result as long_jump on the original generator
 ##' rng$long_jump()$state()
 ##' rng$long_jump()$state()
 ##'
 ##' # Multiple jumps can be taken by using the "times" argument
-##' dust_rng_state_advance(state, 2)
-dust_rng_state_advance <- function(state, times = 1L) {
+##' dust_rng_state_long_jump(state, 2)
+dust_rng_state_long_jump <- function(state, times = 1L) {
   assert_is(state, "raw")
   rng <- dust_rng$new(state)
   for (i in seq_len(times)) {

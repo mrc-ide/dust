@@ -358,13 +358,13 @@ test_that("negative seed values result in sensible state", {
 })
 
 
-test_that("can jump the rng state with dust_rng_state_advance", {
+test_that("can jump the rng state with dust_rng_state_long_jump", {
   rng <- dust::dust_rng$new(1)
   state <- rng$state()
   r1 <- rng$long_jump()$state()
   r2 <- rng$long_jump()$state()
 
-  expect_identical(dust_rng_state_advance(state), r1)
-  expect_identical(dust_rng_state_advance(state), r1)
-  expect_identical(dust_rng_state_advance(state, 2), r2)
+  expect_identical(dust_rng_state_long_jump(state), r1)
+  expect_identical(dust_rng_state_long_jump(state), r1)
+  expect_identical(dust_rng_state_long_jump(state, 2), r2)
 })

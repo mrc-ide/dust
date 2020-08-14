@@ -2,7 +2,7 @@
 
 * Change of behaviour for `seed`, which now seeds from R's random number if given the default value of `NULL` (#85, #87)
 * The `rng_state` method can optionally advance the random number stream, making it more suitable for use with `dust::dust_simulate`
-* A new utility `dust::dust_rng_advance` which can advance the saved state of a dust RNG, suitable for creating independent streams from one saved state.
+* A new utility `dust::dust_rng_long_jump` which can advance the saved state of a dust RNG, suitable for creating independent streams from one saved state.
 
 # dust 0.4.4
 

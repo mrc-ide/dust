@@ -234,15 +234,13 @@ void dust_reorder(SEXP ptr, cpp11::sexp r_index) {
 }
 
 template <typename T>
-SEXP dust_rng_state(SEXP ptr, bool advance) {
+SEXP dust_rng_state(SEXP ptr, bool first_only) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   auto state = obj->rng_state();
-  size_t len = sizeof(uint64_t) * state.size();
+  size_t n = first_only ? dust::rng_state_t<double>::size() : state.size();
+  size_t len = sizeof(uint64_t) * n;
   cpp11::writable::raws ret(len);
   std::memcpy(RAW(ret), state.data(), len);
-  if (advance) {
-    obj->rng_long_jump();
-  }
   return ret;
 }
 

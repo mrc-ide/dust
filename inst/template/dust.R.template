@@ -171,16 +171,14 @@
     ##' raw vector of length 32 * n_particles. This can be useful for
     ##' debugging or for initialising other dust objects.
     ##'
-    ##' @param advance Logical, indicating if the act of reading the RNG
-    ##' should cause it to advance the RNG state. If `FALSE` then reading the
-    ##' RNG state has no effect on the state, and the state that you retrieve
-    ##' should not be used in another dust object as it is perfectly
-    ##' correlated with your current dust object (the exception being if
-    ##' you want to record your state for reproducibility purposes). If
-    ##' `TRUE`, then immediately after reading the state, we do a "long jump"
-    ##' on the generator (see [`dust_rng`] for details). By doing this the two
-    ##' generators stay uncoupled.
-    rng_state = function(advance) {
-      dust_{{name}}_rng_state(private$ptr_, advance)
+    ##' @param first_only Logical, indicating if we should return only the
+    ##' *first* particle's random number state. If `FALSE` (the default)
+    ##' all particles states are returned, being 32 bytes per particle.
+    ##' If `TRUE` then we take just the first particle's state, which
+    ##' will be a total of 32 bytes. Both forms are suitable for seeding
+    ##' a new [`dust`] object as the shorter version will be used for
+    ##' the first particle, followed by jumps for each subsequent particle.
+    rng_state = function(first_only = FALSE) {
+      dust_{{name}}_rng_state(private$ptr_, first_only)
     }
   ))

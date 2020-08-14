@@ -398,21 +398,19 @@ Returns the state of the random number generator. This returns a
 raw vector of length 32 * n_particles. This can be useful for
 debugging or for initialising other dust objects.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$rng_state(advance)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$rng_state(first_only = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{advance}}{Logical, indicating if the act of reading the RNG
-should cause it to advance the RNG state. If \code{FALSE} then reading the
-RNG state has no effect on the state, and the state that you retrieve
-should not be used in another dust object as it is perfectly
-correlated with your current dust object (the exception being if
-you want to record your state for reproducibility purposes). If
-\code{TRUE}, then immediately after reading the state, we do a "long jump"
-on the generator (see \code{\link{dust_rng}} for details). By doing this the two
-generators stay uncoupled.}
+\item{\code{first_only}}{Logical, indicating if we should return only the
+\emph{first} particle's random number state. If \code{FALSE} (the default)
+all particles states are returned, being 32 bytes per particle.
+If \code{TRUE} then we take just the first particle's state, which
+will be a total of 32 bytes. Both forms are suitable for seeding
+a new \code{\link{dust}} object as the shorter version will be used for
+the first particle, followed by jumps for each subsequent particle.}
 }
 \if{html}{\out{</div>}}
 }
