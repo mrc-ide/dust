@@ -98,7 +98,6 @@ public:
   }
 
 private:
-  static uint64_t splitmix64(uint64_t seed);
   uint64_t _state[XOSHIRO_WIDTH];
 };
 
@@ -117,7 +116,7 @@ inline float device_unif_randf(rng_state_t<T>& state) {
 }
 
 __host__
-inline uint64_t Xoshiro::splitmix64(uint64_t seed) {
+inline uint64_t splitmix64(uint64_t seed) {
   uint64_t z = (seed += 0x9e3779b97f4a7c15);
   z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9;
   z = (z ^ (z >> 27)) * 0x94d049bb133111eb;
@@ -200,6 +199,19 @@ inline void Xoshiro::long_jump() {
   _state[1] = s1;
   _state[2] = s2;
   _state[3] = s3;
+}
+
+__host__
+inline std::vector<uint64_t> xoshiro_initial_seed(int seed) {
+  // normal brain: for i in 1:4
+  // advanced brain: -funroll-loops
+  // galaxy brain:
+  std::vector<uint64_t> state(XOSHIRO_WIDTH);
+  state[0] = splitmix64(seed);
+  state[1] = splitmix64(state[0]);
+  state[2] = splitmix64(state[1]);
+  state[3] = splitmix64(state[2]);
+  return state;
 }
 
 }
