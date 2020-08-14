@@ -344,5 +344,5 @@ test_that("can't create rng with silly things", {
     "Invalid type for 'seed'")
   expect_error(
     dust_rng$new(-1, 1L),
-    "seed must be non-negative")
+    "'seed' must be non-negative")
 })

@@ -1,3 +1,6 @@
+#ifndef DUST_INTERFACE_HPP
+#define DUST_INTERFACE_HPP
+
 #include <cstring>
 #include <cpp11/doubles.hpp>
 #include <cpp11/external_pointer.hpp>
@@ -6,8 +9,8 @@
 #include <cpp11/matrix.hpp>
 #include <cpp11/raws.hpp>
 #include <cpp11/strings.hpp>
-#include <dust/dust.hpp>
-#include <R_ext/Random.h>
+
+#include <dust/rng_interface.hpp>
 
 template <typename T>
 typename T::init_t dust_data(cpp11::list data);
@@ -20,8 +23,6 @@ inline std::vector<size_t> validate_size(cpp11::sexp x, const char *name);
 inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax);
 inline std::vector<size_t> r_index_to_index_default(size_t n);
 inline cpp11::integers as_integer(cpp11::sexp x, const char * name);
-template <typename T>
-std::vector<uint64_t> as_rng_seed(cpp11::sexp r_seed);
 
 template <typename T>
 std::vector<T> matrix_to_vector(cpp11::doubles_matrix x);
@@ -350,31 +351,4 @@ std::vector<T> matrix_to_vector(cpp11::doubles_matrix x) {
   return ret;
 }
 
-template <typename T>
-std::vector<uint64_t> as_rng_seed(cpp11::sexp r_seed) {
-  auto seed_type = TYPEOF(r_seed);
-  std::vector<uint64_t> seed;
-  if (seed_type == INTSXP || seed_type == REALSXP) {
-    size_t seed_int = cpp11::as_cpp<int>(r_seed);
-    validate_size(seed_int, "seed");
-    seed = dust::xoshiro_initial_seed<T>(seed_int);
-  } else if (seed_type == RAWSXP) {
-    cpp11::raws seed_data = cpp11::as_cpp<cpp11::raws>(r_seed);
-    const size_t len = sizeof(uint64_t) * dust::rng_state_t<T>::size();
-    if (seed_data.size() == 0 || seed_data.size() % len != 0) {
-      cpp11::stop("Expected raw vector of length as multiple of %d for 'seed'",
-                  len);
-    }
-    seed.resize(seed_data.size() / sizeof(uint64_t));
-    std::memcpy(seed.data(), RAW(seed_data), seed_data.size());
-  } else if (seed_type == NILSXP) {
-    GetRNGstate();
-    int seed_int =
-      std::ceil(std::abs(unif_rand()) * std::numeric_limits<int>::max());
-    PutRNGstate();
-    seed = dust::xoshiro_initial_seed<T>(seed_int);
-  } else {
-    cpp11::stop("Invalid type for 'seed'");
-  }
-  return seed;
-}
+#endif
