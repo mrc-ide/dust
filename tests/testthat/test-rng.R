@@ -342,9 +342,23 @@ test_that("can't create rng with silly things", {
   expect_error(
     dust_rng$new(function(x) 2, 1L),
     "Invalid type for 'seed'")
-  expect_error(
-    dust_rng$new(-1, 1L),
-    "'seed' must be non-negative")
+})
+
+
+test_that("negative seed values result in sensible state", {
+  ## Don't end up with all-zero state, and treat different negative
+  ## numbers as different (don't truncate to zero or anything
+  ## pathalogical)
+  s0 <- dust_rng$new(0, 1L)$state()
+  s1 <- dust_rng$new(-1, 1L)$state()
+  s10 <- dust_rng$new(-10, 1L)$state()
+
+  expect_false(all(s0 == as.raw(0)))
+  expect_false(all(s1 == as.raw(0)))
+  expect_false(all(s10 == as.raw(0)))
+  expect_false(identical(s0, s1))
+  expect_false(identical(s0, s10))
+  expect_false(identical(s1, s10))
 })
 
 
