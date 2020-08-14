@@ -4,7 +4,7 @@
 // .cu files
 [[cpp11::register]]
 SEXP dust_{{name}}_alloc(cpp11::list r_data, size_t step, size_t n_particles,
-                           size_t n_threads, size_t seed);
+                           size_t n_threads, cpp11::sexp seed);
 
 [[cpp11::register]]
 SEXP dust_{{name}}_run(SEXP ptr, size_t step_end);

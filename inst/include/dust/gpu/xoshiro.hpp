@@ -201,6 +201,7 @@ inline void Xoshiro::long_jump() {
   _state[3] = s3;
 }
 
+template <typename T>
 __host__
 inline std::vector<uint64_t> xoshiro_initial_seed(int seed) {
   // normal brain: for i in 1:4
