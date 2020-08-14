@@ -148,6 +148,10 @@ dust_rng <- R6::R6Class(
 ##' @param state A raw vector representing `dust` random number
 ##'   generator; see [`dust_rng`].
 ##'
+##' @param times An integer indicating the number of times the state
+##'   should be advanced. The default is one, but values larger than
+##'   one will repeatedly long jump the state.
+##'
 ##' @export
 ##' @examples
 ##' # Create a new RNG object

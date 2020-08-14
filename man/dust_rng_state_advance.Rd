@@ -9,6 +9,10 @@ dust_rng_state_advance(state, times = 1L)
 \arguments{
 \item{state}{A raw vector representing \code{dust} random number
 generator; see \code{\link{dust_rng}}.}
+
+\item{times}{An integer indicating the number of times the state
+should be advanced. The default is one, but values larger than
+one will repeatedly long jump the state.}
 }
 \description{
 Advance a saved random number state by performing a "long jump" on
