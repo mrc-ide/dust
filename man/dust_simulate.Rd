@@ -71,7 +71,7 @@ but this needs care in the case where either more or fewer
 simulations are carried out than the initial object has.  This
 is resolvable as rng state can be exported from one dust object
 and used in another (though it can't be returned by the
-simulation here).  The \code{\link[=rng_state_long_jump]{rng_state_long_jump()}} function can be
+simulation here).  The \code{\link[=dust_rng_state_long_jump]{dust_rng_state_long_jump()}} function can be
 used manually to perform a "long jump" on the exported state,
 which can be used to create streams that are sensibly
 distributed along the RNG's period.
