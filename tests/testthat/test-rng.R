@@ -328,10 +328,6 @@ test_that("initialise with NULL, generating a seed from R", {
   rng3 <- dust_rng$new(NULL, 1L)
   expect_identical(rng2$state(), rng1$state())
   expect_false(identical(rng3$state(), rng2$state()))
-  set.seed(1)
-  u <- ceiling(abs(runif(1)) * .Machine$integer.max)
-  rng4 <- dust_rng$new(u, 1L)
-  expect_identical(rng4$state(), rng1$state())
 })
 
 
