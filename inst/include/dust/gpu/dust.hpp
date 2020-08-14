@@ -68,7 +68,7 @@ public:
   typedef typename T::real_t real_t;
 
   Dust(const init_t data, const size_t step, const size_t n_particles,
-       const size_t n_threads, const size_t seed) :
+       const size_t n_threads, const std::vector<uint64_t>& seed) :
     _n_threads(n_threads),
     _n_particles(n_particles),
     _steps(n_particles),
@@ -248,6 +248,12 @@ public:
 
   std::vector<uint64_t> rng_state() {
     return _rng.export_state();
+  }
+
+  // NOTE: it only makes sense to expose long_jump, and not jump,
+  // because each rng stream is one jump away from the next.
+  void rng_long_jump() {
+    _rng.long_jump();
   }
 
 private:

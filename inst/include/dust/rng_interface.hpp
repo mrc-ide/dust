@@ -12,7 +12,7 @@ std::vector<uint64_t> as_rng_seed(cpp11::sexp r_seed) {
     if (seed_int <= 0) {
       cpp11::stop("'seed' must be non-negative");
     }
-    // validate_size(seed_int, "seed");
+
     seed = dust::xoshiro_initial_seed<T>(seed_int);
   } else if (seed_type == RAWSXP) {
     cpp11::raws seed_data = cpp11::as_cpp<cpp11::raws>(r_seed);

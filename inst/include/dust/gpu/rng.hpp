@@ -1,6 +1,7 @@
 #ifndef DUST_GPU_RNG_HPP
 #define DUST_GPU_RNG_HPP
 
+#include <algorithm>
 #include <cassert>
 #include <dust/gpu/xoshiro.hpp>
 #include <dust/gpu/distr/binomial.hpp>
@@ -42,7 +43,7 @@ template <typename real_t>
 class pRNG { // # nocov
 public:
   pRNG(const size_t n, const std::vector<uint64_t>& seed) {
-    size_t len = rng_state_t<T>::size();
+    size_t len = rng_state_t<real_t>::size();
     std::vector<uint64_t> s(len);
     auto n_seed = seed.size() / len;
     for (size_t i = 0; i < n; ++i) {
@@ -52,7 +53,7 @@ public:
       } else {
         auto rng = _rngs.back();
         rng.jump();
-        _rngs_push_back(rng);
+        _rngs.push_back(rng);
       }
     }
 
