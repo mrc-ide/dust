@@ -1,3 +1,7 @@
+# dust 0.4.6
+
+* Some examples are now compiled into the package and available via `dust::dust_example()`, reducing the need for a compiler for exploration and making examples and testing faster (#89)
+
 # dust 0.4.5
 
 * Change of behaviour for `seed`, which now seeds from R's random number if given the default value of `NULL` (#85, #87)
