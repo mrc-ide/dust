@@ -133,6 +133,48 @@ dust_rng <- R6::R6Class(
   ))
 
 
+##' Advance a saved random number state by performing a "long jump" on
+##' it. If you have serialised the state using the `$rng_state()`
+##' method of a [`dust`] object but want create a new seed that is
+##' uncorrelated.  Ordinarily, if seed is extracted with
+##' `$rng_seed(advance = TRUE)`, then the state has already been
+##' decoupled from your source object. But if you needed to reuse the
+##' state several times, you should either collect the state at the
+##' end of each run, or use this function to create a new, advanced,
+##' state each time.
+##'
+##' @title Advance a dust random number state
+##'
+##' @param state A raw vector representing `dust` random number
+##'   generator; see [`dust_rng`].
+##'
+##' @export
+##' @examples
+##' # Create a new RNG object
+##' rng <- dust::dust_rng$new(1)
+##'
+##' # Serialise the state as a raw vector
+##' state <- rng$state()
+##'
+##' # We can advance this state
+##' dust_rng_state_advance(state)
+##'
+##' # Which gives the same result as long_jump on the original generator
+##' rng$long_jump()$state()
+##' rng$long_jump()$state()
+##'
+##' # Multiple jumps can be taken by using the "times" argument
+##' dust_rng_state_advance(state, 2)
+dust_rng_state_advance <- function(state, times = 1L) {
+  assert_is(state, "raw")
+  rng <- dust_rng$new(state)
+  for (i in seq_len(times)) {
+    rng$long_jump()
+  }
+  rng$state()
+}
+
+
 recycle <- function(x, n, name = deparse(substitute(x))) {
   if (length(x) == n) {
     x
