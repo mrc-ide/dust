@@ -78,10 +78,10 @@ test_that("Basic sir model", {
   expect_equal(obj$state(3:1), s[3:1, , drop = FALSE])
   expect_equal(obj$state(c(2L, 2L)), s[c(2, 2), , drop = FALSE])
   expect_error(obj$state(0L),
-               "All elements of 'index' must lie in [1, 3]",
+               "All elements of 'index' must lie in [1, 4]",
                fixed = TRUE)
-  expect_error(obj$state(1:4),
-               "All elements of 'index' must lie in [1, 3]",
+  expect_error(obj$state(1:5),
+               "All elements of 'index' must lie in [1, 4]",
                fixed = TRUE)
 })
 
@@ -264,11 +264,11 @@ test_that("reset changes info", {
   res <- dust_example("sir")
   obj <- res$new(list(), 0, 100, seed = 1L)
   expect_equal(obj$info(),
-               list(vars = c("S", "I", "R"),
+               list(vars = c("S", "I", "R", "inc"),
                     pars = list(beta = 0.2, gamma = 0.1)))
   obj$reset(list(beta = 0.1), 0)
   expect_equal(obj$info(),
-               list(vars = c("S", "I", "R"),
+               list(vars = c("S", "I", "R", "inc"),
                     pars = list(beta = 0.1, gamma = 0.1)))
 })
 

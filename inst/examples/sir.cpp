@@ -14,11 +14,11 @@ public:
   }
 
   size_t size() const {
-    return 3;
+    return 4;
   }
 
   std::vector<double> initial(size_t step) {
-    std::vector<double> ret = {data_.S0, data_.I0, data_.R0};
+    std::vector<double> ret = {data_.S0, data_.I0, data_.R0, 0};
     return ret;
   }
 
@@ -28,6 +28,8 @@ public:
     double S = state[0];
     double I = state[1];
     double R = state[2];
+    double cumulative_incidence = state[3];
+
     double N = S + I + R;
 
     double p_SI = 1 - std::exp(-(data_.beta) * I / N);
@@ -38,6 +40,7 @@ public:
     state_next[0] = S - n_SI;
     state_next[1] = I + n_SI - n_IR;
     state_next[2] = R + n_IR;
+    state_next[3] = cumulative_incidence + n_SI;
   }
 
 private:
@@ -45,6 +48,12 @@ private:
 };
 
 #include <cpp11/list.hpp>
+
+// Helper function for accepting values with defaults
+inline double with_default(double default_value, cpp11::sexp value) {
+  return value == R_NilValue ? default_value : cpp11::as_cpp<double>(value);
+}
+
 template <>
 sir::init_t dust_data<sir>(cpp11::list data) {
   // Initial state values
@@ -52,22 +61,12 @@ sir::init_t dust_data<sir>(cpp11::list data) {
   double S0 = 1000.0;
   double R0 = 0.0;
 
-  // Default rates
-  double beta = 0.2;
-  double gamma = 0.1;
+  // Rates, which can be set based on the provided data
+  double beta = with_default(0.2, data["beta"]);
+  double gamma = with_default(0.1, data["gamma"]);
 
   // Time scaling
   double dt = 0.25;
-
-  // Accept beta and gamma as optional elements
-  SEXP r_beta = data["beta"];
-  if (r_beta != R_NilValue) {
-    beta = cpp11::as_cpp<double>(r_beta);
-  }
-  SEXP r_gamma = data["gamma"];
-  if (r_gamma != R_NilValue) {
-    gamma = cpp11::as_cpp<double>(r_gamma);
-  }
 
   return sir::init_t{S0, I0, R0, beta, gamma, dt};
 }
@@ -76,7 +75,7 @@ template <>
 cpp11::sexp dust_info<sir>(const sir::init_t& data) {
   using namespace cpp11::literals;
   // Information about state order
-  cpp11::writable::strings vars({"S", "I", "R"});
+  cpp11::writable::strings vars({"S", "I", "R", "inc"});
   // Information about parameter values
   cpp11::list pars = cpp11::writable::list({"beta"_nm = data.beta,
                                             "gamma"_nm = data.gamma});

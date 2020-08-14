@@ -31,7 +31,7 @@
 ##' # Initialise the model at step 0 with 50 independent trajectories
 ##' mod <- sir$new(list(), 0, 50)
 ##'
-##' # Run the model for 400 steps, collecting every 4th step
+##' # Run the model for 400 steps, collecting "infected" every 4th step
 ##' steps <- seq(0, 400, by = 4)
 ##' y <- dust::dust_iterate(mod, steps, index = 2L)
 ##'
