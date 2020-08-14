@@ -105,3 +105,20 @@ test_that("data must be an unnamed list", {
     dust_simulate(res, 0:10, data, y0),
     "Expected 'data' to be an unnamed list")
 })
+
+
+test_that("two calls with seed = NULL create different results", {
+  res <- dust(dust_file("examples/walk.cpp"), quiet = TRUE)
+  ns <- 7
+  np <- 13
+
+  data <- lapply(runif(np), function(p) list(sd = p))
+  y0 <- matrix(rnorm(np), 1)
+  steps <- seq(0, to = ns, by = 1L)
+  mod <- res$new(list(sd = 1), 0, np, seed = 1L)
+
+  ans1 <- dust_simulate(res, steps, data, y0, seed = NULL)
+  ans2 <- dust_simulate(res, steps, data, y0, seed = NULL)
+  expect_identical(dim(ans1), dim(ans2))
+  expect_false(identical(ans1, ans2))
+})
