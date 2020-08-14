@@ -41,11 +41,19 @@ void putRNG(rng_state_t<T>& rng_state, RNGptr& d_rng_state, int p_idx) {
 template <typename real_t>
 class pRNG { // # nocov
 public:
-  pRNG(const size_t n, const uint64_t seed) {
-    dust::Xoshiro rng(seed);
-    for (int i = 0; i < n; i++) {
-      _rngs.push_back(rng);
-      rng.jump();
+  pRNG(const size_t n, const std::vector<uint64_t>& seed) {
+    size_t len = rng_state_t<T>::size();
+    std::vector<uint64_t> s(len);
+    auto n_seed = seed.size() / len;
+    for (size_t i = 0; i < n; ++i) {
+      if (i < n_seed) {
+        std::copy_n(seed.begin() + i * len, len, s.begin());
+        _rngs.push_back(dust::Xoshiro(seed));
+      } else {
+        auto rng = _rngs.back();
+        rng.jump();
+        _rngs_push_back(rng);
+      }
     }
 
     CUDA_CALL(cudaMalloc((void** )&_d_rng_state.state_ptr,

@@ -81,11 +81,9 @@ public:
   };
 
   __host__
-  Xoshiro(uint64_t seed);
+  Xoshiro(const std::vector<uint64_t>& seed);
 
   // Change internal state
-  __host__
-  void set_seed(uint64_t seed);
   __host__
   void jump();
   __host__
@@ -127,19 +125,11 @@ inline uint64_t Xoshiro::splitmix64(uint64_t seed) {
 }
 
 __host__
-inline Xoshiro::Xoshiro(uint64_t seed) {
-  set_seed(seed);
-}
-
-__host__
-inline void Xoshiro::set_seed(uint64_t seed) {
-  // normal brain: for i in 1:4
-  // advanced brain: -funroll-loops
-  // galaxy brain:
-  _state[0] = splitmix64(seed);
-  _state[1] = splitmix64(_state[0]);
-  _state[2] = splitmix64(_state[1]);
-  _state[3] = splitmix64(_state[2]);
+inline Xoshiro::Xoshiro(const std::vector<uint64_t>& seed) {
+  _state[0] = seed[0];
+  _state[1] = seed[1];
+  _state[2] = seed[2];
+  _state[3] = seed[3];
 }
 
 // This is used when reading the state back from the device

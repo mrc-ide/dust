@@ -14,7 +14,6 @@ namespace dust {
 template <typename T>
 class pRNG { // # nocov
 public:
-  // Initialise from a vector of seed
   pRNG(const size_t n, const std::vector<uint64_t>& seed) {
     rng_state_t<T> s;
     auto len = rng_state_t<T>::size();
