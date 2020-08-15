@@ -57,7 +57,7 @@ Create a \code{dust_rng} object
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{seed}}{The seed, as an integer}
+\item{\code{seed}}{The seed, as an integer or as a raw vector.}
 
 \item{\code{n_generators}}{The number of generators to use. While this
 function never runs in parallel, this is used to create a set of

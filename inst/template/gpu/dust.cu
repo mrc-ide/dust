@@ -4,8 +4,8 @@
 {{model}}
 
 SEXP dust_{{name}}_alloc(cpp11::list r_data, size_t step, size_t n_particles,
-                size_t n_threads, size_t seed) {
-  return dust_alloc<{{type}}>(r_data, step, n_particles, n_threads, seed);
+                size_t n_threads, cpp11::sexp r_seed) {
+  return dust_alloc<{{type}}>(r_data, step, n_particles, n_threads, r_seed);
 }
 
 SEXP dust_{{name}}_run(SEXP ptr, size_t step_end) {
@@ -38,6 +38,6 @@ void dust_{{name}}_reorder(SEXP ptr, cpp11::sexp r_index) {
   return dust_reorder<{{type}}>(ptr, r_index);
 }
 
-SEXP dust_{{name}}_rng_state(SEXP ptr) {
-  return dust_rng_state<{{type}}>(ptr);
+SEXP dust_{{name}}_rng_state(SEXP ptr, bool first_only) {
+  return dust_rng_state<{{type}}>(ptr, first_only);
 }

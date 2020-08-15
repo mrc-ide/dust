@@ -1,3 +1,6 @@
+#ifndef DUST_INTERFACE_HPP
+#define DUST_INTERFACE_HPP
+
 #include <cstring>
 #include <cpp11/doubles.hpp>
 #include <cpp11/external_pointer.hpp>
@@ -6,6 +9,8 @@
 #include <cpp11/matrix.hpp>
 #include <cpp11/raws.hpp>
 #include <cpp11/strings.hpp>
+
+#include <dust/rng_interface.hpp>
 
 template <typename T>
 typename T::init_t dust_data(cpp11::list data);
@@ -29,11 +34,11 @@ cpp11::writable::doubles_matrix create_matrix(size_t nrow, size_t ncol,
 template <typename T>
 cpp11::list dust_alloc(cpp11::list r_data, int step,
                        int n_particles, int n_threads,
-                       int seed) {
+                       cpp11::sexp r_seed) {
   validate_size(step, "step");
   validate_size(n_particles, "n_particles");
   validate_size(n_threads, "n_threads");
-  validate_size(seed, "seed");
+  std::vector<uint64_t> seed = as_rng_seed<typename T::real_t>(r_seed);
 
   typename T::init_t data = dust_data<T>(r_data);
 
@@ -52,11 +57,12 @@ cpp11::writable::doubles dust_simulate(cpp11::sexp r_steps,
                                        cpp11::doubles_matrix r_state,
                                        cpp11::sexp r_index,
                                        const size_t n_threads,
-                                       const size_t seed) {
+                                       cpp11::sexp r_seed) {
   typedef typename T::real_t real_t;
   std::vector<size_t> steps = validate_size(r_steps, "steps");
   std::vector<real_t> state = matrix_to_vector<real_t>(r_state);
   std::vector<size_t> index = r_index_to_index(r_index, r_state.nrow());
+  std::vector<uint64_t> seed = as_rng_seed<typename T::real_t>(r_seed);
 
   if (r_data.size() != r_state.ncol()) {
     cpp11::stop("Expected 'state' to be a matrix with %d columns",
@@ -228,10 +234,11 @@ void dust_reorder(SEXP ptr, cpp11::sexp r_index) {
 }
 
 template <typename T>
-SEXP dust_rng_state(SEXP ptr) {
+SEXP dust_rng_state(SEXP ptr, bool first_only) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   auto state = obj->rng_state();
-  size_t len = sizeof(uint64_t) * state.size();
+  size_t n = first_only ? dust::rng_state_t<double>::size() : state.size();
+  size_t len = sizeof(uint64_t) * n;
   cpp11::writable::raws ret(len);
   std::memcpy(RAW(ret), state.data(), len);
   return ret;
@@ -341,3 +348,5 @@ std::vector<T> matrix_to_vector(cpp11::doubles_matrix x) {
   std::copy(x_data, x_data + len, ret.begin());
   return ret;
 }
+
+#endif

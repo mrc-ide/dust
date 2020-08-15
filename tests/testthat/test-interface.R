@@ -144,9 +144,9 @@ test_that("get rng state", {
   res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
                           quiet = TRUE)
   obj <- res$new(list(sd = 1), 0L, np, seed = seed)
-  expect_identical(
-    obj$rng_state(),
-    dust_rng$new(seed, np)$state())
+  s <- dust_rng$new(seed, np)$state()
+  expect_identical(obj$rng_state(), s)
+  expect_identical(obj$rng_state(TRUE), s[1:32])
 })
 
 

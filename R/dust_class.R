@@ -20,7 +20,7 @@ dust_class <- R6::R6Class(
     ptr_ = NULL,
 
     simulate = function(steps, data, state, index = NULL,
-                        n_threads = 1L, seed = 1L) {
+                        n_threads = 1L, seed = NULL) {
     }
   ),
 
@@ -43,10 +43,13 @@ dust_class <- R6::R6Class(
     ##' threads, then you should have 8, 16, 24, etc particles). However, this
     ##' is not compulsary.
     ##'
-    ##' @param seed Seed to use for the random number generator
-    ##' (positive integer)
+    ##' @param seed The seed to use for the random number generator. Can
+    ##' be a positive integer, `NULL` (initialise with R's random number
+    ##' generator) or a `raw` vector of a length that is a multiple of
+    ##' 32 to directly initialise the generator (e..g., from the
+    ##' [`dust`] object's `$rng_state()` method).
     initialize = function(data, step, n_particles, n_threads = 1L,
-                          seed = 1L) {
+                          seed = NULL) {
     },
 
     ##' @description
@@ -146,9 +149,16 @@ dust_class <- R6::R6Class(
 
     ##' @description
     ##' Returns the state of the random number generator. This returns a
-    ##' raw vector of length 32 * n_particles. It is primarily intended for
-    ##' debugging as one cannot (yet) initialise a dust object with this
-    ##' state.
-    rng_state = function() {
+    ##' raw vector of length 32 * n_particles. This can be useful for
+    ##' debugging or for initialising other dust objects.
+    ##'
+    ##' @param first_only Logical, indicating if we should return only the
+    ##' *first* particle's random number state. If `FALSE` (the default)
+    ##' all particles states are returned, being 32 bytes per particle.
+    ##' If `TRUE` then we take just the first particle's state, which
+    ##' will be a total of 32 bytes. Both forms are suitable for seeding
+    ##' a new [`dust`] object as the shorter version will be used for
+    ##' the first particle, followed by jumps for each subsequent particle.
+    rng_state = function(first_only = FALSE) {
     }
   ))

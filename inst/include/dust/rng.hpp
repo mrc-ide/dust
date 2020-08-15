@@ -1,6 +1,7 @@
 #ifndef DUST_RNG_HPP
 #define DUST_RNG_HPP
 
+#include <algorithm>
 #include "xoshiro.hpp"
 #include "distr/binomial.hpp"
 #include "distr/normal.hpp"
@@ -13,13 +14,16 @@ namespace dust {
 template <typename T>
 class pRNG { // # nocov
 public:
-  pRNG(const size_t n, const uint64_t seed) {
+  pRNG(const size_t n, const std::vector<uint64_t>& seed) {
     rng_state_t<T> s;
-    xoshiro_set_seed(s, seed);
-
-    _state.push_back(s);
-    for (size_t i = 1; i < n; ++i) {
-      xoshiro_jump(s);
+    auto len = rng_state_t<T>::size();
+    auto n_seed = seed.size() / len;
+    for (size_t i = 0; i < n; ++i) {
+      if (i < n_seed) {
+        std::copy_n(seed.begin() + i * len, len, s.state.begin());
+      } else {
+        xoshiro_jump(s);
+      }
       _state.push_back(s);
     }
   }

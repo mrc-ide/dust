@@ -11,16 +11,18 @@
 ##'
 ##' @section Random number generation:
 ##'
-##' This implementation leaves a number of issues that we will resolve
-##'   in future versions. Most pressing is that the RNG is uncoupled
-##'   between a `model` object and the simulation; ideally this would
-##'   advance the RNG on the `model`, but this needs care in the case
-##'   where either more or fewer simulations are carried out than the
-##'   initial object has.  This is resolvable with some support for
-##'   setting rng state directly from a raw vector and with jumping
-##'   forward for the the component (model object or simulation) that
-##'   has fewer particles. There are similar issues with carrying over
-##'   the number of threads.
+##' This implementation leaves a number of issues that we will
+##'   document more fully in future versions. Most pressing is that
+##'   the RNG is by defauly uncoupled between a `model` object and the
+##'   simulation; ideally this would update the RNG on the `model`,
+##'   but this needs care in the case where either more or fewer
+##'   simulations are carried out than the initial object has.  This
+##'   is resolvable as rng state can be exported from one dust object
+##'   and used in another (though it can't be returned by the
+##'   simulation here).  The [dust_rng_state_long_jump()] function can be
+##'   used manually to perform a "long jump" on the exported state,
+##'   which can be used to create streams that are sensibly
+##'   distributed along the RNG's period.
 ##'
 ##' @title Simulate from a model or generator
 ##'
@@ -50,8 +52,11 @@
 ##'   you use 8 threads, then you should have 8, 16, 24, etc
 ##'   particles). However, this is not compulsary.
 ##'
-##' @param seed The seed to use for the random number generator
-##'   (positive integer)
+##' @param seed The seed to use for the random number generator. Can
+##'   be a positive integer, `NULL` (initialise with R's random number
+##'   generator) or a `raw` vector of a length that is a multiple of
+##'   32 to directly initialise the generator (e.g., from the
+##'   [`dust`] object's `$rng_state()` method).
 ##'
 ##' @export
 ##' @examples
@@ -75,7 +80,7 @@
 ##' # The result of the simulation, plotted over time
 ##' matplot(steps, t(drop(res)), type = "l", col = "#00000055", lty = 1)
 dust_simulate <- function(model, steps, data, state, index = NULL,
-                          n_threads = 1L, seed = 1L) {
+                          n_threads = 1L, seed = NULL) {
   if (inherits(model, "dust")) {
     simulate <- environment(model$run)$private$simulate
   } else if (inherits(model, "R6ClassGenerator") &&

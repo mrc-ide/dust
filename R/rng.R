@@ -37,7 +37,7 @@ dust_rng <- R6::R6Class(
   public = list(
     ##' @description Create a `dust_rng` object
     ##'
-    ##' @param seed The seed, as an integer
+    ##' @param seed The seed, as an integer or as a raw vector.
     ##'
     ##' @param n_generators The number of generators to use. While this
     ##'   function never runs in parallel, this is used to create a set of
@@ -131,6 +131,50 @@ dust_rng <- R6::R6Class(
       dust_rng_state(private$ptr)
     }
   ))
+
+
+##' Advance a saved random number state by performing a "long jump" on
+##' it. If you have serialised the state using the `$rng_state()`
+##' method of a [`dust`] object but want create a new seed that is
+##' uncorrelated.  If seed is extracted with `$rng_seed()` is to be
+##' reused multiple times, or if it will be used *and* the source
+##' object will also be used, then the state needs jumping to prevent
+##' generating the same sequence of random numbers.
+##'
+##' @title Advance a dust random number state
+##'
+##' @param state A raw vector representing `dust` random number
+##'   generator; see [`dust_rng`].
+##'
+##' @param times An integer indicating the number of times the
+##'   `long_jump` should be performed. The default is one, but values
+##'   larger than one will repeatedly advance the state.
+##'
+##' @export
+##' @examples
+##' # Create a new RNG object
+##' rng <- dust::dust_rng$new(1)
+##'
+##' # Serialise the state as a raw vector
+##' state <- rng$state()
+##'
+##' # We can advance this state
+##' dust_rng_state_long_jump(state)
+##'
+##' # Which gives the same result as long_jump on the original generator
+##' rng$long_jump()$state()
+##' rng$long_jump()$state()
+##'
+##' # Multiple jumps can be taken by using the "times" argument
+##' dust_rng_state_long_jump(state, 2)
+dust_rng_state_long_jump <- function(state, times = 1L) {
+  assert_is(state, "raw")
+  rng <- dust_rng$new(state)
+  for (i in seq_len(times)) {
+    rng$long_jump()
+  }
+  rng$state()
+}
 
 
 recycle <- function(x, n, name = deparse(substitute(x))) {

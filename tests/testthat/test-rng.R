@@ -265,3 +265,106 @@ test_that("get state", {
   expect_identical(s3[seq_len(32)], s1)
   expect_identical(s3[-seq_len(32)], rng2$jump()$state())
 })
+
+
+test_that("initialise single rng with binary state", {
+  seed <- 42
+  rng1 <- dust_rng$new(seed, 1L)
+  state <- rng1$state()
+  rng2 <- dust_rng$new(state, 1L)
+  expect_identical(rng1$state(), rng2$state())
+  r1 <- rng1$unif_rand(10)
+  r2 <- rng2$unif_rand(10)
+  expect_identical(r1, r2)
+  expect_identical(rng1$state(), rng2$state())
+})
+
+
+test_that("initialise parallel rng with binary state", {
+  seed <- 42
+  rng1 <- dust_rng$new(seed, 5L)
+  state <- rng1$state()
+  rng2 <- dust_rng$new(state, 5L)
+  r1 <- rng1$unif_rand(10)
+  r2 <- rng2$unif_rand(10)
+  expect_identical(r1, r2)
+  expect_identical(rng1$state(), rng2$state())
+})
+
+
+test_that("initialise parallel rng with single binary state and jump", {
+  seed <- 42
+  rng1 <- dust_rng$new(seed, 1L)
+  rng2 <- dust_rng$new(seed, 2L)
+  state <- rng1$state()
+  rng3 <- dust_rng$new(state, 2L)
+  expect_identical(rng3$state(), rng2$state())
+})
+
+
+test_that("initialise parallel rng with binary state and drop", {
+  seed <- 42
+  rng10 <- dust_rng$new(seed, 10L)
+  rng5 <- dust_rng$new(rng10$state(), 5L)
+  expect_identical(rng5$state(), rng10$state()[seq_len(5 * 4 * 8)])
+})
+
+
+test_that("require that raw vector is of sensible size", {
+  expect_error(dust_rng$new(raw(), 1L),
+               "Expected raw vector of length as multiple of 32 for 'seed'")
+  expect_error(dust_rng$new(raw(31), 1L),
+               "Expected raw vector of length as multiple of 32 for 'seed'")
+  expect_error(dust_rng$new(raw(63), 1L),
+               "Expected raw vector of length as multiple of 32 for 'seed'")
+})
+
+
+test_that("initialise with NULL, generating a seed from R", {
+  set.seed(1)
+  rng1 <- dust_rng$new(NULL, 1L)
+  set.seed(1)
+  rng2 <- dust_rng$new(NULL, 1L)
+  rng3 <- dust_rng$new(NULL, 1L)
+  expect_identical(rng2$state(), rng1$state())
+  expect_false(identical(rng3$state(), rng2$state()))
+})
+
+
+test_that("can't create rng with silly things", {
+  expect_error(
+    dust_rng$new(mtcars, 1L),
+    "Invalid type for 'seed'")
+  expect_error(
+    dust_rng$new(function(x) 2, 1L),
+    "Invalid type for 'seed'")
+})
+
+
+test_that("negative seed values result in sensible state", {
+  ## Don't end up with all-zero state, and treat different negative
+  ## numbers as different (don't truncate to zero or anything
+  ## pathalogical)
+  s0 <- dust_rng$new(0, 1L)$state()
+  s1 <- dust_rng$new(-1, 1L)$state()
+  s10 <- dust_rng$new(-10, 1L)$state()
+
+  expect_false(all(s0 == as.raw(0)))
+  expect_false(all(s1 == as.raw(0)))
+  expect_false(all(s10 == as.raw(0)))
+  expect_false(identical(s0, s1))
+  expect_false(identical(s0, s10))
+  expect_false(identical(s1, s10))
+})
+
+
+test_that("can jump the rng state with dust_rng_state_long_jump", {
+  rng <- dust::dust_rng$new(1)
+  state <- rng$state()
+  r1 <- rng$long_jump()$state()
+  r2 <- rng$long_jump()$state()
+
+  expect_identical(dust_rng_state_long_jump(state), r1)
+  expect_identical(dust_rng_state_long_jump(state), r1)
+  expect_identical(dust_rng_state_long_jump(state, 2), r2)
+})

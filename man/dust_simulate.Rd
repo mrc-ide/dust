@@ -11,7 +11,7 @@ dust_simulate(
   state,
   index = NULL,
   n_threads = 1L,
-  seed = 1L
+  seed = NULL
 )
 }
 \arguments{
@@ -41,8 +41,11 @@ model were compiled with OMP support.  The number of simulations
 you use 8 threads, then you should have 8, 16, 24, etc
 particles). However, this is not compulsary.}
 
-\item{seed}{The seed to use for the random number generator
-(positive integer)}
+\item{seed}{The seed to use for the random number generator. Can
+be a positive integer, \code{NULL} (initialise with R's random number
+generator) or a \code{raw} vector of a length that is a multiple of
+32 to directly initialise the generator (e.g., from the
+\code{\link{dust}} object's \verb{$rng_state()} method).}
 }
 \description{
 Simulate a dust model.  This is a helper function that is subject
@@ -60,16 +63,18 @@ trajectories.
 \section{Random number generation}{
 
 
-This implementation leaves a number of issues that we will resolve
-in future versions. Most pressing is that the RNG is uncoupled
-between a \code{model} object and the simulation; ideally this would
-advance the RNG on the \code{model}, but this needs care in the case
-where either more or fewer simulations are carried out than the
-initial object has.  This is resolvable with some support for
-setting rng state directly from a raw vector and with jumping
-forward for the the component (model object or simulation) that
-has fewer particles. There are similar issues with carrying over
-the number of threads.
+This implementation leaves a number of issues that we will
+document more fully in future versions. Most pressing is that
+the RNG is by defauly uncoupled between a \code{model} object and the
+simulation; ideally this would update the RNG on the \code{model},
+but this needs care in the case where either more or fewer
+simulations are carried out than the initial object has.  This
+is resolvable as rng state can be exported from one dust object
+and used in another (though it can't be returned by the
+simulation here).  The \code{\link[=dust_rng_state_long_jump]{dust_rng_state_long_jump()}} function can be
+used manually to perform a "long jump" on the exported state,
+which can be used to create streams that are sensibly
+distributed along the RNG's period.
 }
 
 \examples{

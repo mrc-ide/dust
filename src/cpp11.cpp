@@ -5,10 +5,10 @@
 #include "cpp11/declarations.hpp"
 
 // dust_rng.cpp
-SEXP dust_rng_alloc(int seed, int n_generators);
-extern "C" SEXP _dust_dust_rng_alloc(SEXP seed, SEXP n_generators) {
+SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators);
+extern "C" SEXP _dust_dust_rng_alloc(SEXP r_seed, SEXP n_generators) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_alloc(cpp11::as_cpp<cpp11::decay_t<int>>(seed), cpp11::as_cpp<cpp11::decay_t<int>>(n_generators)));
+    return cpp11::as_sexp(dust_rng_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<int>>(n_generators)));
   END_CPP11
 }
 // dust_rng.cpp

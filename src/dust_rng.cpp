@@ -2,12 +2,14 @@
 #include <cpp11/external_pointer.hpp>
 #include <cpp11/raws.hpp>
 #include <dust/rng.hpp>
+#include <dust/rng_interface.hpp>
 
 typedef dust::pRNG<double> dust_rng_t;
 typedef cpp11::external_pointer<dust_rng_t> dust_rng_ptr_t;
 
 [[cpp11::register]]
-SEXP dust_rng_alloc(int seed, int n_generators) {
+SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators) {
+  std::vector<uint64_t> seed = as_rng_seed<double>(r_seed);
   dust_rng_t *rng = new dust_rng_t(n_generators, seed);
   return cpp11::external_pointer<dust_rng_t>(rng);
 }

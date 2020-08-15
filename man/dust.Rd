@@ -172,7 +172,7 @@ obj$state()
 \subsection{Method \code{new()}}{
 Create a new model
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$new(data, step, n_particles, n_threads = 1L, seed = 1L)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$new(data, step, n_particles, n_threads = 1L, seed = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -193,8 +193,11 @@ your model were compiled with OMP support (details to come).
 threads, then you should have 8, 16, 24, etc particles). However, this
 is not compulsary.}
 
-\item{\code{seed}}{Seed to use for the random number generator
-(positive integer)}
+\item{\code{seed}}{The seed to use for the random number generator. Can
+be a positive integer, \code{NULL} (initialise with R's random number
+generator) or a \code{raw} vector of a length that is a multiple of
+32 to directly initialise the generator (e..g., from the
+\code{\link{dust}} object's \verb{$rng_state()} method).}
 }
 \if{html}{\out{</div>}}
 }
@@ -392,12 +395,24 @@ Returns the \code{data} object that your model was constructed with.
 \if{latex}{\out{\hypertarget{method-rng_state}{}}}
 \subsection{Method \code{rng_state()}}{
 Returns the state of the random number generator. This returns a
-raw vector of length 32 * n_particles. It is primarily intended for
-debugging as one cannot (yet) initialise a dust object with this
-state.
+raw vector of length 32 * n_particles. This can be useful for
+debugging or for initialising other dust objects.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$rng_state()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$rng_state(first_only = FALSE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{first_only}}{Logical, indicating if we should return only the
+\emph{first} particle's random number state. If \code{FALSE} (the default)
+all particles states are returned, being 32 bytes per particle.
+If \code{TRUE} then we take just the first particle's state, which
+will be a total of 32 bytes. Both forms are suitable for seeding
+a new \code{\link{dust}} object as the shorter version will be used for
+the first particle, followed by jumps for each subsequent particle.}
+}
+\if{html}{\out{</div>}}
+}
 }
 }
