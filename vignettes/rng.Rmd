@@ -84,7 +84,7 @@ rng$rpois(10, 4.5)
 ```
 
 ```cc
-int_t n = rng.rpois(4.5);
+int n = rng.rpois(4.5);
 ```
 
 **Binomial distribution** with mean `size` and `prob`
@@ -94,7 +94,7 @@ rng$rbinom(10L, 10L, 0.3)
 ```
 
 ```cc
-int_t n = rng.rbinom(10, 0.3);
+int n = rng.rbinom(10, 0.3);
 ```
 
 There are also helpers for some common special case distributions:

@@ -2,7 +2,7 @@ context("simulate")
 
 
 test_that("simulate trajectories with multiple starting points/parameters", {
-  res <- dust(dust_file("examples/walk.cpp"), quiet = TRUE)
+  res <- dust_example("walk")
   ns <- 7
   np <- 13
 
@@ -27,22 +27,23 @@ test_that("simulate trajectories with multiple starting points/parameters", {
 
 
 test_that("simulate multi-state model", {
-  res <- dust(dust_file("examples/sir.cpp"), quiet = TRUE)
+  res <- dust_example("sir")
 
   np <- 13
 
   data <- replicate(np, list(beta = runif(1, 0.15, 0.25),
                              alpha = runif(1, 0.05, 0.15)), simplify = FALSE)
-  y0 <- matrix(c(1000, 10, 0), 3, np)
+  y0 <- matrix(c(1000, 10, 0, 0), 4, np)
   steps <- seq(0, 200, by = 20)
 
   ans <- dust_simulate(res, steps, data, y0, seed = 1L)
 
-  expect_equal(dim(ans), c(3, np, length(steps)))
+  expect_equal(dim(ans), c(4, np, length(steps)))
   ## Basic checks on the model:
   expect_true(all(diff(t(ans[1, , ])) <= 0))
   expect_true(all(diff(t(ans[3, , ])) >= 0))
-  expect_true(all(apply(ans, 2:3, sum) == 1010))
+  expect_true(all(apply(ans[1:3, , ], 2:3, sum) == 1010))
+  expect_true(all(ans[4, , ] == 1000 - ans[1, , ]))
 
   ## And we can filter
   expect_equal(
@@ -62,7 +63,7 @@ test_that("simulate requires a compatible object", {
 
 
 test_that("simulate requires a matrix for initial state", {
-  res <- dust(dust_file("examples/sir.cpp"), quiet = TRUE)
+  res <- dust_example("sir")
   expect_error(
     dust_simulate(res, 0:10, list(list()), 1),
     "Expected 'state' to be a matrix")
@@ -70,7 +71,7 @@ test_that("simulate requires a matrix for initial state", {
 
 
 test_that("simulate requires that data and state are compatible", {
-  res <- dust(dust_file("examples/sir.cpp"), quiet = TRUE)
+  res <- dust_example("sir")
   y0 <- matrix(1, 1, 5)
   data <- rep(list(list(sd = 1)), 4)
 
@@ -81,7 +82,7 @@ test_that("simulate requires that data and state are compatible", {
 
 
 test_that("simulate requires that particles have the same size", {
-  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  res <- dust_example("variable")
   data <- list(list(len = 10), list(len = 9))
   y0 <- matrix(1, 10, 2)
   expect_error(
@@ -98,7 +99,7 @@ test_that("simulate requires that particles have the same size", {
 
 
 test_that("data must be an unnamed list", {
-  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  res <- dust_example("variable")
   data <- list(len = 10)
   y0 <- matrix(1, 10, 1)
   expect_error(
@@ -108,7 +109,7 @@ test_that("data must be an unnamed list", {
 
 
 test_that("two calls with seed = NULL create different results", {
-  res <- dust(dust_file("examples/walk.cpp"), quiet = TRUE)
+  res <- dust_example("walk")
   ns <- 7
   np <- 13
 
@@ -121,4 +122,14 @@ test_that("two calls with seed = NULL create different results", {
   ans2 <- dust_simulate(res, steps, data, y0, seed = NULL)
   expect_identical(dim(ans1), dim(ans2))
   expect_false(identical(ans1, ans2))
+})
+
+
+test_that("steps must not be negative", {
+  res <- dust_example("sir")
+  y0 <- matrix(1, 1, 5)
+  data <- rep(list(list(sd = 1)), 5)
+  expect_error(
+    dust_simulate(res, seq(-5, 10), data, y0),
+    "All elements of 'steps' must be non-negative")
 })

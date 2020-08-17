@@ -1,8 +1,7 @@
 context("example")
 
 test_that("create walk, stepping for one step", {
-  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
-                          quiet = TRUE)
+  res <- dust_example("walk")
   obj <- res$new(list(sd = 1), 0, 10, seed = 1L)
   expect_null(obj$info())
 
@@ -13,8 +12,7 @@ test_that("create walk, stepping for one step", {
 
 
 test_that("walk agrees with random number stream", {
-  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
-                          quiet = TRUE)
+  res <- dust_example("walk")
   obj <- res$new(list(sd = 1), 0, 10, seed = 1L)
   y <- obj$run(5)
 
@@ -25,8 +23,7 @@ test_that("walk agrees with random number stream", {
 
 
 test_that("Reset particles and resume continues with rng", {
-  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
-                          quiet = TRUE)
+  res <- dust_example("walk")
   sd1 <- 2
   sd2 <- 4
 
@@ -50,8 +47,7 @@ test_that("Reset particles and resume continues with rng", {
 
 
 test_that("Basic sir model", {
-  res <- compile_and_load(dust_file("examples/sir.cpp"), "sir", "mysir",
-                          quiet = TRUE)
+  res <- dust_example("sir")
 
   obj <- res$new(list(), 0, 100, seed = 1L)
   obj$set_index(1L)
@@ -82,16 +78,16 @@ test_that("Basic sir model", {
   expect_equal(obj$state(3:1), s[3:1, , drop = FALSE])
   expect_equal(obj$state(c(2L, 2L)), s[c(2, 2), , drop = FALSE])
   expect_error(obj$state(0L),
-               "All elements of 'index' must lie in [1, 3]",
+               "All elements of 'index' must lie in [1, 4]",
                fixed = TRUE)
-  expect_error(obj$state(1:4),
-               "All elements of 'index' must lie in [1, 3]",
+  expect_error(obj$state(1:5),
+               "All elements of 'index' must lie in [1, 4]",
                fixed = TRUE)
 })
 
 
 test_that("set index", {
-  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 1, seed = 1L)
   expect_equal(mod$state(), matrix(1:10))
   expect_equal(mod$run(0), matrix(1:10, nrow = 10, ncol = 1))
@@ -109,7 +105,7 @@ test_that("set index", {
 
 
 test_that("reset clears the index", {
-  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 1, seed = 1L)
   mod$set_index(2:4)
   expect_equal(mod$run(0), matrix(2:4))
@@ -119,7 +115,7 @@ test_that("reset clears the index", {
 
 
 test_that("set model state", {
-  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 1, seed = 1L)
   expect_equal(mod$state(), matrix(1:10))
   x <- runif(10)
@@ -133,7 +129,7 @@ test_that("set model state", {
 
 
 test_that("set model state into multiple particles", {
-  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 20, seed = 1L)
   expect_equal(mod$state(), matrix(1:10, 10, 20))
   x <- runif(10)
@@ -147,7 +143,7 @@ test_that("set model state into multiple particles", {
 
 
 test_that("set model state with a matrix", {
-  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(runif(20), 10, 2)
   mod$set_state(m)
@@ -164,8 +160,7 @@ test_that("set model state with a matrix", {
 
 
 test_that("reorder", {
-  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
-                          quiet = TRUE)
+  res <- dust_example("walk")
 
   obj <- res$new(list(sd = 1), 0, 10, seed = 1L)
   y1 <- obj$run(5)
@@ -191,8 +186,7 @@ test_that("reorder", {
 
 
 test_that("reorder and duplicate", {
-  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
-                          quiet = TRUE)
+  res <- dust_example("walk")
 
   obj <- res$new(list(sd = 1), 0, 10, seed = 1L)
   y1 <- obj$run(5)
@@ -217,8 +211,7 @@ test_that("reorder and duplicate", {
 
 
 test_that("validate reorder vector is correct length", {
-  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
-                          quiet = TRUE)
+  res <- dust_example("walk")
   obj <- res$new(list(sd = 1), 0, 10, seed = 1L)
   expect_error(obj$reorder(1L),
                "Expected a vector of length 10 for 'index'")
@@ -228,8 +221,7 @@ test_that("validate reorder vector is correct length", {
 
 
 test_that("validate reorder vector is in correct range", {
-  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
-                          quiet = TRUE)
+  res <- dust_example("walk")
   obj <- res$new(list(sd = 1), 0, 10, seed = 1L)
   index <- seq_len(10)
   msg <- "All elements of 'index' must lie in [1, 10]"
@@ -269,15 +261,14 @@ test_that("run in float mode", {
 
 
 test_that("reset changes info", {
-  res <- compile_and_load(dust_file("examples/sir.cpp"), "sir", "mysir",
-                          quiet = TRUE)
+  res <- dust_example("sir")
   obj <- res$new(list(), 0, 100, seed = 1L)
   expect_equal(obj$info(),
-               list(vars = c("S", "I", "R"),
+               list(vars = c("S", "I", "R", "inc"),
                     pars = list(beta = 0.2, gamma = 0.1)))
   obj$reset(list(beta = 0.1), 0)
   expect_equal(obj$info(),
-               list(vars = c("S", "I", "R"),
+               list(vars = c("S", "I", "R", "inc"),
                     pars = list(beta = 0.1, gamma = 0.1)))
 })
 
@@ -344,7 +335,7 @@ test_that("cache hits do not compile", {
 
 
 test_that("set model state and time, varying time", {
-  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(rep(as.numeric(1:2), each = 10), 10, 2)
   step <- 0:1
@@ -358,8 +349,21 @@ test_that("set model state and time, varying time", {
 })
 
 
+test_that("setting model state and step requires correct length step", {
+  res <- dust_example("variable")
+  mod <- res$new(list(len = 10), 0, 5, seed = 1L)
+  m <- matrix(rep(as.numeric(1:2), each = 10), 10, 5)
+  expect_error(
+    mod$set_state(m, 0:3),
+    "Expected 'step' to be scalar or length 5")
+  expect_error(
+    mod$set_state(m, 0:7),
+    "Expected 'step' to be scalar or length 5")
+})
+
+
 test_that("set model state and time, constant time", {
-  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(runif(20), 10, 2)
   step <- 10L
@@ -372,7 +376,7 @@ test_that("set model state and time, constant time", {
 
 
 test_that("set model time but not state", {
-  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   expect_null(mod$set_state(NULL, NULL))
   expect_equal(mod$step(), 0)
@@ -385,7 +389,7 @@ test_that("set model time but not state", {
 
 
 test_that("NULL state leaves state untouched", {
-  res <- dust(dust_file("examples/variable.cpp"), quiet = TRUE)
+  res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(runif(20), 10, 2)
   mod$set_state(m, NULL)
@@ -403,8 +407,7 @@ test_that("NULL state leaves state untouched", {
 
 
 test_that("type coersion in setting index", {
-  res <- compile_and_load(dust_file("examples/sir.cpp"), "sir", "mysir",
-                          quiet = TRUE)
+  res <- dust_example("sir")
   obj <- res$new(list(), 0, 100, seed = 1L)
   expect_null(obj$set_index(1L))
   expect_null(obj$set_index(1))
@@ -412,4 +415,21 @@ test_that("type coersion in setting index", {
     obj$set_index(1.5),
     "All elements of 'index' must be integer-like",
     fixed = TRUE)
+  expect_error(
+    obj$set_index(TRUE),
+    "Expected a numeric vector for 'index'",
+    fixed = TRUE)
+})
+
+
+test_that("can't load invalid example", {
+  expect_error(dust_example("asdf"), "Unknown example 'asdf'")
+})
+
+
+test_that("can run volatility example", {
+  res <- dust_example("volatility")
+  obj <- res$new(list(), 0, 5000, seed = 1L)
+  y <- drop(dust_iterate(obj, 0:100))
+  expect_lt(diff(range(colMeans(y))), 0.5)
 })

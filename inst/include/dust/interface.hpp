@@ -19,6 +19,7 @@ template <typename T>
 typename cpp11::sexp dust_info(const typename T::init_t& data);
 
 inline void validate_size(int x, const char * name);
+inline void validate_positive(int x, const char *name);
 inline std::vector<size_t> validate_size(cpp11::sexp x, const char *name);
 inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax);
 inline std::vector<size_t> r_index_to_index_default(size_t n);
@@ -36,8 +37,8 @@ cpp11::list dust_alloc(cpp11::list r_data, int step,
                        int n_particles, int n_threads,
                        cpp11::sexp r_seed) {
   validate_size(step, "step");
-  validate_size(n_particles, "n_particles");
-  validate_size(n_threads, "n_threads");
+  validate_positive(n_particles, "n_particles");
+  validate_positive(n_threads, "n_threads");
   std::vector<uint64_t> seed = as_rng_seed<typename T::real_t>(r_seed);
 
   typename T::init_t data = dust_data<T>(r_data);
@@ -106,7 +107,7 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
   if (r_step != R_NilValue) {
     step = validate_size(r_step, "step");
     if (!(step.size() == 1 || step.size() == obj->n_particles())) {
-      cpp11::stop("Expected 'size' to be scalar or length %d",
+      cpp11::stop("Expected 'step' to be scalar or length %d",
                   obj->n_particles());
     }
   }
@@ -253,7 +254,13 @@ cpp11::sexp dust_info(const typename T::init_t& data) {
 
 inline void validate_size(int x, const char * name) {
   if (x < 0) {
-    cpp11::stop("%s must be non-negative", name);
+    cpp11::stop("'%s' must be non-negative", name);
+  }
+}
+
+inline void validate_positive(int x, const char *name) {
+  if (x <= 0) {
+    cpp11::stop("'%s' must be positive", name);
   }
 }
 

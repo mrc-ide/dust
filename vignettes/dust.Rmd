@@ -46,7 +46,7 @@ There are two main parts here; the class (`walk`) and an interface function (`du
 
 The class is what does most of the work. It is important that this does not use anything in the R api as it may be called in parallel. Therefore use only C++ standard library types.  It has to provide every public type or method as the example above:
 
-* the types `int_t` and `real_t` have to exist and indicate what sort of numeric type you use for "integers" and "real numbers". Typically this will be `int` and `double` respectively, but if you need different types (longer or shorter) you can use them here.
+* the type `real_t` has to exist and indicate what sort of numeric type you use for "real numbers". Typically this will be `double`,but if you need a different type (longer or shorter) you can use it here.
 * the type `init_t` is whatever internal data your model needs, and an object of this type will be passed to your constructor (see `dust_data` below)
 * the constructor must take only one argument, being `const init_t&`. You can do what you want in the constructor - here we just copy the data into the object (we use the private member `data_` here but this can be anything you want)
 * the method `size()` must return the "size" of the system - how many state variables it has. Here we're considering a single individual moving randomly so the size is always 1
@@ -65,11 +65,22 @@ in R, except that it will throw an error if `sd` is not present in the list `dat
 
 ### Constructing a model
 
-The function `dust::dust` will "compile" a model as above and return an R6ClassGenerator object that can be used to create instances of our model
+The function `dust::dust` will "compile" a model for us to use:
 
-```{r walk_compile}
+```{r walk_compile, eval = FALSE}
 path_walk <- system.file("examples/walk.cpp", package = "dust")
 walk <- dust::dust(path_walk, quiet = TRUE)
+```
+
+However, this is also bundled into the package and can be loaded with:
+
+```{r walk_load}
+walk <- dust::dust_example("walk")
+```
+
+The object itself is an "R6ClassGenerator" object:
+
+```{r walk_object}
 walk
 ```
 
@@ -148,10 +159,10 @@ There is not much different here to the version that is shown before for the wal
 
 The other difference is a new template specialisation of `dust_info` - this is optional but can be used to report back to R information about the model based on the input data. Here it returns information about variable order and core parameters.
 
+As before, we'll use the version bundled with the package
+
 ```{r sir_compile}
-path_sir <- system.file("examples/sir.cpp", package = "dust")
-sir <- dust::dust(path_sir, quiet = TRUE)
-sir
+sir <- dust::dust_example("sir")
 ```
 
 The model is initialised the same way as before:
@@ -283,7 +294,7 @@ By default every particle starts from the initial condition specified by your mo
 
 ```{r set_state}
 model <- sir$new(list(), 0, 20)
-model$set_state(c(1000, 1, 0))
+model$set_state(c(1000, 1, 0, 0))
 model$state()
 ```
 
@@ -302,7 +313,7 @@ You can optionally set the initial step at the same time as the state. This is u
 ```{r initial_step}
 step0 <- sample(0:30, 20, replace = TRUE)
 model <- sir$new(list(), 0, 20)
-model$set_state(c(1000, 10, 0), step0)
+model$set_state(c(1000, 10, 0, 0), step0)
 ```
 
 After initialisation, our model is now at `r max(step0)`, the last step referenced in `step0`
@@ -331,7 +342,7 @@ You can also set the initial state to a range of different values. Suppose we se
 
 ```{r}
 I0 <- rpois(20, 10)
-state0 <- rbind(1010 - I0, I0, 0, deparse.level = 0)
+state0 <- rbind(1010 - I0, I0, 0, 0, deparse.level = 0)
 model$set_state(state0, 0L)
 model$step()
 model$state()

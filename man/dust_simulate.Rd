@@ -78,9 +78,8 @@ distributed along the RNG's period.
 }
 
 \examples{
-
-filename <- system.file("examples/walk.cpp", package = "dust")
-model <- dust::dust(filename, quiet = TRUE)
+# Use the "random walk" example
+model <- dust::dust_example("walk")
 
 # Start with 40 parameter sets; for this model each is list with
 # an element 'sd'
