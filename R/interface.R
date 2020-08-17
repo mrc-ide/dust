@@ -14,10 +14,9 @@
 ##'   with a const reference to this type (`const model::init_t&
 ##'   data`)
 ##'
-##' * That class must also include typedefs that describe the standard
-##'   floating point and integer types (`real_t` and `int_t`
-##'   respectively). Most models can include `typedef double real_t;`
-##'   and `typedef int int_t;` in their public section.
+##' * That class must also include a typedef that describes the
+##'   model's floating point type, `real_t`. Most models can include
+##'   `typedef double real_t;` in their public section.
 ##'
 ##' * The model must have a method `size()` returning `size_t` which
 ##'   returns the size of the system. This size may depend on values

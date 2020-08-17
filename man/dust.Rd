@@ -51,10 +51,9 @@ assumed to be the class name)
 \item That class must define a type \code{init_t} (so \code{model::init_t}) that
 contains its internal data and the model must be constructable
 with a const reference to this type (\verb{const model::init_t& data})
-\item That class must also include typedefs that describe the standard
-floating point and integer types (\code{real_t} and \code{int_t}
-respectively). Most models can include \verb{typedef double real_t;}
-and \verb{typedef int int_t;} in their public section.
+\item That class must also include a typedef that describes the
+model's floating point type, \code{real_t}. Most models can include
+\verb{typedef double real_t;} in their public section.
 \item The model must have a method \code{size()} returning \code{size_t} which
 returns the size of the system. This size may depend on values
 in your initialisation object but is constant within a model

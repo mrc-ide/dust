@@ -1,6 +1,5 @@
 class volatility {
 public:
-  typedef int int_t;
   typedef double real_t;
   struct init_t {
     real_t alpha;
