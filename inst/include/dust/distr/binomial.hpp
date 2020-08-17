@@ -38,7 +38,7 @@ T binomial_inversion(rng_state_t<T>& rng_state, int n, T p) {
   const T q = 1 - p;
   const T r = p / q;
   const T g = r * (n + 1);
-  const T f = fast_pow(q, n);
+  T f = fast_pow(q, n);
   int k = 0;
   for (;;) {
     if (u < f) {
