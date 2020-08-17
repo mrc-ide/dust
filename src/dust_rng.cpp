@@ -35,50 +35,72 @@ void dust_rng_long_jump(SEXP ptr) {
 }
 
 [[cpp11::register]]
-std::vector<double> dust_rng_unif_rand(SEXP ptr, int n) {
+cpp11::writable::doubles dust_rng_unif_rand(SEXP ptr, int n) {
   dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
   const size_t n_generators = rng->size();
-  std::vector<double> y(n);
+
+  cpp11::writable::doubles ret = cpp11::writable::doubles(n);
+  double * y = REAL(ret);
+
   for (size_t i = 0; i < (size_t)n; ++i) {
     y[i] = dust::unif_rand(rng->state(i % n_generators));
   }
-  return y;
+
+  return ret;
 }
 
 // NOTE: no special treatment (yet) for this
 [[cpp11::register]]
-std::vector<double> dust_rng_norm_rand(SEXP ptr, int n) {
+cpp11::writable::doubles dust_rng_norm_rand(SEXP ptr, int n) {
   dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
   const size_t n_generators = rng->size();
-  std::vector<double> y(n);
+
+  cpp11::writable::doubles ret = cpp11::writable::doubles(n);
+  double * y = REAL(ret);
+
   for (size_t i = 0; i < (size_t)n; ++i) {
     y[i] = dust::distr::rnorm(rng->state(i % n_generators), 0, 1);
   }
-  return y;
+
+  return ret;
 }
 
 [[cpp11::register]]
-std::vector<double> dust_rng_runif(SEXP ptr, int n, std::vector<double> min,
-                                   std::vector<double> max) {
+cpp11::writable::doubles dust_rng_runif(SEXP ptr, int n,
+                                         cpp11::doubles r_min,
+                                         cpp11::doubles r_max) {
   dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
+  const double * min = REAL(r_min);
+  const double * max = REAL(r_max);
   const size_t n_generators = rng->size();
-  std::vector<double> y(n);
+
+  cpp11::writable::doubles ret = cpp11::writable::doubles(n);
+  double * y = REAL(ret);
+
   for (size_t i = 0; i < (size_t)n; ++i) {
     y[i] = dust::distr::runif(rng->state(i % n_generators), min[i], max[i]);
   }
-  return y;
+
+  return ret;
 }
 
 [[cpp11::register]]
-std::vector<double> dust_rng_rnorm(SEXP ptr, int n, std::vector<double> mean,
-                                   std::vector<double> sd) {
+cpp11::writable::doubles dust_rng_rnorm(SEXP ptr, int n,
+                                        cpp11::doubles r_mean,
+                                        cpp11::doubles r_sd) {
   dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
+  const double * mean = REAL(r_mean);
+  const double * sd = REAL(r_sd);
   const size_t n_generators = rng->size();
-  std::vector<double> y(n);
+
+  cpp11::writable::doubles ret = cpp11::writable::doubles(n);
+  double * y = REAL(ret);
+
   for (size_t i = 0; i < (size_t)n; ++i) {
     y[i] = dust::distr::rnorm(rng->state(i % n_generators), mean[i], sd[i]);
   }
-  return y;
+
+  return ret;
 }
 
 [[cpp11::register]]
@@ -86,8 +108,8 @@ cpp11::writable::integers dust_rng_rbinom(SEXP ptr, int n,
                                           cpp11::integers r_size,
                                           cpp11::doubles r_prob) {
   dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
-  int * size = INTEGER(r_size);
-  double * prob = REAL(r_prob);
+  const int * size = INTEGER(r_size);
+  const double * prob = REAL(r_prob);
 
   cpp11::writable::integers ret = cpp11::writable::integers(n);
   int * y = INTEGER(ret);
@@ -101,14 +123,20 @@ cpp11::writable::integers dust_rng_rbinom(SEXP ptr, int n,
 }
 
 [[cpp11::register]]
-std::vector<int> dust_rng_rpois(SEXP ptr, int n, std::vector<double> lambda) {
+cpp11::writable::integers dust_rng_rpois(SEXP ptr, int n,
+                                         cpp11::doubles r_lambda) {
   dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
+  const double * lambda = REAL(r_lambda);
   const size_t n_generators = rng->size();
-  std::vector<int> y(n);
+
+  cpp11::writable::integers ret = cpp11::writable::integers(n);
+  int * y = INTEGER(ret);
+
   for (size_t i = 0; i < (size_t)n; ++i) {
     y[i] = dust::distr::rpois(rng->state(i % n_generators), lambda[i]);
   }
-  return y;
+
+  return ret;
 }
 
 [[cpp11::register]]

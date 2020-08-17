@@ -24,20 +24,20 @@ dust_rng_norm_rand <- function(ptr, n) {
   .Call("_dust_dust_rng_norm_rand", ptr, n)
 }
 
-dust_rng_runif <- function(ptr, n, min, max) {
-  .Call("_dust_dust_rng_runif", ptr, n, min, max)
+dust_rng_runif <- function(ptr, n, r_min, r_max) {
+  .Call("_dust_dust_rng_runif", ptr, n, r_min, r_max)
 }
 
-dust_rng_rnorm <- function(ptr, n, mean, sd) {
-  .Call("_dust_dust_rng_rnorm", ptr, n, mean, sd)
+dust_rng_rnorm <- function(ptr, n, r_mean, r_sd) {
+  .Call("_dust_dust_rng_rnorm", ptr, n, r_mean, r_sd)
 }
 
 dust_rng_rbinom <- function(ptr, n, r_size, r_prob) {
   .Call("_dust_dust_rng_rbinom", ptr, n, r_size, r_prob)
 }
 
-dust_rng_rpois <- function(ptr, n, lambda) {
-  .Call("_dust_dust_rng_rpois", ptr, n, lambda)
+dust_rng_rpois <- function(ptr, n, r_lambda) {
+  .Call("_dust_dust_rng_rpois", ptr, n, r_lambda)
 }
 
 dust_rng_state <- function(ptr) {
