@@ -32,8 +32,8 @@ dust_rng_rnorm <- function(ptr, n, mean, sd) {
   .Call("_dust_dust_rng_rnorm", ptr, n, mean, sd)
 }
 
-dust_rng_rbinom <- function(ptr, n, size, prob) {
-  .Call("_dust_dust_rng_rbinom", ptr, n, size, prob)
+dust_rng_rbinom <- function(ptr, n, r_size, r_prob) {
+  .Call("_dust_dust_rng_rbinom", ptr, n, r_size, r_prob)
 }
 
 dust_rng_rpois <- function(ptr, n, lambda) {

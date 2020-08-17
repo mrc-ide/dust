@@ -1,6 +1,8 @@
 #include <cstring>
 #include <cpp11/external_pointer.hpp>
 #include <cpp11/raws.hpp>
+#include <cpp11/doubles.hpp>
+#include <cpp11/integers.hpp>
 #include <dust/rng.hpp>
 #include <dust/rng_interface.hpp>
 
@@ -80,15 +82,22 @@ std::vector<double> dust_rng_rnorm(SEXP ptr, int n, std::vector<double> mean,
 }
 
 [[cpp11::register]]
-std::vector<int> dust_rng_rbinom(SEXP ptr, int n, std::vector<int> size,
-                                 std::vector<double> prob) {
+cpp11::writable::integers dust_rng_rbinom(SEXP ptr, int n,
+                                          cpp11::integers r_size,
+                                          cpp11::doubles r_prob) {
   dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
+  int * size = INTEGER(r_size);
+  double * prob = REAL(r_prob);
+
+  cpp11::writable::integers ret = cpp11::writable::integers(n);
+  int * y = INTEGER(ret);
+
   const size_t n_generators = rng->size();
-  std::vector<int> y(n);
   for (size_t i = 0; i < (size_t)n; ++i) {
     y[i] = dust::distr::rbinom(rng->state(i % n_generators), size[i], prob[i]);
   }
-  return y;
+
+  return ret;
 }
 
 [[cpp11::register]]

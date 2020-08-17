@@ -63,10 +63,10 @@ extern "C" SEXP _dust_dust_rng_rnorm(SEXP ptr, SEXP n, SEXP mean, SEXP sd) {
   END_CPP11
 }
 // dust_rng.cpp
-std::vector<int> dust_rng_rbinom(SEXP ptr, int n, std::vector<int> size, std::vector<double> prob);
-extern "C" SEXP _dust_dust_rng_rbinom(SEXP ptr, SEXP n, SEXP size, SEXP prob) {
+cpp11::writable::integers dust_rng_rbinom(SEXP ptr, int n, cpp11::integers r_size, cpp11::doubles r_prob);
+extern "C" SEXP _dust_dust_rng_rbinom(SEXP ptr, SEXP n, SEXP r_size, SEXP r_prob) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_rbinom(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<std::vector<int>>>(size), cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(prob)));
+    return cpp11::as_sexp(dust_rng_rbinom(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(r_size), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_prob)));
   END_CPP11
 }
 // dust_rng.cpp
