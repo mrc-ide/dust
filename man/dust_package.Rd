@@ -30,6 +30,17 @@ names such as this, compilation will fail due to duplicate
 symbols.
 
 We add "cpp11 attributes" to the created functions, and will run
-\code{\link{cpp_register}} on them once the generated code
+\code{\link[cpp:cpp_register]{cpp::cpp_register()}} on them once the generated code
 has been created.
+
+Your package needs a \code{src/Makevars} file to enable openmp (if your
+system supports it). If it is not present then a suitable Makevars
+will be written, containing\preformatted{PKG_CXXFLAGS=$(SHLIB_OPENMP_CXXFLAGS)
+PKG_LIBS=$(SHLIB_OPENMP_CXXFLAGS)
+}
+
+following "Writing R Extensions" (see section "OpenMP support").
+If your package does contain a \code{src/Makevars} file we do not
+attempt to edit it but will error if it looks like it does not
+contain these lines or similar.
 }

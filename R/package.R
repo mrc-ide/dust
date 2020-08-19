@@ -9,8 +9,22 @@
 ##' symbols.
 ##'
 ##' We add "cpp11 attributes" to the created functions, and will run
-##' \code{\link{cpp_register}} on them once the generated code
+##' [cpp::cpp_register()] on them once the generated code
 ##' has been created.
+##'
+##' Your package needs a `src/Makevars` file to enable openmp (if your
+##' system supports it). If it is not present then a suitable Makevars
+##' will be written, containing
+##'
+##' ```
+##' PKG_CXXFLAGS=$(SHLIB_OPENMP_CXXFLAGS)
+##' PKG_LIBS=$(SHLIB_OPENMP_CXXFLAGS)
+##' ```
+##'
+##' following "Writing R Extensions" (see section "OpenMP support").
+##' If your package does contain a `src/Makevars` file we do not
+##' attempt to edit it but will error if it looks like it does not
+##' contain these lines or similar.
 ##'
 ##' @param path Path to the package
 ##'
@@ -56,11 +70,19 @@ dust_package <- function(path, quiet = FALSE, gpu = FALSE) {
   code_r <- c(dust_header("##"), vcapply(data, "[[", "r"))
   writeLines(code_r, file.path(path_r, "dust.R"))
 
+  pkg_makevars <- file.path(path, "src/Makevars")
   if (gpu) {
     template <- read_lines(dust_file("template/gpu/Makevars.pkg"))
     objects <- paste(sort(sub("\\.cpp", ".o", files)), collapse = " ")
     writeLines(glue_whisker(template, list(objects = objects)),
-               file.path(path, "src/Makevars"))
+               pkg_makevars)
+  } else {
+
+    if (file.exists(pkg_makevars)) {
+      package_validate_makevars_openmp(read_lines(pkg_makevars))
+    } else {
+      writeLines(read_lines(dust_file("template/Makevars.pkg")), pkg_makevars)
+    }
   }
 
   ## 5. compile attributes
@@ -167,5 +189,15 @@ package_generate <- function(filename, gpu) {
     code_cpp <- glue_whisker(template_cpp, data)
     src <- set_names(code_cpp, basename(filename))
     list(src = src, r = code_r)
+  }
+}
+
+
+package_validate_makevars_openmp <- function(text) {
+  ok <- grepl("PKG_CXXFLAGS", text) &&
+    grepl("PKG_LIBS", text) &&
+    grepl("SHLIB_OPENMP_CXXFLAGS", text)
+  if (!ok) {
+    stop("Package has a 'src/Makevars' but no openmp flags support")
   }
 }

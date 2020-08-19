@@ -11,6 +11,11 @@ test_that("validate package", {
   path <- dust_package(path)
   expect_false(any(grepl("##'", readLines(file.path(path, "R", "dust.R")))))
 
+  expect_true(file.exists(file.path(path, "src/Makevars")))
+  expect_equal(
+    readLines(file.path(path, "src/Makevars")),
+    readLines(dust_file("template/Makevars.pkg")))
+
   pkgbuild::compile_dll(path, quiet = TRUE)
   res <- pkgload::load_all(path)
   w <- res$env$walk$new(list(sd = 1), 0, 100)
@@ -144,4 +149,29 @@ test_that("Validate NAMESPACE from dust_package", {
   expect_error(
     dust_package(path),
     "Did not find a useDynLib call in NAMESPACE")
+})
+
+
+test_that("Validate openmp support", {
+  text <- read_lines(dust_file("template/Makevars.pkg"))
+  expect_silent(package_validate_makevars_openmp(text))
+  msg <- "Package has a 'src/Makevars' but no openmp flags support"
+  expect_error(
+    package_validate_makevars_openmp(""),
+    msg)
+  expect_error(
+    package_validate_makevars_openmp("PKG_CXXFLAGS=$(SHLIB_OPENMP_CXXFLAGS)"),
+    msg)
+  expect_error(
+    package_validate_makevars_openmp("PKG_LIBS=$(SHLIB_OPENMP_CXXFLAGS)"),
+    msg)
+})
+
+
+test_that("Validate openmp support in real package", {
+  path <- create_test_package()
+  file.create(file.path(path, "src/Makevars"))
+  expect_error(
+    dust_package(path),
+    "Package has a 'src/Makevars' but no openmp flags support")
 })
