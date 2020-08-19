@@ -9,7 +9,7 @@
 ##' symbols.
 ##'
 ##' We add "cpp11 attributes" to the created functions, and will run
-##' [cpp::cpp_register()] on them once the generated code
+##' [cpp11::cpp_register()] on them once the generated code
 ##' has been created.
 ##'
 ##' Your package needs a `src/Makevars` file to enable openmp (if your
@@ -77,7 +77,6 @@ dust_package <- function(path, quiet = FALSE, gpu = FALSE) {
     writeLines(glue_whisker(template, list(objects = objects)),
                pkg_makevars)
   } else {
-
     if (file.exists(pkg_makevars)) {
       package_validate_makevars_openmp(read_lines(pkg_makevars))
     } else {

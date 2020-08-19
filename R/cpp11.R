@@ -88,6 +88,10 @@ dust_sir_simulate <- function(r_steps, r_data, r_state, r_index, n_threads, r_se
   .Call("_dust_dust_sir_simulate", r_steps, r_data, r_state, r_index, n_threads, r_seed)
 }
 
+dust_sir_has_openmp <- function() {
+  .Call("_dust_dust_sir_has_openmp")
+}
+
 dust_variable_alloc <- function(r_data, step, n_particles, n_threads, r_seed) {
   .Call("_dust_dust_variable_alloc", r_data, step, n_particles, n_threads, r_seed)
 }
@@ -126,6 +130,10 @@ dust_variable_rng_state <- function(ptr, first_only) {
 
 dust_variable_simulate <- function(r_steps, r_data, r_state, r_index, n_threads, r_seed) {
   .Call("_dust_dust_variable_simulate", r_steps, r_data, r_state, r_index, n_threads, r_seed)
+}
+
+dust_variable_has_openmp <- function() {
+  .Call("_dust_dust_variable_has_openmp")
 }
 
 dust_volatility_alloc <- function(r_data, step, n_particles, n_threads, r_seed) {
@@ -168,6 +176,10 @@ dust_volatility_simulate <- function(r_steps, r_data, r_state, r_index, n_thread
   .Call("_dust_dust_volatility_simulate", r_steps, r_data, r_state, r_index, n_threads, r_seed)
 }
 
+dust_volatility_has_openmp <- function() {
+  .Call("_dust_dust_volatility_has_openmp")
+}
+
 dust_walk_alloc <- function(r_data, step, n_particles, n_threads, r_seed) {
   .Call("_dust_dust_walk_alloc", r_data, step, n_particles, n_threads, r_seed)
 }
@@ -206,4 +218,8 @@ dust_walk_rng_state <- function(ptr, first_only) {
 
 dust_walk_simulate <- function(r_steps, r_data, r_state, r_index, n_threads, r_seed) {
   .Call("_dust_dust_walk_simulate", r_steps, r_data, r_state, r_index, n_threads, r_seed)
+}
+
+dust_walk_has_openmp <- function() {
+  .Call("_dust_dust_walk_has_openmp")
 }

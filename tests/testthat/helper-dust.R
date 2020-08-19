@@ -3,11 +3,6 @@ r6_private <- function(x) {
 }
 
 
-has_openmp <- function() {
-  openmp_info()$has_openmp
-}
-
-
 create_test_package <- function(name = "pkg", path = tempfile(),
                                 examples = c("walk.cpp", "sir.cpp")) {
   dir.create(path, FALSE, TRUE)

@@ -180,5 +180,15 @@
     ##' the first particle, followed by jumps for each subsequent particle.
     rng_state = function(first_only = FALSE) {
       dust_{{name}}_rng_state(private$ptr_, first_only)
+    },
+
+    ##' @description
+    ##' Returns a logical, indicating if this model was compiled with
+    ##' "OpenMP" support, in which case it will react to the `n_threads`
+    ##' argument passed to the constructor. This method can alsobe used
+    ##' as a static method by running it as
+    ## `{{name}}$public_methods$has_openmp()`
+    has_openmp = function() {
+      dust_{{name}}_has_openmp()
     }
   ))

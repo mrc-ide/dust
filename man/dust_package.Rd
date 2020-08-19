@@ -30,7 +30,7 @@ names such as this, compilation will fail due to duplicate
 symbols.
 
 We add "cpp11 attributes" to the created functions, and will run
-\code{\link[cpp:cpp_register]{cpp::cpp_register()}} on them once the generated code
+\code{\link[cpp11:cpp_register]{cpp11::cpp_register()}} on them once the generated code
 has been created.
 
 Your package needs a \code{src/Makevars} file to enable openmp (if your

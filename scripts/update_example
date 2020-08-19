@@ -9,6 +9,7 @@ path <- withr::with_dir("tests/testthat",
 path <- dust_package(path, quiet = TRUE)
 file.copy(file.path(path, "R", "dust.R"), "R", overwrite = TRUE)
 unlink(file.path(path, "src", "cpp11.cpp"))
+unlink(file.path(path, "src", "Makevars"))
 file.copy(dir(file.path(path, "src"), full.names = TRUE), "src",
           overwrite = TRUE)
 cpp11::cpp_register()
