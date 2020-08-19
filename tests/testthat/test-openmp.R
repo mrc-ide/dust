@@ -127,3 +127,19 @@ test_that("detect compilation success, with support", {
     "dust::dust" = mock_dust,
     expect_true(has_openmp_compiler_test()))
 })
+
+
+test_that("dust_openmp_threads inteface works", {
+  expect_equal(
+    dust_openmp_threads(NULL),
+    dust_openmp_support()$limit)
+  expect_equal(
+    dust_openmp_threads(1000, action = "message"),
+    1000)
+  expect_equal(
+    dust_openmp_threads(1000, action = "fix"),
+    dust_openmp_support()$limit)
+  expect_equal(
+    dust_openmp_threads(1, action = "error"),
+    1)
+})
