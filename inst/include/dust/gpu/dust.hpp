@@ -171,7 +171,9 @@ public:
     CUDA_CALL(cudaMemcpy(y_flat_selected.data(), _d_y_out, y_flat_selected.size() * sizeof(real_t),
                          cudaMemcpyDefault));
 
+#ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
     for (size_t i = 0; i < _n_particles; ++i) {
       for (size_t j = 0; j < _index.size(); j++) {
         end_state[j + i * _index.size()] = y_flat_selected[i + j * _n_particles];
@@ -182,7 +184,9 @@ public:
   void state(std::vector<size_t> index,
              std::vector<real_t>& end_state) {
     y_to_host();
+#ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
     for (size_t i = 0; i < _n_particles; ++i) {
       for (size_t j = 0; j < index.size(); j++) {
         end_state[j + i * index.size()] = _y_flat[i + index[j] * _n_particles];
@@ -192,7 +196,9 @@ public:
 
   void state_full(std::vector<real_t>& end_state) {
     y_to_host();
+#ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
     for (size_t i = 0; i < _n_particles; ++i) {
       for (size_t j = 0; j < _state_size; j++) {
         end_state[j + i * _state_size] = _y_flat[i + j * _n_particles];

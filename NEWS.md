@@ -1,3 +1,7 @@
+# dust 0.4.7
+
+* `dust::dust_package()` validates that the package contains a suitable `src/Makevars` for use with openmp, or creates one if missing (#95)
+
 # dust 0.4.6
 
 * Some examples are now compiled into the package and available via `dust::dust_example()`, reducing the need for a compiler for exploration and making examples and testing faster (#89)
