@@ -105,7 +105,7 @@ openmp_info <- function() {
   env <- Sys.getenv(c("OMP_THREAD_LIMIT", "OMP_NUM_THREADS", "MC_CORES"))
   env <- set_names(as.list(as.integer(env)), names(env))
   info <- cpp_openmp_info()
-  info$mc.cores <- getOption("mc.cores", NA_integer_)
+  info[["mc.cores"]] <- getOption("mc.cores", NA_integer_)
 
   limit <- list()
   limit$limit_r <- getOption("mc.cores", as.integer(Sys.getenv("MC_CORES", 1)))
