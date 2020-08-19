@@ -15,7 +15,7 @@
 ##' dust::dust_openmp_support()
 ##'
 ##' # Support compiled into a generator
-##' walk <- dust::dust_examples("walk")
+##' walk <- dust::dust_example("walk")
 ##' walk$public_methods$has_openmp()
 ##'
 ##' # Support from an instance of that model
