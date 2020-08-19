@@ -423,8 +423,9 @@ the first particle, followed by jumps for each subsequent particle.}
 \subsection{Method \code{has_openmp()}}{
 Returns a logical, indicating if this model was compiled with
 "OpenMP" support, in which case it will react to the \code{n_threads}
-argument passed to the constructor. This method can alsobe used
-as a static method by running it as
+argument passed to the constructor. This method can also be used
+as a static method by running it directly
+as \code{dust_class$public_methods$has_openmp()}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$has_openmp()}\if{html}{\out{</div>}}
 }

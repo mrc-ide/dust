@@ -19,7 +19,7 @@
 ##' walk$public_methods$has_openmp()
 ##'
 ##' # Support from an instance of that model
-##' model <- walk$new(list(), 0, 1)
+##' model <- walk$new(list(sd = 1), 0, 1)
 ##' model$has_openmp()
 dust_openmp_support <- function(check_compile = FALSE) {
   info <- openmp_info()

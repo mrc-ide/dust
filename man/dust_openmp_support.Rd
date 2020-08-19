@@ -23,7 +23,7 @@ walk <- dust::dust_example("walk")
 walk$public_methods$has_openmp()
 
 # Support from an instance of that model
-model <- walk$new(list(), 0, 1)
+model <- walk$new(list(sd = 1), 0, 1)
 model$has_openmp()
 }
 \seealso{

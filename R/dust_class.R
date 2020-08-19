@@ -165,9 +165,9 @@ dust_class <- R6::R6Class(
     ##' @description
     ##' Returns a logical, indicating if this model was compiled with
     ##' "OpenMP" support, in which case it will react to the `n_threads`
-    ##' argument passed to the constructor. This method can alsobe used
-    ##' as a static method by running it as
-    ## `dust_class$public_methods$has_openmp()`
+    ##' argument passed to the constructor. This method can also be used
+    ##' as a static method by running it directly
+    ##' as `dust_class$public_methods$has_openmp()`
     has_openmp = function() {
     }
   ))
