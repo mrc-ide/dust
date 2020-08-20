@@ -89,10 +89,14 @@ has_openmp_compiler <- function() {
 }
 
 
+## This test uses the 'parallel' example, which as its update() method
+## returns the thread number by running omp_get_thread_num()
 has_openmp_compiler_test <- function() {
   tryCatch({
     gen <- dust(dust_file("examples/parallel.cpp"), quiet = TRUE)
-    gen$public_methods$has_openmp()
+    mod <- gen$new(list(sd = 1), 0, 1)
+    mod$run(1)
+    mod$state(2L) == 0
   }, error = function(e) FALSE)
 }
 

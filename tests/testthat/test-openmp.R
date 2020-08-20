@@ -111,21 +111,35 @@ test_that("detect compilation failure", {
 
 test_that("detect compilation success, no support", {
   skip_if_not_installed("mockery")
+  mock_state <- mockery::mock(-1)
   mock_dust <- mockery::mock(
-    list(public_methods = list(has_openmp = function() FALSE)))
+    R6::R6Class(public = list(
+                  initialize = function(...) NULL,
+                  run = function(...) NULL,
+                  state = function(...) mock_state(...))))
+
   with_mock(
     "dust::dust" = mock_dust,
     expect_false(has_openmp_compiler_test()))
+  mockery::expect_called(mock_state, 1L)
+  expect_equal(mockery::mock_args(mock_state)[[1]], list(2L))
 })
 
 
 test_that("detect compilation success, with support", {
   skip_if_not_installed("mockery")
+  mock_state <- mockery::mock(0)
   mock_dust <- mockery::mock(
-    list(public_methods = list(has_openmp = function() TRUE)))
+    R6::R6Class(public = list(
+                  initialize = function(...) NULL,
+                  run = function(...) NULL,
+                  state = function(...) mock_state(...))))
+
   with_mock(
     "dust::dust" = mock_dust,
     expect_true(has_openmp_compiler_test()))
+  mockery::expect_called(mock_state, 1L)
+  expect_equal(mockery::mock_args(mock_state)[[1]], list(2L))
 })
 
 
