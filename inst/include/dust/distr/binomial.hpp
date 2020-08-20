@@ -13,7 +13,7 @@ template <typename T>
 T fast_pow(T x, int n) {
   T pow = 1.0;
   if (n != 0) {
-    for(;;) {
+    while (true) {
       if(n & 01) {
         pow *= x;
       }
@@ -40,10 +40,7 @@ T binomial_inversion(rng_state_t<T>& rng_state, int n, T p) {
   const T g = r * (n + 1);
   T f = fast_pow(q, n);
   int k = 0;
-  for (;;) {
-    if (u < f) {
-      break;
-    }
+  while (u >= f) {
     u -= f;
     k++;
     f *= (g / k - r);
