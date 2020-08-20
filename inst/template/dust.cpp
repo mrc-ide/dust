@@ -62,3 +62,12 @@ SEXP dust_{{name}}_simulate(cpp11::sexp r_steps,
   return dust_simulate<{{type}}>(r_steps, r_data, r_state, r_index,
                                  n_threads, r_seed);
 }
+
+[[cpp11::register]]
+bool dust_{{name}}_has_openmp() {
+#ifdef _OPENMP
+  return true;
+#else
+  return false;
+#endif
+}

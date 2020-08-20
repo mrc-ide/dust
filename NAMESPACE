@@ -3,6 +3,8 @@
 export(dust)
 export(dust_example)
 export(dust_iterate)
+export(dust_openmp_support)
+export(dust_openmp_threads)
 export(dust_package)
 export(dust_rng)
 export(dust_rng_state_long_jump)

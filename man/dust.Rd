@@ -165,6 +165,7 @@ obj$state()
 \item \href{#method-info}{\code{dust_class$info()}}
 \item \href{#method-data}{\code{dust_class$data()}}
 \item \href{#method-rng_state}{\code{dust_class$rng_state()}}
+\item \href{#method-has_openmp}{\code{dust_class$has_openmp()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -415,5 +416,19 @@ the first particle, followed by jumps for each subsequent particle.}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-has_openmp"></a>}}
+\if{latex}{\out{\hypertarget{method-has_openmp}{}}}
+\subsection{Method \code{has_openmp()}}{
+Returns a logical, indicating if this model was compiled with
+"OpenMP" support, in which case it will react to the \code{n_threads}
+argument passed to the constructor. This method can also be used
+as a static method by running it directly
+as \code{dust_class$public_methods$has_openmp()}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$has_openmp()}\if{html}{\out{</div>}}
+}
+
 }
 }

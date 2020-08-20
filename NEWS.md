@@ -1,3 +1,7 @@
+# dust 0.4.8
+
+* `dust::dust_openmp_support()`, `dust::dust_openmp_threads()` and a method `$has_openmp()` on `dust` objects to make determining OpenMP support easier (#97)
+
 # dust 0.4.7
 
 * `dust::dust_package()` validates that the package contains a suitable `src/Makevars` for use with openmp, or creates one if missing (#95)

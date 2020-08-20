@@ -13,20 +13,17 @@ cpp11::writable::list cpp_openmp_info() {
   const int thread_limit = omp_get_thread_limit();
   static int openmp_version = _OPENMP;
   static bool has_openmp = true;
-  static bool has_monotonic = _OPENMP >= 201511;
 #else
   static int num_procs = NA_INTEGER;
   static int max_threads = NA_INTEGER;
   static int thread_limit = NA_INTEGER;
   static int openmp_version = NA_INTEGER;
   static bool has_openmp = false;
-  static bool has_monotonic = false;
 #endif
   using namespace cpp11::literals;
   return cpp11::writable::list({"num_procs"_nm = num_procs,
                                 "max_threads"_nm = max_threads,
                                 "thread_limit"_nm = thread_limit,
                                 "openmp_version"_nm = openmp_version,
-                                "has_openmp"_nm = has_openmp,
-                                "has_monotonic"_nm = has_monotonic});
+                                "has_openmp"_nm = has_openmp});
 }

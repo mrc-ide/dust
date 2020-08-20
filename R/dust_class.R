@@ -160,5 +160,14 @@ dust_class <- R6::R6Class(
     ##' a new [`dust`] object as the shorter version will be used for
     ##' the first particle, followed by jumps for each subsequent particle.
     rng_state = function(first_only = FALSE) {
+    },
+
+    ##' @description
+    ##' Returns a logical, indicating if this model was compiled with
+    ##' "OpenMP" support, in which case it will react to the `n_threads`
+    ##' argument passed to the constructor. This method can also be used
+    ##' as a static method by running it directly
+    ##' as `dust_class$public_methods$has_openmp()`
+    has_openmp = function() {
     }
   ))

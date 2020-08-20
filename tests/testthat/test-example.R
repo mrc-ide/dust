@@ -293,7 +293,7 @@ test_that("Basic threading test", {
   expect_equal(y22_1[1, ], y22_2[1, ])
   expect_equal(y12_1[1, ], y12_2[1, ])
 
-  if (has_openmp() && y0[2, 1] == 1) {
+  if (obj$has_openmp() && y0[2, 1] == 1) {
     ## OMP is enabled (note: this relies on implementation details of
     ## openmp and we'd need to change this for a CRAN release - what
     ## we'd expect to see is that 0 and 1 are both present, but as
@@ -432,4 +432,12 @@ test_that("can run volatility example", {
   obj <- res$new(list(), 0, 5000, seed = 1L)
   y <- drop(dust_iterate(obj, 0:100))
   expect_lt(diff(range(colMeans(y))), 0.5)
+})
+
+
+test_that("has_openmp can be called statically and normally", {
+  res <- dust_example("volatility")
+  expected <- openmp_info()$has_openmp
+  expect_equal(res$public_methods$has_openmp(), expected)
+  expect_equal(res$new(list(), 0, 1)$has_openmp(), expected)
 })
