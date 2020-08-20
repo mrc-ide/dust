@@ -129,7 +129,7 @@ test_that("detect compilation success, with support", {
 })
 
 
-test_that("dust_openmp_threads inteface works", {
+test_that("dust_openmp_threads interface works", {
   expect_equal(
     dust_openmp_threads(NULL),
     dust_openmp_support()$limit)
