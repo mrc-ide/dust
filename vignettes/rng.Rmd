@@ -134,14 +134,31 @@ bench::mark(
   check = FALSE)
 ```
 
-However, note that our `rbinom` implementation is about twice as slow as R's (it is derived from TensorFlow and has been written to facilitate running on a GPU).
+The difference between `unif_rand` and `runif` here is the cost of recycling the parameters, not the actual generation!
+
+Binomial distribution, small `n * p`, which uses an inversion algorithm
 
 ```{r}
+rng1 <- dust::dust_rng$new(seed = 1, n_generators = 1)
+n <- rep(9:10, length.out = 1000)
+p <- rep(c(0.1, 0.11), length.out = 1000)
 bench::mark(
-  rng1$rbinom(1000, 10L, 0.2),
-  rbinom(1000, 10, 0.2),
+  rng1$rbinom(1000, n, p),
+  rbinom(1000, n, p),
   time_unit = "us",
   check = FALSE)
 ```
 
-Practically, performance will vary based on the parameters of the distributions and the underlying algorithms, and the principle performance gain we hope to get here is driven by the ability to parallelise safely.
+(note we vary `n` and `p` here as we've optimised things for random parameter access).
+
+```{r}
+n <- rep(9999:10000, length.out = 1000)
+p <- rep(c(0.3, 0.31), length.out = 1000)
+bench::mark(
+  rng1$rbinom(1000, n, p),
+  rbinom(1000, n, p),
+  time_unit = "us",
+  check = FALSE)
+```
+
+Practically, performance will vary based on the parameters of the distributions and the underlying algorithms, and the principle performance gain we hope to get here is driven by the ability to parallelise safely rather than the speed of the draws themselves.

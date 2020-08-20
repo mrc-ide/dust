@@ -35,45 +35,45 @@ extern "C" SEXP _dust_dust_rng_long_jump(SEXP ptr) {
   END_CPP11
 }
 // dust_rng.cpp
-std::vector<double> dust_rng_unif_rand(SEXP ptr, int n);
+cpp11::writable::doubles dust_rng_unif_rand(SEXP ptr, int n);
 extern "C" SEXP _dust_dust_rng_unif_rand(SEXP ptr, SEXP n) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_rng_unif_rand(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n)));
   END_CPP11
 }
 // dust_rng.cpp
-std::vector<double> dust_rng_norm_rand(SEXP ptr, int n);
+cpp11::writable::doubles dust_rng_norm_rand(SEXP ptr, int n);
 extern "C" SEXP _dust_dust_rng_norm_rand(SEXP ptr, SEXP n) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_rng_norm_rand(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n)));
   END_CPP11
 }
 // dust_rng.cpp
-std::vector<double> dust_rng_runif(SEXP ptr, int n, std::vector<double> min, std::vector<double> max);
-extern "C" SEXP _dust_dust_rng_runif(SEXP ptr, SEXP n, SEXP min, SEXP max) {
+cpp11::writable::doubles dust_rng_runif(SEXP ptr, int n, cpp11::doubles r_min, cpp11::doubles r_max);
+extern "C" SEXP _dust_dust_rng_runif(SEXP ptr, SEXP n, SEXP r_min, SEXP r_max) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_runif(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(min), cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(max)));
+    return cpp11::as_sexp(dust_rng_runif(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_min), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_max)));
   END_CPP11
 }
 // dust_rng.cpp
-std::vector<double> dust_rng_rnorm(SEXP ptr, int n, std::vector<double> mean, std::vector<double> sd);
-extern "C" SEXP _dust_dust_rng_rnorm(SEXP ptr, SEXP n, SEXP mean, SEXP sd) {
+cpp11::writable::doubles dust_rng_rnorm(SEXP ptr, int n, cpp11::doubles r_mean, cpp11::doubles r_sd);
+extern "C" SEXP _dust_dust_rng_rnorm(SEXP ptr, SEXP n, SEXP r_mean, SEXP r_sd) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_rnorm(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(mean), cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(sd)));
+    return cpp11::as_sexp(dust_rng_rnorm(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_mean), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_sd)));
   END_CPP11
 }
 // dust_rng.cpp
-std::vector<int> dust_rng_rbinom(SEXP ptr, int n, std::vector<int> size, std::vector<double> prob);
-extern "C" SEXP _dust_dust_rng_rbinom(SEXP ptr, SEXP n, SEXP size, SEXP prob) {
+cpp11::writable::integers dust_rng_rbinom(SEXP ptr, int n, cpp11::integers r_size, cpp11::doubles r_prob);
+extern "C" SEXP _dust_dust_rng_rbinom(SEXP ptr, SEXP n, SEXP r_size, SEXP r_prob) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_rbinom(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<std::vector<int>>>(size), cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(prob)));
+    return cpp11::as_sexp(dust_rng_rbinom(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(r_size), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_prob)));
   END_CPP11
 }
 // dust_rng.cpp
-std::vector<int> dust_rng_rpois(SEXP ptr, int n, std::vector<double> lambda);
-extern "C" SEXP _dust_dust_rng_rpois(SEXP ptr, SEXP n, SEXP lambda) {
+cpp11::writable::integers dust_rng_rpois(SEXP ptr, int n, cpp11::doubles r_lambda);
+extern "C" SEXP _dust_dust_rng_rpois(SEXP ptr, SEXP n, SEXP r_lambda) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_rpois(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(lambda)));
+    return cpp11::as_sexp(dust_rng_rpois(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_lambda)));
   END_CPP11
 }
 // dust_rng.cpp

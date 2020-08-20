@@ -6,22 +6,47 @@
 namespace dust {
 namespace distr {
 
+// Faster version of pow(x, n) for integer 'n' by using
+// "exponentiation by squaring"
+// https://en.wikipedia.org/wiki/Exponentiation_by_squaring
 template <typename T>
-double binomial_inversion(rng_state_t<T>& rng_state,
-                          double n, double prob) {
-  double geom_sum = 0;
-  double num_geom = 0;
-
-  while (true) {
-    double r = dust::unif_rand<T, double>(rng_state);
-    double geom = std::ceil(std::log(r) / std::log1p(-prob));
-    geom_sum += geom;
-    if (geom_sum > n) {
-      break;
+T fast_pow(T x, int n) {
+  T pow = 1.0;
+  if (n != 0) {
+    while (true) {
+      if(n & 01) {
+        pow *= x;
+      }
+      if(n >>= 1) {
+        x *= x;
+      } else {
+        break;
+      }
     }
-    ++num_geom;
   }
-  return num_geom;
+  return pow;
+}
+
+// Binomial random numbers via inversion (for low np only!). Draw a
+// random number from U(0, 1) and find the 'n' up the distribution
+// (given p) that corresponds to this
+template <typename T>
+T binomial_inversion(rng_state_t<T>& rng_state, int n, T p) {
+  T u = dust::unif_rand<T>(rng_state);
+
+  // This is equivalent to qbinom(u, n, p)
+  const T q = 1 - p;
+  const T r = p / q;
+  const T g = r * (n + 1);
+  T f = fast_pow(q, n);
+  int k = 0;
+  while (u >= f) {
+    u -= f;
+    k++;
+    f *= (g / k - r);
+  }
+
+  return k;
 }
 
 inline double stirling_approx_tail(double k) {

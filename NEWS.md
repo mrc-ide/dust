@@ -1,3 +1,7 @@
+# dust 0.4.9
+
+* The "low `n * p`" branch of the binomial distribution now uses a slightly faster algorithm (#91)
+
 # dust 0.4.8
 
 * `dust::dust_openmp_support()`, `dust::dust_openmp_threads()` and a method `$has_openmp()` on `dust` objects to make determining OpenMP support easier (#97)
