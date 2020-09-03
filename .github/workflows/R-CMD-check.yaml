@@ -1,3 +1,5 @@
+# For help debugging build failures open an issue on the RStudio community with the 'github-actions' tag.
+# https://community.rstudio.com/new-topic?category=Package%20development&tags=github-actions
 on:
   push:
     branches:
@@ -51,9 +53,13 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
           restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
 
+      # This step is failing for us, so I've removed it for now. I
+      # think when it becomes needed it will start passing as it looks
+      # like we're getting an empty command coming through to sudo
       - name: Install system dependencies
         if: runner.os == 'Linux'
         run: |
+          set -x
           while read -r cmd
           do
             eval sudo $cmd
@@ -61,6 +67,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          install.packages(c("remotes"))
           remotes::install_deps(dependencies = TRUE)
           remotes::install_cran("rcmdcheck")
         shell: Rscript {0}
