@@ -68,6 +68,10 @@ jobs:
       - name: Install dependencies
         run: |
           install.packages(c("remotes"))
+          # Currently this fails
+          if (Sys.info()[["sysname"]] == "windows") {
+            remotes::install_github(c("r-lib/vctrs")
+          }
           remotes::install_deps(dependencies = TRUE)
           remotes::install_cran("rcmdcheck")
         shell: Rscript {0}
