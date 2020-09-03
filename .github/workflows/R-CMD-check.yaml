@@ -53,9 +53,6 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
           restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
 
-      # This step is failing for us, so I've removed it for now. I
-      # think when it becomes needed it will start passing as it looks
-      # like we're getting an empty command coming through to sudo
       - name: Install system dependencies
         if: runner.os == 'Linux'
         run: |
