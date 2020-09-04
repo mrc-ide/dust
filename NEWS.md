@@ -1,3 +1,7 @@
+# dust 0.4.11
+
+* `dust::dust_iterate` now copies names from the index as rownames (#101)
+
 # dust 0.4.9
 
 * The "low `n * p`" branch of the binomial distribution now uses a slightly faster algorithm (#91)
