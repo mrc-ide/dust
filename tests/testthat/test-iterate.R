@@ -41,3 +41,16 @@ test_that("validate start time", {
   expect_error(dust_iterate(obj, 10:100),
                "Expected first 'steps' element to be 4")
 })
+
+
+test_that("Set names if provided", {
+  res <- dust_example("sir")
+
+  m1 <- dust_iterate(res$new(list(), 0, 100, seed = 1L), 0:100,
+                     1:3)
+  m2 <- dust_iterate(res$new(list(), 0, 100, seed = 1L), 0:100,
+                     c(S = 1L, I = 2L, R = 3L))
+
+  expect_equal(unname(m1), unname(m2))
+  expect_equal(rownames(m2), c("S", "I", "R"))
+})

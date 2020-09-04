@@ -52,5 +52,6 @@ dust_iterate <- function(model, steps, index = NULL) {
     model$run(steps[[i]])
     res[, , i] <- model$state(index)
   }
+  rownames(res) <- names(index)
   res
 }
