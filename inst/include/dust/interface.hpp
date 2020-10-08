@@ -245,6 +245,20 @@ SEXP dust_rng_state(SEXP ptr, bool first_only) {
   return ret;
 }
 
+template <typename T>
+void dust_set_rng_state(SEXP ptr, cpp11::raws rng_state) {
+  Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  auto prev_state = obj->rng_state();
+  size_t len = prev_state.size() * sizeof(uint64_t);
+  if ((size_t)rng_state.size() != len) {
+    cpp11::stop("'rng_state' must be a raw vector of length %d (but was %d)",
+                len, rng_state.size());
+  }
+  std::vector<uint64_t> data(prev_state.size());
+  std::memcpy(data.data(), RAW(rng_state), len);
+  obj->set_rng_state(data);
+}
+
 // Trivial default implementation of a method for getting back
 // arbitrary information from the object.
 template <typename T>

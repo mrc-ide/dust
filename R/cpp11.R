@@ -84,6 +84,10 @@ dust_sir_rng_state <- function(ptr, first_only) {
   .Call("_dust_dust_sir_rng_state", ptr, first_only)
 }
 
+dust_sir_set_rng_state <- function(ptr, rng_state) {
+  .Call("_dust_dust_sir_set_rng_state", ptr, rng_state)
+}
+
 dust_sir_simulate <- function(r_steps, r_data, r_state, r_index, n_threads, r_seed) {
   .Call("_dust_dust_sir_simulate", r_steps, r_data, r_state, r_index, n_threads, r_seed)
 }
@@ -126,6 +130,10 @@ dust_variable_reorder <- function(ptr, r_index) {
 
 dust_variable_rng_state <- function(ptr, first_only) {
   .Call("_dust_dust_variable_rng_state", ptr, first_only)
+}
+
+dust_variable_set_rng_state <- function(ptr, rng_state) {
+  .Call("_dust_dust_variable_set_rng_state", ptr, rng_state)
 }
 
 dust_variable_simulate <- function(r_steps, r_data, r_state, r_index, n_threads, r_seed) {
@@ -172,6 +180,10 @@ dust_volatility_rng_state <- function(ptr, first_only) {
   .Call("_dust_dust_volatility_rng_state", ptr, first_only)
 }
 
+dust_volatility_set_rng_state <- function(ptr, rng_state) {
+  .Call("_dust_dust_volatility_set_rng_state", ptr, rng_state)
+}
+
 dust_volatility_simulate <- function(r_steps, r_data, r_state, r_index, n_threads, r_seed) {
   .Call("_dust_dust_volatility_simulate", r_steps, r_data, r_state, r_index, n_threads, r_seed)
 }
@@ -214,6 +226,10 @@ dust_walk_reorder <- function(ptr, r_index) {
 
 dust_walk_rng_state <- function(ptr, first_only) {
   .Call("_dust_dust_walk_rng_state", ptr, first_only)
+}
+
+dust_walk_set_rng_state <- function(ptr, rng_state) {
+  .Call("_dust_dust_walk_set_rng_state", ptr, rng_state)
 }
 
 dust_walk_simulate <- function(r_steps, r_data, r_state, r_index, n_threads, r_seed) {

@@ -149,6 +149,41 @@ test_that("get rng state", {
 })
 
 
+test_that("set rng state", {
+  res <- dust_example("walk")
+  seed <- 1
+  np <- 10
+  obj <- res$new(list(sd = 1), 0L, np, seed = seed)
+  state <- obj$rng_state()
+
+  ans <- obj$run(20)
+  obj$set_rng_state(state)
+
+  expect_equal(obj$run(40), 2 * ans)
+})
+
+
+test_that("set rng state", {
+  res <- dust_example("walk")
+  seed <- 1
+  np <- 10
+  obj <- res$new(list(sd = 1), 0L, np, seed = seed)
+  expect_error(obj$set_rng_state(1)) # cpp11 error, don't test the message
+  expect_error(
+    obj$set_rng_state(as.raw(1)),
+    "'rng_state' must be a raw vector of length 320 (but was 1)",
+    fixed = TRUE)
+  expect_error(
+    obj$set_rng_state(as.raw(0:255)),
+    "'rng_state' must be a raw vector of length 320 (but was 256)",
+    fixed = TRUE)
+  expect_error(
+    obj$set_rng_state(raw(1000)),
+    "'rng_state' must be a raw vector of length 320 (but was 1000)",
+    fixed = TRUE)
+})
+
+
 test_that("setting a named index returns names", {
   res <- dust(dust_file("examples/sirs.cpp"), quiet = TRUE)
   mod <- res$new(list(), 0, 10)

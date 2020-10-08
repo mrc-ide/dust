@@ -2,6 +2,8 @@
 examples <- c("sir.cpp", "variable.cpp", "volatility.cpp", "walk.cpp")
 
 setwd(here::here())
+unlink(file.path("src", examples))
+
 pkgload::load_all()
 path <- dust_file("examples/volatility.cpp")
 path <- withr::with_dir("tests/testthat",

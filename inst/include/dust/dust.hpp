@@ -219,6 +219,10 @@ public:
     return _rng.export_state();
   }
 
+  void set_rng_state(const std::vector<uint64_t>& rng_state) {
+    _rng.import_state(rng_state);
+  }
+
   // NOTE: it only makes sense to expose long_jump, and not jump,
   // because each rng stream is one jump away from the next.
   void rng_long_jump() {

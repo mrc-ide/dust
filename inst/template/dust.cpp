@@ -53,6 +53,12 @@ SEXP dust_{{name}}_rng_state(SEXP ptr, bool first_only) {
 }
 
 [[cpp11::register]]
+SEXP dust_{{name}}_set_rng_state(SEXP ptr, cpp11::raws rng_state) {
+  dust_set_rng_state<{{type}}>(ptr, rng_state);
+  return R_NilValue;
+}
+
+[[cpp11::register]]
 SEXP dust_{{name}}_simulate(cpp11::sexp r_steps,
                             cpp11::list r_data,
                             cpp11::doubles_matrix r_state,

@@ -162,6 +162,19 @@ dust_class <- R6::R6Class(
     rng_state = function(first_only = FALSE) {
     },
 
+    ##' @description Set the random number state for this model. This
+    ##' replaces the RNG state that the model is using with a state of
+    ##' your choosing, saved out from a different model object. This method
+    ##' is designed to support advanced use cases where it is easier to
+    ##' manipulate the state of the random number generator than the
+    ##' internal state of the dust object.
+    ##'
+    ##' @param rng_state A random number state, as saved out by the
+    ##' `$rng_state()` method. Note that unlike `seed` as passed to the
+    ##' constructor, this *must* be a raw vector of the expected length.
+    set_rng_state = function(rng_state) {
+    },
+
     ##' @description
     ##' Returns a logical, indicating if this model was compiled with
     ##' "OpenMP" support, in which case it will react to the `n_threads`

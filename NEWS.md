@@ -1,3 +1,7 @@
+# dust 0.4.12
+
+* New `$set_rng_state()` method, the inverse to `$rng_state()` for taking a previously saved state and setting it into a model (#??)
+
 # dust 0.4.11
 
 * `dust::dust_iterate` now copies names from the index as rownames (#101)
