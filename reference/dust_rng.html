@@ -82,7 +82,7 @@ primarily meant for debugging and testing." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.11</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.12</span>
       </span>
     </div>
 
@@ -152,7 +152,7 @@ primarily meant for debugging and testing.</p>
     <h2 class="hasAnchor" id="methods"><a class="anchor" href="#methods"></a>Methods</h2>
 
     
-<h3>Public methods</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Public methods</h3>
 
 <ul>
 <li><p><a href='#method-new'><code>dust_rng$new()</code></a></p></li>
@@ -168,12 +168,12 @@ primarily meant for debugging and testing.</p>
 <li><p><a href='#method-state'><code>dust_rng$state()</code></a></p></li>
 </ul>
 <p><hr>
-<a id="method-new"></a></p><h3>Method <code>new()</code></h3>
-<p>Create a <code>dust_rng</code> object</p><h3>Usage</h3>
-<p><div class="r"></p><pre><span class='no'>dust_rng</span>$<span class='fu'>new</span>(<span class='no'>seed</span>, <span class='kw'>n_generators</span> <span class='kw'>=</span> <span class='fl'>1L</span>)</pre><p></div></p>
+<a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
+<p>Create a <code>dust_rng</code> object</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_rng</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>seed</span>, n_generators <span class='op'>=</span> <span class='fl'>1L</span><span class='op'>)</span></pre><p></div></p>
 
-<h3>Arguments</h3>
-<p><div class="arguments"></p><dl'>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
 <dt><code>seed</code></dt><dd><p>The seed, as an integer or as a raw vector.</p></dd>
 
 <dt><code>n_generators</code></dt><dd><p>The number of generators to use. While this
@@ -182,55 +182,55 @@ interleaved independent generators as dust would use in a model.</p></dd>
 
 </dl><p></div></p>
 <p><hr>
-<a id="method-size"></a></p><h3>Method <code>size()</code></h3>
-<p>Number of generators available</p><h3>Usage</h3>
-<p><div class="r"></p><pre><span class='no'>dust_rng</span>$<span class='fu'>size</span>()</pre><p></div></p>
+<a id="method-size"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>size()</code></h3>
+<p>Number of generators available</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_rng</span><span class='op'>$</span><span class='fu'>size</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
-<a id="method-jump"></a></p><h3>Method <code>jump()</code></h3>
+<a id="method-jump"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>jump()</code></h3>
 <p>The jump function for the generator, equivalent to
-2^128 numbers drawn from the generator.</p><h3>Usage</h3>
-<p><div class="r"></p><pre><span class='no'>dust_rng</span>$<span class='fu'>jump</span>()</pre><p></div></p>
+2^128 numbers drawn from the generator.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_rng</span><span class='op'>$</span><span class='fu'>jump</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
-<a id="method-long_jump"></a></p><h3>Method <code>long_jump()</code></h3>
+<a id="method-long_jump"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>long_jump()</code></h3>
 <p>The <code>long_jump</code> function for the generator, equivalent
 to 2^192 numbers drawn from the generator.
-Generate <code>n</code> numbers from a standard uniform distribution</p><h3>Usage</h3>
-<p><div class="r"></p><pre><span class='no'>dust_rng</span>$<span class='fu'>long_jump</span>()</pre><p></div></p>
+Generate <code>n</code> numbers from a standard uniform distribution</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_rng</span><span class='op'>$</span><span class='fu'>long_jump</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
-<a id="method-unif_rand"></a></p><h3>Method <code>unif_rand()</code></h3>
+<a id="method-unif_rand"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>unif_rand()</code></h3>
 
-<h3>Usage</h3>
-<p><div class="r"></p><pre><span class='no'>dust_rng</span>$<span class='fu'>unif_rand</span>(<span class='no'>n</span>)</pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_rng</span><span class='op'>$</span><span class='fu'>unif_rand</span><span class='op'>(</span><span class='va'>n</span><span class='op'>)</span></pre><p></div></p>
 
-<h3>Arguments</h3>
-<p><div class="arguments"></p><dl'>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
 <dt><code>n</code></dt><dd><p>Number of samples to draw
 Generate <code>n</code> numbers from a standard normal distribution</p></dd>
 
 </dl><p></div></p>
 <p><hr>
-<a id="method-norm_rand"></a></p><h3>Method <code>norm_rand()</code></h3>
+<a id="method-norm_rand"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>norm_rand()</code></h3>
 
-<h3>Usage</h3>
-<p><div class="r"></p><pre><span class='no'>dust_rng</span>$<span class='fu'>norm_rand</span>(<span class='no'>n</span>)</pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_rng</span><span class='op'>$</span><span class='fu'>norm_rand</span><span class='op'>(</span><span class='va'>n</span><span class='op'>)</span></pre><p></div></p>
 
-<h3>Arguments</h3>
-<p><div class="arguments"></p><dl'>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
 <dt><code>n</code></dt><dd><p>Number of samples to draw
 Generate <code>n</code> numbers from a uniform distribution</p></dd>
 
 </dl><p></div></p>
 <p><hr>
-<a id="method-runif"></a></p><h3>Method <code><a href='https://rdrr.io/r/stats/Uniform.html'>runif()</a></code></h3>
+<a id="method-runif"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/stats/Uniform.html'>runif()</a></code></h3>
 
-<h3>Usage</h3>
-<p><div class="r"></p><pre><span class='no'>dust_rng</span>$<span class='fu'><a href='https://rdrr.io/r/stats/Uniform.html'>runif</a></span>(<span class='no'>n</span>, <span class='no'>min</span>, <span class='no'>max</span>)</pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_rng</span><span class='op'>$</span><span class='fu'>runif</span><span class='op'>(</span><span class='va'>n</span>, <span class='va'>min</span>, <span class='va'>max</span><span class='op'>)</span></pre><p></div></p>
 
-<h3>Arguments</h3>
-<p><div class="arguments"></p><dl'>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
 <dt><code>n</code></dt><dd><p>Number of samples to draw</p></dd>
 
 <dt><code>min</code></dt><dd><p>The minimum of the distribution (length 1 or n)</p></dd>
@@ -240,13 +240,13 @@ Generate <code>n</code> numbers from a normal distribution</p></dd>
 
 </dl><p></div></p>
 <p><hr>
-<a id="method-rnorm"></a></p><h3>Method <code><a href='https://rdrr.io/r/stats/Normal.html'>rnorm()</a></code></h3>
+<a id="method-rnorm"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/stats/Normal.html'>rnorm()</a></code></h3>
 
-<h3>Usage</h3>
-<p><div class="r"></p><pre><span class='no'>dust_rng</span>$<span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span>(<span class='no'>n</span>, <span class='no'>mean</span>, <span class='no'>sd</span>)</pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_rng</span><span class='op'>$</span><span class='fu'>rnorm</span><span class='op'>(</span><span class='va'>n</span>, <span class='va'>mean</span>, <span class='va'>sd</span><span class='op'>)</span></pre><p></div></p>
 
-<h3>Arguments</h3>
-<p><div class="arguments"></p><dl'>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
 <dt><code>n</code></dt><dd><p>Number of samples to draw</p></dd>
 
 <dt><code>mean</code></dt><dd><p>The mean of the distribution (length 1 or n)</p></dd>
@@ -256,13 +256,13 @@ Generate <code>n</code> numbers from a binomial distribution</p></dd>
 
 </dl><p></div></p>
 <p><hr>
-<a id="method-rbinom"></a></p><h3>Method <code><a href='https://rdrr.io/r/stats/Binomial.html'>rbinom()</a></code></h3>
+<a id="method-rbinom"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/stats/Binomial.html'>rbinom()</a></code></h3>
 
-<h3>Usage</h3>
-<p><div class="r"></p><pre><span class='no'>dust_rng</span>$<span class='fu'><a href='https://rdrr.io/r/stats/Binomial.html'>rbinom</a></span>(<span class='no'>n</span>, <span class='no'>size</span>, <span class='no'>prob</span>)</pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_rng</span><span class='op'>$</span><span class='fu'>rbinom</span><span class='op'>(</span><span class='va'>n</span>, <span class='va'>size</span>, <span class='va'>prob</span><span class='op'>)</span></pre><p></div></p>
 
-<h3>Arguments</h3>
-<p><div class="arguments"></p><dl'>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
 <dt><code>n</code></dt><dd><p>Number of samples to draw</p></dd>
 
 <dt><code>size</code></dt><dd><p>The number of trials (zero or more, length 1 or n)</p></dd>
@@ -273,44 +273,50 @@ Generate <code>n</code> numbers from a Poisson distribution</p></dd>
 
 </dl><p></div></p>
 <p><hr>
-<a id="method-rpois"></a></p><h3>Method <code><a href='https://rdrr.io/r/stats/Poisson.html'>rpois()</a></code></h3>
+<a id="method-rpois"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/stats/Poisson.html'>rpois()</a></code></h3>
 
-<h3>Usage</h3>
-<p><div class="r"></p><pre><span class='no'>dust_rng</span>$<span class='fu'><a href='https://rdrr.io/r/stats/Poisson.html'>rpois</a></span>(<span class='no'>n</span>, <span class='no'>lambda</span>)</pre><p></div></p>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_rng</span><span class='op'>$</span><span class='fu'>rpois</span><span class='op'>(</span><span class='va'>n</span>, <span class='va'>lambda</span><span class='op'>)</span></pre><p></div></p>
 
-<h3>Arguments</h3>
-<p><div class="arguments"></p><dl'>
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
 <dt><code>n</code></dt><dd><p>Number of samples to draw</p></dd>
 
 <dt><code>lambda</code></dt><dd><p>The mean (zero or more, length 1 or n)</p></dd>
 
 </dl><p></div></p>
 <p><hr>
-<a id="method-state"></a></p><h3>Method <code><a href='https://rdrr.io/r/datasets/state.html'>state()</a></code></h3>
+<a id="method-state"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/datasets/state.html'>state()</a></code></h3>
 <p>Returns the state of the random number generator. This returns a
 raw vector of length 32 * n_generators. It is primarily intended for
 debugging as one cannot (yet) initialise a dust_rng object with this
-state.</p><h3>Usage</h3>
-<p><div class="r"></p><pre><span class='no'>dust_rng</span>$<span class='fu'><a href='https://rdrr.io/r/datasets/state.html'>state</a></span>()</pre><p></div></p>
+state.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_rng</span><span class='op'>$</span><span class='fu'>state</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>rng</span> <span class='kw'>&lt;-</span> <span class='no'>dust_rng</span>$<span class='fu'>new</span>(<span class='fl'>42</span>)
+    <pre class="examples"><div class='input'><span class='va'>rng</span> <span class='op'>&lt;-</span> <span class='va'>dust_rng</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='fl'>42</span><span class='op'>)</span>
 
 <span class='co'># Shorthand for Uniform(0, 1)</span>
-<span class='no'>rng</span>$<span class='fu'>unif_rand</span>(<span class='fl'>5</span>)</div><div class='output co'>#&gt; [1] 0.3614713 0.8809038 0.6228497 0.9013818 0.1483888</div><div class='input'>
+<span class='va'>rng</span><span class='op'>$</span><span class='fu'>unif_rand</span><span class='op'>(</span><span class='fl'>5</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] 0.3614713 0.8809038 0.6228497 0.9013818 0.1483888</div><div class='input'>
 <span class='co'># Shorthand for Normal(0, 1)</span>
-<span class='no'>rng</span>$<span class='fu'>norm_rand</span>(<span class='fl'>5</span>)</div><div class='output co'>#&gt; [1] -0.8431672  0.6774323 -0.3107898  0.1477770  0.7396579</div><div class='input'>
+<span class='va'>rng</span><span class='op'>$</span><span class='fu'>norm_rand</span><span class='op'>(</span><span class='fl'>5</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] -0.8431672  0.6774323 -0.3107898  0.1477770  0.7396579</div><div class='input'>
 <span class='co'># Uniform random numbers between min and max</span>
-<span class='no'>rng</span>$<span class='fu'><a href='https://rdrr.io/r/stats/Uniform.html'>runif</a></span>(<span class='fl'>5</span>, -<span class='fl'>2</span>, <span class='fl'>6</span>)</div><div class='output co'>#&gt; [1]  2.607481  4.946376 -1.320962  4.695593  2.196486</div><div class='input'>
+<span class='va'>rng</span><span class='op'>$</span><span class='fu'>runif</span><span class='op'>(</span><span class='fl'>5</span>, <span class='op'>-</span><span class='fl'>2</span>, <span class='fl'>6</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1]  2.607481  4.946376 -1.320962  4.695593  2.196486</div><div class='input'>
 <span class='co'># Normally distributed random numbers with mean and sd</span>
-<span class='no'>rng</span>$<span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span>(<span class='fl'>5</span>, <span class='fl'>4</span>, <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] 0.9321614 6.1411322 6.1099544 4.9142178 5.1787420</div><div class='input'>
+<span class='va'>rng</span><span class='op'>$</span><span class='fu'>rnorm</span><span class='op'>(</span><span class='fl'>5</span>, <span class='fl'>4</span>, <span class='fl'>2</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] 0.9321614 6.1411322 6.1099544 4.9142178 5.1787420</div><div class='input'>
 <span class='co'># Binomially distributed random numbers with size and prob</span>
-<span class='no'>rng</span>$<span class='fu'><a href='https://rdrr.io/r/stats/Binomial.html'>rbinom</a></span>(<span class='fl'>5</span>, <span class='fl'>10L</span>, <span class='fl'>0.3</span>)</div><div class='output co'>#&gt; [1] 5 3 2 1 3</div><div class='input'>
+<span class='va'>rng</span><span class='op'>$</span><span class='fu'>rbinom</span><span class='op'>(</span><span class='fl'>5</span>, <span class='fl'>10L</span>, <span class='fl'>0.3</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] 5 3 2 1 3</div><div class='input'>
 <span class='co'># Poisson distributed random numbers with mean lambda</span>
-<span class='no'>rng</span>$<span class='fu'><a href='https://rdrr.io/r/stats/Poisson.html'>rpois</a></span>(<span class='fl'>5</span>, <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] 2 2 1 3 3</div></pre>
+<span class='va'>rng</span><span class='op'>$</span><span class='fu'>rpois</span><span class='op'>(</span><span class='fl'>5</span>, <span class='fl'>2</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] 2 2 1 3 3</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -326,7 +332,7 @@ state.</p><h3>Usage</h3>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

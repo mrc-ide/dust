@@ -86,7 +86,7 @@ generating the same sequence of random numbers." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.11</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.12</span>
       </span>
     </div>
 
@@ -155,7 +155,7 @@ object will also be used, then the state needs jumping to prevent
 generating the same sequence of random numbers.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>dust_rng_state_long_jump</span>(<span class='no'>state</span>, <span class='kw'>times</span> <span class='kw'>=</span> <span class='fl'>1L</span>)</pre>
+    <pre class="usage"><span class='fu'>dust_rng_state_long_jump</span><span class='op'>(</span><span class='va'>state</span>, times <span class='op'>=</span> <span class='fl'>1L</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -176,20 +176,24 @@ larger than one will repeatedly advance the state.</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Create a new RNG object</span>
-<span class='no'>rng</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>dust</span><span class='kw ns'>::</span><span class='no'><a href='dust_rng.html'>dust_rng</a></span>$<span class='fu'>new</span>(<span class='fl'>1</span>)
+<span class='va'>rng</span> <span class='op'>&lt;-</span> <span class='fu'>dust</span><span class='fu'>::</span><span class='va'><a href='dust_rng.html'>dust_rng</a></span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span>
 
 <span class='co'># Serialise the state as a raw vector</span>
-<span class='no'>state</span> <span class='kw'>&lt;-</span> <span class='no'>rng</span>$<span class='fu'><a href='https://rdrr.io/r/datasets/state.html'>state</a></span>()
+<span class='va'>state</span> <span class='op'>&lt;-</span> <span class='va'>rng</span><span class='op'>$</span><span class='fu'>state</span><span class='op'>(</span><span class='op'>)</span>
 
 <span class='co'># We can advance this state</span>
-<span class='fu'>dust_rng_state_long_jump</span>(<span class='no'>state</span>)</div><div class='output co'>#&gt;  [1] 77 69 c2 44 65 7b dc 93 49 c7 93 ef dd 06 fc 47 cf af f3 d0 80 97 01 68 45
+<span class='fu'>dust_rng_state_long_jump</span><span class='op'>(</span><span class='va'>state</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;  [1] 77 69 c2 44 65 7b dc 93 49 c7 93 ef dd 06 fc 47 cf af f3 d0 80 97 01 68 45
 #&gt; [26] a2 90 f4 38 dd 4d 0a</div><div class='input'>
 <span class='co'># Which gives the same result as long_jump on the original generator</span>
-<span class='no'>rng</span>$<span class='fu'>long_jump</span>()$<span class='fu'><a href='https://rdrr.io/r/datasets/state.html'>state</a></span>()</div><div class='output co'>#&gt;  [1] 77 69 c2 44 65 7b dc 93 49 c7 93 ef dd 06 fc 47 cf af f3 d0 80 97 01 68 45
-#&gt; [26] a2 90 f4 38 dd 4d 0a</div><div class='input'><span class='no'>rng</span>$<span class='fu'>long_jump</span>()$<span class='fu'><a href='https://rdrr.io/r/datasets/state.html'>state</a></span>()</div><div class='output co'>#&gt;  [1] 28 e8 de 5c 48 69 5b c3 44 02 9b 76 47 bd 81 a1 77 f7 63 47 53 29 1c e2 3a
+<span class='va'>rng</span><span class='op'>$</span><span class='fu'>long_jump</span><span class='op'>(</span><span class='op'>)</span><span class='op'>$</span><span class='fu'>state</span><span class='op'>(</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;  [1] 77 69 c2 44 65 7b dc 93 49 c7 93 ef dd 06 fc 47 cf af f3 d0 80 97 01 68 45
+#&gt; [26] a2 90 f4 38 dd 4d 0a</div><div class='input'><span class='va'>rng</span><span class='op'>$</span><span class='fu'>long_jump</span><span class='op'>(</span><span class='op'>)</span><span class='op'>$</span><span class='fu'>state</span><span class='op'>(</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;  [1] 28 e8 de 5c 48 69 5b c3 44 02 9b 76 47 bd 81 a1 77 f7 63 47 53 29 1c e2 3a
 #&gt; [26] 0e 35 97 28 0a 59 c4</div><div class='input'>
 <span class='co'># Multiple jumps can be taken by using the "times" argument</span>
-<span class='fu'>dust_rng_state_long_jump</span>(<span class='no'>state</span>, <span class='fl'>2</span>)</div><div class='output co'>#&gt;  [1] 28 e8 de 5c 48 69 5b c3 44 02 9b 76 47 bd 81 a1 77 f7 63 47 53 29 1c e2 3a
+<span class='fu'>dust_rng_state_long_jump</span><span class='op'>(</span><span class='va'>state</span>, <span class='fl'>2</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;  [1] 28 e8 de 5c 48 69 5b c3 44 02 9b 76 47 bd 81 a1 77 f7 63 47 53 29 1c e2 3a
 #&gt; [26] 0e 35 97 28 0a 59 c4</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -206,7 +210,7 @@ larger than one will repeatedly advance the state.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

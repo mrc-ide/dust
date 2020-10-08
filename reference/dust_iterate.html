@@ -83,7 +83,7 @@ quick-and-dirty way of getting started with a model." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.11</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.12</span>
       </span>
     </div>
 
@@ -149,7 +149,7 @@ interesting with the data. It is provided mostly as a
 quick-and-dirty way of getting started with a model.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>dust_iterate</span>(<span class='no'>model</span>, <span class='no'>steps</span>, <span class='kw'>index</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>dust_iterate</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>steps</span>, index <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -178,24 +178,28 @@ that <code>output[i, j, k]</code> is the <code>i</code>th variable, <code>j</cod
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Same random walk example as in ?dust</span>
-<span class='no'>model</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>dust</span><span class='kw ns'>::</span><span class='fu'><a href='dust_example.html'>dust_example</a></span>(<span class='st'>"walk"</span>)
+<span class='va'>model</span> <span class='op'>&lt;-</span> <span class='fu'>dust</span><span class='fu'>::</span><span class='fu'><a href='dust_example.html'>dust_example</a></span><span class='op'>(</span><span class='st'>"walk"</span><span class='op'>)</span>
 
 <span class='co'># Create a model with 100 particles, starting at step 0</span>
-<span class='no'>obj</span> <span class='kw'>&lt;-</span> <span class='no'>model</span>$<span class='fu'>new</span>(<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>1</span>), <span class='fl'>0</span>, <span class='fl'>100</span>)
+<span class='va'>obj</span> <span class='op'>&lt;-</span> <span class='va'>model</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>sd <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span>, <span class='fl'>0</span>, <span class='fl'>100</span><span class='op'>)</span>
 
 <span class='co'># Steps that we want to report at:</span>
-<span class='no'>steps</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>0</span>, <span class='fl'>400</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>4</span>)
+<span class='va'>steps</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>400</span>, by <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span>
 
 <span class='co'># Run the simulation:</span>
-<span class='no'>res</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>dust</span><span class='kw ns'>::</span><span class='fu'>dust_iterate</span>(<span class='no'>obj</span>, <span class='no'>steps</span>)
+<span class='va'>res</span> <span class='op'>&lt;-</span> <span class='fu'>dust</span><span class='fu'>::</span><span class='fu'>dust_iterate</span><span class='op'>(</span><span class='va'>obj</span>, <span class='va'>steps</span><span class='op'>)</span>
 
 <span class='co'># Output is 1 x 100 x 100 (state, particle, time)</span>
-<span class='fu'><a href='https://rdrr.io/r/base/dim.html'>dim</a></span>(<span class='no'>res</span>)</div><div class='output co'>#&gt; [1]   1 100 101</div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/base/dim.html'>dim</a></span><span class='op'>(</span><span class='va'>res</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1]   1 100 101</div><div class='input'>
 <span class='co'># Dropping the first dimension and plotting, with the mean in red</span>
 <span class='co'># and the expectation in blue:</span>
-<span class='no'>xy</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span>(<span class='no'>res</span>[<span class='fl'>1</span>, , , <span class='kw'>drop</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>])
-<span class='fu'><a href='https://rdrr.io/r/graphics/matplot.html'>matplot</a></span>(<span class='no'>steps</span>, <span class='no'>xy</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>, <span class='kw'>lty</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"#00000033"</span>,
-        <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='st'>"Step"</span>, <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='st'>"Value"</span>)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/abline.html'>abline</a></span>(<span class='kw'>h</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>lty</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"blue"</span>)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(<span class='no'>steps</span>, <span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowMeans</a></span>(<span class='no'>xy</span>), <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"red"</span>, <span class='kw'>lwd</span> <span class='kw'>=</span> <span class='fl'>2</span>)</div><div class='img'><img src='dust_iterate-1.png' alt='' width='700' height='433' /></div></pre>
+<span class='va'>xy</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span><span class='op'>(</span><span class='va'>res</span><span class='op'>[</span><span class='fl'>1</span>, , , drop <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>]</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/graphics/matplot.html'>matplot</a></span><span class='op'>(</span><span class='va'>steps</span>, <span class='va'>xy</span>, type <span class='op'>=</span> <span class='st'>"l"</span>, lty <span class='op'>=</span> <span class='fl'>1</span>, col <span class='op'>=</span> <span class='st'>"#00000033"</span>,
+        xlab <span class='op'>=</span> <span class='st'>"Step"</span>, ylab <span class='op'>=</span> <span class='st'>"Value"</span><span class='op'>)</span>
+</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/abline.html'>abline</a></span><span class='op'>(</span>h <span class='op'>=</span> <span class='fl'>0</span>, lty <span class='op'>=</span> <span class='fl'>2</span>, col <span class='op'>=</span> <span class='st'>"blue"</span><span class='op'>)</span>
+</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span><span class='op'>(</span><span class='va'>steps</span>, <span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowMeans</a></span><span class='op'>(</span><span class='va'>xy</span><span class='op'>)</span>, col <span class='op'>=</span> <span class='st'>"red"</span>, lwd <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>
+</div><div class='img'><img src='dust_iterate-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -211,7 +215,7 @@ that <code>output[i, j, k]</code> is the <code>i</code>th variable, <code>j</cod
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

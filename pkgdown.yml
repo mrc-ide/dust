@@ -1,8 +1,8 @@
 pandoc: 2.7.3
-pkgdown: 1.5.1
+pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
   dust: dust.html
   rng: rng.html
-last_built: 2020-09-04T11:55Z
+last_built: 2020-10-08T16:20Z
 

@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.11</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.12</span>
       </span>
     </div>
 
@@ -143,7 +143,7 @@
     <p>Politely select a number of threads to use. See Details for the algorithm</p>
     </div>
 
-    <pre class="usage"><span class='fu'>dust_openmp_threads</span>(<span class='kw'>n</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>action</span> <span class='kw'>=</span> <span class='st'>"error"</span>)</pre>
+    <pre class="usage"><span class='fu'>dust_openmp_threads</span><span class='op'>(</span>n <span class='op'>=</span> <span class='cn'>NULL</span>, action <span class='op'>=</span> <span class='st'>"error"</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -186,9 +186,11 @@ that go into this calculation.</p>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Default number of threads; tries to pick something friendly,</span>
 <span class='co'># erring on the conservative side.</span>
-<span class='kw pkg'>dust</span><span class='kw ns'>::</span><span class='fu'>dust_openmp_threads</span>(<span class='kw'>NULL</span>)</div><div class='output co'>#&gt; [1] 1</div><div class='input'>
+<span class='fu'>dust</span><span class='fu'>::</span><span class='fu'>dust_openmp_threads</span><span class='op'>(</span><span class='cn'>NULL</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] 1</div><div class='input'>
 <span class='co'># Try to pick something silly and it will be reduced for you</span>
-<span class='kw pkg'>dust</span><span class='kw ns'>::</span><span class='fu'>dust_openmp_threads</span>(<span class='fl'>1000</span>, <span class='kw'>action</span> <span class='kw'>=</span> <span class='st'>"fix"</span>)</div><div class='output co'>#&gt; <span class='message'>Requested number of threads '1000' exceeds a limit of '1'</span>
+<span class='fu'>dust</span><span class='fu'>::</span><span class='fu'>dust_openmp_threads</span><span class='op'>(</span><span class='fl'>1000</span>, action <span class='op'>=</span> <span class='st'>"fix"</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>Requested number of threads '1000' exceeds a limit of '1'</span>
 #&gt; <span class='message'> See dust::dust_openmp_threads() for details</span></div><div class='output co'>#&gt; [1] 1</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -205,7 +207,7 @@ that go into this calculation.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

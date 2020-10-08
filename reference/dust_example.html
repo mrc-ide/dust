@@ -83,7 +83,7 @@ all &quot;toy&quot; examples, being small and fast to run." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.11</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.12</span>
       </span>
     </div>
 
@@ -149,7 +149,7 @@ having to compile code directly via <code><a href='dust.html'>dust()</a></code>.
 all "toy" examples, being small and fast to run.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>dust_example</span>(<span class='no'>name</span>)</pre>
+    <pre class="usage"><span class='fu'>dust_example</span><span class='op'>(</span><span class='va'>name</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -182,8 +182,9 @@ time step.</p></li>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
 <span class='co'># A SIR (Susceptible, Infected, Resistant) epidemiological model</span>
-<span class='no'>sir</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>dust</span><span class='kw ns'>::</span><span class='fu'>dust_example</span>(<span class='st'>"sir"</span>)
-<span class='no'>sir</span></div><div class='output co'>#&gt; &lt;dust&gt; object generator
+<span class='va'>sir</span> <span class='op'>&lt;-</span> <span class='fu'>dust</span><span class='fu'>::</span><span class='fu'>dust_example</span><span class='op'>(</span><span class='st'>"sir"</span><span class='op'>)</span>
+<span class='va'>sir</span>
+</div><div class='output co'>#&gt; &lt;dust&gt; object generator
 #&gt;   Public:
 #&gt;     initialize: function (data, step, n_particles, n_threads = 1L, seed = NULL) 
 #&gt;     name: function () 
@@ -199,6 +200,7 @@ time step.</p></li>
 #&gt;     info: function () 
 #&gt;     data: function () 
 #&gt;     rng_state: function (first_only = FALSE) 
+#&gt;     set_rng_state: function (rng_state) 
 #&gt;     has_openmp: function () 
 #&gt;   Private:
 #&gt;     data_: NULL
@@ -212,15 +214,16 @@ time step.</p></li>
 #&gt;   Locked class: FALSE
 #&gt;   Portable: TRUE</div><div class='input'>
 <span class='co'># Initialise the model at step 0 with 50 independent trajectories</span>
-<span class='no'>mod</span> <span class='kw'>&lt;-</span> <span class='no'>sir</span>$<span class='fu'>new</span>(<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(), <span class='fl'>0</span>, <span class='fl'>50</span>)
+<span class='va'>mod</span> <span class='op'>&lt;-</span> <span class='va'>sir</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='fl'>0</span>, <span class='fl'>50</span><span class='op'>)</span>
 
 <span class='co'># Run the model for 400 steps, collecting "infected" every 4th step</span>
-<span class='no'>steps</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>0</span>, <span class='fl'>400</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>4</span>)
-<span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>dust</span><span class='kw ns'>::</span><span class='fu'><a href='dust_iterate.html'>dust_iterate</a></span>(<span class='no'>mod</span>, <span class='no'>steps</span>, <span class='kw'>index</span> <span class='kw'>=</span> <span class='fl'>2L</span>)
+<span class='va'>steps</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>400</span>, by <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span>
+<span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fu'>dust</span><span class='fu'>::</span><span class='fu'><a href='dust_iterate.html'>dust_iterate</a></span><span class='op'>(</span><span class='va'>mod</span>, <span class='va'>steps</span>, index <span class='op'>=</span> <span class='fl'>2L</span><span class='op'>)</span>
 
 <span class='co'># A plot of our epidemic</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/matplot.html'>matplot</a></span>(<span class='no'>steps</span>, <span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/drop.html'>drop</a></span>(<span class='no'>y</span>)), <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>, <span class='kw'>lty</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"#00000044"</span>,
-        <span class='kw'>las</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='st'>"Step"</span>, <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='st'>"Number infected"</span>)</div><div class='img'><img src='dust_example-1.png' alt='' width='700' height='433' /></div></pre>
+<span class='fu'><a href='https://rdrr.io/r/graphics/matplot.html'>matplot</a></span><span class='op'>(</span><span class='va'>steps</span>, <span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/drop.html'>drop</a></span><span class='op'>(</span><span class='va'>y</span><span class='op'>)</span><span class='op'>)</span>, type <span class='op'>=</span> <span class='st'>"l"</span>, lty <span class='op'>=</span> <span class='fl'>1</span>, col <span class='op'>=</span> <span class='st'>"#00000044"</span>,
+        las <span class='op'>=</span> <span class='fl'>1</span>, xlab <span class='op'>=</span> <span class='st'>"Step"</span>, ylab <span class='op'>=</span> <span class='st'>"Number infected"</span><span class='op'>)</span>
+</div><div class='img'><img src='dust_example-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -236,7 +239,7 @@ time step.</p></li>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
