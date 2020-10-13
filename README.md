@@ -2,7 +2,7 @@
 
 <!-- badges: start -->
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
-[![R build status](https://github.com/mrc-ide/sircovid2/workflows/R-CMD-check/badge.svg)](https://github.com/mrc-ide/sircovid2/actions)
+[![R build status](https://github.com/mrc-ide/dust/workflows/R-CMD-check/badge.svg)](https://github.com/mrc-ide/dust/actions)
 [![Build status](https://badge.buildkite.com/bf7030c393da3ab92f65c63de87bb301b9657a8a9ac6dfb981.svg)](https://buildkite.com/mrc-ide/dust)
 [![CodeFactor](https://www.codefactor.io/repository/github/mrc-ide/dust/badge)](https://www.codefactor.io/repository/github/mrc-ide/dust)
 [![codecov.io](https://codecov.io/github/mrc-ide/dust/coverage.svg?branch=master)](https://codecov.io/github/mrc-ide/dust?branch=master)
