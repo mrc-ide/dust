@@ -115,7 +115,7 @@ inline double btrs(rng_state_t<T>& rng_state, double n, double p) {
 }
 
 template <typename real_t>
-int rbinom(rng_state_t<real_t>& rng_state, int n,
+int rbinom(rng_state_t<real_t> rng_state, int n,
            typename rng_state_t<real_t>::real_t p) {
   int draw;
 

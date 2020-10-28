@@ -28,7 +28,7 @@ public:
   }
 
   void update(size_t step, const real_t * state,
-              dust::rng_state_t<real_t>& rng_state,
+              dust::rng_state_t<real_t> rng_state,
               real_t * state_next) {
     for (size_t i = 0; i < data_.len; ++i) {
       state_next[i] =

@@ -25,7 +25,7 @@ public:
   __device__
   #endif
   void update(size_t step, const real_t * state,
-              dust::rng_state_t<real_t>& rng_state, real_t * state_next) {
+              dust::rng_state_t<real_t> rng_state, real_t * state_next) {
     const real_t x = state[0];
     state_next[0] = data_.alpha * x +
       data_.sigma * dust::distr::rnorm(rng_state, 0, 1);

@@ -19,7 +19,7 @@ public:
     return ret;
   }
   void update(size_t step, const real_t * state,
-              dust::rng_state_t<real_t>& rng_state,
+              dust::rng_state_t<real_t> rng_state,
               real_t * state_next) {
     real_t mean = state[0];
     state_next[0] = dust::distr::rnorm(rng_state, mean, data_.sd);
