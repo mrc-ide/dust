@@ -1,6 +1,10 @@
+# dust 0.4.15
+
+* The rng objects (`dust_rng`) also get a `$set_state()` method (primarily of debugging interest)
+
 # dust 0.4.12
 
-* New `$set_rng_state()` method, the inverse to `$rng_state()` for taking a previously saved state and setting it into a model (#??)
+* New `$set_rng_state()` method, the inverse to `$rng_state()` for taking a previously saved state and setting it into a model
 
 # dust 0.4.11
 
