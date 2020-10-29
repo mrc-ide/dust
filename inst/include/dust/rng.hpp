@@ -24,7 +24,7 @@ public:
       rng_state_t<T> s = state(i);
       if (i < n_seed) {
         for (size_t j = 0; j < len; ++j) {
-          s[j] = seed[i + len + j];
+          s[j] = seed[i * len + j];
         }
       } else {
         rng_state_t<T> prev = state(i - 1);
@@ -56,7 +56,7 @@ public:
   // that contains a pointer to the memory, offset as needed, and our
   // stride.
   rng_state_t<T> state(size_t i) {
-    return rng_state_t<T>(state_.data() + i * n_, n_);
+    return rng_state_t<T>(state_.data() + i, n_);
   }
 
   // Possibly nicer way of doing the above
@@ -64,27 +64,25 @@ public:
     return rng_state_t<T>(state_.data() + i * n_, n_);
   }
 
-  // NOTE: We might prefer to import/export state in block
-  // format. That is consistent with older versions of dust, and more
-  // consistent with subsetting, and more consistent with
-  // initialisation.
+  // We might make this optionally dump out the raw state, at least
+  // for debugging?
   std::vector<uint64_t> export_state() {
     const auto len = rng_state_t<T>::size();
-    std::vector<uint64_t> state(n_ * len);
+    std::vector<uint64_t> ret(n_ * len);
     for (size_t i = 0; i < n_; ++i) {
-      for (size_t j = 0; j < len; ++i) {
-        state[i * len + j] = state_[i + len * j];
+      for (size_t j = 0; j < len; ++j) {
+        ret[i * len + j] = state_[i + n_ * j];
       }
     }
-    return state;
+    return ret;
   }
 
   void import_state(const std::vector<uint64_t>& state) {
     const auto len = rng_state_t<T>::size();
     std::vector<uint64_t> ret(n_ * len);
     for (size_t i = 0; i < n_; ++i) {
-      for (size_t j = 0; j < len; ++i) {
-        state_[i + len * j] = state[i * len + j];
+      for (size_t j = 0; j < len; ++j) {
+        state_[i + n_ * j] = state[i * len + j];
       }
     }
   }
