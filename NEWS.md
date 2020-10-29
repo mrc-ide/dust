@@ -1,5 +1,6 @@
-# dust 0.4.15
+# dust 0.5.0
 
+* The required type for the rng state, as provided by `update` functions, has changed and is no longer a reference.
 * The rng objects (`dust_rng`) also get a `$set_state()` method (primarily of debugging interest)
 
 # dust 0.4.12
