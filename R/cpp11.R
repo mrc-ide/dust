@@ -44,6 +44,10 @@ dust_rng_state <- function(ptr) {
   .Call("_dust_dust_rng_state", ptr, PACKAGE = "dust")
 }
 
+dust_rng_set_state <- function(ptr, state) {
+  invisible(.Call("_dust_dust_rng_set_state", ptr, state, PACKAGE = "dust"))
+}
+
 cpp_openmp_info <- function() {
   .Call("_dust_cpp_openmp_info", PACKAGE = "dust")
 }

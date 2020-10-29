@@ -148,3 +148,19 @@ cpp11::writable::raws dust_rng_state(SEXP ptr) {
   std::memcpy(RAW(ret), state.data(), len);
   return ret;
 }
+
+[[cpp11::register]]
+void dust_rng_set_state(SEXP ptr, cpp11::raws state) {
+  dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
+
+  auto len_state = rng->size() * dust::rng_state_t<double>::size();
+  size_t len = len_state * sizeof(uint64_t);
+
+  if ((size_t)state.size() != len) {
+    cpp11::stop("'state' must be a raw vector of length %d (but was %d)",
+                len, state.size());
+  }
+  std::vector<uint64_t> data(len_state);
+  std::memcpy(data.data(), RAW(state), len);
+  rng->import_state(data);
+}
