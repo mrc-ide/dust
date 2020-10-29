@@ -23,7 +23,7 @@ public:
   }
 
   void update(size_t step, const real_t * state,
-              dust::rng_state_t<real_t>& rng_state,
+              dust::rng_state_t<real_t> rng_state,
               real_t * state_next) {
     double S = state[0];
     double I = state[1];

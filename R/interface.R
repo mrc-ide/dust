@@ -31,9 +31,8 @@
 ##'   - `size_t step`: the step number
 ##'   - `const double * state`: the state at the beginning of the
 ##'      step
-##'   - `dust::rng_state_t<real_t>& rng_state`: the dust random number
-##'     generator state - this *must* be a reference, as it will be modified
-##'     as random numbers are drawn
+##'   - `dust::rng_state_t<real_t> rng_state`: the dust random number
+##'     generator state
 ##'   - `double *state_next`: the end state of the model
 ##'     (to be written to by your function)
 ##'
