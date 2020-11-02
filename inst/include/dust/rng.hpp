@@ -16,8 +16,6 @@ class pRNG {
 public:
   pRNG(const size_t n, const std::vector<uint64_t>& seed) :
     n_(n), state_(n * rng_state_t<T>::size()) {
-    // TODO: This logic probably comes out into something easier to
-    // look at.
     auto len = rng_state_t<T>::size();
     auto n_seed = seed.size() / len;
     for (size_t i = 0; i < n; ++i) {
