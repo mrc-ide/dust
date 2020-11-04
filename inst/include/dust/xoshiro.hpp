@@ -88,7 +88,7 @@ inline std::vector<uint64_t> xoshiro_initial_seed(uint64_t seed) {
    to 2^128 calls to next(); it can be used to generate 2^128
    non-overlapping subsequences for parallel computations. */
 template <typename T>
-inline void xoshiro_jump(rng_state_t<T> state) {
+inline void xoshiro_jump(rng_state_t<T>& state) {
   static const uint64_t JUMP[] = { 0x180ec6d33cfd0aba, 0xd5a61266f0c9392c,
                                    0xa9582618e03fc9aa, 0x39abdc4529b1661c };
 
@@ -119,7 +119,7 @@ inline void xoshiro_jump(rng_state_t<T> state) {
    from each of which jump() will generate 2^64 non-overlapping
    subsequences for parallel distributed computations. */
 template <typename T>
-inline void xoshiro_long_jump(rng_state_t<T> state) {
+inline void xoshiro_long_jump(rng_state_t<T>& state) {
   static const uint64_t LONG_JUMP[] =
     { 0x76e15d3efefdcbbf, 0xc5004e441c522fb3,
       0x77710069854ee241, 0x39109bb02acbe635 };
@@ -147,7 +147,7 @@ inline void xoshiro_long_jump(rng_state_t<T> state) {
 }
 
 template <typename T, typename U = T>
-U unif_rand(rng_state_t<T> state) {
+U unif_rand(rng_state_t<T>& state) {
   const uint64_t value = xoshiro_next(state);
   return U(value) / U(std::numeric_limits<uint64_t>::max());
 }

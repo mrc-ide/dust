@@ -44,13 +44,15 @@ public:
 
   void jump() {
     for (size_t i = 0; i < n_; ++i) {
-      xoshiro_jump(state(i));
+      rng_state_t<T> s = state(i);
+      xoshiro_jump(s);
     }
   }
 
   void long_jump() {
     for (size_t i = 0; i < n_; ++i) {
-      xoshiro_long_jump(state(i));
+      rng_state_t<T> s = state(i);
+      xoshiro_long_jump(s);
     }
   }
 
