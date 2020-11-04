@@ -26,7 +26,7 @@ public:
   #ifdef __NVCC__
   __device__
   #endif
-  void update(size_t step, const real_t * state, dust::rng_state_t<real_t> rng_state, real_t * state_next) {
+  void update(size_t step, const real_t * state, dust::rng_state_t<real_t>& rng_state, real_t * state_next) {
     const real_t * x = state + 1;
     const real_t y = state[0];
     state_next[0] = y + internal.n;
