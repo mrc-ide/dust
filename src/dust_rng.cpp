@@ -43,7 +43,8 @@ cpp11::writable::doubles dust_rng_unif_rand(SEXP ptr, int n) {
   double * y = REAL(ret);
 
   for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::unif_rand(rng->state(i % n_generators));
+    dust::rng_state_t<double> s = rng->state(i % n_generators);
+    y[i] = dust::unif_rand(s);
   }
 
   return ret;
@@ -59,7 +60,8 @@ cpp11::writable::doubles dust_rng_norm_rand(SEXP ptr, int n) {
   double * y = REAL(ret);
 
   for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::distr::rnorm(rng->state(i % n_generators), 0, 1);
+    dust::rng_state_t<double> s = rng->state(i % n_generators);
+    y[i] = dust::distr::rnorm(s, 0, 1);
   }
 
   return ret;
@@ -78,7 +80,8 @@ cpp11::writable::doubles dust_rng_runif(SEXP ptr, int n,
   double * y = REAL(ret);
 
   for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::distr::runif(rng->state(i % n_generators), min[i], max[i]);
+    dust::rng_state_t<double> s = rng->state(i % n_generators);
+    y[i] = dust::distr::runif(s, min[i], max[i]);
   }
 
   return ret;
@@ -97,7 +100,8 @@ cpp11::writable::doubles dust_rng_rnorm(SEXP ptr, int n,
   double * y = REAL(ret);
 
   for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::distr::rnorm(rng->state(i % n_generators), mean[i], sd[i]);
+    dust::rng_state_t<double> s = rng->state(i % n_generators);
+    y[i] = dust::distr::rnorm(s, mean[i], sd[i]);
   }
 
   return ret;
@@ -116,7 +120,8 @@ cpp11::writable::integers dust_rng_rbinom(SEXP ptr, int n,
 
   const size_t n_generators = rng->size();
   for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::distr::rbinom(rng->state(i % n_generators), size[i], prob[i]);
+    dust::rng_state_t<double> s = rng->state(i % n_generators);
+    y[i] = dust::distr::rbinom(s, size[i], prob[i]);
   }
 
   return ret;
@@ -133,7 +138,8 @@ cpp11::writable::integers dust_rng_rpois(SEXP ptr, int n,
   int * y = INTEGER(ret);
 
   for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::distr::rpois(rng->state(i % n_generators), lambda[i]);
+    dust::rng_state_t<double> s = rng->state(i % n_generators);
+    y[i] = dust::distr::rpois(s, lambda[i]);
   }
 
   return ret;

@@ -47,7 +47,7 @@ static inline uint64_t rotl(const uint64_t x, int k) {
 
 // This is the core generator (next() in the original C code)
 template <typename T>
-inline uint64_t xoshiro_next(rng_state_t<T> state) {
+inline uint64_t xoshiro_next(rng_state_t<T>& state) {
   const uint64_t result = rotl(state[1] * 5, 7) * 9;
 
   const uint64_t t = state[1] << 17;
