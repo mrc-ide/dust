@@ -18,6 +18,10 @@ public:
     n_(n), state_(n * rng_state_t<T>::size()) {
     auto len = rng_state_t<T>::size();
     auto n_seed = seed.size() / len;
+    // When the state comes in from R it is *not* interleaved (see
+    // also below with export). This is for compatibility with
+    // previously used dust runs primarily, and could be relaxed in
+    // future.
     for (size_t i = 0; i < n; ++i) {
       rng_state_t<T> s = state(i);
       if (i < n_seed) {
@@ -57,8 +61,7 @@ public:
     return rng_state_t<T>(state_.data() + i, n_);
   }
 
-  // We might make this optionally dump out the raw state, at least
-  // for debugging?
+  // De-interleave the state on export (to R)
   std::vector<uint64_t> export_state() {
     const auto len = rng_state_t<T>::size();
     std::vector<uint64_t> ret(n_ * len);
@@ -70,6 +73,7 @@ public:
     return ret;
   }
 
+  // Imports *non-interleaved* state
   void import_state(const std::vector<uint64_t>& state) {
     const auto len = rng_state_t<T>::size();
     std::vector<uint64_t> ret(n_ * len);
