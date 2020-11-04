@@ -67,7 +67,7 @@ run.
 \item \verb{const double * state}: the state at the beginning of the
 step
 \item \verb{dust::rng_state_t<real_t> rng_state}: the dust random number
-generator state
+generator state. This may be passed by reference.
 \item \code{double *state_next}: the end state of the model
 (to be written to by your function)
 }
