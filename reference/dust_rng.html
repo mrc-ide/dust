@@ -82,7 +82,7 @@ primarily meant for debugging and testing." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0</span>
       </span>
     </div>
 
@@ -166,6 +166,7 @@ primarily meant for debugging and testing.</p>
 <li><p><a href='#method-rbinom'><code>dust_rng$rbinom()</code></a></p></li>
 <li><p><a href='#method-rpois'><code>dust_rng$rpois()</code></a></p></li>
 <li><p><a href='#method-state'><code>dust_rng$state()</code></a></p></li>
+<li><p><a href='#method-set_state'><code>dust_rng$set_state()</code></a></p></li>
 </ul>
 <p><hr>
 <a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
@@ -293,6 +294,18 @@ debugging as one cannot (yet) initialise a dust_rng object with this
 state.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>dust_rng</span><span class='op'>$</span><span class='fu'>state</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
+<p><hr>
+<a id="method-set_state"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>set_state()</code></h3>
+<p>Set the random number state, such as one returned by the <code>$state()</code>
+method.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_rng</span><span class='op'>$</span><span class='fu'>set_state</span><span class='op'>(</span><span class='va'>state</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>state</code></dt><dd><p>New random number state; this will be a raw vector
+32 times longer than the number of generators.</p></dd>
+
+</dl><p></div></p>
 
 
 

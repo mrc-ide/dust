@@ -82,7 +82,7 @@ that can be used to work with the model (see the Details below)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0</span>
       </span>
     </div>
 
@@ -219,9 +219,8 @@ run.</p></li>
 <li><p><code>size_t step</code>: the step number</p></li>
 <li><p><code>const double * state</code>: the state at the beginning of the
 step</p></li>
-<li><p><code>dust::rng_state_t&lt;real_t&gt;&amp; rng_state</code>: the dust random number
-generator state - this <em>must</em> be a reference, as it will be modified
-as random numbers are drawn</p></li>
+<li><p><code>dust::rng_state_t&lt;real_t&gt; rng_state</code>: the dust random number
+generator state. This may be passed by reference.</p></li>
 <li><p><code>double *state_next</code>: the end state of the model
 (to be written to by your function)</p></li>
 </ul></li>
@@ -279,6 +278,7 @@ data object used to create the data fed into the particles.</p>
 <li><p><a href='#method-info'><code>dust_class$info()</code></a></p></li>
 <li><p><a href='#method-data'><code>dust_class$data()</code></a></p></li>
 <li><p><a href='#method-rng_state'><code>dust_class$rng_state()</code></a></p></li>
+<li><p><a href='#method-set_rng_state'><code>dust_class$set_rng_state()</code></a></p></li>
 <li><p><a href='#method-has_openmp'><code>dust_class$has_openmp()</code></a></p></li>
 </ul>
 <p><hr>
@@ -442,6 +442,23 @@ If <code>TRUE</code> then we take just the first particle's state, which
 will be a total of 32 bytes. Both forms are suitable for seeding
 a new <code>dust</code> object as the shorter version will be used for
 the first particle, followed by jumps for each subsequent particle.</p></dd>
+
+</dl><p></div></p>
+<p><hr>
+<a id="method-set_rng_state"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>set_rng_state()</code></h3>
+<p>Set the random number state for this model. This
+replaces the RNG state that the model is using with a state of
+your choosing, saved out from a different model object. This method
+is designed to support advanced use cases where it is easier to
+manipulate the state of the random number generator than the
+internal state of the dust object.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>set_rng_state</span><span class='op'>(</span><span class='va'>rng_state</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>rng_state</code></dt><dd><p>A random number state, as saved out by the
+<code>$rng_state()</code> method. Note that unlike <code>seed</code> as passed to the
+constructor, this <em>must</em> be a raw vector of the expected length.</p></dd>
 
 </dl><p></div></p>
 <p><hr>
