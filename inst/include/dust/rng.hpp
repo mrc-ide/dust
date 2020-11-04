@@ -57,11 +57,6 @@ public:
     return rng_state_t<T>(state_.data() + i, n_);
   }
 
-  // Possibly nicer way of doing the above
-  rng_state_t<T> operator[](size_t i) {
-    return rng_state_t<T>(state_.data() + i * n_, n_);
-  }
-
   // We might make this optionally dump out the raw state, at least
   // for debugging?
   std::vector<uint64_t> export_state() {
