@@ -368,3 +368,40 @@ test_that("can jump the rng state with dust_rng_state_long_jump", {
   expect_identical(dust_rng_state_long_jump(state), r1)
   expect_identical(dust_rng_state_long_jump(state, 2), r2)
 })
+
+
+test_that("can set rng state", {
+  seed <- as.raw(1:64)
+  rng <- dust::dust_rng$new(seed, 2)
+  expect_identical(rng$state(), seed)
+  x <- rng$runif(10, 0, 1)
+  s <- rng$state()
+  y <- rng$runif(10, 0, 1)
+
+  rng$set_state(s)
+  expect_identical(rng$state(), s)
+  expect_identical(rng$runif(10, 0, 1), y)
+
+  rng$set_state(seed)
+  expect_identical(rng$state(), seed)
+  expect_identical(rng$runif(10, 0, 1), x)
+})
+
+
+test_that("validate seed length when setting seed", {
+  rng <- dust::dust_rng$new(1, 2)
+  expect_error(rng$set_state(1)) # cpp11 error, don't check message
+
+  expect_error(
+    rng$set_state(as.raw(1)),
+    "'state' must be a raw vector of length 64 (but was 1)",
+    fixed = TRUE)
+  expect_error(
+    rng$set_state(as.raw(0:255)),
+    "'state' must be a raw vector of length 64 (but was 256)",
+    fixed = TRUE)
+  expect_error(
+    rng$set_state(raw(1000)),
+    "'state' must be a raw vector of length 64 (but was 1000)",
+    fixed = TRUE)
+})

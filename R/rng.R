@@ -129,6 +129,16 @@ dust_rng <- R6::R6Class(
     ##' state.
     state = function() {
       dust_rng_state(private$ptr)
+    },
+
+    ##' @description
+    ##' Set the random number state, such as one returned by the `$state()`
+    ##' method.
+    ##'
+    ##' @param state New random number state; this will be a raw vector
+    ##' 32 times longer than the number of generators.
+    set_state = function(state) {
+      dust_rng_set_state(private$ptr, state)
     }
   ))
 
