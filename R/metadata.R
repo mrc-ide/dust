@@ -60,14 +60,13 @@ parse_metadata_param <- function(data) {
   }
   value <- lapply(data$params[i], parse_metadata_param1)
 
-  nms <- lapply(value, function(x) names(x$data))
-  if (length(unique(nms)) != 1L) {
-    browser()
-    ## TODO: make this actionable
-    stop("[[dust::param]] entries must have same arguments")
+  nms <- vcapply(value, "[[", "name")
+  if (any(duplicated(nms))) {
+    stop("Duplicated [[dust::param()]] attributes: ",
+         paste(squote(unique(nms[duplicated(nms)])), collapse = ", "))
   }
 
-  value
+  set_names(lapply(value, "[[", "data"), nms)
 }
 
 
@@ -84,7 +83,6 @@ parse_metadata_param1 <- function(x) {
 
   ## I think that we should allow only a restricted set here perhaps?
   ## Or a general set special case some like required/default
-
   list(name = as.character(x[[1]]),
        data = lapply(x[-1], function(el)
          if (is.symbol(el)) as.character(el) else el))
