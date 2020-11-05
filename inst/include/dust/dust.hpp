@@ -4,7 +4,7 @@
 #include <dust/rng.hpp>
 
 #include <algorithm>
-#include <stdexecpt>
+#include <stdexcept>
 #include <sstream>
 #include <utility>
 #ifdef _OPENMP
