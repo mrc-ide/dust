@@ -82,7 +82,7 @@ that can be used to work with the model (see the Details below)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.1</span>
       </span>
     </div>
 
@@ -147,14 +147,7 @@ compile the dust support around your model and return an object
 that can be used to work with the model (see the Details below).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>dust</span><span class='op'>(</span>
-  <span class='va'>filename</span>,
-  type <span class='op'>=</span> <span class='cn'>NULL</span>,
-  name <span class='op'>=</span> <span class='cn'>NULL</span>,
-  quiet <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  workdir <span class='op'>=</span> <span class='cn'>NULL</span>,
-  gpu <span class='op'>=</span> <span class='cn'>FALSE</span>
-<span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>dust</span><span class='op'>(</span><span class='va'>filename</span>, type <span class='op'>=</span> <span class='cn'>NULL</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, quiet <span class='op'>=</span> <span class='cn'>FALSE</span>, workdir <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -187,10 +180,6 @@ displayed on compilation failure regardless of the value used.</p></td>
       <td><p>Optional working directory to use.  If <code>NULL</code>
 uses a temporary directory.  By using a different directory of
 your choosing you can see the generated code.</p></td>
-    </tr>
-    <tr>
-      <th>gpu</th>
-      <td><p>Create GPU code</p></td>
     </tr>
     </table>
 

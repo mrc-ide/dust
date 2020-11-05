@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.1</span>
       </span>
     </div>
 
@@ -217,9 +217,9 @@
 <span class="co">#&gt; # A tibble: 3 x 6</span>
 <span class="co">#&gt;   expression               min median `itr/sec` mem_alloc `gc/sec`</span>
 <span class="co">#&gt;   &lt;bch:expr&gt;             &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 rng1$unif_rand(1000)    22.1   27.0    36067.    7.86KB    10.8 </span>
-<span class="co">#&gt; 2 rng1$runif(1000, 0, 1)  29.4   32.4    26889.   23.58KB    10.8 </span>
-<span class="co">#&gt; 3 runif(1000)             31.8   33.5    26212.   12.75KB     2.62</span></code></pre></div>
+<span class="co">#&gt; 1 rng1$unif_rand(1000)    22.3   27.4    37473.    7.86KB    11.2 </span>
+<span class="co">#&gt; 2 rng1$runif(1000, 0, 1)  29.8   32.6    27649.   23.58KB    11.1 </span>
+<span class="co">#&gt; 3 runif(1000)             31.9   33.3    29807.   12.75KB     2.98</span></code></pre></div>
 <p>The difference between <code>unif_rand</code> and <code>runif</code> here is the cost of recycling the parameters, not the actual generation!</p>
 <p>Binomial distribution, small <code>n * p</code>, which uses an inversion algorithm</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
@@ -234,8 +234,8 @@
 <span class="co">#&gt; # A tibble: 2 x 6</span>
 <span class="co">#&gt;   expression                min median `itr/sec` mem_alloc `gc/sec`</span>
 <span class="co">#&gt;   &lt;bch:expr&gt;              &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 rng1$rbinom(1000, n, p)  40.3   42.9    21962.    3.95KB     2.20</span>
-<span class="co">#&gt; 2 rbinom(1000, n, p)       56.7   59.1    15518.   16.66KB     4.17</span></code></pre></div>
+<span class="co">#&gt; 1 rng1$rbinom(1000, n, p)  40.1   42.6    23261.    3.95KB     2.33</span>
+<span class="co">#&gt; 2 rbinom(1000, n, p)       56.6   59.4    15658.   16.66KB     4.24</span></code></pre></div>
 <p>(note we vary <code>n</code> and <code>p</code> here as we’ve optimised things for random parameter access).</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">9999</span><span class="op">:</span><span class="fl">10000</span>, length.out <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span>
@@ -248,8 +248,8 @@
 <span class="co">#&gt; # A tibble: 2 x 6</span>
 <span class="co">#&gt;   expression                min median `itr/sec` mem_alloc `gc/sec`</span>
 <span class="co">#&gt;   &lt;bch:expr&gt;              &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 rng1$rbinom(1000, n, p)  86.7   93.6    10473.    3.95KB     0   </span>
-<span class="co">#&gt; 2 rbinom(1000, n, p)       96.9  104.      9377.    14.3KB     2.03</span></code></pre></div>
+<span class="co">#&gt; 1 rng1$rbinom(1000, n, p)  91.1   96.7    10274.    3.95KB     0   </span>
+<span class="co">#&gt; 2 rbinom(1000, n, p)       99.1  105.      9393.    14.3KB     2.04</span></code></pre></div>
 <p>Practically, performance will vary based on the parameters of the distributions and the underlying algorithms, and the principle performance gain we hope to get here is driven by the ability to parallelise safely rather than the speed of the draws themselves.</p>
 </div>
   </div>

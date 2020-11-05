@@ -83,7 +83,7 @@ src/model.cpp." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.1</span>
       </span>
     </div>
 
@@ -149,7 +149,7 @@ assumed to the in <code>inst/dust</code> as a series of C++ files; a file
 <code>src/model.cpp</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>dust_package</span><span class='op'>(</span><span class='va'>path</span>, quiet <span class='op'>=</span> <span class='cn'>FALSE</span>, gpu <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>dust_package</span><span class='op'>(</span><span class='va'>path</span>, quiet <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -162,10 +162,6 @@ assumed to the in <code>inst/dust</code> as a series of C++ files; a file
       <th>quiet</th>
       <td><p>Passed to <code><a href='https://rdrr.io/pkg/cpp11/man/cpp_register.html'>cpp11::cpp_register</a></code>, if <code>TRUE</code> suppresses
 informational notices about updates to the cpp11 files</p></td>
-    </tr>
-    <tr>
-      <th>gpu</th>
-      <td><p>Create GPU code (currently must be shared across all models)</p></td>
     </tr>
     </table>
 
