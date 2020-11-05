@@ -5,14 +5,7 @@
 \alias{dust_class}
 \title{Create a dust model from a C++ input file}
 \usage{
-dust(
-  filename,
-  type = NULL,
-  name = NULL,
-  quiet = FALSE,
-  workdir = NULL,
-  gpu = FALSE
-)
+dust(filename, type = NULL, name = NULL, quiet = FALSE, workdir = NULL)
 }
 \arguments{
 \item{filename}{The path to a single C++ file}
@@ -33,8 +26,6 @@ displayed on compilation failure regardless of the value used.}
 \item{workdir}{Optional working directory to use.  If \code{NULL}
 uses a temporary directory.  By using a different directory of
 your choosing you can see the generated code.}
-
-\item{gpu}{Create GPU code}
 }
 \description{
 Create a dust model from a C++ input file.  This function will

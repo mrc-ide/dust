@@ -1,3 +1,7 @@
+# dust 0.5.1
+
+* Remove prototype GPU interface, in preparation for a new version (#109)
+
 # dust 0.5.0
 
 * The rng objects (`dust_rng`) also get a `$set_state()` method (primarily of debugging interest)

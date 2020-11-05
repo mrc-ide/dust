@@ -4,15 +4,13 @@
 \alias{dust_package}
 \title{Create dust model in package}
 \usage{
-dust_package(path, quiet = FALSE, gpu = FALSE)
+dust_package(path, quiet = FALSE)
 }
 \arguments{
 \item{path}{Path to the package}
 
 \item{quiet}{Passed to \code{cpp11::cpp_register}, if \code{TRUE} suppresses
 informational notices about updates to the cpp11 files}
-
-\item{gpu}{Create GPU code (currently must be shared across all models)}
 }
 \value{
 Nothing, this function is called for its side effects
