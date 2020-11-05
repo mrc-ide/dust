@@ -1,8 +1,5 @@
-generate_dust <- function(filename, type, name, gpu, quiet, workdir, cache) {
+generate_dust <- function(filename, type, name, quiet, workdir, cache) {
   hash <- hash_file(filename)
-  if (gpu) {
-    name <- paste0(name, "gpu")
-  }
   base <- sprintf("%s%s", name, hash)
 
   if (base %in% names(cache)) {
@@ -24,19 +21,10 @@ generate_dust <- function(filename, type, name, gpu, quiet, workdir, cache) {
                            file.path(path, "NAMESPACE"))
   substitute_dust_template(data, "dust.R.template",
                            file.path(path, "R/dust.R"))
-  if (gpu) {
-    substitute_dust_template(data, "gpu/dust.cu",
-                             file.path(path, "src", "dust.cu"))
-    substitute_dust_template(data, "gpu/dust.hpp",
-                             file.path(path, "src", "dust.hpp"))
-    substitute_dust_template(data, "gpu/Makevars",
-                             file.path(path, "src", "Makevars"))
-  } else {
-    substitute_dust_template(data, "dust.cpp",
-                             file.path(path, "src", "dust.cpp"))
-    substitute_dust_template(data, "Makevars",
-                             file.path(path, "src", "Makevars"))
-  }
+  substitute_dust_template(data, "dust.cpp",
+                           file.path(path, "src", "dust.cpp"))
+  substitute_dust_template(data, "Makevars",
+                           file.path(path, "src", "Makevars"))
 
   cpp11::cpp_register(path, quiet = quiet)
 
@@ -47,8 +35,8 @@ generate_dust <- function(filename, type, name, gpu, quiet, workdir, cache) {
 
 
 compile_and_load <- function(filename, type, name, quiet = FALSE,
-                             workdir = NULL, gpu = FALSE) {
-  res <- generate_dust(filename, type, name, gpu, quiet, workdir, cache)
+                             workdir = NULL) {
+  res <- generate_dust(filename, type, name, quiet, workdir, cache)
 
   if (is.null(res$env)) {
     path <- res$path
