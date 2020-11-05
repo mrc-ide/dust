@@ -14,28 +14,29 @@ test_that("Interface passes arguments as expected", {
   filename <- dust_file("examples/walk.cpp")
   mock_compile_and_load <- mockery::mock(NULL)
   workdir <- tempfile()
+  config <- list(name = "walk", type = "walk", param = NULL)
   with_mock(
     "dust::compile_and_load" = mock_compile_and_load,
-    dust(filename, "type", "name", TRUE, workdir))
+    dust(filename, TRUE, workdir))
 
   mockery::expect_called(mock_compile_and_load, 1L)
   expect_equal(
     mockery::mock_args(mock_compile_and_load)[[1]],
-    list(filename, "type", "name", TRUE, workdir))
+    list(filename, config, TRUE, workdir))
 })
 
 
 test_that("guess class", {
   txt <- c("// A comment", "class  whatever {", "};")
-  expect_equal(dust_guess_type(txt), "whatever")
-  expect_error(dust_guess_type(txt[-2]),
+  expect_equal(parse_metadata_guess_type(txt), "whatever")
+  expect_error(parse_metadata_guess_type(txt[-2]),
                "Could not automatically detect class name")
-  expect_error(dust_guess_type(rep(txt, 2)),
+  expect_error(parse_metadata_guess_type(rep(txt, 2)),
                "Could not automatically detect class name")
 
   ## Slightly harder cases
-  expect_equal(dust_guess_type("\tclass\tTheClass  "), "TheClass")
-  expect_equal(dust_guess_type("class TheClass{"), "TheClass")
+  expect_equal(parse_metadata_guess_type("\tclass\tTheClass  "), "TheClass")
+  expect_equal(parse_metadata_guess_type("class TheClass{"), "TheClass")
 })
 
 
@@ -107,8 +108,7 @@ test_that("dust_workdir will error if path is not a directory", {
 
 
 test_that("validate interface", {
-  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
-                          quiet = TRUE)
+  res <- dust(dust_file("examples/walk.cpp"), quiet = TRUE)
   cmp <- dust_class
 
   expect_setequal(names(res$public_methods),

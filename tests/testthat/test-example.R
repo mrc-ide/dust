@@ -238,15 +238,14 @@ test_that("validate reorder vector is in correct range", {
 
 
 test_that("run in float mode", {
-  res_d <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
-                            quiet = TRUE)
+  res_d <- dust(dust_file("examples/walk.cpp"), quiet = TRUE)
 
   path <- tempfile(fileext = ".cpp")
   code <- readLines(dust_file("examples/walk.cpp"))
   pat <- "typedef double real_t"
   stopifnot(sum(grepl(pat, code)) == 1)
   writeLines(sub(pat, "typedef float real_t", code), path)
-  res_f <- compile_and_load(path, "walk", "mywalkf", quiet = TRUE)
+  res_f <- dust(path, quiet = TRUE)
 
   n <- 1000
   obj_d <- res_d$new(list(sd = 10), 0, n, seed = 1L)
@@ -274,8 +273,7 @@ test_that("reset changes info", {
 
 
 test_that("Basic threading test", {
-  res <- compile_and_load(dust_file("examples/parallel.cpp"), "parallel",
-                          "myparallel", quiet = TRUE)
+  res <- dust(dust_file("examples/parallel.cpp"), quiet = TRUE)
 
   obj <- res$new(list(sd = 1), 0, 10, n_threads = 2L, seed = 1L)
   obj$set_index(1L)
@@ -319,14 +317,12 @@ test_that("Basic threading test", {
 ## This at least shows that on the second time round we don't compile
 ## and we get the right data out.
 test_that("cache hits do not compile", {
-  cmp <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
-                          quiet = TRUE)
+  cmp <- dust(dust_file("examples/walk.cpp"), quiet = TRUE)
 
   mock <- mockery::mock()
   res <- with_mock(
     "pkgbuild::compile_dll" = mock,
-    compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
-                     quiet = TRUE))
+    dust(dust_file("examples/walk.cpp"), quiet = TRUE))
   ## Never called
   expect_equal(mockery::mock_calls(mock), list())
   ## Same object

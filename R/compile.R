@@ -1,15 +1,15 @@
-generate_dust <- function(filename, type, name, quiet, workdir, cache) {
+generate_dust <- function(filename, config, quiet, workdir, cache) {
   hash <- hash_file(filename)
-  base <- sprintf("%s%s", name, hash)
+  base <- sprintf("%s%s", config$name, hash)
 
   if (base %in% names(cache)) {
     return(cache[[base]])
   }
 
-  assert_valid_name(name)
+  assert_valid_name(config$name)
   model <- read_lines(filename)
-  data <- list(model = model, name = name, type = type, base = base,
-               path_dust_include = dust_file("include"))
+  data <- list(model = model, name = config$name, type = config$type,
+               base = base, path_dust_include = dust_file("include"))
 
   path <- dust_workdir(workdir)
   dir.create(file.path(path, "R"), FALSE, TRUE)
@@ -34,9 +34,9 @@ generate_dust <- function(filename, type, name, quiet, workdir, cache) {
 }
 
 
-compile_and_load <- function(filename, type, name, quiet = FALSE,
+compile_and_load <- function(filename, config, quiet = FALSE,
                              workdir = NULL) {
-  res <- generate_dust(filename, type, name, quiet, workdir, cache)
+  res <- generate_dust(filename, config, quiet, workdir, cache)
 
   if (is.null(res$env)) {
     path <- res$path

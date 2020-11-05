@@ -1,3 +1,7 @@
+// [[dust::type(sir)]]
+// [[dust::name(sir)]]
+// [[dust::param(beta, required = FALSE)]]
+// [[dust::param(gamma, required = FALSE)]]
 class sir {
 public:
   typedef double real_t;

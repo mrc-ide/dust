@@ -5,19 +5,10 @@
 \alias{dust_class}
 \title{Create a dust model from a C++ input file}
 \usage{
-dust(filename, type = NULL, name = NULL, quiet = FALSE, workdir = NULL)
+dust(filename, quiet = FALSE, workdir = NULL)
 }
 \arguments{
 \item{filename}{The path to a single C++ file}
-
-\item{type}{The name of the "type" (the C++ class) that represents
-your model.  If \code{NULL} we try to work this out from your
-file using extremely simple heuristics.}
-
-\item{name}{The name of the model; for technical reasons this must
-be alphanumeric characters only (sorry, no underscore) and must
-not start with a number.  If \code{NULL} the value of
-\code{type} will be used.}
 
 \item{quiet}{Logical, indicating if compilation messages from
 \code{pkgbuild} should be displayed.  Error messages will be
@@ -100,6 +91,25 @@ What you do with this is up to you. If not present then the
 Potential use cases for this are to return information about
 variable ordering, or any processing done while accepting the
 data object used to create the data fed into the particles.
+}
+
+\section{Confuring your model}{
+
+
+You can optionally use C++ psuedo-attributes to configure the
+generated code. Currently we support two attributes:
+\itemize{
+\item \verb{[[dust::type(typename)]]} will tell dust the name of your
+target C++ class (in this example \code{typename}). You will need to
+use this if your file uses more than a single class, as
+otherwise will try to detect this using extremely simple
+heuristics.
+\item \verb{[[dust::name(modelname)]]} will tell dust the name of the model
+for exporting to R. For technical reasons this must be
+alphanumeric characters only (sorry, no underscore) and must not
+start with a number. If not included then the C++ type name will
+be used (either specified with \verb{[[dust::type]]} or detected).
+}
 }
 
 \examples{
