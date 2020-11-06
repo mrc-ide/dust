@@ -167,6 +167,7 @@ obj$state()
 \item \href{#method-info}{\code{dust_class$info()}}
 \item \href{#method-data}{\code{dust_class$data()}}
 \item \href{#method-rng_state}{\code{dust_class$rng_state()}}
+\item \href{#method-set_rng_state}{\code{dust_class$set_rng_state()}}
 \item \href{#method-has_openmp}{\code{dust_class$has_openmp()}}
 }
 }
@@ -427,6 +428,30 @@ If \code{TRUE} then we take just the first particle's state, which
 will be a total of 32 bytes. Both forms are suitable for seeding
 a new \code{\link{dust}} object as the shorter version will be used for
 the first particle, followed by jumps for each subsequent particle.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-set_rng_state"></a>}}
+\if{latex}{\out{\hypertarget{method-set_rng_state}{}}}
+\subsection{Method \code{set_rng_state()}}{
+Set the random number state for this model. This
+replaces the RNG state that the model is using with a state of
+your choosing, saved out from a different model object. This method
+is designed to support advanced use cases where it is easier to
+manipulate the state of the random number generator than the
+internal state of the dust object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$set_rng_state(rng_state)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{rng_state}}{A random number state, as saved out by the
+\verb{$rng_state()} method. Note that unlike \code{seed} as passed to the
+constructor, this \emph{must} be a raw vector of the expected length.}
 }
 \if{html}{\out{</div>}}
 }
