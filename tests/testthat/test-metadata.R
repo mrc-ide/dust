@@ -12,16 +12,20 @@ test_that("parse sir model metadata", {
 
 
 test_that("Can allow two classes if [[dust::class()]] used", {
-  meta <- parse_metadata(dust_file("examples/twoclass.cpp"))
+  tmp <- helper_metadata(
+    "class someotherclass {};",
+    "// [[dust::class(walk)]]")
+  on.exit(unlink(tmp))
+  meta <- parse_metadata(tmp)
   expect_equal(meta$name, "walk")
   expect_equal(meta$class, "walk")
 })
 
 
 test_that("Cannot allow two classes if [[dust::class()]] missing", {
-  code <- readLines(dust_file("examples/twoclass.cpp"))
-  tmp <- tempfile()
-  writeLines(code[!grepl("[[dust::", code, fixed = TRUE)], tmp)
+  tmp <- helper_metadata(
+    "class someotherclass {};")
+  on.exit(unlink(tmp))
   expect_error(
     parse_metadata(tmp),
     "Could not automatically detect class name; add [[dust::class()]]",
@@ -30,9 +34,11 @@ test_that("Cannot allow two classes if [[dust::class()]] missing", {
 
 
 test_that("Can override explicit class name with [[dust::name()]]", {
-  code <- readLines(dust_file("examples/twoclass.cpp"))
-  tmp <- tempfile()
-  writeLines(c("// [[dust::name(model)]]", code), tmp)
+  tmp <- helper_metadata(
+    "class someotherclass {};",
+    "// [[dust::class(walk)]]",
+    "// [[dust::name(model)]]")
+  on.exit(unlink(tmp))
   meta <- parse_metadata(tmp)
   expect_equal(meta$name, "model")
   expect_equal(meta$class, "walk")
@@ -50,13 +56,11 @@ test_that("Can override implicit class name with [[dust::name()]]", {
 
 
 test_that("Cannot specify [[dust::class()]] twice", {
-  code <- readLines(dust_file("examples/twoclass.cpp"))
-  tmp <- tempfile(fileext = ".cpp")
-  writeLines(c("// [[dust::class(a)]]", code), tmp)
-
+  tmp <- helper_metadata("// [[dust::class(a)]]", "", "// [[dust::class(b)]]")
+  on.exit(unlink(tmp))
   expect_error(
     parse_metadata(tmp),
-    sprintf("More than one [[dust::class()]] attribute found %s:(1, 5)",
+    sprintf("More than one [[dust::class()]] attribute found %s:(1, 3)",
             basename(tmp)),
     fixed = TRUE)
 })
