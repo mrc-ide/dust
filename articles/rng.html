@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.2</span>
       </span>
     </div>
 
@@ -118,7 +118,6 @@
 <span class="co">#&gt;     rnorm: function (n, mean, sd) </span>
 <span class="co">#&gt;     rpois: function (n, lambda) </span>
 <span class="co">#&gt;     runif: function (n, min, max) </span>
-<span class="co">#&gt;     set_state: function (state) </span>
 <span class="co">#&gt;     size: function () </span>
 <span class="co">#&gt;     state: function () </span>
 <span class="co">#&gt;     unif_rand: function (n) </span>
@@ -217,9 +216,9 @@
 <span class="co">#&gt; # A tibble: 3 x 6</span>
 <span class="co">#&gt;   expression               min median `itr/sec` mem_alloc `gc/sec`</span>
 <span class="co">#&gt;   &lt;bch:expr&gt;             &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 rng1$unif_rand(1000)    22.3   27.4    37473.    7.86KB    11.2 </span>
-<span class="co">#&gt; 2 rng1$runif(1000, 0, 1)  29.8   32.6    27649.   23.58KB    11.1 </span>
-<span class="co">#&gt; 3 runif(1000)             31.9   33.3    29807.   12.75KB     2.98</span></code></pre></div>
+<span class="co">#&gt; 1 rng1$unif_rand(1000)    22.4   27.3    34947.    7.86KB    14.0 </span>
+<span class="co">#&gt; 2 rng1$runif(1000, 0, 1)  32.3   35.8    24001.   23.58KB     9.60</span>
+<span class="co">#&gt; 3 runif(1000)             30.0   32.9    28356.   12.75KB     2.84</span></code></pre></div>
 <p>The difference between <code>unif_rand</code> and <code>runif</code> here is the cost of recycling the parameters, not the actual generation!</p>
 <p>Binomial distribution, small <code>n * p</code>, which uses an inversion algorithm</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
@@ -234,8 +233,8 @@
 <span class="co">#&gt; # A tibble: 2 x 6</span>
 <span class="co">#&gt;   expression                min median `itr/sec` mem_alloc `gc/sec`</span>
 <span class="co">#&gt;   &lt;bch:expr&gt;              &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 rng1$rbinom(1000, n, p)  40.1   42.6    23261.    3.95KB     2.33</span>
-<span class="co">#&gt; 2 rbinom(1000, n, p)       56.6   59.4    15658.   16.66KB     4.24</span></code></pre></div>
+<span class="co">#&gt; 1 rng1$rbinom(1000, n, p)  43.6   47.7    20721.    3.95KB     4.14</span>
+<span class="co">#&gt; 2 rbinom(1000, n, p)       52.2   58.5    16549.   16.66KB     4.27</span></code></pre></div>
 <p>(note we vary <code>n</code> and <code>p</code> here as we’ve optimised things for random parameter access).</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">9999</span><span class="op">:</span><span class="fl">10000</span>, length.out <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span>
@@ -248,8 +247,8 @@
 <span class="co">#&gt; # A tibble: 2 x 6</span>
 <span class="co">#&gt;   expression                min median `itr/sec` mem_alloc `gc/sec`</span>
 <span class="co">#&gt;   &lt;bch:expr&gt;              &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 rng1$rbinom(1000, n, p)  91.1   96.7    10274.    3.95KB     0   </span>
-<span class="co">#&gt; 2 rbinom(1000, n, p)       99.1  105.      9393.    14.3KB     2.04</span></code></pre></div>
+<span class="co">#&gt; 1 rng1$rbinom(1000, n, p)  87.3   96.6    10104.    3.95KB     2.01</span>
+<span class="co">#&gt; 2 rbinom(1000, n, p)       91.6  104.      9460.    14.3KB     2.04</span></code></pre></div>
 <p>Practically, performance will vary based on the parameters of the distributions and the underlying algorithms, and the principle performance gain we hope to get here is driven by the ability to parallelise safely rather than the speed of the draws themselves.</p>
 </div>
   </div>
