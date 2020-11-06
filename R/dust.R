@@ -32,6 +32,10 @@ sir <- R6::R6Class(
       "sir"
     },
 
+    param = function() {
+      private$param_
+    },
+
     run = function(step_end) {
       m <- dust_sir_run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
@@ -130,6 +134,10 @@ variable <- R6::R6Class(
 
     name = function() {
       "variable"
+    },
+
+    param = function() {
+      private$param_
     },
 
     run = function(step_end) {
@@ -232,6 +240,10 @@ volatility <- R6::R6Class(
       "volatility"
     },
 
+    param = function() {
+      private$param_
+    },
+
     run = function(step_end) {
       m <- dust_volatility_run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
@@ -330,6 +342,10 @@ walk <- R6::R6Class(
 
     name = function() {
       "walk"
+    },
+
+    param = function() {
+      private$param_
     },
 
     run = function(step_end) {

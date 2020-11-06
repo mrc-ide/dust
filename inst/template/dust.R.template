@@ -57,6 +57,14 @@
     },
 
     ##' @description
+    ##' Returns parameter information, if provided by the model. This
+    ##' describes the contents of data passed to the constructor or to
+    ##' `reset` as the `data` argument, and the details depend on the model.
+    param = function() {
+      private$param_
+    },
+
+    ##' @description
     ##' Run the model up to a point in time, returning the filtered state
     ##' at that point.
     ##'

@@ -76,6 +76,8 @@ sirs::init_t dust_data<sirs>(cpp11::list data) {
   if (r_beta != R_NilValue) {
     beta = cpp11::as_cpp<sirs::real_t>(r_beta);
   }
+  // [[dust::param(gamma, required = FALSE, default = 0.1)]]
+  // [[dust::param(beta, required = FALSE, default = 0.1)]]
   SEXP r_gamma = data["gamma"];
   if (r_gamma != R_NilValue) {
     gamma = cpp11::as_cpp<sirs::real_t>(r_gamma);

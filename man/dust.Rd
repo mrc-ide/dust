@@ -99,8 +99,8 @@ data object used to create the data fed into the particles.
 You can optionally use C++ psuedo-attributes to configure the
 generated code. Currently we support two attributes:
 \itemize{
-\item \verb{[[dust::type(typename)]]} will tell dust the name of your
-target C++ class (in this example \code{typename}). You will need to
+\item \verb{[[dust::class(classname)]]} will tell dust the name of your
+target C++ class (in this example \code{classname}). You will need to
 use this if your file uses more than a single class, as
 otherwise will try to detect this using extremely simple
 heuristics.
@@ -154,6 +154,7 @@ obj$state()
 \itemize{
 \item \href{#method-new}{\code{dust_class$new()}}
 \item \href{#method-name}{\code{dust_class$name()}}
+\item \href{#method-param}{\code{dust_class$param()}}
 \item \href{#method-run}{\code{dust_class$run()}}
 \item \href{#method-set_index}{\code{dust_class$set_index()}}
 \item \href{#method-index}{\code{dust_class$index()}}
@@ -212,6 +213,18 @@ generator) or a \code{raw} vector of a length that is a multiple of
 Returns friendly model name
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$name()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-param"></a>}}
+\if{latex}{\out{\hypertarget{method-param}{}}}
+\subsection{Method \code{param()}}{
+Returns parameter information, if provided by the model. This
+describes the contents of data passed to the constructor or to
+\code{reset} as the \code{data} argument, and the details depend on the model.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$param()}\if{html}{\out{</div>}}
 }
 
 }
