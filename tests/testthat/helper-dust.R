@@ -20,3 +20,11 @@ create_test_package <- function(name = "pkg", path = tempfile(),
 
   path
 }
+
+
+helper_metadata <- function(..., base = NULL) {
+  code <- readLines(base %||% dust_file("examples/walk.cpp"))
+  tmp <- tempfile(fileext = ".cpp")
+  writeLines(c(..., code), tmp)
+  tmp
+}
