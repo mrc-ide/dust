@@ -181,12 +181,12 @@ dust_workdir <- function(path) {
 
 ##' @export
 ##' @importFrom stats coef
-coef.dust <- function(x, ...) {
+coef.dust <- function(object, ...) {
   x$param()
 }
 
 
 ##' @export
-coef.dust_generator <- function(x, ...) {
+coef.dust_generator <- function(object, ...) {
   x$private_fields$param_
 }
