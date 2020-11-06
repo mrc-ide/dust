@@ -1,15 +1,15 @@
 parse_metadata <- function(filename) {
   data <- decor::cpp_decorations(files = filename)
   ret <- list(name = parse_metadata_name(data),
-              type = parse_metadata_type(data),
+              class = parse_metadata_class(data),
               param = parse_metadata_param(data))
 
-  if (is.null(ret$type)) {
-    ret$type <- parse_metadata_guess_type(readLines(filename))
+  if (is.null(ret$class)) {
+    ret$class <- parse_metadata_guess_class(readLines(filename))
   }
 
   if (is.null(ret$name)) {
-    ret$name <- ret$type
+    ret$name <- ret$class
   }
 
   assert_valid_name(ret$name)
@@ -17,41 +17,36 @@ parse_metadata <- function(filename) {
   ret
 }
 
-parse_metadata_name <- function(data) {
-  i <- data$decoration == "dust::name"
+
+parse_metadata_simple <- function(data, attribute) {
+  i <- data$decoration == attribute
   if (!any(i)) {
     return(NULL)
   }
   if (sum(i) > 1) {
-    stop("More than one dust::name decoration found")
+    stop(sprintf("More than one [[%s()]] attribute found %s",
+                 attribute, parse_metadata_describe(data, i)))
   }
   value <- data$params[[which(i)]]
   if (length(value) != 1L) {
-    stop("Expected dust::name to have one argument")
+    stop(sprintf("Expected [[%s()]] to have one argument %s",
+                 attribute, parse_metadata_describe(data, i)))
   }
   if (any(nzchar(names(value)))) {
-    stop("Invalid format for [[dust::name()]] attribute")
+    stop(sprintf("Invalid format for [[%s()]] attribute %s",
+                 attribute, parse_metadata_describe(data, i)))
   }
   as.character(value[[1]])
 }
 
 
-parse_metadata_type <- function(data) {
-  i <- data$decoration == "dust::type"
-  if (!any(i)) {
-    return(NULL)
-  }
-  if (sum(i) > 1) {
-    stop("More than one dust::type decoration found")
-  }
-  value <- data$params[[which(i)]]
-  if (length(value) != 1L) {
-    stop("Expected dust::type to have one argument")
-  }
-  if (nzchar(names(value))) {
-    stop("Invalid format for [[dust::type()]] attribute")
-  }
-  as.character(value[[1]])
+parse_metadata_name <- function(data) {
+  parse_metadata_simple(data, "dust::name")
+}
+
+
+parse_metadata_class <- function(data) {
+  parse_metadata_simple(data, "dust::class")
 }
 
 
@@ -60,27 +55,39 @@ parse_metadata_param <- function(data) {
   if (!any(i)) {
     return(NULL)
   }
-  value <- lapply(data$params[i], parse_metadata_param1)
+  value <- lapply(which(i), parse_metadata_param1, data)
 
   nms <- vcapply(value, "[[", "name")
   if (any(duplicated(nms))) {
-    stop("Duplicated [[dust::param()]] attributes: ",
-         paste(squote(unique(nms[duplicated(nms)])), collapse = ", "))
+    dups <- nms[duplicated(nms)]
+    stop(sprintf(
+      "Duplicated [[dust::param()]] attributes: %s %s",
+      paste(squote(unique(dups)), collapse = ", "),
+      parse_metadata_describe(data, which(i)[nms %in% dups])))
   }
 
   set_names(lapply(value, "[[", "data"), nms)
 }
 
 
-parse_metadata_param1 <- function(x) {
+parse_metadata_param1 <- function(i, data) {
+  x <- data$params[[i]]
   if (length(x) == 0) {
-    stop("At least one argument required to [[dust::param]]")
+    stop(sprintf("At least one argument required to [[dust::param()]] %s",
+                 parse_metadata_describe(data, i)),
+         call. = FALSE)
+
   }
   if (nzchar(names(x)[[1]])) {
-    stop("First argument of [[dust::param]] must be unnamed")
+    stop(sprintf("First argument of [[dust::param()]] must be unnamed %s",
+                 parse_metadata_describe(data, i)),
+         call. = FALSE)
   }
   if (any(!nzchar(names(x)[-1]))) {
-    stop("Arguments 2 and following of of [[dust::param]] must be named")
+    stop(sprintf(
+      "Arguments 2 and following of of [[dust::param]] must be named %s",
+      parse_metadata_describe(data, i)),
+      call. = FALSE)
   }
 
   ## I think that we should allow only a restricted set here perhaps?
@@ -91,21 +98,27 @@ parse_metadata_param1 <- function(x) {
 }
 
 
-parse_metadata_error <- function(message, filename, line) {
-  stop(sprintf("%s (%s:%s)", message, filename, line), call. = FALSE)
+parse_metadata_describe <- function(data, i) {
+  err <- data[i, ]
+  if (nrow(err) == 1L) {
+    sprintf("%s:%s", basename(err$file), err$line)
+  } else {
+    sprintf("%s:(%s)", basename(err$file[[1]]),
+            paste(err$line, collapse = ", "))
+  }
 }
 
 
-parse_metadata_guess_type <- function(txt) {
+parse_metadata_guess_class <- function(txt) {
   re <- "^\\s*class\\s+([^{ ]+)\\s*(\\{.*|$)"
   i <- grep(re, txt)
   if (length(i) != 1L) {
-    stop("Could not automatically detect class name; add [[dust::type]]?")
+    stop("Could not automatically detect class name; add [[dust::class()]]?")
   }
   sub(re, "\\1", txt[[i]])
 }
 
 
 deparse_param <- function(x) {
-  sub("\\s+$", "", deparse(x))
+  paste(sub("\\s+$", "", deparse(x)), collapse = "\n")
 }

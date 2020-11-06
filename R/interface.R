@@ -84,8 +84,8 @@
 ##' You can optionally use C++ psuedo-attributes to configure the
 ##'   generated code. Currently we support two attributes:
 ##'
-##' * `[[dust::type(typename)]]` will tell dust the name of your
-##'   target C++ class (in this example `typename`). You will need to
+##' * `[[dust::class(classname)]]` will tell dust the name of your
+##'   target C++ class (in this example `classname`). You will need to
 ##'   use this if your file uses more than a single class, as
 ##'   otherwise will try to detect this using extremely simple
 ##'   heuristics.

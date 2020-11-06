@@ -105,6 +105,6 @@ compile_dll <- function(...) {
 dust_template_data <- function(model, config) {
   list(model = model,
        name = config$name,
-       type = config$type,
+       class = config$class,
        param = deparse_param(config$param))
 }
