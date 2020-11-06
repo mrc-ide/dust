@@ -103,6 +103,7 @@ sir <- R6::R6Class(
       dust_sir_has_openmp()
     }
   ))
+class(sir) <- c("dust_generator", class(sir))
 variable <- R6::R6Class(
   "dust",
   cloneable = FALSE,
@@ -207,6 +208,7 @@ variable <- R6::R6Class(
       dust_variable_has_openmp()
     }
   ))
+class(variable) <- c("dust_generator", class(variable))
 volatility <- R6::R6Class(
   "dust",
   cloneable = FALSE,
@@ -311,6 +313,7 @@ volatility <- R6::R6Class(
       dust_volatility_has_openmp()
     }
   ))
+class(volatility) <- c("dust_generator", class(volatility))
 walk <- R6::R6Class(
   "dust",
   cloneable = FALSE,
@@ -415,3 +418,4 @@ walk <- R6::R6Class(
       dust_walk_has_openmp()
     }
   ))
+class(walk) <- c("dust_generator", class(walk))
