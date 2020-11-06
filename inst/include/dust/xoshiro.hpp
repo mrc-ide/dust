@@ -1,6 +1,7 @@
 #ifndef DUST_XOSHIRO_HPP
 #define DUST_XOSHIRO_HPP
 
+#include <array>
 #include <cstdint>
 #include <vector>
 #include <limits>
@@ -16,29 +17,20 @@
 
 namespace dust {
 
-// Data for multiple related RNG streams is stored together in a large
-// array, and we will be passed a structure that can easily index into
-// this. Each RNG state has 4 elements and we put all the first
-// elements together, then all the second and so forth.
-//
-// All the xoshiro code does is index into the array, so we provide an
-// operator for that.
+// It is not really clear what the best way of storing the state is;
+// we could store it interleaved or adjacent. For now, let's use
+// adjacent. To do interleaved we just need to know the stride here,
+// so could store a struct with *uint64_t state and size_t stride
 template <typename T>
-class rng_state_t {
-public:
+struct rng_state_t {
   typedef T real_t;
   static size_t size() {
     return 4;
   }
-  rng_state_t(uint64_t *state, size_t stride) :
-    state_(state), stride_(stride) {
-  }
+  std::array<uint64_t, 4> state;
   uint64_t& operator[](size_t i) {
-    return state_[i * stride_];
+    return state[i];
   }
-private:
-  uint64_t * state_;
-  size_t stride_;
 };
 
 static inline uint64_t rotl(const uint64_t x, int k) {

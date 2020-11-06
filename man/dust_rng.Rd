@@ -43,7 +43,6 @@ rng$rpois(5, 2)
 \item \href{#method-rbinom}{\code{dust_rng$rbinom()}}
 \item \href{#method-rpois}{\code{dust_rng$rpois()}}
 \item \href{#method-state}{\code{dust_rng$state()}}
-\item \href{#method-set_state}{\code{dust_rng$set_state()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -228,24 +227,5 @@ state.
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng$state()}\if{html}{\out{</div>}}
 }
 
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set_state"></a>}}
-\if{latex}{\out{\hypertarget{method-set_state}{}}}
-\subsection{Method \code{set_state()}}{
-Set the random number state, such as one returned by the \verb{$state()}
-method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$set_state(state)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{state}}{New random number state; this will be a raw vector
-32 times longer than the number of generators.}
-}
-\if{html}{\out{</div>}}
-}
 }
 }
