@@ -258,3 +258,13 @@ test_that("step must be nonnegative", {
     res$new(list(), -1, 4),
     "'step' must be non-negative")
 })
+
+
+test_that("Can get parameters from generators", {
+  res <- dust(dust_file("examples/sirs.cpp"), quiet = TRUE)
+  expect_s3_class(res, "dust_generator")
+  expect_equal(coef(res), parse_metadata(dust_file("examples/sirs.cpp"))$param)
+  mod <- res$new(list(), 1, 1)
+  expect_equal(coef(mod), coef(res))
+  expect_equal(coef(mod), mod$param())
+})

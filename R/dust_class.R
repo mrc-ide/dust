@@ -192,3 +192,4 @@ dust_class <- R6::R6Class(
     has_openmp = function() {
     }
   ))
+class(dust_class) <- c("dust_generator", class(dust_class))

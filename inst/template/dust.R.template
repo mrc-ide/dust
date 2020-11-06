@@ -216,3 +216,4 @@
       dust_{{name}}_has_openmp()
     }
   ))
+class({{name}}) <- c("dust_generator", class({{name}}))
