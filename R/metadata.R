@@ -12,6 +12,8 @@ parse_metadata <- function(filename) {
     ret$name <- ret$type
   }
 
+  assert_valid_name(ret$name)
+
   ret
 }
 
@@ -101,4 +103,9 @@ parse_metadata_guess_type <- function(txt) {
     stop("Could not automatically detect class name; add [[dust::type]]?")
   }
   sub(re, "\\1", txt[[i]])
+}
+
+
+deparse_param <- function(x) {
+  sub("\\s+$", "", deparse(x))
 }

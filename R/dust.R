@@ -9,6 +9,7 @@ sir <- R6::R6Class(
     info_ = NULL,
     n_threads_ = NULL,
     ptr_ = NULL,
+    param_ = list(beta = list(required = FALSE), gamma = list(required = FALSE)),
 
     simulate = function(steps, data, state, index = NULL,
                         n_threads = 1L, seed = NULL) {
@@ -108,6 +109,7 @@ variable <- R6::R6Class(
     info_ = NULL,
     n_threads_ = NULL,
     ptr_ = NULL,
+    param_ = NULL,
 
     simulate = function(steps, data, state, index = NULL,
                         n_threads = 1L, seed = NULL) {
@@ -207,6 +209,7 @@ volatility <- R6::R6Class(
     info_ = NULL,
     n_threads_ = NULL,
     ptr_ = NULL,
+    param_ = NULL,
 
     simulate = function(steps, data, state, index = NULL,
                         n_threads = 1L, seed = NULL) {
@@ -306,6 +309,7 @@ walk <- R6::R6Class(
     info_ = NULL,
     n_threads_ = NULL,
     ptr_ = NULL,
+    param_ = NULL,
 
     simulate = function(steps, data, state, index = NULL,
                         n_threads = 1L, seed = NULL) {

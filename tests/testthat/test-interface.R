@@ -14,7 +14,6 @@ test_that("Interface passes arguments as expected", {
   filename <- dust_file("examples/walk.cpp")
   mock_compile_and_load <- mockery::mock(NULL)
   workdir <- tempfile()
-  config <- list(name = "walk", type = "walk", param = NULL)
   with_mock(
     "dust::compile_and_load" = mock_compile_and_load,
     dust(filename, TRUE, workdir))
@@ -22,7 +21,7 @@ test_that("Interface passes arguments as expected", {
   mockery::expect_called(mock_compile_and_load, 1L)
   expect_equal(
     mockery::mock_args(mock_compile_and_load)[[1]],
-    list(filename, config, TRUE, workdir))
+    list(filename, TRUE, workdir))
 })
 
 
@@ -123,7 +122,8 @@ test_that("validate interface", {
 test_that("validate package interface", {
   tmp <- tempfile(fileext = ".R")
   template <- read_lines(dust_file("template/dust.R.template"))
-  writeLines(glue_whisker(template, list(name = "testing")), tmp)
+  writeLines(glue_whisker(template, list(name = "testing", param = "NULL")),
+             tmp)
   env <- new.env()
   sys.source(tmp, env)
   res <- env$testing

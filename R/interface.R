@@ -147,8 +147,7 @@
 ##' obj$state()
 dust <- function(filename, quiet = FALSE, workdir = NULL) {
   assert_file_exists(filename)
-  config <- parse_metadata(filename)
-  compile_and_load(filename, config, quiet, workdir)
+  compile_and_load(filename, quiet, workdir)
 }
 
 

@@ -1,4 +1,5 @@
-generate_dust <- function(filename, config, quiet, workdir, cache) {
+generate_dust <- function(filename, quiet, workdir, cache) {
+  config <- parse_metadata(filename)
   hash <- hash_file(filename)
   base <- sprintf("%s%s", config$name, hash)
 
@@ -6,10 +7,12 @@ generate_dust <- function(filename, config, quiet, workdir, cache) {
     return(cache[[base]])
   }
 
-  assert_valid_name(config$name)
   model <- read_lines(filename)
-  data <- list(model = model, name = config$name, type = config$type,
-               base = base, path_dust_include = dust_file("include"))
+  data <- dust_template_data(model, config)
+
+  ## These two are used in the non-package version only
+  data$base <- base
+  data$path_dust_include <- dust_file("include")
 
   path <- dust_workdir(workdir)
   dir.create(file.path(path, "R"), FALSE, TRUE)
@@ -34,9 +37,8 @@ generate_dust <- function(filename, config, quiet, workdir, cache) {
 }
 
 
-compile_and_load <- function(filename, config, quiet = FALSE,
-                             workdir = NULL) {
-  res <- generate_dust(filename, config, quiet, workdir, cache)
+compile_and_load <- function(filename, quiet = FALSE, workdir = NULL) {
+  res <- generate_dust(filename, quiet, workdir, cache)
 
   if (is.null(res$env)) {
     path <- res$path
@@ -97,4 +99,12 @@ compile_dll <- function(...) {
       c("R_MAKEVARS_USER" = makevars),
       pkgbuild::compile_dll(...))
   }
+}
+
+
+dust_template_data <- function(model, config) {
+  list(model = model,
+       name = config$name,
+       type = config$type,
+       param = deparse_param(config$param))
 }

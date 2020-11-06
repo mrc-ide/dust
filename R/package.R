@@ -152,7 +152,7 @@ package_validate_namespace_usedynlib <- function(exprs, name) {
 package_generate <- function(filename) {
   config <- parse_metadata(filename)
   model <- read_lines(filename)
-  data <- list(model = model, name = config$name, type = config$type)
+  data <- dust_template_data(model, config)
 
   template_r <- readLines(dust_file("template/dust.R.template"))
   ## Drop all the roxygen comments here before writing out the R

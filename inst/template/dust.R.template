@@ -8,6 +8,7 @@
     info_ = NULL,
     n_threads_ = NULL,
     ptr_ = NULL,
+    param_ = {{param}},
 
     simulate = function(steps, data, state, index = NULL,
                         n_threads = 1L, seed = NULL) {
