@@ -161,3 +161,17 @@ test_that("dust::param requires subsequent arguments are named", {
     "Arguments 2 and following of of [[dust::param]] must be named",
     fixed = TRUE)
 })
+
+
+test_that("guess class", {
+  txt <- c("// A comment", "class  whatever {", "};")
+  expect_equal(parse_metadata_guess_class(txt), "whatever")
+  expect_error(parse_metadata_guess_class(txt[-2]),
+               "Could not automatically detect class name")
+  expect_error(parse_metadata_guess_class(rep(txt, 2)),
+               "Could not automatically detect class name")
+
+  ## Slightly harder cases
+  expect_equal(parse_metadata_guess_class("\tclass\tTheClass  "), "TheClass")
+  expect_equal(parse_metadata_guess_class("class TheClass{"), "TheClass")
+})

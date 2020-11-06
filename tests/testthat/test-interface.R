@@ -25,20 +25,6 @@ test_that("Interface passes arguments as expected", {
 })
 
 
-test_that("guess class", {
-  txt <- c("// A comment", "class  whatever {", "};")
-  expect_equal(parse_metadata_guess_type(txt), "whatever")
-  expect_error(parse_metadata_guess_type(txt[-2]),
-               "Could not automatically detect class name")
-  expect_error(parse_metadata_guess_type(rep(txt, 2)),
-               "Could not automatically detect class name")
-
-  ## Slightly harder cases
-  expect_equal(parse_metadata_guess_type("\tclass\tTheClass  "), "TheClass")
-  expect_equal(parse_metadata_guess_type("class TheClass{"), "TheClass")
-})
-
-
 test_that("dust_workdir uses tempdir() if NULL", {
   p <- dust_workdir(NULL)
   expect_equal(normalizePath(dirname(p)), normalizePath(tempdir()))
