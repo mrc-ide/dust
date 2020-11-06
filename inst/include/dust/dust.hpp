@@ -24,9 +24,7 @@ public:
     _y_swap(_model.size()) {
   }
 
-  // This accepts a value for rng_state, which will have just been
-  // created by the pRNG object.
-  void run(const size_t step_end, dust::rng_state_t<real_t> rng_state) {
+  void run(const size_t step_end, dust::rng_state_t<real_t>& rng_state) {
     while (_step < step_end) {
       _model.update(_step, _y.data(), rng_state, _y_swap.data());
       _step++;

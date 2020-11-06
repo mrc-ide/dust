@@ -1,3 +1,7 @@
+# dust 0.5.2
+
+* Back out the interleaved rng state from 0.5.0, which is causing a performance regression
+
 # dust 0.5.1
 
 * Remove prototype GPU interface, in preparation for a new version (#109)
@@ -8,7 +12,7 @@
 
 # dust 0.4.12
 
-* New `$set_rng_state()` method, the inverse to `$rng_state()` for taking a previously saved state and setting it into a model
+* New `$set_rng_state()` method, the inverse to `$rng_state()` for taking a previously saved state and setting it into a model (#??)
 
 # dust 0.4.11
 
