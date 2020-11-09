@@ -79,7 +79,7 @@
 ##'   variable ordering, or any processing done while accepting the
 ##'   data object used to create the data fed into the particles.
 ##'
-##' @section Confuring your model:
+##' @section Configuring your model:
 ##'
 ##' You can optionally use C++ psuedo-attributes to configure the
 ##'   generated code. Currently we support two attributes:
