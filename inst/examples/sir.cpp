@@ -62,7 +62,9 @@ sir::init_t dust_data<sir>(cpp11::list data) {
   double R0 = 0.0;
 
   // Rates, which can be set based on the provided data
+  // [[dust::param(beta, required = FALSE)]]
   double beta = with_default(0.2, data["beta"]);
+  // [[dust::param(gamma, required = FALSE)]]
   double gamma = with_default(0.1, data["gamma"]);
 
   // Time scaling

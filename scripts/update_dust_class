@@ -3,7 +3,7 @@ devtools::load_all()
 
 template_r <- read_lines("inst/template/dust.R.template")
 
-txt <- glue_whisker(template_r, list(name = "dust_class"))
+txt <- glue_whisker(template_r, list(name = "dust_class", param = "NULL"))
 txt <- gsub(") \\{.+?\n    \\}", ") {\n    }", txt)
 
 header <- c(

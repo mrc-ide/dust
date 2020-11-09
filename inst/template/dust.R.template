@@ -8,6 +8,7 @@
     info_ = NULL,
     n_threads_ = NULL,
     ptr_ = NULL,
+    param_ = {{param}},
 
     simulate = function(steps, data, state, index = NULL,
                         n_threads = 1L, seed = NULL) {
@@ -53,6 +54,14 @@
     ##' Returns friendly model name
     name = function() {
       "{{name}}"
+    },
+
+    ##' @description
+    ##' Returns parameter information, if provided by the model. This
+    ##' describes the contents of data passed to the constructor or to
+    ##' `reset` as the `data` argument, and the details depend on the model.
+    param = function() {
+      private$param_
     },
 
     ##' @description
@@ -207,3 +216,4 @@
       dust_{{name}}_has_openmp()
     }
   ))
+class({{name}}) <- c("dust_generator", class({{name}}))

@@ -16,26 +16,12 @@ test_that("Interface passes arguments as expected", {
   workdir <- tempfile()
   with_mock(
     "dust::compile_and_load" = mock_compile_and_load,
-    dust(filename, "type", "name", TRUE, workdir))
+    dust(filename, TRUE, workdir))
 
   mockery::expect_called(mock_compile_and_load, 1L)
   expect_equal(
     mockery::mock_args(mock_compile_and_load)[[1]],
-    list(filename, "type", "name", TRUE, workdir))
-})
-
-
-test_that("guess class", {
-  txt <- c("// A comment", "class  whatever {", "};")
-  expect_equal(dust_guess_type(txt), "whatever")
-  expect_error(dust_guess_type(txt[-2]),
-               "Could not automatically detect class name")
-  expect_error(dust_guess_type(rep(txt, 2)),
-               "Could not automatically detect class name")
-
-  ## Slightly harder cases
-  expect_equal(dust_guess_type("\tclass\tTheClass  "), "TheClass")
-  expect_equal(dust_guess_type("class TheClass{"), "TheClass")
+    list(filename, TRUE, workdir))
 })
 
 
@@ -107,8 +93,7 @@ test_that("dust_workdir will error if path is not a directory", {
 
 
 test_that("validate interface", {
-  res <- compile_and_load(dust_file("examples/walk.cpp"), "walk", "mywalk",
-                          quiet = TRUE)
+  res <- dust(dust_file("examples/walk.cpp"), quiet = TRUE)
   cmp <- dust_class
 
   expect_setequal(names(res$public_methods),
@@ -123,7 +108,8 @@ test_that("validate interface", {
 test_that("validate package interface", {
   tmp <- tempfile(fileext = ".R")
   template <- read_lines(dust_file("template/dust.R.template"))
-  writeLines(glue_whisker(template, list(name = "testing")), tmp)
+  writeLines(glue_whisker(template, list(name = "testing", param = "NULL")),
+             tmp)
   env <- new.env()
   sys.source(tmp, env)
   res <- env$testing
@@ -257,4 +243,14 @@ test_that("step must be nonnegative", {
   expect_error(
     res$new(list(), -1, 4),
     "'step' must be non-negative")
+})
+
+
+test_that("Can get parameters from generators", {
+  res <- dust(dust_file("examples/sirs.cpp"), quiet = TRUE)
+  expect_s3_class(res, "dust_generator")
+  expect_equal(coef(res), parse_metadata(dust_file("examples/sirs.cpp"))$param)
+  mod <- res$new(list(), 1, 1)
+  expect_equal(coef(mod), coef(res))
+  expect_equal(coef(mod), mod$param())
 })

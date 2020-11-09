@@ -150,10 +150,9 @@ package_validate_namespace_usedynlib <- function(exprs, name) {
 
 
 package_generate <- function(filename) {
-  type <- dust_guess_type(readLines(filename))
-  name <- type
+  config <- parse_metadata(filename)
   model <- read_lines(filename)
-  data <- list(model = model, name = name, type = type)
+  data <- dust_template_data(model, config)
 
   template_r <- readLines(dust_file("template/dust.R.template"))
   ## Drop all the roxygen comments here before writing out the R

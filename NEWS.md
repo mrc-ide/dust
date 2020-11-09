@@ -1,3 +1,7 @@
+# dust 0.5.3
+
+* Add support for configuring dust generation using C++ pseudo-attributes.
+
 # dust 0.5.2
 
 * Back out the interleaved rng state from 0.5.0, which is causing a performance regression

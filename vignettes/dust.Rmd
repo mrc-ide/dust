@@ -159,10 +159,18 @@ There is not much different here to the version that is shown before for the wal
 
 The other difference is a new template specialisation of `dust_info` - this is optional but can be used to report back to R information about the model based on the input data. Here it returns information about variable order and core parameters.
 
+We also have added C++ pseudo-attributes with `[[dust::param]]` to describe the parameters that this function takes. This is optional, but allows use of a `coef` method with the class (see below).
+
 As before, we'll use the version bundled with the package
 
 ```{r sir_compile}
 sir <- dust::dust_example("sir")
+```
+
+To get infomation about the parameters, use `coef()` on the generator
+
+```
+coef(sir)
 ```
 
 The model is initialised the same way as before:

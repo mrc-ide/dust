@@ -18,6 +18,7 @@ dust_class <- R6::R6Class(
     info_ = NULL,
     n_threads_ = NULL,
     ptr_ = NULL,
+    param_ = NULL,
 
     simulate = function(steps, data, state, index = NULL,
                         n_threads = 1L, seed = NULL) {
@@ -55,6 +56,13 @@ dust_class <- R6::R6Class(
     ##' @description
     ##' Returns friendly model name
     name = function() {
+    },
+
+    ##' @description
+    ##' Returns parameter information, if provided by the model. This
+    ##' describes the contents of data passed to the constructor or to
+    ##' `reset` as the `data` argument, and the details depend on the model.
+    param = function() {
     },
 
     ##' @description
@@ -184,3 +192,4 @@ dust_class <- R6::R6Class(
     has_openmp = function() {
     }
   ))
+class(dust_class) <- c("dust_generator", class(dust_class))

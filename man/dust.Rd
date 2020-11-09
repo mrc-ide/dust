@@ -5,19 +5,10 @@
 \alias{dust_class}
 \title{Create a dust model from a C++ input file}
 \usage{
-dust(filename, type = NULL, name = NULL, quiet = FALSE, workdir = NULL)
+dust(filename, quiet = FALSE, workdir = NULL)
 }
 \arguments{
 \item{filename}{The path to a single C++ file}
-
-\item{type}{The name of the "type" (the C++ class) that represents
-your model.  If \code{NULL} we try to work this out from your
-file using extremely simple heuristics.}
-
-\item{name}{The name of the model; for technical reasons this must
-be alphanumeric characters only (sorry, no underscore) and must
-not start with a number.  If \code{NULL} the value of
-\code{type} will be used.}
 
 \item{quiet}{Logical, indicating if compilation messages from
 \code{pkgbuild} should be displayed.  Error messages will be
@@ -102,6 +93,25 @@ variable ordering, or any processing done while accepting the
 data object used to create the data fed into the particles.
 }
 
+\section{Confuring your model}{
+
+
+You can optionally use C++ psuedo-attributes to configure the
+generated code. Currently we support two attributes:
+\itemize{
+\item \verb{[[dust::class(classname)]]} will tell dust the name of your
+target C++ class (in this example \code{classname}). You will need to
+use this if your file uses more than a single class, as
+otherwise will try to detect this using extremely simple
+heuristics.
+\item \verb{[[dust::name(modelname)]]} will tell dust the name to use for
+the class in R code. For technical reasons this must be
+alphanumeric characters only (sorry, no underscore) and must not
+start with a number. If not included then the C++ type name will
+be used (either specified with \verb{[[dust::class()]]} or detected).
+}
+}
+
 \examples{
 
 # dust includes a couple of very simple examples
@@ -144,6 +154,7 @@ obj$state()
 \itemize{
 \item \href{#method-new}{\code{dust_class$new()}}
 \item \href{#method-name}{\code{dust_class$name()}}
+\item \href{#method-param}{\code{dust_class$param()}}
 \item \href{#method-run}{\code{dust_class$run()}}
 \item \href{#method-set_index}{\code{dust_class$set_index()}}
 \item \href{#method-index}{\code{dust_class$index()}}
@@ -156,6 +167,7 @@ obj$state()
 \item \href{#method-info}{\code{dust_class$info()}}
 \item \href{#method-data}{\code{dust_class$data()}}
 \item \href{#method-rng_state}{\code{dust_class$rng_state()}}
+\item \href{#method-set_rng_state}{\code{dust_class$set_rng_state()}}
 \item \href{#method-has_openmp}{\code{dust_class$has_openmp()}}
 }
 }
@@ -202,6 +214,18 @@ generator) or a \code{raw} vector of a length that is a multiple of
 Returns friendly model name
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$name()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-param"></a>}}
+\if{latex}{\out{\hypertarget{method-param}{}}}
+\subsection{Method \code{param()}}{
+Returns parameter information, if provided by the model. This
+describes the contents of data passed to the constructor or to
+\code{reset} as the \code{data} argument, and the details depend on the model.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$param()}\if{html}{\out{</div>}}
 }
 
 }
@@ -404,6 +428,30 @@ If \code{TRUE} then we take just the first particle's state, which
 will be a total of 32 bytes. Both forms are suitable for seeding
 a new \code{\link{dust}} object as the shorter version will be used for
 the first particle, followed by jumps for each subsequent particle.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-set_rng_state"></a>}}
+\if{latex}{\out{\hypertarget{method-set_rng_state}{}}}
+\subsection{Method \code{set_rng_state()}}{
+Set the random number state for this model. This
+replaces the RNG state that the model is using with a state of
+your choosing, saved out from a different model object. This method
+is designed to support advanced use cases where it is easier to
+manipulate the state of the random number generator than the
+internal state of the dust object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$set_rng_state(rng_state)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{rng_state}}{A random number state, as saved out by the
+\verb{$rng_state()} method. Note that unlike \code{seed} as passed to the
+constructor, this \emph{must} be a raw vector of the expected length.}
 }
 \if{html}{\out{</div>}}
 }
