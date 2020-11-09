@@ -82,7 +82,7 @@ that can be used to work with the model (see the Details below)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.3</span>
       </span>
     </div>
 
@@ -147,7 +147,7 @@ compile the dust support around your model and return an object
 that can be used to work with the model (see the Details below).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>dust</span><span class='op'>(</span><span class='va'>filename</span>, type <span class='op'>=</span> <span class='cn'>NULL</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, quiet <span class='op'>=</span> <span class='cn'>FALSE</span>, workdir <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>dust</span><span class='op'>(</span><span class='va'>filename</span>, quiet <span class='op'>=</span> <span class='cn'>FALSE</span>, workdir <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -155,19 +155,6 @@ that can be used to work with the model (see the Details below).</p>
     <tr>
       <th>filename</th>
       <td><p>The path to a single C++ file</p></td>
-    </tr>
-    <tr>
-      <th>type</th>
-      <td><p>The name of the "type" (the C++ class) that represents
-your model.  If <code>NULL</code> we try to work this out from your
-file using extremely simple heuristics.</p></td>
-    </tr>
-    <tr>
-      <th>name</th>
-      <td><p>The name of the model; for technical reasons this must
-be alphanumeric characters only (sorry, no underscore) and must
-not start with a number.  If <code>NULL</code> the value of
-<code>type</code> will be used.</p></td>
     </tr>
     <tr>
       <th>quiet</th>
@@ -248,6 +235,25 @@ cpp11::sexp dust_info&lt;model&gt;(const model::init_t&amp; data) {
 Potential use cases for this are to return information about
 variable ordering, or any processing done while accepting the
 data object used to create the data fed into the particles.</p>
+    <h2 class="hasAnchor" id="confuring-your-model"><a class="anchor" href="#confuring-your-model"></a>Confuring your model</h2>
+
+    
+
+
+<p>You can optionally use C++ psuedo-attributes to configure the
+generated code. Currently we support two attributes:</p><ul>
+<li><p><code>[[dust::class(classname)]]</code> will tell dust the name of your
+target C++ class (in this example <code>classname</code>). You will need to
+use this if your file uses more than a single class, as
+otherwise will try to detect this using extremely simple
+heuristics.</p></li>
+<li><p><code>[[dust::name(modelname)]]</code> will tell dust the name to use for
+the class in R code. For technical reasons this must be
+alphanumeric characters only (sorry, no underscore) and must not
+start with a number. If not included then the C++ type name will
+be used (either specified with <code>[[dust::class()]]</code> or detected).</p></li>
+</ul>
+
     <h2 class="hasAnchor" id="methods"><a class="anchor" href="#methods"></a>Methods</h2>
 
     
@@ -256,6 +262,7 @@ data object used to create the data fed into the particles.</p>
 <ul>
 <li><p><a href='#method-new'><code>dust_class$new()</code></a></p></li>
 <li><p><a href='#method-name'><code>dust_class$name()</code></a></p></li>
+<li><p><a href='#method-param'><code>dust_class$param()</code></a></p></li>
 <li><p><a href='#method-run'><code>dust_class$run()</code></a></p></li>
 <li><p><a href='#method-set_index'><code>dust_class$set_index()</code></a></p></li>
 <li><p><a href='#method-index'><code>dust_class$index()</code></a></p></li>
@@ -268,6 +275,7 @@ data object used to create the data fed into the particles.</p>
 <li><p><a href='#method-info'><code>dust_class$info()</code></a></p></li>
 <li><p><a href='#method-data'><code>dust_class$data()</code></a></p></li>
 <li><p><a href='#method-rng_state'><code>dust_class$rng_state()</code></a></p></li>
+<li><p><a href='#method-set_rng_state'><code>dust_class$set_rng_state()</code></a></p></li>
 <li><p><a href='#method-has_openmp'><code>dust_class$has_openmp()</code></a></p></li>
 </ul>
 <p><hr>
@@ -303,6 +311,13 @@ generator) or a <code>raw</code> vector of a length that is a multiple of
 <a id="method-name"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/base/name.html'>name()</a></code></h3>
 <p>Returns friendly model name</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>name</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
+<a id="method-param"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>param()</code></h3>
+<p>Returns parameter information, if provided by the model. This
+describes the contents of data passed to the constructor or to
+<code>reset</code> as the <code>data</code> argument, and the details depend on the model.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>param</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
 <a id="method-run"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>run()</code></h3>
@@ -434,6 +449,23 @@ the first particle, followed by jumps for each subsequent particle.</p></dd>
 
 </dl><p></div></p>
 <p><hr>
+<a id="method-set_rng_state"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>set_rng_state()</code></h3>
+<p>Set the random number state for this model. This
+replaces the RNG state that the model is using with a state of
+your choosing, saved out from a different model object. This method
+is designed to support advanced use cases where it is easier to
+manipulate the state of the random number generator than the
+internal state of the dust object.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>set_rng_state</span><span class='op'>(</span><span class='va'>rng_state</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>rng_state</code></dt><dd><p>A random number state, as saved out by the
+<code>$rng_state()</code> method. Note that unlike <code>seed</code> as passed to the
+constructor, this <em>must</em> be a raw vector of the expected length.</p></dd>
+
+</dl><p></div></p>
+<p><hr>
 <a id="method-has_openmp"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>has_openmp()</code></h3>
 <p>Returns a logical, indicating if this model was compiled with
 "OpenMP" support, in which case it will react to the <code>n_threads</code>
@@ -496,6 +528,7 @@ as <code>dust_class$public_methods$has_openmp()</code></p><h4 class='hasAnchor' 
 #&gt;   Public:
 #&gt;     initialize: function (data, step, n_particles, n_threads = 1L, seed = NULL) 
 #&gt;     name: function () 
+#&gt;     param: function () 
 #&gt;     run: function (step_end) 
 #&gt;     set_index: function (index) 
 #&gt;     index: function () 
@@ -516,6 +549,7 @@ as <code>dust_class$public_methods$has_openmp()</code></p><h4 class='hasAnchor' 
 #&gt;     info_: NULL
 #&gt;     n_threads_: NULL
 #&gt;     ptr_: NULL
+#&gt;     param_: NULL
 #&gt;     simulate: function (steps, data, state, index = NULL, n_threads = 1L, seed = NULL) 
 #&gt;   Parent env: &lt;environment: namespace:dust&gt;
 #&gt;   Locked objects: TRUE
@@ -534,6 +568,7 @@ as <code>dust_class$public_methods$has_openmp()</code></p><h4 class='hasAnchor' 
 #&gt;     initialize: function (data, step, n_particles, n_threads = 1L, seed = NULL) 
 #&gt;     n_threads: function () 
 #&gt;     name: function () 
+#&gt;     param: function () 
 #&gt;     reorder: function (index) 
 #&gt;     reset: function (data, step) 
 #&gt;     rng_state: function (first_only = FALSE) 
@@ -548,6 +583,7 @@ as <code>dust_class$public_methods$has_openmp()</code></p><h4 class='hasAnchor' 
 #&gt;     index_: NULL
 #&gt;     info_: NULL
 #&gt;     n_threads_: 1
+#&gt;     param_: NULL
 #&gt;     ptr_: externalptr
 #&gt;     simulate: function (steps, data, state, index = NULL, n_threads = 1L, seed = NULL) </div><div class='input'>
 <span class='co'># Curent state is all zero</span>
