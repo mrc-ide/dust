@@ -33,7 +33,7 @@ parse_metadata_simple <- function(data, attribute) {
                  attribute, parse_metadata_describe(data, i)))
   }
   if (any(nzchar(names(value)))) {
-    stop(sprintf("Invalid format for [[%s()]] attribute %s",
+    stop(sprintf("Argument to [[%s()]] attribute must be unnamed %s",
                  attribute, parse_metadata_describe(data, i)))
   }
   as.character(value[[1]])
@@ -90,8 +90,6 @@ parse_metadata_param1 <- function(i, data) {
       call. = FALSE)
   }
 
-  ## I think that we should allow only a restricted set here perhaps?
-  ## Or a general set special case some like required/default
   list(name = as.character(x[[1]]),
        data = lapply(x[-1], function(el)
          if (is.symbol(el)) as.character(el) else el))

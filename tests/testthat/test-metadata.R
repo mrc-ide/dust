@@ -93,7 +93,7 @@ test_that("Cannot specify [[dust::class()]] with named argument", {
   on.exit(unlink(tmp))
   expect_error(
     parse_metadata(tmp),
-    sprintf("Invalid format for [[dust::class()]] attribute %s:1",
+    sprintf("Argument to [[dust::class()]] attribute must be unnamed %s:1",
             basename(tmp)),
     fixed = TRUE)
 })

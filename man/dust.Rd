@@ -104,11 +104,11 @@ target C++ class (in this example \code{classname}). You will need to
 use this if your file uses more than a single class, as
 otherwise will try to detect this using extremely simple
 heuristics.
-\item \verb{[[dust::name(modelname)]]} will tell dust the name of the model
-for exporting to R. For technical reasons this must be
+\item \verb{[[dust::name(modelname)]]} will tell dust the name to use for
+the class in R code. For technical reasons this must be
 alphanumeric characters only (sorry, no underscore) and must not
 start with a number. If not included then the C++ type name will
-be used (either specified with \verb{[[dust::type]]} or detected).
+be used (either specified with \verb{[[dust::class()]]} or detected).
 }
 }
 
