@@ -254,3 +254,24 @@ test_that("Can get parameters from generators", {
   expect_equal(coef(mod), coef(res))
   expect_equal(coef(mod), mod$param())
 })
+
+
+test_that("can change data", {
+  filename <- dust_file("examples/walk.cpp")
+  res <- dust(filename, quiet = FALSE)
+
+  obj <- res$new(list(sd = 1), 0L, 10L, seed = 1L)
+  y1 <- obj$run(1)
+
+  obj$set_data(list(sd = 2))
+  expect_equal(obj$state(), y1)
+  expect_equal(obj$step(), 1)
+  expect_equal(obj$data(), list(sd = 2))
+
+  y2 <- obj$run(2)
+
+  ## Then the comparison:
+  cmp <- dust_rng$new(seed = 1, 10)
+  expect_equal(cmp$rnorm(10, 0, 1), drop(y1))
+  expect_equal(y1 + cmp$rnorm(10, 0, 2), y2)
+})

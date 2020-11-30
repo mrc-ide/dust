@@ -65,6 +65,15 @@ public:
     _y_swap = other._y;
   }
 
+  bool set_data(const init_t& data) {
+    auto m = T(data);
+    bool valid = m.size() == _model.size();
+    if (valid) {
+      _model = m;
+    }
+    return valid;
+  }
+
   void set_state(typename std::vector<real_t>::const_iterator state) {
     for (size_t i = 0; i < _y.size(); ++i, ++state) {
       _y[i] = *state;
@@ -95,6 +104,21 @@ public:
   void reset(const init_t data, const size_t step) {
     const size_t n_particles = _particles.size();
     initialise(data, step, n_particles);
+  }
+
+  void set_data(const init_t data) {
+    const size_t n_particles = _particles.size();
+    const size_t n_state = n_state_full();
+    // bool ok = std::vector<bool>(n_particles);
+#ifdef _OPENMP
+    #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
+    for (size_t i = 0; i < n_particles; ++i) {
+      _particles[i].set_data(data);
+    }
+    // if (!std::all_of(ok.begin(), ok.end())) {
+    //   std::
+    // }
   }
 
   // It's the callee's responsibility to ensure that index is in

@@ -181,6 +181,14 @@ cpp11::sexp dust_reset(SEXP ptr, cpp11::list r_data, int step) {
 }
 
 template <typename T>
+cpp11::sexp dust_set_data(SEXP ptr, cpp11::list r_data) {
+  typename T::init_t data = dust_data<T>(r_data);
+  Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  obj->set_data(data);
+  return dust_info<T>(data);
+}
+
+template <typename T>
 SEXP dust_state(SEXP ptr, SEXP r_index) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   if (r_index == R_NilValue) {

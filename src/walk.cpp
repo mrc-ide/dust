@@ -80,6 +80,11 @@ void dust_walk_reorder(SEXP ptr, cpp11::sexp r_index) {
 }
 
 [[cpp11::register]]
+SEXP dust_walk_set_data(SEXP ptr, cpp11::list r_data) {
+  return dust_set_data<walk>(ptr, r_data);
+}
+
+[[cpp11::register]]
 SEXP dust_walk_rng_state(SEXP ptr, bool first_only) {
   return dust_rng_state<walk>(ptr, first_only);
 }

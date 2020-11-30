@@ -67,6 +67,11 @@ sir <- R6::R6Class(
       invisible()
     },
 
+    set_data = function(data) {
+      private$info_ <- dust_sir_set_data(private$ptr_, data)
+      private$data_ <- data
+    },
+
     state = function(index = NULL) {
       m <- dust_sir_state(private$ptr_, index)
       rownames(m) <- names(index)
@@ -170,6 +175,11 @@ variable <- R6::R6Class(
       private$index_ <- NULL
       private$data_ <- data
       invisible()
+    },
+
+    set_data = function(data) {
+      private$info_ <- dust_variable_set_data(private$ptr_, data)
+      private$data_ <- data
     },
 
     state = function(index = NULL) {
@@ -277,6 +287,11 @@ volatility <- R6::R6Class(
       invisible()
     },
 
+    set_data = function(data) {
+      private$info_ <- dust_volatility_set_data(private$ptr_, data)
+      private$data_ <- data
+    },
+
     state = function(index = NULL) {
       m <- dust_volatility_state(private$ptr_, index)
       rownames(m) <- names(index)
@@ -380,6 +395,11 @@ walk <- R6::R6Class(
       private$index_ <- NULL
       private$data_ <- data
       invisible()
+    },
+
+    set_data = function(data) {
+      private$info_ <- dust_walk_set_data(private$ptr_, data)
+      private$data_ <- data
     },
 
     state = function(index = NULL) {
