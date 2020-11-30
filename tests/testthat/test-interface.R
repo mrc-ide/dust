@@ -277,8 +277,7 @@ test_that("can change data", {
 
 
 test_that("Validate changing data leaves particles in sensible state", {
-  filename <- dust_file("examples/variable.cpp")
-  res <- dust(filename, quiet = TRUE)
+  res <- dust_example("variable")
 
   obj <- res$new(list(len = 5, mean = 0, sd = 1), 0, 10, seed = 1L)
   y1 <- obj$run(1)
