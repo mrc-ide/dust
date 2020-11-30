@@ -125,6 +125,16 @@ dust_class <- R6::R6Class(
     },
 
     ##' @description
+    ##' Set the 'data' element in a dust object while holding parameters,
+    ##' index, etc constant. In contrast to `$reset`, the old state must
+    ##' be compatible with the new one (e.g., don't change model size), and
+    ##' the index will remain valid.
+    ##'
+    ##' @param data New data for the model (see constructor)
+    set_data = function(data) {
+    },
+
+    ##' @description
     ##' Return full model state
     ##' @param index Optional index to select state using
     state = function(index = NULL) {
