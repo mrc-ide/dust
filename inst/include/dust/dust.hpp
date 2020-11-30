@@ -65,13 +65,14 @@ public:
     _y_swap = other._y;
   }
 
-  bool set_data(const init_t& data) {
+  size_t set_data(const init_t& data) {
     auto m = T(data);
-    bool valid = m.size() == _model.size();
-    if (valid) {
+    bool ret = m.size();
+    if (m.size() == _model.size()) {
       _model = m;
+      ret = 0;
     }
-    return valid;
+    return ret;
   }
 
   void set_state(typename std::vector<real_t>::const_iterator state) {
@@ -109,16 +110,22 @@ public:
   void set_data(const init_t data) {
     const size_t n_particles = _particles.size();
     const size_t n_state = n_state_full();
-    // bool ok = std::vector<bool>(n_particles);
+    std::vector<size_t> err(n_particles);
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
 #endif
     for (size_t i = 0; i < n_particles; ++i) {
-      _particles[i].set_data(data);
+      err[i] = _particles[i].set_data(data);
     }
-    // if (!std::all_of(ok.begin(), ok.end())) {
-    //   std::
-    // }
+    for (size_t i = 0; i < n_particles; ++i) {
+      if (err[i] > 0) {
+        std::stringstream msg;
+        msg << "Tried to initialise a particle with a different size:" <<
+          " particle " << i + 1 << " had length " << _particles[i].size() <<
+          " but data implies size " << err[i];
+        throw std::invalid_argument(msg.str());
+      }
+    }
   }
 
   // It's the callee's responsibility to ensure that index is in

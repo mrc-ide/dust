@@ -257,8 +257,7 @@ test_that("Can get parameters from generators", {
 
 
 test_that("can change data", {
-  filename <- dust_file("examples/walk.cpp")
-  res <- dust(filename, quiet = FALSE)
+  res <- dust_example("walk")
 
   obj <- res$new(list(sd = 1), 0L, 10L, seed = 1L)
   y1 <- obj$run(1)
@@ -274,4 +273,24 @@ test_that("can change data", {
   cmp <- dust_rng$new(seed = 1, 10)
   expect_equal(cmp$rnorm(10, 0, 1), drop(y1))
   expect_equal(y1 + cmp$rnorm(10, 0, 2), y2)
+})
+
+
+test_that("Validate changing data leaves particles in sensible state", {
+  filename <- dust_file("examples/variable.cpp")
+  res <- dust(filename, quiet = TRUE)
+
+  obj <- res$new(list(len = 5, mean = 0, sd = 1), 0, 10, seed = 1L)
+  y1 <- obj$run(1)
+
+  expect_error(
+    obj$set_data(list(len = 6, mean = 10, sd = 10)),
+    paste("Tried to initialise a particle with a different size:",
+          "particle 1 had length 5 but data implies size 1"))
+  expect_identical(obj$state(), y1)
+
+  y2 <- obj$run(2)
+  expect_identical(
+    y2,
+    res$new(list(len = 5, mean = 0, sd = 1), 0, 10, seed = 1L)$run(2))
 })
