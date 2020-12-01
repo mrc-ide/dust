@@ -82,7 +82,7 @@ that can be used to work with the model (see the Details below)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.4</span>
       </span>
     </div>
 
@@ -235,7 +235,7 @@ cpp11::sexp dust_info&lt;model&gt;(const model::init_t&amp; data) {
 Potential use cases for this are to return information about
 variable ordering, or any processing done while accepting the
 data object used to create the data fed into the particles.</p>
-    <h2 class="hasAnchor" id="confuring-your-model"><a class="anchor" href="#confuring-your-model"></a>Confuring your model</h2>
+    <h2 class="hasAnchor" id="configuring-your-model"><a class="anchor" href="#configuring-your-model"></a>Configuring your model</h2>
 
     
 
@@ -269,6 +269,7 @@ be used (either specified with <code>[[dust::class()]]</code> or detected).</p><
 <li><p><a href='#method-n_threads'><code>dust_class$n_threads()</code></a></p></li>
 <li><p><a href='#method-set_state'><code>dust_class$set_state()</code></a></p></li>
 <li><p><a href='#method-reset'><code>dust_class$reset()</code></a></p></li>
+<li><p><a href='#method-set_data'><code>dust_class$set_data()</code></a></p></li>
 <li><p><a href='#method-state'><code>dust_class$state()</code></a></p></li>
 <li><p><a href='#method-step'><code>dust_class$step()</code></a></p></li>
 <li><p><a href='#method-reorder'><code>dust_class$reorder()</code></a></p></li>
@@ -389,6 +390,19 @@ larges step given (i.e., <code><a href='https://rdrr.io/r/base/Extremes.html'>ma
 <dt><code>data</code></dt><dd><p>New data for the model (see constructor)</p></dd>
 
 <dt><code>step</code></dt><dd><p>New initial step for the model (see constructor)</p></dd>
+
+</dl><p></div></p>
+<p><hr>
+<a id="method-set_data"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>set_data()</code></h3>
+<p>Set the 'data' element in a dust object while holding model state,
+index, etc constant. In contrast to <code>$reset</code>, the old state must
+be compatible with the new one (e.g., don't change model size), and
+the index will remain valid.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>set_data</span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>data</code></dt><dd><p>New data for the model (see constructor)</p></dd>
 
 </dl><p></div></p>
 <p><hr>
@@ -535,6 +549,7 @@ as <code>dust_class$public_methods$has_openmp()</code></p><h4 class='hasAnchor' 
 #&gt;     n_threads: function () 
 #&gt;     set_state: function (state, step = NULL) 
 #&gt;     reset: function (data, step) 
+#&gt;     set_data: function (data) 
 #&gt;     state: function (index = NULL) 
 #&gt;     step: function () 
 #&gt;     reorder: function (index) 
@@ -573,6 +588,7 @@ as <code>dust_class$public_methods$has_openmp()</code></p><h4 class='hasAnchor' 
 #&gt;     reset: function (data, step) 
 #&gt;     rng_state: function (first_only = FALSE) 
 #&gt;     run: function (step_end) 
+#&gt;     set_data: function (data) 
 #&gt;     set_index: function (index) 
 #&gt;     set_rng_state: function (rng_state) 
 #&gt;     set_state: function (state, step = NULL) 
