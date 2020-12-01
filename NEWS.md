@@ -1,3 +1,7 @@
+# dust 0.5.4
+
+* New `$set_data()` method, similar to `reset` but changing only the data/parameters mid-model run, holding state and everything else identical (#114)
+
 # dust 0.5.3
 
 * Add support for configuring dust generation using C++ pseudo-attributes.

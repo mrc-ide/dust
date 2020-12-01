@@ -103,6 +103,11 @@ void dust_variable_reorder(SEXP ptr, cpp11::sexp r_index) {
 }
 
 [[cpp11::register]]
+SEXP dust_variable_set_data(SEXP ptr, cpp11::list r_data) {
+  return dust_set_data<variable>(ptr, r_data);
+}
+
+[[cpp11::register]]
 SEXP dust_variable_rng_state(SEXP ptr, bool first_only) {
   return dust_rng_state<variable>(ptr, first_only);
 }

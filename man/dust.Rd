@@ -93,7 +93,7 @@ variable ordering, or any processing done while accepting the
 data object used to create the data fed into the particles.
 }
 
-\section{Confuring your model}{
+\section{Configuring your model}{
 
 
 You can optionally use C++ psuedo-attributes to configure the
@@ -161,6 +161,7 @@ obj$state()
 \item \href{#method-n_threads}{\code{dust_class$n_threads()}}
 \item \href{#method-set_state}{\code{dust_class$set_state()}}
 \item \href{#method-reset}{\code{dust_class$reset()}}
+\item \href{#method-set_data}{\code{dust_class$set_data()}}
 \item \href{#method-state}{\code{dust_class$state()}}
 \item \href{#method-step}{\code{dust_class$step()}}
 \item \href{#method-reorder}{\code{dust_class$reorder()}}
@@ -335,6 +336,26 @@ Reset the model while preserving the random number stream state
 \item{\code{data}}{New data for the model (see constructor)}
 
 \item{\code{step}}{New initial step for the model (see constructor)}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-set_data"></a>}}
+\if{latex}{\out{\hypertarget{method-set_data}{}}}
+\subsection{Method \code{set_data()}}{
+Set the 'data' element in a dust object while holding model state,
+index, etc constant. In contrast to \verb{$reset}, the old state must
+be compatible with the new one (e.g., don't change model size), and
+the index will remain valid.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$set_data(data)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data}}{New data for the model (see constructor)}
 }
 \if{html}{\out{</div>}}
 }

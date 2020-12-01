@@ -65,6 +65,16 @@ public:
     _y_swap = other._y;
   }
 
+  size_t set_data(const init_t& data) {
+    auto m = T(data);
+    bool ret = m.size();
+    if (m.size() == _model.size()) {
+      _model = m;
+      ret = 0;
+    }
+    return ret;
+  }
+
   void set_state(typename std::vector<real_t>::const_iterator state) {
     for (size_t i = 0; i < _y.size(); ++i, ++state) {
       _y[i] = *state;
@@ -95,6 +105,28 @@ public:
   void reset(const init_t data, const size_t step) {
     const size_t n_particles = _particles.size();
     initialise(data, step, n_particles);
+  }
+
+  void set_data(const init_t data) {
+    const size_t n_particles = _particles.size();
+    const size_t n_state = n_state_full();
+    std::vector<size_t> err(n_particles);
+#ifdef _OPENMP
+    #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
+    for (size_t i = 0; i < n_particles; ++i) {
+      err[i] = _particles[i].set_data(data);
+    }
+    for (size_t i = 0; i < n_particles; ++i) {
+      if (err[i] > 0) {
+        std::stringstream msg;
+        msg << "Tried to initialise a particle with a different state size:" <<
+          " particle " << i + 1 << " had state size " <<
+          _particles[i].size() << " but new data implies state size " <<
+          err[i];
+        throw std::invalid_argument(msg.str());
+      }
+    }
   }
 
   // It's the callee's responsibility to ensure that index is in

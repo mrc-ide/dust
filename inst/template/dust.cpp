@@ -48,6 +48,11 @@ void dust_{{name}}_reorder(SEXP ptr, cpp11::sexp r_index) {
 }
 
 [[cpp11::register]]
+SEXP dust_{{name}}_set_data(SEXP ptr, cpp11::list r_data) {
+  return dust_set_data<{{class}}>(ptr, r_data);
+}
+
+[[cpp11::register]]
 SEXP dust_{{name}}_rng_state(SEXP ptr, bool first_only) {
   return dust_rng_state<{{class}}>(ptr, first_only);
 }
