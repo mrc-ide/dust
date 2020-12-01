@@ -120,9 +120,10 @@ public:
     for (size_t i = 0; i < n_particles; ++i) {
       if (err[i] > 0) {
         std::stringstream msg;
-        msg << "Tried to initialise a particle with a different size:" <<
-          " particle " << i + 1 << " had length " << _particles[i].size() <<
-          " but data implies size " << err[i];
+        msg << "Tried to initialise a particle with a different state size:" <<
+          " particle " << i + 1 << " had state size " <<
+          _particles[i].size() << " but new data implies state size " <<
+          err[i];
         throw std::invalid_argument(msg.str());
       }
     }

@@ -344,7 +344,7 @@ Reset the model while preserving the random number stream state
 \if{html}{\out{<a id="method-set_data"></a>}}
 \if{latex}{\out{\hypertarget{method-set_data}{}}}
 \subsection{Method \code{set_data()}}{
-Set the 'data' element in a dust object while holding parameters,
+Set the 'data' element in a dust object while holding model state,
 index, etc constant. In contrast to \verb{$reset}, the old state must
 be compatible with the new one (e.g., don't change model size), and
 the index will remain valid.

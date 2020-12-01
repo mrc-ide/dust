@@ -284,8 +284,8 @@ test_that("Validate changing data leaves particles in sensible state", {
 
   expect_error(
     obj$set_data(list(len = 6, mean = 10, sd = 10)),
-    paste("Tried to initialise a particle with a different size:",
-          "particle 1 had length 5 but data implies size 1"))
+    paste("Tried to initialise a particle with a different state size:",
+          "particle 1 had state size 5 but new data implies state size 1"))
   expect_identical(obj$state(), y1)
 
   y2 <- obj$run(2)
