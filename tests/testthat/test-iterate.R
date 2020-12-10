@@ -1,6 +1,6 @@
-context("simulate")
+context("iterate")
 
-test_that("simulate simple walk", {
+test_that("iterate simple walk", {
   res <- dust_example("walk")
   ns <- 100
   np <- 10

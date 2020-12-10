@@ -11,7 +11,8 @@ dust_simulate(
   state,
   index = NULL,
   n_threads = 1L,
-  seed = NULL
+  seed = NULL,
+  return_state = FALSE
 )
 }
 \arguments{
@@ -46,6 +47,10 @@ be a positive integer, \code{NULL} (initialise with R's random number
 generator) or a \code{raw} vector of a length that is a multiple of
 32 to directly initialise the generator (e.g., from the
 \code{\link{dust}} object's \verb{$rng_state()} method).}
+
+\item{return_state}{Logical, indicating if the final state should
+be returned. If \code{TRUE}, then an attribute \code{state} with the same
+dimensions as the input \code{state} will be added to the array.}
 }
 \description{
 Simulate a dust model.  This is a helper function that is subject

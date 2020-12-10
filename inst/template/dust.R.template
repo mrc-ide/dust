@@ -11,8 +11,10 @@
     param_ = {{param}},
 
     simulate = function(steps, data, state, index = NULL,
-                        n_threads = 1L, seed = NULL) {
-      dust_{{name}}_simulate(steps, data, state, index, n_threads, seed)
+                        n_threads = 1L, seed = NULL,
+                        return_state = FALSE) {
+      dust_{{name}}_simulate(steps, data, state, index, n_threads, seed,
+                             return_state)
     }
   ),
 

@@ -133,3 +133,23 @@ test_that("steps must not be negative", {
     dust_simulate(res, seq(-5, 10), data, y0),
     "All elements of 'steps' must be non-negative")
 })
+
+
+test_that("can extract final state", {
+  mod <- dust_example("variable")
+
+  np <- 13
+  ny <- 5
+  ns <- 11
+
+  steps <- 0:ns
+
+  data <- rep(list(list(len = ny)), np)
+  y0 <- matrix(rnorm(ny * np), ny, np)
+  res1 <- dust_simulate(mod, steps, data, y0, seed = 1L, return_state = TRUE)
+  expect_identical(res1[, , ns + 1], attr(res1, "state"))
+
+  res2 <- dust_simulate(mod, steps, data, y0, seed = 1L,
+                        index = integer(0), return_state = TRUE)
+  expect_identical(attr(res2, "state"), attr(res1, "state"))
+})

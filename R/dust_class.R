@@ -21,7 +21,8 @@ dust_class <- R6::R6Class(
     param_ = NULL,
 
     simulate = function(steps, data, state, index = NULL,
-                        n_threads = 1L, seed = NULL) {
+                        n_threads = 1L, seed = NULL,
+                        return_state = FALSE) {
     }
   ),
 

@@ -290,10 +290,11 @@ template <typename T>
 std::vector<typename T::real_t>
 dust_simulate(const std::vector<size_t> steps,
               const std::vector<typename T::init_t> data,
-              const std::vector<typename T::real_t> state,
+              std::vector<typename T::real_t>& state,
               const std::vector<size_t> index,
               const size_t n_threads,
-              const std::vector<uint64_t>& seed) {
+              const std::vector<uint64_t>& seed,
+              bool save_state) {
   typedef typename T::real_t real_t;
   const size_t n_state_return = index.size();
   const size_t n_particles = data.size();
@@ -324,6 +325,9 @@ dust_simulate(const std::vector<size_t> steps,
       particles[i].run(steps[t], rng.state(i));
       size_t offset = t * n_state_return * n_particles + i * n_state_return;
       particles[i].state(index, ret.begin() + offset);
+    }
+    if (save_state) {
+      particles[i].state_full(state.begin() + n_state_full * i);
     }
   }
 

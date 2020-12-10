@@ -58,6 +58,10 @@
 ##'   32 to directly initialise the generator (e.g., from the
 ##'   [`dust`] object's `$rng_state()` method).
 ##'
+##' @param return_state Logical, indicating if the final state should
+##'   be returned. If `TRUE`, then an attribute `state` with the same
+##'   dimensions as the input `state` will be added to the array.
+##'
 ##' @export
 ##' @examples
 ##' # Use the "random walk" example
@@ -79,7 +83,7 @@
 ##' # The result of the simulation, plotted over time
 ##' matplot(steps, t(drop(res)), type = "l", col = "#00000055", lty = 1)
 dust_simulate <- function(model, steps, data, state, index = NULL,
-                          n_threads = 1L, seed = NULL) {
+                          n_threads = 1L, seed = NULL, return_state = FALSE) {
   if (inherits(model, "dust")) {
     simulate <- environment(model$run)$private$simulate
   } else if (inherits(model, "R6ClassGenerator") &&
@@ -94,5 +98,5 @@ dust_simulate <- function(model, steps, data, state, index = NULL,
   if (is.list(data) && !is.null(names(data))) {
     stop("Expected 'data' to be an unnamed list")
   }
-  simulate(steps, data, state, index, n_threads, seed)
+  simulate(steps, data, state, index, n_threads, seed, return_state)
 }

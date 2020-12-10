@@ -69,9 +69,10 @@ SEXP dust_{{name}}_simulate(cpp11::sexp r_steps,
                             cpp11::doubles_matrix r_state,
                             cpp11::sexp r_index,
                             const size_t n_threads,
-                            cpp11::sexp r_seed) {
+                            cpp11::sexp r_seed,
+                            bool return_state) {
   return dust_simulate<{{class}}>(r_steps, r_data, r_state, r_index,
-                                 n_threads, r_seed);
+                                  n_threads, r_seed, return_state);
 }
 
 [[cpp11::register]]
