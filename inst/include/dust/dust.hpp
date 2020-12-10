@@ -288,10 +288,10 @@ private:
 
 template <typename T>
 std::vector<typename T::real_t>
-dust_simulate(const std::vector<size_t> steps,
-              const std::vector<typename T::init_t> data,
+dust_simulate(const std::vector<size_t>& steps,
+              const std::vector<typename T::init_t>& data,
               std::vector<typename T::real_t>& state,
-              const std::vector<size_t> index,
+              const std::vector<size_t>& index,
               const size_t n_threads,
               const std::vector<uint64_t>& seed,
               bool save_state) {
