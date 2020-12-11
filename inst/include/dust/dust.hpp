@@ -109,7 +109,6 @@ public:
 
   void set_data(const init_t data) {
     const size_t n_particles = _particles.size();
-    const size_t n_state = n_state_full();
     std::vector<size_t> err(n_particles);
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
@@ -293,7 +292,7 @@ dust_simulate(const std::vector<size_t>& steps,
               std::vector<typename T::real_t>& state,
               const std::vector<size_t>& index,
               const size_t n_threads,
-              const std::vector<uint64_t>& seed,
+              std::vector<uint64_t>& seed,
               bool save_state) {
   typedef typename T::real_t real_t;
   const size_t n_state_return = index.size();
@@ -329,6 +328,11 @@ dust_simulate(const std::vector<size_t>& steps,
     if (save_state) {
       particles[i].state_full(state.begin() + n_state_full * i);
     }
+  }
+
+  // To continue we'd also need the rng state:
+  if (save_state) {
+    rng.export_state(seed);
   }
 
   return ret;

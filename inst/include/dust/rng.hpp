@@ -50,14 +50,18 @@ public:
 
   std::vector<uint64_t> export_state() {
     std::vector<uint64_t> state;
+    export_state(state);
+    return state;
+  }
+
+  void export_state(std::vector<uint64_t>& state) {
     const size_t n = rng_state_t<T>::size();
-    state.reserve(size() * n);
-    for (size_t i = 0; i < size(); ++i) {
-      for (size_t j = 0; j < n; ++j) {
-        state.push_back(_state[i][j]);
+    state.resize(size() * n);
+    for (size_t i = 0, k = 0; i < size(); ++i) {
+      for (size_t j = 0; j < n; ++j, ++k) {
+        state[k] = _state[i][j];
       }
     }
-    return state;
   }
 
   void import_state(const std::vector<uint64_t>& state) {
