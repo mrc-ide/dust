@@ -96,7 +96,7 @@ cpp11::writable::doubles dust_simulate(cpp11::sexp r_steps,
 
     size_t n_rng_state = sizeof(uint64_t) * seed.size();
     cpp11::writable::raws r_rng_state(n_rng_state);
-    std::memcpy(RAW(r_rng_state), state.data(), n_rng_state);
+    std::memcpy(RAW(r_rng_state), seed.data(), n_rng_state);
     ret.attr("rng_state") = r_rng_state;
   }
 

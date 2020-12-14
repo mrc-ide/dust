@@ -144,45 +144,19 @@ test_that("can extract final state", {
 
   steps <- 0:ns
 
+  seed <- dust_rng$new(NULL, np)$state()
+
   data <- rep(list(list(len = ny)), np)
   y0 <- matrix(rnorm(ny * np), ny, np)
-  res1 <- dust_simulate(mod, steps, data, y0, seed = 1L, return_state = TRUE)
+  res1 <- dust_simulate(mod, steps, data, y0, seed = seed, return_state = TRUE)
   expect_identical(res1[, , ns + 1], attr(res1, "state"))
 
-  res2 <- dust_simulate(mod, steps, data, y0, seed = 1L,
+  res2 <- dust_simulate(mod, steps, data, y0, seed = seed,
                         index = integer(0), return_state = TRUE)
   expect_identical(attr(res2, "state"), attr(res1, "state"))
+  expect_identical(attr(res2, "rng_state"), attr(res1, "rng_state"))
 
-  ## this is good except that the seed is wrong.
-  cmp <- mod$new(list(len = ny), 0, np, seed = 1L)
-  cmp$set_state(y0)
-  cmp_state <- cmp$run(ns)
-  cmp_rng_state <- cmp$rng_state()
-  expect_identical(cmp_state, attr(res1, "state"))
-  expect_identical(cmp_rng_state, attr(res1, "rng_state"))
-})
-
-
-test_that("can extract rng state", {
-  mod <- dust_example("variable")
-
-  np <- 13
-  ny <- 1
-  ns <- 11
-
-  steps <- 0:ns
-
-  data <- list(list(len = ny))
-  y0 <- rep(0, ny)
-  res1 <- dust_simulate(mod, steps, data, y0, seed = 1L, return_state = TRUE)
-  expect_identical(res1[, , ns + 1], attr(res1, "state"))
-
-  res2 <- dust_simulate(mod, steps, data, y0, seed = 1L,
-                        index = integer(0), return_state = TRUE)
-  expect_identical(attr(res2, "state"), attr(res1, "state"))
-
-  ## this is good except that the seed is wrong.
-  cmp <- mod$new(list(len = ny), 0, np, seed = 1L)
+  cmp <- mod$new(list(len = ny), 0, np, seed = seed)
   cmp$set_state(y0)
   cmp_state <- cmp$run(ns)
   cmp_rng_state <- cmp$rng_state()
