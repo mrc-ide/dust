@@ -18,11 +18,15 @@
 ##'   but this needs care in the case where either more or fewer
 ##'   simulations are carried out than the initial object has.  This
 ##'   is resolvable as rng state can be exported from one dust object
-##'   and used in another (though it can't be returned by the
-##'   simulation here).  The [dust_rng_state_long_jump()] function can be
-##'   used manually to perform a "long jump" on the exported state,
-##'   which can be used to create streams that are sensibly
-##'   distributed along the RNG's period.
+##'   and used in another.  The [dust_rng_state_long_jump()] function
+##'   can be used manually to perform a "long jump" on the exported
+##'   state, which can be used to create streams that are sensibly
+##'   distributed along the RNG's period.  If you are performing
+##'   multiple simulations with this function you should use
+##'   `return_state = TRUE` and use the `rng_state` attribute to
+##'   reseed the RNG (it holds the final state of the random number
+##'   generator at the end of the simulation, so is the correct place
+##'   to start again).
 ##'
 ##' @title Simulate from a model or generator
 ##'
@@ -60,7 +64,9 @@
 ##'
 ##' @param return_state Logical, indicating if the final state should
 ##'   be returned. If `TRUE`, then an attribute `state` with the same
-##'   dimensions as the input `state` will be added to the array.
+##'   dimensions as the input `state` will be added to the array,
+##'   along with an attribute `rng_state` with the internal state of
+##'   the random number generator.
 ##'
 ##' @export
 ##' @examples
