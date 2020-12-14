@@ -58,7 +58,8 @@ cpp11::writable::doubles dust_simulate(cpp11::sexp r_steps,
                                        cpp11::doubles_matrix r_state,
                                        cpp11::sexp r_index,
                                        const size_t n_threads,
-                                       cpp11::sexp r_seed) {
+                                       cpp11::sexp r_seed,
+                                       bool return_state) {
   typedef typename T::real_t real_t;
   std::vector<size_t> steps = validate_size(r_steps, "steps");
   std::vector<real_t> state = matrix_to_vector<real_t>(r_state);
@@ -79,12 +80,26 @@ cpp11::writable::doubles dust_simulate(cpp11::sexp r_steps,
   cpp11::writable::doubles ret(index.size() * data.size() * steps.size());
 
   std::vector<real_t> dat =
-    dust_simulate<T>(steps, data, state, index, n_threads, seed);
+    dust_simulate<T>(steps, data, state, index, n_threads, seed, return_state);
   std::copy(dat.begin(), dat.end(), REAL(ret));
 
   ret.attr("dim") = cpp11::writable::integers({(int)index.size(),
                                                (int)data.size(),
                                                (int)steps.size()});
+
+  if (return_state) {
+    cpp11::writable::doubles r_state_end(state.size());
+    std::copy(state.begin(), state.end(), REAL(r_state_end));
+    r_state_end.attr("dim") = cpp11::writable::integers({
+        r_state.nrow(), r_state.ncol()});
+    ret.attr("state") = r_state_end;
+
+    size_t n_rng_state = sizeof(uint64_t) * seed.size();
+    cpp11::writable::raws r_rng_state(n_rng_state);
+    std::memcpy(RAW(r_rng_state), seed.data(), n_rng_state);
+    ret.attr("rng_state") = r_rng_state;
+  }
+
   return ret;
 }
 

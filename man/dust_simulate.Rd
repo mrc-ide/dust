@@ -11,7 +11,8 @@ dust_simulate(
   state,
   index = NULL,
   n_threads = 1L,
-  seed = NULL
+  seed = NULL,
+  return_state = FALSE
 )
 }
 \arguments{
@@ -46,6 +47,12 @@ be a positive integer, \code{NULL} (initialise with R's random number
 generator) or a \code{raw} vector of a length that is a multiple of
 32 to directly initialise the generator (e.g., from the
 \code{\link{dust}} object's \verb{$rng_state()} method).}
+
+\item{return_state}{Logical, indicating if the final state should
+be returned. If \code{TRUE}, then an attribute \code{state} with the same
+dimensions as the input \code{state} will be added to the array,
+along with an attribute \code{rng_state} with the internal state of
+the random number generator.}
 }
 \description{
 Simulate a dust model.  This is a helper function that is subject
@@ -70,11 +77,15 @@ simulation; ideally this would update the RNG on the \code{model},
 but this needs care in the case where either more or fewer
 simulations are carried out than the initial object has.  This
 is resolvable as rng state can be exported from one dust object
-and used in another (though it can't be returned by the
-simulation here).  The \code{\link[=dust_rng_state_long_jump]{dust_rng_state_long_jump()}} function can be
-used manually to perform a "long jump" on the exported state,
-which can be used to create streams that are sensibly
-distributed along the RNG's period.
+and used in another.  The \code{\link[=dust_rng_state_long_jump]{dust_rng_state_long_jump()}} function
+can be used manually to perform a "long jump" on the exported
+state, which can be used to create streams that are sensibly
+distributed along the RNG's period.  If you are performing
+multiple simulations with this function you should use
+\code{return_state = TRUE} and use the \code{rng_state} attribute to
+reseed the RNG (it holds the final state of the random number
+generator at the end of the simulation, so is the correct place
+to start again).
 }
 
 \examples{
