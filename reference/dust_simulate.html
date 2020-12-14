@@ -81,7 +81,7 @@ to change; see Details below." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.6</span>
       </span>
     </div>
 
@@ -152,7 +152,8 @@ to change; see Details below.</p>
   <span class='va'>state</span>,
   index <span class='op'>=</span> <span class='cn'>NULL</span>,
   n_threads <span class='op'>=</span> <span class='fl'>1L</span>,
-  seed <span class='op'>=</span> <span class='cn'>NULL</span>
+  seed <span class='op'>=</span> <span class='cn'>NULL</span>,
+  return_state <span class='op'>=</span> <span class='cn'>FALSE</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -204,6 +205,14 @@ generator) or a <code>raw</code> vector of a length that is a multiple of
 32 to directly initialise the generator (e.g., from the
 <code><a href='dust.html'>dust</a></code> object's <code>$rng_state()</code> method).</p></td>
     </tr>
+    <tr>
+      <th>return_state</th>
+      <td><p>Logical, indicating if the final state should
+be returned. If <code>TRUE</code>, then an attribute <code>state</code> with the same
+dimensions as the input <code>state</code> will be added to the array,
+along with an attribute <code>rng_state</code> with the internal state of
+the random number generator.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
@@ -227,11 +236,15 @@ simulation; ideally this would update the RNG on the <code>model</code>,
 but this needs care in the case where either more or fewer
 simulations are carried out than the initial object has.  This
 is resolvable as rng state can be exported from one dust object
-and used in another (though it can't be returned by the
-simulation here).  The <code><a href='dust_rng_state_long_jump.html'>dust_rng_state_long_jump()</a></code> function can be
-used manually to perform a "long jump" on the exported state,
-which can be used to create streams that are sensibly
-distributed along the RNG's period.</p>
+and used in another.  The <code><a href='dust_rng_state_long_jump.html'>dust_rng_state_long_jump()</a></code> function
+can be used manually to perform a "long jump" on the exported
+state, which can be used to create streams that are sensibly
+distributed along the RNG's period.  If you are performing
+multiple simulations with this function you should use
+<code>return_state = TRUE</code> and use the <code>rng_state</code> attribute to
+reseed the RNG (it holds the final state of the random number
+generator at the end of the simulation, so is the correct place
+to start again).</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Use the "random walk" example</span>
