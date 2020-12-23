@@ -115,3 +115,8 @@ bool dust_walk_has_openmp() {
   return false;
 #endif
 }
+
+[[cpp11::register]]
+void dust_walk_set_n_threads(SEXP ptr, int n_threads) {
+  return dust_set_n_threads<walk>(ptr, n_threads);
+}

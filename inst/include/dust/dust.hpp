@@ -255,6 +255,10 @@ public:
     _rng.import_state(rng_state);
   }
 
+  void set_n_threads(size_t n_threads) {
+    _n_threads = n_threads;
+  }
+
   // NOTE: it only makes sense to expose long_jump, and not jump,
   // because each rng stream is one jump away from the next.
   void rng_long_jump() {
@@ -263,7 +267,7 @@ public:
 
 private:
   std::vector<size_t> _index;
-  const size_t _n_threads;
+  size_t _n_threads;
   dust::pRNG<real_t> _rng;
   std::vector<Particle<T>> _particles;
 

@@ -201,6 +201,15 @@ dust_class <- R6::R6Class(
     ##' as a static method by running it directly
     ##' as `dust_class$public_methods$has_openmp()`
     has_openmp = function() {
+    },
+
+    ##' @description
+    ##' Change the number of threads that the dust object will use. Your
+    ##' model must be compiled with "OpenMP" support for this to have an
+    ##' effect. Returns (invisibly) the previous value.
+    ##'
+    ##' @param n_threads The new number of threads to use
+    set_n_threads = function(n_threads) {
     }
   ))
 class(dust_class) <- c("dust_generator", class(dust_class))

@@ -83,3 +83,8 @@ bool dust_{{name}}_has_openmp() {
   return false;
 #endif
 }
+
+[[cpp11::register]]
+void dust_{{name}}_set_n_threads(SEXP ptr, int n_threads) {
+  return dust_set_n_threads<{{class}}>(ptr, n_threads);
+}

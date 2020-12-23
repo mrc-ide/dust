@@ -168,3 +168,8 @@ bool dust_sir_has_openmp() {
   return false;
 #endif
 }
+
+[[cpp11::register]]
+void dust_sir_set_n_threads(SEXP ptr, int n_threads) {
+  return dust_set_n_threads<sir>(ptr, n_threads);
+}

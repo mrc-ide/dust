@@ -133,3 +133,8 @@ bool dust_volatility_has_openmp() {
   return false;
 #endif
 }
+
+[[cpp11::register]]
+void dust_volatility_set_n_threads(SEXP ptr, int n_threads) {
+  return dust_set_n_threads<volatility>(ptr, n_threads);
+}

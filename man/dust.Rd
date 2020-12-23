@@ -170,6 +170,7 @@ obj$state()
 \item \href{#method-rng_state}{\code{dust_class$rng_state()}}
 \item \href{#method-set_rng_state}{\code{dust_class$set_rng_state()}}
 \item \href{#method-has_openmp}{\code{dust_class$has_openmp()}}
+\item \href{#method-set_n_threads}{\code{dust_class$set_n_threads()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -490,5 +491,24 @@ as \code{dust_class$public_methods$has_openmp()}
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$has_openmp()}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-set_n_threads"></a>}}
+\if{latex}{\out{\hypertarget{method-set_n_threads}{}}}
+\subsection{Method \code{set_n_threads()}}{
+Change the number of threads that the dust object will use. Your
+model must be compiled with "OpenMP" support for this to have an
+effect. Returns (invisibly) the previous value.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$set_n_threads(n_threads)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{n_threads}}{The new number of threads to use}
+}
+\if{html}{\out{</div>}}
+}
 }
 }
