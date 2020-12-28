@@ -68,23 +68,22 @@ private:
 
 template<>
 arrays::init_t dust_data<arrays>(cpp11::list user) {
-  arrays::shared_t shared;
-  shared.initial_y = 2;
-  shared.n = 3;
-  shared.dim_r = shared.n;
-  shared.dim_x = shared.n;
-  for (int i = 0; i < shared.dim_x; ++i) {
-    shared.initial_x[i] = 1;
+  auto shared = std::make_shared<arrays::shared_t>();
+
+  shared->initial_y = 2;
+  shared->n = 3;
+  shared->dim_r = shared->n;
+  shared->dim_x = shared->n;
+  for (int i = 0; i < shared->dim_x; ++i) {
+    shared->initial_x[i] = 1;
   }
 
   arrays::internal_t internal;
-  for (int i = 0; i < shared.dim_r; ++i) {
+  for (int i = 0; i < shared->dim_r; ++i) {
     internal.r[i] = i;
   }
 
-  auto ptr = std::make_shared<const arrays::shared_t>(shared);
-
-  return arrays::init_t{ptr, internal};
+  return arrays::init_t{shared, internal};
 }
 
 template <>
