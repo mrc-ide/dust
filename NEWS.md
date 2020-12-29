@@ -1,3 +1,7 @@
+# dust 0.5.7
+
+* New method `set_n_threads()` for changing the number of OpenMP threads after initialisation (#122)
+
 # dust 0.5.6
 
 * `dust::dust_simulate()` can return the entire model end state (#119)

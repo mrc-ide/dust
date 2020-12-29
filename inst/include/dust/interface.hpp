@@ -282,6 +282,13 @@ void dust_set_rng_state(SEXP ptr, cpp11::raws rng_state) {
   obj->set_rng_state(data);
 }
 
+template <typename T>
+void dust_set_n_threads(SEXP ptr, int n_threads) {
+  Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  validate_positive(n_threads, "n_threads");
+  obj->set_n_threads(n_threads);
+}
+
 // Trivial default implementation of a method for getting back
 // arbitrary information from the object.
 template <typename T>

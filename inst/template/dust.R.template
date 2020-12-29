@@ -228,6 +228,22 @@
     ##' as `{{name}}$public_methods$has_openmp()`
     has_openmp = function() {
       dust_{{name}}_has_openmp()
+    },
+
+    ##' @description
+    ##' Change the number of threads that the dust object will use. Your
+    ##' model must be compiled with "OpenMP" support for this to have an
+    ##' effect. Returns (invisibly) the previous value.
+    ##'
+    ##' @param n_threads The new number of threads to use. You may want to
+    ##'   wrap this argument in [dust::dust_openmp_threads()] in order to
+    ##'   verify that you can actually use the number of threads
+    ##'   requested (based on environment variables and OpenMP support).
+    set_n_threads = function(n_threads) {
+      prev <- private$n_threads_
+      dust_{{name}}_set_n_threads(private$ptr_, n_threads)
+      private$n_threads_ <- n_threads
+      invisible(prev)
     }
   ))
 class({{name}}) <- c("dust_generator", class({{name}}))

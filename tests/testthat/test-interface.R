@@ -227,6 +227,25 @@ test_that("can return the number of threads initialised with", {
 })
 
 
+test_that("can change the number of threads after initialisation", {
+  mod <- dust_example("walk")$new(list(sd = 1), 0, 5)
+  expect_equal(withVisible(mod$set_n_threads(2)),
+               list(value = 1L, visible = FALSE))
+  expect_equal(mod$n_threads(), 2L)
+  expect_equal(withVisible(mod$set_n_threads(1)),
+               list(value = 2L, visible = FALSE))
+})
+
+
+test_that("can't change to an impossible thread count", {
+  mod <- dust_example("walk")$new(list(sd = 1), 0, 5)
+  expect_error(mod$set_n_threads(0),
+               "'n_threads' must be positive")
+  expect_error(mod$set_n_threads(-1),
+               "'n_threads' must be positive")
+})
+
+
 test_that("number of threads must be positive", {
   res <- dust_example("walk")
   expect_error(
