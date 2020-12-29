@@ -506,7 +506,10 @@ effect. Returns (invisibly) the previous value.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n_threads}}{The new number of threads to use}
+\item{\code{n_threads}}{The new number of threads to use. You may want to
+wrap this argument in \code{\link[=dust_openmp_threads]{dust_openmp_threads()}} in order to
+verify that you can actually use the number of threads
+requested (based on environment variables and OpenMP support).}
 }
 \if{html}{\out{</div>}}
 }

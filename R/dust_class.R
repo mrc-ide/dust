@@ -208,7 +208,10 @@ dust_class <- R6::R6Class(
     ##' model must be compiled with "OpenMP" support for this to have an
     ##' effect. Returns (invisibly) the previous value.
     ##'
-    ##' @param n_threads The new number of threads to use
+    ##' @param n_threads The new number of threads to use. You may want to
+    ##'   wrap this argument in [dust::dust_openmp_threads()] in order to
+    ##'   verify that you can actually use the number of threads
+    ##'   requested (based on environment variables and OpenMP support).
     set_n_threads = function(n_threads) {
     }
   ))
