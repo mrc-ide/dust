@@ -437,3 +437,14 @@ test_that("has_openmp can be called statically and normally", {
   expect_equal(res$public_methods$has_openmp(), expected)
   expect_equal(res$new(list(), 0, 1)$has_openmp(), expected)
 })
+
+
+test_that("can run shared memory example", {
+  gen1 <- dust(dust_file("examples/arrays.cpp"), quiet = TRUE)
+  gen2 <- dust(dust_file("examples/shared.cpp"), quiet = TRUE)
+
+  mod1 <- gen1$new(list(), 0, 10)
+  mod2 <- gen2$new(list(), 0, 10)
+
+  expect_identical(mod1$run(10), mod1$run(10))
+})
