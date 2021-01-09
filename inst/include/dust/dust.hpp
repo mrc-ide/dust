@@ -103,8 +103,9 @@ public:
   Dust(const init_t& data, const size_t step, const size_t n_particles,
        const size_t n_threads, const std::vector<uint64_t>& seed) :
     _n_data(0),
+    _n_particles_total(n_particles),
     _n_threads(n_threads),
-    _rng(n_particles, seed) {
+    _rng(_n_particles_total, seed) {
     initialise(data, step, n_particles);
   }
 
@@ -112,8 +113,9 @@ public:
        const size_t n_particles, const size_t n_threads,
        const std::vector<uint64_t>& seed) :
     _n_data(data.size()),
+    _n_particles_total(n_particles * data.size()),
     _n_threads(n_threads),
-    _rng(n_particles, seed) {
+    _rng(_n_particles_total, seed) {
     initialise(data, step, n_particles);
   }
 
@@ -286,9 +288,11 @@ public:
 
 private:
   const size_t _n_data; // 0 in the "single" case, >=1 otherwise
-  std::vector<size_t> _index;
+  const size_t _n_particles_total; // Total number of particles
   size_t _n_threads;
   dust::pRNG<real_t> _rng;
+
+  std::vector<size_t> _index;
   std::vector<Particle<T>> _particles;
 
   void initialise(const init_t& data, const size_t step,
@@ -313,13 +317,16 @@ private:
       for (size_t j = 0; j < n_particles; ++j) {
         _particles.push_back(Particle<T>(data[i], step));
       }
-      if (i > 0 && particles.back().size() != particles.front().size()) {
-        std::stringstream msg;
-        msg << "Data created different state sizes: data " << i + 1 <<
-          " (of " << _n_data << ") had length " <<
-          particles.front().size() << " but expected " <<
-          particles.back().size();
-        throw std::invalid_argument(msg.str());
+      if (i > 0) {
+        const size_t n_old = _particles.front().size();
+        const size_t n_new = _particles.back().size();
+        if (n_old != n_new) {
+          std::stringstream msg;
+          msg << "Data created different state sizes: data " << i + 1 <<
+            " (of " << _n_data << ") had length " << n_new <<
+            " but expected " << n_old;
+          throw std::invalid_argument(msg.str());
+        }
       }
     }
     _particles = particles;
@@ -356,8 +363,8 @@ dust_simulate(const std::vector<size_t>& steps,
     if (i > 0 && particles.back().size() != particles.front().size()) {
       std::stringstream msg;
       msg << "Particles have different state sizes: particle " << i + 1 <<
-        " had length " << particles.front().size() << " but expected " <<
-        particles.back().size();
+        " had length " << particles.back().size() << " but expected " <<
+        particles.front().size();
       throw std::invalid_argument(msg.str());
     }
   }
