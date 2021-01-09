@@ -144,7 +144,9 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
   }
 
   if (r_state != R_NilValue) {
-    if (Rf_isMatrix(r_state)) {
+    if (obj->n_data() > 0) {
+      dust_set_state_multi(obj, cpp11::as_cpp<cpp11::doubles>(r_state));
+    } else if (Rf_isMatrix(r_state)) {
       dust_set_state(obj, cpp11::as_cpp<cpp11::doubles_matrix>(r_state));
     } else {
       dust_set_state(obj, cpp11::as_cpp<cpp11::doubles>(r_state));
@@ -196,6 +198,43 @@ void dust_set_state(Dust<T> *obj, cpp11::doubles_matrix r_state) {
   std::vector<real_t> state = matrix_to_vector<real_t>(r_state);
 
   obj->set_state(state, true);
+}
+
+// name could be improved!
+//
+// NOTE: because recycling the state is ambiguous here, we require a
+// full 3d matrix of state, at least for now. We might relax this
+// later once tests are in place.
+template <typename T>
+void dust_set_state_multi(Dust<T> *obj, cpp11::doubles r_state) {
+  const size_t n_state = obj->n_state_full();
+  const size_t n_data = obj->n_data();
+  const size_t n_particles_each = obj->n_particles() / n_data;
+
+  cpp11::sexp r_dim_sexp = r_state.attr("dim");
+  if (r_dim_sexp == R_NilValue) {
+    cpp11::stop("Expected a 3d array for 'state' (but recieved a vector)");
+  }
+
+  cpp11::integers r_dim = cpp11::as_cpp<cpp11::integers>(r_dim_sexp);
+  if (r_dim.size() != 3) {
+    cpp11::stop("Expected a 3d array for 'state'");
+  }
+  if (static_cast<size_t>(r_dim[0]) != n_state) {
+    cpp11::stop("Expected a 3d array with %d rows for 'state'", n_state);
+  }
+  if (static_cast<size_t>(r_dim[1]) != n_particles_each) {
+    cpp11::stop("Expected a 3d array with %d columns for 'state'",
+                n_particles_each);
+  }
+  if (static_cast<size_t>(r_dim[2]) != n_data) {
+    cpp11::stop("Expected a 3d array with dim[3] == %d for 'state'", n_data);
+  }
+
+  const std::vector<typename T::real_t> state(r_state.begin(), r_state.end());
+
+  obj->set_state(state, true);
+
 }
 
 template <typename T>

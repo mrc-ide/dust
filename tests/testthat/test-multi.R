@@ -78,3 +78,47 @@ test_that("Can particles and resume continues with rng", {
     array(y2, c(np, nd)),
     apply(m2, 1:2, sum) * rep(c(sd2, sd3), each = np))
 })
+
+
+test_that("Can set state", {
+  res <- dust_example("variable")
+
+  nd <- 3
+  ns <- 7
+  np <- 13
+
+  data <- rep(list(list(len = ns)), nd)
+  mod <- res$new(data, 0, np, seed = 1L, data_multi = TRUE)
+
+  ## Initial state:
+  expect_equal(
+    mod$state(),
+    array(1:ns, c(ns, np, nd)))
+
+  y <- mod$state()
+  y[] <- runif(length(y))
+
+  mod$set_state(y)
+  expect_equal(mod$state(), y)
+
+  expect_error(
+    mod$set_state(c(y)),
+    "Expected a 3d array for 'state' (but recieved a vector)",
+    fixed = TRUE)
+  expect_error(
+    mod$set_state(matrix(c(y), c(ns, nd * np))),
+    "Expected a 3d array for 'state'")
+  expect_error(
+    mod$set_state(y[-1, , ]),
+    "Expected a 3d array with 7 rows for 'state'")
+  expect_error(
+    mod$set_state(y[, -1, ]),
+    "Expected a 3d array with 13 columns for 'state'")
+  expect_error(
+    mod$set_state(y[, , -1]),
+    "Expected a 3d array with dim[3] == 3 for 'state'",
+    fixed = TRUE)
+
+  ## Unchanged
+  expect_equal(mod$state(), y)
+})
