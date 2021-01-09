@@ -315,11 +315,11 @@ private:
     particles.reserve(n_particles * _n_data);
     for (size_t i = 0; i < _n_data; ++i) {
       for (size_t j = 0; j < n_particles; ++j) {
-        _particles.push_back(Particle<T>(data[i], step));
+        particles.push_back(Particle<T>(data[i], step));
       }
       if (i > 0) {
-        const size_t n_old = _particles.front().size();
-        const size_t n_new = _particles.back().size();
+        const size_t n_old = particles.front().size();
+        const size_t n_new = particles.back().size();
         if (n_old != n_new) {
           std::stringstream msg;
           msg << "Data created different state sizes: data " << i + 1 <<

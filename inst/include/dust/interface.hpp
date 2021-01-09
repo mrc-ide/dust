@@ -31,8 +31,10 @@ template <typename T>
 std::vector<T> matrix_to_vector(cpp11::doubles_matrix x);
 
 template <typename T>
-cpp11::writable::doubles_matrix create_matrix(size_t nrow, size_t ncol,
-                                              const T& data);
+cpp11::sexp create_matrix(size_t nrow, size_t ncol, const T& data);
+
+template <typename T>
+cpp11::sexp create_array(const std::vector<size_t>& dim, const T& data);
 
 template <typename T>
 cpp11::list dust_alloc(cpp11::list r_data, bool data_multi, int step,
@@ -197,24 +199,25 @@ void dust_set_state(Dust<T> *obj, cpp11::doubles_matrix r_state) {
 }
 
 template <typename T>
-cpp11::writable::doubles_matrix dust_run(SEXP ptr, int step_end) {
+cpp11::sexp dust_run(SEXP ptr, int step_end) {
   validate_size(step_end, "step_end");
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  if (obj->n_data() > 0) {
-    // Just shape return type as a 3d array
-    MULTI_NOT_IMPLEMENTED;
-  }
-
   obj->run(step_end);
 
   const size_t n_state = obj->n_state();
   const size_t n_particles = obj->n_particles();
+  const size_t n_data = obj->n_data();
   const size_t len = n_state * n_particles;
 
   std::vector<typename T::real_t> dat(len);
   obj->state(dat);
 
-  return create_matrix(n_state, n_particles, dat);
+  if (n_data == 0) {
+    return create_matrix(n_state, n_particles, dat);
+  } else {
+    std::vector<size_t> dim{n_state, n_particles / n_data, n_data};
+    return create_array(dim, dat);
+  }
 }
 
 template <typename T>
@@ -266,16 +269,18 @@ SEXP dust_state_full(Dust<T> *obj) {
   const size_t n_data = obj->n_data();
   const size_t len = n_state_full * n_particles;
 
-  if (n_data > 0) {
-    MULTI_NOT_IMPLEMENTED;
-    // Corectly compute the length, then create a 3d matrix, not a 2d
-    // array.
-  }
-
   std::vector<typename T::real_t> dat(len);
   obj->state_full(dat);
 
-  return create_matrix(n_state_full, n_particles, dat);
+  cpp11::sexp ret;
+  if (n_data == 0) {
+    ret = create_matrix(n_state_full, n_particles, dat);
+  } else {
+    std::vector<size_t> dim{n_state_full, n_particles / n_data, n_data};
+    ret = create_array(dim, dat);
+  }
+
+  return ret;
 }
 
 template <typename T>
@@ -287,16 +292,18 @@ SEXP dust_state_select(Dust<T> *obj, cpp11::sexp r_index) {
   const size_t n_data = obj->n_data();
   const size_t len = n_state * n_particles;
 
-  if (n_data > 0) {
-    MULTI_NOT_IMPLEMENTED;
-    // Corectly compute the length, then create a 3d matrix, not a 2d
-    // array.
-  }
-
   std::vector<typename T::real_t> dat(len);
   obj->state(index, dat);
 
-  return create_matrix(n_state, n_particles, dat);
+  cpp11::sexp ret;
+  if (n_data == 0) {
+    ret = create_matrix(n_state, n_particles, dat);
+  } else {
+    std::vector<size_t> dim{n_state, n_particles / n_data, n_data};
+    ret = create_array(dim, dat);
+  }
+
+  return ret;
 }
 
 template <typename T>
@@ -424,14 +431,33 @@ inline std::vector<size_t> r_index_to_index_default(size_t n) {
 }
 
 template <typename T>
-cpp11::writable::doubles_matrix create_matrix(size_t nrow, size_t ncol,
-                                              const T& data) {
-  cpp11::writable::doubles_matrix ret(nrow, ncol);
-  double * dest = REAL(ret);
+cpp11::sexp create_matrix(size_t nrow, size_t ncol, const T& data) {
   const size_t len = data.size();
+  cpp11::writable::doubles ret(len);
+  double * dest = REAL(ret);
   for (size_t i = 0; i < len; ++i) {
     dest[i] = data[i];
   }
+
+  ret.attr("dim") = cpp11::writable::integers({(int)nrow, (int)ncol});
+  return ret;
+}
+
+template <typename T>
+cpp11::sexp create_array(const std::vector<size_t>& dim, const T& data) {
+  const size_t len = data.size();
+  cpp11::writable::doubles ret(len);
+  double * dest = REAL(ret);
+  for (size_t i = 0; i < len; ++i) {
+    dest[i] = data[i];
+  }
+
+  cpp11::writable::integers r_dim(dim.size());
+  for (size_t i = 0; i < dim.size(); ++i) {
+    r_dim[i] = dim[i];
+  }
+  ret.attr("dim") = r_dim;
+
   return ret;
 }
 
