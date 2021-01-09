@@ -14,6 +14,7 @@ dust_class <- R6::R6Class(
 
   private = list(
     data_ = NULL,
+    data_multi_ = NULL,
     index_ = NULL,
     info_ = NULL,
     n_threads_ = NULL,
@@ -23,16 +24,30 @@ dust_class <- R6::R6Class(
     simulate = function(steps, data, state, index = NULL,
                         n_threads = 1L, seed = NULL,
                         return_state = FALSE) {
+    },
+
+    check_data_multi = function(data, len) {
     }
   ),
 
   public = list(
     ##' @description
-    ##' Create a new model
+    ##' Create a new model. Note that the behaviour of this object
+    ##' created by this function will change considerably based on
+    ##' whether the `data_multi` argument is `TRUE`. If not (the
+    ##' default) then we create `n_particles` which all share the same
+    ##' parameters as specified by the `data` argument. If `data_multi`
+    ##' is `TRUE` then `data` must be an unnamed list, and each element
+    ##' of it represents a different set of parameters/data. We will
+    ##' create `length(data)` *sets* of `n_particles` particles which
+    ##' will be simulated together. These particles must have the same
+    ##' dimension - that is, they must correspond to model state that
+    ##' is the same size.
     ##'
     ##' @param data Data to initialise your model with; a `list`
     ##' object, but the required elements will depend on the details of
-    ##' your model.
+    ##' your model. If `data_multi` is `TRUE`, then this must be an
+    ##' *unnamed* list of `data` objects (see Details).
     ##'
     ##' @param step Initial step - must be nonnegative
     ##'
@@ -50,8 +65,14 @@ dust_class <- R6::R6Class(
     ##' generator) or a `raw` vector of a length that is a multiple of
     ##' 32 to directly initialise the generator (e..g., from the
     ##' [`dust`] object's `$rng_state()` method).
+    ##'
+    ##' @param data_multi Logical, indicating if `data` should be
+    ##' interpreted as a set of different initialisations, and that we
+    ##' should prepare `n_particles * length(data)` particles for
+    ##' simulation. This has an effect on many of the other methods of
+    ##' the object.
     initialize = function(data, step, n_particles, n_threads = 1L,
-                          seed = NULL) {
+                          seed = NULL, data_multi = FALSE) {
     },
 
     ##' @description

@@ -48,8 +48,8 @@ cpp_openmp_info <- function() {
   .Call("_dust_cpp_openmp_info", PACKAGE = "dust")
 }
 
-dust_sir_alloc <- function(r_data, step, n_particles, n_threads, r_seed) {
-  .Call("_dust_dust_sir_alloc", r_data, step, n_particles, n_threads, r_seed, PACKAGE = "dust")
+dust_sir_alloc <- function(r_data, data_multi, step, n_particles, n_threads, r_seed) {
+  .Call("_dust_dust_sir_alloc", r_data, data_multi, step, n_particles, n_threads, r_seed, PACKAGE = "dust")
 }
 
 dust_sir_run <- function(ptr, step_end) {
@@ -104,8 +104,8 @@ dust_sir_set_n_threads <- function(ptr, n_threads) {
   invisible(.Call("_dust_dust_sir_set_n_threads", ptr, n_threads, PACKAGE = "dust"))
 }
 
-dust_variable_alloc <- function(r_data, step, n_particles, n_threads, r_seed) {
-  .Call("_dust_dust_variable_alloc", r_data, step, n_particles, n_threads, r_seed, PACKAGE = "dust")
+dust_variable_alloc <- function(r_data, data_multi, step, n_particles, n_threads, r_seed) {
+  .Call("_dust_dust_variable_alloc", r_data, data_multi, step, n_particles, n_threads, r_seed, PACKAGE = "dust")
 }
 
 dust_variable_run <- function(ptr, step_end) {
@@ -160,8 +160,8 @@ dust_variable_set_n_threads <- function(ptr, n_threads) {
   invisible(.Call("_dust_dust_variable_set_n_threads", ptr, n_threads, PACKAGE = "dust"))
 }
 
-dust_volatility_alloc <- function(r_data, step, n_particles, n_threads, r_seed) {
-  .Call("_dust_dust_volatility_alloc", r_data, step, n_particles, n_threads, r_seed, PACKAGE = "dust")
+dust_volatility_alloc <- function(r_data, data_multi, step, n_particles, n_threads, r_seed) {
+  .Call("_dust_dust_volatility_alloc", r_data, data_multi, step, n_particles, n_threads, r_seed, PACKAGE = "dust")
 }
 
 dust_volatility_run <- function(ptr, step_end) {
@@ -216,8 +216,8 @@ dust_volatility_set_n_threads <- function(ptr, n_threads) {
   invisible(.Call("_dust_dust_volatility_set_n_threads", ptr, n_threads, PACKAGE = "dust"))
 }
 
-dust_walk_alloc <- function(r_data, step, n_particles, n_threads, r_seed) {
-  .Call("_dust_dust_walk_alloc", r_data, step, n_particles, n_threads, r_seed, PACKAGE = "dust")
+dust_walk_alloc <- function(r_data, data_multi, step, n_particles, n_threads, r_seed) {
+  .Call("_dust_dust_walk_alloc", r_data, data_multi, step, n_particles, n_threads, r_seed, PACKAGE = "dust")
 }
 
 dust_walk_run <- function(ptr, step_end) {

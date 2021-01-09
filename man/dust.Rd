@@ -177,9 +177,26 @@ obj$state()
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new model
+Create a new model. Note that the behaviour of this object
+created by this function will change considerably based on
+whether the \code{data_multi} argument is \code{TRUE}. If not (the
+default) then we create \code{n_particles} which all share the same
+parameters as specified by the \code{data} argument. If \code{data_multi}
+is \code{TRUE} then \code{data} must be an unnamed list, and each element
+of it represents a different set of parameters/data. We will
+create \code{length(data)} \emph{sets} of \code{n_particles} particles which
+will be simulated together. These particles must have the same
+dimension - that is, they must correspond to model state that
+is the same size.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$new(data, step, n_particles, n_threads = 1L, seed = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$new(
+  data,
+  step,
+  n_particles,
+  n_threads = 1L,
+  seed = NULL,
+  data_multi = FALSE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -187,7 +204,8 @@ Create a new model
 \describe{
 \item{\code{data}}{Data to initialise your model with; a \code{list}
 object, but the required elements will depend on the details of
-your model.}
+your model. If \code{data_multi} is \code{TRUE}, then this must be an
+\emph{unnamed} list of \code{data} objects (see Details).}
 
 \item{\code{step}}{Initial step - must be nonnegative}
 
@@ -205,6 +223,12 @@ be a positive integer, \code{NULL} (initialise with R's random number
 generator) or a \code{raw} vector of a length that is a multiple of
 32 to directly initialise the generator (e..g., from the
 \code{\link{dust}} object's \verb{$rng_state()} method).}
+
+\item{\code{data_multi}}{Logical, indicating if \code{data} should be
+interpreted as a set of different initialisations, and that we
+should prepare \code{n_particles * length(data)} particles for
+simulation. This has an effect on many of the other methods of
+the object.}
 }
 \if{html}{\out{</div>}}
 }

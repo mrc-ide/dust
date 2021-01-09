@@ -12,6 +12,8 @@
 
 #include <dust/rng_interface.hpp>
 
+#define MULTI_NOT_IMPLEMENTED cpp11::stop("data_multi not yet supported")
+
 template <typename T>
 typename T::init_t dust_data(cpp11::list data);
 
@@ -33,7 +35,7 @@ cpp11::writable::doubles_matrix create_matrix(size_t nrow, size_t ncol,
                                               const T& data);
 
 template <typename T>
-cpp11::list dust_alloc(cpp11::list r_data, int step,
+cpp11::list dust_alloc(cpp11::list r_data, bool data_multi, int step,
                        int n_particles, int n_threads,
                        cpp11::sexp r_seed) {
   validate_size(step, "step");
@@ -41,11 +43,23 @@ cpp11::list dust_alloc(cpp11::list r_data, int step,
   validate_positive(n_threads, "n_threads");
   std::vector<uint64_t> seed = as_rng_seed<typename T::real_t>(r_seed);
 
-  typename T::init_t data = dust_data<T>(r_data);
-
-  Dust<T> *d = new Dust<T>(data, step, n_particles, n_threads, seed);
+  Dust<T> *d = NULL;
+  cpp11::sexp info;
+  if (data_multi) {
+    std::vector<typename T::init_t> data;
+    cpp11::writable::list info_list = cpp11::writable::list(r_data.size());
+    for (int i = 0; i < r_data.size(); ++i) {
+      data.push_back(dust_data<T>(r_data[i]));
+      info_list[i] = dust_info<T>(data[i]);
+    }
+    info = info_list;
+    d = new Dust<T>(data, step, n_particles, n_threads, seed);
+  } else {
+    typename T::init_t data = dust_data<T>(r_data);
+    d = new Dust<T>(data, step, n_particles, n_threads, seed);
+    info = dust_info<T>(data);
+  }
   cpp11::external_pointer<Dust<T>> ptr(d, true, false);
-  cpp11::sexp info = dust_info<T>(data);
 
   return cpp11::writable::list({ptr, info});
 }
@@ -145,6 +159,12 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
 template <typename T>
 void dust_set_state(Dust<T> *obj, cpp11::doubles r_state) {
   const size_t n_state = obj->n_state_full();
+  const size_t n_data = obj->n_data();
+  if (n_data > 0) {
+    // Just different checking, no implementation change
+    MULTI_NOT_IMPLEMENTED;
+  }
+
   if (static_cast<size_t>(r_state.size()) != n_state) {
     cpp11::stop("Expected a vector with %d elements for 'state'", n_state);
   }
@@ -157,6 +177,12 @@ void dust_set_state(Dust<T> *obj, cpp11::doubles_matrix r_state) {
   typedef typename T::real_t real_t;
   const size_t n_state = obj->n_state_full();
   const size_t n_particles = obj->n_particles();
+  const size_t n_data = obj->n_data();
+
+  if (n_data > 0) {
+    // Just different checking, no implementation change
+    MULTI_NOT_IMPLEMENTED;
+  }
 
   if (static_cast<size_t>(r_state.nrow()) != n_state) {
     cpp11::stop("Expected a matrix with %d rows for 'state'", n_state);
@@ -174,6 +200,11 @@ template <typename T>
 cpp11::writable::doubles_matrix dust_run(SEXP ptr, int step_end) {
   validate_size(step_end, "step_end");
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  if (obj->n_data() > 0) {
+    // Just shape return type as a 3d array
+    MULTI_NOT_IMPLEMENTED;
+  }
+
   obj->run(step_end);
 
   const size_t n_state = obj->n_state();
@@ -189,18 +220,33 @@ cpp11::writable::doubles_matrix dust_run(SEXP ptr, int step_end) {
 template <typename T>
 cpp11::sexp dust_reset(SEXP ptr, cpp11::list r_data, int step) {
   validate_size(step, "step");
-  typename T::init_t data = dust_data<T>(r_data);
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  obj->reset(data, step);
-  return dust_info<T>(data);
+  cpp11::sexp info;
+  if (obj->n_data() == 0) {
+    typename T::init_t data = dust_data<T>(r_data);
+    obj->reset(data, step);
+    info = dust_info<T>(data);
+  } else {
+    // Needs significant implementation on the underlying class
+    MULTI_NOT_IMPLEMENTED;
+  }
+  return info;
 }
 
 template <typename T>
 cpp11::sexp dust_set_data(SEXP ptr, cpp11::list r_data) {
-  typename T::init_t data = dust_data<T>(r_data);
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  obj->set_data(data);
-  return dust_info<T>(data);
+  cpp11::sexp info;
+  if (obj->n_data() == 0) {
+    typename T::init_t data = dust_data<T>(r_data);
+    obj->set_data(data);
+    return dust_info<T>(data);
+  } else {
+    // Needs significant implementation on the underlying class,
+    // though shared with reset
+    MULTI_NOT_IMPLEMENTED;
+  }
+  return info;
 }
 
 template <typename T>
@@ -217,7 +263,14 @@ template <typename T>
 SEXP dust_state_full(Dust<T> *obj) {
   const size_t n_state_full = obj->n_state_full();
   const size_t n_particles = obj->n_particles();
+  const size_t n_data = obj->n_data();
   const size_t len = n_state_full * n_particles;
+
+  if (n_data > 0) {
+    MULTI_NOT_IMPLEMENTED;
+    // Corectly compute the length, then create a 3d matrix, not a 2d
+    // array.
+  }
 
   std::vector<typename T::real_t> dat(len);
   obj->state_full(dat);
@@ -231,7 +284,14 @@ SEXP dust_state_select(Dust<T> *obj, cpp11::sexp r_index) {
   const std::vector<size_t> index = r_index_to_index(r_index, index_max);
   const size_t n_state = static_cast<size_t>(index.size());
   const size_t n_particles = obj->n_particles();
+  const size_t n_data = obj->n_data();
   const size_t len = n_state * n_particles;
+
+  if (n_data > 0) {
+    MULTI_NOT_IMPLEMENTED;
+    // Corectly compute the length, then create a 3d matrix, not a 2d
+    // array.
+  }
 
   std::vector<typename T::real_t> dat(len);
   obj->state(index, dat);
@@ -249,6 +309,12 @@ template <typename T>
 void dust_reorder(SEXP ptr, cpp11::sexp r_index) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   size_t n = obj->n_particles();
+  if (obj->n_data() > 0) {
+    MULTI_NOT_IMPLEMENTED;
+    // Lots of thinking to do here, but I think this will be a
+    // *matrix* of indices, or at least interpreted as one.
+  }
+
   std::vector<size_t> index = r_index_to_index(r_index, n);
   if ((size_t)index.size() != obj->n_particles()) {
     cpp11::stop("Expected a vector of length %d for 'index'", n);

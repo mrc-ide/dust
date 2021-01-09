@@ -5,9 +5,11 @@
 {{model}}
 
 [[cpp11::register]]
-SEXP dust_{{name}}_alloc(cpp11::list r_data, size_t step, size_t n_particles,
-                size_t n_threads, cpp11::sexp r_seed) {
-  return dust_alloc<{{class}}>(r_data, step, n_particles, n_threads, r_seed);
+SEXP dust_{{name}}_alloc(cpp11::list r_data, bool data_multi, size_t step,
+                         size_t n_particles, size_t n_threads,
+                         cpp11::sexp r_seed) {
+  return dust_alloc<{{class}}>(r_data, data_multi, step, n_particles,
+                               n_threads, r_seed);
 }
 
 [[cpp11::register]]
