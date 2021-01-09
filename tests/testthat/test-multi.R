@@ -41,6 +41,8 @@ test_that("create trivial 2 element mulitdust object", {
   y1 <- obj1$run(1)
   y2 <- obj2$run(1)
   expect_equal(y2, array(y1, c(1, 5, 2)))
+
+  expect_identical(obj1$rng_state(), obj2$rng_state())
 })
 
 
@@ -121,4 +123,36 @@ test_that("Can set state", {
 
   ## Unchanged
   expect_equal(mod$state(), y)
+})
+
+
+test_that("can set index", {
+  res <- dust_example("variable")
+  nd <- 3
+  ns <- 7
+  np <- 13
+  data <- rep(list(list(len = ns)), nd)
+  mod <- res$new(data, 0, np, seed = 1L, data_multi = TRUE)
+  y <- mod$state()
+  y[] <- runif(length(y))
+  mod$set_state(y)
+  idx <- c(1, 3, 5)
+  mod$set_index(idx)
+
+  expect_equal(mod$state(), y)
+  expect_equal(mod$state(idx), y[idx, , ])
+  expect_equal(mod$run(0), y[idx, , ])
+})
+
+
+test_that("can error if out-of-bounds index used", {
+  res <- dust_example("variable")
+  nd <- 3
+  ns <- 7
+  np <- 13
+  data <- rep(list(list(len = ns)), nd)
+  mod <- res$new(data, 0, np, seed = 1L, data_multi = TRUE)
+  expect_error(mod$set_index(c(1, 9, 2)),
+               "All elements of 'index' must lie in [1, 7]",
+               fixed = TRUE)
 })
