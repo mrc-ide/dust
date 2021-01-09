@@ -308,12 +308,16 @@ private:
     //
     // We can throw here so need to make a new copy of particles.
     std::vector<Particle<T>> particles;
-    particles.reserve(n_particles);
-    for (size_t i = 0; i < n_particles; ++i) {
+    particles.reserve(n_particles * _n_data);
+    for (size_t i = 0; i < _n_data; ++i) {
+      for (size_t j = 0; j < n_particles; ++j) {
+        _particles.push_back(Particle<T>(data[i], step));
+      }
       if (i > 0 && particles.back().size() != particles.front().size()) {
         std::stringstream msg;
-        msg << "Particles have different state sizes: particle " << i + 1 <<
-          " had length " << particles.front().size() << " but expected " <<
+        msg << "Data created different state sizes: data " << i + 1 <<
+          " (of " << _n_data << ") had length " <<
+          particles.front().size() << " but expected " <<
           particles.back().size();
         throw std::invalid_argument(msg.str());
       }

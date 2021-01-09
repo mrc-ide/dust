@@ -20,7 +20,7 @@ sir <- R6::R6Class(
     },
 
     check_data_multi = function(data, len) {
-      if (!is.list(data) || is.null(names(data))) {
+      if (!is.list(data) || !is.null(names(data))) {
         stop("Expected 'data' to be an unnamed list as 'data_multi' is used")
       }
       n <- length(private$data_)
@@ -133,6 +133,10 @@ sir <- R6::R6Class(
       dust_sir_has_openmp()
     },
 
+    n_data = function() {
+      if (private$data_multi_) length(private$data_) else 0L
+    },
+
     set_n_threads = function(n_threads) {
       prev <- private$n_threads_
       dust_sir_set_n_threads(private$ptr_, n_threads)
@@ -162,7 +166,7 @@ variable <- R6::R6Class(
     },
 
     check_data_multi = function(data, len) {
-      if (!is.list(data) || is.null(names(data))) {
+      if (!is.list(data) || !is.null(names(data))) {
         stop("Expected 'data' to be an unnamed list as 'data_multi' is used")
       }
       n <- length(private$data_)
@@ -275,6 +279,10 @@ variable <- R6::R6Class(
       dust_variable_has_openmp()
     },
 
+    n_data = function() {
+      if (private$data_multi_) length(private$data_) else 0L
+    },
+
     set_n_threads = function(n_threads) {
       prev <- private$n_threads_
       dust_variable_set_n_threads(private$ptr_, n_threads)
@@ -304,7 +312,7 @@ volatility <- R6::R6Class(
     },
 
     check_data_multi = function(data, len) {
-      if (!is.list(data) || is.null(names(data))) {
+      if (!is.list(data) || !is.null(names(data))) {
         stop("Expected 'data' to be an unnamed list as 'data_multi' is used")
       }
       n <- length(private$data_)
@@ -417,6 +425,10 @@ volatility <- R6::R6Class(
       dust_volatility_has_openmp()
     },
 
+    n_data = function() {
+      if (private$data_multi_) length(private$data_) else 0L
+    },
+
     set_n_threads = function(n_threads) {
       prev <- private$n_threads_
       dust_volatility_set_n_threads(private$ptr_, n_threads)
@@ -446,7 +458,7 @@ walk <- R6::R6Class(
     },
 
     check_data_multi = function(data, len) {
-      if (!is.list(data) || is.null(names(data))) {
+      if (!is.list(data) || !is.null(names(data))) {
         stop("Expected 'data' to be an unnamed list as 'data_multi' is used")
       }
       n <- length(private$data_)
@@ -557,6 +569,10 @@ walk <- R6::R6Class(
 
     has_openmp = function() {
       dust_walk_has_openmp()
+    },
+
+    n_data = function() {
+      if (private$data_multi_) length(private$data_) else 0L
     },
 
     set_n_threads = function(n_threads) {
