@@ -230,8 +230,14 @@ cpp11::sexp dust_reset(SEXP ptr, cpp11::list r_data, int step) {
     obj->reset(data, step);
     info = dust_info<T>(data);
   } else {
-    // Needs significant implementation on the underlying class
-    MULTI_NOT_IMPLEMENTED;
+    std::vector<typename T::init_t> data;
+    cpp11::writable::list info_list = cpp11::writable::list(r_data.size());
+    for (int i = 0; i < r_data.size(); ++i) {
+      data.push_back(dust_data<T>(r_data[i]));
+      info_list[i] = dust_info<T>(data[i]);
+    }
+    obj->reset(data, step);
+    info = info_list;
   }
   return info;
 }
@@ -245,8 +251,9 @@ cpp11::sexp dust_set_data(SEXP ptr, cpp11::list r_data) {
     obj->set_data(data);
     return dust_info<T>(data);
   } else {
-    // Needs significant implementation on the underlying class,
-    // though shared with reset
+    // The underlying implementation should be tidied up, as the
+    // single case leaves us with inconsistent data already, and the
+    // error management is tricky.
     MULTI_NOT_IMPLEMENTED;
   }
   return info;
@@ -316,15 +323,16 @@ template <typename T>
 void dust_reorder(SEXP ptr, cpp11::sexp r_index) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   size_t n = obj->n_particles();
-  if (obj->n_data() > 0) {
-    MULTI_NOT_IMPLEMENTED;
+  std::vector<size_t> index;
+  if (obj->n_data() == 0) {
+    index = r_index_to_index(r_index, n);
+    if ((size_t)index.size() != obj->n_particles()) {
+      cpp11::stop("Expected a vector of length %d for 'index'", n);
+    }
+  } else {
     // Lots of thinking to do here, but I think this will be a
     // *matrix* of indices, or at least interpreted as one.
-  }
-
-  std::vector<size_t> index = r_index_to_index(r_index, n);
-  if ((size_t)index.size() != obj->n_particles()) {
-    cpp11::stop("Expected a vector of length %d for 'index'", n);
+    MULTI_NOT_IMPLEMENTED;
   }
 
   obj->reorder(index);

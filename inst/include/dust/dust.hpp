@@ -119,8 +119,13 @@ public:
     initialise(data, step, n_particles);
   }
 
-  void reset(const init_t data, const size_t step) {
+  void reset(const init_t& data, const size_t step) {
     const size_t n_particles = _particles.size();
+    initialise(data, step, n_particles);
+  }
+
+  void reset(const std::vector<init_t>& data, const size_t step) {
+    const size_t n_particles = _particles.size() / data.size();
     initialise(data, step, n_particles);
   }
 
