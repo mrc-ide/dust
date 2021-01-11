@@ -167,10 +167,6 @@ template <typename T>
 void dust_set_state(Dust<T> *obj, cpp11::doubles r_state) {
   const size_t n_state = obj->n_state_full();
   const size_t n_data = obj->n_data();
-  if (n_data > 0) {
-    // Just different checking, no implementation change
-    MULTI_NOT_IMPLEMENTED;
-  }
 
   if (static_cast<size_t>(r_state.size()) != n_state) {
     cpp11::stop("Expected a vector with %d elements for 'state'", n_state);
@@ -185,11 +181,6 @@ void dust_set_state(Dust<T> *obj, cpp11::doubles_matrix r_state) {
   const size_t n_state = obj->n_state_full();
   const size_t n_particles = obj->n_particles();
   const size_t n_data = obj->n_data();
-
-  if (n_data > 0) {
-    // Just different checking, no implementation change
-    MULTI_NOT_IMPLEMENTED;
-  }
 
   if (static_cast<size_t>(r_state.nrow()) != n_state) {
     cpp11::stop("Expected a matrix with %d rows for 'state'", n_state);
