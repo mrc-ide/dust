@@ -88,13 +88,13 @@ test_that("simulate requires that particles have the same size", {
   expect_error(
     dust_simulate(res, 0:10, data, y0),
     paste("Particles have different state sizes:",
-          "particle 2 had length 10 but expected 9"))
+          "particle 2 had length 9 but expected 10"))
 
   i <- rep(1:2, each = 4)
   expect_error(
     dust_simulate(res, 0:10, data[i], y0[, i, drop = FALSE]),
     paste("Particles have different state sizes:",
-          "particle 5 had length 10 but expected 9"))
+          "particle 5 had length 9 but expected 10"))
 })
 
 
