@@ -2,7 +2,6 @@ context("multi")
 
 test_that("create trivial multi dust object", {
   res <- dust_example("walk")
-  ## res <- dust(dust_file("examples/walk.cpp"), workdir = "tmp")
   obj1 <- res$new(list(sd = 1), 0, 10, seed = 1L, data_multi = FALSE)
   obj2 <- res$new(list(list(sd = 1)), 0, 10, seed = 1L, data_multi = TRUE)
 
@@ -30,7 +29,6 @@ test_that("create trivial multi dust object", {
 
 test_that("create trivial 2 element mulitdust object", {
   res <- dust_example("walk")
-  ## res <- dust(dust_file("examples/walk.cpp"), workdir = "tmp")
   obj1 <- res$new(list(sd = 1), 0, 10, seed = 1L, data_multi = FALSE)
   obj2 <- res$new(list(list(sd = 1), list(sd = 1)), 0, 5, seed = 1L,
                   data_multi = TRUE)

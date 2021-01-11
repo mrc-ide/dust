@@ -225,7 +225,6 @@ void dust_set_state_multi(Dust<T> *obj, cpp11::doubles r_state) {
   const std::vector<typename T::real_t> state(r_state.begin(), r_state.end());
 
   obj->set_state(state, true);
-
 }
 
 template <typename T>
