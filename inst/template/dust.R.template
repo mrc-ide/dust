@@ -211,7 +211,8 @@
     ##' indicating the index of the current particles that new particles should
     ##' take.
     reorder = function(index) {
-      dust_{{name}}_reorder(private$ptr_, as.integer(index))
+      storage.mode(index) <- "integer"
+      dust_{{name}}_reorder(private$ptr_, index)
       invisible()
     },
 

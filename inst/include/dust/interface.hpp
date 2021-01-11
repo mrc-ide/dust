@@ -25,6 +25,9 @@ inline void validate_positive(int x, const char *name);
 inline std::vector<size_t> validate_size(cpp11::sexp x, const char *name);
 inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax);
 inline std::vector<size_t> r_index_to_index_default(size_t n);
+inline std::vector<size_t> r_index_reorder_matrix(cpp11::sexp r_index,
+                                                  const size_t n_particles,
+                                                  const size_t n_data);
 inline cpp11::integers as_integer(cpp11::sexp x, const char * name);
 
 template <typename T>
@@ -361,17 +364,17 @@ size_t dust_step(SEXP ptr) {
 template <typename T>
 void dust_reorder(SEXP ptr, cpp11::sexp r_index) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  size_t n = obj->n_particles();
+  size_t n_particles = obj->n_particles();
+  size_t n_data = obj->n_data();
+
   std::vector<size_t> index;
-  if (obj->n_data() == 0) {
-    index = r_index_to_index(r_index, n);
-    if ((size_t)index.size() != obj->n_particles()) {
-      cpp11::stop("Expected a vector of length %d for 'index'", n);
+  if (n_data == 0) {
+    index = r_index_to_index(r_index, n_particles);
+    if ((size_t)index.size() != n_particles) {
+      cpp11::stop("Expected a vector of length %d for 'index'", n_particles);
     }
   } else {
-    // Lots of thinking to do here, but I think this will be a
-    // *matrix* of indices, or at least interpreted as one.
-    MULTI_NOT_IMPLEMENTED;
+    index = r_index_reorder_matrix(r_index, n_particles / n_data, n_data);
   }
 
   obj->reorder(index);
@@ -462,6 +465,37 @@ inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax) {
       cpp11::stop("All elements of 'index' must lie in [1, %d]", nmax);
     }
     index.push_back(x - 1);
+  }
+  return index;
+}
+
+inline std::vector<size_t> r_index_reorder_matrix(cpp11::sexp r_index,
+                                                  const size_t n_particles,
+                                                  const size_t n_data) {
+  if (!Rf_isMatrix(r_index)) {
+    cpp11::stop("Expected a matrix for 'index'");
+  }
+  cpp11::integers_matrix r_index_mat =
+    cpp11::as_cpp<cpp11::integers_matrix>(r_index);
+  if (static_cast<size_t>(r_index_mat.nrow()) != n_particles) {
+    cpp11::stop("Expected a matrix with %d rows for 'index'", n_particles);
+  }
+  if (static_cast<size_t>(r_index_mat.ncol()) != n_data) {
+    cpp11::stop("Expected a matrix with %d columns for 'index'", n_data);
+  }
+
+  const int * index_data = INTEGER(r_index_mat);
+
+  std::vector<size_t> index;
+  index.reserve(n_particles * n_data);
+  for (size_t i = 0, j = 0; i < n_data; ++i) {
+    for (size_t k = 0; k < n_particles; ++j, ++k) {
+      int x = index_data[j];
+      if (x < 1 || x > (int)n_particles) {
+        cpp11::stop("All elements of 'index' must lie in [1, %d]", n_particles);
+      }
+      index.push_back(i * n_particles + x - 1);
+    }
   }
   return index;
 }

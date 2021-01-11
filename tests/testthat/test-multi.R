@@ -156,3 +156,50 @@ test_that("can error if out-of-bounds index used", {
                "All elements of 'index' must lie in [1, 7]",
                fixed = TRUE)
 })
+
+
+test_that("Can reorder particles", {
+  res <- dust_example("variable")
+  nd <- 3
+  ns <- 7
+  np <- 13
+  data <- rep(list(list(len = ns)), nd)
+  mod <- res$new(data, 0, np, seed = 1L, data_multi = TRUE)
+  y <- array(as.numeric(seq_len(nd * ns * np)), c(ns, np, nd))
+  mod$set_state(y)
+
+  ## Our reorder matrix:
+  i <- replicate(nd, sample.int(np, np, replace = TRUE))
+
+  ## Compupting the reorder is actually hard
+  cmp <- array(c(y[, i[, 1], 1],
+                 y[, i[, 2], 2],
+                 y[, i[, 3], 3]), dim(y))
+  mod$reorder(i)
+  expect_equal(mod$state(), cmp)
+})
+
+
+test_that("Can reorder particles", {
+  res <- dust_example("variable")
+  nd <- 3
+  ns <- 7
+  np <- 13
+  data <- rep(list(list(len = ns)), nd)
+  mod <- res$new(data, 0, np, seed = 1L, data_multi = TRUE)
+  y <- array(as.numeric(seq_len(nd * ns * np)), c(ns, np, nd))
+  mod$set_state(y)
+
+  ## Our reorder matrix:
+  i <- replicate(nd, sample.int(np, np, replace = TRUE))
+  expect_error(
+    mod$reorder(c(i)),
+    "Expected a matrix for 'index'")
+  expect_error(
+    mod$reorder(i[-1, ]),
+    "Expected a matrix with 13 rows for 'index'")
+  expect_error(
+    mod$reorder(i[, -1]),
+    "Expected a matrix with 3 columns for 'index'")
+  expect_equal(mod$state(), y)
+})

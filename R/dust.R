@@ -108,7 +108,8 @@ sir <- R6::R6Class(
     },
 
     reorder = function(index) {
-      dust_sir_reorder(private$ptr_, as.integer(index))
+      storage.mode(index) <- "integer"
+      dust_sir_reorder(private$ptr_, index)
       invisible()
     },
 
@@ -254,7 +255,8 @@ variable <- R6::R6Class(
     },
 
     reorder = function(index) {
-      dust_variable_reorder(private$ptr_, as.integer(index))
+      storage.mode(index) <- "integer"
+      dust_variable_reorder(private$ptr_, index)
       invisible()
     },
 
@@ -400,7 +402,8 @@ volatility <- R6::R6Class(
     },
 
     reorder = function(index) {
-      dust_volatility_reorder(private$ptr_, as.integer(index))
+      storage.mode(index) <- "integer"
+      dust_volatility_reorder(private$ptr_, index)
       invisible()
     },
 
@@ -546,7 +549,8 @@ walk <- R6::R6Class(
     },
 
     reorder = function(index) {
-      dust_walk_reorder(private$ptr_, as.integer(index))
+      storage.mode(index) <- "integer"
+      dust_walk_reorder(private$ptr_, index)
       invisible()
     },
 
