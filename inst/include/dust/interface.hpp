@@ -12,8 +12,6 @@
 
 #include <dust/rng_interface.hpp>
 
-#define MULTI_NOT_IMPLEMENTED cpp11::stop("data_multi not yet supported")
-
 template <typename T>
 typename T::init_t dust_data(cpp11::list data);
 
@@ -171,6 +169,7 @@ void dust_set_state(Dust<T> *obj, cpp11::doubles r_state) {
   if (static_cast<size_t>(r_state.size()) != n_state) {
     cpp11::stop("Expected a vector with %d elements for 'state'", n_state);
   }
+
   const std::vector<typename T::real_t> state(r_state.begin(), r_state.end());
   obj->set_state(state, false);
 }
@@ -286,8 +285,8 @@ cpp11::sexp dust_set_data(SEXP ptr, cpp11::list r_data) {
   } else {
     // The underlying implementation should be tidied up, as the
     // single case leaves us with inconsistent data already, and the
-    // error management is tricky.
-    MULTI_NOT_IMPLEMENTED;
+    // error management is tricky (#125)
+    cpp11::stop("set_data() with data_multi not yet supported");
   }
   return info;
 }
