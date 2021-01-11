@@ -32,10 +32,10 @@ template <typename T>
 std::vector<T> matrix_to_vector(cpp11::doubles_matrix x);
 
 template <typename T>
-cpp11::sexp create_matrix(size_t nrow, size_t ncol, const T& data);
+cpp11::sexp create_matrix(size_t nrow, size_t ncol, T& data);
 
 template <typename T>
-cpp11::sexp create_array(const std::vector<size_t>& dim, const T& data);
+cpp11::sexp create_array(const std::vector<size_t>& dim, T& data);
 
 template <typename T>
 cpp11::list dust_alloc(cpp11::list r_data, bool data_multi, int step,
@@ -164,7 +164,6 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
 template <typename T>
 void dust_set_state(Dust<T> *obj, cpp11::doubles r_state) {
   const size_t n_state = obj->n_state_full();
-  const size_t n_data = obj->n_data();
 
   if (static_cast<size_t>(r_state.size()) != n_state) {
     cpp11::stop("Expected a vector with %d elements for 'state'", n_state);
@@ -179,7 +178,6 @@ void dust_set_state(Dust<T> *obj, cpp11::doubles_matrix r_state) {
   typedef typename T::real_t real_t;
   const size_t n_state = obj->n_state_full();
   const size_t n_particles = obj->n_particles();
-  const size_t n_data = obj->n_data();
 
   if (static_cast<size_t>(r_state.nrow()) != n_state) {
     cpp11::stop("Expected a matrix with %d rows for 'state'", n_state);
@@ -502,9 +500,9 @@ inline std::vector<size_t> r_index_to_index_default(size_t n) {
 }
 
 template <typename T>
-cpp11::sexp create_matrix(size_t nrow, size_t ncol, const T& data) {
+cpp11::sexp create_matrix(size_t nrow, size_t ncol, T& data) {
   const size_t len = data.size();
-  cpp11::writable::doubles ret(len);
+  cpp11::writable::doubles ret(static_cast<R_xlen_t>(len));
   double * dest = REAL(ret);
   for (size_t i = 0; i < len; ++i) {
     dest[i] = data[i];
@@ -515,9 +513,9 @@ cpp11::sexp create_matrix(size_t nrow, size_t ncol, const T& data) {
 }
 
 template <typename T>
-cpp11::sexp create_array(const std::vector<size_t>& dim, const T& data) {
+cpp11::sexp create_array(const std::vector<size_t>& dim, T& data) {
   const size_t len = data.size();
-  cpp11::writable::doubles ret(len);
+  cpp11::writable::doubles ret(static_cast<R_xlen_t>(len));
   double * dest = REAL(ret);
   for (size_t i = 0; i < len; ++i) {
     dest[i] = data[i];
