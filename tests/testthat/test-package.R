@@ -2,6 +2,7 @@ context("package")
 
 test_that("validate package", {
   skip_if_not_installed("pkgload")
+  skip_on_cran()
 
   path <- create_test_package()
   ## ensure we create these as needed
@@ -29,7 +30,6 @@ test_that("validate package", {
 
   rm(w)
   gc()
-  pkgload::unload("pkg")
 })
 
 
