@@ -178,7 +178,7 @@ test_that("Can reorder particles", {
 })
 
 
-test_that("Can reorder particles", {
+test_that("Can avoid invalid reorder index matrices", {
   res <- dust_example("variable")
   nd <- 3
   ns <- 7
@@ -199,5 +199,34 @@ test_that("Can reorder particles", {
   expect_error(
     mod$reorder(i[, -1]),
     "Expected a matrix with 3 columns for 'index'")
+  i[1] <- np + 1
+  expect_error(
+    mod$reorder(i),
+    "All elements of 'index' must lie in [1, 13]",
+    fixed = TRUE)
   expect_equal(mod$state(), y)
+})
+
+
+test_that("set_data is disabled", {
+  res <- dust_example("variable")
+  nd <- 3
+  ns <- 7
+  np <- 13
+  data <- rep(list(list(len = ns)), nd)
+  mod <- res$new(data, 0, np, seed = 1L, data_multi = TRUE)
+  expect_error(mod$set_data(data),
+               "set_data() with data_multi not yet supported",
+               fixed = TRUE)
+})
+
+
+test_that("must use same sized simulations", {
+  res <- dust_example("variable")
+  data <- list(list(len = 7), list(len = 8))
+  expect_error(
+    res$new(data, 0, 10, seed = 1L, data_multi = TRUE),
+    paste("Data created different state sizes: data 2 (of 2) had length 8",
+          "but expected 7"),
+    fixed = TRUE)
 })
