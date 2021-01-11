@@ -170,6 +170,7 @@ obj$state()
 \item \href{#method-rng_state}{\code{dust_class$rng_state()}}
 \item \href{#method-set_rng_state}{\code{dust_class$set_rng_state()}}
 \item \href{#method-has_openmp}{\code{dust_class$has_openmp()}}
+\item \href{#method-n_data}{\code{dust_class$n_data()}}
 \item \href{#method-set_n_threads}{\code{dust_class$set_n_threads()}}
 }
 }
@@ -513,6 +514,19 @@ as a static method by running it directly
 as \code{dust_class$public_methods$has_openmp()}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$has_openmp()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-n_data"></a>}}
+\if{latex}{\out{\hypertarget{method-n_data}{}}}
+\subsection{Method \code{n_data()}}{
+Returns the number of distinct data elements required. This is \code{0}
+where the object was initialised with \code{data_multi = FALSE} and
+an integer otherwise.  For mulit-data dust objects, Where \code{data}
+is accepted, you must provide an unnamed list of length \verb{$n_data()}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$n_data()}\if{html}{\out{</div>}}
 }
 
 }
