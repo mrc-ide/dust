@@ -1,3 +1,7 @@
+# dust 0.5.9
+
+* Start of support for running dust objects with multiple data/parameter sets at once (#92)
+
 # dust 0.5.7
 
 * New method `set_n_threads()` for changing the number of OpenMP threads after initialisation (#122)
