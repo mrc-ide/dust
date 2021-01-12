@@ -17,7 +17,7 @@ namespace distr {
 // important.
 template <typename real_t>
 real_t exp_rand(rng_state_t<real_t>& rng_state) {
-  return -log(dust::unif_rand(rng_state));
+  return -std::log(dust::unif_rand(rng_state));
 }
 
 template <typename real_t>
