@@ -156,6 +156,33 @@ test_that("can error if out-of-bounds index used", {
 })
 
 
+test_that("Can reorder particles (easy case)", {
+  res <- dust_example("variable")
+  nd <- 3
+  ns <- 7
+  np <- 4
+  data <- rep(list(list(len = ns)), nd)
+  mod <- res$new(data, 0, np, seed = 1L, data_multi = TRUE)
+  y <- array(as.numeric(seq_len(nd * ns * np)), c(ns, np, nd))
+  mod$set_state(y)
+
+  i <- cbind(c(1, 4, 2, 3),
+             c(1, 2, 3, 4),
+             c(1, 3, 4, 2))
+  j <- i + rep((0:2) * 4, each = 4)
+  z <- array(y, c(ns, np * nd))
+
+  mod$reorder(i)
+  ans <- mod$state()
+
+  expect_equal(ans[, , 1], y[, i[, 1], 1])
+  expect_equal(ans[, , 2], y[, i[, 2], 2])
+  expect_equal(ans[, , 3], y[, i[, 3], 3])
+
+  expect_equal(c(ans), c(z[, c(j)]))
+})
+
+
 test_that("Can reorder particles", {
   res <- dust_example("variable")
   nd <- 3
