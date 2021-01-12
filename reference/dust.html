@@ -82,7 +82,7 @@ that can be used to work with the model (see the Details below)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.9</span>
       </span>
     </div>
 
@@ -278,18 +278,37 @@ be used (either specified with <code>[[dust::class()]]</code> or detected).</p><
 <li><p><a href='#method-rng_state'><code>dust_class$rng_state()</code></a></p></li>
 <li><p><a href='#method-set_rng_state'><code>dust_class$set_rng_state()</code></a></p></li>
 <li><p><a href='#method-has_openmp'><code>dust_class$has_openmp()</code></a></p></li>
+<li><p><a href='#method-n_data'><code>dust_class$n_data()</code></a></p></li>
 <li><p><a href='#method-set_n_threads'><code>dust_class$set_n_threads()</code></a></p></li>
 </ul>
 <p><hr>
 <a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
-<p>Create a new model</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>step</span>, <span class='va'>n_particles</span>, n_threads <span class='op'>=</span> <span class='fl'>1L</span>, seed <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre><p></div></p>
+<p>Create a new model. Note that the behaviour of this object
+created by this function will change considerably based on
+whether the <code>data_multi</code> argument is <code>TRUE</code>. If not (the
+default) then we create <code>n_particles</code> which all share the same
+parameters as specified by the <code>data</code> argument. If <code>data_multi</code>
+is <code>TRUE</code> then <code>data</code> must be an unnamed list, and each element
+of it represents a different set of parameters/data. We will
+create <code><a href='https://rdrr.io/r/base/length.html'>length(data)</a></code> <em>sets</em> of <code>n_particles</code> particles which
+will be simulated together. These particles must have the same
+dimension - that is, they must correspond to model state that
+is the same size.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span>
+  <span class='va'>data</span>,
+  <span class='va'>step</span>,
+  <span class='va'>n_particles</span>,
+  n_threads <span class='op'>=</span> <span class='fl'>1L</span>,
+  seed <span class='op'>=</span> <span class='cn'>NULL</span>,
+  data_multi <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
 <dt><code>data</code></dt><dd><p>Data to initialise your model with; a <code>list</code>
 object, but the required elements will depend on the details of
-your model.</p></dd>
+your model. If <code>data_multi</code> is <code>TRUE</code>, then this must be an
+<em>unnamed</em> list of <code>data</code> objects (see Details).</p></dd>
 
 <dt><code>step</code></dt><dd><p>Initial step - must be nonnegative</p></dd>
 
@@ -307,6 +326,12 @@ be a positive integer, <code>NULL</code> (initialise with R's random number
 generator) or a <code>raw</code> vector of a length that is a multiple of
 32 to directly initialise the generator (e..g., from the
 <code>dust</code> object's <code>$rng_state()</code> method).</p></dd>
+
+<dt><code>data_multi</code></dt><dd><p>Logical, indicating if <code>data</code> should be
+interpreted as a set of different initialisations, and that we
+should prepare <code>n_particles * length(data)</code> particles for
+simulation. This has an effect on many of the other methods of
+the object.</p></dd>
 
 </dl><p></div></p>
 <p><hr>
@@ -490,6 +515,14 @@ as <code>dust_class$public_methods$has_openmp()</code></p><h4 class='hasAnchor' 
 <p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>has_openmp</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
+<a id="method-n_data"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>n_data()</code></h3>
+<p>Returns the number of distinct data elements required. This is <code>0</code>
+where the object was initialised with <code>data_multi = FALSE</code> and
+an integer otherwise.  For mulit-data dust objects, Where <code>data</code>
+is accepted, you must provide an unnamed list of length <code>$n_data()</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>n_data</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
 <a id="method-set_n_threads"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>set_n_threads()</code></h3>
 <p>Change the number of threads that the dust object will use. Your
 model must be compiled with "OpenMP" support for this to have an
@@ -556,7 +589,7 @@ requested (based on environment variables and OpenMP support).</p></dd>
 <span class='va'>model</span>
 </div><div class='output co'>#&gt; &lt;dust&gt; object generator
 #&gt;   Public:
-#&gt;     initialize: function (data, step, n_particles, n_threads = 1L, seed = NULL) 
+#&gt;     initialize: function (data, step, n_particles, n_threads = 1L, seed = NULL, 
 #&gt;     name: function () 
 #&gt;     param: function () 
 #&gt;     run: function (step_end) 
@@ -574,15 +607,18 @@ requested (based on environment variables and OpenMP support).</p></dd>
 #&gt;     rng_state: function (first_only = FALSE) 
 #&gt;     set_rng_state: function (rng_state) 
 #&gt;     has_openmp: function () 
+#&gt;     n_data: function () 
 #&gt;     set_n_threads: function (n_threads) 
 #&gt;   Private:
 #&gt;     data_: NULL
+#&gt;     data_multi_: NULL
 #&gt;     index_: NULL
 #&gt;     info_: NULL
 #&gt;     n_threads_: NULL
 #&gt;     ptr_: NULL
 #&gt;     param_: NULL
 #&gt;     simulate: function (steps, data, state, index = NULL, n_threads = 1L, seed = NULL, 
+#&gt;     check_data_multi: function (data, len) 
 #&gt;   Parent env: &lt;environment: namespace:dust&gt;
 #&gt;   Locked objects: TRUE
 #&gt;   Locked class: FALSE
@@ -597,7 +633,8 @@ requested (based on environment variables and OpenMP support).</p></dd>
 #&gt;     has_openmp: function () 
 #&gt;     index: function () 
 #&gt;     info: function () 
-#&gt;     initialize: function (data, step, n_particles, n_threads = 1L, seed = NULL) 
+#&gt;     initialize: function (data, step, n_particles, n_threads = 1L, seed = NULL, 
+#&gt;     n_data: function () 
 #&gt;     n_threads: function () 
 #&gt;     name: function () 
 #&gt;     param: function () 
@@ -613,7 +650,9 @@ requested (based on environment variables and OpenMP support).</p></dd>
 #&gt;     state: function (index = NULL) 
 #&gt;     step: function () 
 #&gt;   Private:
+#&gt;     check_data_multi: function (data, len) 
 #&gt;     data_: list
+#&gt;     data_multi_: FALSE
 #&gt;     index_: NULL
 #&gt;     info_: NULL
 #&gt;     n_threads_: 1
