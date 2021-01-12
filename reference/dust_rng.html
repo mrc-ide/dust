@@ -82,7 +82,7 @@ primarily meant for debugging and testing." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.10</span>
       </span>
     </div>
 
@@ -165,6 +165,7 @@ primarily meant for debugging and testing.</p>
 <li><p><a href='#method-rnorm'><code>dust_rng$rnorm()</code></a></p></li>
 <li><p><a href='#method-rbinom'><code>dust_rng$rbinom()</code></a></p></li>
 <li><p><a href='#method-rpois'><code>dust_rng$rpois()</code></a></p></li>
+<li><p><a href='#method-rexp'><code>dust_rng$rexp()</code></a></p></li>
 <li><p><a href='#method-state'><code>dust_rng$state()</code></a></p></li>
 </ul>
 <p><hr>
@@ -282,7 +283,21 @@ Generate <code>n</code> numbers from a Poisson distribution</p></dd>
 <p><div class="arguments"></p><dl>
 <dt><code>n</code></dt><dd><p>Number of samples to draw</p></dd>
 
-<dt><code>lambda</code></dt><dd><p>The mean (zero or more, length 1 or n)</p></dd>
+<dt><code>lambda</code></dt><dd><p>The mean (zero or more, length 1 or n)
+Generate <code>n</code> numbers from a exponential distribution</p></dd>
+
+</dl><p></div></p>
+<p><hr>
+<a id="method-rexp"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/stats/Exponential.html'>rexp()</a></code></h3>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_rng</span><span class='op'>$</span><span class='fu'>rexp</span><span class='op'>(</span><span class='va'>n</span>, <span class='va'>rate</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>n</code></dt><dd><p>Number of samples to draw</p></dd>
+
+<dt><code>rate</code></dt><dd><p>The rate of the exponential</p></dd>
 
 </dl><p></div></p>
 <p><hr>
