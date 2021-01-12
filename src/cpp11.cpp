@@ -91,10 +91,10 @@ extern "C" SEXP _dust_cpp_openmp_info() {
   END_CPP11
 }
 // sir.cpp
-SEXP dust_sir_alloc(cpp11::list r_data, size_t step, size_t n_particles, size_t n_threads, cpp11::sexp r_seed);
-extern "C" SEXP _dust_dust_sir_alloc(SEXP r_data, SEXP step, SEXP n_particles, SEXP n_threads, SEXP r_seed) {
+SEXP dust_sir_alloc(cpp11::list r_data, bool data_multi, size_t step, size_t n_particles, size_t n_threads, cpp11::sexp r_seed);
+extern "C" SEXP _dust_dust_sir_alloc(SEXP r_data, SEXP data_multi, SEXP step, SEXP n_particles, SEXP n_threads, SEXP r_seed) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_sir_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_data), cpp11::as_cpp<cpp11::decay_t<size_t>>(step), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed)));
+    return cpp11::as_sexp(dust_sir_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_data), cpp11::as_cpp<cpp11::decay_t<bool>>(data_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(step), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed)));
   END_CPP11
 }
 // sir.cpp
@@ -191,10 +191,10 @@ extern "C" SEXP _dust_dust_sir_set_n_threads(SEXP ptr, SEXP n_threads) {
   END_CPP11
 }
 // variable.cpp
-SEXP dust_variable_alloc(cpp11::list r_data, size_t step, size_t n_particles, size_t n_threads, cpp11::sexp r_seed);
-extern "C" SEXP _dust_dust_variable_alloc(SEXP r_data, SEXP step, SEXP n_particles, SEXP n_threads, SEXP r_seed) {
+SEXP dust_variable_alloc(cpp11::list r_data, bool data_multi, size_t step, size_t n_particles, size_t n_threads, cpp11::sexp r_seed);
+extern "C" SEXP _dust_dust_variable_alloc(SEXP r_data, SEXP data_multi, SEXP step, SEXP n_particles, SEXP n_threads, SEXP r_seed) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_variable_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_data), cpp11::as_cpp<cpp11::decay_t<size_t>>(step), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed)));
+    return cpp11::as_sexp(dust_variable_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_data), cpp11::as_cpp<cpp11::decay_t<bool>>(data_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(step), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed)));
   END_CPP11
 }
 // variable.cpp
@@ -291,10 +291,10 @@ extern "C" SEXP _dust_dust_variable_set_n_threads(SEXP ptr, SEXP n_threads) {
   END_CPP11
 }
 // volatility.cpp
-SEXP dust_volatility_alloc(cpp11::list r_data, size_t step, size_t n_particles, size_t n_threads, cpp11::sexp r_seed);
-extern "C" SEXP _dust_dust_volatility_alloc(SEXP r_data, SEXP step, SEXP n_particles, SEXP n_threads, SEXP r_seed) {
+SEXP dust_volatility_alloc(cpp11::list r_data, bool data_multi, size_t step, size_t n_particles, size_t n_threads, cpp11::sexp r_seed);
+extern "C" SEXP _dust_dust_volatility_alloc(SEXP r_data, SEXP data_multi, SEXP step, SEXP n_particles, SEXP n_threads, SEXP r_seed) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_volatility_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_data), cpp11::as_cpp<cpp11::decay_t<size_t>>(step), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed)));
+    return cpp11::as_sexp(dust_volatility_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_data), cpp11::as_cpp<cpp11::decay_t<bool>>(data_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(step), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed)));
   END_CPP11
 }
 // volatility.cpp
@@ -391,10 +391,10 @@ extern "C" SEXP _dust_dust_volatility_set_n_threads(SEXP ptr, SEXP n_threads) {
   END_CPP11
 }
 // walk.cpp
-SEXP dust_walk_alloc(cpp11::list r_data, size_t step, size_t n_particles, size_t n_threads, cpp11::sexp r_seed);
-extern "C" SEXP _dust_dust_walk_alloc(SEXP r_data, SEXP step, SEXP n_particles, SEXP n_threads, SEXP r_seed) {
+SEXP dust_walk_alloc(cpp11::list r_data, bool data_multi, size_t step, size_t n_particles, size_t n_threads, cpp11::sexp r_seed);
+extern "C" SEXP _dust_dust_walk_alloc(SEXP r_data, SEXP data_multi, SEXP step, SEXP n_particles, SEXP n_threads, SEXP r_seed) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_walk_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_data), cpp11::as_cpp<cpp11::decay_t<size_t>>(step), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed)));
+    return cpp11::as_sexp(dust_walk_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_data), cpp11::as_cpp<cpp11::decay_t<bool>>(data_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(step), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed)));
   END_CPP11
 }
 // walk.cpp
@@ -505,7 +505,7 @@ extern SEXP _dust_dust_rng_runif(SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_rng_size(SEXP);
 extern SEXP _dust_dust_rng_state(SEXP);
 extern SEXP _dust_dust_rng_unif_rand(SEXP, SEXP);
-extern SEXP _dust_dust_sir_alloc(SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_sir_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_sir_has_openmp();
 extern SEXP _dust_dust_sir_reorder(SEXP, SEXP);
 extern SEXP _dust_dust_sir_reset(SEXP, SEXP, SEXP);
@@ -519,7 +519,7 @@ extern SEXP _dust_dust_sir_set_state(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_sir_simulate(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_sir_state(SEXP, SEXP);
 extern SEXP _dust_dust_sir_step(SEXP);
-extern SEXP _dust_dust_variable_alloc(SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_variable_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_variable_has_openmp();
 extern SEXP _dust_dust_variable_reorder(SEXP, SEXP);
 extern SEXP _dust_dust_variable_reset(SEXP, SEXP, SEXP);
@@ -533,7 +533,7 @@ extern SEXP _dust_dust_variable_set_state(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_variable_simulate(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_variable_state(SEXP, SEXP);
 extern SEXP _dust_dust_variable_step(SEXP);
-extern SEXP _dust_dust_volatility_alloc(SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_volatility_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_volatility_has_openmp();
 extern SEXP _dust_dust_volatility_reorder(SEXP, SEXP);
 extern SEXP _dust_dust_volatility_reset(SEXP, SEXP, SEXP);
@@ -547,7 +547,7 @@ extern SEXP _dust_dust_volatility_set_state(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_volatility_simulate(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_volatility_state(SEXP, SEXP);
 extern SEXP _dust_dust_volatility_step(SEXP);
-extern SEXP _dust_dust_walk_alloc(SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_walk_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_walk_has_openmp();
 extern SEXP _dust_dust_walk_reorder(SEXP, SEXP);
 extern SEXP _dust_dust_walk_reset(SEXP, SEXP, SEXP);
@@ -575,7 +575,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_rng_size",                 (DL_FUNC) &_dust_dust_rng_size,                 1},
     {"_dust_dust_rng_state",                (DL_FUNC) &_dust_dust_rng_state,                1},
     {"_dust_dust_rng_unif_rand",            (DL_FUNC) &_dust_dust_rng_unif_rand,            2},
-    {"_dust_dust_sir_alloc",                (DL_FUNC) &_dust_dust_sir_alloc,                5},
+    {"_dust_dust_sir_alloc",                (DL_FUNC) &_dust_dust_sir_alloc,                6},
     {"_dust_dust_sir_has_openmp",           (DL_FUNC) &_dust_dust_sir_has_openmp,           0},
     {"_dust_dust_sir_reorder",              (DL_FUNC) &_dust_dust_sir_reorder,              2},
     {"_dust_dust_sir_reset",                (DL_FUNC) &_dust_dust_sir_reset,                3},
@@ -589,7 +589,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_sir_simulate",             (DL_FUNC) &_dust_dust_sir_simulate,             7},
     {"_dust_dust_sir_state",                (DL_FUNC) &_dust_dust_sir_state,                2},
     {"_dust_dust_sir_step",                 (DL_FUNC) &_dust_dust_sir_step,                 1},
-    {"_dust_dust_variable_alloc",           (DL_FUNC) &_dust_dust_variable_alloc,           5},
+    {"_dust_dust_variable_alloc",           (DL_FUNC) &_dust_dust_variable_alloc,           6},
     {"_dust_dust_variable_has_openmp",      (DL_FUNC) &_dust_dust_variable_has_openmp,      0},
     {"_dust_dust_variable_reorder",         (DL_FUNC) &_dust_dust_variable_reorder,         2},
     {"_dust_dust_variable_reset",           (DL_FUNC) &_dust_dust_variable_reset,           3},
@@ -603,7 +603,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_variable_simulate",        (DL_FUNC) &_dust_dust_variable_simulate,        7},
     {"_dust_dust_variable_state",           (DL_FUNC) &_dust_dust_variable_state,           2},
     {"_dust_dust_variable_step",            (DL_FUNC) &_dust_dust_variable_step,            1},
-    {"_dust_dust_volatility_alloc",         (DL_FUNC) &_dust_dust_volatility_alloc,         5},
+    {"_dust_dust_volatility_alloc",         (DL_FUNC) &_dust_dust_volatility_alloc,         6},
     {"_dust_dust_volatility_has_openmp",    (DL_FUNC) &_dust_dust_volatility_has_openmp,    0},
     {"_dust_dust_volatility_reorder",       (DL_FUNC) &_dust_dust_volatility_reorder,       2},
     {"_dust_dust_volatility_reset",         (DL_FUNC) &_dust_dust_volatility_reset,         3},
@@ -617,7 +617,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_volatility_simulate",      (DL_FUNC) &_dust_dust_volatility_simulate,      7},
     {"_dust_dust_volatility_state",         (DL_FUNC) &_dust_dust_volatility_state,         2},
     {"_dust_dust_volatility_step",          (DL_FUNC) &_dust_dust_volatility_step,          1},
-    {"_dust_dust_walk_alloc",               (DL_FUNC) &_dust_dust_walk_alloc,               5},
+    {"_dust_dust_walk_alloc",               (DL_FUNC) &_dust_dust_walk_alloc,               6},
     {"_dust_dust_walk_has_openmp",          (DL_FUNC) &_dust_dust_walk_has_openmp,          0},
     {"_dust_dust_walk_reorder",             (DL_FUNC) &_dust_dust_walk_reorder,             2},
     {"_dust_dust_walk_reset",               (DL_FUNC) &_dust_dust_walk_reset,               3},

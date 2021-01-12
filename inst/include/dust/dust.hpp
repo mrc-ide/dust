@@ -95,15 +95,32 @@ public:
   typedef typename T::init_t init_t;
   typedef typename T::real_t real_t;
 
-  Dust(const init_t data, const size_t step, const size_t n_particles,
+  Dust(const init_t& data, const size_t step, const size_t n_particles,
        const size_t n_threads, const std::vector<uint64_t>& seed) :
+    _n_data(0),
+    _n_particles_total(n_particles),
     _n_threads(n_threads),
-    _rng(n_particles, seed) {
+    _rng(_n_particles_total, seed) {
     initialise(data, step, n_particles);
   }
 
-  void reset(const init_t data, const size_t step) {
+  Dust(const std::vector<init_t>& data, const size_t step,
+       const size_t n_particles, const size_t n_threads,
+       const std::vector<uint64_t>& seed) :
+    _n_data(data.size()),
+    _n_particles_total(n_particles * data.size()),
+    _n_threads(n_threads),
+    _rng(_n_particles_total, seed) {
+    initialise(data, step, n_particles);
+  }
+
+  void reset(const init_t& data, const size_t step) {
     const size_t n_particles = _particles.size();
+    initialise(data, step, n_particles);
+  }
+
+  void reset(const std::vector<init_t>& data, const size_t step) {
+    const size_t n_particles = _particles.size() / data.size();
     initialise(data, step, n_particles);
   }
 
@@ -243,6 +260,10 @@ public:
     return _particles.front().size();
   }
 
+  size_t n_data() const {
+    return _n_data;
+  }
+
   size_t step() const {
     return _particles.front().step();
   }
@@ -266,19 +287,53 @@ public:
   }
 
 private:
-  std::vector<size_t> _index;
+  const size_t _n_data; // 0 in the "single" case, >=1 otherwise
+  const size_t _n_particles_total; // Total number of particles
   size_t _n_threads;
   dust::pRNG<real_t> _rng;
+
+  std::vector<size_t> _index;
   std::vector<Particle<T>> _particles;
 
-  void initialise(const init_t data, const size_t step,
+  void initialise(const init_t& data, const size_t step,
                   const size_t n_particles) {
     _particles.clear();
     _particles.reserve(n_particles);
     for (size_t i = 0; i < n_particles; ++i) {
       _particles.push_back(Particle<T>(data, step));
     }
+    initialise_index();
+  }
 
+  void initialise(const std::vector<init_t>& data, const size_t step,
+                  const size_t n_particles) {
+    // NOTE: we select the initialise function at runtime, but should
+    // always get it right. We might throw otherwise?
+    //
+    // We can throw here so need to make a new copy of particles.
+    std::vector<Particle<T>> particles;
+    particles.reserve(n_particles * _n_data);
+    for (size_t i = 0; i < _n_data; ++i) {
+      for (size_t j = 0; j < n_particles; ++j) {
+        particles.push_back(Particle<T>(data[i], step));
+      }
+      if (i > 0) {
+        const size_t n_old = particles.front().size();
+        const size_t n_new = particles.back().size();
+        if (n_old != n_new) {
+          std::stringstream msg;
+          msg << "Data created different state sizes: data " << i + 1 <<
+            " (of " << _n_data << ") had length " << n_new <<
+            " but expected " << n_old;
+          throw std::invalid_argument(msg.str());
+        }
+      }
+    }
+    _particles = particles;
+    initialise_index();
+  }
+
+  void initialise_index() {
     const size_t n = n_state_full();
     _index.clear();
     _index.reserve(n);
@@ -308,8 +363,8 @@ dust_simulate(const std::vector<size_t>& steps,
     if (i > 0 && particles.back().size() != particles.front().size()) {
       std::stringstream msg;
       msg << "Particles have different state sizes: particle " << i + 1 <<
-        " had length " << particles.front().size() << " but expected " <<
-        particles.back().size();
+        " had length " << particles.back().size() << " but expected " <<
+        particles.front().size();
       throw std::invalid_argument(msg.str());
     }
   }

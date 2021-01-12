@@ -4,6 +4,7 @@
 
   private = list(
     data_ = NULL,
+    data_multi_ = NULL,
     index_ = NULL,
     info_ = NULL,
     n_threads_ = NULL,
@@ -15,16 +16,39 @@
                         return_state = FALSE) {
       dust_{{name}}_simulate(steps, data, state, index, n_threads, seed,
                              return_state)
+    },
+
+    check_data_multi = function(data, len) {
+      if (!is.list(data) || !is.null(names(data))) {
+        stop("Expected 'data' to be an unnamed list as 'data_multi' is used")
+      }
+      n <- length(private$data_)
+      if (n == 0 && length(data) == 0) {
+        stop("Expected 'data' to have at least one element")
+      } else if (n > 0 && length(data) != n) {
+        stop(sprintf("Expected 'data' to have %d elements", n))
+      }
     }
   ),
 
   public = list(
     ##' @description
-    ##' Create a new model
+    ##' Create a new model. Note that the behaviour of this object
+    ##' created by this function will change considerably based on
+    ##' whether the `data_multi` argument is `TRUE`. If not (the
+    ##' default) then we create `n_particles` which all share the same
+    ##' parameters as specified by the `data` argument. If `data_multi`
+    ##' is `TRUE` then `data` must be an unnamed list, and each element
+    ##' of it represents a different set of parameters/data. We will
+    ##' create `length(data)` *sets* of `n_particles` particles which
+    ##' will be simulated together. These particles must have the same
+    ##' dimension - that is, they must correspond to model state that
+    ##' is the same size.
     ##'
     ##' @param data Data to initialise your model with; a `list`
     ##' object, but the required elements will depend on the details of
-    ##' your model.
+    ##' your model. If `data_multi` is `TRUE`, then this must be an
+    ##' *unnamed* list of `data` objects (see Details).
     ##'
     ##' @param step Initial step - must be nonnegative
     ##'
@@ -42,11 +66,21 @@
     ##' generator) or a `raw` vector of a length that is a multiple of
     ##' 32 to directly initialise the generator (e..g., from the
     ##' [`dust`] object's `$rng_state()` method).
+    ##'
+    ##' @param data_multi Logical, indicating if `data` should be
+    ##' interpreted as a set of different initialisations, and that we
+    ##' should prepare `n_particles * length(data)` particles for
+    ##' simulation. This has an effect on many of the other methods of
+    ##' the object.
     initialize = function(data, step, n_particles, n_threads = 1L,
-                          seed = NULL) {
-      res <- dust_{{name}}_alloc(data, step, n_particles,
+                          seed = NULL, data_multi = FALSE) {
+      if (data_multi) {
+        private$check_data_multi(data)
+      }
+      res <- dust_{{name}}_alloc(data, data_multi, step, n_particles,
                         n_threads, seed)
       private$data_ <- data
+      private$data_multi_ <- data_multi
       private$n_threads_ <- n_threads
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
@@ -132,6 +166,9 @@
     ##' @param data New data for the model (see constructor)
     ##' @param step New initial step for the model (see constructor)
     reset = function(data, step) {
+      if (private$data_multi_) {
+        private$check_data_multi(data)
+      }
       private$info_ <- dust_{{name}}_reset(private$ptr_, data, step)
       private$index_ <- NULL
       private$data_ <- data
@@ -146,6 +183,9 @@
     ##'
     ##' @param data New data for the model (see constructor)
     set_data = function(data) {
+      if (private$data_multi_) {
+        private$check_data_multi(data)
+      }
       private$info_ <- dust_{{name}}_set_data(private$ptr_, data)
       private$data_ <- data
     },
@@ -171,7 +211,8 @@
     ##' indicating the index of the current particles that new particles should
     ##' take.
     reorder = function(index) {
-      dust_{{name}}_reorder(private$ptr_, as.integer(index))
+      storage.mode(index) <- "integer"
+      dust_{{name}}_reorder(private$ptr_, index)
       invisible()
     },
 
@@ -228,6 +269,15 @@
     ##' as `{{name}}$public_methods$has_openmp()`
     has_openmp = function() {
       dust_{{name}}_has_openmp()
+    },
+
+    ##' @description
+    ##' Returns the number of distinct data elements required. This is `0`
+    ##' where the object was initialised with `data_multi = FALSE` and
+    ##' an integer otherwise.  For mulit-data dust objects, Where `data`
+    ##' is accepted, you must provide an unnamed list of length `$n_data()`.
+    n_data = function() {
+      if (private$data_multi_) length(private$data_) else 0L
     },
 
     ##' @description
