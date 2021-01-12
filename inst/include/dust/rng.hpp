@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "xoshiro.hpp"
 #include "distr/binomial.hpp"
+#include "distr/exponential.hpp"
 #include "distr/normal.hpp"
 #include "distr/poisson.hpp"
 #include "distr/uniform.hpp"

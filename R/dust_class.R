@@ -227,7 +227,7 @@ dust_class <- R6::R6Class(
     ##' @description
     ##' Returns the number of distinct data elements required. This is `0`
     ##' where the object was initialised with `data_multi = FALSE` and
-    ##' an integer otherwise.  For multi-data dust objects, Where `data`
+    ##' an integer otherwise.  For mulit-data dust objects, Where `data`
     ##' is accepted, you must provide an unnamed list of length `$n_data()`.
     n_data = function() {
     },

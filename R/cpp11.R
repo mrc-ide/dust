@@ -28,6 +28,10 @@ dust_rng_runif <- function(ptr, n, r_min, r_max) {
   .Call("_dust_dust_rng_runif", ptr, n, r_min, r_max, PACKAGE = "dust")
 }
 
+dust_rng_rexp <- function(ptr, n, r_rate) {
+  .Call("_dust_dust_rng_rexp", ptr, n, r_rate, PACKAGE = "dust")
+}
+
 dust_rng_rnorm <- function(ptr, n, r_mean, r_sd) {
   .Call("_dust_dust_rng_rnorm", ptr, n, r_mean, r_sd, PACKAGE = "dust")
 }
