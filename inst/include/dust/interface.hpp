@@ -278,7 +278,7 @@ cpp11::sexp dust_set_data(SEXP ptr, cpp11::list r_data) {
   if (obj->n_data() == 0) {
     typename T::init_t data = dust_data<T>(r_data);
     obj->set_data(data);
-    return dust_info<T>(data);
+    info = dust_info<T>(data);
   } else {
     // The underlying implementation should be tidied up, as the
     // single case leaves us with inconsistent data already, and the
