@@ -523,7 +523,7 @@ as \code{dust_class$public_methods$has_openmp()}
 \subsection{Method \code{n_data()}}{
 Returns the number of distinct data elements required. This is \code{0}
 where the object was initialised with \code{data_multi = FALSE} and
-an integer otherwise.  For mulit-data dust objects, Where \code{data}
+an integer otherwise.  For multi-data dust objects, Where \code{data}
 is accepted, you must provide an unnamed list of length \verb{$n_data()}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$n_data()}\if{html}{\out{</div>}}

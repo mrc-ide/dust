@@ -1,3 +1,7 @@
+# dust 0.5.10
+
+* Add support for `rexp` from dust model, just using inversion for now (#127)
+
 # dust 0.5.9
 
 * Start of support for running dust objects with multiple data/parameter sets at once (#92)

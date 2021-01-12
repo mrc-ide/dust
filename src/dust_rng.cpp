@@ -67,8 +67,8 @@ cpp11::writable::doubles dust_rng_norm_rand(SEXP ptr, int n) {
 
 [[cpp11::register]]
 cpp11::writable::doubles dust_rng_runif(SEXP ptr, int n,
-                                         cpp11::doubles r_min,
-                                         cpp11::doubles r_max) {
+                                        cpp11::doubles r_min,
+                                        cpp11::doubles r_max) {
   dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
   const double * min = REAL(r_min);
   const double * max = REAL(r_max);
@@ -79,6 +79,23 @@ cpp11::writable::doubles dust_rng_runif(SEXP ptr, int n,
 
   for (size_t i = 0; i < (size_t)n; ++i) {
     y[i] = dust::distr::runif(rng->state(i % n_generators), min[i], max[i]);
+  }
+
+  return ret;
+}
+
+[[cpp11::register]]
+cpp11::writable::doubles dust_rng_rexp(SEXP ptr, int n,
+                                       cpp11::doubles r_rate) {
+  dust_rng_t *rng = cpp11::as_cpp<dust_rng_ptr_t>(ptr).get();
+  const double * rate = REAL(r_rate);
+  const size_t n_generators = rng->size();
+
+  cpp11::writable::doubles ret = cpp11::writable::doubles(n);
+  double * y = REAL(ret);
+
+  for (size_t i = 0; i < (size_t)n; ++i) {
+    y[i] = dust::distr::rexp(rng->state(i % n_generators), rate[i]);
   }
 
   return ret;

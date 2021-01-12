@@ -187,6 +187,16 @@ test_that("rnorm agrees with stats::rnorm", {
 })
 
 
+test_that("rexp agrees with stats::rexp", {
+  n <- 100000
+  rate <- 0.04
+  ans <- dust_rng$new(2, 1)$rexp(n, rate)
+  expect_equal(mean(ans), 1 / rate, tolerance = 1e-2)
+  expect_equal(var(ans), 1 / rate^2, tolerance = 1e-2)
+  expect_gt(ks.test(ans, "pexp", rate)$p.value, 0.1)
+})
+
+
 test_that("continue stream", {
   rng1 <- dust_rng$new(1, 1L)
   rng2 <- dust_rng$new(1, 1L)

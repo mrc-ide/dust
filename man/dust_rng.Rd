@@ -42,6 +42,7 @@ rng$rpois(5, 2)
 \item \href{#method-rnorm}{\code{dust_rng$rnorm()}}
 \item \href{#method-rbinom}{\code{dust_rng$rbinom()}}
 \item \href{#method-rpois}{\code{dust_rng$rpois()}}
+\item \href{#method-rexp}{\code{dust_rng$rexp()}}
 \item \href{#method-state}{\code{dust_rng$state()}}
 }
 }
@@ -210,7 +211,26 @@ Generate \code{n} numbers from a Poisson distribution}
 \describe{
 \item{\code{n}}{Number of samples to draw}
 
-\item{\code{lambda}}{The mean (zero or more, length 1 or n)}
+\item{\code{lambda}}{The mean (zero or more, length 1 or n)
+Generate \code{n} numbers from a exponential distribution}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-rexp"></a>}}
+\if{latex}{\out{\hypertarget{method-rexp}{}}}
+\subsection{Method \code{rexp()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$rexp(n, rate)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{n}}{Number of samples to draw}
+
+\item{\code{rate}}{The rate of the exponential}
 }
 \if{html}{\out{</div>}}
 }
