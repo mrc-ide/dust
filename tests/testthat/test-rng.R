@@ -187,7 +187,7 @@ test_that("rnorm agrees with stats::rnorm", {
 })
 
 
-test_that("rnorm agrees with stats::rnorm", {
+test_that("rexp agrees with stats::rexp", {
   n <- 100000
   rate <- 0.04
   ans <- dust_rng$new(2, 1)$rexp(n, rate)
