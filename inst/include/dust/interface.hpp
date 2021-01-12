@@ -46,7 +46,7 @@ cpp11::list dust_alloc(cpp11::list r_data, bool data_multi, int step,
   validate_positive(n_threads, "n_threads");
   std::vector<uint64_t> seed = as_rng_seed<typename T::real_t>(r_seed);
 
-  Dust<T> *d = NULL;
+  Dust<T> *d = nullptr;
   cpp11::sexp info;
   if (data_multi) {
     std::vector<typename T::init_t> data;
