@@ -95,11 +95,6 @@ public:
   typedef typename T::init_t init_t;
   typedef typename T::real_t real_t;
 
-  // Can we do this with
-  // template <typename U>
-  // Dust(const U& data, ...)
-  // and having all the overloading in initialise? that would seem ideal
-  // really.
   Dust(const init_t& data, const size_t step, const size_t n_particles,
        const size_t n_threads, const std::vector<uint64_t>& seed) :
     _n_data(0),
