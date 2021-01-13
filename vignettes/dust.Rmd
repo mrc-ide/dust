@@ -47,21 +47,21 @@ There are two main parts here; the class (`walk`) and an interface function (`du
 The class is what does most of the work. It is important that this does not use anything in the R api as it may be called in parallel. Therefore use only C++ standard library types.  It has to provide every public type or method as the example above:
 
 * the type `real_t` has to exist and indicate what sort of numeric type you use for "real numbers". Typically this will be `double`,but if you need a different type (longer or shorter) you can use it here.
-* the type `init_t` is whatever internal data your model needs, and an object of this type will be passed to your constructor (see `dust_data` below)
-* the constructor must take only one argument, being `const init_t&`. You can do what you want in the constructor - here we just copy the data into the object (we use the private member `data_` here but this can be anything you want)
+* the type `init_t` is whatever internal data your model needs (most likely its parameters), and an object of this type will be passed to your constructor (see `dust_pars` below)
+* the constructor must take only one argument, being `const init_t&`. You can do what you want in the constructor - here we just copy the pars into the object (we use the private member `pars_` here but this can be anything you want)
 * the method `size()` must return the "size" of the system - how many state variables it has. Here we're considering a single individual moving randomly so the size is always 1
 * the method `initial()` returns the initial state of the model system. It must have length `size()` and it can vary based on the "step" of the system
-* the method `update()` is the core of the system and specifies how the state changes from one step to another. It will always have the signature as above with arguments `size_t step` (the current step), `const double * state` (a read-only copy of the state when entering this step), `dust::rng_state_t<real_t>& rng` (a reference to the random number state) and `double * state_next` (a reference to the state to be updated). Your method reads from `state` and writes to `state_next`. Here, we unpack the mean and draw a new normally distributed random number - note how the standard deviation is retrieved from the `data_` object.
+* the method `update()` is the core of the system and specifies how the state changes from one step to another. It will always have the signature as above with arguments `size_t step` (the current step), `const double * state` (a read-only copy of the state when entering this step), `dust::rng_state_t<real_t>& rng` (a reference to the random number state) and `double * state_next` (a reference to the state to be updated). Your method reads from `state` and writes to `state_next`. Here, we unpack the mean and draw a new normally distributed random number - note how the standard deviation is retrieved from the `pars_` object.
 
-The function below the class is a template specialisation of a dust function `dust_data`; it is used to create your `init_t` object from an R list (`cpp11::list`). You can include `cpp11.hpp` (or more narrowly scoped cpp11 headers) at this point and can use any cpp11 function that you need. Avoid direct use of the R's C API as this is not always safe to call from C++. In particular, use `cpp11::stop()` rather than `Rf_error()`.
+The function below the class is a template specialisation of a dust function `dust_pars`; it is used to create your `init_t` object from an R list (`cpp11::list`). You can include `cpp11.hpp` (or more narrowly scoped cpp11 headers) at this point and can use any cpp11 function that you need. Avoid direct use of the R's C API as this is not always safe to call from C++. In particular, use `cpp11::stop()` rather than `Rf_error()`.
 
 Here we retrieve the `sd` element of the list and convert it to a "real number" type. This roughly equivalent to writing
 
 ```r
-sd <- as.numeric(data[["sd"]])
+sd <- as.numeric(pars[["sd"]])
 ```
 
-in R, except that it will throw an error if `sd` is not present in the list `data`.  Then we construct the struct and return it.
+in R, except that it will throw an error if `sd` is not present in the list `pars`.  Then we construct the struct and return it.
 
 ### Constructing a model
 
@@ -86,7 +86,7 @@ walk
 
 Create an instance of the model using `walk$new`. There are three required arguments:
 
-* `data`: passed to `dust_data` to initialise the model
+* `pars`: passed to `dust_pars` to initialise the model
 * `step`: the initial step (0 seems like a sensible choice here given our model has no internal sense of time)
 * `n_particles`: the number of particles to create
 
@@ -155,9 +155,9 @@ There is not much different here to the version that is shown before for the wal
 
 * the `initial` method is slightly more complicated as we initialise a 3-element vector
 * our `init_t` object has significantly more elements
-* the `dust_data` function is much more complicated
+* the `dust_pars` function is much more complicated
 
-The other difference is a new template specialisation of `dust_info` - this is optional but can be used to report back to R information about the model based on the input data. Here it returns information about variable order and core parameters.
+The other difference is a new template specialisation of `dust_info` - this is optional but can be used to report back to R information about the model based on the input pars. Here it returns information about variable order and core parameters.
 
 We also have added C++ pseudo-attributes with `[[dust::param]]` to describe the parameters that this function takes. This is optional, but allows use of a `coef` method with the class (see below).
 

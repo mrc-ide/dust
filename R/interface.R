@@ -12,7 +12,7 @@
 ##' * That class must define a type `init_t` (so `model::init_t`) that
 ##'   contains its internal data and the model must be constructable
 ##'   with a const reference to this type (`const model::init_t&
-##'   data`)
+##'   pars`)
 ##'
 ##' * That class must also include a typedef that describes the
 ##'   model's floating point type, `real_t`. Most models can include
@@ -45,30 +45,30 @@
 ##'   the R API in any way as these functions will be called in
 ##'   parallel.
 ##'
-##' You must also provide a data-wrangling function for producing an
-##'   object of type `model::init_t` from an R list.  We use cpp11 for
-##'   this.  Your function will look like:
+##' You must also provide a data/parameter-wrangling function for
+##'   producing an object of type `model::init_t` from an R list.  We
+##'   use cpp11 for this.  Your function will look like:
 ##'
 ##' ```
 ##' template <>
-##' model::init_t dust_data<model>(cpp11::list data) {
+##' model::init_t dust_pars<model>(cpp11::list pars) {
 ##'   return ...;
 ##' }
 ##' ```
 ##'
-##' With the body interacting with `data` to create an object of type
+##' With the body interacting with `pars` to create an object of type
 ##'   `model::init_t` and returning it.  This function will be called
 ##'   in serial and may use anything in the cpp11 API.  All elements of
 ##'   the returned object must be standard C/C++ (e.g., STL) types and
 ##'   *not* cpp11/R types.
 ##'
 ##' Your model *may* provided a template specialisation
-##'   `dust_data<model::init_t>()` returning a `cpp11::sexp` for
+##'   `dust_pars<model::init_t>()` returning a `cpp11::sexp` for
 ##'   returning arbitrary information back to the R session:
 ##'
 ##' ```
 ##' template <>
-##' cpp11::sexp dust_info<model>(const model::init_t& data) {
+##' cpp11::sexp dust_info<model>(const model::init_t& pars) {
 ##'   return cpp11::wrap(...);
 ##' }
 ##' ```
@@ -77,7 +77,7 @@
 ##'   `info()` method on the created object will return `NULL`.
 ##'   Potential use cases for this are to return information about
 ##'   variable ordering, or any processing done while accepting the
-##'   data object used to create the data fed into the particles.
+##'   pars object used to create the pars fed into the particles.
 ##'
 ##' @section Configuring your model:
 ##'

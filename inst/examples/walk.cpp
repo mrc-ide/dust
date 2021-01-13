@@ -4,7 +4,7 @@ public:
   struct init_t {
     real_t sd;
   };
-  walk(const init_t& data) : data_(data) {
+  walk(const init_t& pars) : pars_(pars) {
   }
   size_t size() const {
     return 1;
@@ -17,16 +17,16 @@ public:
               dust::rng_state_t<real_t>& rng_state,
               real_t * state_next) {
     real_t mean = state[0];
-    state_next[0] = dust::distr::rnorm(rng_state, mean, data_.sd);
+    state_next[0] = dust::distr::rnorm(rng_state, mean, pars_.sd);
   }
 
 private:
-  init_t data_;
+  init_t pars_;
 };
 
 #include <cpp11/list.hpp>
 template <>
-walk::init_t dust_data<walk>(cpp11::list data) {
-  walk::real_t sd = cpp11::as_cpp<walk::real_t>(data["sd"]);
+walk::init_t dust_pars<walk>(cpp11::list pars) {
+  walk::real_t sd = cpp11::as_cpp<walk::real_t>(pars["sd"]);
   return walk::init_t{sd};
 }

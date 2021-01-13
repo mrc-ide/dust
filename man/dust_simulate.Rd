@@ -7,7 +7,7 @@
 dust_simulate(
   model,
   steps,
-  data,
+  pars,
   state,
   index = NULL,
   n_threads = 1L,
@@ -23,7 +23,7 @@ step in this vector is the starting step (corresponding to the
 initial \code{state} of the model) and subsequent values are steps
 where state should be returned.}
 
-\item{data}{An unnamed list of model initialisation data (see
+\item{pars}{An unnamed list of model initialisation pars (see
 \link{dust}).  It must have the same length as the number of columns
 in \code{state}.}
 
@@ -31,14 +31,14 @@ in \code{state}.}
 of rows corresponding to the number of initial state values your
 model requires, and the number of columns corresponding to the
 number of independent simulations to perform (i.e.,
-\code{length(data)}).}
+\code{length(pars)}).}
 
 \item{index}{An optional index, indicating the indicies of the
 state vectors that you want output recorded for.}
 
 \item{n_threads}{Number of OMP threads to use, if \code{dust} and your
 model were compiled with OMP support.  The number of simulations
-(\code{length(data)}) should be a multiple of \code{n_threads} (e.g., if
+(\code{length(pars)}) should be a multiple of \code{n_threads} (e.g., if
 you use 8 threads, then you should have 8, 16, 24, etc
 particles). However, this is not compulsary.}
 
@@ -62,7 +62,7 @@ to change; see Details below.
 This function has an interface that we expect to change once
 multi-parameter "dust" objects are fully supported.  For now, it
 is designed to be used where we want to simulate a number of
-trajectories given a vector of model data and a matrix of initial
+trajectories given a vector of model pars and a matrix of initial
 state.  For our immediate use case this is for simulating at the
 end of an MCMC where want to generate a posterior distribution of
 trajectories.
@@ -94,7 +94,7 @@ model <- dust::dust_example("walk")
 
 # Start with 40 parameter sets; for this model each is list with
 # an element 'sd'
-data <- replicate(40, list(sd = runif(1)), simplify = FALSE)
+pars <- replicate(40, list(sd = runif(1)), simplify = FALSE)
 
 # We also need a matrix of initial states
 y0 <- matrix(rnorm(40), 1, 40)
@@ -103,7 +103,7 @@ y0 <- matrix(rnorm(40), 1, 40)
 steps <- 0:50
 
 # The simulated output:
-res <- dust::dust_simulate(model, steps, data, y0)
+res <- dust::dust_simulate(model, steps, pars, y0)
 
 # The result of the simulation, plotted over time
 matplot(steps, t(drop(res)), type = "l", col = "#00000055", lty = 1)

@@ -3,30 +3,30 @@
   cloneable = FALSE,
 
   private = list(
-    data_ = NULL,
-    data_multi_ = NULL,
+    pars_ = NULL,
+    pars_multi_ = NULL,
     index_ = NULL,
     info_ = NULL,
     n_threads_ = NULL,
     ptr_ = NULL,
     param_ = {{param}},
 
-    simulate = function(steps, data, state, index = NULL,
+    simulate = function(steps, pars, state, index = NULL,
                         n_threads = 1L, seed = NULL,
                         return_state = FALSE) {
-      dust_{{name}}_simulate(steps, data, state, index, n_threads, seed,
+      dust_{{name}}_simulate(steps, pars, state, index, n_threads, seed,
                              return_state)
     },
 
-    check_data_multi = function(data, len) {
-      if (!is.list(data) || !is.null(names(data))) {
-        stop("Expected 'data' to be an unnamed list as 'data_multi' is used")
+    check_pars_multi = function(pars, len) {
+      if (!is.list(pars) || !is.null(names(pars))) {
+        stop("Expected 'pars' to be an unnamed list as 'pars_multi' is used")
       }
-      n <- length(private$data_)
-      if (n == 0 && length(data) == 0) {
-        stop("Expected 'data' to have at least one element")
-      } else if (n > 0 && length(data) != n) {
-        stop(sprintf("Expected 'data' to have %d elements", n))
+      n <- length(private$pars_)
+      if (n == 0 && length(pars) == 0) {
+        stop("Expected 'pars' to have at least one element")
+      } else if (n > 0 && length(pars) != n) {
+        stop(sprintf("Expected 'pars' to have %d elements", n))
       }
     }
   ),
@@ -35,20 +35,20 @@
     ##' @description
     ##' Create a new model. Note that the behaviour of this object
     ##' created by this function will change considerably based on
-    ##' whether the `data_multi` argument is `TRUE`. If not (the
+    ##' whether the `pars_multi` argument is `TRUE`. If not (the
     ##' default) then we create `n_particles` which all share the same
-    ##' parameters as specified by the `data` argument. If `data_multi`
-    ##' is `TRUE` then `data` must be an unnamed list, and each element
-    ##' of it represents a different set of parameters/data. We will
-    ##' create `length(data)` *sets* of `n_particles` particles which
+    ##' parameters as specified by the `pars` argument. If `pars_multi`
+    ##' is `TRUE` then `pars` must be an unnamed list, and each element
+    ##' of it represents a different set of parameters. We will
+    ##' create `length(pars)` *sets* of `n_particles` particles which
     ##' will be simulated together. These particles must have the same
     ##' dimension - that is, they must correspond to model state that
     ##' is the same size.
     ##'
-    ##' @param data Data to initialise your model with; a `list`
+    ##' @param pars Data to initialise your model with; a `list`
     ##' object, but the required elements will depend on the details of
-    ##' your model. If `data_multi` is `TRUE`, then this must be an
-    ##' *unnamed* list of `data` objects (see Details).
+    ##' your model. If `pars_multi` is `TRUE`, then this must be an
+    ##' *unnamed* list of `pars` objects (see Details).
     ##'
     ##' @param step Initial step - must be nonnegative
     ##'
@@ -67,20 +67,20 @@
     ##' 32 to directly initialise the generator (e..g., from the
     ##' [`dust`] object's `$rng_state()` method).
     ##'
-    ##' @param data_multi Logical, indicating if `data` should be
+    ##' @param pars_multi Logical, indicating if `pars` should be
     ##' interpreted as a set of different initialisations, and that we
-    ##' should prepare `n_particles * length(data)` particles for
+    ##' should prepare `n_particles * length(pars)` particles for
     ##' simulation. This has an effect on many of the other methods of
     ##' the object.
-    initialize = function(data, step, n_particles, n_threads = 1L,
-                          seed = NULL, data_multi = FALSE) {
-      if (data_multi) {
-        private$check_data_multi(data)
+    initialize = function(pars, step, n_particles, n_threads = 1L,
+                          seed = NULL, pars_multi = FALSE) {
+      if (pars_multi) {
+        private$check_pars_multi(pars)
       }
-      res <- dust_{{name}}_alloc(data, data_multi, step, n_particles,
+      res <- dust_{{name}}_alloc(pars, pars_multi, step, n_particles,
                         n_threads, seed)
-      private$data_ <- data
-      private$data_multi_ <- data_multi
+      private$pars_ <- pars
+      private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
@@ -94,8 +94,8 @@
 
     ##' @description
     ##' Returns parameter information, if provided by the model. This
-    ##' describes the contents of data passed to the constructor or to
-    ##' `reset` as the `data` argument, and the details depend on the model.
+    ##' describes the contents of pars passed to the constructor or to
+    ##' `reset` as the `pars` argument, and the details depend on the model.
     param = function() {
       private$param_
     },
@@ -113,7 +113,7 @@
     },
 
     ##' @description
-    ##' Set the "index" vector that is used to return a subset of data
+    ##' Set the "index" vector that is used to return a subset of pars
     ##' after using `run()`. If this is not used then `run()` returns
     ##' all elements in your state vector, which may be excessive and slower
     ##' than necessary. This method must be called after any
@@ -163,31 +163,31 @@
     ##' @description
     ##' Reset the model while preserving the random number stream state
     ##'
-    ##' @param data New data for the model (see constructor)
+    ##' @param pars New pars for the model (see constructor)
     ##' @param step New initial step for the model (see constructor)
-    reset = function(data, step) {
-      if (private$data_multi_) {
-        private$check_data_multi(data)
+    reset = function(pars, step) {
+      if (private$pars_multi_) {
+        private$check_pars_multi(pars)
       }
-      private$info_ <- dust_{{name}}_reset(private$ptr_, data, step)
+      private$info_ <- dust_{{name}}_reset(private$ptr_, pars, step)
       private$index_ <- NULL
-      private$data_ <- data
+      private$pars_ <- pars
       invisible()
     },
 
     ##' @description
-    ##' Set the 'data' element in a dust object while holding model state,
+    ##' Set the 'pars' element in a dust object while holding model state,
     ##' index, etc constant. In contrast to `$reset`, the old state must
     ##' be compatible with the new one (e.g., don't change model size), and
     ##' the index will remain valid.
     ##'
-    ##' @param data New data for the model (see constructor)
-    set_data = function(data) {
-      if (private$data_multi_) {
-        private$check_data_multi(data)
+    ##' @param pars New pars for the model (see constructor)
+    set_pars = function(pars) {
+      if (private$pars_multi_) {
+        private$check_pars_multi(pars)
       }
-      private$info_ <- dust_{{name}}_set_data(private$ptr_, data)
-      private$data_ <- data
+      private$info_ <- dust_{{name}}_set_pars(private$ptr_, pars)
+      private$pars_ <- pars
     },
 
     ##' @description
@@ -217,7 +217,7 @@
     },
 
     ##' @description
-    ##' Returns information about the data that your model was created with.
+    ##' Returns information about the pars that your model was created with.
     ##' Only returns non-NULL if the model provides a `dust_info` template
     ##' specialisation.
     info = function() {
@@ -225,9 +225,9 @@
     },
 
     ##' @description
-    ##' Returns the `data` object that your model was constructed with.
-    data = function() {
-      private$data_
+    ##' Returns the `pars` object that your model was constructed with.
+    pars = function() {
+      private$pars_
     },
 
     ##' @description
@@ -272,12 +272,12 @@
     },
 
     ##' @description
-    ##' Returns the number of distinct data elements required. This is `0`
-    ##' where the object was initialised with `data_multi = FALSE` and
-    ##' an integer otherwise.  For multi-data dust objects, Where `data`
-    ##' is accepted, you must provide an unnamed list of length `$n_data()`.
-    n_data = function() {
-      if (private$data_multi_) length(private$data_) else 0L
+    ##' Returns the number of distinct pars elements required. This is `0`
+    ##' where the object was initialised with `pars_multi = FALSE` and
+    ##' an integer otherwise.  For multi-pars dust objects, Where `pars`
+    ##' is accepted, you must provide an unnamed list of length `$n_pars()`.
+    n_pars = function() {
+      if (private$pars_multi_) length(private$pars_) else 0L
     },
 
     ##' @description

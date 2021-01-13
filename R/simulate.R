@@ -4,7 +4,7 @@
 ##' This function has an interface that we expect to change once
 ##' multi-parameter "dust" objects are fully supported.  For now, it
 ##' is designed to be used where we want to simulate a number of
-##' trajectories given a vector of model data and a matrix of initial
+##' trajectories given a vector of model pars and a matrix of initial
 ##' state.  For our immediate use case this is for simulating at the
 ##' end of an MCMC where want to generate a posterior distribution of
 ##' trajectories.
@@ -37,7 +37,7 @@
 ##'   initial `state` of the model) and subsequent values are steps
 ##'   where state should be returned.
 ##'
-##' @param data An unnamed list of model initialisation data (see
+##' @param pars An unnamed list of model initialisation pars (see
 ##'   [dust]).  It must have the same length as the number of columns
 ##'   in `state`.
 ##'
@@ -45,14 +45,14 @@
 ##'   of rows corresponding to the number of initial state values your
 ##'   model requires, and the number of columns corresponding to the
 ##'   number of independent simulations to perform (i.e.,
-##'   `length(data)`).
+##'   `length(pars)`).
 ##'
 ##' @param index An optional index, indicating the indicies of the
 ##'   state vectors that you want output recorded for.
 ##'
 ##' @param n_threads Number of OMP threads to use, if `dust` and your
 ##'   model were compiled with OMP support.  The number of simulations
-##'   (`length(data)`) should be a multiple of `n_threads` (e.g., if
+##'   (`length(pars)`) should be a multiple of `n_threads` (e.g., if
 ##'   you use 8 threads, then you should have 8, 16, 24, etc
 ##'   particles). However, this is not compulsary.
 ##'
@@ -75,7 +75,7 @@
 ##'
 ##' # Start with 40 parameter sets; for this model each is list with
 ##' # an element 'sd'
-##' data <- replicate(40, list(sd = runif(1)), simplify = FALSE)
+##' pars <- replicate(40, list(sd = runif(1)), simplify = FALSE)
 ##'
 ##' # We also need a matrix of initial states
 ##' y0 <- matrix(rnorm(40), 1, 40)
@@ -84,11 +84,11 @@
 ##' steps <- 0:50
 ##'
 ##' # The simulated output:
-##' res <- dust::dust_simulate(model, steps, data, y0)
+##' res <- dust::dust_simulate(model, steps, pars, y0)
 ##'
 ##' # The result of the simulation, plotted over time
 ##' matplot(steps, t(drop(res)), type = "l", col = "#00000055", lty = 1)
-dust_simulate <- function(model, steps, data, state, index = NULL,
+dust_simulate <- function(model, steps, pars, state, index = NULL,
                           n_threads = 1L, seed = NULL, return_state = FALSE) {
   if (inherits(model, "dust")) {
     simulate <- environment(model$run)$private$simulate
@@ -101,8 +101,8 @@ dust_simulate <- function(model, steps, data, state, index = NULL,
   if (!is.matrix(state)) {
     stop("Expected 'state' to be a matrix")
   }
-  if (is.list(data) && !is.null(names(data))) {
-    stop("Expected 'data' to be an unnamed list")
+  if (is.list(pars) && !is.null(names(pars))) {
+    stop("Expected 'pars' to be an unnamed list")
   }
-  simulate(steps, data, state, index, n_threads, seed, return_state)
+  simulate(steps, pars, state, index, n_threads, seed, return_state)
 }

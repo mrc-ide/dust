@@ -13,20 +13,20 @@ dust_class <- R6::R6Class(
   cloneable = FALSE,
 
   private = list(
-    data_ = NULL,
-    data_multi_ = NULL,
+    pars_ = NULL,
+    pars_multi_ = NULL,
     index_ = NULL,
     info_ = NULL,
     n_threads_ = NULL,
     ptr_ = NULL,
     param_ = NULL,
 
-    simulate = function(steps, data, state, index = NULL,
+    simulate = function(steps, pars, state, index = NULL,
                         n_threads = 1L, seed = NULL,
                         return_state = FALSE) {
     },
 
-    check_data_multi = function(data, len) {
+    check_pars_multi = function(pars, len) {
     }
   ),
 
@@ -34,20 +34,20 @@ dust_class <- R6::R6Class(
     ##' @description
     ##' Create a new model. Note that the behaviour of this object
     ##' created by this function will change considerably based on
-    ##' whether the `data_multi` argument is `TRUE`. If not (the
+    ##' whether the `pars_multi` argument is `TRUE`. If not (the
     ##' default) then we create `n_particles` which all share the same
-    ##' parameters as specified by the `data` argument. If `data_multi`
-    ##' is `TRUE` then `data` must be an unnamed list, and each element
-    ##' of it represents a different set of parameters/data. We will
-    ##' create `length(data)` *sets* of `n_particles` particles which
+    ##' parameters as specified by the `pars` argument. If `pars_multi`
+    ##' is `TRUE` then `pars` must be an unnamed list, and each element
+    ##' of it represents a different set of parameters. We will
+    ##' create `length(pars)` *sets* of `n_particles` particles which
     ##' will be simulated together. These particles must have the same
     ##' dimension - that is, they must correspond to model state that
     ##' is the same size.
     ##'
-    ##' @param data Data to initialise your model with; a `list`
+    ##' @param pars Data to initialise your model with; a `list`
     ##' object, but the required elements will depend on the details of
-    ##' your model. If `data_multi` is `TRUE`, then this must be an
-    ##' *unnamed* list of `data` objects (see Details).
+    ##' your model. If `pars_multi` is `TRUE`, then this must be an
+    ##' *unnamed* list of `pars` objects (see Details).
     ##'
     ##' @param step Initial step - must be nonnegative
     ##'
@@ -66,13 +66,13 @@ dust_class <- R6::R6Class(
     ##' 32 to directly initialise the generator (e..g., from the
     ##' [`dust`] object's `$rng_state()` method).
     ##'
-    ##' @param data_multi Logical, indicating if `data` should be
+    ##' @param pars_multi Logical, indicating if `pars` should be
     ##' interpreted as a set of different initialisations, and that we
-    ##' should prepare `n_particles * length(data)` particles for
+    ##' should prepare `n_particles * length(pars)` particles for
     ##' simulation. This has an effect on many of the other methods of
     ##' the object.
-    initialize = function(data, step, n_particles, n_threads = 1L,
-                          seed = NULL, data_multi = FALSE) {
+    initialize = function(pars, step, n_particles, n_threads = 1L,
+                          seed = NULL, pars_multi = FALSE) {
     },
 
     ##' @description
@@ -82,8 +82,8 @@ dust_class <- R6::R6Class(
 
     ##' @description
     ##' Returns parameter information, if provided by the model. This
-    ##' describes the contents of data passed to the constructor or to
-    ##' `reset` as the `data` argument, and the details depend on the model.
+    ##' describes the contents of pars passed to the constructor or to
+    ##' `reset` as the `pars` argument, and the details depend on the model.
     param = function() {
     },
 
@@ -97,7 +97,7 @@ dust_class <- R6::R6Class(
     },
 
     ##' @description
-    ##' Set the "index" vector that is used to return a subset of data
+    ##' Set the "index" vector that is used to return a subset of pars
     ##' after using `run()`. If this is not used then `run()` returns
     ##' all elements in your state vector, which may be excessive and slower
     ##' than necessary. This method must be called after any
@@ -141,19 +141,19 @@ dust_class <- R6::R6Class(
     ##' @description
     ##' Reset the model while preserving the random number stream state
     ##'
-    ##' @param data New data for the model (see constructor)
+    ##' @param pars New pars for the model (see constructor)
     ##' @param step New initial step for the model (see constructor)
-    reset = function(data, step) {
+    reset = function(pars, step) {
     },
 
     ##' @description
-    ##' Set the 'data' element in a dust object while holding model state,
+    ##' Set the 'pars' element in a dust object while holding model state,
     ##' index, etc constant. In contrast to `$reset`, the old state must
     ##' be compatible with the new one (e.g., don't change model size), and
     ##' the index will remain valid.
     ##'
-    ##' @param data New data for the model (see constructor)
-    set_data = function(data) {
+    ##' @param pars New pars for the model (see constructor)
+    set_pars = function(pars) {
     },
 
     ##' @description
@@ -176,15 +176,15 @@ dust_class <- R6::R6Class(
     },
 
     ##' @description
-    ##' Returns information about the data that your model was created with.
+    ##' Returns information about the pars that your model was created with.
     ##' Only returns non-NULL if the model provides a `dust_info` template
     ##' specialisation.
     info = function() {
     },
 
     ##' @description
-    ##' Returns the `data` object that your model was constructed with.
-    data = function() {
+    ##' Returns the `pars` object that your model was constructed with.
+    pars = function() {
     },
 
     ##' @description
@@ -225,11 +225,11 @@ dust_class <- R6::R6Class(
     },
 
     ##' @description
-    ##' Returns the number of distinct data elements required. This is `0`
-    ##' where the object was initialised with `data_multi = FALSE` and
-    ##' an integer otherwise.  For multi-data dust objects, Where `data`
-    ##' is accepted, you must provide an unnamed list of length `$n_data()`.
-    n_data = function() {
+    ##' Returns the number of distinct pars elements required. This is `0`
+    ##' where the object was initialised with `pars_multi = FALSE` and
+    ##' an integer otherwise.  For multi-pars dust objects, Where `pars`
+    ##' is accepted, you must provide an unnamed list of length `$n_pars()`.
+    n_pars = function() {
     },
 
     ##' @description

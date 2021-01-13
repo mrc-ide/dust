@@ -11,7 +11,7 @@ public:
     int n;
     std::array<real_t, 3> r;
   };
-  arrays(const init_t& data): internal(data) {
+  arrays(const init_t& pars): internal(pars) {
   }
   size_t size() {
     return 1 + internal.dim_x;
@@ -40,7 +40,7 @@ private:
 };
 
 template<>
-arrays::init_t dust_data<arrays>(cpp11::list user) {
+arrays::init_t dust_pars<arrays>(cpp11::list user) {
   arrays::init_t internal;
   internal.initial_y = 2;
   internal.n = 3;

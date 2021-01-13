@@ -52,8 +52,8 @@ cpp_openmp_info <- function() {
   .Call("_dust_cpp_openmp_info", PACKAGE = "dust")
 }
 
-dust_sir_alloc <- function(r_data, data_multi, step, n_particles, n_threads, r_seed) {
-  .Call("_dust_dust_sir_alloc", r_data, data_multi, step, n_particles, n_threads, r_seed, PACKAGE = "dust")
+dust_sir_alloc <- function(r_pars, pars_multi, step, n_particles, n_threads, r_seed) {
+  .Call("_dust_dust_sir_alloc", r_pars, pars_multi, step, n_particles, n_threads, r_seed, PACKAGE = "dust")
 }
 
 dust_sir_run <- function(ptr, step_end) {
@@ -68,8 +68,8 @@ dust_sir_set_state <- function(ptr, r_state, r_step) {
   .Call("_dust_dust_sir_set_state", ptr, r_state, r_step, PACKAGE = "dust")
 }
 
-dust_sir_reset <- function(ptr, r_data, step) {
-  .Call("_dust_dust_sir_reset", ptr, r_data, step, PACKAGE = "dust")
+dust_sir_reset <- function(ptr, r_pars, step) {
+  .Call("_dust_dust_sir_reset", ptr, r_pars, step, PACKAGE = "dust")
 }
 
 dust_sir_state <- function(ptr, r_index) {
@@ -84,8 +84,8 @@ dust_sir_reorder <- function(ptr, r_index) {
   invisible(.Call("_dust_dust_sir_reorder", ptr, r_index, PACKAGE = "dust"))
 }
 
-dust_sir_set_data <- function(ptr, r_data) {
-  .Call("_dust_dust_sir_set_data", ptr, r_data, PACKAGE = "dust")
+dust_sir_set_pars <- function(ptr, r_pars) {
+  .Call("_dust_dust_sir_set_pars", ptr, r_pars, PACKAGE = "dust")
 }
 
 dust_sir_rng_state <- function(ptr, first_only) {
@@ -96,8 +96,8 @@ dust_sir_set_rng_state <- function(ptr, rng_state) {
   .Call("_dust_dust_sir_set_rng_state", ptr, rng_state, PACKAGE = "dust")
 }
 
-dust_sir_simulate <- function(r_steps, r_data, r_state, r_index, n_threads, r_seed, return_state) {
-  .Call("_dust_dust_sir_simulate", r_steps, r_data, r_state, r_index, n_threads, r_seed, return_state, PACKAGE = "dust")
+dust_sir_simulate <- function(r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state) {
+  .Call("_dust_dust_sir_simulate", r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state, PACKAGE = "dust")
 }
 
 dust_sir_has_openmp <- function() {
@@ -108,8 +108,8 @@ dust_sir_set_n_threads <- function(ptr, n_threads) {
   invisible(.Call("_dust_dust_sir_set_n_threads", ptr, n_threads, PACKAGE = "dust"))
 }
 
-dust_variable_alloc <- function(r_data, data_multi, step, n_particles, n_threads, r_seed) {
-  .Call("_dust_dust_variable_alloc", r_data, data_multi, step, n_particles, n_threads, r_seed, PACKAGE = "dust")
+dust_variable_alloc <- function(r_pars, pars_multi, step, n_particles, n_threads, r_seed) {
+  .Call("_dust_dust_variable_alloc", r_pars, pars_multi, step, n_particles, n_threads, r_seed, PACKAGE = "dust")
 }
 
 dust_variable_run <- function(ptr, step_end) {
@@ -124,8 +124,8 @@ dust_variable_set_state <- function(ptr, r_state, r_step) {
   .Call("_dust_dust_variable_set_state", ptr, r_state, r_step, PACKAGE = "dust")
 }
 
-dust_variable_reset <- function(ptr, r_data, step) {
-  .Call("_dust_dust_variable_reset", ptr, r_data, step, PACKAGE = "dust")
+dust_variable_reset <- function(ptr, r_pars, step) {
+  .Call("_dust_dust_variable_reset", ptr, r_pars, step, PACKAGE = "dust")
 }
 
 dust_variable_state <- function(ptr, r_index) {
@@ -140,8 +140,8 @@ dust_variable_reorder <- function(ptr, r_index) {
   invisible(.Call("_dust_dust_variable_reorder", ptr, r_index, PACKAGE = "dust"))
 }
 
-dust_variable_set_data <- function(ptr, r_data) {
-  .Call("_dust_dust_variable_set_data", ptr, r_data, PACKAGE = "dust")
+dust_variable_set_pars <- function(ptr, r_pars) {
+  .Call("_dust_dust_variable_set_pars", ptr, r_pars, PACKAGE = "dust")
 }
 
 dust_variable_rng_state <- function(ptr, first_only) {
@@ -152,8 +152,8 @@ dust_variable_set_rng_state <- function(ptr, rng_state) {
   .Call("_dust_dust_variable_set_rng_state", ptr, rng_state, PACKAGE = "dust")
 }
 
-dust_variable_simulate <- function(r_steps, r_data, r_state, r_index, n_threads, r_seed, return_state) {
-  .Call("_dust_dust_variable_simulate", r_steps, r_data, r_state, r_index, n_threads, r_seed, return_state, PACKAGE = "dust")
+dust_variable_simulate <- function(r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state) {
+  .Call("_dust_dust_variable_simulate", r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state, PACKAGE = "dust")
 }
 
 dust_variable_has_openmp <- function() {
@@ -164,8 +164,8 @@ dust_variable_set_n_threads <- function(ptr, n_threads) {
   invisible(.Call("_dust_dust_variable_set_n_threads", ptr, n_threads, PACKAGE = "dust"))
 }
 
-dust_volatility_alloc <- function(r_data, data_multi, step, n_particles, n_threads, r_seed) {
-  .Call("_dust_dust_volatility_alloc", r_data, data_multi, step, n_particles, n_threads, r_seed, PACKAGE = "dust")
+dust_volatility_alloc <- function(r_pars, pars_multi, step, n_particles, n_threads, r_seed) {
+  .Call("_dust_dust_volatility_alloc", r_pars, pars_multi, step, n_particles, n_threads, r_seed, PACKAGE = "dust")
 }
 
 dust_volatility_run <- function(ptr, step_end) {
@@ -180,8 +180,8 @@ dust_volatility_set_state <- function(ptr, r_state, r_step) {
   .Call("_dust_dust_volatility_set_state", ptr, r_state, r_step, PACKAGE = "dust")
 }
 
-dust_volatility_reset <- function(ptr, r_data, step) {
-  .Call("_dust_dust_volatility_reset", ptr, r_data, step, PACKAGE = "dust")
+dust_volatility_reset <- function(ptr, r_pars, step) {
+  .Call("_dust_dust_volatility_reset", ptr, r_pars, step, PACKAGE = "dust")
 }
 
 dust_volatility_state <- function(ptr, r_index) {
@@ -196,8 +196,8 @@ dust_volatility_reorder <- function(ptr, r_index) {
   invisible(.Call("_dust_dust_volatility_reorder", ptr, r_index, PACKAGE = "dust"))
 }
 
-dust_volatility_set_data <- function(ptr, r_data) {
-  .Call("_dust_dust_volatility_set_data", ptr, r_data, PACKAGE = "dust")
+dust_volatility_set_pars <- function(ptr, r_pars) {
+  .Call("_dust_dust_volatility_set_pars", ptr, r_pars, PACKAGE = "dust")
 }
 
 dust_volatility_rng_state <- function(ptr, first_only) {
@@ -208,8 +208,8 @@ dust_volatility_set_rng_state <- function(ptr, rng_state) {
   .Call("_dust_dust_volatility_set_rng_state", ptr, rng_state, PACKAGE = "dust")
 }
 
-dust_volatility_simulate <- function(r_steps, r_data, r_state, r_index, n_threads, r_seed, return_state) {
-  .Call("_dust_dust_volatility_simulate", r_steps, r_data, r_state, r_index, n_threads, r_seed, return_state, PACKAGE = "dust")
+dust_volatility_simulate <- function(r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state) {
+  .Call("_dust_dust_volatility_simulate", r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state, PACKAGE = "dust")
 }
 
 dust_volatility_has_openmp <- function() {
@@ -220,8 +220,8 @@ dust_volatility_set_n_threads <- function(ptr, n_threads) {
   invisible(.Call("_dust_dust_volatility_set_n_threads", ptr, n_threads, PACKAGE = "dust"))
 }
 
-dust_walk_alloc <- function(r_data, data_multi, step, n_particles, n_threads, r_seed) {
-  .Call("_dust_dust_walk_alloc", r_data, data_multi, step, n_particles, n_threads, r_seed, PACKAGE = "dust")
+dust_walk_alloc <- function(r_pars, pars_multi, step, n_particles, n_threads, r_seed) {
+  .Call("_dust_dust_walk_alloc", r_pars, pars_multi, step, n_particles, n_threads, r_seed, PACKAGE = "dust")
 }
 
 dust_walk_run <- function(ptr, step_end) {
@@ -236,8 +236,8 @@ dust_walk_set_state <- function(ptr, r_state, r_step) {
   .Call("_dust_dust_walk_set_state", ptr, r_state, r_step, PACKAGE = "dust")
 }
 
-dust_walk_reset <- function(ptr, r_data, step) {
-  .Call("_dust_dust_walk_reset", ptr, r_data, step, PACKAGE = "dust")
+dust_walk_reset <- function(ptr, r_pars, step) {
+  .Call("_dust_dust_walk_reset", ptr, r_pars, step, PACKAGE = "dust")
 }
 
 dust_walk_state <- function(ptr, r_index) {
@@ -252,8 +252,8 @@ dust_walk_reorder <- function(ptr, r_index) {
   invisible(.Call("_dust_dust_walk_reorder", ptr, r_index, PACKAGE = "dust"))
 }
 
-dust_walk_set_data <- function(ptr, r_data) {
-  .Call("_dust_dust_walk_set_data", ptr, r_data, PACKAGE = "dust")
+dust_walk_set_pars <- function(ptr, r_pars) {
+  .Call("_dust_dust_walk_set_pars", ptr, r_pars, PACKAGE = "dust")
 }
 
 dust_walk_rng_state <- function(ptr, first_only) {
@@ -264,8 +264,8 @@ dust_walk_set_rng_state <- function(ptr, rng_state) {
   .Call("_dust_dust_walk_set_rng_state", ptr, rng_state, PACKAGE = "dust")
 }
 
-dust_walk_simulate <- function(r_steps, r_data, r_state, r_index, n_threads, r_seed, return_state) {
-  .Call("_dust_dust_walk_simulate", r_steps, r_data, r_state, r_index, n_threads, r_seed, return_state, PACKAGE = "dust")
+dust_walk_simulate <- function(r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state) {
+  .Call("_dust_dust_walk_simulate", r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state, PACKAGE = "dust")
 }
 
 dust_walk_has_openmp <- function() {

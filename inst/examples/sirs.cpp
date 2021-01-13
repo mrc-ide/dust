@@ -12,7 +12,7 @@ public:
     real_t dt;
   };
 
-  sirs(const init_t& data): internal(data) {
+  sirs(const init_t& pars): internal(pars) {
   }
 
   size_t size() {
@@ -57,7 +57,7 @@ private:
 
 #include <cpp11/list.hpp>
 template <>
-sirs::init_t dust_data<sirs>(cpp11::list data) {
+sirs::init_t dust_pars<sirs>(cpp11::list pars) {
   // Initial state values
   sirs::real_t I0 = 10.0;
   sirs::real_t S0 = 1000.0;
@@ -73,12 +73,12 @@ sirs::init_t dust_data<sirs>(cpp11::list data) {
 
   // Accept beta and gamma as optional elements
   // [[dust::param(beta, required = FALSE, default = 0.2)]]
-  SEXP r_beta = data["beta"];
+  SEXP r_beta = pars["beta"];
   if (r_beta != R_NilValue) {
     beta = cpp11::as_cpp<sirs::real_t>(r_beta);
   }
   // [[dust::param(gamma, required = FALSE, default = 0.1)]]
-  SEXP r_gamma = data["gamma"];
+  SEXP r_gamma = pars["gamma"];
   if (r_gamma != R_NilValue) {
     gamma = cpp11::as_cpp<sirs::real_t>(r_gamma);
   }

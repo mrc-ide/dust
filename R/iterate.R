@@ -1,6 +1,6 @@
 ##' Iterate a dust model over time. This is a wrapper around calling
 ##' `$run()` and `$state()` repeatedly without doing anything very
-##' interesting with the data. It is provided mostly as a
+##' interesting with the output. It is provided mostly as a
 ##' quick-and-dirty way of getting started with a model.
 ##'
 ##' @title Iterate a dust model
