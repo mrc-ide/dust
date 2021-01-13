@@ -1,3 +1,7 @@
+# dust 0.6.0
+
+* The `data` argument (and along with it things like `set_data`) have moved to become `pars` as that is how we're using it, and to make space for a future `data` element (#130)
+
 # dust 0.5.10
 
 * Add support for `rexp` from dust model, just using inversion for now (#127)
