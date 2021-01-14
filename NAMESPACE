@@ -3,6 +3,7 @@
 S3method(coef,dust)
 S3method(coef,dust_generator)
 export(dust)
+export(dust_data)
 export(dust_example)
 export(dust_iterate)
 export(dust_openmp_support)

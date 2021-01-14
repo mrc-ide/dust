@@ -481,13 +481,7 @@ test_that("Can run compare_data", {
     t(apply(ans[5, , ], 1, cumsum)),
     ans[4, , ])
 
-  ## TODO: need to add somewhere the data checking to make sure that
-  ## this conforms to the right shape, or we'll get stupid errors when
-  ## reading in the data.
-  f <- function(df, name = "step") {
-    Map(list, df[[name]], lapply(split(df, seq_len(nrow(df))), as.list))
-  }
-  d <- f(data.frame(step = steps, incidence = ans[5, 1, ]))
+  d <- dust_data(data.frame(step = steps, incidence = ans[5, 1, ]))
 
   ## Use Inf for exp_noise as that gives us deterministic results
   mod <- res$new(list(exp_noise = Inf), 0, np, seed = 1L)
