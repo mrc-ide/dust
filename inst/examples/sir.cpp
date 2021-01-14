@@ -10,7 +10,7 @@ public:
     double dt;
   };
 
-  sir(const init_t& data) : data_(data) {
+  sir(const init_t& pars) : pars_(pars) {
   }
 
   size_t size() const {
@@ -18,7 +18,7 @@ public:
   }
 
   std::vector<double> initial(size_t step) {
-    std::vector<double> ret = {data_.S0, data_.I0, data_.R0, 0};
+    std::vector<double> ret = {pars_.S0, pars_.I0, pars_.R0, 0};
     return ret;
   }
 
@@ -32,10 +32,10 @@ public:
 
     double N = S + I + R;
 
-    double p_SI = 1 - std::exp(-(data_.beta) * I / N);
-    double p_IR = 1 - std::exp(-(data_.gamma));
-    double n_IR = dust::distr::rbinom(rng_state, I, p_IR * data_.dt);
-    double n_SI = dust::distr::rbinom(rng_state, S, p_SI * data_.dt);
+    double p_SI = 1 - std::exp(-(pars_.beta) * I / N);
+    double p_IR = 1 - std::exp(-(pars_.gamma));
+    double n_IR = dust::distr::rbinom(rng_state, I, p_IR * pars_.dt);
+    double n_SI = dust::distr::rbinom(rng_state, S, p_SI * pars_.dt);
 
     state_next[0] = S - n_SI;
     state_next[1] = I + n_SI - n_IR;
@@ -44,7 +44,7 @@ public:
   }
 
 private:
-  init_t data_;
+  init_t pars_;
 };
 
 #include <cpp11/list.hpp>
@@ -55,17 +55,17 @@ inline double with_default(double default_value, cpp11::sexp value) {
 }
 
 template <>
-sir::init_t dust_data<sir>(cpp11::list data) {
+sir::init_t dust_pars<sir>(cpp11::list pars) {
   // Initial state values
   double I0 = 10.0;
   double S0 = 1000.0;
   double R0 = 0.0;
 
-  // Rates, which can be set based on the provided data
+  // Rates, which can be set based on the provided pars
   // [[dust::param(beta, required = FALSE)]]
-  double beta = with_default(0.2, data["beta"]);
+  double beta = with_default(0.2, pars["beta"]);
   // [[dust::param(gamma, required = FALSE)]]
-  double gamma = with_default(0.1, data["gamma"]);
+  double gamma = with_default(0.1, pars["gamma"]);
 
   // Time scaling
   double dt = 0.25;
@@ -74,12 +74,12 @@ sir::init_t dust_data<sir>(cpp11::list data) {
 }
 
 template <>
-cpp11::sexp dust_info<sir>(const sir::init_t& data) {
+cpp11::sexp dust_info<sir>(const sir::init_t& pars) {
   using namespace cpp11::literals;
   // Information about state order
   cpp11::writable::strings vars({"S", "I", "R", "inc"});
   // Information about parameter values
-  cpp11::list pars = cpp11::writable::list({"beta"_nm = data.beta,
-                                            "gamma"_nm = data.gamma});
-  return cpp11::writable::list({"vars"_nm = vars, "pars"_nm = pars});
+  cpp11::list p = cpp11::writable::list({"beta"_nm = pars.beta,
+                                         "gamma"_nm = pars.gamma});
+  return cpp11::writable::list({"vars"_nm = vars, "pars"_nm = p});
 }

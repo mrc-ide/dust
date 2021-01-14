@@ -32,7 +32,7 @@ Your input dust model must satisfy a few requirements.
 assumed to be the class name)
 \item That class must define a type \code{init_t} (so \code{model::init_t}) that
 contains its internal data and the model must be constructable
-with a const reference to this type (\verb{const model::init_t& data})
+with a const reference to this type (\verb{const model::init_t& pars})
 \item That class must also include a typedef that describes the
 model's floating point type, \code{real_t}. Most models can include
 \verb{typedef double real_t;} in their public section.
@@ -64,24 +64,24 @@ It is very important that none of the functions in the class use
 the R API in any way as these functions will be called in
 parallel.
 
-You must also provide a data-wrangling function for producing an
-object of type \code{model::init_t} from an R list.  We use cpp11 for
-this.  Your function will look like:\preformatted{template <>
-model::init_t dust_data<model>(cpp11::list data) \{
+You must also provide a data/parameter-wrangling function for
+producing an object of type \code{model::init_t} from an R list.  We
+use cpp11 for this.  Your function will look like:\preformatted{template <>
+model::init_t dust_pars<model>(cpp11::list pars) \{
   return ...;
 \}
 }
 
-With the body interacting with \code{data} to create an object of type
+With the body interacting with \code{pars} to create an object of type
 \code{model::init_t} and returning it.  This function will be called
 in serial and may use anything in the cpp11 API.  All elements of
 the returned object must be standard C/C++ (e.g., STL) types and
 \emph{not} cpp11/R types.
 
 Your model \emph{may} provided a template specialisation
-\verb{dust_data<model::init_t>()} returning a \code{cpp11::sexp} for
+\verb{dust_pars<model::init_t>()} returning a \code{cpp11::sexp} for
 returning arbitrary information back to the R session:\preformatted{template <>
-cpp11::sexp dust_info<model>(const model::init_t& data) \{
+cpp11::sexp dust_info<model>(const model::init_t& pars) \{
   return cpp11::wrap(...);
 \}
 }
@@ -90,7 +90,7 @@ What you do with this is up to you. If not present then the
 \code{info()} method on the created object will return \code{NULL}.
 Potential use cases for this are to return information about
 variable ordering, or any processing done while accepting the
-data object used to create the data fed into the particles.
+pars object used to create the pars fed into the particles.
 }
 
 \section{Configuring your model}{
@@ -161,16 +161,16 @@ obj$state()
 \item \href{#method-n_threads}{\code{dust_class$n_threads()}}
 \item \href{#method-set_state}{\code{dust_class$set_state()}}
 \item \href{#method-reset}{\code{dust_class$reset()}}
-\item \href{#method-set_data}{\code{dust_class$set_data()}}
+\item \href{#method-set_pars}{\code{dust_class$set_pars()}}
 \item \href{#method-state}{\code{dust_class$state()}}
 \item \href{#method-step}{\code{dust_class$step()}}
 \item \href{#method-reorder}{\code{dust_class$reorder()}}
 \item \href{#method-info}{\code{dust_class$info()}}
-\item \href{#method-data}{\code{dust_class$data()}}
+\item \href{#method-pars}{\code{dust_class$pars()}}
 \item \href{#method-rng_state}{\code{dust_class$rng_state()}}
 \item \href{#method-set_rng_state}{\code{dust_class$set_rng_state()}}
 \item \href{#method-has_openmp}{\code{dust_class$has_openmp()}}
-\item \href{#method-n_data}{\code{dust_class$n_data()}}
+\item \href{#method-n_pars}{\code{dust_class$n_pars()}}
 \item \href{#method-set_n_threads}{\code{dust_class$set_n_threads()}}
 }
 }
@@ -180,33 +180,33 @@ obj$state()
 \subsection{Method \code{new()}}{
 Create a new model. Note that the behaviour of this object
 created by this function will change considerably based on
-whether the \code{data_multi} argument is \code{TRUE}. If not (the
+whether the \code{pars_multi} argument is \code{TRUE}. If not (the
 default) then we create \code{n_particles} which all share the same
-parameters as specified by the \code{data} argument. If \code{data_multi}
-is \code{TRUE} then \code{data} must be an unnamed list, and each element
-of it represents a different set of parameters/data. We will
-create \code{length(data)} \emph{sets} of \code{n_particles} particles which
+parameters as specified by the \code{pars} argument. If \code{pars_multi}
+is \code{TRUE} then \code{pars} must be an unnamed list, and each element
+of it represents a different set of parameters. We will
+create \code{length(pars)} \emph{sets} of \code{n_particles} particles which
 will be simulated together. These particles must have the same
 dimension - that is, they must correspond to model state that
 is the same size.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$new(
-  data,
+  pars,
   step,
   n_particles,
   n_threads = 1L,
   seed = NULL,
-  data_multi = FALSE
+  pars_multi = FALSE
 )}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{data}}{Data to initialise your model with; a \code{list}
+\item{\code{pars}}{Data to initialise your model with; a \code{list}
 object, but the required elements will depend on the details of
-your model. If \code{data_multi} is \code{TRUE}, then this must be an
-\emph{unnamed} list of \code{data} objects (see Details).}
+your model. If \code{pars_multi} is \code{TRUE}, then this must be an
+\emph{unnamed} list of \code{pars} objects (see Details).}
 
 \item{\code{step}}{Initial step - must be nonnegative}
 
@@ -225,9 +225,9 @@ generator) or a \code{raw} vector of a length that is a multiple of
 32 to directly initialise the generator (e..g., from the
 \code{\link{dust}} object's \verb{$rng_state()} method).}
 
-\item{\code{data_multi}}{Logical, indicating if \code{data} should be
+\item{\code{pars_multi}}{Logical, indicating if \code{pars} should be
 interpreted as a set of different initialisations, and that we
-should prepare \code{n_particles * length(data)} particles for
+should prepare \code{n_particles * length(pars)} particles for
 simulation. This has an effect on many of the other methods of
 the object.}
 }
@@ -249,8 +249,8 @@ Returns friendly model name
 \if{latex}{\out{\hypertarget{method-param}{}}}
 \subsection{Method \code{param()}}{
 Returns parameter information, if provided by the model. This
-describes the contents of data passed to the constructor or to
-\code{reset} as the \code{data} argument, and the details depend on the model.
+describes the contents of pars passed to the constructor or to
+\code{reset} as the \code{pars} argument, and the details depend on the model.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$param()}\if{html}{\out{</div>}}
 }
@@ -279,7 +279,7 @@ step(), silently nothing will happen)}
 \if{html}{\out{<a id="method-set_index"></a>}}
 \if{latex}{\out{\hypertarget{method-set_index}{}}}
 \subsection{Method \code{set_index()}}{
-Set the "index" vector that is used to return a subset of data
+Set the "index" vector that is used to return a subset of pars
 after using \code{run()}. If this is not used then \code{run()} returns
 all elements in your state vector, which may be excessive and slower
 than necessary. This method must be called after any
@@ -353,13 +353,13 @@ larges step given (i.e., \code{max(step)})}
 \subsection{Method \code{reset()}}{
 Reset the model while preserving the random number stream state
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$reset(data, step)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$reset(pars, step)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{data}}{New data for the model (see constructor)}
+\item{\code{pars}}{New pars for the model (see constructor)}
 
 \item{\code{step}}{New initial step for the model (see constructor)}
 }
@@ -367,21 +367,21 @@ Reset the model while preserving the random number stream state
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set_data"></a>}}
-\if{latex}{\out{\hypertarget{method-set_data}{}}}
-\subsection{Method \code{set_data()}}{
-Set the 'data' element in a dust object while holding model state,
+\if{html}{\out{<a id="method-set_pars"></a>}}
+\if{latex}{\out{\hypertarget{method-set_pars}{}}}
+\subsection{Method \code{set_pars()}}{
+Set the 'pars' element in a dust object while holding model state,
 index, etc constant. In contrast to \verb{$reset}, the old state must
 be compatible with the new one (e.g., don't change model size), and
 the index will remain valid.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$set_data(data)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$set_pars(pars)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{data}}{New data for the model (see constructor)}
+\item{\code{pars}}{New pars for the model (see constructor)}
 }
 \if{html}{\out{</div>}}
 }
@@ -436,7 +436,7 @@ take.}
 \if{html}{\out{<a id="method-info"></a>}}
 \if{latex}{\out{\hypertarget{method-info}{}}}
 \subsection{Method \code{info()}}{
-Returns information about the data that your model was created with.
+Returns information about the pars that your model was created with.
 Only returns non-NULL if the model provides a \code{dust_info} template
 specialisation.
 \subsection{Usage}{
@@ -445,12 +445,12 @@ specialisation.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-data"></a>}}
-\if{latex}{\out{\hypertarget{method-data}{}}}
-\subsection{Method \code{data()}}{
-Returns the \code{data} object that your model was constructed with.
+\if{html}{\out{<a id="method-pars"></a>}}
+\if{latex}{\out{\hypertarget{method-pars}{}}}
+\subsection{Method \code{pars()}}{
+Returns the \code{pars} object that your model was constructed with.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$data()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$pars()}\if{html}{\out{</div>}}
 }
 
 }
@@ -518,15 +518,15 @@ as \code{dust_class$public_methods$has_openmp()}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-n_data"></a>}}
-\if{latex}{\out{\hypertarget{method-n_data}{}}}
-\subsection{Method \code{n_data()}}{
-Returns the number of distinct data elements required. This is \code{0}
-where the object was initialised with \code{data_multi = FALSE} and
-an integer otherwise.  For multi-data dust objects, Where \code{data}
-is accepted, you must provide an unnamed list of length \verb{$n_data()}.
+\if{html}{\out{<a id="method-n_pars"></a>}}
+\if{latex}{\out{\hypertarget{method-n_pars}{}}}
+\subsection{Method \code{n_pars()}}{
+Returns the number of distinct pars elements required. This is \code{0}
+where the object was initialised with \code{pars_multi = FALSE} and
+an integer otherwise.  For multi-pars dust objects, Where \code{pars}
+is accepted, you must provide an unnamed list of length \verb{$n_pars()}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$n_data()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$n_pars()}\if{html}{\out{</div>}}
 }
 
 }

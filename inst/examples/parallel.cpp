@@ -9,7 +9,7 @@ public:
   struct init_t {
     double sd;
   };
-  parallel(const init_t& data) : data_(data) {
+  parallel(const init_t& pars) : pars_(pars) {
   }
   size_t size() const {
     return 2;
@@ -27,7 +27,7 @@ public:
               dust::rng_state_t<real_t>& rng_state,
               double * state_next) {
     double mean = state[0];
-    state_next[0] = dust::distr::rnorm(rng_state, mean, data_.sd);
+    state_next[0] = dust::distr::rnorm(rng_state, mean, pars_.sd);
 #ifdef _OPENMP
     state_next[1] = (double) omp_get_thread_num();
 #else
@@ -36,12 +36,12 @@ public:
   }
 
 private:
-  init_t data_;
+  init_t pars_;
 };
 
 #include <cpp11/list.hpp>
 template <>
-parallel::init_t dust_data<parallel>(cpp11::list data) {
-  parallel::real_t sd = cpp11::as_cpp<parallel::real_t>(data["sd"]);
+parallel::init_t dust_pars<parallel>(cpp11::list pars) {
+  parallel::real_t sd = cpp11::as_cpp<parallel::real_t>(pars["sd"]);
   return parallel::init_t{sd};
 }

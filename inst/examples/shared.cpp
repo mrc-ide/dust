@@ -31,7 +31,7 @@ public:
     internal_t internal;
   };
 
-  arrays(const init_t& data): shared(data.shared), internal(data.internal) {
+  arrays(const init_t& pars): shared(pars.shared), internal(pars.internal) {
   }
 
   size_t size() {
@@ -61,13 +61,13 @@ private:
   // We would *like* to make this a const shared_t& but that breaks
   // our assignment operator. We will need to make this instead a
   // little pointer class, which also means that we can remove the
-  // special holding of data.
+  // special holding of pars.
   std::shared_ptr<const shared_t> shared;
   internal_t internal;
 };
 
 template<>
-arrays::init_t dust_data<arrays>(cpp11::list user) {
+arrays::init_t dust_pars<arrays>(cpp11::list user) {
   auto shared = std::make_shared<arrays::shared_t>();
 
   shared->initial_y = 2;
@@ -87,10 +87,10 @@ arrays::init_t dust_data<arrays>(cpp11::list user) {
 }
 
 template <>
-cpp11::sexp dust_info<arrays>(const arrays::init_t& data) {
+cpp11::sexp dust_info<arrays>(const arrays::init_t& pars) {
   cpp11::writable::list ret(2);
   ret[0] = cpp11::writable::integers({1});
-  ret[1] = cpp11::writable::integers({data.shared->dim_x});
+  ret[1] = cpp11::writable::integers({pars.shared->dim_x});
   cpp11::writable::strings nms({"y", "x"});
   ret.names() = nms;
   return ret;

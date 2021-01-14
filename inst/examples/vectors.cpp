@@ -11,7 +11,7 @@ public:
     int n;
     std::vector<real_t> r;
   };
-  vectors(const init_t& data): internal(data) {
+  vectors(const init_t& pars): internal(pars) {
   }
   size_t size() {
     return 1 + internal.dim_x;
@@ -40,7 +40,7 @@ private:
 };
 
 template<>
-vectors::init_t dust_data<vectors>(cpp11::list user) {
+vectors::init_t dust_pars<vectors>(cpp11::list user) {
   typedef typename vectors::real_t real_t;
   vectors::init_t internal;
   internal.initial_y = 2;

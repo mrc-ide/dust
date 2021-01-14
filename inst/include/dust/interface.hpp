@@ -13,10 +13,10 @@
 #include <dust/rng_interface.hpp>
 
 template <typename T>
-typename T::init_t dust_data(cpp11::list data);
+typename T::init_t dust_pars(cpp11::list pars);
 
 template <typename T>
-typename cpp11::sexp dust_info(const typename T::init_t& data);
+typename cpp11::sexp dust_info(const typename T::init_t& pars);
 
 inline void validate_size(int x, const char * name);
 inline void validate_positive(int x, const char *name);
@@ -25,20 +25,20 @@ inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax);
 inline std::vector<size_t> r_index_to_index_default(size_t n);
 inline std::vector<size_t> r_index_reorder_matrix(cpp11::sexp r_index,
                                                   const size_t n_particles,
-                                                  const size_t n_data);
+                                                  const size_t n_pars);
 inline cpp11::integers as_integer(cpp11::sexp x, const char * name);
 
 template <typename T>
 std::vector<T> matrix_to_vector(cpp11::doubles_matrix x);
 
 template <typename T>
-cpp11::sexp create_matrix(size_t nrow, size_t ncol, T& data);
+cpp11::sexp create_matrix(size_t nrow, size_t ncol, T& pars);
 
 template <typename T>
-cpp11::sexp create_array(const std::vector<size_t>& dim, T& data);
+cpp11::sexp create_array(const std::vector<size_t>& dim, T& pars);
 
 template <typename T>
-cpp11::list dust_alloc(cpp11::list r_data, bool data_multi, int step,
+cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
                        int n_particles, int n_threads,
                        cpp11::sexp r_seed) {
   validate_size(step, "step");
@@ -48,19 +48,19 @@ cpp11::list dust_alloc(cpp11::list r_data, bool data_multi, int step,
 
   Dust<T> *d = nullptr;
   cpp11::sexp info;
-  if (data_multi) {
-    std::vector<typename T::init_t> data;
-    cpp11::writable::list info_list = cpp11::writable::list(r_data.size());
-    for (int i = 0; i < r_data.size(); ++i) {
-      data.push_back(dust_data<T>(r_data[i]));
-      info_list[i] = dust_info<T>(data[i]);
+  if (pars_multi) {
+    std::vector<typename T::init_t> pars;
+    cpp11::writable::list info_list = cpp11::writable::list(r_pars.size());
+    for (int i = 0; i < r_pars.size(); ++i) {
+      pars.push_back(dust_pars<T>(r_pars[i]));
+      info_list[i] = dust_info<T>(pars[i]);
     }
     info = info_list;
-    d = new Dust<T>(data, step, n_particles, n_threads, seed);
+    d = new Dust<T>(pars, step, n_particles, n_threads, seed);
   } else {
-    typename T::init_t data = dust_data<T>(r_data);
-    d = new Dust<T>(data, step, n_particles, n_threads, seed);
-    info = dust_info<T>(data);
+    typename T::init_t pars = dust_pars<T>(r_pars);
+    d = new Dust<T>(pars, step, n_particles, n_threads, seed);
+    info = dust_info<T>(pars);
   }
   cpp11::external_pointer<Dust<T>> ptr(d, true, false);
 
@@ -71,7 +71,7 @@ cpp11::list dust_alloc(cpp11::list r_data, bool data_multi, int step,
 // vector or an integer I think.
 template <typename T>
 cpp11::writable::doubles dust_simulate(cpp11::sexp r_steps,
-                                       cpp11::list r_data,
+                                       cpp11::list r_pars,
                                        cpp11::doubles_matrix r_state,
                                        cpp11::sexp r_index,
                                        const size_t n_threads,
@@ -83,25 +83,25 @@ cpp11::writable::doubles dust_simulate(cpp11::sexp r_steps,
   std::vector<size_t> index = r_index_to_index(r_index, r_state.nrow());
   std::vector<uint64_t> seed = as_rng_seed<typename T::real_t>(r_seed);
 
-  if (r_data.size() != r_state.ncol()) {
+  if (r_pars.size() != r_state.ncol()) {
     cpp11::stop("Expected 'state' to be a matrix with %d columns",
-                r_data.size());
+                r_pars.size());
   }
 
-  std::vector<typename T::init_t> data;
-  data.reserve(r_data.size());
-  for (int i = 0; i < r_data.size(); ++i) {
-    data.push_back(dust_data<T>(r_data[i]));
+  std::vector<typename T::init_t> pars;
+  pars.reserve(r_pars.size());
+  for (int i = 0; i < r_pars.size(); ++i) {
+    pars.push_back(dust_pars<T>(r_pars[i]));
   }
 
-  cpp11::writable::doubles ret(index.size() * data.size() * steps.size());
+  cpp11::writable::doubles ret(index.size() * pars.size() * steps.size());
 
   std::vector<real_t> dat =
-    dust_simulate<T>(steps, data, state, index, n_threads, seed, return_state);
+    dust_simulate<T>(steps, pars, state, index, n_threads, seed, return_state);
   std::copy(dat.begin(), dat.end(), REAL(ret));
 
   ret.attr("dim") = cpp11::writable::integers({(int)index.size(),
-                                               (int)data.size(),
+                                               (int)pars.size(),
                                                (int)steps.size()});
 
   if (return_state) {
@@ -145,7 +145,7 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
   }
 
   if (r_state != R_NilValue) {
-    if (obj->n_data() > 0) {
+    if (obj->n_pars() > 0) {
       dust_set_state_multi(obj, cpp11::as_cpp<cpp11::doubles>(r_state));
     } else if (Rf_isMatrix(r_state)) {
       dust_set_state(obj, cpp11::as_cpp<cpp11::doubles_matrix>(r_state));
@@ -199,8 +199,8 @@ void dust_set_state(Dust<T> *obj, cpp11::doubles_matrix r_state) {
 template <typename T>
 void dust_set_state_multi(Dust<T> *obj, cpp11::doubles r_state) {
   const size_t n_state = obj->n_state_full();
-  const size_t n_data = obj->n_data();
-  const size_t n_particles_each = obj->n_particles() / n_data;
+  const size_t n_pars = obj->n_pars();
+  const size_t n_particles_each = obj->n_particles() / n_pars;
 
   cpp11::sexp r_dim_sexp = r_state.attr("dim");
   if (r_dim_sexp == R_NilValue) {
@@ -218,8 +218,8 @@ void dust_set_state_multi(Dust<T> *obj, cpp11::doubles r_state) {
     cpp11::stop("Expected a 3d array with %d columns for 'state'",
                 n_particles_each);
   }
-  if (static_cast<size_t>(r_dim[2]) != n_data) {
-    cpp11::stop("Expected a 3d array with dim[3] == %d for 'state'", n_data);
+  if (static_cast<size_t>(r_dim[2]) != n_pars) {
+    cpp11::stop("Expected a 3d array with dim[3] == %d for 'state'", n_pars);
   }
 
   const std::vector<typename T::real_t> state(r_state.begin(), r_state.end());
@@ -235,55 +235,55 @@ cpp11::sexp dust_run(SEXP ptr, int step_end) {
 
   const size_t n_state = obj->n_state();
   const size_t n_particles = obj->n_particles();
-  const size_t n_data = obj->n_data();
+  const size_t n_pars = obj->n_pars();
   const size_t len = n_state * n_particles;
 
   std::vector<typename T::real_t> dat(len);
   obj->state(dat);
 
-  if (n_data == 0) {
+  if (n_pars == 0) {
     return create_matrix(n_state, n_particles, dat);
   } else {
-    std::vector<size_t> dim{n_state, n_particles / n_data, n_data};
+    std::vector<size_t> dim{n_state, n_particles / n_pars, n_pars};
     return create_array(dim, dat);
   }
 }
 
 template <typename T>
-cpp11::sexp dust_reset(SEXP ptr, cpp11::list r_data, int step) {
+cpp11::sexp dust_reset(SEXP ptr, cpp11::list r_pars, int step) {
   validate_size(step, "step");
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   cpp11::sexp info;
-  if (obj->n_data() == 0) {
-    typename T::init_t data = dust_data<T>(r_data);
-    obj->reset(data, step);
-    info = dust_info<T>(data);
+  if (obj->n_pars() == 0) {
+    typename T::init_t pars = dust_pars<T>(r_pars);
+    obj->reset(pars, step);
+    info = dust_info<T>(pars);
   } else {
-    std::vector<typename T::init_t> data;
-    cpp11::writable::list info_list = cpp11::writable::list(r_data.size());
-    for (int i = 0; i < r_data.size(); ++i) {
-      data.push_back(dust_data<T>(r_data[i]));
-      info_list[i] = dust_info<T>(data[i]);
+    std::vector<typename T::init_t> pars;
+    cpp11::writable::list info_list = cpp11::writable::list(r_pars.size());
+    for (int i = 0; i < r_pars.size(); ++i) {
+      pars.push_back(dust_pars<T>(r_pars[i]));
+      info_list[i] = dust_info<T>(pars[i]);
     }
-    obj->reset(data, step);
+    obj->reset(pars, step);
     info = info_list;
   }
   return info;
 }
 
 template <typename T>
-cpp11::sexp dust_set_data(SEXP ptr, cpp11::list r_data) {
+cpp11::sexp dust_set_pars(SEXP ptr, cpp11::list r_pars) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   cpp11::sexp info;
-  if (obj->n_data() == 0) {
-    typename T::init_t data = dust_data<T>(r_data);
-    obj->set_data(data);
-    info = dust_info<T>(data);
+  if (obj->n_pars() == 0) {
+    typename T::init_t pars = dust_pars<T>(r_pars);
+    obj->set_pars(pars);
+    info = dust_info<T>(pars);
   } else {
     // The underlying implementation should be tidied up, as the
-    // single case leaves us with inconsistent data already, and the
+    // single case leaves us with inconsistent pars already, and the
     // error management is tricky (#125)
-    cpp11::stop("set_data() with data_multi not yet supported");
+    cpp11::stop("set_pars() with pars_multi not yet supported");
   }
   return info;
 }
@@ -302,17 +302,17 @@ template <typename T>
 SEXP dust_state_full(Dust<T> *obj) {
   const size_t n_state_full = obj->n_state_full();
   const size_t n_particles = obj->n_particles();
-  const size_t n_data = obj->n_data();
+  const size_t n_pars = obj->n_pars();
   const size_t len = n_state_full * n_particles;
 
   std::vector<typename T::real_t> dat(len);
   obj->state_full(dat);
 
   cpp11::sexp ret;
-  if (n_data == 0) {
+  if (n_pars == 0) {
     ret = create_matrix(n_state_full, n_particles, dat);
   } else {
-    std::vector<size_t> dim{n_state_full, n_particles / n_data, n_data};
+    std::vector<size_t> dim{n_state_full, n_particles / n_pars, n_pars};
     ret = create_array(dim, dat);
   }
 
@@ -325,17 +325,17 @@ SEXP dust_state_select(Dust<T> *obj, cpp11::sexp r_index) {
   const std::vector<size_t> index = r_index_to_index(r_index, index_max);
   const size_t n_state = static_cast<size_t>(index.size());
   const size_t n_particles = obj->n_particles();
-  const size_t n_data = obj->n_data();
+  const size_t n_pars = obj->n_pars();
   const size_t len = n_state * n_particles;
 
   std::vector<typename T::real_t> dat(len);
   obj->state(index, dat);
 
   cpp11::sexp ret;
-  if (n_data == 0) {
+  if (n_pars == 0) {
     ret = create_matrix(n_state, n_particles, dat);
   } else {
-    std::vector<size_t> dim{n_state, n_particles / n_data, n_data};
+    std::vector<size_t> dim{n_state, n_particles / n_pars, n_pars};
     ret = create_array(dim, dat);
   }
 
@@ -352,16 +352,16 @@ template <typename T>
 void dust_reorder(SEXP ptr, cpp11::sexp r_index) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   size_t n_particles = obj->n_particles();
-  size_t n_data = obj->n_data();
+  size_t n_pars = obj->n_pars();
 
   std::vector<size_t> index;
-  if (n_data == 0) {
+  if (n_pars == 0) {
     index = r_index_to_index(r_index, n_particles);
     if ((size_t)index.size() != n_particles) {
       cpp11::stop("Expected a vector of length %d for 'index'", n_particles);
     }
   } else {
-    index = r_index_reorder_matrix(r_index, n_particles / n_data, n_data);
+    index = r_index_reorder_matrix(r_index, n_particles / n_pars, n_pars);
   }
 
   obj->reorder(index);
@@ -387,9 +387,9 @@ void dust_set_rng_state(SEXP ptr, cpp11::raws rng_state) {
     cpp11::stop("'rng_state' must be a raw vector of length %d (but was %d)",
                 len, rng_state.size());
   }
-  std::vector<uint64_t> data(prev_state.size());
-  std::memcpy(data.data(), RAW(rng_state), len);
-  obj->set_rng_state(data);
+  std::vector<uint64_t> pars(prev_state.size());
+  std::memcpy(pars.data(), RAW(rng_state), len);
+  obj->set_rng_state(pars);
 }
 
 template <typename T>
@@ -402,7 +402,7 @@ void dust_set_n_threads(SEXP ptr, int n_threads) {
 // Trivial default implementation of a method for getting back
 // arbitrary information from the object.
 template <typename T>
-cpp11::sexp dust_info(const typename T::init_t& data) {
+cpp11::sexp dust_info(const typename T::init_t& pars) {
   return R_NilValue;
 }
 
@@ -458,7 +458,7 @@ inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax) {
 
 inline std::vector<size_t> r_index_reorder_matrix(cpp11::sexp r_index,
                                                   const size_t n_particles,
-                                                  const size_t n_data) {
+                                                  const size_t n_pars) {
   if (!Rf_isMatrix(r_index)) {
     cpp11::stop("Expected a matrix for 'index'");
   }
@@ -467,17 +467,17 @@ inline std::vector<size_t> r_index_reorder_matrix(cpp11::sexp r_index,
   if (static_cast<size_t>(r_index_mat.nrow()) != n_particles) {
     cpp11::stop("Expected a matrix with %d rows for 'index'", n_particles);
   }
-  if (static_cast<size_t>(r_index_mat.ncol()) != n_data) {
-    cpp11::stop("Expected a matrix with %d columns for 'index'", n_data);
+  if (static_cast<size_t>(r_index_mat.ncol()) != n_pars) {
+    cpp11::stop("Expected a matrix with %d columns for 'index'", n_pars);
   }
 
-  const int * index_data = INTEGER(r_index_mat);
+  const int * index_pars = INTEGER(r_index_mat);
 
   std::vector<size_t> index;
-  index.reserve(n_particles * n_data);
-  for (size_t i = 0, j = 0; i < n_data; ++i) {
+  index.reserve(n_particles * n_pars);
+  for (size_t i = 0, j = 0; i < n_pars; ++i) {
     for (size_t k = 0; k < n_particles; ++j, ++k) {
-      int x = index_data[j];
+      int x = index_pars[j];
       if (x < 1 || x > (int)n_particles) {
         cpp11::stop("All elements of 'index' must lie in [1, %d]", n_particles);
       }
@@ -499,12 +499,12 @@ inline std::vector<size_t> r_index_to_index_default(size_t n) {
 }
 
 template <typename T>
-cpp11::sexp create_matrix(size_t nrow, size_t ncol, T& data) {
-  const size_t len = data.size();
+cpp11::sexp create_matrix(size_t nrow, size_t ncol, T& pars) {
+  const size_t len = pars.size();
   cpp11::writable::doubles ret(static_cast<R_xlen_t>(len));
   double * dest = REAL(ret);
   for (size_t i = 0; i < len; ++i) {
-    dest[i] = data[i];
+    dest[i] = pars[i];
   }
 
   ret.attr("dim") = cpp11::writable::integers({(int)nrow, (int)ncol});
@@ -512,12 +512,12 @@ cpp11::sexp create_matrix(size_t nrow, size_t ncol, T& data) {
 }
 
 template <typename T>
-cpp11::sexp create_array(const std::vector<size_t>& dim, T& data) {
-  const size_t len = data.size();
+cpp11::sexp create_array(const std::vector<size_t>& dim, T& pars) {
+  const size_t len = pars.size();
   cpp11::writable::doubles ret(static_cast<R_xlen_t>(len));
   double * dest = REAL(ret);
   for (size_t i = 0; i < len; ++i) {
-    dest[i] = data[i];
+    dest[i] = pars[i];
   }
 
   cpp11::writable::integers r_dim(dim.size());

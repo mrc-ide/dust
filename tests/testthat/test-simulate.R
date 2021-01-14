@@ -7,18 +7,18 @@ test_that("simulate trajectories with multiple starting points/parameters", {
   np <- 13
 
   sd <- runif(np)
-  data <- lapply(sd, function(p) list(sd = p))
+  pars <- lapply(sd, function(p) list(sd = p))
   y0 <- matrix(rnorm(np), 1)
 
   steps <- seq(0, to = ns, by = 1L)
 
   mod <- res$new(list(sd = 1), 0, np, seed = 1L)
 
-  ans <- dust_simulate(res, steps, data, y0, 1L, 1L, 1L)
+  ans <- dust_simulate(res, steps, pars, y0, 1L, 1L, 1L)
   expect_equal(dim(ans), c(1, np, ns + 1L))
   expect_equal(ans[1, , 1], drop(y0))
 
-  expect_identical(dust_simulate(mod, steps, data, y0, 1L, 1L, 1L), ans)
+  expect_identical(dust_simulate(mod, steps, pars, y0, 1L, 1L, 1L), ans)
 
   cmp <- dust_iterate(mod, steps)
   expect_equal(ans[, , 2], cmp[, , 2] * sd + drop(y0))
@@ -31,12 +31,12 @@ test_that("simulate multi-state model", {
 
   np <- 13
 
-  data <- replicate(np, list(beta = runif(1, 0.15, 0.25),
+  pars <- replicate(np, list(beta = runif(1, 0.15, 0.25),
                              alpha = runif(1, 0.05, 0.15)), simplify = FALSE)
   y0 <- matrix(c(1000, 10, 0, 0), 4, np)
   steps <- seq(0, 200, by = 20)
 
-  ans <- dust_simulate(res, steps, data, y0, seed = 1L)
+  ans <- dust_simulate(res, steps, pars, y0, seed = 1L)
 
   expect_equal(dim(ans), c(4, np, length(steps)))
   ## Basic checks on the model:
@@ -47,10 +47,10 @@ test_that("simulate multi-state model", {
 
   ## And we can filter
   expect_equal(
-    dust_simulate(res, steps, data, y0, index = 1L, seed = 1L),
+    dust_simulate(res, steps, pars, y0, index = 1L, seed = 1L),
     ans[1, , , drop = FALSE])
   expect_equal(
-    dust_simulate(res, steps, data, y0, index = c(1L, 3L), seed = 1L),
+    dust_simulate(res, steps, pars, y0, index = c(1L, 3L), seed = 1L),
     ans[c(1, 3), , , drop = FALSE])
 })
 
@@ -70,41 +70,41 @@ test_that("simulate requires a matrix for initial state", {
 })
 
 
-test_that("simulate requires that data and state are compatible", {
+test_that("simulate requires that pars and state are compatible", {
   res <- dust_example("sir")
   y0 <- matrix(1, 1, 5)
-  data <- rep(list(list(sd = 1)), 4)
+  pars <- rep(list(list(sd = 1)), 4)
 
   expect_error(
-    dust_simulate(res, 0:10, data, y0),
+    dust_simulate(res, 0:10, pars, y0),
     "Expected 'state' to be a matrix with 4 columns")
 })
 
 
 test_that("simulate requires that particles have the same size", {
   res <- dust_example("variable")
-  data <- list(list(len = 10), list(len = 9))
+  pars <- list(list(len = 10), list(len = 9))
   y0 <- matrix(1, 10, 2)
   expect_error(
-    dust_simulate(res, 0:10, data, y0),
+    dust_simulate(res, 0:10, pars, y0),
     paste("Particles have different state sizes:",
           "particle 2 had length 9 but expected 10"))
 
   i <- rep(1:2, each = 4)
   expect_error(
-    dust_simulate(res, 0:10, data[i], y0[, i, drop = FALSE]),
+    dust_simulate(res, 0:10, pars[i], y0[, i, drop = FALSE]),
     paste("Particles have different state sizes:",
           "particle 5 had length 9 but expected 10"))
 })
 
 
-test_that("data must be an unnamed list", {
+test_that("pars must be an unnamed list", {
   res <- dust_example("variable")
-  data <- list(len = 10)
+  pars <- list(len = 10)
   y0 <- matrix(1, 10, 1)
   expect_error(
-    dust_simulate(res, 0:10, data, y0),
-    "Expected 'data' to be an unnamed list")
+    dust_simulate(res, 0:10, pars, y0),
+    "Expected 'pars' to be an unnamed list")
 })
 
 
@@ -113,13 +113,13 @@ test_that("two calls with seed = NULL create different results", {
   ns <- 7
   np <- 13
 
-  data <- lapply(runif(np), function(p) list(sd = p))
+  pars <- lapply(runif(np), function(p) list(sd = p))
   y0 <- matrix(rnorm(np), 1)
   steps <- seq(0, to = ns, by = 1L)
   mod <- res$new(list(sd = 1), 0, np, seed = 1L)
 
-  ans1 <- dust_simulate(res, steps, data, y0, seed = NULL)
-  ans2 <- dust_simulate(res, steps, data, y0, seed = NULL)
+  ans1 <- dust_simulate(res, steps, pars, y0, seed = NULL)
+  ans2 <- dust_simulate(res, steps, pars, y0, seed = NULL)
   expect_identical(dim(ans1), dim(ans2))
   expect_false(identical(ans1, ans2))
 })
@@ -128,9 +128,9 @@ test_that("two calls with seed = NULL create different results", {
 test_that("steps must not be negative", {
   res <- dust_example("sir")
   y0 <- matrix(1, 1, 5)
-  data <- rep(list(list(sd = 1)), 5)
+  pars <- rep(list(list(sd = 1)), 5)
   expect_error(
-    dust_simulate(res, seq(-5, 10), data, y0),
+    dust_simulate(res, seq(-5, 10), pars, y0),
     "All elements of 'steps' must be non-negative")
 })
 
@@ -146,12 +146,12 @@ test_that("can extract final state", {
 
   seed <- dust_rng$new(NULL, np)$state()
 
-  data <- rep(list(list(len = ny)), np)
+  pars <- rep(list(list(len = ny)), np)
   y0 <- matrix(rnorm(ny * np), ny, np)
-  res1 <- dust_simulate(mod, steps, data, y0, seed = seed, return_state = TRUE)
+  res1 <- dust_simulate(mod, steps, pars, y0, seed = seed, return_state = TRUE)
   expect_identical(res1[, , ns + 1], attr(res1, "state"))
 
-  res2 <- dust_simulate(mod, steps, data, y0, seed = seed,
+  res2 <- dust_simulate(mod, steps, pars, y0, seed = seed,
                         index = integer(0), return_state = TRUE)
   expect_identical(attr(res2, "state"), attr(res1, "state"))
   expect_identical(attr(res2, "rng_state"), attr(res1, "rng_state"))

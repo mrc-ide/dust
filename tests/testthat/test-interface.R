@@ -275,16 +275,16 @@ test_that("Can get parameters from generators", {
 })
 
 
-test_that("can change data", {
+test_that("can change pars", {
   res <- dust_example("walk")
 
   obj <- res$new(list(sd = 1), 0L, 10L, seed = 1L)
   y1 <- obj$run(1)
 
-  obj$set_data(list(sd = 2))
+  obj$set_pars(list(sd = 2))
   expect_equal(obj$state(), y1)
   expect_equal(obj$step(), 1)
-  expect_equal(obj$data(), list(sd = 2))
+  expect_equal(obj$pars(), list(sd = 2))
 
   y2 <- obj$run(2)
 
@@ -295,16 +295,16 @@ test_that("can change data", {
 })
 
 
-test_that("Validate changing data leaves particles in sensible state", {
+test_that("Validate changing pars leaves particles in sensible state", {
   res <- dust_example("variable")
 
   obj <- res$new(list(len = 5, mean = 0, sd = 1), 0, 10, seed = 1L)
   y1 <- obj$run(1)
 
   expect_error(
-    obj$set_data(list(len = 6, mean = 10, sd = 10)),
+    obj$set_pars(list(len = 6, mean = 10, sd = 10)),
     paste("Tried to initialise a particle with a different state size:",
-          "particle 1 had state size 5 but new data implies state size 1"))
+          "particle 1 had state size 5 but new pars implies state size 1"))
   expect_identical(obj$state(), y1)
 
   y2 <- obj$run(2)

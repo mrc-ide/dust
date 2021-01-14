@@ -2,8 +2,8 @@ context("multi")
 
 test_that("create trivial multi dust object", {
   res <- dust_example("walk")
-  obj1 <- res$new(list(sd = 1), 0, 10, seed = 1L, data_multi = FALSE)
-  obj2 <- res$new(list(list(sd = 1)), 0, 10, seed = 1L, data_multi = TRUE)
+  obj1 <- res$new(list(sd = 1), 0, 10, seed = 1L, pars_multi = FALSE)
+  obj2 <- res$new(list(list(sd = 1)), 0, 10, seed = 1L, pars_multi = TRUE)
 
   expect_identical(obj2$name(), obj1$name())
   expect_identical(obj2$param(), obj1$param())
@@ -11,13 +11,13 @@ test_that("create trivial multi dust object", {
   expect_identical(obj2$has_openmp(), obj1$has_openmp())
   expect_identical(obj2$step(), obj1$step())
 
-  expect_equal(obj2$data(), list(obj1$data()))
+  expect_equal(obj2$pars(), list(obj1$pars()))
   expect_equal(obj2$info(), list(obj1$info()))
 
   expect_identical(obj2$rng_state(), obj1$rng_state())
 
-  expect_identical(obj1$n_data(), 0L)
-  expect_identical(obj2$n_data(), 1L)
+  expect_identical(obj1$n_pars(), 0L)
+  expect_identical(obj2$n_pars(), 1L)
 
   expect_identical(obj2$state(), array(obj1$state(), c(1, 10, 1)))
   expect_identical(obj2$state(1L), array(obj1$state(1L), c(1, 10, 1)))
@@ -29,11 +29,11 @@ test_that("create trivial multi dust object", {
 
 test_that("create trivial 2 element mulitdust object", {
   res <- dust_example("walk")
-  obj1 <- res$new(list(sd = 1), 0, 10, seed = 1L, data_multi = FALSE)
+  obj1 <- res$new(list(sd = 1), 0, 10, seed = 1L, pars_multi = FALSE)
   obj2 <- res$new(list(list(sd = 1), list(sd = 1)), 0, 5, seed = 1L,
-                  data_multi = TRUE)
+                  pars_multi = TRUE)
 
-  expect_identical(obj2$n_data(), 2L)
+  expect_identical(obj2$n_pars(), 2L)
   expect_equal(obj2$state(), array(obj1$state(), c(1, 5, 2)))
 
   y1 <- obj1$run(1)
@@ -50,17 +50,17 @@ test_that("Can particles and resume continues with rng", {
   sd2 <- 4
   sd3 <- 8
 
-  data1 <- list(list(sd = sd1), list(sd = sd2))
-  data2 <- list(list(sd = sd2), list(sd = sd3))
+  pars1 <- list(list(sd = sd1), list(sd = sd2))
+  pars2 <- list(list(sd = sd2), list(sd = sd3))
 
-  nd <- length(data1)
+  nd <- length(pars1)
   np <- 10
-  obj <- res$new(data1, 0, np, seed = 1L, data_multi = TRUE)
+  obj <- res$new(pars1, 0, np, seed = 1L, pars_multi = TRUE)
 
   ns <- 5
   y1 <- obj$run(ns)
   expect_equal(obj$step(), ns)
-  obj$reset(data2, 0)
+  obj$reset(pars2, 0)
   expect_equal(obj$step(), 0)
   y2 <- obj$run(ns)
   expect_equal(obj$step(), ns)
@@ -87,8 +87,8 @@ test_that("Can set state", {
   ns <- 7
   np <- 13
 
-  data <- rep(list(list(len = ns)), nd)
-  mod <- res$new(data, 0, np, seed = 1L, data_multi = TRUE)
+  pars <- rep(list(list(len = ns)), nd)
+  mod <- res$new(pars, 0, np, seed = 1L, pars_multi = TRUE)
 
   ## Initial state:
   expect_equal(
@@ -129,8 +129,8 @@ test_that("can set index", {
   nd <- 3
   ns <- 7
   np <- 13
-  data <- rep(list(list(len = ns)), nd)
-  mod <- res$new(data, 0, np, seed = 1L, data_multi = TRUE)
+  pars <- rep(list(list(len = ns)), nd)
+  mod <- res$new(pars, 0, np, seed = 1L, pars_multi = TRUE)
   y <- mod$state()
   y[] <- runif(length(y))
   mod$set_state(y)
@@ -148,8 +148,8 @@ test_that("can error if out-of-bounds index used", {
   nd <- 3
   ns <- 7
   np <- 13
-  data <- rep(list(list(len = ns)), nd)
-  mod <- res$new(data, 0, np, seed = 1L, data_multi = TRUE)
+  pars <- rep(list(list(len = ns)), nd)
+  mod <- res$new(pars, 0, np, seed = 1L, pars_multi = TRUE)
   expect_error(mod$set_index(c(1, 9, 2)),
                "All elements of 'index' must lie in [1, 7]",
                fixed = TRUE)
@@ -161,8 +161,8 @@ test_that("Can reorder particles (easy case)", {
   nd <- 3
   ns <- 7
   np <- 4
-  data <- rep(list(list(len = ns)), nd)
-  mod <- res$new(data, 0, np, seed = 1L, data_multi = TRUE)
+  pars <- rep(list(list(len = ns)), nd)
+  mod <- res$new(pars, 0, np, seed = 1L, pars_multi = TRUE)
   y <- array(as.numeric(seq_len(nd * ns * np)), c(ns, np, nd))
   mod$set_state(y)
 
@@ -188,8 +188,8 @@ test_that("Can reorder particles", {
   nd <- 3
   ns <- 7
   np <- 13
-  data <- rep(list(list(len = ns)), nd)
-  mod <- res$new(data, 0, np, seed = 1L, data_multi = TRUE)
+  pars <- rep(list(list(len = ns)), nd)
+  mod <- res$new(pars, 0, np, seed = 1L, pars_multi = TRUE)
   y <- array(as.numeric(seq_len(nd * ns * np)), c(ns, np, nd))
   mod$set_state(y)
 
@@ -210,8 +210,8 @@ test_that("Can avoid invalid reorder index matrices", {
   nd <- 3
   ns <- 7
   np <- 13
-  data <- rep(list(list(len = ns)), nd)
-  mod <- res$new(data, 0, np, seed = 1L, data_multi = TRUE)
+  pars <- rep(list(list(len = ns)), nd)
+  mod <- res$new(pars, 0, np, seed = 1L, pars_multi = TRUE)
   y <- array(as.numeric(seq_len(nd * ns * np)), c(ns, np, nd))
   mod$set_state(y)
 
@@ -235,25 +235,25 @@ test_that("Can avoid invalid reorder index matrices", {
 })
 
 
-test_that("set_data is disabled", {
+test_that("set_pars is disabled", {
   res <- dust_example("variable")
   nd <- 3
   ns <- 7
   np <- 13
-  data <- rep(list(list(len = ns)), nd)
-  mod <- res$new(data, 0, np, seed = 1L, data_multi = TRUE)
-  expect_error(mod$set_data(data),
-               "set_data() with data_multi not yet supported",
+  pars <- rep(list(list(len = ns)), nd)
+  mod <- res$new(pars, 0, np, seed = 1L, pars_multi = TRUE)
+  expect_error(mod$set_pars(pars),
+               "set_pars() with pars_multi not yet supported",
                fixed = TRUE)
 })
 
 
 test_that("must use same sized simulations", {
   res <- dust_example("variable")
-  data <- list(list(len = 7), list(len = 8))
+  pars <- list(list(len = 7), list(len = 8))
   expect_error(
-    res$new(data, 0, 10, seed = 1L, data_multi = TRUE),
-    paste("Data created different state sizes: data 2 (of 2) had length 8",
+    res$new(pars, 0, 10, seed = 1L, pars_multi = TRUE),
+    paste("Pars created different state sizes: pars 2 (of 2) had length 8",
           "but expected 7"),
     fixed = TRUE)
 })
