@@ -4,7 +4,7 @@
 ##' This function has an interface that we expect to change once
 ##' multi-parameter "dust" objects are fully supported.  For now, it
 ##' is designed to be used where we want to simulate a number of
-##' trajectories given a vector of model pars and a matrix of initial
+##' trajectories given a vector of model parameters and a matrix of initial
 ##' state.  For our immediate use case this is for simulating at the
 ##' end of an MCMC where want to generate a posterior distribution of
 ##' trajectories.
