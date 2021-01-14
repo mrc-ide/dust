@@ -410,7 +410,7 @@ cpp11::sexp dust_info(const typename T::init_t& pars) {
   return R_NilValue;
 }
 
-template <typename T, typename std::enable_if<!std::is_same<no_data, typename T::data_t>::value, int>::type = 0>
+template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 void dust_set_data(SEXP ptr, cpp11::list r_data) {
   typedef typename T::data_t data_t;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
@@ -425,23 +425,26 @@ void dust_set_data(SEXP ptr, cpp11::list r_data) {
   obj->set_data(data);
 }
 
-template <typename T, typename std::enable_if<!std::is_same<no_data, typename T::data_t>::value, int>::type = 0>
-cpp11::sexp dust_compare(SEXP ptr) {
+template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
+cpp11::sexp dust_compare_data(SEXP ptr) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  std::vector<double> ret = obj->compare();
+  std::vector<double> ret = obj->compare_data();
+  if (ret.size() == 0) {
+    return R_NilValue;
+  }
   cpp11::writable::doubles ret_r(ret.size());
   std::copy(ret.begin(), ret.end(), REAL(ret_r));
   return ret_r;
 }
 
-template <typename T, typename std::enable_if<std::is_same<no_data, typename T::data_t>::value, int>::type = 0>
+template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 void dust_set_data(SEXP ptr, cpp11::list r_data) {
   cpp11::stop("The 'set_data' method is not supported for this class");
 }
 
-template <typename T, typename std::enable_if<std::is_same<no_data, typename T::data_t>::value, int>::type = 0>
-cpp11::sexp dust_compare(SEXP ptr) {
-  cpp11::stop("The 'compare' method is not supported for this class");
+template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
+cpp11::sexp dust_compare_data(SEXP ptr) {
+  cpp11::stop("The 'compare_data' method is not supported for this class");
   return R_NilValue; // never gets here
 }
 

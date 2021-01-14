@@ -1,7 +1,7 @@
 class walk {
 public:
   typedef double real_t;
-  typedef no_data data_t;
+  typedef dust::no_data data_t;
   struct init_t {
     real_t sd;
   };

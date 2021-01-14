@@ -72,8 +72,8 @@ SEXP dust_{{name}}_set_data(SEXP ptr, cpp11::list data) {
 }
 
 [[cpp11::register]]
-SEXP dust_{{name}}_compare(SEXP ptr) {
-  return dust_compare<{{class}}>(ptr);
+SEXP dust_{{name}}_compare_data(SEXP ptr) {
+  return dust_compare_data<{{class}}>(ptr);
 }
 
 [[cpp11::register]]

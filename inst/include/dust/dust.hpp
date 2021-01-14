@@ -12,8 +12,10 @@
 #include <omp.h>
 #endif
 
+namespace dust {
 struct no_data {
 };
+}
 
 template <typename T>
 class Particle {
@@ -86,8 +88,9 @@ public:
     }
   }
 
-  double compare(const data_t& data, dust::rng_state_t<real_t>& rng_state) {
-    return _model.compare(_y.data(), data, rng_state);
+  double compare_data(const data_t& data,
+                      dust::rng_state_t<real_t>& rng_state) {
+    return _model.compare_data(_y.data(), data, rng_state);
   }
 
 private:
@@ -300,7 +303,7 @@ public:
     _data = data;
   }
 
-  std::vector<double> compare() {
+  std::vector<double> compare_data() {
     std::vector<double> res;
     auto d = _data.find(step());
     if (d != _data.end()) {
@@ -309,7 +312,7 @@ public:
       #pragma omp parallel for schedule(static) num_threads(_n_threads)
 #endif
       for (size_t i = 0; i < _particles.size(); ++i) {
-        res[i] = _particles[i].compare(d->second, _rng.state(i));
+        res[i] = _particles[i].compare_data(d->second, _rng.state(i));
       }
     }
     return res;

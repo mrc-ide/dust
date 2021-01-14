@@ -57,8 +57,8 @@ public:
     state_next[4] = (step % pars_.freq == 0) ? n_SI : state[4] + n_SI;
   }
 
-  real_t compare(const real_t * state, const data_t& data,
-                 dust::rng_state_t<real_t>& rng_state) {
+  real_t compare_data(const real_t * state, const data_t& data,
+                      dust::rng_state_t<real_t>& rng_state) {
     const double incidence_modelled = state[4];
     const double incidence_observed = data.incidence;
     const double lambda = incidence_modelled +
