@@ -82,7 +82,7 @@ that can be used to work with the model (see the Details below)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.10</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0</span>
       </span>
     </div>
 
@@ -180,7 +180,7 @@ your choosing you can see the generated code.</p></td>
 assumed to be the class name)</p></li>
 <li><p>That class must define a type <code>init_t</code> (so <code>model::init_t</code>) that
 contains its internal data and the model must be constructable
-with a const reference to this type (<code>const model::init_t&amp; data</code>)</p></li>
+with a const reference to this type (<code>const model::init_t&amp; pars</code>)</p></li>
 <li><p>That class must also include a typedef that describes the
 model's floating point type, <code>real_t</code>. Most models can include
 <code>typedef double real_t;</code> in their public section.</p></li>
@@ -209,23 +209,23 @@ state of the system - you are expected to update all values of
 <p>It is very important that none of the functions in the class use
 the R API in any way as these functions will be called in
 parallel.</p>
-<p>You must also provide a data-wrangling function for producing an
-object of type <code>model::init_t</code> from an R list.  We use cpp11 for
-this.  Your function will look like:</p><pre>template &lt;&gt;
-model::init_t dust_data&lt;model&gt;(cpp11::list data) {
+<p>You must also provide a data/parameter-wrangling function for
+producing an object of type <code>model::init_t</code> from an R list.  We
+use cpp11 for this.  Your function will look like:</p><pre>template &lt;&gt;
+model::init_t dust_pars&lt;model&gt;(cpp11::list pars) {
   return ...;
 }
 </pre>
 
-<p>With the body interacting with <code>data</code> to create an object of type
+<p>With the body interacting with <code>pars</code> to create an object of type
 <code>model::init_t</code> and returning it.  This function will be called
 in serial and may use anything in the cpp11 API.  All elements of
 the returned object must be standard C/C++ (e.g., STL) types and
 <em>not</em> cpp11/R types.</p>
 <p>Your model <em>may</em> provided a template specialisation
-<code>dust_data&lt;model::init_t&gt;()</code> returning a <code>cpp11::sexp</code> for
+<code>dust_pars&lt;model::init_t&gt;()</code> returning a <code>cpp11::sexp</code> for
 returning arbitrary information back to the R session:</p><pre>template &lt;&gt;
-cpp11::sexp dust_info&lt;model&gt;(const model::init_t&amp; data) {
+cpp11::sexp dust_info&lt;model&gt;(const model::init_t&amp; pars) {
   return cpp11::wrap(...);
 }
 </pre>
@@ -234,7 +234,7 @@ cpp11::sexp dust_info&lt;model&gt;(const model::init_t&amp; data) {
 <code>info()</code> method on the created object will return <code>NULL</code>.
 Potential use cases for this are to return information about
 variable ordering, or any processing done while accepting the
-data object used to create the data fed into the particles.</p>
+pars object used to create the pars fed into the particles.</p>
     <h2 class="hasAnchor" id="configuring-your-model"><a class="anchor" href="#configuring-your-model"></a>Configuring your model</h2>
 
     
@@ -269,46 +269,46 @@ be used (either specified with <code>[[dust::class()]]</code> or detected).</p><
 <li><p><a href='#method-n_threads'><code>dust_class$n_threads()</code></a></p></li>
 <li><p><a href='#method-set_state'><code>dust_class$set_state()</code></a></p></li>
 <li><p><a href='#method-reset'><code>dust_class$reset()</code></a></p></li>
-<li><p><a href='#method-set_data'><code>dust_class$set_data()</code></a></p></li>
+<li><p><a href='#method-set_pars'><code>dust_class$set_pars()</code></a></p></li>
 <li><p><a href='#method-state'><code>dust_class$state()</code></a></p></li>
 <li><p><a href='#method-step'><code>dust_class$step()</code></a></p></li>
 <li><p><a href='#method-reorder'><code>dust_class$reorder()</code></a></p></li>
 <li><p><a href='#method-info'><code>dust_class$info()</code></a></p></li>
-<li><p><a href='#method-data'><code>dust_class$data()</code></a></p></li>
+<li><p><a href='#method-pars'><code>dust_class$pars()</code></a></p></li>
 <li><p><a href='#method-rng_state'><code>dust_class$rng_state()</code></a></p></li>
 <li><p><a href='#method-set_rng_state'><code>dust_class$set_rng_state()</code></a></p></li>
 <li><p><a href='#method-has_openmp'><code>dust_class$has_openmp()</code></a></p></li>
-<li><p><a href='#method-n_data'><code>dust_class$n_data()</code></a></p></li>
+<li><p><a href='#method-n_pars'><code>dust_class$n_pars()</code></a></p></li>
 <li><p><a href='#method-set_n_threads'><code>dust_class$set_n_threads()</code></a></p></li>
 </ul>
 <p><hr>
 <a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
 <p>Create a new model. Note that the behaviour of this object
 created by this function will change considerably based on
-whether the <code>data_multi</code> argument is <code>TRUE</code>. If not (the
+whether the <code>pars_multi</code> argument is <code>TRUE</code>. If not (the
 default) then we create <code>n_particles</code> which all share the same
-parameters as specified by the <code>data</code> argument. If <code>data_multi</code>
-is <code>TRUE</code> then <code>data</code> must be an unnamed list, and each element
-of it represents a different set of parameters/data. We will
-create <code><a href='https://rdrr.io/r/base/length.html'>length(data)</a></code> <em>sets</em> of <code>n_particles</code> particles which
+parameters as specified by the <code>pars</code> argument. If <code>pars_multi</code>
+is <code>TRUE</code> then <code>pars</code> must be an unnamed list, and each element
+of it represents a different set of parameters. We will
+create <code><a href='https://rdrr.io/r/base/length.html'>length(pars)</a></code> <em>sets</em> of <code>n_particles</code> particles which
 will be simulated together. These particles must have the same
 dimension - that is, they must correspond to model state that
 is the same size.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span>
-  <span class='va'>data</span>,
+  <span class='va'>pars</span>,
   <span class='va'>step</span>,
   <span class='va'>n_particles</span>,
   n_threads <span class='op'>=</span> <span class='fl'>1L</span>,
   seed <span class='op'>=</span> <span class='cn'>NULL</span>,
-  data_multi <span class='op'>=</span> <span class='cn'>FALSE</span>
+  pars_multi <span class='op'>=</span> <span class='cn'>FALSE</span>
 <span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
-<dt><code>data</code></dt><dd><p>Data to initialise your model with; a <code>list</code>
+<dt><code>pars</code></dt><dd><p>Data to initialise your model with; a <code>list</code>
 object, but the required elements will depend on the details of
-your model. If <code>data_multi</code> is <code>TRUE</code>, then this must be an
-<em>unnamed</em> list of <code>data</code> objects (see Details).</p></dd>
+your model. If <code>pars_multi</code> is <code>TRUE</code>, then this must be an
+<em>unnamed</em> list of <code>pars</code> objects (see Details).</p></dd>
 
 <dt><code>step</code></dt><dd><p>Initial step - must be nonnegative</p></dd>
 
@@ -327,9 +327,9 @@ generator) or a <code>raw</code> vector of a length that is a multiple of
 32 to directly initialise the generator (e..g., from the
 <code>dust</code> object's <code>$rng_state()</code> method).</p></dd>
 
-<dt><code>data_multi</code></dt><dd><p>Logical, indicating if <code>data</code> should be
+<dt><code>pars_multi</code></dt><dd><p>Logical, indicating if <code>pars</code> should be
 interpreted as a set of different initialisations, and that we
-should prepare <code>n_particles * length(data)</code> particles for
+should prepare <code>n_particles * length(pars)</code> particles for
 simulation. This has an effect on many of the other methods of
 the object.</p></dd>
 
@@ -342,8 +342,8 @@ the object.</p></dd>
 <p><hr>
 <a id="method-param"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>param()</code></h3>
 <p>Returns parameter information, if provided by the model. This
-describes the contents of data passed to the constructor or to
-<code>reset</code> as the <code>data</code> argument, and the details depend on the model.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+describes the contents of pars passed to the constructor or to
+<code>reset</code> as the <code>pars</code> argument, and the details depend on the model.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>param</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
@@ -360,7 +360,7 @@ step(), silently nothing will happen)</p></dd>
 </dl><p></div></p>
 <p><hr>
 <a id="method-set_index"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>set_index()</code></h3>
-<p>Set the "index" vector that is used to return a subset of data
+<p>Set the "index" vector that is used to return a subset of pars
 after using <code>run()</code>. If this is not used then <code>run()</code> returns
 all elements in your state vector, which may be excessive and slower
 than necessary. This method must be called after any
@@ -409,26 +409,26 @@ larges step given (i.e., <code><a href='https://rdrr.io/r/base/Extremes.html'>ma
 <p><hr>
 <a id="method-reset"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>reset()</code></h3>
 <p>Reset the model while preserving the random number stream state</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>reset</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>step</span><span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>reset</span><span class='op'>(</span><span class='va'>pars</span>, <span class='va'>step</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
-<dt><code>data</code></dt><dd><p>New data for the model (see constructor)</p></dd>
+<dt><code>pars</code></dt><dd><p>New pars for the model (see constructor)</p></dd>
 
 <dt><code>step</code></dt><dd><p>New initial step for the model (see constructor)</p></dd>
 
 </dl><p></div></p>
 <p><hr>
-<a id="method-set_data"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>set_data()</code></h3>
-<p>Set the 'data' element in a dust object while holding model state,
+<a id="method-set_pars"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>set_pars()</code></h3>
+<p>Set the 'pars' element in a dust object while holding model state,
 index, etc constant. In contrast to <code>$reset</code>, the old state must
 be compatible with the new one (e.g., don't change model size), and
 the index will remain valid.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>set_data</span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>set_pars</span><span class='op'>(</span><span class='va'>pars</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
-<dt><code>data</code></dt><dd><p>New data for the model (see constructor)</p></dd>
+<dt><code>pars</code></dt><dd><p>New pars for the model (see constructor)</p></dd>
 
 </dl><p></div></p>
 <p><hr>
@@ -460,15 +460,15 @@ take.</p></dd>
 </dl><p></div></p>
 <p><hr>
 <a id="method-info"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>info()</code></h3>
-<p>Returns information about the data that your model was created with.
+<p>Returns information about the pars that your model was created with.
 Only returns non-NULL if the model provides a <code>dust_info</code> template
 specialisation.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>info</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
-<a id="method-data"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/utils/data.html'>data()</a></code></h3>
-<p>Returns the <code>data</code> object that your model was constructed with.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>data</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+<a id="method-pars"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>pars()</code></h3>
+<p>Returns the <code>pars</code> object that your model was constructed with.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>pars</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
 <a id="method-rng_state"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>rng_state()</code></h3>
@@ -515,12 +515,12 @@ as <code>dust_class$public_methods$has_openmp()</code></p><h4 class='hasAnchor' 
 <p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>has_openmp</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
-<a id="method-n_data"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>n_data()</code></h3>
-<p>Returns the number of distinct data elements required. This is <code>0</code>
-where the object was initialised with <code>data_multi = FALSE</code> and
-an integer otherwise.  For multi-data dust objects, Where <code>data</code>
-is accepted, you must provide an unnamed list of length <code>$n_data()</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>n_data</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+<a id="method-n_pars"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>n_pars()</code></h3>
+<p>Returns the number of distinct pars elements required. This is <code>0</code>
+where the object was initialised with <code>pars_multi = FALSE</code> and
+an integer otherwise.  For multi-pars dust objects, Where <code>pars</code>
+is accepted, you must provide an unnamed list of length <code>$n_pars()</code>.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>n_pars</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
 <a id="method-set_n_threads"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>set_n_threads()</code></h3>
@@ -554,7 +554,7 @@ requested (based on environment variables and OpenMP support).</p></dd>
 #&gt;   struct init_t {
 #&gt;     real_t sd;
 #&gt;   };
-#&gt;   walk(const init_t&amp; data) : data_(data) {
+#&gt;   walk(const init_t&amp; pars) : pars_(pars) {
 #&gt;   }
 #&gt;   size_t size() const {
 #&gt;     return 1;
@@ -567,17 +567,17 @@ requested (based on environment variables and OpenMP support).</p></dd>
 #&gt;               dust::rng_state_t&lt;real_t&gt;&amp; rng_state,
 #&gt;               real_t * state_next) {
 #&gt;     real_t mean = state[0];
-#&gt;     state_next[0] = dust::distr::rnorm(rng_state, mean, data_.sd);
+#&gt;     state_next[0] = dust::distr::rnorm(rng_state, mean, pars_.sd);
 #&gt;   }
 #&gt; 
 #&gt; private:
-#&gt;   init_t data_;
+#&gt;   init_t pars_;
 #&gt; };
 #&gt; 
 #&gt; #include &lt;cpp11/list.hpp&gt;
 #&gt; template &lt;&gt;
-#&gt; walk::init_t dust_data&lt;walk&gt;(cpp11::list data) {
-#&gt;   walk::real_t sd = cpp11::as_cpp&lt;walk::real_t&gt;(data["sd"]);
+#&gt; walk::init_t dust_pars&lt;walk&gt;(cpp11::list pars) {
+#&gt;   walk::real_t sd = cpp11::as_cpp&lt;walk::real_t&gt;(pars["sd"]);
 #&gt;   return walk::init_t{sd};
 #&gt; }</div><div class='input'>
 <span class='co'># The model can be compiled and loaded with dust::dust(filename)</span>
@@ -589,7 +589,7 @@ requested (based on environment variables and OpenMP support).</p></dd>
 <span class='va'>model</span>
 </div><div class='output co'>#&gt; &lt;dust&gt; object generator
 #&gt;   Public:
-#&gt;     initialize: function (data, step, n_particles, n_threads = 1L, seed = NULL, 
+#&gt;     initialize: function (pars, step, n_particles, n_threads = 1L, seed = NULL, 
 #&gt;     name: function () 
 #&gt;     param: function () 
 #&gt;     run: function (step_end) 
@@ -597,28 +597,28 @@ requested (based on environment variables and OpenMP support).</p></dd>
 #&gt;     index: function () 
 #&gt;     n_threads: function () 
 #&gt;     set_state: function (state, step = NULL) 
-#&gt;     reset: function (data, step) 
-#&gt;     set_data: function (data) 
+#&gt;     reset: function (pars, step) 
+#&gt;     set_pars: function (pars) 
 #&gt;     state: function (index = NULL) 
 #&gt;     step: function () 
 #&gt;     reorder: function (index) 
 #&gt;     info: function () 
-#&gt;     data: function () 
+#&gt;     pars: function () 
 #&gt;     rng_state: function (first_only = FALSE) 
 #&gt;     set_rng_state: function (rng_state) 
 #&gt;     has_openmp: function () 
-#&gt;     n_data: function () 
+#&gt;     n_pars: function () 
 #&gt;     set_n_threads: function (n_threads) 
 #&gt;   Private:
-#&gt;     data_: NULL
-#&gt;     data_multi_: NULL
+#&gt;     pars_: NULL
+#&gt;     pars_multi_: NULL
 #&gt;     index_: NULL
 #&gt;     info_: NULL
 #&gt;     n_threads_: NULL
 #&gt;     ptr_: NULL
 #&gt;     param_: NULL
-#&gt;     simulate: function (steps, data, state, index = NULL, n_threads = 1L, seed = NULL, 
-#&gt;     check_data_multi: function (data, len) 
+#&gt;     simulate: function (steps, pars, state, index = NULL, n_threads = 1L, seed = NULL, 
+#&gt;     check_pars_multi: function (pars, len) 
 #&gt;   Parent env: &lt;environment: namespace:dust&gt;
 #&gt;   Locked objects: TRUE
 #&gt;   Locked class: FALSE
@@ -629,36 +629,36 @@ requested (based on environment variables and OpenMP support).</p></dd>
 <span class='va'>obj</span>
 </div><div class='output co'>#&gt; &lt;dust&gt;
 #&gt;   Public:
-#&gt;     data: function () 
 #&gt;     has_openmp: function () 
 #&gt;     index: function () 
 #&gt;     info: function () 
-#&gt;     initialize: function (data, step, n_particles, n_threads = 1L, seed = NULL, 
-#&gt;     n_data: function () 
+#&gt;     initialize: function (pars, step, n_particles, n_threads = 1L, seed = NULL, 
+#&gt;     n_pars: function () 
 #&gt;     n_threads: function () 
 #&gt;     name: function () 
 #&gt;     param: function () 
+#&gt;     pars: function () 
 #&gt;     reorder: function (index) 
-#&gt;     reset: function (data, step) 
+#&gt;     reset: function (pars, step) 
 #&gt;     rng_state: function (first_only = FALSE) 
 #&gt;     run: function (step_end) 
-#&gt;     set_data: function (data) 
 #&gt;     set_index: function (index) 
 #&gt;     set_n_threads: function (n_threads) 
+#&gt;     set_pars: function (pars) 
 #&gt;     set_rng_state: function (rng_state) 
 #&gt;     set_state: function (state, step = NULL) 
 #&gt;     state: function (index = NULL) 
 #&gt;     step: function () 
 #&gt;   Private:
-#&gt;     check_data_multi: function (data, len) 
-#&gt;     data_: list
-#&gt;     data_multi_: FALSE
+#&gt;     check_pars_multi: function (pars, len) 
 #&gt;     index_: NULL
 #&gt;     info_: NULL
 #&gt;     n_threads_: 1
 #&gt;     param_: NULL
+#&gt;     pars_: list
+#&gt;     pars_multi_: FALSE
 #&gt;     ptr_: externalptr
-#&gt;     simulate: function (steps, data, state, index = NULL, n_threads = 1L, seed = NULL, </div><div class='input'>
+#&gt;     simulate: function (steps, pars, state, index = NULL, n_threads = 1L, seed = NULL, </div><div class='input'>
 <span class='co'># Curent state is all zero</span>
 <span class='va'>obj</span><span class='op'>$</span><span class='fu'>state</span><span class='op'>(</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]

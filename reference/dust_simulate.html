@@ -81,7 +81,7 @@ to change; see Details below." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.10</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0</span>
       </span>
     </div>
 
@@ -148,7 +148,7 @@ to change; see Details below.</p>
     <pre class="usage"><span class='fu'>dust_simulate</span><span class='op'>(</span>
   <span class='va'>model</span>,
   <span class='va'>steps</span>,
-  <span class='va'>data</span>,
+  <span class='va'>pars</span>,
   <span class='va'>state</span>,
   index <span class='op'>=</span> <span class='cn'>NULL</span>,
   n_threads <span class='op'>=</span> <span class='fl'>1L</span>,
@@ -171,8 +171,8 @@ initial <code>state</code> of the model) and subsequent values are steps
 where state should be returned.</p></td>
     </tr>
     <tr>
-      <th>data</th>
-      <td><p>An unnamed list of model initialisation data (see
+      <th>pars</th>
+      <td><p>An unnamed list of model initialisation pars (see
 <a href='dust.html'>dust</a>).  It must have the same length as the number of columns
 in <code>state</code>.</p></td>
     </tr>
@@ -182,7 +182,7 @@ in <code>state</code>.</p></td>
 of rows corresponding to the number of initial state values your
 model requires, and the number of columns corresponding to the
 number of independent simulations to perform (i.e.,
-<code><a href='https://rdrr.io/r/base/length.html'>length(data)</a></code>).</p></td>
+<code><a href='https://rdrr.io/r/base/length.html'>length(pars)</a></code>).</p></td>
     </tr>
     <tr>
       <th>index</th>
@@ -193,7 +193,7 @@ state vectors that you want output recorded for.</p></td>
       <th>n_threads</th>
       <td><p>Number of OMP threads to use, if <code>dust</code> and your
 model were compiled with OMP support.  The number of simulations
-(<code><a href='https://rdrr.io/r/base/length.html'>length(data)</a></code>) should be a multiple of <code>n_threads</code> (e.g., if
+(<code><a href='https://rdrr.io/r/base/length.html'>length(pars)</a></code>) should be a multiple of <code>n_threads</code> (e.g., if
 you use 8 threads, then you should have 8, 16, 24, etc
 particles). However, this is not compulsary.</p></td>
     </tr>
@@ -220,7 +220,7 @@ the random number generator.</p></td>
     <p>This function has an interface that we expect to change once
 multi-parameter "dust" objects are fully supported.  For now, it
 is designed to be used where we want to simulate a number of
-trajectories given a vector of model data and a matrix of initial
+trajectories given a vector of model pars and a matrix of initial
 state.  For our immediate use case this is for simulating at the
 end of an MCMC where want to generate a posterior distribution of
 trajectories.</p>
@@ -252,7 +252,7 @@ to start again).</p>
 
 <span class='co'># Start with 40 parameter sets; for this model each is list with</span>
 <span class='co'># an element 'sd'</span>
-<span class='va'>data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>replicate</a></span><span class='op'>(</span><span class='fl'>40</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>sd <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/Uniform.html'>runif</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span>, simplify <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+<span class='va'>pars</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>replicate</a></span><span class='op'>(</span><span class='fl'>40</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>sd <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/Uniform.html'>runif</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span>, simplify <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 
 <span class='co'># We also need a matrix of initial states</span>
 <span class='va'>y0</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>40</span><span class='op'>)</span>, <span class='fl'>1</span>, <span class='fl'>40</span><span class='op'>)</span>
@@ -261,7 +261,7 @@ to start again).</p>
 <span class='va'>steps</span> <span class='op'>&lt;-</span> <span class='fl'>0</span><span class='op'>:</span><span class='fl'>50</span>
 
 <span class='co'># The simulated output:</span>
-<span class='va'>res</span> <span class='op'>&lt;-</span> <span class='fu'>dust</span><span class='fu'>::</span><span class='fu'>dust_simulate</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>steps</span>, <span class='va'>data</span>, <span class='va'>y0</span><span class='op'>)</span>
+<span class='va'>res</span> <span class='op'>&lt;-</span> <span class='fu'>dust</span><span class='fu'>::</span><span class='fu'>dust_simulate</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>steps</span>, <span class='va'>pars</span>, <span class='va'>y0</span><span class='op'>)</span>
 
 <span class='co'># The result of the simulation, plotted over time</span>
 <span class='fu'><a href='https://rdrr.io/r/graphics/matplot.html'>matplot</a></span><span class='op'>(</span><span class='va'>steps</span>, <span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/drop.html'>drop</a></span><span class='op'>(</span><span class='va'>res</span><span class='op'>)</span><span class='op'>)</span>, type <span class='op'>=</span> <span class='st'>"l"</span>, col <span class='op'>=</span> <span class='st'>"#00000055"</span>, lty <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span>
