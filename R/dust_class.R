@@ -44,7 +44,7 @@ dust_class <- R6::R6Class(
     ##' dimension - that is, they must correspond to model state that
     ##' is the same size.
     ##'
-    ##' @param pars Data to initialise your model with; a `list`
+    ##' @param pars Parameters to initialise your model with; a `list`
     ##' object, but the required elements will depend on the details of
     ##' your model. If `pars_multi` is `TRUE`, then this must be an
     ##' *unnamed* list of `pars` objects (see Details).
