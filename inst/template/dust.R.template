@@ -294,6 +294,14 @@
       dust_{{name}}_set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
+    },
+
+    set_data = function(data) {
+      dust_{{name}}_set_data(private$ptr_, data)
+    },
+
+    compare = function() {
+      dust_{{name}}_compare(private$ptr_)
     }
   ))
 class({{name}}) <- c("dust_generator", class({{name}}))

@@ -6,6 +6,7 @@
 class volatility {
 public:
   typedef double real_t;
+  typedef no_data data_t;
   struct init_t {
     real_t alpha;
     real_t sigma;
@@ -113,6 +114,17 @@ SEXP dust_volatility_rng_state(SEXP ptr, bool first_only) {
 SEXP dust_volatility_set_rng_state(SEXP ptr, cpp11::raws rng_state) {
   dust_set_rng_state<volatility>(ptr, rng_state);
   return R_NilValue;
+}
+
+[[cpp11::register]]
+SEXP dust_volatility_set_data(SEXP ptr, cpp11::list data) {
+  dust_set_data<volatility>(ptr, data);
+  return R_NilValue;
+}
+
+[[cpp11::register]]
+SEXP dust_volatility_compare(SEXP ptr) {
+  return dust_compare<volatility>(ptr);
 }
 
 [[cpp11::register]]

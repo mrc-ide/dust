@@ -1,8 +1,10 @@
-class sir {
+double ldpois(double x, double lambda) {
+  return x * std::log(lambda) - lambda - std::lgamma(x + 1);
+}
+
+class sir2 {
 public:
   typedef double real_t;
-  typedef no_data data_t;
-
   struct init_t {
     double S0;
     double I0;
@@ -10,17 +12,24 @@ public:
     double beta;
     double gamma;
     double dt;
+    size_t freq;
+    // Observation parameters
+    double exp_noise;
+  };
+  // Presence of this is going to be important
+  struct data_t {
+    double incidence;
   };
 
-  sir(const init_t& pars) : pars_(pars) {
+  sir2(const init_t& pars) : pars_(pars) {
   }
 
   size_t size() const {
-    return 4;
+    return 5; // S, I, R, cum_inc, inc
   }
 
   std::vector<double> initial(size_t step) {
-    std::vector<double> ret = {pars_.S0, pars_.I0, pars_.R0, 0};
+    std::vector<double> ret = {pars_.S0, pars_.I0, pars_.R0, 0, 0};
     return ret;
   }
 
@@ -43,6 +52,18 @@ public:
     state_next[1] = I + n_SI - n_IR;
     state_next[2] = R + n_IR;
     state_next[3] = cumulative_incidence + n_SI;
+    // Little trick here to compute daily incidence by accumulating
+    // incidence from the first day.
+    state_next[4] = (step % pars_.freq == 0) ? n_SI : state[4] + n_SI;
+  }
+
+  real_t compare(const real_t * state, const data_t& data,
+                 dust::rng_state_t<real_t>& rng_state) {
+    const double incidence_modelled = state[4];
+    const double incidence_observed = data.incidence;
+    const double lambda = incidence_modelled +
+      dust::distr::rexp(rng_state, pars_.exp_noise);
+    return ldpois(incidence_observed, lambda);
   }
 
 private:
@@ -57,7 +78,7 @@ inline double with_default(double default_value, cpp11::sexp value) {
 }
 
 template <>
-sir::init_t dust_pars<sir>(cpp11::list pars) {
+sir2::init_t dust_pars<sir2>(cpp11::list pars) {
   // Initial state values
   double I0 = 10.0;
   double S0 = 1000.0;
@@ -70,13 +91,18 @@ sir::init_t dust_pars<sir>(cpp11::list pars) {
   double gamma = with_default(0.1, pars["gamma"]);
 
   // Time scaling
-  double dt = 0.25;
+  size_t freq = 4;
+  double dt = 1.0 / static_cast<double>(freq);
 
-  return sir::init_t{S0, I0, R0, beta, gamma, dt};
+  // Compare function
+  // [[dust::param(exp_noise, required = FALSE)]]
+  double exp_noise = with_default(1e6, pars["exp_noise"]);
+
+  return sir2::init_t{S0, I0, R0, beta, gamma, dt, freq, exp_noise};
 }
 
 template <>
-cpp11::sexp dust_info<sir>(const sir::init_t& pars) {
+cpp11::sexp dust_info<sir2>(const sir2::init_t& pars) {
   using namespace cpp11::literals;
   // Information about state order
   cpp11::writable::strings vars({"S", "I", "R", "inc"});
@@ -84,4 +110,14 @@ cpp11::sexp dust_info<sir>(const sir::init_t& pars) {
   cpp11::list p = cpp11::writable::list({"beta"_nm = pars.beta,
                                          "gamma"_nm = pars.gamma});
   return cpp11::writable::list({"vars"_nm = vars, "pars"_nm = p});
+}
+
+// The way that this is going to work is we will process a list
+// *outside* of the C that will take (say) a df and convert it
+// row-wise into a list with elements `step` and `data`, we will pass
+// that in here. Then this function will be called once per data
+// element to create the struct that will be used for future work.
+template <>
+sir2::data_t dust_data<sir2>(cpp11::list data) {
+  return sir2::data_t{cpp11::as_cpp<double>(data["incidence"])};
 }

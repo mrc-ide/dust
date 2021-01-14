@@ -143,6 +143,14 @@ sir <- R6::R6Class(
       dust_sir_set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
+    },
+
+    set_data = function(data) {
+      dust_sir_set_data(private$ptr_, data)
+    },
+
+    compare = function() {
+      dust_sir_compare(private$ptr_)
     }
   ))
 class(sir) <- c("dust_generator", class(sir))
@@ -290,6 +298,14 @@ variable <- R6::R6Class(
       dust_variable_set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
+    },
+
+    set_data = function(data) {
+      dust_variable_set_data(private$ptr_, data)
+    },
+
+    compare = function() {
+      dust_variable_compare(private$ptr_)
     }
   ))
 class(variable) <- c("dust_generator", class(variable))
@@ -437,6 +453,14 @@ volatility <- R6::R6Class(
       dust_volatility_set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
+    },
+
+    set_data = function(data) {
+      dust_volatility_set_data(private$ptr_, data)
+    },
+
+    compare = function() {
+      dust_volatility_compare(private$ptr_)
     }
   ))
 class(volatility) <- c("dust_generator", class(volatility))
@@ -584,6 +608,14 @@ walk <- R6::R6Class(
       dust_walk_set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
+    },
+
+    set_data = function(data) {
+      dust_walk_set_data(private$ptr_, data)
+    },
+
+    compare = function() {
+      dust_walk_compare(private$ptr_)
     }
   ))
 class(walk) <- c("dust_generator", class(walk))

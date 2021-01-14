@@ -6,6 +6,8 @@
 class sir {
 public:
   typedef double real_t;
+  typedef no_data data_t;
+
   struct init_t {
     double S0;
     double I0;
@@ -148,6 +150,17 @@ SEXP dust_sir_rng_state(SEXP ptr, bool first_only) {
 SEXP dust_sir_set_rng_state(SEXP ptr, cpp11::raws rng_state) {
   dust_set_rng_state<sir>(ptr, rng_state);
   return R_NilValue;
+}
+
+[[cpp11::register]]
+SEXP dust_sir_set_data(SEXP ptr, cpp11::list data) {
+  dust_set_data<sir>(ptr, data);
+  return R_NilValue;
+}
+
+[[cpp11::register]]
+SEXP dust_sir_compare(SEXP ptr) {
+  return dust_compare<sir>(ptr);
 }
 
 [[cpp11::register]]

@@ -2,6 +2,7 @@
 #define DUST_INTERFACE_HPP
 
 #include <cstring>
+#include <map>
 #include <cpp11/doubles.hpp>
 #include <cpp11/external_pointer.hpp>
 #include <cpp11/integers.hpp>
@@ -14,6 +15,9 @@
 
 template <typename T>
 typename T::init_t dust_pars(cpp11::list pars);
+
+template <typename T>
+typename T::data_t dust_data(cpp11::list data);
 
 template <typename T>
 typename cpp11::sexp dust_info(const typename T::init_t& pars);
@@ -404,6 +408,41 @@ void dust_set_n_threads(SEXP ptr, int n_threads) {
 template <typename T>
 cpp11::sexp dust_info(const typename T::init_t& pars) {
   return R_NilValue;
+}
+
+template <typename T, typename std::enable_if<!std::is_same<no_data, typename T::data_t>::value, int>::type = 0>
+void dust_set_data(SEXP ptr, cpp11::list r_data) {
+  typedef typename T::data_t data_t;
+  Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  std::map<size_t, data_t> data;
+  size_t len = r_data.size();
+  for (size_t i = 0; i < len; ++i) {
+    cpp11::list el = r_data[i];
+    const size_t step_i = cpp11::as_cpp<int>(el[0]);
+    const data_t data_i = dust_data<T>(cpp11::as_cpp<cpp11::list>(el[1]));
+    data[step_i] = data_i;
+  }
+  obj->set_data(data);
+}
+
+template <typename T, typename std::enable_if<!std::is_same<no_data, typename T::data_t>::value, int>::type = 0>
+cpp11::sexp dust_compare(SEXP ptr) {
+  Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  std::vector<double> ret = obj->compare();
+  cpp11::writable::doubles ret_r(ret.size());
+  std::copy(ret.begin(), ret.end(), REAL(ret_r));
+  return ret_r;
+}
+
+template <typename T, typename std::enable_if<std::is_same<no_data, typename T::data_t>::value, int>::type = 0>
+void dust_set_data(SEXP ptr, cpp11::list r_data) {
+  cpp11::stop("The 'set_data' method is not supported for this class");
+}
+
+template <typename T, typename std::enable_if<std::is_same<no_data, typename T::data_t>::value, int>::type = 0>
+cpp11::sexp dust_compare(SEXP ptr) {
+  cpp11::stop("The 'compare' method is not supported for this class");
+  return R_NilValue; // never gets here
 }
 
 inline void validate_size(int x, const char * name) {

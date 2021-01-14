@@ -6,6 +6,7 @@
 class parallel {
 public:
   typedef double real_t;
+  typedef no_data data_t;
   struct init_t {
     double sd;
   };

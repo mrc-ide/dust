@@ -96,6 +96,14 @@ dust_sir_set_rng_state <- function(ptr, rng_state) {
   .Call("_dust_dust_sir_set_rng_state", ptr, rng_state, PACKAGE = "dust")
 }
 
+dust_sir_set_data <- function(ptr, data) {
+  .Call("_dust_dust_sir_set_data", ptr, data, PACKAGE = "dust")
+}
+
+dust_sir_compare <- function(ptr) {
+  .Call("_dust_dust_sir_compare", ptr, PACKAGE = "dust")
+}
+
 dust_sir_simulate <- function(r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state) {
   .Call("_dust_dust_sir_simulate", r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state, PACKAGE = "dust")
 }
@@ -150,6 +158,14 @@ dust_variable_rng_state <- function(ptr, first_only) {
 
 dust_variable_set_rng_state <- function(ptr, rng_state) {
   .Call("_dust_dust_variable_set_rng_state", ptr, rng_state, PACKAGE = "dust")
+}
+
+dust_variable_set_data <- function(ptr, data) {
+  .Call("_dust_dust_variable_set_data", ptr, data, PACKAGE = "dust")
+}
+
+dust_variable_compare <- function(ptr) {
+  .Call("_dust_dust_variable_compare", ptr, PACKAGE = "dust")
 }
 
 dust_variable_simulate <- function(r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state) {
@@ -208,6 +224,14 @@ dust_volatility_set_rng_state <- function(ptr, rng_state) {
   .Call("_dust_dust_volatility_set_rng_state", ptr, rng_state, PACKAGE = "dust")
 }
 
+dust_volatility_set_data <- function(ptr, data) {
+  .Call("_dust_dust_volatility_set_data", ptr, data, PACKAGE = "dust")
+}
+
+dust_volatility_compare <- function(ptr) {
+  .Call("_dust_dust_volatility_compare", ptr, PACKAGE = "dust")
+}
+
 dust_volatility_simulate <- function(r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state) {
   .Call("_dust_dust_volatility_simulate", r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state, PACKAGE = "dust")
 }
@@ -262,6 +286,14 @@ dust_walk_rng_state <- function(ptr, first_only) {
 
 dust_walk_set_rng_state <- function(ptr, rng_state) {
   .Call("_dust_dust_walk_set_rng_state", ptr, rng_state, PACKAGE = "dust")
+}
+
+dust_walk_set_data <- function(ptr, data) {
+  .Call("_dust_dust_walk_set_data", ptr, data, PACKAGE = "dust")
+}
+
+dust_walk_compare <- function(ptr) {
+  .Call("_dust_dust_walk_compare", ptr, PACKAGE = "dust")
 }
 
 dust_walk_simulate <- function(r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state) {

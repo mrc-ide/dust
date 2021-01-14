@@ -6,6 +6,7 @@
 class variable {
 public:
   typedef double real_t;
+  typedef no_data data_t;
   struct init_t {
     size_t len;
     double mean;
@@ -118,6 +119,17 @@ SEXP dust_variable_rng_state(SEXP ptr, bool first_only) {
 SEXP dust_variable_set_rng_state(SEXP ptr, cpp11::raws rng_state) {
   dust_set_rng_state<variable>(ptr, rng_state);
   return R_NilValue;
+}
+
+[[cpp11::register]]
+SEXP dust_variable_set_data(SEXP ptr, cpp11::list data) {
+  dust_set_data<variable>(ptr, data);
+  return R_NilValue;
+}
+
+[[cpp11::register]]
+SEXP dust_variable_compare(SEXP ptr) {
+  return dust_compare<variable>(ptr);
 }
 
 [[cpp11::register]]
