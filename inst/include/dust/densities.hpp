@@ -18,11 +18,6 @@ T lchoose(T n, T k) {
 }
 
 template <typename T>
-T lfactorial(T x) {
-  return std::lgamma(x + 1);
-}
-
-template <typename T>
 T lbeta(T x, T y) {
   return lgamma(x) + lgamma(y) - lgamma(x + y);
 }
@@ -43,7 +38,7 @@ T dnbinom(int x, int size, T mu, bool log) {
   }
   const T ret = std::lgamma(static_cast<T>(x + size)) -
     std::lgamma(static_cast<T>(size)) -
-    lfactorial(static_cast<T>(x)) +
+    std::lgamma(static_cast<T>(x + 1)) +
     size * std::log(prob) + x * std::log(1 - prob);
   return maybe_log(ret, log);
 }
@@ -64,7 +59,8 @@ T dbetabinom(int x, int size, T prob, T rho, bool log) {
 
 template <typename T>
 T dpois(int x, T lambda, bool log) {
-  const T ret = x * std::log(lambda) - lambda - lfactorial<T>(x);
+  const T ret = x * std::log(lambda) - lambda -
+    std::lgamma(static_cast<T>(x + 1));
   return maybe_log(ret, log);
 }
 
