@@ -1,10 +1,8 @@
-double run_compare(...);
-
 class walk {
 public:
-  typedef float real_t;
+  typedef double real_t;
   typedef dust::no_data data_t;
-  
+
   struct init_t {
     real_t sd;
   };
@@ -22,9 +20,6 @@ public:
               real_t * state_next) {
     real_t mean = state[0];
     state_next[0] = dust::distr::rnorm(rng_state, mean, pars_.sd);
-  }
-  real_t compare() {
-    return run_compare(1, 2);
   }
 
 private:
