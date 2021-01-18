@@ -2,6 +2,7 @@
 #define DUST_DENSITIES_HPP
 
 #include <cmath>
+#include <limits>
 
 namespace dust {
 
@@ -38,6 +39,9 @@ T dnbinom(int x, int size, T mu, bool log) {
   const T prob = size / (size + mu);
   if (x == 0 && size == 0) {
     return maybe_log(0, log);
+  }
+  if (x < 0 || x > size) {
+    return maybe_log(-std::numeric_limits<T>::infinity(), log);
   }
   const T ret = std::lgamma(static_cast<T>(x + size)) -
     std::lgamma(static_cast<T>(size)) -

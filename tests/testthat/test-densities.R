@@ -10,7 +10,9 @@ test_that("dpois agrees", {
                dust_dpois(x, lambda, FALSE))
 
   ## Corner cases
+  expect_equal(dust_dpois(0L, 0, TRUE), dpois(0, 0, TRUE))
   expect_equal(dust_dpois(0L, 0, FALSE), dpois(0, 0, FALSE))
+  expect_equal(dpois(1L, 0, TRUE), dust_dpois(1L, 0, TRUE))
 })
 
 
@@ -27,6 +29,8 @@ test_that("dbinom agrees", {
   expect_equal(dust_dbinom(0L, 0L, 0, TRUE), dbinom(0, 0, 0, TRUE))
   expect_equal(dust_dbinom(0L, 0L, 0, FALSE), dbinom(0, 0, 0, FALSE))
   expect_equal(dust_dbinom(0L, 0L, 0.5, TRUE), dbinom(0, 0, 0.5, TRUE))
+  expect_equal(dust_dbinom(10L, 0L, 0, TRUE), dbinom(10L, 0L, 0, TRUE))
+  expect_equal(dust_dbinom(10L, 4L, 0.5, TRUE), dbinom(10L, 4L, 0.5, TRUE))
 })
 
 
@@ -47,6 +51,10 @@ test_that("dnbinom agrees", {
                dnbinom(0, 0, mu = 0, log = FALSE))
   expect_equal(dust_dnbinom(0L, 0L, 0.5, FALSE),
                dnbinom(0, 0, mu = 0.5, log = FALSE))
+  expect_equal(dust_dnbinom(10L, 0L, 1, TRUE),
+               suppressWarnings(dnbinom(10L, 0L, mu = 1, log = TRUE)))
+  expect_equal(dust_dnbinom(10L, 0L, 1, FALSE),
+               suppressWarnings(dnbinom(10L, 0L, mu = 1, log = FALSE)))
 })
 
 
@@ -74,4 +82,9 @@ test_that("dbetabinom agrees", {
   expect_equal(dust_dbetabinom(0L, 0L, 0, 0, TRUE), 0)
   expect_equal(dust_dbetabinom(0L, 0L, 0, 0, FALSE), 1)
   expect_equal(dust_dbetabinom(0L, 0L, 0.5, 0, FALSE), 1)
+
+  expect_identical(dust_dbetabinom(10L, 0L, 0.5, 0.1, FALSE), 0)
+  expect_identical(dust_dbetabinom(10L, 2L, 0.5, 0.4, FALSE), 0)
+  expect_identical(dust_dbetabinom(10L, 0L, 0.5, 0.1, TRUE), -Inf)
+  expect_identical(dust_dbetabinom(10L, 2L, 0.5, 0.4, TRUE), -Inf)
 })
