@@ -2,7 +2,7 @@
 #define DUST_INTERFACE_HPP
 
 #include <cstring>
-#include <map>
+#include <unordered_map>
 #include <cpp11/doubles.hpp>
 #include <cpp11/external_pointer.hpp>
 #include <cpp11/integers.hpp>
@@ -414,7 +414,7 @@ template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typen
 void dust_set_data(SEXP ptr, cpp11::list r_data) {
   typedef typename T::data_t data_t;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  std::map<size_t, data_t> data;
+  std::unordered_map<size_t, data_t> data;
   size_t len = r_data.size();
   for (size_t i = 0; i < len; ++i) {
     cpp11::list el = r_data[i];

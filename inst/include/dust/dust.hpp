@@ -4,7 +4,7 @@
 #include <dust/rng.hpp>
 
 #include <algorithm>
-#include <map>
+#include <unordered_map>
 #include <stdexcept>
 #include <sstream>
 #include <utility>
@@ -299,7 +299,7 @@ public:
     _rng.long_jump();
   }
 
-  void set_data(std::map<size_t, data_t> data) {
+  void set_data(std::unordered_map<size_t, data_t> data) {
     _data = data;
   }
 
@@ -325,7 +325,7 @@ private:
   const size_t _n_particles_total; // Total number of particles
   size_t _n_threads;
   dust::pRNG<real_t> _rng;
-  std::map<size_t, data_t> _data;
+  std::unordered_map<size_t, data_t> _data;
 
   std::vector<size_t> _index;
   std::vector<Particle<T>> _particles;
