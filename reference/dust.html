@@ -82,7 +82,7 @@ that can be used to work with the model (see the Details below)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.1</span>
       </span>
     </div>
 
@@ -184,6 +184,11 @@ with a const reference to this type (<code>const model::init_t&amp; pars</code>)
 <li><p>That class must also include a typedef that describes the
 model's floating point type, <code>real_t</code>. Most models can include
 <code>typedef double real_t;</code> in their public section.</p></li>
+<li><p>The class must also include a typedef that describes the model's
+<em>data</em> type. This interface is subject to change, and for now
+you should include <code>typedef dust::no_data data_t</code> which marks
+your class as not supporting data, which disables the
+<code>compare_data</code> and <code>set_data</code> methods.</p></li>
 <li><p>The model must have a method <code>size()</code> returning <code>size_t</code> which
 returns the size of the system. This size may depend on values
 in your initialisation object but is constant within a model
@@ -280,6 +285,9 @@ be used (either specified with <code>[[dust::class()]]</code> or detected).</p><
 <li><p><a href='#method-has_openmp'><code>dust_class$has_openmp()</code></a></p></li>
 <li><p><a href='#method-n_pars'><code>dust_class$n_pars()</code></a></p></li>
 <li><p><a href='#method-set_n_threads'><code>dust_class$set_n_threads()</code></a></p></li>
+<li><p><a href='#method-has_compare'><code>dust_class$has_compare()</code></a></p></li>
+<li><p><a href='#method-set_data'><code>dust_class$set_data()</code></a></p></li>
+<li><p><a href='#method-compare_data'><code>dust_class$compare_data()</code></a></p></li>
 </ul>
 <p><hr>
 <a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
@@ -537,6 +545,40 @@ verify that you can actually use the number of threads
 requested (based on environment variables and OpenMP support).</p></dd>
 
 </dl><p></div></p>
+<p><hr>
+<a id="method-has_compare"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>has_compare()</code></h3>
+<p>Returns a logical, indicating if this model was compiled with
+"compare" support, in which case the <code>set_data</code> and <code>compare_data</code>
+methods are available (otherwise these methods will error). This
+method can also be used as a static method by running it directly
+as <code>dust_class$public_methods$has_compare()</code></p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>has_compare</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
+<a id="method-set_data"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>set_data()</code></h3>
+<p>Set "data" into the model for use with the <code>$compare_data()</code> method.
+This is not supported by all models, depending on if they define a
+<code>data_t</code> type. One data set is shared across all particles
+(including across all parameter sets if using <code>pars_multi = TRUE</code>).
+See <code><a href='dust_data.html'>dust_data()</a></code> for a helper function to construct
+suitable data and a description of the required format.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>set_data</span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>data</code></dt><dd><p>A list of data to set.</p></dd>
+
+</dl><p></div></p>
+<p><hr>
+<a id="method-compare_data"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>compare_data()</code></h3>
+<p>Compare the current model state against the data as set by
+<code>set_data</code>. If there is no data set, or no data corresponding to
+the current time then <code>NULL</code> is returned. Otherwise a numeric vector
+the same length as the number of particles is returned. If model's
+underlying <code>compare_data</code> function is stochastic, then each call to
+this function may be result in a different answer.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>compare_data</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+
 
 
 
@@ -551,6 +593,8 @@ requested (based on environment variables and OpenMP support).</p></dd>
 </div><div class='output co'>#&gt; class walk {
 #&gt; public:
 #&gt;   typedef double real_t;
+#&gt;   typedef dust::no_data data_t;
+#&gt; 
 #&gt;   struct init_t {
 #&gt;     real_t sd;
 #&gt;   };
@@ -609,6 +653,9 @@ requested (based on environment variables and OpenMP support).</p></dd>
 #&gt;     has_openmp: function () 
 #&gt;     n_pars: function () 
 #&gt;     set_n_threads: function (n_threads) 
+#&gt;     has_compare: function () 
+#&gt;     set_data: function (data) 
+#&gt;     compare_data: function () 
 #&gt;   Private:
 #&gt;     pars_: NULL
 #&gt;     pars_multi_: NULL
@@ -629,6 +676,8 @@ requested (based on environment variables and OpenMP support).</p></dd>
 <span class='va'>obj</span>
 </div><div class='output co'>#&gt; &lt;dust&gt;
 #&gt;   Public:
+#&gt;     compare_data: function () 
+#&gt;     has_compare: function () 
 #&gt;     has_openmp: function () 
 #&gt;     index: function () 
 #&gt;     info: function () 
@@ -642,6 +691,7 @@ requested (based on environment variables and OpenMP support).</p></dd>
 #&gt;     reset: function (pars, step) 
 #&gt;     rng_state: function (first_only = FALSE) 
 #&gt;     run: function (step_end) 
+#&gt;     set_data: function (data) 
 #&gt;     set_index: function (index) 
 #&gt;     set_n_threads: function (n_threads) 
 #&gt;     set_pars: function (pars) 

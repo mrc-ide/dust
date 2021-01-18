@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • dust</title>
+<title>Process data for dust — dust_data • dust</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,7 +46,14 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Process data for dust — dust_data" />
+<meta property="og:description" content="Prepare data for use with the $set_data() method. This is not
+required for use but tries to simplify the most common use case
+where you have a data.frame with some column indicating &quot;model
+step&quot; (name_step), and other columns that might be use in your
+data_compare function. Each row will be turned into a named R
+list, which your dust_data function can then work with to get
+this time-steps values." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -66,7 +73,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -131,96 +138,149 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Process data for dust</h1>
+    <small class="dont-index">Source: <a href='https://github.com/mrc-ide/dust/blob/master/R/data.R'><code>R/data.R</code></a></small>
+    <div class="hidden name"><code>dust_data.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p>Prepare data for use with the <code>$set_data()</code> method. This is not
+required for use but tries to simplify the most common use case
+where you have a <a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a> with some column indicating "model
+step" (<code>name_step</code>), and other columns that might be use in your
+<code>data_compare</code> function. Each row will be turned into a named R
+list, which your <code>dust_data</code> function can then work with to get
+this time-steps values.</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>dust_data</span><span class='op'>(</span><span class='va'>object</span>, name_step <span class='op'>=</span> <span class='st'>"step"</span><span class='op'>)</span></pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="dust.html">dust()</a></code> </p>
-        </td>
-        <td><p>Create a dust model from a C++ input file</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dust_data.html">dust_data()</a></code> </p>
-        </td>
-        <td><p>Process data for dust</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dust_example.html">dust_example()</a></code> </p>
-        </td>
-        <td><p>Access dust's built-in examples.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dust_iterate.html">dust_iterate()</a></code> </p>
-        </td>
-        <td><p>Iterate a dust model</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dust_openmp_support.html">dust_openmp_support()</a></code> </p>
-        </td>
-        <td><p>Information about OpenMP support</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dust_openmp_threads.html">dust_openmp_threads()</a></code> </p>
-        </td>
-        <td><p>Select number of threads</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dust_package.html">dust_package()</a></code> </p>
-        </td>
-        <td><p>Create dust model in package</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dust_rng.html">dust_rng</a></code> </p>
-        </td>
-        <td><p>Dust Random Number Generator</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dust_rng_state_long_jump.html">dust_rng_state_long_jump()</a></code> </p>
-        </td>
-        <td><p>Advance a dust random number state</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dust_simulate.html">dust_simulate()</a></code> </p>
-        </td>
-        <td><p>Simulate from a model or generator</p></td>
-      </tr>
-    </tbody>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>object</th>
+      <td><p>An object, at this point must be a <a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></p></td>
+    </tr>
+    <tr>
+      <th>name_step</th>
+      <td><p>The name of the data column within <code>object</code>; this
+column must be integer-like and every integer must be
+nonnegative and unique</p></td>
+    </tr>
     </table>
-  </div>
 
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The data object as accepted by <code>data_set</code> must be a <a href='https://rdrr.io/r/base/list.html'>list</a> and
+each element must itself be a list with two elements; the model
+<code>step</code> at which the data applies and any R object that corresponds
+to data at that point. We expect that most of the time this second
+element will be a key-value list with scalar keys, but more
+flexibility may be required.</p>
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='va'>d</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>step <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>50</span>, by <span class='op'>=</span> <span class='fl'>10</span><span class='op'>)</span>, a <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/Uniform.html'>runif</a></span><span class='op'>(</span><span class='fl'>6</span><span class='op'>)</span>, b <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/Uniform.html'>runif</a></span><span class='op'>(</span><span class='fl'>6</span><span class='op'>)</span><span class='op'>)</span>
+<span class='fu'>dust</span><span class='fu'>::</span><span class='fu'>dust_data</span><span class='op'>(</span><span class='va'>d</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [[1]]
+#&gt; [[1]][[1]]
+#&gt; [1] 0
+#&gt; 
+#&gt; [[1]][[2]]
+#&gt; [[1]][[2]]$step
+#&gt; [1] 0
+#&gt; 
+#&gt; [[1]][[2]]$a
+#&gt; [1] 0.7064338
+#&gt; 
+#&gt; [[1]][[2]]$b
+#&gt; [1] 0.6416793
+#&gt; 
+#&gt; 
+#&gt; 
+#&gt; [[2]]
+#&gt; [[2]][[1]]
+#&gt; [1] 10
+#&gt; 
+#&gt; [[2]][[2]]
+#&gt; [[2]][[2]]$step
+#&gt; [1] 10
+#&gt; 
+#&gt; [[2]][[2]]$a
+#&gt; [1] 0.9485766
+#&gt; 
+#&gt; [[2]][[2]]$b
+#&gt; [1] 0.6602843
+#&gt; 
+#&gt; 
+#&gt; 
+#&gt; [[3]]
+#&gt; [[3]][[1]]
+#&gt; [1] 20
+#&gt; 
+#&gt; [[3]][[2]]
+#&gt; [[3]][[2]]$step
+#&gt; [1] 20
+#&gt; 
+#&gt; [[3]][[2]]$a
+#&gt; [1] 0.1803388
+#&gt; 
+#&gt; [[3]][[2]]$b
+#&gt; [1] 0.09602416
+#&gt; 
+#&gt; 
+#&gt; 
+#&gt; [[4]]
+#&gt; [[4]][[1]]
+#&gt; [1] 30
+#&gt; 
+#&gt; [[4]][[2]]
+#&gt; [[4]][[2]]$step
+#&gt; [1] 30
+#&gt; 
+#&gt; [[4]][[2]]$a
+#&gt; [1] 0.2168999
+#&gt; 
+#&gt; [[4]][[2]]$b
+#&gt; [1] 0.7656002
+#&gt; 
+#&gt; 
+#&gt; 
+#&gt; [[5]]
+#&gt; [[5]][[1]]
+#&gt; [1] 40
+#&gt; 
+#&gt; [[5]][[2]]
+#&gt; [[5]][[2]]$step
+#&gt; [1] 40
+#&gt; 
+#&gt; [[5]][[2]]$a
+#&gt; [1] 0.6801629
+#&gt; 
+#&gt; [[5]][[2]]$b
+#&gt; [1] 0.7696748
+#&gt; 
+#&gt; 
+#&gt; 
+#&gt; [[6]]
+#&gt; [[6]][[1]]
+#&gt; [1] 50
+#&gt; 
+#&gt; [[6]][[2]]
+#&gt; [[6]][[2]]$step
+#&gt; [1] 50
+#&gt; 
+#&gt; [[6]][[2]]$a
+#&gt; [1] 0.4988456
+#&gt; 
+#&gt; [[6]][[2]]$b
+#&gt; [1] 0.9907123
+#&gt; 
+#&gt; 
+#&gt; </div></pre>
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
