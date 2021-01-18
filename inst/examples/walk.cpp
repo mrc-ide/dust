@@ -1,6 +1,8 @@
+double run_compare(...);
+
 class walk {
 public:
-  typedef double real_t;
+  typedef float real_t;
   typedef dust::no_data data_t;
   
   struct init_t {

@@ -428,7 +428,7 @@ void dust_set_data(SEXP ptr, cpp11::list r_data) {
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 cpp11::sexp dust_compare_data(SEXP ptr) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  std::vector<double> ret = obj->compare_data();
+  std::vector<typename T::real_t> ret = obj->compare_data();
   if (ret.size() == 0) {
     return R_NilValue;
   }
@@ -437,6 +437,10 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
   return ret_r;
 }
 
+// Based on the value of the data_t in the underlying model class we
+// might use these functions for set_data and compare_data which give
+// reasonable errors back to R, as we can't use the full versions
+// above.
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 void dust_set_data(SEXP ptr, cpp11::list r_data) {
   cpp11::stop("The 'set_data' method is not supported for this class");
