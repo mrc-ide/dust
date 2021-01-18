@@ -24,6 +24,9 @@ T lbeta(T x, T y) {
 
 template <typename T>
 T dbinom(int x, int size, T prob, bool log) {
+  if (x == 0 && size == 0) {
+    return maybe_log(0, log);
+  }
   const T ret = lchoose<T>(size, x) +
     x * std::log(prob) +
     (size - x) * std::log(1 - prob);
@@ -51,6 +54,9 @@ T dnbinom(int x, int size, T mu, bool log) {
 // Where alpha and beta have (0, Inf) support
 template <typename T>
 T dbetabinom(int x, int size, T prob, T rho, bool log) {
+  if (x == 0 && size == 0) {
+    return maybe_log(0, log);
+  }
   const T a = prob * (1 / rho - 1);
   const T b = (1 - prob) * (1 / rho - 1);
   const T ret = lchoose<T>(size, x) + lbeta(x + a, size - x + b) - lbeta(a, b);
@@ -59,6 +65,9 @@ T dbetabinom(int x, int size, T prob, T rho, bool log) {
 
 template <typename T>
 T dpois(int x, T lambda, bool log) {
+  if (x == 0 && lambda == 0) {
+    return maybe_log(0, log);
+  }
   const T ret = x * std::log(lambda) - lambda -
     std::lgamma(static_cast<T>(x + 1));
   return maybe_log(ret, log);
