@@ -66,6 +66,17 @@ SEXP dust_{{name}}_set_rng_state(SEXP ptr, cpp11::raws rng_state) {
 }
 
 [[cpp11::register]]
+SEXP dust_{{name}}_set_data(SEXP ptr, cpp11::list data) {
+  dust_set_data<{{class}}>(ptr, data);
+  return R_NilValue;
+}
+
+[[cpp11::register]]
+SEXP dust_{{name}}_compare_data(SEXP ptr) {
+  return dust_compare_data<{{class}}>(ptr);
+}
+
+[[cpp11::register]]
 SEXP dust_{{name}}_simulate(cpp11::sexp r_steps,
                             cpp11::list r_pars,
                             cpp11::doubles_matrix r_state,
@@ -78,12 +89,8 @@ SEXP dust_{{name}}_simulate(cpp11::sexp r_steps,
 }
 
 [[cpp11::register]]
-bool dust_{{name}}_has_openmp() {
-#ifdef _OPENMP
-  return true;
-#else
-  return false;
-#endif
+cpp11::sexp dust_{{name}}_capabilities() {
+  return dust_capabilities<{{name}}>();
 }
 
 [[cpp11::register]]

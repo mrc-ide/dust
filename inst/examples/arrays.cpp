@@ -3,6 +3,8 @@
 class arrays {
 public:
   typedef double real_t;
+  typedef dust::no_data data_t;
+
   struct init_t {
     int dim_r;
     int dim_x;

@@ -47,6 +47,7 @@ There are two main parts here; the class (`walk`) and an interface function (`du
 The class is what does most of the work. It is important that this does not use anything in the R api as it may be called in parallel. Therefore use only C++ standard library types.  It has to provide every public type or method as the example above:
 
 * the type `real_t` has to exist and indicate what sort of numeric type you use for "real numbers". Typically this will be `double`,but if you need a different type (longer or shorter) you can use it here.
+* the type `data_t` which for now should match exactly the construction `typedef dust::no_data data_t` until we stabilise and document this interface
 * the type `init_t` is whatever internal data your model needs (most likely its parameters), and an object of this type will be passed to your constructor (see `dust_pars` below)
 * the constructor must take only one argument, being `const init_t&`. You can do what you want in the constructor - here we just copy the parameters into the object with the `pars` argument (we use the private member `pars_` here but this can be anything you want)
 * the method `size()` must return the "size" of the system - how many state variables it has. Here we're considering a single individual moving randomly so the size is always 1

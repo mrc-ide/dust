@@ -18,6 +18,12 @@
 ##'   model's floating point type, `real_t`. Most models can include
 ##'   `typedef double real_t;` in their public section.
 ##'
+##' * The class must also include a typedef that describes the model's
+##'   *data* type. This interface is subject to change, and for now
+##'   you should include `typedef dust::no_data data_t` which marks
+##'   your class as not supporting data, which disables the
+##'   `compare_data` and `set_data` methods.
+##'
 ##' * The model must have a method `size()` returning `size_t` which
 ##'   returns the size of the system. This size may depend on values
 ##'   in your initialisation object but is constant within a model

@@ -44,7 +44,7 @@ dust_class <- R6::R6Class(
     ##' dimension - that is, they must correspond to model state that
     ##' is the same size.
     ##'
-    ##' @param pars Parameters to initialise your model with; a `list`
+    ##' @param pars Data to initialise your model with; a `list`
     ##' object, but the required elements will depend on the details of
     ##' your model. If `pars_multi` is `TRUE`, then this must be an
     ##' *unnamed* list of `pars` objects (see Details).
@@ -242,6 +242,37 @@ dust_class <- R6::R6Class(
     ##'   verify that you can actually use the number of threads
     ##'   requested (based on environment variables and OpenMP support).
     set_n_threads = function(n_threads) {
+    },
+
+    ##' @description
+    ##' Returns a logical, indicating if this model was compiled with
+    ##' "compare" support, in which case the `set_data` and `compare_data`
+    ##' methods are available (otherwise these methods will error). This
+    ##' method can also be used as a static method by running it directly
+    ##' as `dust_class$public_methods$has_compare()`
+    has_compare = function() {
+    },
+
+    ##' @description
+    ##' Set "data" into the model for use with the `$compare_data()` method.
+    ##' This is not supported by all models, depending on if they define a
+    ##' `data_t` type. One data set is shared across all particles
+    ##' (including across all parameter sets if using `pars_multi = TRUE`).
+    ##' See [dust::dust_data()] for a helper function to construct
+    ##' suitable data and a description of the required format.
+    ##'
+    ##' @param data A list of data to set.
+    set_data = function(data) {
+    },
+
+    ##' @description
+    ##' Compare the current model state against the data as set by
+    ##' `set_data`. If there is no data set, or no data corresponding to
+    ##' the current time then `NULL` is returned. Otherwise a numeric vector
+    ##' the same length as the number of particles is returned. If model's
+    ##' underlying `compare_data` function is stochastic, then each call to
+    ##' this function may be result in a different answer.
+    compare_data = function() {
     }
   ))
 class(dust_class) <- c("dust_generator", class(dust_class))

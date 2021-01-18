@@ -4,6 +4,7 @@
 #include <dust/rng.hpp>
 
 #include <algorithm>
+#include <unordered_map>
 #include <stdexcept>
 #include <sstream>
 #include <utility>
@@ -11,11 +12,17 @@
 #include <omp.h>
 #endif
 
+namespace dust {
+struct no_data {
+};
+}
+
 template <typename T>
 class Particle {
 public:
   typedef typename T::init_t init_t;
   typedef typename T::real_t real_t;
+  typedef typename T::data_t data_t;
 
   Particle(init_t pars, size_t step) :
     _model(pars),
@@ -81,6 +88,11 @@ public:
     }
   }
 
+  real_t compare_data(const data_t& data,
+                      dust::rng_state_t<real_t>& rng_state) {
+    return _model.compare_data(_y.data(), data, rng_state);
+  }
+
 private:
   T _model;
   size_t _step;
@@ -94,6 +106,7 @@ class Dust {
 public:
   typedef typename T::init_t init_t;
   typedef typename T::real_t real_t;
+  typedef typename T::data_t data_t;
 
   Dust(const init_t& pars, const size_t step, const size_t n_particles,
        const size_t n_threads, const std::vector<uint64_t>& seed) :
@@ -286,11 +299,33 @@ public:
     _rng.long_jump();
   }
 
+  void set_data(std::unordered_map<size_t, data_t> data) {
+    _data = data;
+  }
+
+  std::vector<real_t> compare_data() {
+    std::vector<real_t> res;
+    auto d = _data.find(step());
+    // If we don't find data, we will return a vector of length 0
+    // (which we catch and convert to NULL on return to R).
+    if (d != _data.end()) {
+      res.resize(_particles.size());
+#ifdef _OPENMP
+      #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
+      for (size_t i = 0; i < _particles.size(); ++i) {
+        res[i] = _particles[i].compare_data(d->second, _rng.state(i));
+      }
+    }
+    return res;
+  }
+
 private:
   const size_t _n_pars; // 0 in the "single" case, >=1 otherwise
   const size_t _n_particles_total; // Total number of particles
   size_t _n_threads;
   dust::pRNG<real_t> _rng;
+  std::unordered_map<size_t, data_t> _data;
 
   std::vector<size_t> _index;
   std::vector<Particle<T>> _particles;

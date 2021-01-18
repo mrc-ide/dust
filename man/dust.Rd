@@ -36,6 +36,11 @@ with a const reference to this type (\verb{const model::init_t& pars})
 \item That class must also include a typedef that describes the
 model's floating point type, \code{real_t}. Most models can include
 \verb{typedef double real_t;} in their public section.
+\item The class must also include a typedef that describes the model's
+\emph{data} type. This interface is subject to change, and for now
+you should include \verb{typedef dust::no_data data_t} which marks
+your class as not supporting data, which disables the
+\code{compare_data} and \code{set_data} methods.
 \item The model must have a method \code{size()} returning \code{size_t} which
 returns the size of the system. This size may depend on values
 in your initialisation object but is constant within a model
@@ -172,6 +177,9 @@ obj$state()
 \item \href{#method-has_openmp}{\code{dust_class$has_openmp()}}
 \item \href{#method-n_pars}{\code{dust_class$n_pars()}}
 \item \href{#method-set_n_threads}{\code{dust_class$set_n_threads()}}
+\item \href{#method-has_compare}{\code{dust_class$has_compare()}}
+\item \href{#method-set_data}{\code{dust_class$set_data()}}
+\item \href{#method-compare_data}{\code{dust_class$compare_data()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -551,5 +559,56 @@ requested (based on environment variables and OpenMP support).}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-has_compare"></a>}}
+\if{latex}{\out{\hypertarget{method-has_compare}{}}}
+\subsection{Method \code{has_compare()}}{
+Returns a logical, indicating if this model was compiled with
+"compare" support, in which case the \code{set_data} and \code{compare_data}
+methods are available (otherwise these methods will error). This
+method can also be used as a static method by running it directly
+as \code{dust_class$public_methods$has_compare()}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$has_compare()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-set_data"></a>}}
+\if{latex}{\out{\hypertarget{method-set_data}{}}}
+\subsection{Method \code{set_data()}}{
+Set "data" into the model for use with the \verb{$compare_data()} method.
+This is not supported by all models, depending on if they define a
+\code{data_t} type. One data set is shared across all particles
+(including across all parameter sets if using \code{pars_multi = TRUE}).
+See \code{\link[=dust_data]{dust_data()}} for a helper function to construct
+suitable data and a description of the required format.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$set_data(data)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data}}{A list of data to set.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-compare_data"></a>}}
+\if{latex}{\out{\hypertarget{method-compare_data}{}}}
+\subsection{Method \code{compare_data()}}{
+Compare the current model state against the data as set by
+\code{set_data}. If there is no data set, or no data corresponding to
+the current time then \code{NULL} is returned. Otherwise a numeric vector
+the same length as the number of particles is returned. If model's
+underlying \code{compare_data} function is stochastic, then each call to
+this function may be result in a different answer.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$compare_data()}\if{html}{\out{</div>}}
+}
+
 }
 }

@@ -448,3 +448,56 @@ test_that("can run shared memory example", {
 
   expect_identical(mod1$run(10), mod1$run(10))
 })
+
+
+test_that("Sensible behaviour of compare_data if not implemented", {
+  res <- dust_example("sir")
+  expect_false(res$public_methods$has_compare())
+  mod <- res$new(list(), 0, 1, seed = 1L)
+  expect_false(mod$has_compare())
+  expect_error(
+    mod$set_data(list(list(1, list()))),
+    "The 'set_data' method is not supported for this class")
+  expect_error(
+    mod$set_data(list()),
+    "The 'set_data' method is not supported for this class")
+  expect_error(
+    mod$compare_data(),
+    "The 'compare_data' method is not supported for this class")
+})
+
+
+test_that("Can run compare_data", {
+  res <- dust(dust_file("examples/sir2.cpp"), quiet = TRUE)
+  expect_true(res$public_methods$has_compare())
+
+  np <- 10
+  end <- 150 * 4
+  steps <- seq(0, end, by = 4)
+  ans <- dust_iterate(res$new(list(), 0, np, seed = 1L), steps)
+
+  ## Confirm the incidence calculation is correct:
+  expect_equal(
+    rowSums(ans[5, , ]),
+    1000 - ans[1, , length(steps)])
+  expect_equal(
+    t(apply(ans[5, , ], 1, cumsum)),
+    ans[4, , ])
+
+  d <- dust_data(data.frame(step = steps, incidence = ans[5, 1, ]))
+
+  ## Use Inf for exp_noise as that gives us deterministic results
+  mod <- res$new(list(exp_noise = Inf), 0, np, seed = 1L)
+  expect_true(mod$has_compare())
+  mod$run(36)
+  expect_null(mod$compare_data())
+
+  mod$set_data(d)
+  x <- mod$compare_data()
+  expect_length(x, np)
+
+  ## Need to compute manually our probability and check against the
+  ## computed version:
+  modelled <- drop(mod$state(5))
+  expect_equal(dpois(d[[10]][[2]]$incidence, modelled, log = TRUE), x)
+})

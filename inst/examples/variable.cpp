@@ -1,6 +1,8 @@
 class variable {
 public:
   typedef double real_t;
+  typedef dust::no_data data_t;
+
   struct init_t {
     size_t len;
     double mean;
