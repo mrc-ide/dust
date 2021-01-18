@@ -44,7 +44,7 @@ dust_class <- R6::R6Class(
     ##' dimension - that is, they must correspond to model state that
     ##' is the same size.
     ##'
-    ##' @param pars Data to initialise your model with; a `list`
+    ##' @param pars Parameters to initialise your model with; a `list`
     ##' object, but the required elements will depend on the details of
     ##' your model. If `pars_multi` is `TRUE`, then this must be an
     ##' *unnamed* list of `pars` objects (see Details).
@@ -255,7 +255,7 @@ dust_class <- R6::R6Class(
 
     ##' @description
     ##' Set "data" into the model for use with the `$compare_data()` method.
-    ##' This is not supported by all models, depending on if they define a
+    ##' This is not supported by all models, and depends on if they define a
     ##' `data_t` type. One data set is shared across all particles
     ##' (including across all parameter sets if using `pars_multi = TRUE`).
     ##' See [dust::dust_data()] for a helper function to construct
