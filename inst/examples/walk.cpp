@@ -21,6 +21,9 @@ public:
     real_t mean = state[0];
     state_next[0] = dust::distr::rnorm(rng_state, mean, pars_.sd);
   }
+  real_t compare() {
+    return run_compare(1, 2);
+  }
 
 private:
   init_t pars_;

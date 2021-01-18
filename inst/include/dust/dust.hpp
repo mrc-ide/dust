@@ -88,7 +88,7 @@ public:
     }
   }
 
-  double compare_data(const data_t& data,
+  real_t compare_data(const data_t& data,
                       dust::rng_state_t<real_t>& rng_state) {
     return _model.compare_data(_y.data(), data, rng_state);
   }
@@ -303,9 +303,11 @@ public:
     _data = data;
   }
 
-  std::vector<double> compare_data() {
-    std::vector<double> res;
+  std::vector<real_t> compare_data() {
+    std::vector<real_t> res;
     auto d = _data.find(step());
+    // If we don't find data, we will return a vector of length 0
+    // (which we catch and convert to NULL on return to R).
     if (d != _data.end()) {
       res.resize(_particles.size());
 #ifdef _OPENMP
