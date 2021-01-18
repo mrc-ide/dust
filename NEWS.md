@@ -1,3 +1,11 @@
+# dust 0.6.2
+
+* Support for some basic density functions within the header `<dust/densities.hpp>`. Supported distributions include `dbinom`, `dnbinom`, `dbetabinom` and `dpois`. These are included for use within comparison functions (#134)
+
+# dust 0.6.1
+
+* Compiled "comparison" functions are supported, designed to compute likelihoods for mcstate; this interface will be expanded and documented in a future release (#129)
+
 # dust 0.6.0
 
 * The `data` argument (and along with it things like `set_data`) have moved to become `pars` as that is how we're using it, and to make space for a future `data` element (#130)

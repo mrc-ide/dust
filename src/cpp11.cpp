@@ -4,6 +4,34 @@
 
 #include "cpp11/declarations.hpp"
 
+// densities.cpp
+SEXP dust_dbinom(cpp11::integers x, cpp11::integers size, cpp11::doubles prob, bool log);
+extern "C" SEXP _dust_dust_dbinom(SEXP x, SEXP size, SEXP prob, SEXP log) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_dbinom(cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(x), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(size), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(prob), cpp11::as_cpp<cpp11::decay_t<bool>>(log)));
+  END_CPP11
+}
+// densities.cpp
+SEXP dust_dnbinom(cpp11::integers x, cpp11::integers size, cpp11::doubles mu, bool log);
+extern "C" SEXP _dust_dust_dnbinom(SEXP x, SEXP size, SEXP mu, SEXP log) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_dnbinom(cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(x), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(size), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(mu), cpp11::as_cpp<cpp11::decay_t<bool>>(log)));
+  END_CPP11
+}
+// densities.cpp
+SEXP dust_dbetabinom(cpp11::integers x, cpp11::integers size, cpp11::doubles prob, cpp11::doubles rho, bool log);
+extern "C" SEXP _dust_dust_dbetabinom(SEXP x, SEXP size, SEXP prob, SEXP rho, SEXP log) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_dbetabinom(cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(x), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(size), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(prob), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(rho), cpp11::as_cpp<cpp11::decay_t<bool>>(log)));
+  END_CPP11
+}
+// densities.cpp
+SEXP dust_dpois(cpp11::integers x, cpp11::doubles lambda, bool log);
+extern "C" SEXP _dust_dust_dpois(SEXP x, SEXP lambda, SEXP log) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_dpois(cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(x), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(lambda), cpp11::as_cpp<cpp11::decay_t<bool>>(log)));
+  END_CPP11
+}
 // dust_rng.cpp
 SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators);
 extern "C" SEXP _dust_dust_rng_alloc(SEXP r_seed, SEXP n_generators) {
@@ -557,6 +585,10 @@ extern "C" SEXP _dust_dust_walk_set_n_threads(SEXP ptr, SEXP n_threads) {
 extern "C" {
 /* .Call calls */
 extern SEXP _dust_cpp_openmp_info();
+extern SEXP _dust_dust_dbetabinom(SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_dbinom(SEXP, SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_dnbinom(SEXP, SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_dpois(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_rng_alloc(SEXP, SEXP);
 extern SEXP _dust_dust_rng_jump(SEXP);
 extern SEXP _dust_dust_rng_long_jump(SEXP);
@@ -636,6 +668,10 @@ extern SEXP _dust_dust_walk_step(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"_dust_cpp_openmp_info",               (DL_FUNC) &_dust_cpp_openmp_info,               0},
+    {"_dust_dust_dbetabinom",               (DL_FUNC) &_dust_dust_dbetabinom,               5},
+    {"_dust_dust_dbinom",                   (DL_FUNC) &_dust_dust_dbinom,                   4},
+    {"_dust_dust_dnbinom",                  (DL_FUNC) &_dust_dust_dnbinom,                  4},
+    {"_dust_dust_dpois",                    (DL_FUNC) &_dust_dust_dpois,                    3},
     {"_dust_dust_rng_alloc",                (DL_FUNC) &_dust_dust_rng_alloc,                2},
     {"_dust_dust_rng_jump",                 (DL_FUNC) &_dust_dust_rng_jump,                 1},
     {"_dust_dust_rng_long_jump",            (DL_FUNC) &_dust_dust_rng_long_jump,            1},
