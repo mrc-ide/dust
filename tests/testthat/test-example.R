@@ -452,7 +452,9 @@ test_that("can run shared memory example", {
 
 test_that("Sensible behaviour of compare_data if not implemented", {
   res <- dust_example("sir")
+  expect_false(res$public_methods$has_compare())
   mod <- res$new(list(), 0, 1, seed = 1L)
+  expect_false(mod$has_compare())
   expect_error(
     mod$set_data(list(list(1, list()))),
     "The 'set_data' method is not supported for this class")
@@ -467,6 +469,7 @@ test_that("Sensible behaviour of compare_data if not implemented", {
 
 test_that("Can run compare_data", {
   res <- dust(dust_file("examples/sir2.cpp"), quiet = TRUE)
+  expect_true(res$public_methods$has_compare())
 
   np <- 10
   end <- 150 * 4
@@ -485,6 +488,7 @@ test_that("Can run compare_data", {
 
   ## Use Inf for exp_noise as that gives us deterministic results
   mod <- res$new(list(exp_noise = Inf), 0, np, seed = 1L)
+  expect_true(mod$has_compare())
   mod$run(36)
   expect_null(mod$compare_data())
 

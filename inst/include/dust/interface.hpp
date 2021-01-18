@@ -448,6 +448,18 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
   return R_NilValue; // never gets here
 }
 
+template <typename T>
+cpp11::sexp dust_capabilities() {
+  using namespace cpp11::literals;
+#ifdef _OPENMP
+  bool openmp = true;
+#else
+  bool openmp = false;
+#endif
+  bool compare = !std::is_same<dust::no_data, typename T::data_t>::value;
+  return cpp11::writable::list({"openmp"_nm = openmp, "compare"_nm = compare});
+}
+
 inline void validate_size(int x, const char * name) {
   if (x < 0) {
     cpp11::stop("'%s' must be non-negative", name);

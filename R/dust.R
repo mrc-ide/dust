@@ -131,7 +131,7 @@ sir <- R6::R6Class(
     },
 
     has_openmp = function() {
-      dust_sir_has_openmp()
+      dust_sir_capabilities()[["openmp"]]
     },
 
     n_pars = function() {
@@ -143,6 +143,10 @@ sir <- R6::R6Class(
       dust_sir_set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
+    },
+
+    has_compare = function() {
+      dust_sir_capabilities()[["compare"]]
     },
 
     set_data = function(data) {
@@ -286,7 +290,7 @@ variable <- R6::R6Class(
     },
 
     has_openmp = function() {
-      dust_variable_has_openmp()
+      dust_variable_capabilities()[["openmp"]]
     },
 
     n_pars = function() {
@@ -298,6 +302,10 @@ variable <- R6::R6Class(
       dust_variable_set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
+    },
+
+    has_compare = function() {
+      dust_variable_capabilities()[["compare"]]
     },
 
     set_data = function(data) {
@@ -441,7 +449,7 @@ volatility <- R6::R6Class(
     },
 
     has_openmp = function() {
-      dust_volatility_has_openmp()
+      dust_volatility_capabilities()[["openmp"]]
     },
 
     n_pars = function() {
@@ -453,6 +461,10 @@ volatility <- R6::R6Class(
       dust_volatility_set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
+    },
+
+    has_compare = function() {
+      dust_volatility_capabilities()[["compare"]]
     },
 
     set_data = function(data) {
@@ -596,7 +608,7 @@ walk <- R6::R6Class(
     },
 
     has_openmp = function() {
-      dust_walk_has_openmp()
+      dust_walk_capabilities()[["openmp"]]
     },
 
     n_pars = function() {
@@ -608,6 +620,10 @@ walk <- R6::R6Class(
       dust_walk_set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
+    },
+
+    has_compare = function() {
+      dust_walk_capabilities()[["compare"]]
     },
 
     set_data = function(data) {

@@ -177,6 +177,7 @@ obj$state()
 \item \href{#method-has_openmp}{\code{dust_class$has_openmp()}}
 \item \href{#method-n_pars}{\code{dust_class$n_pars()}}
 \item \href{#method-set_n_threads}{\code{dust_class$set_n_threads()}}
+\item \href{#method-has_compare}{\code{dust_class$has_compare()}}
 \item \href{#method-set_data}{\code{dust_class$set_data()}}
 \item \href{#method-compare_data}{\code{dust_class$compare_data()}}
 }
@@ -558,6 +559,20 @@ requested (based on environment variables and OpenMP support).}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-has_compare"></a>}}
+\if{latex}{\out{\hypertarget{method-has_compare}{}}}
+\subsection{Method \code{has_compare()}}{
+Returns a logical, indicating if this model was compiled with
+"compare" support, in which case the \code{set_data} and \code{compare_data}
+methods are available (otherwise these methods will error). This
+method can also be used as a static method by running it directly
+as \code{dust_class$public_methods$has_compare()}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$has_compare()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-set_data"></a>}}

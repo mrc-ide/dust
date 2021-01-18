@@ -197,10 +197,10 @@ extern "C" SEXP _dust_dust_sir_simulate(SEXP r_steps, SEXP r_pars, SEXP r_state,
   END_CPP11
 }
 // sir.cpp
-bool dust_sir_has_openmp();
-extern "C" SEXP _dust_dust_sir_has_openmp() {
+cpp11::sexp dust_sir_capabilities();
+extern "C" SEXP _dust_dust_sir_capabilities() {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_sir_has_openmp());
+    return cpp11::as_sexp(dust_sir_capabilities());
   END_CPP11
 }
 // sir.cpp
@@ -311,10 +311,10 @@ extern "C" SEXP _dust_dust_variable_simulate(SEXP r_steps, SEXP r_pars, SEXP r_s
   END_CPP11
 }
 // variable.cpp
-bool dust_variable_has_openmp();
-extern "C" SEXP _dust_dust_variable_has_openmp() {
+cpp11::sexp dust_variable_capabilities();
+extern "C" SEXP _dust_dust_variable_capabilities() {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_variable_has_openmp());
+    return cpp11::as_sexp(dust_variable_capabilities());
   END_CPP11
 }
 // variable.cpp
@@ -425,10 +425,10 @@ extern "C" SEXP _dust_dust_volatility_simulate(SEXP r_steps, SEXP r_pars, SEXP r
   END_CPP11
 }
 // volatility.cpp
-bool dust_volatility_has_openmp();
-extern "C" SEXP _dust_dust_volatility_has_openmp() {
+cpp11::sexp dust_volatility_capabilities();
+extern "C" SEXP _dust_dust_volatility_capabilities() {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_volatility_has_openmp());
+    return cpp11::as_sexp(dust_volatility_capabilities());
   END_CPP11
 }
 // volatility.cpp
@@ -539,10 +539,10 @@ extern "C" SEXP _dust_dust_walk_simulate(SEXP r_steps, SEXP r_pars, SEXP r_state
   END_CPP11
 }
 // walk.cpp
-bool dust_walk_has_openmp();
-extern "C" SEXP _dust_dust_walk_has_openmp() {
+cpp11::sexp dust_walk_capabilities();
+extern "C" SEXP _dust_dust_walk_capabilities() {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_walk_has_openmp());
+    return cpp11::as_sexp(dust_walk_capabilities());
   END_CPP11
 }
 // walk.cpp
@@ -570,8 +570,8 @@ extern SEXP _dust_dust_rng_size(SEXP);
 extern SEXP _dust_dust_rng_state(SEXP);
 extern SEXP _dust_dust_rng_unif_rand(SEXP, SEXP);
 extern SEXP _dust_dust_sir_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_sir_capabilities();
 extern SEXP _dust_dust_sir_compare_data(SEXP);
-extern SEXP _dust_dust_sir_has_openmp();
 extern SEXP _dust_dust_sir_reorder(SEXP, SEXP);
 extern SEXP _dust_dust_sir_reset(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_sir_rng_state(SEXP, SEXP);
@@ -586,8 +586,8 @@ extern SEXP _dust_dust_sir_simulate(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_sir_state(SEXP, SEXP);
 extern SEXP _dust_dust_sir_step(SEXP);
 extern SEXP _dust_dust_variable_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_variable_capabilities();
 extern SEXP _dust_dust_variable_compare_data(SEXP);
-extern SEXP _dust_dust_variable_has_openmp();
 extern SEXP _dust_dust_variable_reorder(SEXP, SEXP);
 extern SEXP _dust_dust_variable_reset(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_variable_rng_state(SEXP, SEXP);
@@ -602,8 +602,8 @@ extern SEXP _dust_dust_variable_simulate(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEX
 extern SEXP _dust_dust_variable_state(SEXP, SEXP);
 extern SEXP _dust_dust_variable_step(SEXP);
 extern SEXP _dust_dust_volatility_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_volatility_capabilities();
 extern SEXP _dust_dust_volatility_compare_data(SEXP);
-extern SEXP _dust_dust_volatility_has_openmp();
 extern SEXP _dust_dust_volatility_reorder(SEXP, SEXP);
 extern SEXP _dust_dust_volatility_reset(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_volatility_rng_state(SEXP, SEXP);
@@ -618,8 +618,8 @@ extern SEXP _dust_dust_volatility_simulate(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, S
 extern SEXP _dust_dust_volatility_state(SEXP, SEXP);
 extern SEXP _dust_dust_volatility_step(SEXP);
 extern SEXP _dust_dust_walk_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_walk_capabilities();
 extern SEXP _dust_dust_walk_compare_data(SEXP);
-extern SEXP _dust_dust_walk_has_openmp();
 extern SEXP _dust_dust_walk_reorder(SEXP, SEXP);
 extern SEXP _dust_dust_walk_reset(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_walk_rng_state(SEXP, SEXP);
@@ -649,8 +649,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_rng_state",                (DL_FUNC) &_dust_dust_rng_state,                1},
     {"_dust_dust_rng_unif_rand",            (DL_FUNC) &_dust_dust_rng_unif_rand,            2},
     {"_dust_dust_sir_alloc",                (DL_FUNC) &_dust_dust_sir_alloc,                6},
+    {"_dust_dust_sir_capabilities",         (DL_FUNC) &_dust_dust_sir_capabilities,         0},
     {"_dust_dust_sir_compare_data",         (DL_FUNC) &_dust_dust_sir_compare_data,         1},
-    {"_dust_dust_sir_has_openmp",           (DL_FUNC) &_dust_dust_sir_has_openmp,           0},
     {"_dust_dust_sir_reorder",              (DL_FUNC) &_dust_dust_sir_reorder,              2},
     {"_dust_dust_sir_reset",                (DL_FUNC) &_dust_dust_sir_reset,                3},
     {"_dust_dust_sir_rng_state",            (DL_FUNC) &_dust_dust_sir_rng_state,            2},
@@ -665,8 +665,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_sir_state",                (DL_FUNC) &_dust_dust_sir_state,                2},
     {"_dust_dust_sir_step",                 (DL_FUNC) &_dust_dust_sir_step,                 1},
     {"_dust_dust_variable_alloc",           (DL_FUNC) &_dust_dust_variable_alloc,           6},
+    {"_dust_dust_variable_capabilities",    (DL_FUNC) &_dust_dust_variable_capabilities,    0},
     {"_dust_dust_variable_compare_data",    (DL_FUNC) &_dust_dust_variable_compare_data,    1},
-    {"_dust_dust_variable_has_openmp",      (DL_FUNC) &_dust_dust_variable_has_openmp,      0},
     {"_dust_dust_variable_reorder",         (DL_FUNC) &_dust_dust_variable_reorder,         2},
     {"_dust_dust_variable_reset",           (DL_FUNC) &_dust_dust_variable_reset,           3},
     {"_dust_dust_variable_rng_state",       (DL_FUNC) &_dust_dust_variable_rng_state,       2},
@@ -681,8 +681,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_variable_state",           (DL_FUNC) &_dust_dust_variable_state,           2},
     {"_dust_dust_variable_step",            (DL_FUNC) &_dust_dust_variable_step,            1},
     {"_dust_dust_volatility_alloc",         (DL_FUNC) &_dust_dust_volatility_alloc,         6},
+    {"_dust_dust_volatility_capabilities",  (DL_FUNC) &_dust_dust_volatility_capabilities,  0},
     {"_dust_dust_volatility_compare_data",  (DL_FUNC) &_dust_dust_volatility_compare_data,  1},
-    {"_dust_dust_volatility_has_openmp",    (DL_FUNC) &_dust_dust_volatility_has_openmp,    0},
     {"_dust_dust_volatility_reorder",       (DL_FUNC) &_dust_dust_volatility_reorder,       2},
     {"_dust_dust_volatility_reset",         (DL_FUNC) &_dust_dust_volatility_reset,         3},
     {"_dust_dust_volatility_rng_state",     (DL_FUNC) &_dust_dust_volatility_rng_state,     2},
@@ -697,8 +697,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_volatility_state",         (DL_FUNC) &_dust_dust_volatility_state,         2},
     {"_dust_dust_volatility_step",          (DL_FUNC) &_dust_dust_volatility_step,          1},
     {"_dust_dust_walk_alloc",               (DL_FUNC) &_dust_dust_walk_alloc,               6},
+    {"_dust_dust_walk_capabilities",        (DL_FUNC) &_dust_dust_walk_capabilities,        0},
     {"_dust_dust_walk_compare_data",        (DL_FUNC) &_dust_dust_walk_compare_data,        1},
-    {"_dust_dust_walk_has_openmp",          (DL_FUNC) &_dust_dust_walk_has_openmp,          0},
     {"_dust_dust_walk_reorder",             (DL_FUNC) &_dust_dust_walk_reorder,             2},
     {"_dust_dust_walk_reset",               (DL_FUNC) &_dust_dust_walk_reset,               3},
     {"_dust_dust_walk_rng_state",           (DL_FUNC) &_dust_dust_walk_rng_state,           2},

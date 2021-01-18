@@ -245,6 +245,15 @@ dust_class <- R6::R6Class(
     },
 
     ##' @description
+    ##' Returns a logical, indicating if this model was compiled with
+    ##' "compare" support, in which case the `set_data` and `compare_data`
+    ##' methods are available (otherwise these methods will error). This
+    ##' method can also be used as a static method by running it directly
+    ##' as `dust_class$public_methods$has_compare()`
+    has_compare = function() {
+    },
+
+    ##' @description
     ##' Set "data" into the model for use with the `$compare_data()` method.
     ##' This is not supported by all models, depending on if they define a
     ##' `data_t` type. One data set is shared across all particles

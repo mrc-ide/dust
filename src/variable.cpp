@@ -145,12 +145,8 @@ SEXP dust_variable_simulate(cpp11::sexp r_steps,
 }
 
 [[cpp11::register]]
-bool dust_variable_has_openmp() {
-#ifdef _OPENMP
-  return true;
-#else
-  return false;
-#endif
+cpp11::sexp dust_variable_capabilities() {
+  return dust_capabilities<variable>();
 }
 
 [[cpp11::register]]

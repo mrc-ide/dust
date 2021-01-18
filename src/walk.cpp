@@ -122,12 +122,8 @@ SEXP dust_walk_simulate(cpp11::sexp r_steps,
 }
 
 [[cpp11::register]]
-bool dust_walk_has_openmp() {
-#ifdef _OPENMP
-  return true;
-#else
-  return false;
-#endif
+cpp11::sexp dust_walk_capabilities() {
+  return dust_capabilities<walk>();
 }
 
 [[cpp11::register]]

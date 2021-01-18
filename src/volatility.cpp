@@ -140,12 +140,8 @@ SEXP dust_volatility_simulate(cpp11::sexp r_steps,
 }
 
 [[cpp11::register]]
-bool dust_volatility_has_openmp() {
-#ifdef _OPENMP
-  return true;
-#else
-  return false;
-#endif
+cpp11::sexp dust_volatility_capabilities() {
+  return dust_capabilities<volatility>();
 }
 
 [[cpp11::register]]

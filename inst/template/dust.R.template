@@ -268,7 +268,7 @@
     ##' as a static method by running it directly
     ##' as `{{name}}$public_methods$has_openmp()`
     has_openmp = function() {
-      dust_{{name}}_has_openmp()
+      dust_{{name}}_capabilities()[["openmp"]]
     },
 
     ##' @description
@@ -294,6 +294,16 @@
       dust_{{name}}_set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
+    },
+
+    ##' @description
+    ##' Returns a logical, indicating if this model was compiled with
+    ##' "compare" support, in which case the `set_data` and `compare_data`
+    ##' methods are available (otherwise these methods will error). This
+    ##' method can also be used as a static method by running it directly
+    ##' as `{{name}}$public_methods$has_compare()`
+    has_compare = function() {
+      dust_{{name}}_capabilities()[["compare"]]
     },
 
     ##' @description
