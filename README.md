@@ -24,7 +24,7 @@ To install `dust`:
 
 ```r
 # install.packages("drat") # -- if you don't have drat installed
-drat:::add("mrc-ide")
+drat:::add("ncov-ic")
 install.packages("dust")
 ```
 
