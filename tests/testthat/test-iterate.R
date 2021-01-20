@@ -24,7 +24,7 @@ test_that("filter output", {
   m2 <- dust_iterate(res$new(list(), 0, 100, seed = 1L), 0:100, 2L)
   m3 <- dust_iterate(res$new(list(), 0, 100, seed = 1L), 0:100, c(1L, 3L))
 
-  expect_equal(dim(m1), c(4, 100, 101))
+  expect_equal(dim(m1), c(5, 100, 101))
   expect_equal(dim(m2), c(1, 100, 101))
   expect_equal(dim(m3), c(2, 100, 101))
   expect_identical(m2, m1[2L, , , drop = FALSE])

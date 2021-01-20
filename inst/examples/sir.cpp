@@ -10,17 +10,18 @@ public:
     double beta;
     double gamma;
     double dt;
+    size_t freq;
   };
 
   sir(const init_t& pars) : pars_(pars) {
   }
 
   size_t size() const {
-    return 4;
+    return 5;
   }
 
   std::vector<double> initial(size_t step) {
-    std::vector<double> ret = {pars_.S0, pars_.I0, pars_.R0, 0};
+    std::vector<double> ret = {pars_.S0, pars_.I0, pars_.R0, 0, 0};
     return ret;
   }
 
@@ -43,6 +44,9 @@ public:
     state_next[1] = I + n_SI - n_IR;
     state_next[2] = R + n_IR;
     state_next[3] = cumulative_incidence + n_SI;
+    // Little trick here to compute daily incidence by accumulating
+    // incidence from the first day.
+    state_next[4] = (step % pars_.freq == 0) ? n_SI : state[4] + n_SI;
   }
 
 private:
@@ -70,9 +74,10 @@ sir::init_t dust_pars<sir>(cpp11::list pars) {
   double gamma = with_default(0.1, pars["gamma"]);
 
   // Time scaling
-  double dt = 0.25;
+  size_t freq = 4;
+  double dt = 1.0 / static_cast<double>(freq);
 
-  return sir::init_t{S0, I0, R0, beta, gamma, dt};
+  return sir::init_t{S0, I0, R0, beta, gamma, dt, freq};
 }
 
 template <>
