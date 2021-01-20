@@ -33,12 +33,12 @@ test_that("simulate multi-state model", {
 
   pars <- replicate(np, list(beta = runif(1, 0.15, 0.25),
                              alpha = runif(1, 0.05, 0.15)), simplify = FALSE)
-  y0 <- matrix(c(1000, 10, 0, 0), 4, np)
+  y0 <- matrix(c(1000, 10, 0, 0, 0), 5, np)
   steps <- seq(0, 200, by = 20)
 
   ans <- dust_simulate(res, steps, pars, y0, seed = 1L)
 
-  expect_equal(dim(ans), c(4, np, length(steps)))
+  expect_equal(dim(ans), c(5, np, length(steps)))
   ## Basic checks on the model:
   expect_true(all(diff(t(ans[1, , ])) <= 0))
   expect_true(all(diff(t(ans[3, , ])) >= 0))

@@ -62,6 +62,8 @@ test_that("Basic sir model", {
   state_s <- t(vapply(ans, function(x) x$state[1, ], numeric(100)))
   state_i <- t(vapply(ans, function(x) x$state[2, ], numeric(100)))
   state_r <- t(vapply(ans, function(x) x$state[3, ], numeric(100)))
+  state_cum <- t(vapply(ans, function(x) x$state[4, ], numeric(100)))
+  state_inc <- t(vapply(ans, function(x) x$state[5, ], numeric(100)))
   value <- t(vapply(ans, function(x) drop(x$value), numeric(100)))
 
   n <- nrow(state_s)
@@ -72,16 +74,19 @@ test_that("Basic sir model", {
   expect_identical(value, state_s)
   expect_equal(step, seq(4, by = 4, length.out = n))
 
+  expect_equal(state_cum, 1000 - state_s)
+  expect_equal(state_inc[-1, ], diff(state_cum))
+
   s <- ans[[150]]$state
   expect_equal(obj$state(), s)
   expect_equal(obj$state(1L), s[1, , drop = FALSE])
   expect_equal(obj$state(3:1), s[3:1, , drop = FALSE])
   expect_equal(obj$state(c(2L, 2L)), s[c(2, 2), , drop = FALSE])
   expect_error(obj$state(0L),
-               "All elements of 'index' must lie in [1, 4]",
+               "All elements of 'index' must lie in [1, 5]",
                fixed = TRUE)
-  expect_error(obj$state(1:5),
-               "All elements of 'index' must lie in [1, 4]",
+  expect_error(obj$state(1:6),
+               "All elements of 'index' must lie in [1, 5]",
                fixed = TRUE)
 })
 
