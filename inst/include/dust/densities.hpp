@@ -40,7 +40,7 @@ T dnbinom(int x, int size, T mu, bool log) {
   if (x == 0 && size == 0) {
     return maybe_log(0, log);
   }
-  if (x < 0 || x > size) {
+  if (x < 0 || size == 0) {
     return maybe_log(-std::numeric_limits<T>::infinity(), log);
   }
   const T ret = std::lgamma(static_cast<T>(x + size)) -
