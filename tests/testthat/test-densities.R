@@ -35,14 +35,19 @@ test_that("dbinom agrees", {
 
 
 test_that("dnbinom agrees", {
-  size <- as.integer(0:50)
+  size <- as.integer(1:50)
   prob <- runif(length(size))
   mu <- size * (1 - prob) / prob
-  x <- as.integer(runif(length(size), 0, size))
+  x <- sample(size, replace = TRUE)
   expect_equal(dust_dnbinom(x, size, mu, TRUE),
                dnbinom(x, size, mu = mu, log = TRUE))
   expect_equal(dust_dnbinom(x, size, mu, FALSE),
                dnbinom(x, size, mu = mu, log = FALSE))
+
+  ## size > x case which was implemented incorrectly in <= v0.6.5
+  expect_equal(
+    dnbinom(511, 2, mu = 6.65, log = TRUE),
+    dust_dnbinom(511L, 2L, 6.65, TRUE))
 
   ## Corner cases
   expect_equal(dust_dnbinom(0L, 0L, 0, TRUE),
@@ -53,8 +58,15 @@ test_that("dnbinom agrees", {
                dnbinom(0, 0, mu = 0.5, log = FALSE))
   expect_equal(dust_dnbinom(10L, 0L, 1, TRUE),
                suppressWarnings(dnbinom(10L, 0L, mu = 1, log = TRUE)))
+  expect_equal(dust_dnbinom(10L, 1L, 1, TRUE),
+               dnbinom(10L, 1L, mu = 1, log = TRUE))
   expect_equal(dust_dnbinom(10L, 0L, 1, FALSE),
                suppressWarnings(dnbinom(10L, 0L, mu = 1, log = FALSE)))
+  expect_equal(dust_dnbinom(0L, 10L, 1, TRUE),
+               suppressWarnings(dnbinom(0L, 10L, mu = 1, log = TRUE)))
+  ## We disagree with R here; we *could* return NaN but -Inf seems
+  ## more sensible, and is what R returns if mu = eps
+  expect_equal(dust_dnbinom(10L, 0L, 0, TRUE), -Inf)
 })
 
 
