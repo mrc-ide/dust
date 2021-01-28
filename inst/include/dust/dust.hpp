@@ -2,8 +2,10 @@
 #define DUST_DUST_HPP
 
 #include <dust/rng.hpp>
+#include <dust/densities.hpp>
 
 #include <algorithm>
+#include <memory>
 #include <unordered_map>
 #include <stdexcept>
 #include <sstream>
@@ -13,18 +15,46 @@
 #endif
 
 namespace dust {
-struct no_data {
+struct nothing {};
+typedef nothing no_data;
+typedef nothing no_internal;
+typedef nothing no_shared;
+
+template <typename T>
+using shared_ptr = std::shared_ptr<const typename T::shared_t>;
+
+template <typename T>
+struct pars_t {
+  std::shared_ptr<const typename T::shared_t> shared;
+  typename T::internal_t internal;
+
+  pars_t(std::shared_ptr<const typename T::shared_t> shared_,
+         typename T::internal_t internal_) :
+    shared(shared_), internal(internal_) {
+  }
+  pars_t(typename T::shared_t shared_,
+         typename T::internal_t internal_) :
+    shared(std::make_shared<const typename T::shared_t>(shared_)),
+    internal(internal_) {
+  }
+  pars_t(typename T::shared_t shared_) :
+    pars_t(shared_, dust::nothing()) {
+  }
+  pars_t(typename T::internal_t internal_) :
+    pars_t(dust::nothing(), internal_) {
+  }
 };
 }
+
 
 template <typename T>
 class Particle {
 public:
-  typedef typename T::init_t init_t;
+  typedef dust::pars_t<T> pars_t;
   typedef typename T::real_t real_t;
   typedef typename T::data_t data_t;
 
-  Particle(init_t pars, size_t step) :
+  Particle(pars_t pars, size_t step) :
     _model(pars),
     _step(step),
     _y(_model.initial(_step)),
@@ -72,7 +102,7 @@ public:
     _y_swap = other._y;
   }
 
-  size_t set_pars(const init_t& pars) {
+  size_t set_pars(const pars_t& pars) {
     auto m = T(pars);
     bool ret = m.size();
     if (m.size() == _model.size()) {
@@ -104,11 +134,11 @@ private:
 template <typename T>
 class Dust {
 public:
-  typedef typename T::init_t init_t;
+  typedef dust::pars_t<T> pars_t;
   typedef typename T::real_t real_t;
   typedef typename T::data_t data_t;
 
-  Dust(const init_t& pars, const size_t step, const size_t n_particles,
+  Dust(const pars_t& pars, const size_t step, const size_t n_particles,
        const size_t n_threads, const std::vector<uint64_t>& seed) :
     _n_pars(0),
     _n_particles_total(n_particles),
@@ -117,7 +147,7 @@ public:
     initialise(pars, step, n_particles);
   }
 
-  Dust(const std::vector<init_t>& pars, const size_t step,
+  Dust(const std::vector<pars_t>& pars, const size_t step,
        const size_t n_particles, const size_t n_threads,
        const std::vector<uint64_t>& seed) :
     _n_pars(pars.size()),
@@ -127,17 +157,17 @@ public:
     initialise(pars, step, n_particles);
   }
 
-  void reset(const init_t& pars, const size_t step) {
+  void reset(const pars_t& pars, const size_t step) {
     const size_t n_particles = _particles.size();
     initialise(pars, step, n_particles);
   }
 
-  void reset(const std::vector<init_t>& pars, const size_t step) {
+  void reset(const std::vector<pars_t>& pars, const size_t step) {
     const size_t n_particles = _particles.size() / pars.size();
     initialise(pars, step, n_particles);
   }
 
-  void set_pars(const init_t pars) {
+  void set_pars(const pars_t pars) {
     const size_t n_particles = _particles.size();
     std::vector<size_t> err(n_particles);
 #ifdef _OPENMP
@@ -330,7 +360,7 @@ private:
   std::vector<size_t> _index;
   std::vector<Particle<T>> _particles;
 
-  void initialise(const init_t& pars, const size_t step,
+  void initialise(const pars_t& pars, const size_t step,
                   const size_t n_particles) {
     _particles.clear();
     _particles.reserve(n_particles);
@@ -340,7 +370,7 @@ private:
     initialise_index();
   }
 
-  void initialise(const std::vector<init_t>& pars, const size_t step,
+  void initialise(const std::vector<pars_t>& pars, const size_t step,
                   const size_t n_particles) {
     // NOTE: we select the initialise function at runtime, but should
     // always get it right. We might throw otherwise?
@@ -382,7 +412,7 @@ private:
 template <typename T>
 std::vector<typename T::real_t>
 dust_simulate(const std::vector<size_t>& steps,
-              const std::vector<typename T::init_t>& pars,
+              const std::vector<dust::pars_t<T>>& pars,
               std::vector<typename T::real_t>& state,
               const std::vector<size_t>& index,
               const size_t n_threads,

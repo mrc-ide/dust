@@ -30,9 +30,15 @@ Your input dust model must satisfy a few requirements.
 \itemize{
 \item Define some class that implements your model (below \code{model} is
 assumed to be the class name)
-\item That class must define a type \code{init_t} (so \code{model::init_t}) that
-contains its internal data and the model must be constructable
-with a const reference to this type (\verb{const model::init_t& pars})
+\item That class must define a type \code{internal_t} (so
+\code{model::internal_t}) that contains its internal data that the
+model may change during execution (i.e., that is not shared
+between particles). If no such data is needed, you can do
+\verb{typedef dust::no_internal internal_t} to indicate this.
+\item We also need a type \code{shared_t} that contains \emph{constant} internal
+data is shared between particles (e.g., dimensions, arrays that
+are read but not written). If no such data is needed, you can do
+\verb{typedef dust::no_shared shared_t} to indicate this.
 \item That class must also include a typedef that describes the
 model's floating point type, \code{real_t}. Most models can include
 \verb{typedef double real_t;} in their public section.
@@ -41,6 +47,9 @@ model's floating point type, \code{real_t}. Most models can include
 you should include \verb{typedef dust::no_data data_t} which marks
 your class as not supporting data, which disables the
 \code{compare_data} and \code{set_data} methods.
+\item The class must have a constructor that accepts \verb{const dust::pars_t<model>& pars} for your type \code{model}. This will have
+elements \code{shared} and \code{internal} which you can assign into your
+model if needed.
 \item The model must have a method \code{size()} returning \code{size_t} which
 returns the size of the system. This size may depend on values
 in your initialisation object but is constant within a model
@@ -70,23 +79,28 @@ the R API in any way as these functions will be called in
 parallel.
 
 You must also provide a data/parameter-wrangling function for
-producing an object of type \code{model::init_t} from an R list.  We
+producing an object of type \verb{dust::pars_t<model>} from an R list.  We
 use cpp11 for this.  Your function will look like:\preformatted{template <>
-model::init_t dust_pars<model>(cpp11::list pars) \{
-  return ...;
+dust::pars_t<model> dust_pars<model>(cpp11::list pars) \{
+  // ...
+  return dust::pars_t<model>(shared, internal);
 \}
 }
 
 With the body interacting with \code{pars} to create an object of type
-\code{model::init_t} and returning it.  This function will be called
-in serial and may use anything in the cpp11 API.  All elements of
-the returned object must be standard C/C++ (e.g., STL) types and
-\emph{not} cpp11/R types.
+\code{model::shared_t} and \code{model::internal_t} before returning the
+\code{dust::pars_t} object.  This function will be called in serial
+and may use anything in the cpp11 API.  All elements of the
+returned object must be standard C/C++ (e.g., STL) types and
+\emph{not} cpp11/R types. If your model uses only shared or internal,
+you may use the single-argument constructor overload to
+\code{dust::pars_t} which is equivalent to using \code{dust::no_shared} or
+\code{dust::no_internal} for the missing argument.
 
 Your model \emph{may} provided a template specialisation
-\verb{dust_pars<model::init_t>()} returning a \code{cpp11::sexp} for
+\verb{dust_info<model>()} returning a \code{cpp11::sexp} for
 returning arbitrary information back to the R session:\preformatted{template <>
-cpp11::sexp dust_info<model>(const model::init_t& pars) \{
+cpp11::sexp dust_info<model>(const dust::pars_t<sir>& pars) \{
   return cpp11::wrap(...);
 \}
 }

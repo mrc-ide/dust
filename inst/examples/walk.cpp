@@ -2,33 +2,38 @@ class walk {
 public:
   typedef double real_t;
   typedef dust::no_data data_t;
+  typedef dust::no_internal internal_t;
 
-  struct init_t {
+  struct shared_t {
     real_t sd;
   };
-  walk(const init_t& pars) : pars_(pars) {
+
+  walk(const dust::pars_t<walk>& pars) : shared(pars.shared) {
   }
+
   size_t size() const {
     return 1;
   }
+
   std::vector<real_t> initial(size_t step) {
     std::vector<real_t> ret = {0};
     return ret;
   }
+
   void update(size_t step, const real_t * state,
               dust::rng_state_t<real_t>& rng_state,
               real_t * state_next) {
     real_t mean = state[0];
-    state_next[0] = dust::distr::rnorm(rng_state, mean, pars_.sd);
+    state_next[0] = dust::distr::rnorm(rng_state, mean, shared->sd);
   }
 
 private:
-  init_t pars_;
+  dust::shared_ptr<walk> shared;
 };
 
 #include <cpp11/list.hpp>
 template <>
-walk::init_t dust_pars<walk>(cpp11::list pars) {
+dust::pars_t<walk> dust_pars<walk>(cpp11::list pars) {
   walk::real_t sd = cpp11::as_cpp<walk::real_t>(pars["sd"]);
-  return walk::init_t{sd};
+  return dust::pars_t<walk>(walk::shared_t{sd});
 }
