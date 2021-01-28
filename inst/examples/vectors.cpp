@@ -66,7 +66,7 @@ dust::pars_t<vectors> dust_pars<vectors>(cpp11::list user) {
     internal.r[i] = i;
   }
 
-  return dust::pars_t<vectors>{shared, internal};
+  return dust::pars_t<vectors>(shared, internal);
 }
 
 template <>

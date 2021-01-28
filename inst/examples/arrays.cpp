@@ -66,7 +66,7 @@ dust::pars_t<arrays> dust_pars<arrays>(cpp11::list user) {
     internal.r[i] = i;
   }
 
-  return dust::pars_t<arrays>{shared, internal};
+  return dust::pars_t<arrays>(shared, internal);
 }
 
 template <>
