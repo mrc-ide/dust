@@ -2,8 +2,9 @@ class sirs {
 public:
   typedef double real_t;
   typedef dust::no_data data_t;
+  typedef dust::no_internal internal_t;
 
-  struct init_t {
+  struct shared_t {
     real_t S0;
     real_t I0;
     real_t R0;
@@ -13,7 +14,7 @@ public:
     real_t dt;
   };
 
-  sirs(const init_t& pars): internal(pars) {
+  sirs(const dust::pars_t<sirs>& pars): shared(pars.shared) {
   }
 
   size_t size() {
@@ -22,15 +23,12 @@ public:
 
   std::vector<real_t> initial(size_t step) {
     std::vector<real_t> state(3);
-    state[0] = internal.S0;
-    state[1] = internal.I0;
-    state[2] = internal.R0;
+    state[0] = shared->S0;
+    state[1] = shared->I0;
+    state[2] = shared->R0;
     return state;
   }
 
-#ifdef __NVCC__
-  __device__
-#endif
   void update(size_t step, const real_t * state,
               dust::rng_state_t<real_t>& rng_state,
               real_t * state_next) {
@@ -39,13 +37,13 @@ public:
     real_t R = state[2];
     real_t N = S + I + R;
 
-    real_t p_SI = 1 - exp(- internal.beta * I / (real_t) N);
-    real_t p_IR = 1 - exp(-(internal.gamma));
-    real_t p_RS = 1 - exp(- internal.alpha);
+    real_t p_SI = 1 - exp(- shared->beta * I / (real_t) N);
+    real_t p_IR = 1 - exp(-(shared->gamma));
+    real_t p_RS = 1 - exp(- shared->alpha);
 
-    real_t n_SI = dust::distr::rbinom(rng_state, S, p_SI * internal.dt);
-    real_t n_IR = dust::distr::rbinom(rng_state, I, p_IR * internal.dt);
-    real_t n_RS = dust::distr::rbinom(rng_state, R, p_RS * internal.dt);
+    real_t n_SI = dust::distr::rbinom(rng_state, S, p_SI * shared->dt);
+    real_t n_IR = dust::distr::rbinom(rng_state, I, p_IR * shared->dt);
+    real_t n_RS = dust::distr::rbinom(rng_state, R, p_RS * shared->dt);
 
     state_next[0] = S - n_SI + n_RS;
     state_next[1] = I + n_SI - n_IR;
@@ -53,12 +51,12 @@ public:
   }
 
 private:
-  init_t internal;
+  dust::shared_ptr<sirs> shared;
 };
 
 #include <cpp11/list.hpp>
 template <>
-sirs::init_t dust_pars<sirs>(cpp11::list pars) {
+dust::pars_t<sirs> dust_pars<sirs>(cpp11::list pars) {
   // Initial state values
   sirs::real_t I0 = 10.0;
   sirs::real_t S0 = 1000.0;
@@ -84,5 +82,6 @@ sirs::init_t dust_pars<sirs>(cpp11::list pars) {
     gamma = cpp11::as_cpp<sirs::real_t>(r_gamma);
   }
 
-  return sirs::init_t{S0, I0, R0, alpha, beta, gamma, dt};
+  sirs::shared_t shared{S0, I0, R0, alpha, beta, gamma, dt};
+  return dust::pars_t<sirs>(shared);
 }

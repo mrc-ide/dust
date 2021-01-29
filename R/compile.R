@@ -43,18 +43,19 @@ compile_and_load <- function(filename, quiet = FALSE, workdir = NULL) {
   if (is.null(res$env)) {
     path <- res$path
 
-    compile_dll(path, compile_attributes = TRUE, quiet = quiet)
-    dll <- file.path(path, "src", paste0(res$key, .Platform$dynlib.ext))
-    dyn.load(dll)
+    pkgbuild::compile_dll(path, compile_attributes = TRUE,
+                          quiet = quiet, debug = FALSE)
+    tmp <- pkgload::load_all(path, compile = FALSE, recompile = FALSE,
+                             warn_conflicts = FALSE, export_all = FALSE,
+                             helpers = FALSE, attach_testthat = FALSE,
+                             quiet = quiet)
+    ## Don't pollute the search path
+    detach(paste0("package:", res$data$base), character.only = TRUE)
 
-    env <- new.env(parent = topenv())
-    for (f in dir(file.path(path, "R"), full.names = TRUE)) {
-      sys.source(f, env)
-    }
+    res$dll <- file.path(path, "src", paste0(res$key, .Platform$dynlib.ext))
+    res$env <- tmp$env
+    res$gen <- res$env[[res$data$name]]
 
-    res$dll <- dll
-    res$env <- env
-    res$gen <- env[[res$data$name]]
     cache[[res$key]] <- res
   }
 
@@ -77,28 +78,6 @@ substitute_dust_template <- function(data, src, dest) {
 glue_whisker <- function(template, data) {
   glue::glue(template, .envir = data, .open = "{{", .close = "}}",
              .trim = FALSE)
-}
-
-
-## This is a workaround for pkgbuild wanting to build
-## debug/unoptimised dlls by default, unless the user has provided a
-## Makevars
-has_user_makevars <- function() {
-  length(environment(pkgbuild::compile_dll)$makevars_user()) > 0
-}
-
-
-compile_dll <- function(...) {
-  if (has_user_makevars()) {
-    pkgbuild::compile_dll(...)
-  } else {
-    makevars <- tempfile()
-    file.create(makevars)
-    on.exit(unlink(makevars))
-    withr::with_envvar(
-      c("R_MAKEVARS_USER" = makevars),
-      pkgbuild::compile_dll(...))
-  }
 }
 
 

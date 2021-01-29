@@ -9,10 +9,16 @@
 ##' * Define some class that implements your model (below `model` is
 ##'   assumed to be the class name)
 ##'
-##' * That class must define a type `init_t` (so `model::init_t`) that
-##'   contains its internal data and the model must be constructable
-##'   with a const reference to this type (`const model::init_t&
-##'   pars`)
+##' * That class must define a type `internal_t` (so
+##'   `model::internal_t`) that contains its internal data that the
+##'   model may change during execution (i.e., that is not shared
+##'   between particles). If no such data is needed, you can do
+##'   `typedef dust::no_internal internal_t` to indicate this.
+##'
+##' * We also need a type `shared_t` that contains *constant* internal
+##'   data is shared between particles (e.g., dimensions, arrays that
+##'   are read but not written). If no such data is needed, you can do
+##'   `typedef dust::no_shared shared_t` to indicate this.
 ##'
 ##' * That class must also include a typedef that describes the
 ##'   model's floating point type, `real_t`. Most models can include
@@ -23,6 +29,11 @@
 ##'   you should include `typedef dust::no_data data_t` which marks
 ##'   your class as not supporting data, which disables the
 ##'   `compare_data` and `set_data` methods.
+##'
+##' * The class must have a constructor that accepts `const
+##'   dust::pars_t<model>& pars` for your type `model`. This will have
+##'   elements `shared` and `internal` which you can assign into your
+##'   model if needed.
 ##'
 ##' * The model must have a method `size()` returning `size_t` which
 ##'   returns the size of the system. This size may depend on values
@@ -52,29 +63,34 @@
 ##'   parallel.
 ##'
 ##' You must also provide a data/parameter-wrangling function for
-##'   producing an object of type `model::init_t` from an R list.  We
+##'   producing an object of type `dust::pars_t<model>` from an R list.  We
 ##'   use cpp11 for this.  Your function will look like:
 ##'
 ##' ```
 ##' template <>
-##' model::init_t dust_pars<model>(cpp11::list pars) {
-##'   return ...;
+##' dust::pars_t<model> dust_pars<model>(cpp11::list pars) {
+##'   // ...
+##'   return dust::pars_t<model>(shared, internal);
 ##' }
 ##' ```
 ##'
 ##' With the body interacting with `pars` to create an object of type
-##'   `model::init_t` and returning it.  This function will be called
-##'   in serial and may use anything in the cpp11 API.  All elements of
-##'   the returned object must be standard C/C++ (e.g., STL) types and
-##'   *not* cpp11/R types.
+##'   `model::shared_t` and `model::internal_t` before returning the
+##'   `dust::pars_t` object.  This function will be called in serial
+##'   and may use anything in the cpp11 API.  All elements of the
+##'   returned object must be standard C/C++ (e.g., STL) types and
+##'   *not* cpp11/R types. If your model uses only shared or internal,
+##'   you may use the single-argument constructor overload to
+##'   `dust::pars_t` which is equivalent to using `dust::no_shared` or
+##'   `dust::no_internal` for the missing argument.
 ##'
 ##' Your model *may* provided a template specialisation
-##'   `dust_pars<model::init_t>()` returning a `cpp11::sexp` for
+##'   `dust_info<model>()` returning a `cpp11::sexp` for
 ##'   returning arbitrary information back to the R session:
 ##'
 ##' ```
 ##' template <>
-##' cpp11::sexp dust_info<model>(const model::init_t& pars) {
+##' cpp11::sexp dust_info<model>(const dust::pars_t<sir>& pars) {
 ##'   return cpp11::wrap(...);
 ##' }
 ##' ```

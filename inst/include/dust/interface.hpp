@@ -14,13 +14,13 @@
 #include <dust/rng_interface.hpp>
 
 template <typename T>
-typename T::init_t dust_pars(cpp11::list pars);
+typename dust::pars_t<T> dust_pars(cpp11::list pars);
 
 template <typename T>
 typename T::data_t dust_data(cpp11::list data);
 
 template <typename T>
-typename cpp11::sexp dust_info(const typename T::init_t& pars);
+typename cpp11::sexp dust_info(const dust::pars_t<T>& pars);
 
 inline void validate_size(int x, const char * name);
 inline void validate_positive(int x, const char *name);
@@ -53,7 +53,7 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
   Dust<T> *d = nullptr;
   cpp11::sexp info;
   if (pars_multi) {
-    std::vector<typename T::init_t> pars;
+    std::vector<dust::pars_t<T>> pars;
     cpp11::writable::list info_list = cpp11::writable::list(r_pars.size());
     for (int i = 0; i < r_pars.size(); ++i) {
       pars.push_back(dust_pars<T>(r_pars[i]));
@@ -62,7 +62,7 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
     info = info_list;
     d = new Dust<T>(pars, step, n_particles, n_threads, seed);
   } else {
-    typename T::init_t pars = dust_pars<T>(r_pars);
+    dust::pars_t<T> pars = dust_pars<T>(r_pars);
     d = new Dust<T>(pars, step, n_particles, n_threads, seed);
     info = dust_info<T>(pars);
   }
@@ -92,7 +92,7 @@ cpp11::writable::doubles dust_simulate(cpp11::sexp r_steps,
                 r_pars.size());
   }
 
-  std::vector<typename T::init_t> pars;
+  std::vector<dust::pars_t<T>> pars;
   pars.reserve(r_pars.size());
   for (int i = 0; i < r_pars.size(); ++i) {
     pars.push_back(dust_pars<T>(r_pars[i]));
@@ -259,11 +259,11 @@ cpp11::sexp dust_reset(SEXP ptr, cpp11::list r_pars, int step) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   cpp11::sexp info;
   if (obj->n_pars() == 0) {
-    typename T::init_t pars = dust_pars<T>(r_pars);
+    dust::pars_t<T> pars = dust_pars<T>(r_pars);
     obj->reset(pars, step);
     info = dust_info<T>(pars);
   } else {
-    std::vector<typename T::init_t> pars;
+    std::vector<dust::pars_t<T>> pars;
     cpp11::writable::list info_list = cpp11::writable::list(r_pars.size());
     for (int i = 0; i < r_pars.size(); ++i) {
       pars.push_back(dust_pars<T>(r_pars[i]));
@@ -280,7 +280,7 @@ cpp11::sexp dust_set_pars(SEXP ptr, cpp11::list r_pars) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   cpp11::sexp info;
   if (obj->n_pars() == 0) {
-    typename T::init_t pars = dust_pars<T>(r_pars);
+    dust::pars_t<T> pars = dust_pars<T>(r_pars);
     obj->set_pars(pars);
     info = dust_info<T>(pars);
   } else {
@@ -406,7 +406,7 @@ void dust_set_n_threads(SEXP ptr, int n_threads) {
 // Trivial default implementation of a method for getting back
 // arbitrary information from the object.
 template <typename T>
-cpp11::sexp dust_info(const typename T::init_t& pars) {
+cpp11::sexp dust_info(const dust::pars_t<T>& pars) {
   return R_NilValue;
 }
 

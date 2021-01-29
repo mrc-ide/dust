@@ -1,3 +1,7 @@
+# dust 0.7.0
+
+* Dust models must now specify two internal types, `internal_t` and `shared_t`. The latter is a pointer to constant data shared across all particles within a parameter set (#143)
+
 # dust 0.6.2
 
 * Support for some basic density functions within the header `<dust/densities.hpp>`. Supported distributions include `dbinom`, `dnbinom`, `dbetabinom` and `dpois`. These are included for use within comparison functions (#134)
