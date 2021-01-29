@@ -1,6 +1,6 @@
 # dust 0.7.0
 
-* Dust models must now specify two internal types, `internal_t` and `shared_t`. The latter is a pointer to constant data shared across all particles (#143)
+* Dust models must now specify two internal types, `internal_t` and `shared_t`. The latter is a pointer to constant data shared across all particles within a parameter set (#143)
 
 # dust 0.6.2
 
