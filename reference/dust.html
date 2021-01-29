@@ -82,7 +82,7 @@ that can be used to work with the model (see the Details below)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0</span>
       </span>
     </div>
 
@@ -178,9 +178,15 @@ your choosing you can see the generated code.</p></td>
 <p>Your input dust model must satisfy a few requirements.</p><ul>
 <li><p>Define some class that implements your model (below <code>model</code> is
 assumed to be the class name)</p></li>
-<li><p>That class must define a type <code>init_t</code> (so <code>model::init_t</code>) that
-contains its internal data and the model must be constructable
-with a const reference to this type (<code>const model::init_t&amp; pars</code>)</p></li>
+<li><p>That class must define a type <code>internal_t</code> (so
+<code>model::internal_t</code>) that contains its internal data that the
+model may change during execution (i.e., that is not shared
+between particles). If no such data is needed, you can do
+<code>typedef dust::no_internal internal_t</code> to indicate this.</p></li>
+<li><p>We also need a type <code>shared_t</code> that contains <em>constant</em> internal
+data is shared between particles (e.g., dimensions, arrays that
+are read but not written). If no such data is needed, you can do
+<code>typedef dust::no_shared shared_t</code> to indicate this.</p></li>
 <li><p>That class must also include a typedef that describes the
 model's floating point type, <code>real_t</code>. Most models can include
 <code>typedef double real_t;</code> in their public section.</p></li>
@@ -189,6 +195,9 @@ model's floating point type, <code>real_t</code>. Most models can include
 you should include <code>typedef dust::no_data data_t</code> which marks
 your class as not supporting data, which disables the
 <code>compare_data</code> and <code>set_data</code> methods.</p></li>
+<li><p>The class must have a constructor that accepts <code>const dust::pars_t&lt;model&gt;&amp; pars</code> for your type <code>model</code>. This will have
+elements <code>shared</code> and <code>internal</code> which you can assign into your
+model if needed.</p></li>
 <li><p>The model must have a method <code>size()</code> returning <code>size_t</code> which
 returns the size of the system. This size may depend on values
 in your initialisation object but is constant within a model
@@ -215,22 +224,27 @@ state of the system - you are expected to update all values of
 the R API in any way as these functions will be called in
 parallel.</p>
 <p>You must also provide a data/parameter-wrangling function for
-producing an object of type <code>model::init_t</code> from an R list.  We
+producing an object of type <code>dust::pars_t&lt;model&gt;</code> from an R list.  We
 use cpp11 for this.  Your function will look like:</p><pre>template &lt;&gt;
-model::init_t dust_pars&lt;model&gt;(cpp11::list pars) {
-  return ...;
+dust::pars_t&lt;model&gt; dust_pars&lt;model&gt;(cpp11::list pars) {
+  // ...
+  return dust::pars_t&lt;model&gt;(shared, internal);
 }
 </pre>
 
 <p>With the body interacting with <code>pars</code> to create an object of type
-<code>model::init_t</code> and returning it.  This function will be called
-in serial and may use anything in the cpp11 API.  All elements of
-the returned object must be standard C/C++ (e.g., STL) types and
-<em>not</em> cpp11/R types.</p>
+<code>model::shared_t</code> and <code>model::internal_t</code> before returning the
+<code>dust::pars_t</code> object.  This function will be called in serial
+and may use anything in the cpp11 API.  All elements of the
+returned object must be standard C/C++ (e.g., STL) types and
+<em>not</em> cpp11/R types. If your model uses only shared or internal,
+you may use the single-argument constructor overload to
+<code>dust::pars_t</code> which is equivalent to using <code>dust::no_shared</code> or
+<code>dust::no_internal</code> for the missing argument.</p>
 <p>Your model <em>may</em> provided a template specialisation
-<code>dust_pars&lt;model::init_t&gt;()</code> returning a <code>cpp11::sexp</code> for
+<code>dust_info&lt;model&gt;()</code> returning a <code>cpp11::sexp</code> for
 returning arbitrary information back to the R session:</p><pre>template &lt;&gt;
-cpp11::sexp dust_info&lt;model&gt;(const model::init_t&amp; pars) {
+cpp11::sexp dust_info&lt;model&gt;(const dust::pars_t&lt;sir&gt;&amp; pars) {
   return cpp11::wrap(...);
 }
 </pre>
@@ -594,35 +608,40 @@ this function may be result in a different answer.</p><h4 class='hasAnchor' id='
 #&gt; public:
 #&gt;   typedef double real_t;
 #&gt;   typedef dust::no_data data_t;
+#&gt;   typedef dust::no_internal internal_t;
 #&gt; 
-#&gt;   struct init_t {
+#&gt;   struct shared_t {
 #&gt;     real_t sd;
 #&gt;   };
-#&gt;   walk(const init_t&amp; pars) : pars_(pars) {
+#&gt; 
+#&gt;   walk(const dust::pars_t&lt;walk&gt;&amp; pars) : shared(pars.shared) {
 #&gt;   }
+#&gt; 
 #&gt;   size_t size() const {
 #&gt;     return 1;
 #&gt;   }
+#&gt; 
 #&gt;   std::vector&lt;real_t&gt; initial(size_t step) {
 #&gt;     std::vector&lt;real_t&gt; ret = {0};
 #&gt;     return ret;
 #&gt;   }
+#&gt; 
 #&gt;   void update(size_t step, const real_t * state,
 #&gt;               dust::rng_state_t&lt;real_t&gt;&amp; rng_state,
 #&gt;               real_t * state_next) {
 #&gt;     real_t mean = state[0];
-#&gt;     state_next[0] = dust::distr::rnorm(rng_state, mean, pars_.sd);
+#&gt;     state_next[0] = dust::distr::rnorm(rng_state, mean, shared-&gt;sd);
 #&gt;   }
 #&gt; 
 #&gt; private:
-#&gt;   init_t pars_;
+#&gt;   dust::shared_ptr&lt;walk&gt; shared;
 #&gt; };
 #&gt; 
 #&gt; #include &lt;cpp11/list.hpp&gt;
 #&gt; template &lt;&gt;
-#&gt; walk::init_t dust_pars&lt;walk&gt;(cpp11::list pars) {
+#&gt; dust::pars_t&lt;walk&gt; dust_pars&lt;walk&gt;(cpp11::list pars) {
 #&gt;   walk::real_t sd = cpp11::as_cpp&lt;walk::real_t&gt;(pars["sd"]);
-#&gt;   return walk::init_t{sd};
+#&gt;   return dust::pars_t&lt;walk&gt;(walk::shared_t{sd});
 #&gt; }</div><div class='input'>
 <span class='co'># The model can be compiled and loaded with dust::dust(filename)</span>
 <span class='co'># but it's faster in this example to use the prebuilt version in</span>
