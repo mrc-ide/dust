@@ -42,7 +42,7 @@ public:
   }
 
 private:
-  std::shared_ptr<const shared_t> shared;
+  dust::shared_ptr<T> shared;
   internal_t internal;
 };
 
