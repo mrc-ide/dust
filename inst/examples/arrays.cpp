@@ -45,7 +45,7 @@ public:
   }
 
 private:
-  dust::shared_ptr<T> shared;
+  dust::shared_ptr<arrays> shared;
   internal_t internal;
 };
 
