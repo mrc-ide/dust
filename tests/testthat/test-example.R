@@ -495,3 +495,13 @@ test_that("Can run compare_data", {
   modelled <- drop(mod$state(5))
   expect_equal(dpois(d[[10]][[2]]$incidence, modelled, log = TRUE), x)
 })
+
+
+test_that("fetch model size", {
+  res <- dust_example("variable")
+  mod <- res$new(list(len = 10), 0, 7, seed = 1L)
+  expect_equal(mod$n_particles(), 7)
+  expect_equal(mod$n_state(), 10)
+  mod$set_index(c(3, 5, 7))
+  expect_equal(mod$n_state(), 10)
+})

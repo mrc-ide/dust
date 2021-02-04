@@ -8,6 +8,7 @@
     index_ = NULL,
     info_ = NULL,
     n_threads_ = NULL,
+    n_particles_ = NULL,
     ptr_ = NULL,
     param_ = {{param}},
 
@@ -82,6 +83,7 @@
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
+      private$n_particles_ <- n_particles
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
     },
@@ -139,6 +141,18 @@
     ##' Returns the number of threads that the model was constructed with
     n_threads = function() {
       private$n_threads_
+    },
+
+    ##' @description
+    ##' Returns the length of the per-particle state
+    n_state = function() {
+      dust_{{name}}_n_state(private$ptr_)
+    },
+
+    ##' @description
+    ##' Returns the number of particles
+    n_particles = function() {
+      private$n_particles_
     },
 
     ##' @description

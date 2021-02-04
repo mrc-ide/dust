@@ -464,6 +464,12 @@ cpp11::sexp dust_capabilities() {
   return cpp11::writable::list({"openmp"_nm = openmp, "compare"_nm = compare});
 }
 
+template <typename T>
+int dust_n_state(SEXP ptr) {
+  Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  return obj->n_state_full();
+}
+
 inline void validate_size(int x, const char * name) {
   if (x < 0) {
     cpp11::stop("'%s' must be non-negative", name);

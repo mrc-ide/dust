@@ -239,6 +239,13 @@ extern "C" SEXP _dust_dust_sir_set_n_threads(SEXP ptr, SEXP n_threads) {
     return R_NilValue;
   END_CPP11
 }
+// sir.cpp
+int dust_sir_n_state(SEXP ptr);
+extern "C" SEXP _dust_dust_sir_n_state(SEXP ptr) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sir_n_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
+  END_CPP11
+}
 // variable.cpp
 SEXP dust_variable_alloc(cpp11::list r_pars, bool pars_multi, size_t step, size_t n_particles, size_t n_threads, cpp11::sexp r_seed);
 extern "C" SEXP _dust_dust_variable_alloc(SEXP r_pars, SEXP pars_multi, SEXP step, SEXP n_particles, SEXP n_threads, SEXP r_seed) {
@@ -351,6 +358,13 @@ extern "C" SEXP _dust_dust_variable_set_n_threads(SEXP ptr, SEXP n_threads) {
   BEGIN_CPP11
     dust_variable_set_n_threads(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads));
     return R_NilValue;
+  END_CPP11
+}
+// variable.cpp
+int dust_variable_n_state(SEXP ptr);
+extern "C" SEXP _dust_dust_variable_n_state(SEXP ptr) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_variable_n_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
   END_CPP11
 }
 // volatility.cpp
@@ -467,6 +481,13 @@ extern "C" SEXP _dust_dust_volatility_set_n_threads(SEXP ptr, SEXP n_threads) {
     return R_NilValue;
   END_CPP11
 }
+// volatility.cpp
+int dust_volatility_n_state(SEXP ptr);
+extern "C" SEXP _dust_dust_volatility_n_state(SEXP ptr) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_volatility_n_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
+  END_CPP11
+}
 // walk.cpp
 SEXP dust_walk_alloc(cpp11::list r_pars, bool pars_multi, size_t step, size_t n_particles, size_t n_threads, cpp11::sexp r_seed);
 extern "C" SEXP _dust_dust_walk_alloc(SEXP r_pars, SEXP pars_multi, SEXP step, SEXP n_particles, SEXP n_threads, SEXP r_seed) {
@@ -581,6 +602,13 @@ extern "C" SEXP _dust_dust_walk_set_n_threads(SEXP ptr, SEXP n_threads) {
     return R_NilValue;
   END_CPP11
 }
+// walk.cpp
+int dust_walk_n_state(SEXP ptr);
+extern "C" SEXP _dust_dust_walk_n_state(SEXP ptr) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_walk_n_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
+  END_CPP11
+}
 
 extern "C" {
 /* .Call calls */
@@ -604,6 +632,7 @@ extern SEXP _dust_dust_rng_unif_rand(SEXP, SEXP);
 extern SEXP _dust_dust_sir_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_sir_capabilities();
 extern SEXP _dust_dust_sir_compare_data(SEXP);
+extern SEXP _dust_dust_sir_n_state(SEXP);
 extern SEXP _dust_dust_sir_reorder(SEXP, SEXP);
 extern SEXP _dust_dust_sir_reset(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_sir_rng_state(SEXP, SEXP);
@@ -620,6 +649,7 @@ extern SEXP _dust_dust_sir_step(SEXP);
 extern SEXP _dust_dust_variable_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_variable_capabilities();
 extern SEXP _dust_dust_variable_compare_data(SEXP);
+extern SEXP _dust_dust_variable_n_state(SEXP);
 extern SEXP _dust_dust_variable_reorder(SEXP, SEXP);
 extern SEXP _dust_dust_variable_reset(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_variable_rng_state(SEXP, SEXP);
@@ -636,6 +666,7 @@ extern SEXP _dust_dust_variable_step(SEXP);
 extern SEXP _dust_dust_volatility_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_volatility_capabilities();
 extern SEXP _dust_dust_volatility_compare_data(SEXP);
+extern SEXP _dust_dust_volatility_n_state(SEXP);
 extern SEXP _dust_dust_volatility_reorder(SEXP, SEXP);
 extern SEXP _dust_dust_volatility_reset(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_volatility_rng_state(SEXP, SEXP);
@@ -652,6 +683,7 @@ extern SEXP _dust_dust_volatility_step(SEXP);
 extern SEXP _dust_dust_walk_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_walk_capabilities();
 extern SEXP _dust_dust_walk_compare_data(SEXP);
+extern SEXP _dust_dust_walk_n_state(SEXP);
 extern SEXP _dust_dust_walk_reorder(SEXP, SEXP);
 extern SEXP _dust_dust_walk_reset(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_walk_rng_state(SEXP, SEXP);
@@ -687,6 +719,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_sir_alloc",                (DL_FUNC) &_dust_dust_sir_alloc,                6},
     {"_dust_dust_sir_capabilities",         (DL_FUNC) &_dust_dust_sir_capabilities,         0},
     {"_dust_dust_sir_compare_data",         (DL_FUNC) &_dust_dust_sir_compare_data,         1},
+    {"_dust_dust_sir_n_state",              (DL_FUNC) &_dust_dust_sir_n_state,              1},
     {"_dust_dust_sir_reorder",              (DL_FUNC) &_dust_dust_sir_reorder,              2},
     {"_dust_dust_sir_reset",                (DL_FUNC) &_dust_dust_sir_reset,                3},
     {"_dust_dust_sir_rng_state",            (DL_FUNC) &_dust_dust_sir_rng_state,            2},
@@ -703,6 +736,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_variable_alloc",           (DL_FUNC) &_dust_dust_variable_alloc,           6},
     {"_dust_dust_variable_capabilities",    (DL_FUNC) &_dust_dust_variable_capabilities,    0},
     {"_dust_dust_variable_compare_data",    (DL_FUNC) &_dust_dust_variable_compare_data,    1},
+    {"_dust_dust_variable_n_state",         (DL_FUNC) &_dust_dust_variable_n_state,         1},
     {"_dust_dust_variable_reorder",         (DL_FUNC) &_dust_dust_variable_reorder,         2},
     {"_dust_dust_variable_reset",           (DL_FUNC) &_dust_dust_variable_reset,           3},
     {"_dust_dust_variable_rng_state",       (DL_FUNC) &_dust_dust_variable_rng_state,       2},
@@ -719,6 +753,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_volatility_alloc",         (DL_FUNC) &_dust_dust_volatility_alloc,         6},
     {"_dust_dust_volatility_capabilities",  (DL_FUNC) &_dust_dust_volatility_capabilities,  0},
     {"_dust_dust_volatility_compare_data",  (DL_FUNC) &_dust_dust_volatility_compare_data,  1},
+    {"_dust_dust_volatility_n_state",       (DL_FUNC) &_dust_dust_volatility_n_state,       1},
     {"_dust_dust_volatility_reorder",       (DL_FUNC) &_dust_dust_volatility_reorder,       2},
     {"_dust_dust_volatility_reset",         (DL_FUNC) &_dust_dust_volatility_reset,         3},
     {"_dust_dust_volatility_rng_state",     (DL_FUNC) &_dust_dust_volatility_rng_state,     2},
@@ -735,6 +770,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_walk_alloc",               (DL_FUNC) &_dust_dust_walk_alloc,               6},
     {"_dust_dust_walk_capabilities",        (DL_FUNC) &_dust_dust_walk_capabilities,        0},
     {"_dust_dust_walk_compare_data",        (DL_FUNC) &_dust_dust_walk_compare_data,        1},
+    {"_dust_dust_walk_n_state",             (DL_FUNC) &_dust_dust_walk_n_state,             1},
     {"_dust_dust_walk_reorder",             (DL_FUNC) &_dust_dust_walk_reorder,             2},
     {"_dust_dust_walk_reset",               (DL_FUNC) &_dust_dust_walk_reset,               3},
     {"_dust_dust_walk_rng_state",           (DL_FUNC) &_dust_dust_walk_rng_state,           2},

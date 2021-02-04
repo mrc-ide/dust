@@ -97,3 +97,9 @@ cpp11::sexp dust_{{name}}_capabilities() {
 void dust_{{name}}_set_n_threads(SEXP ptr, int n_threads) {
   return dust_set_n_threads<{{class}}>(ptr, n_threads);
 }
+
+
+[[cpp11::register]]
+int dust_{{name}}_n_state(SEXP ptr) {
+  return dust_n_state<{{class}}>(ptr);
+}
