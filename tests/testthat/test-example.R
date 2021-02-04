@@ -268,11 +268,11 @@ test_that("reset changes info", {
   res <- dust_example("sir")
   obj <- res$new(list(), 0, 100, seed = 1L)
   expect_equal(obj$info(),
-               list(vars = c("S", "I", "R", "inc"),
+               list(vars = c("S", "I", "R", "cases_cumul", "cases_inc"),
                     pars = list(beta = 0.2, gamma = 0.1)))
   obj$reset(list(beta = 0.1), 0)
   expect_equal(obj$info(),
-               list(vars = c("S", "I", "R", "inc"),
+               list(vars = c("S", "I", "R", "cases_cumul", "cases_inc"),
                     pars = list(beta = 0.1, gamma = 0.1)))
 })
 

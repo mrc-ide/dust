@@ -104,7 +104,7 @@ template <>
 cpp11::sexp dust_info<sir2>(const dust::pars_t<sir2>& pars) {
   using namespace cpp11::literals;
   // Information about state order
-  cpp11::writable::strings vars({"S", "I", "R", "inc"});
+  cpp11::writable::strings vars({"S", "I", "R", "cases_cumul", "cases_inc"});
   // Information about parameter values
   cpp11::list p = cpp11::writable::list({"beta"_nm = pars.shared->beta,
                                          "gamma"_nm = pars.shared->gamma});
