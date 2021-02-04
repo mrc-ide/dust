@@ -82,7 +82,7 @@ that can be used to work with the model (see the Details below)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.2</span>
       </span>
     </div>
 
@@ -286,6 +286,8 @@ be used (either specified with <code>[[dust::class()]]</code> or detected).</p><
 <li><p><a href='#method-set_index'><code>dust_class$set_index()</code></a></p></li>
 <li><p><a href='#method-index'><code>dust_class$index()</code></a></p></li>
 <li><p><a href='#method-n_threads'><code>dust_class$n_threads()</code></a></p></li>
+<li><p><a href='#method-n_state'><code>dust_class$n_state()</code></a></p></li>
+<li><p><a href='#method-n_particles'><code>dust_class$n_particles()</code></a></p></li>
 <li><p><a href='#method-set_state'><code>dust_class$set_state()</code></a></p></li>
 <li><p><a href='#method-reset'><code>dust_class$reset()</code></a></p></li>
 <li><p><a href='#method-set_pars'><code>dust_class$set_pars()</code></a></p></li>
@@ -406,6 +408,16 @@ validated, and an error thrown if an invalid index is given).</p></dd>
 <a id="method-n_threads"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>n_threads()</code></h3>
 <p>Returns the number of threads that the model was constructed with</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>n_threads</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
+<a id="method-n_state"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>n_state()</code></h3>
+<p>Returns the length of the per-particle state</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>n_state</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
+<a id="method-n_particles"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>n_particles()</code></h3>
+<p>Returns the number of particles</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>n_particles</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
 <a id="method-set_state"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>set_state()</code></h3>
@@ -659,6 +671,8 @@ this function may be result in a different answer.</p><h4 class='hasAnchor' id='
 #&gt;     set_index: function (index) 
 #&gt;     index: function () 
 #&gt;     n_threads: function () 
+#&gt;     n_state: function () 
+#&gt;     n_particles: function () 
 #&gt;     set_state: function (state, step = NULL) 
 #&gt;     reset: function (pars, step) 
 #&gt;     set_pars: function (pars) 
@@ -681,6 +695,7 @@ this function may be result in a different answer.</p><h4 class='hasAnchor' id='
 #&gt;     index_: NULL
 #&gt;     info_: NULL
 #&gt;     n_threads_: NULL
+#&gt;     n_particles_: NULL
 #&gt;     ptr_: NULL
 #&gt;     param_: NULL
 #&gt;     simulate: function (steps, pars, state, index = NULL, n_threads = 1L, seed = NULL, 
@@ -702,6 +717,8 @@ this function may be result in a different answer.</p><h4 class='hasAnchor' id='
 #&gt;     info: function () 
 #&gt;     initialize: function (pars, step, n_particles, n_threads = 1L, seed = NULL, 
 #&gt;     n_pars: function () 
+#&gt;     n_particles: function () 
+#&gt;     n_state: function () 
 #&gt;     n_threads: function () 
 #&gt;     name: function () 
 #&gt;     param: function () 
@@ -722,6 +739,7 @@ this function may be result in a different answer.</p><h4 class='hasAnchor' id='
 #&gt;     check_pars_multi: function (pars, len) 
 #&gt;     index_: NULL
 #&gt;     info_: NULL
+#&gt;     n_particles_: 30
 #&gt;     n_threads_: 1
 #&gt;     param_: NULL
 #&gt;     pars_: list

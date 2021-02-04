@@ -83,7 +83,7 @@ all &quot;toy&quot; examples, being small and fast to run." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.2</span>
       </span>
     </div>
 
@@ -193,6 +193,8 @@ time step.</p></li>
 #&gt;     set_index: function (index) 
 #&gt;     index: function () 
 #&gt;     n_threads: function () 
+#&gt;     n_state: function () 
+#&gt;     n_particles: function () 
 #&gt;     set_state: function (state, step = NULL) 
 #&gt;     reset: function (pars, step) 
 #&gt;     set_pars: function (pars) 
@@ -215,6 +217,7 @@ time step.</p></li>
 #&gt;     index_: NULL
 #&gt;     info_: NULL
 #&gt;     n_threads_: NULL
+#&gt;     n_particles_: NULL
 #&gt;     ptr_: NULL
 #&gt;     param_: list
 #&gt;     simulate: function (steps, pars, state, index = NULL, n_threads = 1L, seed = NULL, 
