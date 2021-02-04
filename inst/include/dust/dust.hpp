@@ -15,6 +15,38 @@
 #include <omp.h>
 #endif
 
+
+// TODO: move these into a utilities file
+// TODO: make safe to use with references
+//
+// NB: these functions expect pointer for dest and ref for src,
+// so if applying to a vector use .data().
+// If the vector is passed in this will still compile due to the template,
+// but as not passed by ref will update a copy not the vector itself
+template <typename T, typename U, typename Enable = void>
+size_t destride_copy(T dest, U& src, size_t at, size_t stride) {
+  size_t i;
+  for (i = 0; at < src.size(); ++i, at += stride) {
+    dest[i] = src[at];
+  }
+  return i;
+}
+
+template <typename T, typename U>
+size_t stride_copy(T dest, U src, size_t at, size_t stride) {
+  dest[at] = src;
+  return at + stride;
+}
+
+template <typename T, typename U>
+size_t stride_copy(T dest, const std::vector<U>& src, size_t at, size_t stride) {
+  for (size_t i = 0; i < src.size(); ++i, at += stride) {
+    dest[at] = src[i];
+  }
+  return at;
+}
+
+
 namespace dust {
 struct nothing {};
 typedef nothing no_data;
@@ -143,6 +175,33 @@ private:
 };
 }
 
+// We'll need to expand this soon to cope with shared memory, but that
+// will be coming via another change to dust. Or we can do it here
+// with a shared object that contains just:
+// template <typename T>
+// struct shared_t {
+//   const real_t const * real_data;
+//   const int * const * int_data;
+//   // plus lengths?
+// };
+//
+// which can just point at the data in the vector because it will live
+// longer than the object.
+template <typename T>
+void update_device(size_t step,
+                   const dust::interleaved<typename T::real_t> state,
+                   dust::interleaved<int> internal_int,
+                   dust::interleaved<typename T::real_t> internal_real,
+                   dust::shared_ptr<T> shared,
+                   dust::device_rng_state_t<typename T::real_t>& rng_state,
+                   dust::interleaved<typename T::real_t> state_next);
+
+template <typename T>
+void run_particles(size_t step_from, size_t step_to, size_t n_particles,
+                   typename T::real_t * state, typename T::real_t * state_next,
+                   int * internal_int, typename T::real_t * internal_real,
+                   dust::shared_ptr<T> shared, uint64_t * rng_state);
+
 template <typename T>
 class Particle {
 public:
@@ -237,7 +296,9 @@ public:
     _n_pars(0),
     _n_particles_total(n_particles),
     _n_threads(n_threads),
-    _rng(_n_particles_total, seed) {
+    _rng(_n_particles_total, seed),
+    _stale_host(false),
+    _stale_device(true) {
     initialise(pars, step, n_particles, true);
     initialise_index();
   }
@@ -248,7 +309,9 @@ public:
     _n_pars(pars.size()),
     _n_particles_total(n_particles * pars.size()),
     _n_threads(n_threads),
-    _rng(_n_particles_total, seed) {
+    _rng(_n_particles_total, seed),
+    _stale_host(false),
+    _stale_device(true) {
     initialise(pars, step, n_particles, true);
     initialise_index();
   }
@@ -295,6 +358,7 @@ public:
         it += n_state;
       }
     }
+    _stale_device = true;
   }
 
   void set_step(const size_t step) {
@@ -316,12 +380,33 @@ public:
   }
 
   void run(const size_t step_end) {
+    refresh_host();
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
 #endif
     for (size_t i = 0; i < _particles.size(); ++i) {
       _particles[i].run(step_end, _rng.state(i));
     }
+    _stale_device = true;
+  }
+
+  void run_device(const size_t step_end) {
+    refresh_device();
+    run_particles<real_t, T>(step(), step_end, _particles.size(),
+                  _yi.data(), _yi_next.data(),
+                  _internal_int.data(), _internal_real.data(),
+                  _rngi.data());
+    // In the inner loop, the swap will keep the locally scoped
+    // interleaved variables updated, but the interleaved variables
+    // passed in have not yet been updated.  If an even number of
+    // steps have been run state will have been swapped back into the
+    // original place, but an on odd number of steps the passed
+    // variables need to be swapped.
+    if ((step_end - step()) % 2) {
+      std::swap(_yi, _yi_next);
+    }
+    _stale_device = true;
+    set_step(step_end);
   }
 
   std::vector<real_t> simulate(const std::vector<size_t>& step_end) {
@@ -345,6 +430,7 @@ public:
   }
 
   void state(typename std::vector<real_t>::iterator end_state) const {
+    refresh_host();
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
 #endif
@@ -354,7 +440,8 @@ public:
   }
 
   void state(std::vector<size_t> index,
-             std::vector<real_t>& end_state) const {
+             std::vector<real_t>& end_state) {
+    refresh_host();
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
 #endif
@@ -363,7 +450,8 @@ public:
     }
   }
 
-  void state_full(std::vector<real_t>& end_state) const {
+  void state_full(std::vector<real_t>& end_state) {
+    refresh_host();
     const size_t n = n_state_full();
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
@@ -387,6 +475,7 @@ public:
   // contents of the particle state (uses the set_state() and swap()
   // methods on particles).
   void reorder(const std::vector<size_t>& index) {
+    refresh_host();
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
 #endif
@@ -432,6 +521,7 @@ public:
     }
 
     reorder(index);
+    _stale_device = true;
   }
 
   size_t n_particles() const {
@@ -459,11 +549,18 @@ public:
   }
 
   std::vector<uint64_t> rng_state() {
+    refresh_host();
     return _rng.export_state();
   }
 
   void set_rng_state(const std::vector<uint64_t>& rng_state) {
+    // TODO: In dustgpu we don't do a refresh_host() here but I think
+    // we need to. Otherwise if the canonical state is on the device
+    // it's out of sync. However, this is an issue for other things
+    // (e.g., set_state()) so we might need to think about this more
+    // generally.
     _rng.import_state(rng_state);
+    _stale_device = true;
   }
 
   void set_n_threads(size_t n_threads) {
@@ -473,7 +570,9 @@ public:
   // NOTE: it only makes sense to expose long_jump, and not jump,
   // because each rng stream is one jump away from the next.
   void rng_long_jump() {
+    refresh_host();
     _rng.long_jump();
+    _stale_device = true;
   }
 
   void set_data(std::map<size_t, std::vector<data_t>> data) {
@@ -481,6 +580,7 @@ public:
   }
 
   std::vector<real_t> compare_data() {
+    refresh_host();
     std::vector<real_t> res;
     auto d = _data.find(step());
     if (d != _data.end()) {
@@ -571,6 +671,16 @@ private:
   // Only used if we have data; this is going to change around a bit.
   dust::filter_state<real_t> filter_state_;
 
+  // New things for device support
+  dust::DeviceArray<real_t> _yi;
+  dust::DeviceArray<real_t> _yi_next;
+  dust::DeviceArray<real_t> _internal_real;
+  dust::DeviceArray<int> _internal_int;
+  dust::DeviceArray<uint64_t> _rngi;
+
+  bool _stale_host;
+  bool _stale_device;
+
   void initialise(const pars_t& pars, const size_t step,
                   const size_t n_particles, bool set_state) {
     const size_t n = _particles.size() == 0 ? 0 : n_state_full();
@@ -596,6 +706,9 @@ private:
         _particles.push_back(p);
       }
     }
+    initialise_index();
+    _stale_host = false;
+    _stale_device = true;
   }
 
   void initialise(const std::vector<pars_t>& pars, const size_t step,
@@ -629,6 +742,9 @@ private:
         }
       }
     }
+    _stale_host = false;
+    _stale_device = true;
+    initialise_index();
   }
 
   void initialise_index() {
@@ -639,6 +755,152 @@ private:
       _index.push_back(i);
     }
   }
+
+  void refresh_device() {
+    if (_stale_device) {
+      const size_t np = n_particles(), ny = n_state_full();
+      const size_t rng_len = dust::rng_state_t<real_t>::size();
+      std::vector<real_t> y_tmp(ny); // Individual particle state
+      std::vector<real_t> y(np * ny); // Interleaved state of all particles
+      std::vector<uint64_t> rng(np * rng_len); // Interleaved RNG state
+#ifdef _OPENMP
+      #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
+      for (size_t i = 0; i < np; ++i) {
+        // Interleave state
+        _particles[i].state_full(y_tmp.begin());
+        stride_copy(y.data(), y_tmp, i, np);
+
+        // Interleave RNG state
+        dust::rng_state_t<real_t> p_rng = _rng[i];
+        size_t rng_offset = i;
+        for (size_t j = 0; j < rng_len; ++j) {
+          rng_offset = stride_copy(rng.data(), p_rng[j], rng_offset, np);
+        }
+      }
+      // H -> D copies
+      _yi.setArray(y);
+      _rngi.setArray(rng);
+      _stale_device = false;
+    }
+  }
+
+  // TODO: could have RNG refresh/state refresh as separate functions
+  // Although RNG is basically part of state, so maybe this makes sense
+  void refresh_host() {
+    if (_stale_host) {
+      const size_t np = n_particles(), ny = n_state_full();
+      const size_t rng_len = dust::rng_state_t<real_t>::size();
+      std::vector<real_t> y_tmp(ny); // Individual particle state
+      std::vector<real_t> y(np * ny); // Interleaved state of all particles
+      std::vector<uint64_t> rngi(np * rng_len); // Interleaved RNG state
+      std::vector<uint64_t> rng(np * rng_len); //  Deinterleaved RNG state
+      // D -> H copies
+      _yi.getArray(y);
+      _rngi.getArray(rngi);
+#ifdef _OPENMP
+      #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
+      for (size_t i = 0; i < np; ++i) {
+        destride_copy(y_tmp.data(), y, i, np);
+        _particles[i].set_state(y_tmp.begin());
+
+        // Destride RNG
+        for (size_t j = 0; j < rng_len; ++j) {
+          rng[i * rng_len + j] = rngi[i + j * np];
+        }
+      }
+      _rng.import_state(rng);
+      _stale_host = false;
+    }
+  }
 };
+
+// TODO: The exact type here for the shared memory will likely change
+template <typename T>
+void run_particles(size_t step_from, size_t step_to, size_t n_particles,
+                   typename T::real_t * state, typename T::real_t * state_next,
+                   int * internal_int, typename T::real_t * internal_real,
+                   dust::shared_ptr<T> shared, uint64_t * rng_state) {
+  typedef typename T::real_t real_t;
+
+  // omp here
+  for (size_t i = 0; i < n_particles; ++i) {
+    dust::interleaved<real_t> p_state(state, i, n_particles);
+    dust::interleaved<real_t> p_state_next(state_next, i, n_particles);
+    dust::interleaved<int> p_internal_int(internal_int, i, n_particles);
+    dust::interleaved<real_t> p_internal_real(internal_real, i, n_particles);
+    dust::interleaved<uint64_t> p_rng(rng_state, i, n_particles);
+
+    dust::rng_state_t<real_t> rng_block = dust::get_rng_state<real_t>(p_rng);
+    for (size_t step = step_from; step < step_to; ++step) {
+      update_device<T>(step,
+                       p_state,
+                       p_internal_int,
+                       p_internal_real,
+                       shared,
+                       rng_block,
+                       p_state_next);
+      std::swap(p_state, p_state_next);
+      // dust::interleaved<real_t> tmp = p_state;
+      // p_state = p_state_next;
+      // p_state_next = tmp;
+    }
+    dust::put_rng_state(rng_block, p_rng);
+  }
+}
+
+template <typename T>
+std::vector<typename T::real_t>
+dust_simulate(const std::vector<size_t>& steps,
+              const std::vector<dust::pars_t<T>>& pars,
+              std::vector<typename T::real_t>& state,
+              const std::vector<size_t>& index,
+              const size_t n_threads,
+              std::vector<uint64_t>& seed,
+              bool save_state) {
+  typedef typename T::real_t real_t;
+  const size_t n_state_return = index.size();
+  const size_t n_particles = pars.size();
+  std::vector<Particle<T>> particles;
+  particles.reserve(n_particles);
+  for (size_t i = 0; i < n_particles; ++i) {
+    particles.push_back(Particle<T>(pars[i], steps[0]));
+    if (i > 0 && particles.back().size() != particles.front().size()) {
+      std::stringstream msg;
+      msg << "Particles have different state sizes: particle " << i + 1 <<
+        " had length " << particles.back().size() << " but expected " <<
+        particles.front().size();
+      throw std::invalid_argument(msg.str());
+    }
+  }
+  const size_t n_state_full = particles.front().size();
+
+  dust::pRNG<real_t> rng(n_particles, seed);
+  std::vector<real_t> ret(n_particles * n_state_return * steps.size());
+  size_t n_steps = steps.size();
+
+#ifdef _OPENMP
+  #pragma omp parallel for schedule(static) num_threads(n_threads)
+#endif
+  for (size_t i = 0; i < particles.size(); ++i) {
+    particles[i].set_state(state.begin() + n_state_full * i);
+    for (size_t t = 0; t < n_steps; ++t) {
+      particles[i].run(steps[t], rng.state(i));
+      size_t offset = t * n_state_return * n_particles + i * n_state_return;
+      particles[i].state(index, ret.begin() + offset);
+    }
+    if (save_state) {
+      particles[i].state_full(state.begin() + n_state_full * i);
+    }
+  }
+
+  // To continue we'd also need the rng state:
+  if (save_state) {
+    rng.export_state(seed);
+  }
+
+  return ret;
+}
 
 #endif

@@ -8,6 +8,7 @@
 #include "distr/normal.hpp"
 #include "distr/poisson.hpp"
 #include "distr/uniform.hpp"
+#include "containers.hpp"
 
 namespace dust {
 
@@ -21,7 +22,7 @@ public:
     auto n_seed = seed.size() / len;
     for (size_t i = 0; i < n; ++i) {
       if (i < n_seed) {
-        std::copy_n(seed.begin() + i * len, len, s.state.begin());
+        std::copy_n(seed.begin() + i * len, len, std::begin(s.state));
       } else {
         xoshiro_jump(s);
       }
@@ -80,6 +81,30 @@ private:
   std::vector<rng_state_t<T>> _state;
 };
 
+template <typename T>
+device_rng_state_t<T> get_rng_state(const dust::interleaved<uint64_t>& full_rng_state) {
+  device_rng_state_t<T> rng_state;
+  for (int i = 0; i < device_rng_state_t<T>::size(); i++) {
+    rng_state.state[i] = full_rng_state[i];
+  }
+  return rng_state;
+}
+
+// Write state into global memory
+template <typename T>
+void put_rng_state(device_rng_state_t<T>& rng_state,
+                   dust::interleaved<uint64_t>& full_rng_state) {
+  for (int i = 0; i < device_rng_state_t<T>::size(); i++) {
+    full_rng_state[i] = rng_state.state[i];
+  }
+}
+
 }
 
 #endif
+
+template <typename T, typename U = typename T::real_t>
+U unif_rand(T& state) {
+  const uint64_t value = xoshiro_next(state);
+  return U(value) / U(std::numeric_limits<uint64_t>::max());
+}

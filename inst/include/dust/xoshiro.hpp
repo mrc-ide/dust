@@ -1,7 +1,6 @@
 #ifndef DUST_XOSHIRO_HPP
 #define DUST_XOSHIRO_HPP
 
-#include <array>
 #include <cstdint>
 #include <vector>
 #include <limits>
@@ -27,7 +26,21 @@ struct rng_state_t {
   static size_t size() {
     return 4;
   }
-  std::array<uint64_t, 4> state;
+  uint64_t state[4];
+  uint64_t& operator[](size_t i) {
+    return state[i];
+  }
+};
+
+// State for the GPU, which needs to compile to four integers,
+// not a pointer to global memory
+template <typename T>
+struct device_rng_state_t {
+  using real_t = T;
+  static size_t size() {
+    return 4;
+  }
+  uint64_t state[4];
   uint64_t& operator[](size_t i) {
     return state[i];
   }
