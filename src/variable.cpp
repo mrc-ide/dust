@@ -157,3 +157,9 @@ cpp11::sexp dust_variable_capabilities() {
 void dust_variable_set_n_threads(SEXP ptr, int n_threads) {
   return dust_set_n_threads<variable>(ptr, n_threads);
 }
+
+
+[[cpp11::register]]
+int dust_variable_n_state(SEXP ptr) {
+  return dust_n_state<variable>(ptr);
+}

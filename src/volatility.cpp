@@ -152,3 +152,9 @@ cpp11::sexp dust_volatility_capabilities() {
 void dust_volatility_set_n_threads(SEXP ptr, int n_threads) {
   return dust_set_n_threads<volatility>(ptr, n_threads);
 }
+
+
+[[cpp11::register]]
+int dust_volatility_n_state(SEXP ptr) {
+  return dust_n_state<volatility>(ptr);
+}

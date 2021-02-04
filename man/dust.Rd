@@ -178,6 +178,8 @@ obj$state()
 \item \href{#method-set_index}{\code{dust_class$set_index()}}
 \item \href{#method-index}{\code{dust_class$index()}}
 \item \href{#method-n_threads}{\code{dust_class$n_threads()}}
+\item \href{#method-n_state}{\code{dust_class$n_state()}}
+\item \href{#method-n_particles}{\code{dust_class$n_particles()}}
 \item \href{#method-set_state}{\code{dust_class$set_state()}}
 \item \href{#method-reset}{\code{dust_class$reset()}}
 \item \href{#method-set_pars}{\code{dust_class$set_pars()}}
@@ -338,6 +340,26 @@ Returns the \code{index} as set by \verb{$set_index}
 Returns the number of threads that the model was constructed with
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$n_threads()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-n_state"></a>}}
+\if{latex}{\out{\hypertarget{method-n_state}{}}}
+\subsection{Method \code{n_state()}}{
+Returns the length of the per-particle state
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$n_state()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-n_particles"></a>}}
+\if{latex}{\out{\hypertarget{method-n_particles}{}}}
+\subsection{Method \code{n_particles()}}{
+Returns the number of particles
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$n_particles()}\if{html}{\out{</div>}}
 }
 
 }

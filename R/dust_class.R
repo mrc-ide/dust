@@ -18,6 +18,7 @@ dust_class <- R6::R6Class(
     index_ = NULL,
     info_ = NULL,
     n_threads_ = NULL,
+    n_particles_ = NULL,
     ptr_ = NULL,
     param_ = NULL,
 
@@ -118,6 +119,16 @@ dust_class <- R6::R6Class(
     ##' @description
     ##' Returns the number of threads that the model was constructed with
     n_threads = function() {
+    },
+
+    ##' @description
+    ##' Returns the length of the per-particle state
+    n_state = function() {
+    },
+
+    ##' @description
+    ##' Returns the number of particles
+    n_particles = function() {
     },
 
     ##' @description

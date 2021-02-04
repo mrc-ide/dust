@@ -9,6 +9,7 @@ sir <- R6::R6Class(
     index_ = NULL,
     info_ = NULL,
     n_threads_ = NULL,
+    n_particles_ = NULL,
     ptr_ = NULL,
     param_ = list(beta = list(required = FALSE), gamma = list(required = FALSE)),
 
@@ -43,6 +44,7 @@ sir <- R6::R6Class(
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
+      private$n_particles_ <- n_particles
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
     },
@@ -73,6 +75,14 @@ sir <- R6::R6Class(
 
     n_threads = function() {
       private$n_threads_
+    },
+
+    n_state = function() {
+      dust_sir_n_state(private$ptr_)
+    },
+
+    n_particles = function() {
+      private$n_particles_
     },
 
     set_state = function(state, step = NULL) {
@@ -168,6 +178,7 @@ variable <- R6::R6Class(
     index_ = NULL,
     info_ = NULL,
     n_threads_ = NULL,
+    n_particles_ = NULL,
     ptr_ = NULL,
     param_ = NULL,
 
@@ -202,6 +213,7 @@ variable <- R6::R6Class(
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
+      private$n_particles_ <- n_particles
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
     },
@@ -232,6 +244,14 @@ variable <- R6::R6Class(
 
     n_threads = function() {
       private$n_threads_
+    },
+
+    n_state = function() {
+      dust_variable_n_state(private$ptr_)
+    },
+
+    n_particles = function() {
+      private$n_particles_
     },
 
     set_state = function(state, step = NULL) {
@@ -327,6 +347,7 @@ volatility <- R6::R6Class(
     index_ = NULL,
     info_ = NULL,
     n_threads_ = NULL,
+    n_particles_ = NULL,
     ptr_ = NULL,
     param_ = NULL,
 
@@ -361,6 +382,7 @@ volatility <- R6::R6Class(
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
+      private$n_particles_ <- n_particles
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
     },
@@ -391,6 +413,14 @@ volatility <- R6::R6Class(
 
     n_threads = function() {
       private$n_threads_
+    },
+
+    n_state = function() {
+      dust_volatility_n_state(private$ptr_)
+    },
+
+    n_particles = function() {
+      private$n_particles_
     },
 
     set_state = function(state, step = NULL) {
@@ -486,6 +516,7 @@ walk <- R6::R6Class(
     index_ = NULL,
     info_ = NULL,
     n_threads_ = NULL,
+    n_particles_ = NULL,
     ptr_ = NULL,
     param_ = NULL,
 
@@ -520,6 +551,7 @@ walk <- R6::R6Class(
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
+      private$n_particles_ <- n_particles
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
     },
@@ -550,6 +582,14 @@ walk <- R6::R6Class(
 
     n_threads = function() {
       private$n_threads_
+    },
+
+    n_state = function() {
+      dust_walk_n_state(private$ptr_)
+    },
+
+    n_particles = function() {
+      private$n_particles_
     },
 
     set_state = function(state, step = NULL) {

@@ -191,3 +191,9 @@ cpp11::sexp dust_sir_capabilities() {
 void dust_sir_set_n_threads(SEXP ptr, int n_threads) {
   return dust_set_n_threads<sir>(ptr, n_threads);
 }
+
+
+[[cpp11::register]]
+int dust_sir_n_state(SEXP ptr) {
+  return dust_n_state<sir>(ptr);
+}

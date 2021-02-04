@@ -136,3 +136,9 @@ cpp11::sexp dust_walk_capabilities() {
 void dust_walk_set_n_threads(SEXP ptr, int n_threads) {
   return dust_set_n_threads<walk>(ptr, n_threads);
 }
+
+
+[[cpp11::register]]
+int dust_walk_n_state(SEXP ptr) {
+  return dust_n_state<walk>(ptr);
+}
