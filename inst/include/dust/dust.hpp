@@ -3,6 +3,7 @@
 
 #include <dust/rng.hpp>
 #include <dust/densities.hpp>
+#include <dust/tools.hpp>
 
 #include <algorithm>
 #include <memory>
@@ -282,13 +283,46 @@ public:
   // contents of the particle state (uses the set_state() and swap()
   // methods on particles).
   void reorder(const std::vector<size_t>& index) {
+#ifdef _OPENMP
+    #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
     for (size_t i = 0; i < _particles.size(); ++i) {
       size_t j = index[i];
       _particles[i].set_state(_particles[j]);
     }
-    for (auto& p : _particles) {
-      p.swap();
+#ifdef _OPENMP
+    #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
+    for (size_t i = 0; i < _particles.size(); ++i) {
+      _particles[i].swap();
     }
+  }
+
+  std::vector<size_t> resample(const std::vector<real_t>& weights) {
+    std::vector<size_t> idx(n_particles());
+    auto it_weights = weights.begin();
+    auto it_idx = idx.begin();
+    if (_n_pars == 0) {
+      // One parameter set; shuffle among all particles
+      const size_t np = _particles.size();
+      real_t u = dust::unif_rand(_rng.state(0));
+      resample_weight(it_weights, np, u, 0, it_idx);
+    } else {
+      // Multiple parameter set; shuffle within each group
+      // independently (and therefore in parallel)
+      const size_t np = _particles.size() / _n_pars;
+#ifdef _OPENMP
+      #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
+      for (size_t i = 0; i < _n_pars; ++i) {
+        const size_t j = i * np;
+        real_t u = dust::unif_rand(_rng.state(j));
+        resample_weight(it_weights + j, np, u, j, it_idx + j);
+      }
+    }
+
+    reorder(idx);
+    return idx;
   }
 
   size_t n_particles() const {

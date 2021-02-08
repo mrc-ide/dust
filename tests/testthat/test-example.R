@@ -505,3 +505,40 @@ test_that("fetch model size", {
   mod$set_index(c(3, 5, 7))
   expect_equal(mod$n_state(), 10)
 })
+
+
+test_that("resample", {
+  res <- dust_example("variable")
+  obj <- res$new(list(len = 5), 0, 7, seed = 1L)
+  m <- matrix(as.numeric(1:35), 5, 7)
+  obj$set_state(m)
+  rng <- dust_rng$new(obj$rng_state(TRUE))
+  u <- rng$unif_rand(1)
+  w <- runif(obj$n_particles())
+
+  idx <- obj$resample(w)
+  expect_equal(idx, resample_index(w, u))
+  expect_equal(obj$state(), m[, idx])
+})
+
+
+test_that("resample error cases", {
+  res <- dust_example("variable")
+  obj <- res$new(list(len = 5), 0, 7, seed = 1L)
+  m <- matrix(as.numeric(1:35), 5, 7)
+  obj$set_state(m)
+  rng <- dust_rng$new(obj$rng_state(TRUE))
+  u <- rng$unif_rand(1)
+  w <- runif(obj$n_particles())
+
+  expect_error(obj$resample(w[-1]),
+               "Expected a vector with 7 elements for 'weights'")
+  expect_error(obj$resample(c(w[-1], -1)),
+               "All weights must be positive")
+  expect_identical(obj$state(), m)
+
+  ## This corner case is pretty nasty, and practically the particle
+  ## filter will have stopped by this point.
+  idx <- obj$resample(rep(0, 7))
+  expect_equal(idx, rep(1, 7))
+})

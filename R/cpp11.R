@@ -100,6 +100,10 @@ dust_sir_reorder <- function(ptr, r_index) {
   invisible(.Call(`_dust_dust_sir_reorder`, ptr, r_index))
 }
 
+dust_sir_resample <- function(ptr, r_weights) {
+  .Call(`_dust_dust_sir_resample`, ptr, r_weights)
+}
+
 dust_sir_set_pars <- function(ptr, r_pars) {
   .Call(`_dust_dust_sir_set_pars`, ptr, r_pars)
 }
@@ -166,6 +170,10 @@ dust_variable_step <- function(ptr) {
 
 dust_variable_reorder <- function(ptr, r_index) {
   invisible(.Call(`_dust_dust_variable_reorder`, ptr, r_index))
+}
+
+dust_variable_resample <- function(ptr, r_weights) {
+  .Call(`_dust_dust_variable_resample`, ptr, r_weights)
 }
 
 dust_variable_set_pars <- function(ptr, r_pars) {
@@ -236,6 +244,10 @@ dust_volatility_reorder <- function(ptr, r_index) {
   invisible(.Call(`_dust_dust_volatility_reorder`, ptr, r_index))
 }
 
+dust_volatility_resample <- function(ptr, r_weights) {
+  .Call(`_dust_dust_volatility_resample`, ptr, r_weights)
+}
+
 dust_volatility_set_pars <- function(ptr, r_pars) {
   .Call(`_dust_dust_volatility_set_pars`, ptr, r_pars)
 }
@@ -302,6 +314,10 @@ dust_walk_step <- function(ptr) {
 
 dust_walk_reorder <- function(ptr, r_index) {
   invisible(.Call(`_dust_dust_walk_reorder`, ptr, r_index))
+}
+
+dust_walk_resample <- function(ptr, r_weights) {
+  .Call(`_dust_dust_walk_resample`, ptr, r_weights)
 }
 
 dust_walk_set_pars <- function(ptr, r_pars) {

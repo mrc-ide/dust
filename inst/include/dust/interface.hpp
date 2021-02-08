@@ -372,6 +372,56 @@ void dust_reorder(SEXP ptr, cpp11::sexp r_index) {
 }
 
 template <typename T>
+SEXP dust_resample(SEXP ptr, cpp11::doubles r_weights) {
+  Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  size_t n_particles = obj->n_particles();
+  size_t n_pars = obj->n_pars();
+  size_t n_particles_each = n_particles;
+  if (n_pars == 0) {
+    if (static_cast<size_t>(r_weights.size()) != n_particles) {
+      cpp11::stop("Expected a vector with %d elements for 'weights'",
+                  n_particles);
+    }
+  } else {
+    cpp11::sexp r_dim = r_weights.attr("dim");
+    if (r_dim == R_NilValue) {
+      cpp11::stop("Expected a matrix for 'weights', but given vector");
+    }
+    cpp11::integers dim = cpp11::as_cpp<cpp11::integers>(r_dim);
+    if (dim.size() != 2) {
+      cpp11::stop("Expected a matrix for 'weights'");
+    }
+    n_particles_each /= n_pars;
+    if (static_cast<size_t>(dim[0]) != n_particles_each) {
+      cpp11::stop("Expected a matrix with %d rows for 'weights'",
+                  n_particles_each);
+    }
+    if (static_cast<size_t>(dim[1]) != n_pars) {
+      cpp11::stop("Expected a matrix with %d columns for 'weights'", n_pars);
+    }
+  }
+  if (*std::min_element(r_weights.begin(), r_weights.end()) < 0) {
+    cpp11::stop("All weights must be positive");
+  }
+  const std::vector<typename T::real_t>
+    weights(r_weights.begin(), r_weights.end());
+
+  std::vector<size_t> idx = obj->resample(weights);
+
+  cpp11::writable::integers ret(n_particles);
+  for (size_t i = 0; i < n_particles; ++i) {
+    ret[i] = idx[i] % n_particles_each + 1;
+  }
+
+  // Same shape as on exit; we rescale the index so that it is
+  // equivalent to the order that reorder would accept
+  if (n_pars > 0) {
+    ret.attr("dim") = r_weights.attr("dim");
+  }
+  return ret;
+}
+
+template <typename T>
 SEXP dust_rng_state(SEXP ptr, bool first_only) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   auto state = obj->rng_state();
@@ -434,6 +484,14 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
   }
   cpp11::writable::doubles ret_r(ret.size());
   std::copy(ret.begin(), ret.end(), REAL(ret_r));
+
+  const size_t n_pars = obj->n_pars();
+  if (n_pars > 0) {
+    const size_t n_particles_each = obj->n_particles() / n_pars;
+    ret_r.attr("dim") = cpp11::writable::integers({(int)n_particles_each,
+                                                   (int)n_pars});
+  }
+
   return ret_r;
 }
 

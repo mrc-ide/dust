@@ -50,6 +50,11 @@ void dust_{{name}}_reorder(SEXP ptr, cpp11::sexp r_index) {
 }
 
 [[cpp11::register]]
+SEXP dust_{{name}}_resample(SEXP ptr, cpp11::doubles r_weights) {
+  return dust_resample<{{class}}>(ptr, r_weights);
+}
+
+[[cpp11::register]]
 SEXP dust_{{name}}_set_pars(SEXP ptr, cpp11::list r_pars) {
   return dust_set_pars<{{class}}>(ptr, r_pars);
 }
