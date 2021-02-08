@@ -293,8 +293,8 @@ public:
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
 #endif
-    for (auto& p : _particles) {
-      p.swap();
+    for (size_t i = 0; i < _particles.size(); ++i) {
+      _particles[i].swap();
     }
   }
 
