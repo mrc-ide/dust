@@ -434,6 +434,13 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
   }
   cpp11::writable::doubles ret_r(ret.size());
   std::copy(ret.begin(), ret.end(), REAL(ret_r));
+
+  const size_t n_pars = obj->n_pars();
+  if (n_pars > 0) {
+    const size_t n_particles_each = obj->n_particles() / n_pars;
+    ret_r.attr("dim") = cpp11::writable::integers({n_particles_each, n_pars});
+  }
+
   return ret_r;
 }
 

@@ -257,3 +257,35 @@ test_that("must use same sized simulations", {
           "but expected 7"),
     fixed = TRUE)
 })
+
+
+test_that("compare with multi pars", {
+  res <- dust(dust_file("examples/sir2.cpp"), quiet = TRUE)
+
+  np <- 10
+  end <- 150 * 4
+  steps <- seq(0, end, by = 4)
+  ans <- dust_iterate(res$new(list(), 0, np, seed = 1L), steps)
+  d <- dust_data(data.frame(step = steps, incidence = ans[5, 1, ]))
+
+  ## Use Inf for exp_noise as that gives us deterministic results
+  p <- list(exp_noise = Inf)
+  mod <- res$new(rep(list(p), 3), 0, np, seed = 1L, pars_multi = TRUE)
+  s <- mod$run(36)
+  expect_null(mod$compare_data())
+
+  mod$set_data(d)
+  x <- mod$compare_data()
+  expect_equal(dim(x), c(10, 3))
+
+  ## Then we try and replicate:
+  cmp <- res$new(p, 0, np, seed = 1L)
+  cmp$set_data(d)
+  cmp$run(36)
+  cmp$set_state(s[, , 1])
+  expect_equal(cmp$compare_data(), x[, 1])
+  cmp$set_state(s[, , 2])
+  expect_equal(cmp$compare_data(), x[, 2])
+  cmp$set_state(s[, , 3])
+  expect_equal(cmp$compare_data(), x[, 3])
+})
