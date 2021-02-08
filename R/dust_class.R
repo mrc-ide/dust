@@ -279,10 +279,10 @@ dust_class <- R6::R6Class(
     ##' @description
     ##' Set "data" into the model for use with the `$compare_data()` method.
     ##' This is not supported by all models, depending on if they define a
-    ##' `data_t` type. One data set is shared across all particles
-    ##' (including across all parameter sets if using `pars_multi = TRUE`).
-    ##' See [dust::dust_data()] for a helper function to construct
-    ##' suitable data and a description of the required format.
+    ##' `data_t` type.  See [dust::dust_data()] for a helper function to
+    ##' construct suitable data and a description of the required format. You
+    ##' will probably want to use that here, and definitely if using multiple
+    ##' parameter sets.
     ##'
     ##' @param data A list of data to set.
     set_data = function(data) {

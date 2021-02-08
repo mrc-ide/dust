@@ -464,12 +464,23 @@ template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typen
 void dust_set_data(SEXP ptr, cpp11::list r_data) {
   typedef typename T::data_t data_t;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  std::unordered_map<size_t, data_t> data;
-  size_t len = r_data.size();
+  const size_t n_pars = obj->n_pars() == 0 ? 1 : obj->n_pars();
+
+  const size_t len = r_data.size();
+  std::unordered_map<size_t, std::vector<data_t>> data;
+
   for (size_t i = 0; i < len; ++i) {
     cpp11::list el = r_data[i];
+    if (el.size() != n_pars + 1) {
+      cpp11::stop("Expected a list of length %d for element %d of 'data'",
+                  n_pars + 1, i + 1);
+    }
     const size_t step_i = cpp11::as_cpp<int>(el[0]);
-    const data_t data_i = dust_data<T>(cpp11::as_cpp<cpp11::list>(el[1]));
+    std::vector<data_t> data_i;
+    data_i.reserve(n_pars);
+    for (size_t j = 0; j < n_pars; ++j) {
+      data_i.push_back(dust_data<T>(cpp11::as_cpp<cpp11::list>(el[j + 1])));
+    }
     data[step_i] = data_i;
   }
   obj->set_data(data);

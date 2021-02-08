@@ -1,3 +1,7 @@
+# dust 0.7.4
+
+* More complete handling of `$compare_data()` with multiple parameters, with the `dust::dust_data` function now expanded to support this (#152)
+
 # dust 0.7.3
 
 * Added new method `$resample()` which implements the resampling algorithm used by the mcstate particle filter (#137)
