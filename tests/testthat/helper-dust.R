@@ -28,3 +28,14 @@ helper_metadata <- function(..., base = NULL) {
   writeLines(c(..., code), tmp)
   tmp
 }
+
+
+## This is the systematic resample algorithm as used by mcstate. We
+## include it here to confirm that the version in
+## inst/include/dust/tools.hpp is correct, as it's surprisingly fiddly.
+resample_index <- function(w, u) {
+  n <- length(w)
+  uu <- u / n + seq(0, by = 1 / n, length.out = n)
+  cw <- cumsum(w / sum(w))
+  findInterval(uu, cw) + 1L
+}

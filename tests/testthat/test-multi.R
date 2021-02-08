@@ -289,3 +289,62 @@ test_that("compare with multi pars", {
   cmp$set_state(s[, , 3])
   expect_equal(cmp$compare_data(), x[, 3])
 })
+
+
+test_that("reample multi", {
+  res <- dust_example("variable")
+  obj <- res$new(list(list(len = 5), list(len = 5)), 0, 7,
+                 seed = 1L, pars_multi = TRUE)
+  m <- obj$state()
+  m[] <- seq_along(m)
+  obj$set_state(m)
+
+  rng <- dust_rng$new(obj$rng_state(), 14)
+  expect_identical(rng$state(), obj$rng_state())
+
+  w <- cbind(runif(7), runif(7))
+  idx <- obj$resample(w)
+  expect_true(all(idx >= 1 & idx <= 7))
+  expect_true(all(diff(idx) >= 0))
+
+  ## Resampled state reflect index:
+  s <- obj$state()
+  expect_equal(s[, , 1], m[, idx[, 1], 1])
+  expect_equal(s[, , 2], m[, idx[, 2], 2])
+
+  ## Index is expected:
+  u <- rng$unif_rand(14)[c(1, 8)]
+  expect_equal(
+    idx,
+    cbind(resample_index(w[, 1], u[1]), resample_index(w[, 2], u[2])))
+})
+
+
+test_that("resample multi validates inputs", {
+  res <- dust_example("variable")
+  obj <- res$new(list(list(len = 5), list(len = 5)), 0, 7,
+                 seed = 1L, pars_multi = TRUE)
+  m <- obj$state()
+  m[] <- seq_along(m)
+  obj$set_state(m)
+
+  rng <- dust_rng$new(obj$rng_state(), 14)
+  expect_identical(rng$state(), obj$rng_state())
+
+  w <- cbind(runif(7), runif(7))
+  expect_error(
+    obj$resample(c(w)),
+    "Expected a matrix for 'weights', but given vector")
+  expect_error(
+    obj$resample(w[-1, ]),
+    "Expected a matrix with 7 rows for 'weights'")
+  expect_error(
+    obj$resample(w[, -1, drop = FALSE]),
+    "Expected a matrix with 2 columns for 'weights'")
+  expect_error(
+    obj$resample(array(w, c(dim(w), 1))),
+    "Expected a matrix for 'weights'")
+
+  ## Unchanged:
+  expect_identical(obj$state(), m)
+})

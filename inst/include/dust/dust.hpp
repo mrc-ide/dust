@@ -3,6 +3,7 @@
 
 #include <dust/rng.hpp>
 #include <dust/densities.hpp>
+#include <dust/tools.hpp>
 
 #include <algorithm>
 #include <memory>
@@ -295,6 +296,30 @@ public:
     for (auto& p : _particles) {
       p.swap();
     }
+  }
+
+  std::vector<size_t> resample(const std::vector<real_t>& weights) {
+    std::vector<size_t> idx(n_particles());
+    auto it_weights = weights.begin();
+    auto it_idx = idx.begin();
+    if (_n_pars == 0) {
+      const size_t np = _particles.size();
+      real_t u = dust::unif_rand(_rng.state(0));
+      resample_weight(it_weights, np, u, 0, it_idx);
+    } else {
+      const size_t np = _particles.size() / _n_pars;
+#ifdef _OPENMP
+      #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
+      for (size_t i = 0; i < _n_pars; ++i) {
+        const size_t j = i * np;
+        real_t u = dust::unif_rand(_rng.state(j));
+        resample_weight(it_weights + j, np, u, j, it_idx + j);
+      }
+    }
+
+    reorder(idx);
+    return idx;
   }
 
   size_t n_particles() const {

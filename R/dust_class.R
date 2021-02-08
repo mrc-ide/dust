@@ -179,11 +179,23 @@ dust_class <- R6::R6Class(
     },
 
     ##' @description
-    ##' Reorder or resample particles.
+    ##' Reorder particles.
     ##' @param index An integer vector, with values between 1 and n_particles,
     ##' indicating the index of the current particles that new particles should
     ##' take.
     reorder = function(index) {
+    },
+
+    ##' @description
+    ##' Reasmple particles according to some weight.
+    ##'
+    ##' @param weights A numeric vector representing particle weights.
+    ##' For a "multi-parameter" dust object this should be be a matrix
+    ##' with the number of rows being the number of particles per
+    ##' parameter set and the number of columns being the number of
+    ##' parameter sets.
+    ##' long as all particles or be a matrix.
+    resample = function(weights) {
     },
 
     ##' @description

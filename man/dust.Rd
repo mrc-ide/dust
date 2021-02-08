@@ -186,6 +186,7 @@ obj$state()
 \item \href{#method-state}{\code{dust_class$state()}}
 \item \href{#method-step}{\code{dust_class$step()}}
 \item \href{#method-reorder}{\code{dust_class$reorder()}}
+\item \href{#method-resample}{\code{dust_class$resample()}}
 \item \href{#method-info}{\code{dust_class$info()}}
 \item \href{#method-pars}{\code{dust_class$pars()}}
 \item \href{#method-rng_state}{\code{dust_class$rng_state()}}
@@ -461,7 +462,7 @@ Return current model step
 \if{html}{\out{<a id="method-reorder"></a>}}
 \if{latex}{\out{\hypertarget{method-reorder}{}}}
 \subsection{Method \code{reorder()}}{
-Reorder or resample particles.
+Reorder particles.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$reorder(index)}\if{html}{\out{</div>}}
 }
@@ -472,6 +473,28 @@ Reorder or resample particles.
 \item{\code{index}}{An integer vector, with values between 1 and n_particles,
 indicating the index of the current particles that new particles should
 take.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-resample"></a>}}
+\if{latex}{\out{\hypertarget{method-resample}{}}}
+\subsection{Method \code{resample()}}{
+Reasmple particles according to some weight.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$resample(weights)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{weights}}{A numeric vector representing particle weights.
+For a "multi-parameter" dust object this should be be a matrix
+with the number of rows being the number of particles per
+parameter set and the number of columns being the number of
+parameter sets.
+long as all particles or be a matrix.}
 }
 \if{html}{\out{</div>}}
 }
