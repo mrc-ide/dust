@@ -13,13 +13,13 @@ void resample_weight(typename std::vector<real_t>::const_iterator w,
 
   size_t j = offset;
   for (size_t i = 0; i < n; ++i) {
-    while (ww < uu) {
+    while (ww < uu && j < n) {
       ww += *w;
       ++w;
       ++j;
     }
     uu += du;
-    *idx = j - 1;
+    *idx = j == 0 ? 0 : j - 1;
     ++idx;
   }
 }

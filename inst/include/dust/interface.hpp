@@ -400,6 +400,9 @@ SEXP dust_resample(SEXP ptr, cpp11::doubles r_weights) {
       cpp11::stop("Expected a matrix with %d columns for 'weights'", n_pars);
     }
   }
+  if (*std::min_element(r_weights.begin(), r_weights.end()) < 0) {
+    cpp11::stop("All weights must be positive");
+  }
   const std::vector<typename T::real_t>
     weights(r_weights.begin(), r_weights.end());
 

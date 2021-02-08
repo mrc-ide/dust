@@ -303,10 +303,13 @@ public:
     auto it_weights = weights.begin();
     auto it_idx = idx.begin();
     if (_n_pars == 0) {
+      // One parameter set; shuffle among all particles
       const size_t np = _particles.size();
       real_t u = dust::unif_rand(_rng.state(0));
       resample_weight(it_weights, np, u, 0, it_idx);
     } else {
+      // Multiple parameter set; shuffle within each group
+      // independently (and therefore in parallel)
       const size_t np = _particles.size() / _n_pars;
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(_n_threads)

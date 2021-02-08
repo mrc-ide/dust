@@ -522,7 +522,7 @@ test_that("resample", {
 })
 
 
-test_that("resample", {
+test_that("resample error cases", {
   res <- dust_example("variable")
   obj <- res$new(list(len = 5), 0, 7, seed = 1L)
   m <- matrix(as.numeric(1:35), 5, 7)
@@ -533,5 +533,12 @@ test_that("resample", {
 
   expect_error(obj$resample(w[-1]),
                "Expected a vector with 7 elements for 'weights'")
+  expect_error(obj$resample(c(w[-1], -1)),
+               "All weights must be positive")
   expect_identical(obj$state(), m)
+
+  ## This corner case is pretty nasty, and practically the particle
+  ## filter will have stopped by this point.
+  idx <- obj$resample(rep(0, 7))
+  expect_equal(idx, rep(1, 7))
 })
