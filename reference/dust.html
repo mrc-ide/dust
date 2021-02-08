@@ -82,7 +82,7 @@ that can be used to work with the model (see the Details below)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.3</span>
       </span>
     </div>
 
@@ -294,6 +294,7 @@ be used (either specified with <code>[[dust::class()]]</code> or detected).</p><
 <li><p><a href='#method-state'><code>dust_class$state()</code></a></p></li>
 <li><p><a href='#method-step'><code>dust_class$step()</code></a></p></li>
 <li><p><a href='#method-reorder'><code>dust_class$reorder()</code></a></p></li>
+<li><p><a href='#method-resample'><code>dust_class$resample()</code></a></p></li>
 <li><p><a href='#method-info'><code>dust_class$info()</code></a></p></li>
 <li><p><a href='#method-pars'><code>dust_class$pars()</code></a></p></li>
 <li><p><a href='#method-rng_state'><code>dust_class$rng_state()</code></a></p></li>
@@ -482,7 +483,7 @@ the index will remain valid.</p><h4 class='hasAnchor' id='arguments'><a class='a
 
 <p><hr>
 <a id="method-reorder"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/stats/reorder.factor.html'>reorder()</a></code></h3>
-<p>Reorder or resample particles.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Reorder particles.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>reorder</span><span class='op'>(</span><span class='va'>index</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
@@ -490,6 +491,21 @@ the index will remain valid.</p><h4 class='hasAnchor' id='arguments'><a class='a
 <dt><code>index</code></dt><dd><p>An integer vector, with values between 1 and n_particles,
 indicating the index of the current particles that new particles should
 take.</p></dd>
+
+</dl><p></div></p>
+<p><hr>
+<a id="method-resample"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>resample()</code></h3>
+<p>Reasmple particles according to some weight.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>resample</span><span class='op'>(</span><span class='va'>weights</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>weights</code></dt><dd><p>A numeric vector representing particle weights.
+For a "multi-parameter" dust object this should be be a matrix
+with the number of rows being the number of particles per
+parameter set and the number of columns being the number of
+parameter sets.
+long as all particles or be a matrix.</p></dd>
 
 </dl><p></div></p>
 <p><hr>
@@ -679,6 +695,7 @@ this function may be result in a different answer.</p><h4 class='hasAnchor' id='
 #&gt;     state: function (index = NULL) 
 #&gt;     step: function () 
 #&gt;     reorder: function (index) 
+#&gt;     resample: function (weights) 
 #&gt;     info: function () 
 #&gt;     pars: function () 
 #&gt;     rng_state: function (first_only = FALSE) 
@@ -724,6 +741,7 @@ this function may be result in a different answer.</p><h4 class='hasAnchor' id='
 #&gt;     param: function () 
 #&gt;     pars: function () 
 #&gt;     reorder: function (index) 
+#&gt;     resample: function (weights) 
 #&gt;     reset: function (pars, step) 
 #&gt;     rng_state: function (first_only = FALSE) 
 #&gt;     run: function (step_end) 
