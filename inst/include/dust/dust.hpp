@@ -282,10 +282,16 @@ public:
   // contents of the particle state (uses the set_state() and swap()
   // methods on particles).
   void reorder(const std::vector<size_t>& index) {
+#ifdef _OPENMP
+    #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
     for (size_t i = 0; i < _particles.size(); ++i) {
       size_t j = index[i];
       _particles[i].set_state(_particles[j]);
     }
+#ifdef _OPENMP
+    #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
     for (auto& p : _particles) {
       p.swap();
     }
