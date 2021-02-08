@@ -1,3 +1,8 @@
+# dust 0.7.3
+
+* Added new method `$resample()` which implements the resampling algorithm used by the mcstate particle filter
+* The `$compare_data()` method is better behaved with multi-parameter dust objects, returning a matrix
+
 # dust 0.7.2
 
 * Added new methods `$n_particles()` and `$n_state()` to every dust model which can be used to query the size of the state (#149)
