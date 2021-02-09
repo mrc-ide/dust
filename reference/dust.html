@@ -82,7 +82,7 @@ that can be used to work with the model (see the Details below)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.4</span>
       </span>
     </div>
 
@@ -600,10 +600,10 @@ as <code>dust_class$public_methods$has_compare()</code></p><h4 class='hasAnchor'
 <a id="method-set_data"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>set_data()</code></h3>
 <p>Set "data" into the model for use with the <code>$compare_data()</code> method.
 This is not supported by all models, depending on if they define a
-<code>data_t</code> type. One data set is shared across all particles
-(including across all parameter sets if using <code>pars_multi = TRUE</code>).
-See <code><a href='dust_data.html'>dust_data()</a></code> for a helper function to construct
-suitable data and a description of the required format.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<code>data_t</code> type.  See <code><a href='dust_data.html'>dust_data()</a></code> for a helper function to
+construct suitable data and a description of the required format. You
+will probably want to use that here, and definitely if using multiple
+parameter sets.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>set_data</span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
