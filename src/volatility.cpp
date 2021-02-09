@@ -137,6 +137,11 @@ SEXP dust_volatility_compare_data(SEXP ptr) {
 }
 
 [[cpp11::register]]
+SEXP dust_volatility_filter(SEXP ptr) {
+  return dust_filter<volatility>(ptr);
+}
+
+[[cpp11::register]]
 SEXP dust_volatility_simulate(cpp11::sexp r_steps,
                             cpp11::list r_pars,
                             cpp11::doubles_matrix r_state,

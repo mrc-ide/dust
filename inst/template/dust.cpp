@@ -82,6 +82,11 @@ SEXP dust_{{name}}_compare_data(SEXP ptr) {
 }
 
 [[cpp11::register]]
+SEXP dust_{{name}}_filter(SEXP ptr) {
+  return dust_filter<{{class}}>(ptr);
+}
+
+[[cpp11::register]]
 SEXP dust_{{name}}_simulate(cpp11::sexp r_steps,
                             cpp11::list r_pars,
                             cpp11::doubles_matrix r_state,

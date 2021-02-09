@@ -506,18 +506,33 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
   return ret_r;
 }
 
+template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
+cpp11::sexp dust_filter(SEXP ptr) {
+  return R_NilValue;
+}
+
 // Based on the value of the data_t in the underlying model class we
 // might use these functions for set_data and compare_data which give
 // reasonable errors back to R, as we can't use the full versions
 // above.
+inline void disable_method(const char * name) {
+  cpp11::stop("The '%s' method is not supported for this class", name);
+}
+
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 void dust_set_data(SEXP ptr, cpp11::list r_data) {
-  cpp11::stop("The 'set_data' method is not supported for this class");
+  disable_method("set_data");
 }
 
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 cpp11::sexp dust_compare_data(SEXP ptr) {
-  cpp11::stop("The 'compare_data' method is not supported for this class");
+  disable_method("compare_data");
+  return R_NilValue; // never gets here
+}
+
+template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
+cpp11::sexp dust_filter(SEXP ptr) {
+  disable_method("filter");
   return R_NilValue; // never gets here
 }
 

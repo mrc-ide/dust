@@ -142,6 +142,11 @@ SEXP dust_variable_compare_data(SEXP ptr) {
 }
 
 [[cpp11::register]]
+SEXP dust_variable_filter(SEXP ptr) {
+  return dust_filter<variable>(ptr);
+}
+
+[[cpp11::register]]
 SEXP dust_variable_simulate(cpp11::sexp r_steps,
                             cpp11::list r_pars,
                             cpp11::doubles_matrix r_state,

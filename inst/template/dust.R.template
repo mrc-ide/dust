@@ -355,6 +355,13 @@
     ##' this function may be result in a different answer.
     compare_data = function() {
       dust_{{name}}_compare_data(private$ptr_)
+    },
+
+    ##' @description
+    ##' Run a particle filter. The interface here will change a lot over the
+    ##' next few versions.
+    filter = function() {
+      dust_{{name}}_filter(private$ptr_)
     }
   ))
 class({{name}}) <- c("dust_generator", class({{name}}))
