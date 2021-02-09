@@ -24,4 +24,24 @@ void resample_weight(typename std::vector<real_t>::const_iterator w,
   }
 }
 
+template <typename real_t>
+real_t scale_log_weights(typename std::vector<real_t>::iterator w, size_t n) {
+  real_t max_w = -std::numeric_limits<real_t>::infinity();
+  auto wi = w;
+  for (size_t i = 0; i < n; ++i, ++wi) {
+    if (std::isnan(*wi)) {
+      *wi = -std::numeric_limits<real_t>::infinity();
+    } else {
+      max_w = std::max(max_w, *wi);
+    }
+  }
+  real_t tot = 0.0;
+  wi = w;
+  for (size_t i = 0; i < n; ++i, ++wi) {
+    *wi = std::exp(*wi - max_w);
+    tot += *wi;
+  }
+  return std::log(tot / n) + max_w;
+}
+
 #endif

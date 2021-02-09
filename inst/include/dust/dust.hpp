@@ -7,7 +7,7 @@
 
 #include <algorithm>
 #include <memory>
-#include <unordered_map>
+#include <map>
 #include <stdexcept>
 #include <sstream>
 #include <utility>
@@ -299,14 +299,20 @@ public:
   }
 
   std::vector<size_t> resample(const std::vector<real_t>& weights) {
-    std::vector<size_t> idx(n_particles());
+    std::vector<size_t> index(n_particles());
+    resample(weights, index);
+    return index;
+  }
+
+  void resample(const std::vector<real_t>& weights,
+                std::vector<size_t>& index) {
     auto it_weights = weights.begin();
-    auto it_idx = idx.begin();
+    auto it_index = index.begin();
     if (_n_pars == 0) {
       // One parameter set; shuffle among all particles
       const size_t np = _particles.size();
       real_t u = dust::unif_rand(_rng.state(0));
-      resample_weight(it_weights, np, u, 0, it_idx);
+      resample_weight(it_weights, np, u, 0, it_index);
     } else {
       // Multiple parameter set; shuffle within each group
       // independently (and therefore in parallel)
@@ -317,12 +323,11 @@ public:
       for (size_t i = 0; i < _n_pars; ++i) {
         const size_t j = i * np;
         real_t u = dust::unif_rand(_rng.state(j));
-        resample_weight(it_weights + j, np, u, j, it_idx + j);
+        resample_weight(it_weights + j, np, u, j, it_index + j);
       }
     }
 
-    reorder(idx);
-    return idx;
+    reorder(index);
   }
 
   size_t n_particles() const {
@@ -339,6 +344,10 @@ public:
 
   size_t n_pars() const {
     return _n_pars;
+  }
+
+  size_t n_pars_effective() const {
+    return _n_pars == 0 ? 1 : _n_pars;
   }
 
   size_t step() const {
@@ -363,27 +372,63 @@ public:
     _rng.long_jump();
   }
 
-  void set_data(std::unordered_map<size_t, std::vector<data_t>> data) {
+  void set_data(std::map<size_t, std::vector<data_t>> data) {
     _data = data;
   }
 
   std::vector<real_t> compare_data() {
     std::vector<real_t> res;
     auto d = _data.find(step());
-    // If we don't find data, we will return a vector of length 0
-    // (which we catch and convert to NULL on return to R).
     if (d != _data.end()) {
-      const size_t np = _n_pars == 0 ?
-        _particles.size() : _particles.size() / _n_pars;
       res.resize(_particles.size());
-#ifdef _OPENMP
-      #pragma omp parallel for schedule(static) num_threads(_n_threads)
-#endif
-      for (size_t i = 0; i < _particles.size(); ++i) {
-        res[i] = _particles[i].compare_data(d->second[i / np], _rng.state(i));
-      }
+      compare_data(res, d->second);
     }
     return res;
+  }
+
+  void compare_data(std::vector<real_t>& res, const std::vector<data_t>& data) {
+    const size_t np = _particles.size() / n_pars_effective();
+#ifdef _OPENMP
+    #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
+    for (size_t i = 0; i < _particles.size(); ++i) {
+      res[i] = _particles[i].compare_data(data[i / np], _rng.state(i));
+    }
+  }
+
+  std::vector<real_t> filter() {
+    if (_data.size() == 0) {
+      throw std::invalid_argument("Data has not been set for this object");
+    }
+
+    const size_t n_particles = _particles.size();
+    const size_t n_particles_each = n_particles / n_pars_effective();
+    std::vector<real_t> log_likelihood(n_pars_effective());
+    std::vector<real_t> log_likelihood_step(n_pars_effective());
+    std::vector<real_t> weights(n_particles);
+    std::vector<size_t> kappa(n_particles);
+
+    for (auto & d : _data) {
+      run(d.first);
+      compare_data(weights, d.second);
+
+      // TODO: we should cope better with the case where all weights
+      // are 0; I think that is the behaviour in the model.
+      //
+      // TODO: we should cope better with the case where one filter
+      // has become impossible, but that's hard!
+      auto wi = weights.begin();
+      for (size_t i = 0; i < n_pars_effective(); ++i) {
+        log_likelihood_step[i] =
+          scale_log_weights<real_t>(wi, n_particles_each);
+        log_likelihood[i] += log_likelihood_step[i];
+        wi += n_particles_each;
+      }
+
+      resample(weights, kappa);
+    }
+
+    return log_likelihood;
   }
 
 private:
@@ -391,7 +436,7 @@ private:
   const size_t _n_particles_total; // Total number of particles
   size_t _n_threads;
   dust::pRNG<real_t> _rng;
-  std::unordered_map<size_t, std::vector<data_t>> _data;
+  std::map<size_t, std::vector<data_t>> _data;
 
   std::vector<size_t> _index;
   std::vector<Particle<T>> _particles;

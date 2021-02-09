@@ -2,7 +2,7 @@
 #define DUST_INTERFACE_HPP
 
 #include <cstring>
-#include <unordered_map>
+#include <map>
 #include <cpp11/doubles.hpp>
 #include <cpp11/external_pointer.hpp>
 #include <cpp11/integers.hpp>
@@ -467,11 +467,11 @@ void dust_set_data(SEXP ptr, cpp11::list r_data) {
   const size_t n_pars = obj->n_pars() == 0 ? 1 : obj->n_pars();
 
   const size_t len = r_data.size();
-  std::unordered_map<size_t, std::vector<data_t>> data;
+  std::map<size_t, std::vector<data_t>> data;
 
   for (size_t i = 0; i < len; ++i) {
     cpp11::list el = r_data[i];
-    if (el.size() != n_pars + 1) {
+    if (el.size() != static_cast<int>(n_pars) + 1) {
       cpp11::stop("Expected a list of length %d for element %d of 'data'",
                   n_pars + 1, i + 1);
     }
@@ -508,7 +508,8 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 cpp11::sexp dust_filter(SEXP ptr) {
-  return R_NilValue;
+  Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  return cpp11::writable::doubles(obj->filter());
 }
 
 // Based on the value of the data_t in the underlying model class we
