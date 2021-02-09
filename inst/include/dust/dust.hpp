@@ -363,7 +363,7 @@ public:
     _rng.long_jump();
   }
 
-  void set_data(std::unordered_map<size_t, data_t> data) {
+  void set_data(std::unordered_map<size_t, std::vector<data_t>> data) {
     _data = data;
   }
 
@@ -373,12 +373,14 @@ public:
     // If we don't find data, we will return a vector of length 0
     // (which we catch and convert to NULL on return to R).
     if (d != _data.end()) {
+      const size_t np = _n_pars == 0 ?
+        _particles.size() : _particles.size() / _n_pars;
       res.resize(_particles.size());
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(_n_threads)
 #endif
       for (size_t i = 0; i < _particles.size(); ++i) {
-        res[i] = _particles[i].compare_data(d->second, _rng.state(i));
+        res[i] = _particles[i].compare_data(d->second[i / np], _rng.state(i));
       }
     }
     return res;
@@ -389,7 +391,7 @@ private:
   const size_t _n_particles_total; // Total number of particles
   size_t _n_threads;
   dust::pRNG<real_t> _rng;
-  std::unordered_map<size_t, data_t> _data;
+  std::unordered_map<size_t, std::vector<data_t>> _data;
 
   std::vector<size_t> _index;
   std::vector<Particle<T>> _particles;

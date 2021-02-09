@@ -76,3 +76,9 @@ dust_header <- function(comment) {
 squote <- function(x) {
   sprintf("'%s'", x)
 }
+
+
+is_integer_like <- function(x) {
+  length(x) == 1 && !is.na(x) &&
+    (is.integer(x) || (is.numeric(x) && isTRUE(all.equal(x, round(x)))))
+}

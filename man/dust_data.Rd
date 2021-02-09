@@ -4,7 +4,7 @@
 \alias{dust_data}
 \title{Process data for dust}
 \usage{
-dust_data(object, name_step = "step")
+dust_data(object, name_step = "step", multi = NULL)
 }
 \arguments{
 \item{object}{An object, at this point must be a \link{data.frame}}
@@ -12,6 +12,9 @@ dust_data(object, name_step = "step")
 \item{name_step}{The name of the data column within \code{object}; this
 column must be integer-like and every integer must be
 nonnegative and unique}
+
+\item{multi}{Control how to interpret data for multi-parameter
+dust object; see Details}
 }
 \description{
 Prepare data for use with the \verb{$set_data()} method. This is not
@@ -20,7 +23,8 @@ where you have a \link{data.frame} with some column indicating "model
 step" (\code{name_step}), and other columns that might be use in your
 \code{data_compare} function. Each row will be turned into a named R
 list, which your \code{dust_data} function can then work with to get
-this time-steps values.
+this time-steps values. See Details for use with multi-pars
+objects.
 }
 \details{
 The data object as accepted by \code{data_set} must be a \link{list} and
@@ -29,6 +33,27 @@ each element must itself be a list with two elements; the model
 to data at that point. We expect that most of the time this second
 element will be a key-value list with scalar keys, but more
 flexibility may be required.
+
+For multi-data objects, the final format is a bit more awkward;
+each time step we have a list with elements \code{step}, \code{data_1},
+\code{data_2}, ..., \code{data_n} for \code{n} parameters. There are two ways of
+creating this that might be useful: \emph{sharing} the data across all
+parameters and using some column as a grouping value.
+
+The behaviour here is driven by the \code{multi} argument;
+\itemize{
+\item \code{NULL}: (the default) do nothing; this creates an object that
+is suitable for use with a \code{pars_multi = FALSE} dust
+object.
+\item \verb{<integer>} (e.g., multi = 3); share the data across 3 sets of
+parameters. This number must match the number of parameter sets
+that your dust object is created with
+\item \verb{<column_name>} (e.g., multi = "country"); the name of a column
+within your data to split the data at. This columm must be a
+factor, and that factor must have levels that map to integers 1,
+2, ..., n (e.g., \code{unique(as.integer(object[[multi]]))} returns
+the integers \code{1:n}).
+}
 }
 \examples{
 d <- data.frame(step = seq(0, 50, by = 10), a = runif(6), b = runif(6))
