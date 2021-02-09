@@ -360,8 +360,8 @@
     ##' @description
     ##' Run a particle filter. The interface here will change a lot over the
     ##' next few versions.
-    filter = function() {
-      dust_{{name}}_filter(private$ptr_)
+    filter = function(save_history = FALSE) {
+      dust_{{name}}_filter(private$ptr_, save_history)
     }
   ))
 class({{name}}) <- c("dust_generator", class({{name}}))

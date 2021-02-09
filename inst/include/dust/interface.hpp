@@ -507,9 +507,30 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
 }
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
-cpp11::sexp dust_filter(SEXP ptr) {
+cpp11::sexp dust_filter(SEXP ptr, bool save_history) {
+  using namespace cpp11::literals;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  return cpp11::writable::doubles(obj->filter());
+  cpp11::writable::doubles log_likelihood(obj->filter(save_history));
+  cpp11::list history;
+  if (save_history) {
+    cpp11::writable::doubles
+      history_value(obj->filter_history().history_value);
+    cpp11::writable::integers
+      history_index(obj->filter_history().history_index);
+    // ints because they're needed to construct the right type for R's
+    // dim attributes
+    const int n_state = obj->n_state();
+    const int n_particles = obj->n_particles();
+    const int n_data = history_index.size() / n_particles;
+    history_value.attr("dim") =
+      cpp11::writable::integers({n_state, n_particles, n_data});
+    history_index.attr("dim") =
+      cpp11::writable::integers({n_particles, n_data});
+    history = cpp11::writable::list({"value"_nm = history_value,
+                                     "index"_nm = history_index});
+  }
+  return cpp11::writable::list({"log_likelihood"_nm = log_likelihood,
+                                "history"_nm = history});
 }
 
 // Based on the value of the data_t in the underlying model class we

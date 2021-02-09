@@ -45,8 +45,63 @@ struct pars_t {
     pars_t(dust::nothing(), internal_) {
   }
 };
-}
 
+// If we store history, we need to save:
+//
+// history order (n_particles * n_data)
+// history value (n_history_state * n_particles * n_data)
+//
+// restart (not yet thinking about this)
+//
+// implies that we should save an index
+
+template <typename real_t>
+class filter_state {
+public:
+  filter_state(size_t n_state, size_t n_particles, size_t n_data) :
+    n_state_(n_state), n_particles_(n_particles), n_data_(n_data), offset_(0) {
+    resize(n_state, n_particles, n_data);
+  }
+
+  // default constructable
+  filter_state() : filter_state(0, 0, 0) {
+  }
+
+  void resize(size_t n_state, size_t n_particles, size_t n_data) {
+    n_state_ = n_state;
+    n_particles_ = n_particles;
+    n_data_ = n_data;
+    offset_ = 0;
+    history_value.resize(n_state_ * n_particles_ * (n_data_ + 1));
+    history_index.resize(n_particles_ * (n_data_ + 1));
+    for (size_t i = 0; i < n_particles_; ++i) {
+      history_index[i] = i;
+    }
+  }
+
+  typename std::vector<real_t>::iterator history_value_iterator() {
+    return history_value.begin() + offset_ * n_state_ * n_particles_;
+  }
+
+  typename std::vector<size_t>::iterator history_index_iterator() {
+    return history_index.begin() + offset_ * n_particles_;
+  }
+
+  void advance() {
+    offset_++;
+  }
+
+  std::vector<real_t> history_value;
+  std::vector<size_t> history_index;
+
+private:
+  size_t n_state_;
+  size_t n_particles_;
+  size_t n_data_;
+  size_t offset_;
+  size_t len_;
+};
+}
 
 template <typename T>
 class Particle {
@@ -241,11 +296,15 @@ public:
   }
 
   void state(std::vector<real_t>& end_state) const {
+    return state(end_state.begin());
+  }
+
+  void state(typename std::vector<real_t>::iterator end_state) const {
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
 #endif
     for (size_t i = 0; i < _particles.size(); ++i) {
-      _particles[i].state(_index, end_state.begin() + i * _index.size());
+      _particles[i].state(_index, end_state + i * _index.size());
     }
   }
 
@@ -396,7 +455,7 @@ public:
     }
   }
 
-  std::vector<real_t> filter() {
+  std::vector<real_t> filter(bool save_history) {
     if (_data.size() == 0) {
       throw std::invalid_argument("Data has not been set for this object");
     }
@@ -408,15 +467,22 @@ public:
     std::vector<real_t> weights(n_particles);
     std::vector<size_t> kappa(n_particles);
 
+    if (save_history) {
+      filter_state_.resize(_index.size(), _particles.size(), _data.size());
+      state(filter_state_.history_value_iterator());
+      filter_state_.advance();
+    }
+
     for (auto & d : _data) {
       run(d.first);
       compare_data(weights, d.second);
 
       // TODO: we should cope better with the case where all weights
-      // are 0; I think that is the behaviour in the model.
+      // are 0; I think that is the behaviour in the model (or rather
+      // the case where there is no data and so we do not resample)
       //
       // TODO: we should cope better with the case where one filter
-      // has become impossible, but that's hard!
+      // has become impossible but others continue, but that's hard!
       auto wi = weights.begin();
       for (size_t i = 0; i < n_pars_effective(); ++i) {
         log_likelihood_step[i] =
@@ -425,10 +491,26 @@ public:
         wi += n_particles_each;
       }
 
+      // We could move this below if wanted but we'd have to rewrite
+      // the re-sort algorithm.
+      if (save_history) {
+        state(filter_state_.history_value_iterator());
+      }
+
       resample(weights, kappa);
+
+      if (save_history) {
+        std::copy(kappa.begin(), kappa.end(),
+                  filter_state_.history_index_iterator());
+        filter_state_.advance();
+      }
     }
 
     return log_likelihood;
+  }
+
+  const dust::filter_state<real_t>& filter_history() const {
+    return filter_state_;
   }
 
 private:
@@ -440,6 +522,9 @@ private:
 
   std::vector<size_t> _index;
   std::vector<Particle<T>> _particles;
+
+  // Only used if we have data; this is going to change around a bit.
+  dust::filter_state<real_t> filter_state_;
 
   void initialise(const pars_t& pars, const size_t step,
                   const size_t n_particles) {
