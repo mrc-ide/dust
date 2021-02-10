@@ -4,9 +4,8 @@ example_filter <- function() {
   end <- 150 * 4
   steps <- seq(0, end, by = 4)
   ans <- dust_iterate(model$new(list(), 0, np, seed = 1L), steps)
-  dat <- data.frame(step = steps, incidence = ans[5, 1, ])
-  dat_dust <- dust_data(dat)[-1]
-
+  dat <- data.frame(step = steps[-1], incidence = ans[5, 1, -1])
+  dat_dust <- dust_data(dat)
   list(model = model, dat = dat, dat_dust = dat_dust)
 }
 

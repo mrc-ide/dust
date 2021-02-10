@@ -521,8 +521,15 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_history) {
     // or at least the history object. Still this is going to work
     // generally.
     const int n_data = history_data.size() / (n_state * n_particles);
-    history_data.attr("dim") =
-      cpp11::writable::integers({n_state, n_particles, n_data});
+    const int n_pars = obj->n_pars();
+    if (n_pars == 0) {
+      history_data.attr("dim") =
+        cpp11::writable::integers({n_state, n_particles, n_data});
+    } else {
+      const int n_particles_each = n_particles / n_pars;
+      history_data.attr("dim") =
+        cpp11::writable::integers({n_state, n_particles_each, n_pars, n_data});
+    }
     history = history_data;
   }
   return cpp11::writable::list({"log_likelihood"_nm = log_likelihood,
