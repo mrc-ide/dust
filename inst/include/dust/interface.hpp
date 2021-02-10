@@ -511,23 +511,19 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_history) {
   using namespace cpp11::literals;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   cpp11::writable::doubles log_likelihood(obj->filter(save_history));
-  cpp11::list history;
+  cpp11::sexp history;
   if (save_history) {
-    cpp11::writable::doubles
-      history_value(obj->filter_history().history_value);
-    cpp11::writable::integers
-      history_index(obj->filter_history().history_index);
-    // ints because they're needed to construct the right type for R's
-    // dim attributes
+    cpp11::writable::doubles history_data(obj->filter_history().size());
+    obj->filter_history().history(REAL(history_data));
     const int n_state = obj->n_state();
     const int n_particles = obj->n_particles();
-    const int n_data = history_index.size() / n_particles;
-    history_value.attr("dim") =
+    // This feels like something that dust should be able to tell us,
+    // or at least the history object. Still this is going to work
+    // generally.
+    const int n_data = history_data.size() / (n_state * n_particles);
+    history_data.attr("dim") =
       cpp11::writable::integers({n_state, n_particles, n_data});
-    history_index.attr("dim") =
-      cpp11::writable::integers({n_particles, n_data});
-    history = cpp11::writable::list({"value"_nm = history_value,
-                                     "index"_nm = history_index});
+    history = history_data;
   }
   return cpp11::writable::list({"log_likelihood"_nm = log_likelihood,
                                 "history"_nm = history});

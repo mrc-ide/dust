@@ -73,9 +73,9 @@ public:
     n_data_ = n_data;
     offset_ = 0;
     history_value.resize(n_state_ * n_particles_ * (n_data_ + 1));
-    history_index.resize(n_particles_ * (n_data_ + 1));
+    history_order.resize(n_particles_ * (n_data_ + 1));
     for (size_t i = 0; i < n_particles_; ++i) {
-      history_index[i] = i;
+      history_order[i] = i;
     }
   }
 
@@ -83,8 +83,43 @@ public:
     return history_value.begin() + offset_ * n_state_ * n_particles_;
   }
 
-  typename std::vector<size_t>::iterator history_index_iterator() {
-    return history_index.begin() + offset_ * n_particles_;
+  typename std::vector<size_t>::iterator history_order_iterator() {
+    return history_order.begin() + offset_ * n_particles_;
+  }
+
+  std::vector<real_t> history() const {
+    std::vector<real_t> ret(size());
+    history(ret.begin());
+    return ret;
+  }
+
+  template <typename Iterator>
+  void history(Iterator ret) const {
+    std::vector<size_t> index_particle(n_particles_);
+    for (size_t i = 0; i < n_particles_; ++i) {
+      index_particle[i] = i;
+    }
+    // TODO: directly compute 'i' by counting down from offset, which
+    // is a bit more prone to off-by-ones. Could also do this with
+    // iterators directly I suspect. Might be easiest to get right
+    // with a do..while loop as that puts the check in the correct
+    // position.
+    for (size_t k = 0; k < n_data_ + 1; ++k) {
+      size_t i = n_data_ - k;
+      auto it_order = history_order.begin() + i * n_particles_;
+      auto it_value = history_value.begin() + i * n_state_ * n_particles_;
+      auto it_ret = ret + i * n_state_ * n_particles_;
+      for (size_t j = 0; j < n_particles_; ++j) {
+        const size_t idx = *(it_order + index_particle[j]);
+        index_particle[j] = idx;
+        std::copy_n(it_value + idx * n_state_, n_state_,
+                    it_ret + j * n_state_);
+      }
+    }
+  }
+
+  size_t size() const {
+    return history_value.size();
   }
 
   void advance() {
@@ -92,7 +127,7 @@ public:
   }
 
   std::vector<real_t> history_value;
-  std::vector<size_t> history_index;
+  std::vector<size_t> history_order;
 
 private:
   size_t n_state_;
@@ -501,7 +536,7 @@ public:
 
       if (save_history) {
         std::copy(kappa.begin(), kappa.end(),
-                  filter_state_.history_index_iterator());
+                  filter_state_.history_order_iterator());
         filter_state_.advance();
       }
     }
