@@ -296,6 +296,21 @@ dust_class <- R6::R6Class(
     ##' underlying `compare_data` function is stochastic, then each call to
     ##' this function may be result in a different answer.
     compare_data = function() {
+    },
+
+    ##' @description
+    ##' Run a particle filter. The interface here will change a lot over the
+    ##' next few versions. You *must* `$reset()` the filter before using
+    ##' this method to get sensible values. We will tinker with this in
+    ##' future versions to allow things like partial runs.
+    ##'
+    ##' @param save_history Logical, indicating if the filtered particle
+    ##' trajectories should be saved. If `TRUE` then the `history` element
+    ##' will be a 3d array (state x particles x time) containing the state
+    ##' values, selected according to the index set with `$set_index()`.
+    ##' If you have a multi-parameter dust object this will be a 4d array
+    ##' (state x particles x parameter x time).
+    filter = function(save_history = FALSE) {
     }
   ))
 class(dust_class) <- c("dust_generator", class(dust_class))

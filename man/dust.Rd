@@ -197,6 +197,7 @@ obj$state()
 \item \href{#method-has_compare}{\code{dust_class$has_compare()}}
 \item \href{#method-set_data}{\code{dust_class$set_data()}}
 \item \href{#method-compare_data}{\code{dust_class$compare_data()}}
+\item \href{#method-filter}{\code{dust_class$filter()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -669,5 +670,30 @@ this function may be result in a different answer.
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$compare_data()}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-filter"></a>}}
+\if{latex}{\out{\hypertarget{method-filter}{}}}
+\subsection{Method \code{filter()}}{
+Run a particle filter. The interface here will change a lot over the
+next few versions. You \emph{must} \verb{$reset()} the filter before using
+this method to get sensible values. We will tinker with this in
+future versions to allow things like partial runs.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$filter(save_history = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{save_history}}{Logical, indicating if the filtered particle
+trajectories should be saved. If \code{TRUE} then the \code{history} element
+will be a 3d array (state x particles x time) containing the state
+values, selected according to the index set with \verb{$set_index()}.
+If you have a multi-parameter dust object this will be a 4d array
+(state x particles x parameter x time).}
+}
+\if{html}{\out{</div>}}
+}
 }
 }

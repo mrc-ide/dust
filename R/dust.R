@@ -171,8 +171,8 @@ sir <- R6::R6Class(
       dust_sir_compare_data(private$ptr_)
     },
 
-    filter = function() {
-      dust_sir_filter(private$ptr_)
+    filter = function(save_history = FALSE) {
+      dust_sir_filter(private$ptr_, save_history)
     }
   ))
 class(sir) <- c("dust_generator", class(sir))
@@ -348,8 +348,8 @@ variable <- R6::R6Class(
       dust_variable_compare_data(private$ptr_)
     },
 
-    filter = function() {
-      dust_variable_filter(private$ptr_)
+    filter = function(save_history = FALSE) {
+      dust_variable_filter(private$ptr_, save_history)
     }
   ))
 class(variable) <- c("dust_generator", class(variable))
@@ -525,8 +525,8 @@ volatility <- R6::R6Class(
       dust_volatility_compare_data(private$ptr_)
     },
 
-    filter = function() {
-      dust_volatility_filter(private$ptr_)
+    filter = function(save_history = FALSE) {
+      dust_volatility_filter(private$ptr_, save_history)
     }
   ))
 class(volatility) <- c("dust_generator", class(volatility))
@@ -702,8 +702,8 @@ walk <- R6::R6Class(
       dust_walk_compare_data(private$ptr_)
     },
 
-    filter = function() {
-      dust_walk_filter(private$ptr_)
+    filter = function(save_history = FALSE) {
+      dust_walk_filter(private$ptr_, save_history)
     }
   ))
 class(walk) <- c("dust_generator", class(walk))
