@@ -6,8 +6,11 @@
 class sir {
 public:
   typedef double real_t;
-  typedef dust::no_data data_t;
+  struct data_t {
+    real_t incidence;
+  };
   typedef dust::no_internal internal_t;
+
   struct shared_t {
     real_t S0;
     real_t I0;
@@ -16,6 +19,8 @@ public:
     real_t gamma;
     real_t dt;
     size_t freq;
+    // Observation parameters
+    real_t exp_noise;
   };
 
   sir(const dust::pars_t<sir>& pars) : shared(pars.shared) {
@@ -54,6 +59,15 @@ public:
     state_next[4] = (step % shared->freq == 0) ? n_SI : state[4] + n_SI;
   }
 
+  real_t compare_data(const real_t * state, const data_t& data,
+                      dust::rng_state_t<real_t>& rng_state) {
+    const real_t incidence_modelled = state[4];
+    const real_t incidence_observed = data.incidence;
+    const real_t lambda = incidence_modelled +
+      dust::distr::rexp(rng_state, shared->exp_noise);
+    return dust::dpois(incidence_observed, lambda, true);
+  }
+
 private:
   dust::shared_ptr<sir> shared;
 };
@@ -83,7 +97,11 @@ dust::pars_t<sir> dust_pars<sir>(cpp11::list pars) {
   size_t freq = 4;
   real_t dt = 1.0 / static_cast<real_t>(freq);
 
-  sir::shared_t shared{S0, I0, R0, beta, gamma, dt, freq};
+  // Compare function
+  // [[dust::param(exp_noise, required = FALSE)]]
+  real_t exp_noise = with_default(1e6, pars["exp_noise"]);
+
+  sir::shared_t shared{S0, I0, R0, beta, gamma, dt, freq, exp_noise};
   return dust::pars_t<sir>(shared);
 }
 
@@ -96,6 +114,16 @@ cpp11::sexp dust_info<sir>(const dust::pars_t<sir>& pars) {
   cpp11::list p = cpp11::writable::list({"beta"_nm = pars.shared->beta,
                                          "gamma"_nm = pars.shared->gamma});
   return cpp11::writable::list({"vars"_nm = vars, "pars"_nm = p});
+}
+
+// The way that this is going to work is we will process a list
+// *outside* of the C that will take (say) a df and convert it
+// row-wise into a list with elements `step` and `data`, we will pass
+// that in here. Then this function will be called once per data
+// element to create the struct that will be used for future work.
+template <>
+sir::data_t dust_data<sir>(cpp11::list data) {
+  return sir::data_t{cpp11::as_cpp<double>(data["incidence"])};
 }
 
 [[cpp11::register]]

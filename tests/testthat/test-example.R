@@ -445,9 +445,9 @@ test_that("has_openmp can be called statically and normally", {
 
 
 test_that("Sensible behaviour of compare_data if not implemented", {
-  res <- dust_example("sir")
+  res <- dust_example("walk")
   expect_false(res$public_methods$has_compare())
-  mod <- res$new(list(), 0, 1, seed = 1L)
+  mod <- res$new(list(sd = 1), 0, 1, seed = 1L)
   expect_false(mod$has_compare())
   expect_error(
     mod$set_data(list(list(1, list()))),
@@ -465,7 +465,7 @@ test_that("Sensible behaviour of compare_data if not implemented", {
 
 
 test_that("Can run compare_data", {
-  res <- dust_example("sir2")
+  res <- dust_example("sir")
   expect_true(res$public_methods$has_compare())
 
   np <- 10

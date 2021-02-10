@@ -260,7 +260,7 @@ test_that("must use same sized simulations", {
 
 
 test_that("compare with multi pars", {
-  res <- dust_example("sir2")
+  res <- dust_example("sir")
 
   np <- 10
   end <- 150 * 4
@@ -292,7 +292,7 @@ test_that("compare with multi pars", {
 
 
 test_that("validate setting data by length", {
-  res <- dust_example("sir2")
+  res <- dust_example("sir")
 
   np <- 10
   end <- 150 * 4
@@ -319,7 +319,7 @@ test_that("validate setting data by length", {
 
 
 test_that("compare with multi pars and different data", {
-  res <- dust_example("sir2")
+  res <- dust_example("sir")
 
   np <- 10
   end <- 150 * 4

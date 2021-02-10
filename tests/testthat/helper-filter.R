@@ -1,5 +1,5 @@
 example_filter <- function() {
-  model <- dust_example("sir2")
+  model <- dust_example("sir")
   np <- 10
   end <- 150 * 4
   steps <- seq(0, end, by = 4)

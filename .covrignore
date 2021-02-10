@@ -2,7 +2,6 @@ R/cpp11.R
 R/dust.R
 src/cpp11.cpp
 src/sir.cpp
-src/sir2.cpp
 src/variable.cpp
 src/volatility.cpp
 src/walk.cpp

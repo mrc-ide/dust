@@ -7,7 +7,8 @@ test_that("parse sir model metadata", {
   expect_equal(
     meta$param,
     list(beta = list(required = FALSE),
-         gamma = list(required = FALSE)))
+         gamma = list(required = FALSE),
+         exp_noise = list(required = FALSE)))
 })
 
 

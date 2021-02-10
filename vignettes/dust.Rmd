@@ -158,6 +158,7 @@ There is not much different here to the version that is shown before for the wal
 * the `initial` method is slightly more complicated as we initialise a 3-element vector
 * our `shared_t` object has significantly more elements
 * the `dust_pars` function is much more complicated
+* there is a `compare_data` method and a nontrivial `data_t` definition, but ignore these for now
 
 The other difference is a new template specialisation of `dust_info` - this is optional but can be used to report back to R information about the model based on the input parameters. Here it returns information about variable order and core parameters.
 

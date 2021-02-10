@@ -15,8 +15,8 @@
 ##'
 ##' @title Access dust's built-in examples.
 ##'
-##' @param name The name of the example to use. There are three
-##'   examples: `sir`, `volatility` and `walk` (see Details).
+##' @param name The name of the example to use. There are four
+##'   examples: `sir`, `variable`, `volatility` and `walk` (see Details).
 ##'
 ##' @return A [`dust`] object that can be used to create a model.  See
 ##'   examples for usage.
@@ -45,7 +45,6 @@ dust_example <- function(name) {
   ## more interesting later?
   switch(name,
          sir = sir,
-         sir2 = sir2, # undocumented; see issue #156
          variable = variable,
          volatility = volatility,
          walk = walk,
