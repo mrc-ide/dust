@@ -1,5 +1,5 @@
 example_filter <- function() {
-  model <- dust(dust_file("examples/sir2.cpp"), quiet = TRUE)
+  model <- dust_example("sir2")
   np <- 10
   end <- 150 * 4
   steps <- seq(0, end, by = 4)

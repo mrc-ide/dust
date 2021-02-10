@@ -45,6 +45,7 @@ dust_example <- function(name) {
   ## more interesting later?
   switch(name,
          sir = sir,
+         sir2 = sir2, # undocumented; see issue #156
          variable = variable,
          volatility = volatility,
          walk = walk,

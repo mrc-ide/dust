@@ -458,11 +458,14 @@ test_that("Sensible behaviour of compare_data if not implemented", {
   expect_error(
     mod$compare_data(),
     "The 'compare_data' method is not supported for this class")
+  expect_error(
+    mod$filter(),
+    "The 'filter' method is not supported for this class")
 })
 
 
 test_that("Can run compare_data", {
-  res <- dust(dust_file("examples/sir2.cpp"), quiet = TRUE)
+  res <- dust_example("sir2")
   expect_true(res$public_methods$has_compare())
 
   np <- 10

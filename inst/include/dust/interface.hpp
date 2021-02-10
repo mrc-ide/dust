@@ -552,13 +552,13 @@ void dust_set_data(SEXP ptr, cpp11::list r_data) {
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 cpp11::sexp dust_compare_data(SEXP ptr) {
   disable_method("compare_data");
-  return R_NilValue; // never gets here
+  return R_NilValue; // #nocov never gets here
 }
 
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 cpp11::sexp dust_filter(SEXP ptr, bool save_history) {
   disable_method("filter");
-  return R_NilValue; // never gets here
+  return R_NilValue; // #nocov never gets here
 }
 
 template <typename T>

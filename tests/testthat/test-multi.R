@@ -260,7 +260,7 @@ test_that("must use same sized simulations", {
 
 
 test_that("compare with multi pars", {
-  res <- dust(dust_file("examples/sir2.cpp"), quiet = TRUE)
+  res <- dust_example("sir2")
 
   np <- 10
   end <- 150 * 4
@@ -292,7 +292,7 @@ test_that("compare with multi pars", {
 
 
 test_that("compare with multi pars and different data", {
-  res <- dust(dust_file("examples/sir2.cpp"), quiet = TRUE)
+  res <- dust_example("sir2")
 
   np <- 10
   end <- 150 * 4

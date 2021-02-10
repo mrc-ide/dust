@@ -176,6 +176,184 @@ sir <- R6::R6Class(
     }
   ))
 class(sir) <- c("dust_generator", class(sir))
+sir2 <- R6::R6Class(
+  "dust",
+  cloneable = FALSE,
+
+  private = list(
+    pars_ = NULL,
+    pars_multi_ = NULL,
+    index_ = NULL,
+    info_ = NULL,
+    n_threads_ = NULL,
+    n_particles_ = NULL,
+    ptr_ = NULL,
+    param_ = list(beta = list(required = FALSE), gamma = list(required = FALSE),
+    exp_noise = list(required = FALSE)),
+
+    simulate = function(steps, pars, state, index = NULL,
+                        n_threads = 1L, seed = NULL,
+                        return_state = FALSE) {
+      dust_sir2_simulate(steps, pars, state, index, n_threads, seed,
+                             return_state)
+    },
+
+    check_pars_multi = function(pars, len) {
+      if (!is.list(pars) || !is.null(names(pars))) {
+        stop("Expected 'pars' to be an unnamed list as 'pars_multi' is used")
+      }
+      n <- length(private$pars_)
+      if (n == 0 && length(pars) == 0) {
+        stop("Expected 'pars' to have at least one element")
+      } else if (n > 0 && length(pars) != n) {
+        stop(sprintf("Expected 'pars' to have %d elements", n))
+      }
+    }
+  ),
+
+  public = list(
+    initialize = function(pars, step, n_particles, n_threads = 1L,
+                          seed = NULL, pars_multi = FALSE) {
+      if (pars_multi) {
+        private$check_pars_multi(pars)
+      }
+      res <- dust_sir2_alloc(pars, pars_multi, step, n_particles,
+                        n_threads, seed)
+      private$pars_ <- pars
+      private$pars_multi_ <- pars_multi
+      private$n_threads_ <- n_threads
+      private$n_particles_ <- n_particles
+      private$ptr_ <- res[[1L]]
+      private$info_ <- res[[2L]]
+    },
+
+    name = function() {
+      "sir2"
+    },
+
+    param = function() {
+      private$param_
+    },
+
+    run = function(step_end) {
+      m <- dust_sir2_run(private$ptr_, step_end)
+      rownames(m) <- names(private$index_)
+      m
+    },
+
+    set_index = function(index) {
+      dust_sir2_set_index(private$ptr_, index)
+      private$index_ <- index
+      invisible()
+    },
+
+    index = function() {
+      private$index_
+    },
+
+    n_threads = function() {
+      private$n_threads_
+    },
+
+    n_state = function() {
+      dust_sir2_n_state(private$ptr_)
+    },
+
+    n_particles = function() {
+      private$n_particles_
+    },
+
+    set_state = function(state, step = NULL) {
+      dust_sir2_set_state(private$ptr_, state, step)
+    },
+
+    reset = function(pars, step) {
+      if (private$pars_multi_) {
+        private$check_pars_multi(pars)
+      }
+      private$info_ <- dust_sir2_reset(private$ptr_, pars, step)
+      private$index_ <- NULL
+      private$pars_ <- pars
+      invisible()
+    },
+
+    set_pars = function(pars) {
+      if (private$pars_multi_) {
+        private$check_pars_multi(pars)
+      }
+      private$info_ <- dust_sir2_set_pars(private$ptr_, pars)
+      private$pars_ <- pars
+    },
+
+    state = function(index = NULL) {
+      m <- dust_sir2_state(private$ptr_, index)
+      rownames(m) <- names(index)
+      m
+    },
+
+    step = function() {
+      dust_sir2_step(private$ptr_)
+    },
+
+    reorder = function(index) {
+      storage.mode(index) <- "integer"
+      dust_sir2_reorder(private$ptr_, index)
+      invisible()
+    },
+
+    resample = function(weights) {
+      invisible(dust_sir2_resample(private$ptr_, weights))
+    },
+
+    info = function() {
+      private$info_
+    },
+
+    pars = function() {
+      private$pars_
+    },
+
+    rng_state = function(first_only = FALSE) {
+      dust_sir2_rng_state(private$ptr_, first_only)
+    },
+
+    set_rng_state = function(rng_state) {
+      dust_sir2_set_rng_state(private$ptr_, rng_state)
+      invisible()
+    },
+
+    has_openmp = function() {
+      dust_sir2_capabilities()[["openmp"]]
+    },
+
+    n_pars = function() {
+      if (private$pars_multi_) length(private$pars_) else 0L
+    },
+
+    set_n_threads = function(n_threads) {
+      prev <- private$n_threads_
+      dust_sir2_set_n_threads(private$ptr_, n_threads)
+      private$n_threads_ <- n_threads
+      invisible(prev)
+    },
+
+    has_compare = function() {
+      dust_sir2_capabilities()[["compare"]]
+    },
+
+    set_data = function(data) {
+      dust_sir2_set_data(private$ptr_, data)
+    },
+
+    compare_data = function() {
+      dust_sir2_compare_data(private$ptr_)
+    },
+
+    filter = function(save_history = FALSE) {
+      dust_sir2_filter(private$ptr_, save_history)
+    }
+  ))
+class(sir2) <- c("dust_generator", class(sir2))
 variable <- R6::R6Class(
   "dust",
   cloneable = FALSE,
