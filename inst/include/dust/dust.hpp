@@ -99,11 +99,6 @@ public:
     for (size_t i = 0; i < n_particles_; ++i) {
       index_particle[i] = i;
     }
-    // TODO: directly compute 'i' by counting down from offset, which
-    // is a bit more prone to off-by-ones. Could also do this with
-    // iterators directly I suspect. Might be easiest to get right
-    // with a do..while loop as that puts the check in the correct
-    // position.
     for (size_t k = 0; k < n_data_ + 1; ++k) {
       size_t i = n_data_ - k;
       auto it_order = history_order.begin() + i * n_particles_;
