@@ -1,3 +1,7 @@
+# dust 0.7.5
+
+* Beginnings of particle filter support, with a new `$filter()` method (only works for models with a compiled "compare" method) (#155)
+
 # dust 0.7.4
 
 * More complete handling of `$compare_data()` with multiple parameters, with the `dust::dust_data` function now expanded to support this (#152)
