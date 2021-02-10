@@ -59,7 +59,7 @@ test_that("Can run multiple filters at once", {
 
   cmp <- list(
     dat$model$new(pars[[1]], 0, np, seed = seed[1:320]),
-    dat$model$new(pars[[2]], 0, np, seed = seed[-(1:320)]))
+    dat$model$new(pars[[2]], 0, np, seed = seed[321:640]))
   for (i in seq_along(cmp)) {
     cmp[[i]]$set_data(dat$dat_dust)
   }
