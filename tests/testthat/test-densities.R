@@ -66,6 +66,11 @@ test_that("dnbinom agrees", {
     dnbinom(511, 2, mu = 6.65, log = TRUE),
     dust_dnbinom(511L, 2L, 6.65, TRUE))
 
+  ## Allow non integer size (wrong in <= 0.7.5)
+  expect_equal(
+    dust_dnbinom(x = 511L, size = 3.5, mu = 1, log = TRUE),
+    dnbinom(511, 3.5, mu = 1, log = TRUE))
+
   ## Corner cases
   expect_equal(dust_dnbinom(0L, 0L, 0, TRUE),
                dnbinom(0, 0, mu = 0, log = TRUE))
