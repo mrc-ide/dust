@@ -52,10 +52,10 @@ test_that("dbinom agrees", {
 
 
 test_that("dnbinom agrees", {
-  size <- as.integer(1:50)
+  size <- as.numeric(1:50)
   prob <- runif(length(size))
   mu <- size * (1 - prob) / prob
-  x <- sample(size, replace = TRUE)
+  x <- as.integer(sample(size, replace = TRUE))
   expect_equal(dust_dnbinom(x, size, mu, TRUE),
                dnbinom(x, size, mu = mu, log = TRUE))
   expect_equal(dust_dnbinom(x, size, mu, FALSE),
@@ -64,26 +64,44 @@ test_that("dnbinom agrees", {
   ## size > x case which was implemented incorrectly in <= v0.6.5
   expect_equal(
     dnbinom(511, 2, mu = 6.65, log = TRUE),
-    dust_dnbinom(511L, 2L, 6.65, TRUE))
+    dust_dnbinom(511L, 2, 6.65, TRUE))
+
+  ## Allow non integer size (wrong in <= 0.7.5)
+  expect_equal(
+    dust_dnbinom(x = 511L, size = 3.5, mu = 1, log = TRUE),
+    dnbinom(511, 3.5, mu = 1, log = TRUE))
 
   ## Corner cases
-  expect_equal(dust_dnbinom(0L, 0L, 0, TRUE),
+  expect_equal(dust_dnbinom(0L, 0, 0, TRUE),
                dnbinom(0, 0, mu = 0, log = TRUE))
-  expect_equal(dust_dnbinom(0L, 0L, 0, FALSE),
+  expect_equal(dust_dnbinom(0L, 0, 0, FALSE),
                dnbinom(0, 0, mu = 0, log = FALSE))
-  expect_equal(dust_dnbinom(0L, 0L, 0.5, FALSE),
+  expect_equal(dust_dnbinom(0L, 0, 0.5, FALSE),
                dnbinom(0, 0, mu = 0.5, log = FALSE))
-  expect_equal(dust_dnbinom(10L, 0L, 1, TRUE),
+  expect_equal(dust_dnbinom(10L, 0, 1, TRUE),
                suppressWarnings(dnbinom(10L, 0L, mu = 1, log = TRUE)))
-  expect_equal(dust_dnbinom(10L, 1L, 1, TRUE),
+  expect_equal(dust_dnbinom(10L, 1, 1, TRUE),
                dnbinom(10L, 1L, mu = 1, log = TRUE))
-  expect_equal(dust_dnbinom(10L, 0L, 1, FALSE),
+  expect_equal(dust_dnbinom(10L, 0, 1, FALSE),
                suppressWarnings(dnbinom(10L, 0L, mu = 1, log = FALSE)))
-  expect_equal(dust_dnbinom(0L, 10L, 1, TRUE),
+  expect_equal(dust_dnbinom(0L, 10, 1, TRUE),
                suppressWarnings(dnbinom(0L, 10L, mu = 1, log = TRUE)))
   ## We disagree with R here; we *could* return NaN but -Inf seems
   ## more sensible, and is what R returns if mu = eps
-  expect_equal(dust_dnbinom(10L, 0L, 0, TRUE), -Inf)
+  expect_equal(dust_dnbinom(10L, 0, 0, TRUE), -Inf)
+
+  expect_equal(
+    dust_dnbinom(x = 0L, size = 2, mu = 0, log = TRUE),
+    dnbinom(x = 0, size = 2, mu = 0, log = TRUE))
+  expect_equal(
+    dust_dnbinom(x = 0L, size = 2, mu = 0, log = FALSE),
+    dnbinom(x = 0, size = 2, mu = 0, log = FALSE))
+  expect_equal(
+    dust_dnbinom(x = 1L, size = 2, mu = 0, log = TRUE),
+    dnbinom(x = 0, size = 2, mu = 0, log = TRUE))
+  expect_equal(
+    dust_dnbinom(x = 1L, size = 2, mu = 0, log = FALSE),
+    dnbinom(x = 0, size = 2, mu = 0, log = FALSE))
 })
 
 

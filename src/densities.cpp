@@ -25,7 +25,7 @@ SEXP dust_dnorm(cpp11::doubles x, cpp11::doubles mu, cpp11::doubles sd,
 }
 
 [[cpp11::register]]
-SEXP dust_dnbinom(cpp11::integers x, cpp11::integers size, cpp11::doubles mu,
+SEXP dust_dnbinom(cpp11::integers x, cpp11::doubles size, cpp11::doubles mu,
                   bool log) {
   const size_t n = x.size();
   cpp11::writable::doubles ret(x.size());

@@ -19,10 +19,10 @@ extern "C" SEXP _dust_dust_dnorm(SEXP x, SEXP mu, SEXP sd, SEXP log) {
   END_CPP11
 }
 // densities.cpp
-SEXP dust_dnbinom(cpp11::integers x, cpp11::integers size, cpp11::doubles mu, bool log);
+SEXP dust_dnbinom(cpp11::integers x, cpp11::doubles size, cpp11::doubles mu, bool log);
 extern "C" SEXP _dust_dust_dnbinom(SEXP x, SEXP size, SEXP mu, SEXP log) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_dnbinom(cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(x), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(size), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(mu), cpp11::as_cpp<cpp11::decay_t<bool>>(log)));
+    return cpp11::as_sexp(dust_dnbinom(cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(x), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(size), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(mu), cpp11::as_cpp<cpp11::decay_t<bool>>(log)));
   END_CPP11
 }
 // densities.cpp

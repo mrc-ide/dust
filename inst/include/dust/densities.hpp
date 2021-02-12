@@ -35,10 +35,15 @@ T dbinom(int x, int size, T prob, bool log) {
 }
 
 template <typename T>
+T ddelta(T x, bool log) {
+  constexpr T inf = std::numeric_limits<T>::infinity();
+  return maybe_log(x == 0 ? inf : -inf, log);
+}
+
+template <typename T>
 T dnorm(T x, T mu, T sd, bool log) {
   if (sd == 0) {
-    constexpr T inf = std::numeric_limits<T>::infinity();
-    return maybe_log(x == mu ? inf : -inf, log);
+    return ddelta(x - mu, log);
   }
   constexpr T m_ln_sqrt_2pi = 0.918938533204672741780329736406;
   const T dx = x - mu;
@@ -47,13 +52,16 @@ T dnorm(T x, T mu, T sd, bool log) {
 }
 
 template <typename T>
-T dnbinom(int x, int size, T mu, bool log) {
+T dnbinom(int x, T size, T mu, bool log) {
   const T prob = size / (size + mu);
   if (x == 0 && size == 0) {
     return maybe_log(0, log);
   }
   if (x < 0 || size == 0) {
     return maybe_log(-std::numeric_limits<T>::infinity(), log);
+  }
+  if (mu == 0) {
+    return ddelta(x, log);
   }
   const T ret = std::lgamma(static_cast<T>(x + size)) -
     std::lgamma(static_cast<T>(size)) -
