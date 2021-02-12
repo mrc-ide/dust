@@ -47,7 +47,7 @@ T dnorm(T x, T mu, T sd, bool log) {
 }
 
 template <typename T>
-T dnbinom(int x, int size, T mu, bool log) {
+T dnbinom(int x, T size, T mu, bool log) {
   const T prob = size / (size + mu);
   if (x == 0 && size == 0) {
     return maybe_log(0, log);
