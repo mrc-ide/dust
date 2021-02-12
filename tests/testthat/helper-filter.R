@@ -84,6 +84,7 @@ example_volatility <- function(pars = NULL) {
     log_likelihood
   }
 
+  set.seed(1) # random for init and obs
   mod <- volatility$new(list(alpha = 0.91, sigma = 1), 0, 1L, seed = 1L)
   mod$set_state(matrix(rnorm(1L, 0, 1L), 1))
   steps <- seq(0, 100, by = 1)
