@@ -35,6 +35,18 @@ T dbinom(int x, int size, T prob, bool log) {
 }
 
 template <typename T>
+T dnorm(T x, T mu, T sd, bool log) {
+  if (sd == 0) {
+    constexpr T inf = std::numeric_limits<T>::infinity();
+    return maybe_log(x == mu ? inf : -inf, log);
+  }
+  constexpr T m_ln_sqrt_2pi = 0.918938533204672741780329736406;
+  const T dx = x - mu;
+  const T ret = - dx * dx / (2 * sd * sd) - m_ln_sqrt_2pi - std::log(sd);
+  return maybe_log(ret, log);
+}
+
+template <typename T>
 T dnbinom(int x, int size, T mu, bool log) {
   const T prob = size / (size + mu);
   if (x == 0 && size == 0) {
