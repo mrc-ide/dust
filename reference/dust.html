@@ -82,7 +82,7 @@ that can be used to work with the model (see the Details below)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.5</span>
       </span>
     </div>
 
@@ -305,6 +305,7 @@ be used (either specified with <code>[[dust::class()]]</code> or detected).</p><
 <li><p><a href='#method-has_compare'><code>dust_class$has_compare()</code></a></p></li>
 <li><p><a href='#method-set_data'><code>dust_class$set_data()</code></a></p></li>
 <li><p><a href='#method-compare_data'><code>dust_class$compare_data()</code></a></p></li>
+<li><p><a href='#method-filter'><code>dust_class$filter()</code></a></p></li>
 </ul>
 <p><hr>
 <a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
@@ -621,6 +622,24 @@ underlying <code>compare_data</code> function is stochastic, then each call to
 this function may be result in a different answer.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>compare_data</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
+<p><hr>
+<a id="method-filter"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/stats/filter.html'>filter()</a></code></h3>
+<p>Run a particle filter. The interface here will change a lot over the
+next few versions. You <em>must</em> <code>$reset()</code> the filter before using
+this method to get sensible values. We will tinker with this in
+future versions to allow things like partial runs.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>filter</span><span class='op'>(</span>save_history <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>save_history</code></dt><dd><p>Logical, indicating if the filtered particle
+trajectories should be saved. If <code>TRUE</code> then the <code>history</code> element
+will be a 3d array (state x particles x time) containing the state
+values, selected according to the index set with <code>$set_index()</code>.
+If you have a multi-parameter dust object this will be a 4d array
+(state x particles x parameter x time).</p></dd>
+
+</dl><p></div></p>
 
 
 
@@ -706,6 +725,7 @@ this function may be result in a different answer.</p><h4 class='hasAnchor' id='
 #&gt;     has_compare: function () 
 #&gt;     set_data: function (data) 
 #&gt;     compare_data: function () 
+#&gt;     filter: function (save_history = FALSE) 
 #&gt;   Private:
 #&gt;     pars_: NULL
 #&gt;     pars_multi_: NULL
@@ -728,6 +748,7 @@ this function may be result in a different answer.</p><h4 class='hasAnchor' id='
 </div><div class='output co'>#&gt; &lt;dust&gt;
 #&gt;   Public:
 #&gt;     compare_data: function () 
+#&gt;     filter: function (save_history = FALSE) 
 #&gt;     has_compare: function () 
 #&gt;     has_openmp: function () 
 #&gt;     index: function () 
