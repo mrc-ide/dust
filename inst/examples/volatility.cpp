@@ -1,12 +1,16 @@
 class volatility {
 public:
   typedef double real_t;
-  typedef dust::no_data data_t;
+  struct data_t {
+    real_t observed;
+  };
   typedef dust::no_internal internal_t;
 
   struct shared_t {
     real_t alpha;
     real_t sigma;
+    real_t gamma;
+    real_t tau;
     real_t x0;
   };
 
@@ -30,26 +34,37 @@ public:
       shared->sigma * dust::distr::rnorm(rng_state, 0, 1);
   }
 
+  real_t compare_data(const real_t * state, const data_t& data,
+                      dust::rng_state_t<real_t>& rng_state) {
+    return dust::dnorm(data.observed, shared->gamma * state[0],
+                       shared->tau, true);
+  }
+
 private:
   dust::shared_ptr<volatility> shared;
 };
 
 #include <cpp11/list.hpp>
+
+// Helper function for accepting values with defaults
+inline double with_default(double default_value, cpp11::sexp value) {
+  return value == R_NilValue ? default_value : cpp11::as_cpp<double>(value);
+}
+
 template <>
 dust::pars_t<volatility> dust_pars<volatility>(cpp11::list pars) {
-  volatility::real_t x0 = 0;
-  volatility::real_t alpha = 0.91;
-  volatility::real_t sigma = 1;
+  typedef volatility::real_t real_t;
+  real_t x0 = 0;
+  real_t alpha = with_default(0.91, pars["alpha"]);
+  real_t sigma = with_default(1, pars["sigma"]);
+  real_t gamma = with_default(1, pars["gamma"]);
+  real_t tau = with_default(1, pars["tau"]);
 
-  SEXP r_alpha = pars["alpha"];
-  if (r_alpha != R_NilValue) {
-    alpha = cpp11::as_cpp<volatility::real_t>(r_alpha);
-  }
-  SEXP r_sigma = pars["sigma"];
-  if (r_sigma != R_NilValue) {
-    sigma = cpp11::as_cpp<volatility::real_t>(r_sigma);
-  }
-
-  volatility::shared_t shared{alpha, sigma, x0};
+  volatility::shared_t shared{alpha, sigma, gamma, tau, x0};
   return dust::pars_t<volatility>(shared);
+}
+
+template <>
+volatility::data_t dust_data<volatility>(cpp11::list data) {
+  return volatility::data_t{cpp11::as_cpp<double>(data["observed"])};
 }

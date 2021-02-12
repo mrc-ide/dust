@@ -545,3 +545,29 @@ test_that("resample error cases", {
   idx <- obj$resample(rep(0, 7))
   expect_equal(idx, rep(1, 7))
 })
+
+
+test_that("volality compare is correct", {
+  dat <- example_volatility()
+  pars <- dat$pars
+
+  np <- 400L
+  mod <- volatility$new(pars, 0, np, seed = 1L)
+  expect_null(mod$compare_data())
+  mod$set_data(dust_data(dat$data))
+
+  y <- mod$run(1)
+  expect_equal(mod$compare_data(),
+               dat$compare(y, dat$data[1, ], pars))
+
+  f <- function() {
+    mod$reset(pars, 0L)
+    mod$filter()$log_likelihood
+  }
+  ll <- replicate(100, f())
+
+  ll_true <- dat$kalman_filter(pars, dat$data)
+  expect_lt(min(ll), ll_true)
+  expect_gt(max(ll), ll_true)
+  expect_equal(mean(ll), ll_true, tolerance = 0.01)
+})
