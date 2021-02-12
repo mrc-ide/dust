@@ -72,8 +72,8 @@ example_volatility <- function(pars = NULL) {
       s <- alpha^2 * s + sigma^2
       m <- gamma * mu
 
-      S <- gamma^2 * s + tau^2
-      K <- gamma * s / S
+      S <- gamma^2 * s + tau^2 # nolint
+      K <- gamma * s / S # nolint
 
       mu <- mu + K * (y[t] - m)
       s <- s - gamma * K * s
