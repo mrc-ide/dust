@@ -564,7 +564,7 @@ test_that("volality compare is correct", {
     mod$reset(pars, 0L)
     mod$filter()$log_likelihood
   }
-  ll <- replicate(100, f())
+  ll <- replicate(200, f())
 
   ll_true <- dat$kalman_filter(pars, dat$data)
   expect_lt(min(ll), ll_true)
