@@ -24,6 +24,17 @@ void resample_weight(typename std::vector<real_t>::const_iterator w,
   }
 }
 
+// Given some vector of log probabilities 'w' we want to compute a
+// vector of numbers such that their ratio equals the exponential of
+// their difference, along with the log average value of the numbers.
+//
+// We can't just do exp(w) because most of the numbers are impossibly
+// small. Instead we scale them so that the largest value of exp(w)
+// will be 1 and this preserves the relative probabilities because all
+// numbers are multiplied by the same value.
+//
+// Returns scaled weights by modifying 'w' and returns the single
+// value of the average log weight.
 template <typename real_t>
 real_t scale_log_weights(typename std::vector<real_t>::iterator w, size_t n) {
   real_t max_w = -std::numeric_limits<real_t>::infinity();

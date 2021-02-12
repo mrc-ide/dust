@@ -46,15 +46,6 @@ struct pars_t {
   }
 };
 
-// If we store history, we need to save:
-//
-// history order (n_particles * n_data)
-// history value (n_history_state * n_particles * n_data)
-//
-// restart (not yet thinking about this)
-//
-// implies that we should save an index
-
 template <typename real_t>
 class filter_state {
 public:
@@ -93,6 +84,24 @@ public:
     return ret;
   }
 
+  // This is a particularly unpleasant bit of bookkeeping and is
+  // adapted from mcstate (see the helper files in tests for a
+  // translation of the the code). As we proceed we store the values
+  // of particles *before* resampling and then we store the index used
+  // in resampling. We do not resample all the history at each
+  // resample as that is prohibitively expensive.
+  //
+  // So to output sensible history we start with a particle and we
+  // look to see where it "came from" in the previous step
+  // (history_index) and propagate this backward in time to
+  // reconstruct what is in effect a multifurcating tree.
+  //
+  // It's possible we could do this more efficiently for some subset
+  // of particles too (give me the history of just one particle) by
+  // breaking the function before the loop over 'k'.
+  //
+  // Note that we tweat history_order and history_value as read-only
+  // though this process so one could safely call this multiple times.
   template <typename Iterator>
   void history(Iterator ret) const {
     std::vector<size_t> index_particle(n_particles_);
@@ -101,8 +110,8 @@ public:
     }
     for (size_t k = 0; k < n_data_ + 1; ++k) {
       size_t i = n_data_ - k;
-      auto it_order = history_order.begin() + i * n_particles_;
-      auto it_value = history_value.begin() + i * n_state_ * n_particles_;
+      auto const it_order = history_order.begin() + i * n_particles_;
+      auto const it_value = history_value.begin() + i * n_state_ * n_particles_;
       auto it_ret = ret + i * n_state_ * n_particles_;
       for (size_t j = 0; j < n_particles_; ++j) {
         const size_t idx = *(it_order + index_particle[j]);
@@ -121,15 +130,14 @@ public:
     offset_++;
   }
 
-  std::vector<real_t> history_value;
-  std::vector<size_t> history_order;
-
 private:
   size_t n_state_;
   size_t n_particles_;
   size_t n_data_;
   size_t offset_;
   size_t len_;
+  std::vector<real_t> history_value;
+  std::vector<size_t> history_order;
 };
 }
 
