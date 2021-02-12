@@ -95,12 +95,14 @@ public:
   // look to see where it "came from" in the previous step
   // (history_index) and propagate this backward in time to
   // reconstruct what is in effect a multifurcating tree.
+  // This is analogous to the particle ancestor concept in the
+  // particle filter literature.
   //
   // It's possible we could do this more efficiently for some subset
   // of particles too (give me the history of just one particle) by
   // breaking the function before the loop over 'k'.
   //
-  // Note that we tweat history_order and history_value as read-only
+  // Note that we treat history_order and history_value as read-only
   // though this process so one could safely call this multiple times.
   template <typename Iterator>
   void history(Iterator ret) const {
