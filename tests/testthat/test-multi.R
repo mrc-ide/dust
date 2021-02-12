@@ -260,7 +260,7 @@ test_that("must use same sized simulations", {
 
 
 test_that("compare with multi pars", {
-  res <- dust(dust_file("examples/sir2.cpp"), quiet = TRUE)
+  res <- dust_example("sir")
 
   np <- 10
   end <- 150 * 4
@@ -291,8 +291,35 @@ test_that("compare with multi pars", {
 })
 
 
+test_that("validate setting data by length", {
+  res <- dust_example("sir")
+
+  np <- 10
+  end <- 150 * 4
+  steps <- seq(0, end, by = 4)
+  ans <- dust_iterate(res$new(list(), 0, np, seed = 1L), steps)
+  d <- data.frame(step = steps, incidence = ans[5, 1, ])
+
+  mod <- res$new(rep(list(list()), 3), 0, np, seed = 1L, pars_multi = TRUE)
+  expect_error(
+    mod$set_data(dust_data(d, multi = 4)),
+    "Expected a list of length 4 for element 1 of 'data'")
+
+  dat <- dust_data(d, multi = 3)
+  dat[[50]] <- dat[[50]][-4]
+  expect_error(
+    mod$set_data(dat),
+    "Expected a list of length 4 for element 50 of 'data'")
+
+  dat[[25]] <- list()
+  expect_error(
+    mod$set_data(dat),
+    "Expected a list of length 4 for element 25 of 'data'")
+})
+
+
 test_that("compare with multi pars and different data", {
-  res <- dust(dust_file("examples/sir2.cpp"), quiet = TRUE)
+  res <- dust_example("sir")
 
   np <- 10
   end <- 150 * 4

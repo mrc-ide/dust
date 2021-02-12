@@ -20,3 +20,4 @@
 ^buildkite$
 ^\.covrignore$
 ^\.github$
+\.*gcov$

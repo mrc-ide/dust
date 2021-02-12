@@ -7,7 +7,7 @@
 
 #include <algorithm>
 #include <memory>
-#include <unordered_map>
+#include <map>
 #include <stdexcept>
 #include <sstream>
 #include <utility>
@@ -45,8 +45,103 @@ struct pars_t {
     pars_t(dust::nothing(), internal_) {
   }
 };
-}
 
+template <typename real_t>
+class filter_state {
+public:
+  filter_state(size_t n_state, size_t n_particles, size_t n_data) :
+    n_state_(n_state), n_particles_(n_particles), n_data_(n_data), offset_(0) {
+    resize(n_state, n_particles, n_data);
+  }
+
+  // default constructable
+  filter_state() : filter_state(0, 0, 0) {
+  }
+
+  void resize(size_t n_state, size_t n_particles, size_t n_data) {
+    n_state_ = n_state;
+    n_particles_ = n_particles;
+    n_data_ = n_data;
+    offset_ = 0;
+    history_value.resize(n_state_ * n_particles_ * (n_data_ + 1));
+    history_order.resize(n_particles_ * (n_data_ + 1));
+    for (size_t i = 0; i < n_particles_; ++i) {
+      history_order[i] = i;
+    }
+  }
+
+  typename std::vector<real_t>::iterator history_value_iterator() {
+    return history_value.begin() + offset_ * n_state_ * n_particles_;
+  }
+
+  typename std::vector<size_t>::iterator history_order_iterator() {
+    return history_order.begin() + offset_ * n_particles_;
+  }
+
+  std::vector<real_t> history() const {
+    std::vector<real_t> ret(size());
+    history(ret.begin());
+    return ret;
+  }
+
+  // This is a particularly unpleasant bit of bookkeeping and is
+  // adapted from mcstate (see the helper files in tests for a
+  // translation of the the code). As we proceed we store the values
+  // of particles *before* resampling and then we store the index used
+  // in resampling. We do not resample all the history at each
+  // resample as that is prohibitively expensive.
+  //
+  // So to output sensible history we start with a particle and we
+  // look to see where it "came from" in the previous step
+  // (history_index) and propagate this backward in time to
+  // reconstruct what is in effect a multifurcating tree.
+  // This is analogous to the particle ancestor concept in the
+  // particle filter literature.
+  //
+  // It's possible we could do this more efficiently for some subset
+  // of particles too (give me the history of just one particle) by
+  // breaking the function before the loop over 'k'.
+  //
+  // Note that we treat history_order and history_value as read-only
+  // though this process so one could safely call this multiple times.
+  template <typename Iterator>
+  void history(Iterator ret) const {
+    std::vector<size_t> index_particle(n_particles_);
+    for (size_t i = 0; i < n_particles_; ++i) {
+      index_particle[i] = i;
+    }
+    for (size_t k = 0; k < n_data_ + 1; ++k) {
+      size_t i = n_data_ - k;
+      auto const it_order = history_order.begin() + i * n_particles_;
+      auto const it_value = history_value.begin() + i * n_state_ * n_particles_;
+      auto it_ret = ret + i * n_state_ * n_particles_;
+      for (size_t j = 0; j < n_particles_; ++j) {
+        const size_t idx = *(it_order + index_particle[j]);
+        index_particle[j] = idx;
+        std::copy_n(it_value + idx * n_state_, n_state_,
+                    it_ret + j * n_state_);
+      }
+    }
+  }
+
+  size_t size() const {
+    return history_value.size();
+  }
+
+  void advance() {
+    offset_++;
+  }
+
+private:
+  size_t n_state_;
+  size_t n_particles_;
+  size_t n_data_;
+  size_t offset_;
+  size_t len_;
+  std::vector<real_t> history_value;
+  std::vector<size_t> history_order;
+};
+}
 
 template <typename T>
 class Particle {
@@ -241,11 +336,15 @@ public:
   }
 
   void state(std::vector<real_t>& end_state) const {
+    return state(end_state.begin());
+  }
+
+  void state(typename std::vector<real_t>::iterator end_state) const {
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
 #endif
     for (size_t i = 0; i < _particles.size(); ++i) {
-      _particles[i].state(_index, end_state.begin() + i * _index.size());
+      _particles[i].state(_index, end_state + i * _index.size());
     }
   }
 
@@ -299,14 +398,20 @@ public:
   }
 
   std::vector<size_t> resample(const std::vector<real_t>& weights) {
-    std::vector<size_t> idx(n_particles());
+    std::vector<size_t> index(n_particles());
+    resample(weights, index);
+    return index;
+  }
+
+  void resample(const std::vector<real_t>& weights,
+                std::vector<size_t>& index) {
     auto it_weights = weights.begin();
-    auto it_idx = idx.begin();
+    auto it_index = index.begin();
     if (_n_pars == 0) {
       // One parameter set; shuffle among all particles
       const size_t np = _particles.size();
       real_t u = dust::unif_rand(_rng.state(0));
-      resample_weight(it_weights, np, u, 0, it_idx);
+      resample_weight(it_weights, np, u, 0, it_index);
     } else {
       // Multiple parameter set; shuffle within each group
       // independently (and therefore in parallel)
@@ -317,12 +422,11 @@ public:
       for (size_t i = 0; i < _n_pars; ++i) {
         const size_t j = i * np;
         real_t u = dust::unif_rand(_rng.state(j));
-        resample_weight(it_weights + j, np, u, j, it_idx + j);
+        resample_weight(it_weights + j, np, u, j, it_index + j);
       }
     }
 
-    reorder(idx);
-    return idx;
+    reorder(index);
   }
 
   size_t n_particles() const {
@@ -339,6 +443,10 @@ public:
 
   size_t n_pars() const {
     return _n_pars;
+  }
+
+  size_t n_pars_effective() const {
+    return _n_pars == 0 ? 1 : _n_pars;
   }
 
   size_t step() const {
@@ -363,27 +471,86 @@ public:
     _rng.long_jump();
   }
 
-  void set_data(std::unordered_map<size_t, std::vector<data_t>> data) {
+  void set_data(std::map<size_t, std::vector<data_t>> data) {
     _data = data;
   }
 
   std::vector<real_t> compare_data() {
     std::vector<real_t> res;
     auto d = _data.find(step());
-    // If we don't find data, we will return a vector of length 0
-    // (which we catch and convert to NULL on return to R).
     if (d != _data.end()) {
-      const size_t np = _n_pars == 0 ?
-        _particles.size() : _particles.size() / _n_pars;
       res.resize(_particles.size());
-#ifdef _OPENMP
-      #pragma omp parallel for schedule(static) num_threads(_n_threads)
-#endif
-      for (size_t i = 0; i < _particles.size(); ++i) {
-        res[i] = _particles[i].compare_data(d->second[i / np], _rng.state(i));
-      }
+      compare_data(res, d->second);
     }
     return res;
+  }
+
+  void compare_data(std::vector<real_t>& res, const std::vector<data_t>& data) {
+    const size_t np = _particles.size() / n_pars_effective();
+#ifdef _OPENMP
+    #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
+    for (size_t i = 0; i < _particles.size(); ++i) {
+      res[i] = _particles[i].compare_data(data[i / np], _rng.state(i));
+    }
+  }
+
+  std::vector<real_t> filter(bool save_history) {
+    if (_data.size() == 0) {
+      throw std::invalid_argument("Data has not been set for this object");
+    }
+
+    const size_t n_particles = _particles.size();
+    const size_t n_particles_each = n_particles / n_pars_effective();
+    std::vector<real_t> log_likelihood(n_pars_effective());
+    std::vector<real_t> log_likelihood_step(n_pars_effective());
+    std::vector<real_t> weights(n_particles);
+    std::vector<size_t> kappa(n_particles);
+
+    if (save_history) {
+      filter_state_.resize(_index.size(), _particles.size(), _data.size());
+      state(filter_state_.history_value_iterator());
+      filter_state_.advance();
+    }
+
+    for (auto & d : _data) {
+      run(d.first);
+      compare_data(weights, d.second);
+
+      // TODO: we should cope better with the case where all weights
+      // are 0; I think that is the behaviour in the model (or rather
+      // the case where there is no data and so we do not resample)
+      //
+      // TODO: we should cope better with the case where one filter
+      // has become impossible but others continue, but that's hard!
+      auto wi = weights.begin();
+      for (size_t i = 0; i < n_pars_effective(); ++i) {
+        log_likelihood_step[i] =
+          scale_log_weights<real_t>(wi, n_particles_each);
+        log_likelihood[i] += log_likelihood_step[i];
+        wi += n_particles_each;
+      }
+
+      // We could move this below if wanted but we'd have to rewrite
+      // the re-sort algorithm.
+      if (save_history) {
+        state(filter_state_.history_value_iterator());
+      }
+
+      resample(weights, kappa);
+
+      if (save_history) {
+        std::copy(kappa.begin(), kappa.end(),
+                  filter_state_.history_order_iterator());
+        filter_state_.advance();
+      }
+    }
+
+    return log_likelihood;
+  }
+
+  const dust::filter_state<real_t>& filter_history() const {
+    return filter_state_;
   }
 
 private:
@@ -391,10 +558,13 @@ private:
   const size_t _n_particles_total; // Total number of particles
   size_t _n_threads;
   dust::pRNG<real_t> _rng;
-  std::unordered_map<size_t, std::vector<data_t>> _data;
+  std::map<size_t, std::vector<data_t>> _data;
 
   std::vector<size_t> _index;
   std::vector<Particle<T>> _particles;
+
+  // Only used if we have data; this is going to change around a bit.
+  dust::filter_state<real_t> filter_state_;
 
   void initialise(const pars_t& pars, const size_t step,
                   const size_t n_particles) {

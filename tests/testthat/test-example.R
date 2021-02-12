@@ -445,9 +445,9 @@ test_that("has_openmp can be called statically and normally", {
 
 
 test_that("Sensible behaviour of compare_data if not implemented", {
-  res <- dust_example("sir")
+  res <- dust_example("walk")
   expect_false(res$public_methods$has_compare())
-  mod <- res$new(list(), 0, 1, seed = 1L)
+  mod <- res$new(list(sd = 1), 0, 1, seed = 1L)
   expect_false(mod$has_compare())
   expect_error(
     mod$set_data(list(list(1, list()))),
@@ -458,11 +458,14 @@ test_that("Sensible behaviour of compare_data if not implemented", {
   expect_error(
     mod$compare_data(),
     "The 'compare_data' method is not supported for this class")
+  expect_error(
+    mod$filter(),
+    "The 'filter' method is not supported for this class")
 })
 
 
 test_that("Can run compare_data", {
-  res <- dust(dust_file("examples/sir2.cpp"), quiet = TRUE)
+  res <- dust_example("sir")
   expect_true(res$public_methods$has_compare())
 
   np <- 10
@@ -541,4 +544,30 @@ test_that("resample error cases", {
   ## filter will have stopped by this point.
   idx <- obj$resample(rep(0, 7))
   expect_equal(idx, rep(1, 7))
+})
+
+
+test_that("volality compare is correct", {
+  dat <- example_volatility()
+  pars <- dat$pars
+
+  np <- 400L
+  mod <- volatility$new(pars, 0, np, seed = 1L)
+  expect_null(mod$compare_data())
+  mod$set_data(dust_data(dat$data))
+
+  y <- mod$run(1)
+  expect_equal(mod$compare_data(),
+               dat$compare(y, dat$data[1, ], pars))
+
+  f <- function() {
+    mod$reset(pars, 0L)
+    mod$filter()$log_likelihood
+  }
+  ll <- replicate(200, f())
+
+  ll_true <- dat$kalman_filter(pars, dat$data)
+  expect_lt(min(ll), ll_true)
+  expect_gt(max(ll), ll_true)
+  expect_equal(mean(ll), ll_true, tolerance = 0.01)
 })

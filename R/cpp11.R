@@ -4,6 +4,10 @@ dust_dbinom <- function(x, size, prob, log) {
   .Call(`_dust_dust_dbinom`, x, size, prob, log)
 }
 
+dust_dnorm <- function(x, mu, sd, log) {
+  .Call(`_dust_dust_dnorm`, x, mu, sd, log)
+}
+
 dust_dnbinom <- function(x, size, mu, log) {
   .Call(`_dust_dust_dnbinom`, x, size, mu, log)
 }
@@ -124,6 +128,10 @@ dust_sir_compare_data <- function(ptr) {
   .Call(`_dust_dust_sir_compare_data`, ptr)
 }
 
+dust_sir_filter <- function(ptr, save_history) {
+  .Call(`_dust_dust_sir_filter`, ptr, save_history)
+}
+
 dust_sir_simulate <- function(r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state) {
   .Call(`_dust_dust_sir_simulate`, r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state)
 }
@@ -194,6 +202,10 @@ dust_variable_set_data <- function(ptr, data) {
 
 dust_variable_compare_data <- function(ptr) {
   .Call(`_dust_dust_variable_compare_data`, ptr)
+}
+
+dust_variable_filter <- function(ptr, save_history) {
+  .Call(`_dust_dust_variable_filter`, ptr, save_history)
 }
 
 dust_variable_simulate <- function(r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state) {
@@ -268,6 +280,10 @@ dust_volatility_compare_data <- function(ptr) {
   .Call(`_dust_dust_volatility_compare_data`, ptr)
 }
 
+dust_volatility_filter <- function(ptr, save_history) {
+  .Call(`_dust_dust_volatility_filter`, ptr, save_history)
+}
+
 dust_volatility_simulate <- function(r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state) {
   .Call(`_dust_dust_volatility_simulate`, r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state)
 }
@@ -338,6 +354,10 @@ dust_walk_set_data <- function(ptr, data) {
 
 dust_walk_compare_data <- function(ptr) {
   .Call(`_dust_dust_walk_compare_data`, ptr)
+}
+
+dust_walk_filter <- function(ptr, save_history) {
+  .Call(`_dust_dust_walk_filter`, ptr, save_history)
 }
 
 dust_walk_simulate <- function(r_steps, r_pars, r_state, r_index, n_threads, r_seed, return_state) {

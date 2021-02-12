@@ -2,7 +2,7 @@
 #define DUST_INTERFACE_HPP
 
 #include <cstring>
-#include <unordered_map>
+#include <map>
 #include <cpp11/doubles.hpp>
 #include <cpp11/external_pointer.hpp>
 #include <cpp11/integers.hpp>
@@ -467,11 +467,11 @@ void dust_set_data(SEXP ptr, cpp11::list r_data) {
   const size_t n_pars = obj->n_pars() == 0 ? 1 : obj->n_pars();
 
   const size_t len = r_data.size();
-  std::unordered_map<size_t, std::vector<data_t>> data;
+  std::map<size_t, std::vector<data_t>> data;
 
   for (size_t i = 0; i < len; ++i) {
     cpp11::list el = r_data[i];
-    if (el.size() != n_pars + 1) {
+    if (el.size() != static_cast<int>(n_pars) + 1) {
       cpp11::stop("Expected a list of length %d for element %d of 'data'",
                   n_pars + 1, i + 1);
     }
@@ -506,19 +506,59 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
   return ret_r;
 }
 
+template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
+cpp11::sexp dust_filter(SEXP ptr, bool save_history) {
+  using namespace cpp11::literals;
+  Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  cpp11::writable::doubles log_likelihood(obj->filter(save_history));
+  cpp11::sexp history;
+  if (save_history) {
+    cpp11::writable::doubles history_data(obj->filter_history().size());
+    obj->filter_history().history(REAL(history_data));
+    const int n_state = obj->n_state();
+    const int n_particles = obj->n_particles();
+    // This feels like something that dust should be able to tell us,
+    // or at least the history object. Still this is going to work
+    // generally.
+    const int n_data = history_data.size() / (n_state * n_particles);
+    const int n_pars = obj->n_pars();
+    if (n_pars == 0) {
+      history_data.attr("dim") =
+        cpp11::writable::integers({n_state, n_particles, n_data});
+    } else {
+      const int n_particles_each = n_particles / n_pars;
+      history_data.attr("dim") =
+        cpp11::writable::integers({n_state, n_particles_each, n_pars, n_data});
+    }
+    history = history_data;
+  }
+  return cpp11::writable::list({"log_likelihood"_nm = log_likelihood,
+                                "history"_nm = history});
+}
+
 // Based on the value of the data_t in the underlying model class we
 // might use these functions for set_data and compare_data which give
 // reasonable errors back to R, as we can't use the full versions
 // above.
+inline void disable_method(const char * name) {
+  cpp11::stop("The '%s' method is not supported for this class", name);
+}
+
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 void dust_set_data(SEXP ptr, cpp11::list r_data) {
-  cpp11::stop("The 'set_data' method is not supported for this class");
+  disable_method("set_data");
 }
 
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 cpp11::sexp dust_compare_data(SEXP ptr) {
-  cpp11::stop("The 'compare_data' method is not supported for this class");
-  return R_NilValue; // never gets here
+  disable_method("compare_data");
+  return R_NilValue; // #nocov never gets here
+}
+
+template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
+cpp11::sexp dust_filter(SEXP ptr, bool save_history) {
+  disable_method("filter");
+  return R_NilValue; // #nocov never gets here
 }
 
 template <typename T>

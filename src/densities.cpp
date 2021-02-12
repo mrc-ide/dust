@@ -14,6 +14,17 @@ SEXP dust_dbinom(cpp11::integers x, cpp11::integers size, cpp11::doubles prob,
 }
 
 [[cpp11::register]]
+SEXP dust_dnorm(cpp11::doubles x, cpp11::doubles mu, cpp11::doubles sd,
+                bool log) {
+  const size_t n = x.size();
+  cpp11::writable::doubles ret(x.size());
+  for (size_t i = 0; i < n; ++i) {
+    ret[i] = dust::dnorm<double>(x[i], mu[i], sd[i], log);
+  }
+  return ret;
+}
+
+[[cpp11::register]]
 SEXP dust_dnbinom(cpp11::integers x, cpp11::integers size, cpp11::doubles mu,
                   bool log) {
   const size_t n = x.size();

@@ -16,6 +16,23 @@ test_that("dpois agrees", {
 })
 
 
+test_that("dnorm agrees", {
+  mu <- runif(50, -100, 100)
+  x <- rnorm(length(mu), mu, sd = runif(length(mu), max = 100))
+  sd <- runif(length(x), max = 100)
+  expect_equal(dnorm(x, mu, sd, TRUE),
+               dust_dnorm(x, mu, sd, TRUE))
+  expect_equal(dnorm(x, mu, sd, FALSE),
+               dust_dnorm(x, mu, sd, FALSE))
+
+  ## Corner cases
+  expect_equal(dust_dnorm(1, 1, 0, TRUE), dnorm(1, 1, 0, TRUE))
+  expect_equal(dust_dnorm(1, 1, 0, FALSE), dnorm(1, 1, 0, FALSE))
+  expect_equal(dust_dnorm(0, 1, 0, TRUE), dnorm(0, 1, 0, TRUE))
+  expect_equal(dust_dnorm(0, 1, 0, FALSE), dnorm(0, 1, 0, FALSE))
+})
+
+
 test_that("dbinom agrees", {
   size <- as.integer(0:50)
   prob <- runif(length(size))
