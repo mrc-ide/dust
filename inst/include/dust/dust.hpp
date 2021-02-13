@@ -276,13 +276,11 @@ public:
   void set_pars(const pars_t& pars) {
     const size_t n_particles = _particles.size();
     initialise(pars, step(), n_particles, false);
-    std::vector<size_t> err(n_particles);
   }
 
   void set_pars(const std::vector<pars_t>& pars) {
     const size_t n_particles = _particles.size();
     initialise(pars, step(), n_particles / pars.size(), false);
-    std::vector<size_t> err(n_particles);
   }
 
   // It's the callee's responsibility to ensure that index is in
