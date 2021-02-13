@@ -573,8 +573,8 @@ private:
     Particle<T> p(pars, step);
     if (n > 0 && p.size() != n) {
       std::stringstream msg;
-      msg << "'pars' created a different state size than before: " <<
-        "old was " << n << " but new is " <<
+      msg << "'pars' created inconsistent state size: " <<
+        "expected length " << n << " but created length " <<
         p.size();
       throw std::invalid_argument(msg.str());
     }
@@ -600,17 +600,17 @@ private:
       p.push_back(Particle<T>(pars[i], step));
       if (n > 0 && p.back().size() != n) {
         std::stringstream msg;
-        msg << "'pars' created a different state size than before: " <<
-          "old was " << n << " but parameter set " << i << " is " <<
-          p.back().size();
+        msg << "'pars' created inconsistent state size: " <<
+          "expected length " << n << " but parameter set " << i + 1 <<
+          " created length " << p.back().size();
         throw std::invalid_argument(msg.str());
       }
       n = p.back().size(); // ensures all particles have same size
     }
     if (_particles.size() == _n_particles_total) {
-        // TODO: parallel
+      // TODO: parallel
       for (size_t i = 0; i < _n_particles_total; ++i) {
-        _particles[i].set_pars(p[i / _n_pars], set_state);
+        _particles[i].set_pars(p[i / n_particles], set_state);
       }
     } else {
       _particles.clear();

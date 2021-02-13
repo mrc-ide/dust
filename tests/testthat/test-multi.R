@@ -24,6 +24,8 @@ test_that("create trivial multi dust object", {
 
   y1 <- obj1$run(1)
   y2 <- obj2$run(1)
+  expect_equal(c(y1), c(y2))
+  expect_equal(dim(y2), c(1, 10, 1))
 })
 
 
@@ -44,7 +46,7 @@ test_that("create trivial 2 element mulitdust object", {
 })
 
 
-test_that("Can particles and resume continues with rng", {
+test_that("Can reset particles and resume continues with rng", {
   res <- dust_example("walk")
   sd1 <- 2
   sd2 <- 4
@@ -60,6 +62,7 @@ test_that("Can particles and resume continues with rng", {
   ns <- 5
   y1 <- obj$run(ns)
   expect_equal(obj$step(), ns)
+
   obj$reset(pars2, 0)
   expect_equal(obj$step(), 0)
   y2 <- obj$run(ns)
@@ -253,8 +256,8 @@ test_that("must use same sized simulations", {
   pars <- list(list(len = 7), list(len = 8))
   expect_error(
     res$new(pars, 0, 10, seed = 1L, pars_multi = TRUE),
-    paste("Pars created different state sizes: pars 2 (of 2) had length 8",
-          "but expected 7"),
+    paste("'pars' created inconsistent state size:",
+          "expected length 7 but parameter set 2 created length 8"),
     fixed = TRUE)
 })
 

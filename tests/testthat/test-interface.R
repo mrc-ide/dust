@@ -216,12 +216,12 @@ test_that("Can't change dimensionality on reset/set_pars", {
 
   expect_error(
     mod$reset(list(len = 5), 0),
-    paste("'pars' created a different state size than before:",
-          "old was 10 but new is 5"))
+    paste("'pars' created inconsistent state size:",
+          "expected length 10 but created length 5"))
   expect_error(
     mod$set_pars(list(len = 5)),
-    paste("'pars' created a different state size than before:",
-          "old was 10 but new is 5"))
+    paste("'pars' created inconsistent state size:",
+          "expected length 10 but created length 5"))
 
   ## No change to model state
   expect_identical(mod$state(), y)
@@ -324,8 +324,8 @@ test_that("Validate changing pars leaves particles in sensible state", {
 
   expect_error(
     obj$set_pars(list(len = 6, mean = 10, sd = 10)),
-    paste("'pars' created a different state size than before:",
-          "old was 5 but new is 6"))
+    paste("'pars' created inconsistent state size:",
+          "expected length 5 but created length 6"))
   expect_identical(obj$state(), y1)
 
   y2 <- obj$run(2)
