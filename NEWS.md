@@ -1,3 +1,7 @@
+# dust 0.7.9
+
+* Deprecate `dust_simulate` and replace with a new method `$simulate` on the object which retains state and makes this more powerful (#100, #119, #121)
+
 # dust 0.7.8
 
 * Allow `set_pars` method to be used with multiparameter dust objects (#125)
