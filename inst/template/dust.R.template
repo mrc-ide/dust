@@ -10,14 +10,7 @@
     n_threads_ = NULL,
     n_particles_ = NULL,
     ptr_ = NULL,
-    param_ = {{param}},
-
-    simulate = function(steps, pars, state, index = NULL,
-                        n_threads = 1L, seed = NULL,
-                        return_state = FALSE) {
-      dust_{{name}}_simulate(steps, pars, state, index, n_threads, seed,
-                             return_state)
-    }
+    param_ = {{param}}
   ),
 
   public = list(

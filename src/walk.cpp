@@ -131,18 +131,6 @@ SEXP dust_walk_filter(SEXP ptr, bool save_history) {
 }
 
 [[cpp11::register]]
-SEXP dust_walk_simulate(cpp11::sexp r_steps,
-                            cpp11::list r_pars,
-                            cpp11::doubles_matrix r_state,
-                            cpp11::sexp r_index,
-                            const size_t n_threads,
-                            cpp11::sexp r_seed,
-                            bool return_state) {
-  return dust_simulate<walk>(r_steps, r_pars, r_state, r_index,
-                                  n_threads, r_seed, return_state);
-}
-
-[[cpp11::register]]
 cpp11::sexp dust_walk_capabilities() {
   return dust_capabilities<walk>();
 }

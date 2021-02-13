@@ -74,59 +74,6 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
   return cpp11::writable::list({ptr, info});
 }
 
-// think about rng seeding here carefully; should accept either a raw
-// vector or an integer I think.
-template <typename T>
-cpp11::writable::doubles dust_simulate(cpp11::sexp r_steps,
-                                       cpp11::list r_pars,
-                                       cpp11::doubles_matrix r_state,
-                                       cpp11::sexp r_index,
-                                       const size_t n_threads,
-                                       cpp11::sexp r_seed,
-                                       bool return_state) {
-  typedef typename T::real_t real_t;
-  std::vector<size_t> steps = validate_size(r_steps, "steps");
-  std::vector<real_t> state = matrix_to_vector<real_t>(r_state);
-  std::vector<size_t> index = r_index_to_index(r_index, r_state.nrow());
-  std::vector<uint64_t> seed = as_rng_seed<typename T::real_t>(r_seed);
-
-  if (r_pars.size() != r_state.ncol()) {
-    cpp11::stop("Expected 'state' to be a matrix with %d columns",
-                r_pars.size());
-  }
-
-  std::vector<dust::pars_t<T>> pars;
-  pars.reserve(r_pars.size());
-  for (int i = 0; i < r_pars.size(); ++i) {
-    pars.push_back(dust_pars<T>(r_pars[i]));
-  }
-
-  cpp11::writable::doubles ret(index.size() * pars.size() * steps.size());
-
-  std::vector<real_t> dat =
-    dust_simulate<T>(steps, pars, state, index, n_threads, seed, return_state);
-  std::copy(dat.begin(), dat.end(), REAL(ret));
-
-  ret.attr("dim") = cpp11::writable::integers({(int)index.size(),
-                                               (int)pars.size(),
-                                               (int)steps.size()});
-
-  if (return_state) {
-    cpp11::writable::doubles r_state_end(state.size());
-    std::copy(state.begin(), state.end(), REAL(r_state_end));
-    r_state_end.attr("dim") = cpp11::writable::integers({
-        r_state.nrow(), r_state.ncol()});
-    ret.attr("state") = r_state_end;
-
-    size_t n_rng_state = sizeof(uint64_t) * seed.size();
-    cpp11::writable::raws r_rng_state(n_rng_state);
-    std::memcpy(RAW(r_rng_state), seed.data(), n_rng_state);
-    ret.attr("rng_state") = r_rng_state;
-  }
-
-  return ret;
-}
-
 template <typename T>
 void dust_set_index(SEXP ptr, cpp11::sexp r_index) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();

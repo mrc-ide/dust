@@ -152,18 +152,6 @@ SEXP dust_variable_filter(SEXP ptr, bool save_history) {
 }
 
 [[cpp11::register]]
-SEXP dust_variable_simulate(cpp11::sexp r_steps,
-                            cpp11::list r_pars,
-                            cpp11::doubles_matrix r_state,
-                            cpp11::sexp r_index,
-                            const size_t n_threads,
-                            cpp11::sexp r_seed,
-                            bool return_state) {
-  return dust_simulate<variable>(r_steps, r_pars, r_state, r_index,
-                                  n_threads, r_seed, return_state);
-}
-
-[[cpp11::register]]
 cpp11::sexp dust_variable_capabilities() {
   return dust_capabilities<variable>();
 }

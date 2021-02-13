@@ -1,36 +1,43 @@
-##' Simulate a dust model.  This is a helper function that is subject
-##' to change; see Details below.
+##' Simulate a dust model.  This function is deprecated since v0.7.8
+##' and will be removed in a future version of dust. Please use the
+##' `$simulate()` method directly on a dust object - see below for
+##' details to update your code.
 ##'
-##' This function has an interface that we expect to change once
-##' multi-parameter "dust" objects are fully supported.  For now, it
-##' is designed to be used where we want to simulate a number of
-##' trajectories given a vector of model parameters and a matrix of initial
-##' state.  For our immediate use case this is for simulating at the
-##' end of an MCMC where want to generate a posterior distribution of
-##' trajectories.
+##' This function was designed to support the special case of
+##' simulating a set of trajectories across a list of parameters and
+##' initial state. Now that [dust] models support multiple parameters
+##' natively this is deprecated.
 ##'
-##' @section Random number generation:
+##' To migrate to use the method, initialise your model with the list
+##' of parameters, like:
 ##'
-##' This implementation leaves a number of issues that we will
-##'   document more fully in future versions. Most pressing is that
-##'   the RNG is by defauly uncoupled between a `model` object and the
-##'   simulation; ideally this would update the RNG on the `model`,
-##'   but this needs care in the case where either more or fewer
-##'   simulations are carried out than the initial object has.  This
-##'   is resolvable as rng state can be exported from one dust object
-##'   and used in another.  The [dust_rng_state_long_jump()] function
-##'   can be used manually to perform a "long jump" on the exported
-##'   state, which can be used to create streams that are sensibly
-##'   distributed along the RNG's period.  If you are performing
-##'   multiple simulations with this function you should use
-##'   `return_state = TRUE` and use the `rng_state` attribute to
-##'   reseed the RNG (it holds the final state of the random number
-##'   generator at the end of the simulation, so is the correct place
-##'   to start again).
+##' ```
+##' mod <- model$new(pars, steps[[1]], 1L)
+##' mod$set_state(state)
+##' mod$set_index(index) # if using
+##' ```
 ##'
-##' @title Simulate from a model or generator
+##' In contrast to this function the 3rd argument there can be used to
+##' simulate multiple trajectories *per* parameter set. You can set
+##' `n_threads` and `seed` as in the constructor as normal.
 ##'
-##' @param model A [dust] model or generator object
+##' Now you can run the model with
+##'
+##' ```
+##' y <- mod$simulate(steps)
+##' ```
+##'
+##' which will return a 4d matrix (in this case with 1 trajectory per
+##' parameter set.
+##'
+##' The advantage of this approach over the previous `dust_simulate`
+##' approach is that now you can inspect your model to get state,
+##' continue it etc without having to worry about the rng state; it
+##' should be much more flexible.
+##'
+##' @title Simulate from a dust model generator
+##'
+##' @param model A [dust] model generator object
 ##'
 ##' @param steps The vector of steps used to simulate over. The first
 ##'   step in this vector is the starting step (corresponding to the
@@ -91,12 +98,13 @@
 dust_simulate <- function(model, steps, pars, state, index = NULL,
                           n_threads = 1L, seed = NULL, return_state = FALSE) {
   if (inherits(model, "dust")) {
-    simulate <- environment(model$run)$private$simulate
+    stop("dust_simulate no longer valid for dust models")
   } else if (inherits(model, "R6ClassGenerator") &&
              identical(model$classname, "dust")) {
+    .Deprecated("$simulate() method directly (see ?dust_simulate)")
     simulate <- model$private_methods$simulate
   } else {
-    stop("Expected a dust object or generator for 'model'")
+    stop("Expected a dust generator for 'model'")
   }
   if (!is.matrix(state)) {
     stop("Expected 'state' to be a matrix")
@@ -104,5 +112,25 @@ dust_simulate <- function(model, steps, pars, state, index = NULL,
   if (is.list(pars) && !is.null(names(pars))) {
     stop("Expected 'pars' to be an unnamed list")
   }
-  simulate(steps, pars, state, index, n_threads, seed, return_state)
+  if (length(pars) != ncol(state)) {
+    stop(sprintf("Expected 'state' to be a matrix with %d columns",
+                 length(pars)))
+  }
+
+  mod <- model$new(pars, steps[[1]], 1L,
+                   n_threads = n_threads, seed = seed, pars_multi = TRUE)
+  dim(state) <- c(nrow(state), 1, ncol(state))
+  mod$set_state(state)
+  if (!is.null(index)) {
+    mod$set_index(index)
+  }
+  ret <- mod$simulate2(steps)
+  dim(ret) <- dim(ret)[-2L]
+  if (return_state) {
+    y <- mod$state()
+    dim(y) <- dim(y)[-2L]
+    attr(ret, "state") <- y
+    attr(ret, "rng_state") <- mod$rng_state()
+  }
+  ret
 }

@@ -214,18 +214,6 @@ SEXP dust_sir_filter(SEXP ptr, bool save_history) {
 }
 
 [[cpp11::register]]
-SEXP dust_sir_simulate(cpp11::sexp r_steps,
-                            cpp11::list r_pars,
-                            cpp11::doubles_matrix r_state,
-                            cpp11::sexp r_index,
-                            const size_t n_threads,
-                            cpp11::sexp r_seed,
-                            bool return_state) {
-  return dust_simulate<sir>(r_steps, r_pars, r_state, r_index,
-                                  n_threads, r_seed, return_state);
-}
-
-[[cpp11::register]]
 cpp11::sexp dust_sir_capabilities() {
   return dust_capabilities<sir>();
 }

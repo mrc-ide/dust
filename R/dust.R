@@ -12,14 +12,7 @@ sir <- R6::R6Class(
     n_particles_ = NULL,
     ptr_ = NULL,
     param_ = list(beta = list(required = FALSE), gamma = list(required = FALSE),
-    exp_noise = list(required = FALSE)),
-
-    simulate = function(steps, pars, state, index = NULL,
-                        n_threads = 1L, seed = NULL,
-                        return_state = FALSE) {
-      dust_sir_simulate(steps, pars, state, index, n_threads, seed,
-                             return_state)
-    }
+    exp_noise = list(required = FALSE))
   ),
 
   public = list(
@@ -173,14 +166,7 @@ variable <- R6::R6Class(
     n_threads_ = NULL,
     n_particles_ = NULL,
     ptr_ = NULL,
-    param_ = NULL,
-
-    simulate = function(steps, pars, state, index = NULL,
-                        n_threads = 1L, seed = NULL,
-                        return_state = FALSE) {
-      dust_variable_simulate(steps, pars, state, index, n_threads, seed,
-                             return_state)
-    }
+    param_ = NULL
   ),
 
   public = list(
@@ -334,14 +320,7 @@ volatility <- R6::R6Class(
     n_threads_ = NULL,
     n_particles_ = NULL,
     ptr_ = NULL,
-    param_ = NULL,
-
-    simulate = function(steps, pars, state, index = NULL,
-                        n_threads = 1L, seed = NULL,
-                        return_state = FALSE) {
-      dust_volatility_simulate(steps, pars, state, index, n_threads, seed,
-                             return_state)
-    }
+    param_ = NULL
   ),
 
   public = list(
@@ -495,14 +474,7 @@ walk <- R6::R6Class(
     n_threads_ = NULL,
     n_particles_ = NULL,
     ptr_ = NULL,
-    param_ = NULL,
-
-    simulate = function(steps, pars, state, index = NULL,
-                        n_threads = 1L, seed = NULL,
-                        return_state = FALSE) {
-      dust_walk_simulate(steps, pars, state, index, n_threads, seed,
-                             return_state)
-    }
+    param_ = NULL
   ),
 
   public = list(
