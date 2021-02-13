@@ -285,8 +285,10 @@ test_that("Can't change parameter size on reset or set_pars", {
   res <- dust_example("variable")
   pars <- rep(list(list(len = 7)), 5)
   obj <- res$new(pars, 0, 10, seed = 1L, pars_multi = TRUE)
-  expect_error(obj$reset(pars[-1]), "Expected 'pars' to have 5 elements")
-  expect_error(obj$set_pars(pars[-1]), "Expected 'pars' to have 5 elements")
+  expect_error(obj$reset(pars[-1], 0),
+               "Expected a list with 5 elements for 'pars'")
+  expect_error(obj$set_pars(pars[-1]),
+               "Expected a list with 5 elements for 'pars'")
   pars2 <- rep(list(list(len = 8)), 5)
   expect_error(
     obj$reset(pars2, 0),
@@ -463,4 +465,21 @@ test_that("resample multi validates inputs", {
 
   ## Unchanged:
   expect_identical(obj$state(), m)
+})
+
+
+test_that("must create at least one element", {
+  res <- dust_example("variable")
+  expect_error(res$new(list(), 0, 7, seed = 1L, pars_multi = TRUE),
+               "Expected 'pars' to have at least one element")
+})
+
+
+test_that("must use an unnamed list", {
+  res <- dust_example("variable")
+  pars <- list(a = list(len = 5), b = list(len = 5))
+  expect_error(
+    res$new(pars, 0, 7, pars_multi = TRUE),
+    "Expected an unnamed list for 'pars' (given 'pars_multi')",
+    fixed = TRUE)
 })

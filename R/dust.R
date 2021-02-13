@@ -19,27 +19,12 @@ sir <- R6::R6Class(
                         return_state = FALSE) {
       dust_sir_simulate(steps, pars, state, index, n_threads, seed,
                              return_state)
-    },
-
-    check_pars_multi = function(pars, len) {
-      if (!is.list(pars) || !is.null(names(pars))) {
-        stop("Expected 'pars' to be an unnamed list as 'pars_multi' is used")
-      }
-      n <- length(private$pars_)
-      if (n == 0 && length(pars) == 0) {
-        stop("Expected 'pars' to have at least one element")
-      } else if (n > 0 && length(pars) != n) {
-        stop(sprintf("Expected 'pars' to have %d elements", n))
-      }
     }
   ),
 
   public = list(
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE) {
-      if (pars_multi) {
-        private$check_pars_multi(pars)
-      }
       res <- dust_sir_alloc(pars, pars_multi, step, n_particles,
                         n_threads, seed)
       private$pars_ <- pars
@@ -91,18 +76,12 @@ sir <- R6::R6Class(
     },
 
     reset = function(pars, step) {
-      if (private$pars_multi_) {
-        private$check_pars_multi(pars)
-      }
       private$info_ <- dust_sir_reset(private$ptr_, pars, step)
       private$pars_ <- pars
       invisible()
     },
 
     set_pars = function(pars) {
-      if (private$pars_multi_) {
-        private$check_pars_multi(pars)
-      }
       private$info_ <- dust_sir_set_pars(private$ptr_, pars)
       private$pars_ <- pars
     },
@@ -195,27 +174,12 @@ variable <- R6::R6Class(
                         return_state = FALSE) {
       dust_variable_simulate(steps, pars, state, index, n_threads, seed,
                              return_state)
-    },
-
-    check_pars_multi = function(pars, len) {
-      if (!is.list(pars) || !is.null(names(pars))) {
-        stop("Expected 'pars' to be an unnamed list as 'pars_multi' is used")
-      }
-      n <- length(private$pars_)
-      if (n == 0 && length(pars) == 0) {
-        stop("Expected 'pars' to have at least one element")
-      } else if (n > 0 && length(pars) != n) {
-        stop(sprintf("Expected 'pars' to have %d elements", n))
-      }
     }
   ),
 
   public = list(
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE) {
-      if (pars_multi) {
-        private$check_pars_multi(pars)
-      }
       res <- dust_variable_alloc(pars, pars_multi, step, n_particles,
                         n_threads, seed)
       private$pars_ <- pars
@@ -267,18 +231,12 @@ variable <- R6::R6Class(
     },
 
     reset = function(pars, step) {
-      if (private$pars_multi_) {
-        private$check_pars_multi(pars)
-      }
       private$info_ <- dust_variable_reset(private$ptr_, pars, step)
       private$pars_ <- pars
       invisible()
     },
 
     set_pars = function(pars) {
-      if (private$pars_multi_) {
-        private$check_pars_multi(pars)
-      }
       private$info_ <- dust_variable_set_pars(private$ptr_, pars)
       private$pars_ <- pars
     },
@@ -371,27 +329,12 @@ volatility <- R6::R6Class(
                         return_state = FALSE) {
       dust_volatility_simulate(steps, pars, state, index, n_threads, seed,
                              return_state)
-    },
-
-    check_pars_multi = function(pars, len) {
-      if (!is.list(pars) || !is.null(names(pars))) {
-        stop("Expected 'pars' to be an unnamed list as 'pars_multi' is used")
-      }
-      n <- length(private$pars_)
-      if (n == 0 && length(pars) == 0) {
-        stop("Expected 'pars' to have at least one element")
-      } else if (n > 0 && length(pars) != n) {
-        stop(sprintf("Expected 'pars' to have %d elements", n))
-      }
     }
   ),
 
   public = list(
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE) {
-      if (pars_multi) {
-        private$check_pars_multi(pars)
-      }
       res <- dust_volatility_alloc(pars, pars_multi, step, n_particles,
                         n_threads, seed)
       private$pars_ <- pars
@@ -443,18 +386,12 @@ volatility <- R6::R6Class(
     },
 
     reset = function(pars, step) {
-      if (private$pars_multi_) {
-        private$check_pars_multi(pars)
-      }
       private$info_ <- dust_volatility_reset(private$ptr_, pars, step)
       private$pars_ <- pars
       invisible()
     },
 
     set_pars = function(pars) {
-      if (private$pars_multi_) {
-        private$check_pars_multi(pars)
-      }
       private$info_ <- dust_volatility_set_pars(private$ptr_, pars)
       private$pars_ <- pars
     },
@@ -547,27 +484,12 @@ walk <- R6::R6Class(
                         return_state = FALSE) {
       dust_walk_simulate(steps, pars, state, index, n_threads, seed,
                              return_state)
-    },
-
-    check_pars_multi = function(pars, len) {
-      if (!is.list(pars) || !is.null(names(pars))) {
-        stop("Expected 'pars' to be an unnamed list as 'pars_multi' is used")
-      }
-      n <- length(private$pars_)
-      if (n == 0 && length(pars) == 0) {
-        stop("Expected 'pars' to have at least one element")
-      } else if (n > 0 && length(pars) != n) {
-        stop(sprintf("Expected 'pars' to have %d elements", n))
-      }
     }
   ),
 
   public = list(
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE) {
-      if (pars_multi) {
-        private$check_pars_multi(pars)
-      }
       res <- dust_walk_alloc(pars, pars_multi, step, n_particles,
                         n_threads, seed)
       private$pars_ <- pars
@@ -619,18 +541,12 @@ walk <- R6::R6Class(
     },
 
     reset = function(pars, step) {
-      if (private$pars_multi_) {
-        private$check_pars_multi(pars)
-      }
       private$info_ <- dust_walk_reset(private$ptr_, pars, step)
       private$pars_ <- pars
       invisible()
     },
 
     set_pars = function(pars) {
-      if (private$pars_multi_) {
-        private$check_pars_multi(pars)
-      }
       private$info_ <- dust_walk_set_pars(private$ptr_, pars)
       private$pars_ <- pars
     },

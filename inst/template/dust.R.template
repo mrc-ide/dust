@@ -17,18 +17,6 @@
                         return_state = FALSE) {
       dust_{{name}}_simulate(steps, pars, state, index, n_threads, seed,
                              return_state)
-    },
-
-    check_pars_multi = function(pars, len) {
-      if (!is.list(pars) || !is.null(names(pars))) {
-        stop("Expected 'pars' to be an unnamed list as 'pars_multi' is used")
-      }
-      n <- length(private$pars_)
-      if (n == 0 && length(pars) == 0) {
-        stop("Expected 'pars' to have at least one element")
-      } else if (n > 0 && length(pars) != n) {
-        stop(sprintf("Expected 'pars' to have %d elements", n))
-      }
     }
   ),
 
@@ -75,9 +63,6 @@
     ##' the object.
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE) {
-      if (pars_multi) {
-        private$check_pars_multi(pars)
-      }
       res <- dust_{{name}}_alloc(pars, pars_multi, step, n_particles,
                         n_threads, seed)
       private$pars_ <- pars
@@ -180,9 +165,6 @@
     ##' @param pars New pars for the model (see constructor)
     ##' @param step New initial step for the model (see constructor)
     reset = function(pars, step) {
-      if (private$pars_multi_) {
-        private$check_pars_multi(pars)
-      }
       private$info_ <- dust_{{name}}_reset(private$ptr_, pars, step)
       private$pars_ <- pars
       invisible()
@@ -196,9 +178,6 @@
     ##'
     ##' @param pars New pars for the model (see constructor)
     set_pars = function(pars) {
-      if (private$pars_multi_) {
-        private$check_pars_multi(pars)
-      }
       private$info_ <- dust_{{name}}_set_pars(private$ptr_, pars)
       private$pars_ <- pars
     },
