@@ -238,16 +238,35 @@ test_that("Can avoid invalid reorder index matrices", {
 })
 
 
-test_that("set_pars is disabled", {
-  res <- dust_example("variable")
-  nd <- 3
-  ns <- 7
-  np <- 13
-  pars <- rep(list(list(len = ns)), nd)
-  mod <- res$new(pars, 0, np, seed = 1L, pars_multi = TRUE)
-  expect_error(mod$set_pars(pars),
-               "set_pars() with pars_multi not yet supported",
-               fixed = TRUE)
+test_that("Can change pars", {
+  res <- dust_example("walk")
+
+  p1 <- list(list(sd = 1), list(sd = 10))
+  p2 <- list(list(sd = 2), list(sd = 0)) # this is really easy see the failure
+
+  obj <- res$new(p1, 0, 10L, pars_multi = TRUE)
+  seed <- obj$rng_state()
+  y1 <- obj$run(1)
+
+  a <- res$new(p1[[1]], 0, 10L, seed = seed[1:320])
+  b <- res$new(p1[[2]], 0, 10L, seed = seed[321:640])
+  expect_equal(drop(a$run(1)), y1[, , 1])
+  expect_equal(drop(b$run(1)), y1[, , 2])
+
+  expect_identical(obj$rng_state(), c(a$rng_state(), b$rng_state()))
+
+  obj$set_pars(p2)
+  expect_equal(obj$state(), y1)
+  expect_equal(obj$step(), 1)
+  expect_equal(obj$pars(), p2)
+
+  y2 <- obj$run(2)
+  a$set_pars(p2[[1]])
+  b$set_pars(p2[[2]])
+  expect_equal(drop(a$run(2)), y2[, , 1])
+  expect_equal(drop(b$run(2)), y2[, , 2])
+
+  expect_identical(obj$rng_state(), c(a$rng_state(), b$rng_state()))
 })
 
 
@@ -259,6 +278,34 @@ test_that("must use same sized simulations", {
     paste("'pars' created inconsistent state size:",
           "expected length 7 but parameter set 2 created length 8"),
     fixed = TRUE)
+})
+
+
+test_that("Can't change parameter size on reset or set_pars", {
+  res <- dust_example("variable")
+  pars <- rep(list(list(len = 7)), 5)
+  obj <- res$new(pars, 0, 10, seed = 1L, pars_multi = TRUE)
+  expect_error(obj$reset(pars[-1]), "Expected 'pars' to have 5 elements")
+  expect_error(obj$set_pars(pars[-1]), "Expected 'pars' to have 5 elements")
+  pars2 <- rep(list(list(len = 8)), 5)
+  expect_error(
+    obj$reset(pars2, 0),
+    paste("'pars' created inconsistent state size:",
+          "expected length 7 but parameter set 1 created length 8"))
+  expect_error(
+    obj$set_pars(pars2),
+    paste("'pars' created inconsistent state size:",
+          "expected length 7 but parameter set 1 created length 8"))
+  pars3 <- pars
+  pars3[[3]] <- pars2[[3]]
+  expect_error(
+    obj$reset(pars3, 0),
+    paste("'pars' created inconsistent state size:",
+          "expected length 7 but parameter set 3 created length 8"))
+  expect_error(
+    obj$set_pars(pars3),
+    paste("'pars' created inconsistent state size:",
+          "expected length 7 but parameter set 3 created length 8"))
 })
 
 

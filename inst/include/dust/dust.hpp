@@ -281,7 +281,7 @@ public:
 
   void set_pars(const std::vector<pars_t>& pars) {
     const size_t n_particles = _particles.size();
-    initialise(pars, step(), n_particles, false);
+    initialise(pars, step(), n_particles / pars.size(), false);
     std::vector<size_t> err(n_particles);
   }
 
@@ -593,7 +593,7 @@ private:
   }
 
   void initialise(const std::vector<pars_t>& pars, const size_t step,
-          const size_t n_particles, bool set_state) {
+                  const size_t n_particles, bool set_state) {
         size_t n = _particles.size() == 0 ? 0 : n_state_full();
     std::vector<Particle<T>> p;
     for (size_t i = 0; i < _n_pars; ++i) {
