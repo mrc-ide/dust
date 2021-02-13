@@ -579,7 +579,9 @@ private:
       throw std::invalid_argument(msg.str());
     }
     if (_particles.size() == n_particles) {
-      // TODO: parallel
+#ifdef _OPENMP
+      #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
       for (size_t i = 0; i < n_particles; ++i) {
         _particles[i].set_pars(p, set_state);
       }
@@ -608,7 +610,9 @@ private:
       n = p.back().size(); // ensures all particles have same size
     }
     if (_particles.size() == _n_particles_total) {
-      // TODO: parallel
+#ifdef _OPENMP
+      #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
       for (size_t i = 0; i < _n_particles_total; ++i) {
         _particles[i].set_pars(p[i / n_particles], set_state);
       }
