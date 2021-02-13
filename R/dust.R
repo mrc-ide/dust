@@ -42,8 +42,8 @@ sir <- R6::R6Class(
       m
     },
 
-    simulate2 = function(step_end) {
-      m <- dust_sir_simulate2(private$ptr_, step_end)
+    simulate = function(step_end) {
+      m <- dust_sir_simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
@@ -196,8 +196,8 @@ variable <- R6::R6Class(
       m
     },
 
-    simulate2 = function(step_end) {
-      m <- dust_variable_simulate2(private$ptr_, step_end)
+    simulate = function(step_end) {
+      m <- dust_variable_simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
@@ -350,8 +350,8 @@ volatility <- R6::R6Class(
       m
     },
 
-    simulate2 = function(step_end) {
-      m <- dust_volatility_simulate2(private$ptr_, step_end)
+    simulate = function(step_end) {
+      m <- dust_volatility_simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
@@ -504,8 +504,8 @@ walk <- R6::R6Class(
       m
     },
 
-    simulate2 = function(step_end) {
-      m <- dust_walk_simulate2(private$ptr_, step_end)
+    simulate = function(step_end) {
+      m <- dust_walk_simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },

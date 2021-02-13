@@ -26,7 +26,7 @@ test_that("simulate trajectories with multiple starting points/parameters", {
 
   mod2 <- res$new(pars, 0, 1L, seed = 1L, pars_multi = TRUE)
   mod2$set_state(array(y0, c(1, 1, np)))
-  ans2 <- mod2$simulate2(steps)
+  ans2 <- mod2$simulate(steps)
   expect_equal(dim(ans2), c(1, 1, np, ns + 1L))
   expect_equal(c(ans2), c(ans))
 
@@ -69,7 +69,7 @@ test_that("simulate multi-state model", {
 
   mod <- res$new(pars, 0, 1L, seed = 1L, pars_multi = TRUE)
   mod$set_state(array(y0, c(5, 1, np)))
-  ans2 <- mod$simulate2(steps)
+  ans2 <- mod$simulate(steps)
   expect_equal(dim(ans2), c(5, 1, np, length(steps)))
   expect_equal(c(ans2), c(ans))
 })
@@ -196,12 +196,12 @@ test_that("Simulate with multiple pars", {
 
   mod <- res$new(pars, 0, np, seed = 1L, pars_multi = TRUE)
   seed <- mod$rng_state()
-  ans <- mod$simulate2(steps)
+  ans <- mod$simulate(steps)
 
   ## Validate against single parameter model:
   i <- seq_len(length(seed) / 2)
-  cmp1 <- res$new(pars[[1]], 0, np, seed = seed[i])$simulate2(steps)
-  cmp2 <- res$new(pars[[2]], 0, np, seed = seed[-i])$simulate2(steps)
+  cmp1 <- res$new(pars[[1]], 0, np, seed = seed[i])$simulate(steps)
+  cmp2 <- res$new(pars[[2]], 0, np, seed = seed[-i])$simulate(steps)
 
   expect_equal(dim(ans), c(5, np, length(pars), length(steps)))
   expect_equal(ans[, , 1, ], cmp1)
@@ -210,7 +210,7 @@ test_that("Simulate with multiple pars", {
   ## Can filter
   mod2 <- res$new(pars, 0, np, seed = 1L, pars_multi = TRUE)
   mod2$set_index(c(x = 4L))
-  ans2 <- mod2$simulate2(steps)
+  ans2 <- mod2$simulate(steps)
   expect_equal(unname(ans2), ans[4, , , , drop = FALSE])
   expect_equal(dimnames(ans2), list("x", NULL, NULL, NULL))
 })

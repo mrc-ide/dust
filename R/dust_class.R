@@ -20,15 +20,7 @@ dust_class <- R6::R6Class(
     n_threads_ = NULL,
     n_particles_ = NULL,
     ptr_ = NULL,
-    param_ = NULL,
-
-    simulate = function(steps, pars, state, index = NULL,
-                        n_threads = 1L, seed = NULL,
-                        return_state = FALSE) {
-    },
-
-    check_pars_multi = function(pars, len) {
-    }
+    param_ = NULL
   ),
 
   public = list(
@@ -95,6 +87,23 @@ dust_class <- R6::R6Class(
     ##' @param step_end Step to run to (if less than or equal to the current
     ##' step(), silently nothing will happen)
     run = function(step_end) {
+    },
+
+    ##' @description
+    ##' Iterate all particles forward in time over a series of steps,
+    ##' collecting output as they go. This is a helper around `$run()`
+    ##' where you want to run to a series of points in time and save
+    ##' output. The returned object will be filtered by your active index,
+    ##' so that it has shape (`n_state` x `n_particles` x `length(step_end)`)
+    ##' for single-parameter objects, and (`n_state` x `n_particles` x
+    ##' `n_pars` x `length(step_end)`) for multiparameter objects.
+    ##'
+    ##' @param step_end A vector of time points that the simulation should
+    ##'   report output at. This the first time must be at least the same
+    ##'   as the current time, and every subsequent time must be equal or
+    ##'   greater than those before it (ties are allowed though probably
+    ##'   not wanted).
+    simulate = function(step_end) {
     },
 
     ##' @description

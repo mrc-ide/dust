@@ -7,8 +7,8 @@
 dust_example(name)
 }
 \arguments{
-\item{name}{The name of the example to use. There are three
-examples: \code{sir}, \code{volatility} and \code{walk} (see Details).}
+\item{name}{The name of the example to use. There are four
+examples: \code{sir}, \code{variable}, \code{volatility} and \code{walk} (see Details).}
 }
 \value{
 A \code{\link{dust}} object that can be used to create a model.  See

@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulate.R
 \name{dust_simulate}
 \alias{dust_simulate}
-\title{Simulate from a model or generator}
+\title{Simulate from a dust model generator}
 \usage{
 dust_simulate(
   model,
@@ -16,7 +16,7 @@ dust_simulate(
 )
 }
 \arguments{
-\item{model}{A \link{dust} model or generator object}
+\item{model}{A \link{dust} model generator object}
 
 \item{steps}{The vector of steps used to simulate over. The first
 step in this vector is the starting step (corresponding to the
@@ -55,39 +55,38 @@ along with an attribute \code{rng_state} with the internal state of
 the random number generator.}
 }
 \description{
-Simulate a dust model.  This is a helper function that is subject
-to change; see Details below.
+Simulate a dust model.  This function is deprecated since v0.7.8
+and will be removed in a future version of dust. Please use the
+\verb{$simulate()} method directly on a dust object - see below for
+details to update your code.
 }
 \details{
-This function has an interface that we expect to change once
-multi-parameter "dust" objects are fully supported.  For now, it
-is designed to be used where we want to simulate a number of
-trajectories given a vector of model parameters and a matrix of initial
-state.  For our immediate use case this is for simulating at the
-end of an MCMC where want to generate a posterior distribution of
-trajectories.
-}
-\section{Random number generation}{
+This function was designed to support the special case of
+simulating a set of trajectories across a list of parameters and
+initial state. Now that \link{dust} models support multiple parameters
+natively this is deprecated.
 
-
-This implementation leaves a number of issues that we will
-document more fully in future versions. Most pressing is that
-the RNG is by defauly uncoupled between a \code{model} object and the
-simulation; ideally this would update the RNG on the \code{model},
-but this needs care in the case where either more or fewer
-simulations are carried out than the initial object has.  This
-is resolvable as rng state can be exported from one dust object
-and used in another.  The \code{\link[=dust_rng_state_long_jump]{dust_rng_state_long_jump()}} function
-can be used manually to perform a "long jump" on the exported
-state, which can be used to create streams that are sensibly
-distributed along the RNG's period.  If you are performing
-multiple simulations with this function you should use
-\code{return_state = TRUE} and use the \code{rng_state} attribute to
-reseed the RNG (it holds the final state of the random number
-generator at the end of the simulation, so is the correct place
-to start again).
+To migrate to use the method, initialise your model with the list
+of parameters, like:\preformatted{mod <- model$new(pars, steps[[1]], 1L)
+mod$set_state(state)
+mod$set_index(index) # if using
 }
 
+In contrast to this function the 3rd argument there can be used to
+simulate multiple trajectories \emph{per} parameter set. You can set
+\code{n_threads} and \code{seed} as in the constructor as normal.
+
+Now you can run the model with\preformatted{y <- mod$simulate(steps)
+}
+
+which will return a 4d matrix (in this case with 1 trajectory per
+parameter set.
+
+The advantage of this approach over the previous \code{dust_simulate}
+approach is that now you can inspect your model to get state,
+continue it etc without having to worry about the rng state; it
+should be much more flexible.
+}
 \examples{
 # Use the "random walk" example
 model <- dust::dust_example("walk")

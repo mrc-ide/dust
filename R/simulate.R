@@ -124,7 +124,7 @@ dust_simulate <- function(model, steps, pars, state, index = NULL,
   if (!is.null(index)) {
     mod$set_index(index)
   }
-  ret <- mod$simulate2(steps)
+  ret <- mod$simulate(steps)
   dim(ret) <- dim(ret)[-2L]
   if (return_state) {
     y <- mod$state()

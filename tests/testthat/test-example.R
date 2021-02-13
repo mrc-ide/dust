@@ -579,13 +579,13 @@ test_that("can simulate, respecting index", {
   steps <- seq(0, 100, by = 10)
   np <- 20
   mod <- res$new(list(), 0, np, seed = 1L)
-  y <- mod$simulate2(steps)
+  y <- mod$simulate(steps)
   expect_equal(dim(y), c(5, np, length(steps)))
   expect_equal(y, dust_iterate(res$new(list(), 0, np, seed = 1L), steps))
 
   mod2 <- res$new(list(), 0, np, seed = 1L)
   mod2$set_index(5)
-  expect_identical(mod2$simulate2(steps), y[5, , , drop = FALSE])
+  expect_identical(mod2$simulate(steps), y[5, , , drop = FALSE])
 })
 
 
@@ -598,16 +598,16 @@ test_that("validate simulate steps", {
   mod$set_state(y)
 
   expect_error(
-    mod$simulate2(integer(0)),
+    mod$simulate(integer(0)),
     "'step_end' must have at least one element")
   expect_error(
-    mod$simulate2(0:10),
+    mod$simulate(0:10),
     "'step_end[1]' must be at least 10", fixed = TRUE)
   expect_error(
-    mod$simulate2(10:5),
+    mod$simulate(10:5),
     "'step_end' must be non-decreasing (error on element 2)", fixed = TRUE)
   expect_error(
-    mod$simulate2(c(10, 20, 30, 20, 50)),
+    mod$simulate(c(10, 20, 30, 20, 50)),
     "'step_end' must be non-decreasing (error on element 4)", fixed = TRUE)
 
   ## Unchanged

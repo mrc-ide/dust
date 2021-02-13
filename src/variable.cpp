@@ -78,7 +78,7 @@ SEXP dust_variable_run(SEXP ptr, size_t step_end) {
 }
 
 [[cpp11::register]]
-SEXP dust_variable_simulate2(SEXP ptr, cpp11::sexp step_end) {
+SEXP dust_variable_simulate(SEXP ptr, cpp11::sexp step_end) {
   return dust_simulate<variable>(ptr, step_end);
 }
 

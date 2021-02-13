@@ -57,7 +57,7 @@ SEXP dust_walk_run(SEXP ptr, size_t step_end) {
 }
 
 [[cpp11::register]]
-SEXP dust_walk_simulate2(SEXP ptr, cpp11::sexp step_end) {
+SEXP dust_walk_simulate(SEXP ptr, cpp11::sexp step_end) {
   return dust_simulate<walk>(ptr, step_end);
 }
 

@@ -18,7 +18,7 @@ SEXP dust_{{name}}_run(SEXP ptr, size_t step_end) {
 }
 
 [[cpp11::register]]
-SEXP dust_{{name}}_simulate2(SEXP ptr, cpp11::sexp step_end) {
+SEXP dust_{{name}}_simulate(SEXP ptr, cpp11::sexp step_end) {
   return dust_simulate<{{class}}>(ptr, step_end);
 }
 
