@@ -263,7 +263,11 @@ cpp11::sexp dust_reset(SEXP ptr, cpp11::list r_pars, int step) {
     obj->reset(pars, step);
     info = dust_info<T>(pars);
   } else {
+    if (static_cast<size_t>(r_pars.size()) != obj->n_pars()) {
+      cpp11::stop("Expected a list with %d elements for 'pars'", obj->n_pars());
+    }
     std::vector<dust::pars_t<T>> pars;
+    pars.reserve(obj->n_pars());
     cpp11::writable::list info_list = cpp11::writable::list(r_pars.size());
     for (int i = 0; i < r_pars.size(); ++i) {
       pars.push_back(dust_pars<T>(r_pars[i]));
@@ -284,10 +288,18 @@ cpp11::sexp dust_set_pars(SEXP ptr, cpp11::list r_pars) {
     obj->set_pars(pars);
     info = dust_info<T>(pars);
   } else {
-    // The underlying implementation should be tidied up, as the
-    // single case leaves us with inconsistent pars already, and the
-    // error management is tricky (#125)
-    cpp11::stop("set_pars() with pars_multi not yet supported");
+    if (static_cast<size_t>(r_pars.size()) != obj->n_pars()) {
+      cpp11::stop("Expected a list with %d elements for 'pars'", obj->n_pars());
+    }
+    std::vector<dust::pars_t<T>> pars;
+    pars.reserve(obj->n_pars());
+    cpp11::writable::list info_list = cpp11::writable::list(r_pars.size());
+    for (int i = 0; i < r_pars.size(); ++i) {
+      pars.push_back(dust_pars<T>(r_pars[i]));
+      info_list[i] = dust_info<T>(pars[i]);
+    }
+    obj->set_pars(pars);
+    info = info_list;
   }
   return info;
 }

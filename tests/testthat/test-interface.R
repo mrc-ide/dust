@@ -192,19 +192,40 @@ test_that("setting a named index returns names", {
 })
 
 
-test_that("resetting removes index names", {
+test_that("resetting preserves index names", {
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 5)
 
-  mod$set_index(setNames(1:3, c("x", "y", "z")))
+  mod$set_index(setNames(c(1, 3, 5), c("x", "y", "z")))
   expect_equal(
     mod$run(0),
-    matrix(1:3, 3, 5, dimnames = list(c("x", "y", "z"), NULL)))
+    matrix(c(1, 3, 5), 3, 5, dimnames = list(c("x", "y", "z"), NULL)))
 
-  mod$reset(list(len = 2), 0)
+  mod$reset(list(len = 10), 0)
   expect_equal(
     mod$run(0),
-    matrix(1:2, 2, 5))
+    matrix(c(1, 3, 5), 3, 5, dimnames = list(c("x", "y", "z"), NULL)))
+})
+
+
+test_that("Can't change dimensionality on reset/set_pars", {
+  res <- dust_example("variable")
+  mod <- res$new(list(len = 10), 10, 5)
+  y <- matrix(runif(10 * 5), 10, 5)
+  mod$set_state(y)
+
+  expect_error(
+    mod$reset(list(len = 5), 0),
+    paste("'pars' created a different state size than before:",
+          "old was 10 but new is 5"))
+  expect_error(
+    mod$set_pars(list(len = 5)),
+    paste("'pars' created a different state size than before:",
+          "old was 10 but new is 5"))
+
+  ## No change to model state
+  expect_identical(mod$state(), y)
+  expect_identical(mod$step(), 10L)
 })
 
 
@@ -303,8 +324,8 @@ test_that("Validate changing pars leaves particles in sensible state", {
 
   expect_error(
     obj$set_pars(list(len = 6, mean = 10, sd = 10)),
-    paste("Tried to initialise a particle with a different state size:",
-          "particle 1 had state size 5 but new pars implies state size 1"))
+    paste("'pars' created a different state size than before:",
+          "old was 5 but new is 6"))
   expect_identical(obj$state(), y1)
 
   y2 <- obj$run(2)

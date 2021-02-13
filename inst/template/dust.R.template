@@ -184,7 +184,6 @@
         private$check_pars_multi(pars)
       }
       private$info_ <- dust_{{name}}_reset(private$ptr_, pars, step)
-      private$index_ <- NULL
       private$pars_ <- pars
       invisible()
     },
