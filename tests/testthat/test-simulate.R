@@ -163,3 +163,32 @@ test_that("can extract final state", {
   expect_identical(cmp_state, attr(res1, "state"))
   expect_identical(cmp_rng_state, attr(res1, "rng_state"))
 })
+
+
+test_that("Simulate with multiple pars", {
+  res <- dust_example("sir")
+
+  np <- 13
+  pars <- list(list(beta = 0.1), list(beta = 0.2))
+  steps <- seq(0, 200, by = 20)
+
+  mod <- res$new(pars, 0, np, seed = 1L, pars_multi = TRUE)
+  seed <- mod$rng_state()
+  ans <- mod$simulate2(steps)
+
+  ## Validate against single parameter model:
+  i <- seq_len(length(seed) / 2)
+  cmp1 <- res$new(pars[[1]], 0, np, seed = seed[i])$simulate2(steps)
+  cmp2 <- res$new(pars[[2]], 0, np, seed = seed[-i])$simulate2(steps)
+
+  expect_equal(dim(ans), c(5, np, length(pars), length(steps)))
+  expect_equal(ans[, , 1, ], cmp1)
+  expect_equal(ans[, , 2, ], cmp2)
+
+  ## Can filter
+  mod2 <- res$new(pars, 0, np, seed = 1L, pars_multi = TRUE)
+  mod2$set_index(c(x = 4L))
+  ans2 <- mod2$simulate2(steps)
+  expect_equal(unname(ans2), ans[4, , , , drop = FALSE])
+  expect_equal(dimnames(ans2), list("x", NULL, NULL, NULL))
+})

@@ -324,6 +324,22 @@ public:
     }
   }
 
+  std::vector<real_t> simulate(const std::vector<size_t>& step_end) {
+    const size_t n_time = step_end.size();
+    std::vector<real_t> ret(n_particles() * n_state() * n_time);
+#ifdef _OPENMP
+    #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
+    for (size_t i = 0; i < _particles.size(); ++i) {
+      for (size_t t = 0; t < n_time; ++t) {
+        _particles[i].run(step_end[t], _rng.state(i));
+        size_t offset = t * n_state() * n_particles() + i * n_state();
+        _particles[i].state(_index, ret.begin() + offset);
+      }
+    }
+    return ret;
+  }
+
   void state(std::vector<real_t>& end_state) const {
     return state(end_state.begin());
   }

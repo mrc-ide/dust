@@ -18,6 +18,11 @@ SEXP dust_{{name}}_run(SEXP ptr, size_t step_end) {
 }
 
 [[cpp11::register]]
+SEXP dust_{{name}}_simulate2(SEXP ptr, cpp11::sexp step_end) {
+  return dust_simulate<{{class}}>(ptr, step_end);
+}
+
+[[cpp11::register]]
 SEXP dust_{{name}}_set_index(SEXP ptr, cpp11::sexp r_index) {
   dust_set_index<{{class}}>(ptr, r_index);
   return R_NilValue;

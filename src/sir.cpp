@@ -140,6 +140,11 @@ SEXP dust_sir_run(SEXP ptr, size_t step_end) {
 }
 
 [[cpp11::register]]
+SEXP dust_sir_simulate2(SEXP ptr, cpp11::sexp step_end) {
+  return dust_simulate<sir>(ptr, step_end);
+}
+
+[[cpp11::register]]
 SEXP dust_sir_set_index(SEXP ptr, cpp11::sexp r_index) {
   dust_set_index<sir>(ptr, r_index);
   return R_NilValue;

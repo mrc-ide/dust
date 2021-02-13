@@ -99,6 +99,12 @@
       m
     },
 
+    simulate2 = function(step_end) {
+      m <- dust_{{name}}_simulate2(private$ptr_, step_end)
+      rownames(m) <- names(private$index_)
+      m
+    },
+
     ##' @description
     ##' Set the "index" vector that is used to return a subset of pars
     ##' after using `run()`. If this is not used then `run()` returns
