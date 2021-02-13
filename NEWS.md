@@ -1,3 +1,8 @@
+# dust 0.7.7
+
+* Allow `set_pars` method to be used with multiparameter dust objects (#125)
+* Enforce rule that once created a dust object may not change state size (i.e., the number of particles, state elements and number of parameter sets may not change). This was already assumed by mcstate
+
 # dust 0.7.5
 
 * Beginnings of particle filter support, with a new `$filter()` method (only works for models with a compiled "compare" method) (#155)
