@@ -170,6 +170,7 @@
     ##' larges step given (i.e., `max(step)`)
     set_state = function(state, step = NULL) {
       dust_{{name}}_set_state(private$ptr_, state, step)
+      invisible()
     },
 
     ##' @description
