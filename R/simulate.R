@@ -83,18 +83,21 @@
 ##' # Start with 40 parameter sets; for this model each is list with
 ##' # an element 'sd'
 ##' pars <- replicate(40, list(sd = runif(1)), simplify = FALSE)
+##' mod <- model$new(pars, 0, 1, pars_multi = TRUE)
 ##'
-##' # We also need a matrix of initial states
-##' y0 <- matrix(rnorm(40), 1, 40)
+##' # We also need an array of initial states
+##' y0 <- array(rnorm(40), c(1, 1, 40))
+##' mod$set_state(y0)
 ##'
 ##' # Run from steps 0..50
 ##' steps <- 0:50
 ##'
 ##' # The simulated output:
-##' res <- dust::dust_simulate(model, steps, pars, y0)
+##' res <- mod$simulate(steps)
 ##'
 ##' # The result of the simulation, plotted over time
-##' matplot(steps, t(drop(res)), type = "l", col = "#00000055", lty = 1)
+##' matplot(steps, t(drop(res)), type = "l", col = "#00000055", lty = 1,
+##'         xlab = "Time", ylab = "Value")
 dust_simulate <- function(model, steps, pars, state, index = NULL,
                           n_threads = 1L, seed = NULL, return_state = FALSE) {
   if (inherits(model, "dust")) {
