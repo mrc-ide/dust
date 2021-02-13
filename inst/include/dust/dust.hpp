@@ -198,16 +198,6 @@ public:
     _y_swap = other._y;
   }
 
-  size_t set_pars(const pars_t& pars) {
-    auto m = T(pars);
-    bool ret = m.size();
-    if (m.size() == _model.size()) {
-      _model = m;
-      ret = 0;
-    }
-    return ret;
-  }
-
   void set_pars(const Particle<T>& other, bool set_state) {
     _model = other._model;
     _step = other._step;
