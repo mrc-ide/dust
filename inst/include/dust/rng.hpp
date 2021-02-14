@@ -82,9 +82,9 @@ private:
 };
 
 template <typename T>
-device_rng_state_t<T> get_rng_state(const dust::interleaved<uint64_t>& full_rng_state) {
-  device_rng_state_t<T> rng_state;
-  for (int i = 0; i < device_rng_state_t<T>::size(); i++) {
+rng_state_t<T> get_rng_state(const dust::interleaved<uint64_t>& full_rng_state) {
+  rng_state_t<T> rng_state;
+  for (int i = 0; i < rng_state_t<T>::size(); i++) {
     rng_state.state[i] = full_rng_state[i];
   }
   return rng_state;
@@ -92,9 +92,9 @@ device_rng_state_t<T> get_rng_state(const dust::interleaved<uint64_t>& full_rng_
 
 // Write state into global memory
 template <typename T>
-void put_rng_state(device_rng_state_t<T>& rng_state,
+void put_rng_state(rng_state_t<T>& rng_state,
                    dust::interleaved<uint64_t>& full_rng_state) {
-  for (int i = 0; i < device_rng_state_t<T>::size(); i++) {
+  for (int i = 0; i < rng_state_t<T>::size(); i++) {
     full_rng_state[i] = rng_state.state[i];
   }
 }

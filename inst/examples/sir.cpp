@@ -120,3 +120,33 @@ template <>
 sir::data_t dust_data<sir>(cpp11::list data) {
   return sir::data_t{cpp11::as_cpp<double>(data["incidence"])};
 }
+
+template <>
+void update_device<sir>(size_t step,
+                        const dust::interleaved<sir::real_t> state,
+                        dust::interleaved<int> internal_int,
+                        dust::interleaved<sir::real_t> internal_real,
+                        dust::shared_ptr<sir> shared,
+                        dust::rng_state_t<sir::real_t>& rng_state,
+                        dust::interleaved<sir::real_t> state_next) {
+  typedef sir::real_t real_t;
+  real_t S = state[0];
+  real_t I = state[1];
+  real_t R = state[2];
+  real_t cumulative_incidence = state[3];
+
+  real_t N = S + I + R;
+
+  real_t p_SI = 1 - std::exp(-(shared->beta) * I / N);
+  real_t p_IR = 1 - std::exp(-(shared->gamma));
+  real_t n_IR = dust::distr::rbinom(rng_state, I, p_IR * shared->dt);
+  real_t n_SI = dust::distr::rbinom(rng_state, S, p_SI * shared->dt);
+
+  state_next[0] = S - n_SI;
+  state_next[1] = I + n_SI - n_IR;
+  state_next[2] = R + n_IR;
+  state_next[3] = cumulative_incidence + n_SI;
+  // Little trick here to compute daily incidence by accumulating
+  // incidence from the first day.
+  state_next[4] = (step % shared->freq == 0) ? n_SI : state[4] + n_SI;
+}

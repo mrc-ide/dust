@@ -193,7 +193,7 @@ void update_device(size_t step,
                    dust::interleaved<int> internal_int,
                    dust::interleaved<typename T::real_t> internal_real,
                    dust::shared_ptr<T> shared,
-                   dust::device_rng_state_t<typename T::real_t>& rng_state,
+                   dust::rng_state_t<typename T::real_t>& rng_state,
                    dust::interleaved<typename T::real_t> state_next);
 
 template <typename T>

@@ -16,27 +16,9 @@
 
 namespace dust {
 
-// It is not really clear what the best way of storing the state is;
-// we could store it interleaved or adjacent. For now, let's use
-// adjacent. To do interleaved we just need to know the stride here,
-// so could store a struct with *uint64_t state and size_t stride
 template <typename T>
 struct rng_state_t {
   typedef T real_t;
-  static size_t size() {
-    return 4;
-  }
-  uint64_t state[4];
-  uint64_t& operator[](size_t i) {
-    return state[i];
-  }
-};
-
-// State for the GPU, which needs to compile to four integers,
-// not a pointer to global memory
-template <typename T>
-struct device_rng_state_t {
-  using real_t = T;
   static size_t size() {
     return 4;
   }
