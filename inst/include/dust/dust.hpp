@@ -173,6 +173,19 @@ private:
   std::vector<real_t> history_value;
   std::vector<size_t> history_order;
 };
+
+template <typename real_t>
+struct device_state {
+  void initialise(size_t n_particles, size_t n_state) {
+    const size_t n_rng = dust::rng_state_t<real_t>::size();
+    // NOTE: not setting up yi_selected here, which was used in dustgpu
+    y = dust::DeviceArray<real_t>(n_state * n_particles);
+    rng = dust::DeviceArray<uint64_t>(n_rng * n_particles);
+  }
+  dust::DeviceArray<real_t> y;
+  dust::DeviceArray<uint64_t> rng;
+};
+
 }
 
 // We'll need to expand this soon to cope with shared memory, but that
@@ -398,7 +411,7 @@ public:
     const size_t step_start = step();
     run_particles<T>(step_start, step_end, _particles.size(),
                      n_state_full(), n_int, n_real, n_pars_effective(),
-                     _yi.data(), _shared, _rngi.data());
+                     _device_data.y.data(), _shared, _device_data.rng.data());
     _stale_host = true;
     set_step(step_end);
   }
@@ -671,8 +684,7 @@ private:
   dust::filter_state<real_t> filter_state_;
 
   // New things for device support
-  dust::DeviceArray<real_t> _yi;
-  dust::DeviceArray<uint64_t> _rngi;
+  dust::device_state<real_t> _device_data;
 
   bool _stale_host;
   bool _stale_device;
@@ -754,12 +766,7 @@ private:
   // This only gets called on construction; the size of these never
   // changes.
   void initialise_device_data() {
-    const size_t n_particles = _particles.size();
-    const size_t len_state = n_state_full();
-    const size_t len_rng = dust::rng_state_t<real_t>::size();
-    // NOTE: not setting up _yi_selected here, which was used in dustgpu
-    _yi = dust::DeviceArray<real_t>(len_state * n_particles);
-    _rngi = dust::DeviceArray<uint64_t>(len_rng * n_particles);
+    _device_data.initialise(_particles.size(), n_state_full());
   }
 
   void initialise_index() {
@@ -794,8 +801,8 @@ private:
         }
       }
       // H -> D copies
-      _yi.setArray(y);
-      _rngi.setArray(rng);
+      _device_data.y.setArray(y);
+      _device_data.rng.setArray(rng);
       _stale_device = false;
     }
   }
@@ -811,8 +818,8 @@ private:
       std::vector<uint64_t> rngi(np * rng_len); // Interleaved RNG state
       std::vector<uint64_t> rng(np * rng_len); //  Deinterleaved RNG state
       // D -> H copies
-      _yi.getArray(y);
-      _rngi.getArray(rngi);
+      _device_data.y.getArray(y);
+      _device_data.rng.getArray(rngi);
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(_n_threads)
 #endif
