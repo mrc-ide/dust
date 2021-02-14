@@ -393,8 +393,6 @@ public:
 
   void run_device(const size_t step_end) {
     refresh_device();
-    // TODO: we can avoid sending yi_next and just allocating that on
-    // the device too.
     const size_t n_int = 0, n_real = 0, n_state = n_state_full(),
       n_particles = _particles.size(), n_pars = n_pars_effective();
     const size_t step_start = step();
@@ -705,6 +703,7 @@ private:
         _particles.push_back(p);
       }
       _shared = {pars.shared};
+      initialise_device_data();
     }
     initialise_index();
     _stale_host = false;
@@ -745,10 +744,22 @@ private:
         }
         _shared.push_back(pars[i].shared);
       }
+      initialise_device_data();
     }
     _stale_host = false;
     _stale_device = true;
     initialise_index();
+  }
+
+  // This only gets called on construction; the size of these never
+  // changes.
+  void initialise_device_data() {
+    const size_t n_particles = _particles.size();
+    const size_t len_state = n_state_full();
+    const size_t len_rng = dust::rng_state_t<real_t>::size();
+    // NOTE: not setting up _yi_selected here, which was used in dustgpu
+    _yi = dust::DeviceArray<real_t>(len_state * n_particles);
+    _rngi = dust::DeviceArray<uint64_t>(len_rng * n_particles);
   }
 
   void initialise_index() {
