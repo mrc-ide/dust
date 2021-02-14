@@ -776,7 +776,7 @@ private:
         stride_copy(y.data(), y_tmp, i, np);
 
         // Interleave RNG state
-        dust::rng_state_t<real_t> p_rng = _rng[i];
+        dust::rng_state_t<real_t> p_rng = _rng.state(i);
         size_t rng_offset = i;
         for (size_t j = 0; j < rng_len; ++j) {
           rng_offset = stride_copy(rng.data(), p_rng[j], rng_offset, np);

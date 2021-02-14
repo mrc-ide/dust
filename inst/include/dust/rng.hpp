@@ -84,7 +84,7 @@ private:
 template <typename T>
 rng_state_t<T> get_rng_state(const dust::interleaved<uint64_t>& full_rng_state) {
   rng_state_t<T> rng_state;
-  for (int i = 0; i < rng_state_t<T>::size(); i++) {
+  for (size_t i = 0; i < rng_state_t<T>::size(); i++) {
     rng_state.state[i] = full_rng_state[i];
   }
   return rng_state;
@@ -94,7 +94,7 @@ rng_state_t<T> get_rng_state(const dust::interleaved<uint64_t>& full_rng_state) 
 template <typename T>
 void put_rng_state(rng_state_t<T>& rng_state,
                    dust::interleaved<uint64_t>& full_rng_state) {
-  for (int i = 0; i < rng_state_t<T>::size(); i++) {
+  for (size_t i = 0; i < rng_state_t<T>::size(); i++) {
     full_rng_state[i] = rng_state.state[i];
   }
 }

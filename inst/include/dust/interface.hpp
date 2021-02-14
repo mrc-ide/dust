@@ -182,10 +182,14 @@ void dust_set_state_multi(Dust<T> *obj, cpp11::doubles r_state) {
 }
 
 template <typename T>
-cpp11::sexp dust_run(SEXP ptr, int step_end) {
+cpp11::sexp dust_run(SEXP ptr, int step_end, bool device) {
   validate_size(step_end, "step_end");
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  obj->run(step_end);
+  if (device) {
+    obj->run_device(step_end);
+  } else {
+    obj->run(step_end);
+  }
 
   const size_t n_state = obj->n_state();
   const size_t n_particles = obj->n_particles();
