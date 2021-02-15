@@ -36,8 +36,7 @@ T dbinom(int x, int size, T prob, bool log) {
 
 template <typename T>
 T ddelta(T x, bool log) {
-  constexpr T inf = std::numeric_limits<T>::infinity();
-  return maybe_log(x == 0 ? inf : -inf, log);
+  return maybe_log(x == 0 ? 0 : -std::numeric_limits<T>::infinity(), log);
 }
 
 template <typename T>
@@ -61,7 +60,7 @@ T dnbinom(int x, T size, T mu, bool log) {
     return maybe_log(-std::numeric_limits<T>::infinity(), log);
   }
   if (mu == 0) {
-    return ddelta(x, log);
+    return ddelta(static_cast<T>(x), log);
   }
   const T ret = std::lgamma(static_cast<T>(x + size)) -
     std::lgamma(static_cast<T>(size)) -
