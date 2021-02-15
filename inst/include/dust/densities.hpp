@@ -61,7 +61,7 @@ T dnbinom(int x, T size, T mu, bool log) {
     return maybe_log(-std::numeric_limits<T>::infinity(), log);
   }
   if (mu == 0) {
-    return ddelta(x, log);
+    return maybe_log(x == 0 ? 0 : -std::numeric_limits<T>::infinity(), log);
   }
   const T ret = std::lgamma(static_cast<T>(x + size)) -
     std::lgamma(static_cast<T>(size)) -

@@ -98,10 +98,18 @@ test_that("dnbinom agrees", {
     dnbinom(x = 0, size = 2, mu = 0, log = FALSE))
   expect_equal(
     dust_dnbinom(x = 1L, size = 2, mu = 0, log = TRUE),
-    dnbinom(x = 0, size = 2, mu = 0, log = TRUE))
+    dnbinom(x = 1, size = 2, mu = 0, log = TRUE))
   expect_equal(
     dust_dnbinom(x = 1L, size = 2, mu = 0, log = FALSE),
-    dnbinom(x = 0, size = 2, mu = 0, log = FALSE))
+    dnbinom(x = 1, size = 2, mu = 0, log = FALSE))
+
+  ## Special case where mu is zero
+  expect_equal(
+    dnbinom(34, 2, mu = 0, log = TRUE),
+    dust_dnbinom(34L, 2, 0, TRUE))
+  expect_equal(
+    dnbinom(34, 2, mu = 0, log = FALSE),
+    dust_dnbinom(34L, 2, 0, FALSE))
 })
 
 
