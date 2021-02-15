@@ -317,7 +317,7 @@ test_that("compare with multi pars", {
   np <- 10
   end <- 150 * 4
   steps <- seq(0, end, by = 4)
-  ans <- dust_iterate(res$new(list(), 0, np, seed = 1L), steps)
+  ans <- res$new(list(), 0, np, seed = 1L)$simulate(steps)
   d <- data.frame(step = steps, incidence = ans[5, 1, ])
 
   ## Use Inf for exp_noise as that gives us deterministic results
@@ -349,7 +349,7 @@ test_that("validate setting data by length", {
   np <- 10
   end <- 150 * 4
   steps <- seq(0, end, by = 4)
-  ans <- dust_iterate(res$new(list(), 0, np, seed = 1L), steps)
+  ans <- res$new(list(), 0, np, seed = 1L)$simulate(steps)
   d <- data.frame(step = steps, incidence = ans[5, 1, ])
 
   mod <- res$new(rep(list(list()), 3), 0, np, seed = 1L, pars_multi = TRUE)
@@ -376,7 +376,7 @@ test_that("compare with multi pars and different data", {
   np <- 10
   end <- 150 * 4
   steps <- seq(0, end, by = 4)
-  ans <- dust_iterate(res$new(list(), 0, np, seed = 1L), steps)
+  ans <- res$new(list(), 0, np, seed = 1L)$simulate(steps)
   d <- data.frame(step = steps,
                   group = factor(rep(c("a", "b", "c"), each = length(steps))),
                   incidence = c(ans[5, 1, ], ans[5, 2, ], ans[5, 3, ]))

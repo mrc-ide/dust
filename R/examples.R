@@ -33,7 +33,8 @@
 ##'
 ##' # Run the model for 400 steps, collecting "infected" every 4th step
 ##' steps <- seq(0, 400, by = 4)
-##' y <- dust::dust_iterate(mod, steps, index = 2L)
+##' mod$set_index(2L)
+##' y <- mod$iterate(steps)
 ##'
 ##' # A plot of our epidemic
 ##' matplot(steps, t(drop(y)), type = "l", lty = 1, col = "#00000044",

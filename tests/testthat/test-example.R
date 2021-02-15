@@ -431,7 +431,7 @@ test_that("can't load invalid example", {
 test_that("can run volatility example", {
   res <- dust_example("volatility")
   obj <- res$new(list(), 0, 5000, seed = 1L)
-  y <- drop(dust_iterate(obj, 0:100))
+  y <- drop(obj$simulate(0:100))
   expect_lt(diff(range(colMeans(y))), 0.5)
 })
 
@@ -471,7 +471,7 @@ test_that("Can run compare_data", {
   np <- 10
   end <- 150 * 4
   steps <- seq(0, end, by = 4)
-  ans <- dust_iterate(res$new(list(), 0, np, seed = 1L), steps)
+  ans <- res$new(list(), 0, np, seed = 1L)$simulate(steps)
 
   ## Confirm the incidence calculation is correct:
   expect_equal(
@@ -581,7 +581,9 @@ test_that("can simulate, respecting index", {
   mod <- res$new(list(), 0, np, seed = 1L)
   y <- mod$simulate(steps)
   expect_equal(dim(y), c(5, np, length(steps)))
-  expect_equal(y, dust_iterate(res$new(list(), 0, np, seed = 1L), steps))
+  cmp <- suppressWarnings(
+    dust_iterate(res$new(list(), 0, np, seed = 1L), steps))
+  expect_equal(y, cmp)
 
   mod2 <- res$new(list(), 0, np, seed = 1L)
   mod2$set_index(5)

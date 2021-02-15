@@ -1,6 +1,6 @@
 # dust 0.7.9
 
-* Deprecate `dust_simulate` and replace with a new method `$simulate` on the object which retains state and makes this more powerful (#100, #119, #121)
+* Deprecate `dust::dust_simulate` and `dust::dust_iterate` which are replaced with a new method `$simulate` on the object which retains state and makes this more powerful (#100, #119, #121)
 
 # dust 0.7.8
 

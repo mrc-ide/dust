@@ -30,7 +30,7 @@ test_that("simulate trajectories with multiple starting points/parameters", {
   expect_equal(dim(ans2), c(1, 1, np, ns + 1L))
   expect_equal(c(ans2), c(ans))
 
-  cmp <- dust_iterate(mod, steps)
+  cmp <- suppressWarnings(dust_iterate(mod, steps))
   expect_equal(ans[, , 2], cmp[, , 2] * sd + drop(y0))
   expect_equal(ans, cmp * sd + drop(y0))
 })

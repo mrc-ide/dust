@@ -3,7 +3,7 @@ example_filter <- function() {
   np <- 10
   end <- 150 * 4
   steps <- seq(0, end, by = 4)
-  ans <- dust_iterate(model$new(list(), 0, np, seed = 1L), steps)
+  ans <- model$new(list(), 0, np, seed = 1L)$simulate(steps)
   dat <- data.frame(step = steps[-1], incidence = ans[5, 1, -1])
   dat_dust <- dust_data(dat)
   list(model = model, dat = dat, dat_dust = dat_dust)
@@ -88,7 +88,7 @@ example_volatility <- function(pars = NULL) {
   mod <- volatility$new(list(alpha = 0.91, sigma = 1), 0, 1L, seed = 1L)
   mod$set_state(matrix(rnorm(1L, 0, 1L), 1))
   steps <- seq(0, 100, by = 1)
-  res <- dust::dust_iterate(mod, steps)
+  res <- mod$simulate(steps)
   observed <- res[1, 1, -1] + rnorm(length(steps) - 1, 0, 1)
   data <- data.frame(step = steps[-1], observed = observed)
 

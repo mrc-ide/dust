@@ -24,7 +24,16 @@ that \code{output[i, j, k]} is the \code{i}th variable, \code{j}th particle and
 Iterate a dust model over time. This is a wrapper around calling
 \verb{$run()} and \verb{$state()} repeatedly without doing anything very
 interesting with the output. It is provided mostly as a
-quick-and-dirty way of getting started with a model.
+quick-and-dirty way of getting started with a model. This function
+is deprecated since v0.7.8 and will be removed in a future version
+of dust. Please use the \verb{$iterate()} method directly on a dust
+object - see below for details to update your code.
+}
+\details{
+To migrate to use the method, set the index into the model (if
+using), and use the simulate method:\preformatted{mod$set_index(index) # if using
+mod$simulate(steps)
+}
 }
 \examples{
 # Same random walk example as in ?dust
@@ -37,7 +46,7 @@ obj <- model$new(list(sd = 1), 0, 100)
 steps <- seq(0, 400, by = 4)
 
 # Run the simulation:
-res <- dust::dust_iterate(obj, steps)
+res <- obj$simulate(steps)
 
 # Output is 1 x 100 x 100 (state, particle, time)
 dim(res)
