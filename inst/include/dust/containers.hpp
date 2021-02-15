@@ -99,6 +99,7 @@ public:
   size_t size() const {
     return size_;
   }
+
 private:
   T* data_;
   size_t size_;
