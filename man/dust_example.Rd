@@ -7,8 +7,8 @@
 dust_example(name)
 }
 \arguments{
-\item{name}{The name of the example to use. There are three
-examples: \code{sir}, \code{volatility} and \code{walk} (see Details).}
+\item{name}{The name of the example to use. There are four
+examples: \code{sir}, \code{variable}, \code{volatility} and \code{walk} (see Details).}
 }
 \value{
 A \code{\link{dust}} object that can be used to create a model.  See
@@ -42,7 +42,8 @@ mod <- sir$new(list(), 0, 50)
 
 # Run the model for 400 steps, collecting "infected" every 4th step
 steps <- seq(0, 400, by = 4)
-y <- dust::dust_iterate(mod, steps, index = 2L)
+mod$set_index(2L)
+y <- mod$simulate(steps)
 
 # A plot of our epidemic
 matplot(steps, t(drop(y)), type = "l", lty = 1, col = "#00000044",

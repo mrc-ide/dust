@@ -175,6 +175,7 @@ obj$state()
 \item \href{#method-name}{\code{dust_class$name()}}
 \item \href{#method-param}{\code{dust_class$param()}}
 \item \href{#method-run}{\code{dust_class$run()}}
+\item \href{#method-simulate}{\code{dust_class$simulate()}}
 \item \href{#method-set_index}{\code{dust_class$set_index()}}
 \item \href{#method-index}{\code{dust_class$index()}}
 \item \href{#method-n_threads}{\code{dust_class$n_threads()}}
@@ -297,6 +298,37 @@ at that point.
 \describe{
 \item{\code{step_end}}{Step to run to (if less than or equal to the current
 step(), silently nothing will happen)}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-simulate"></a>}}
+\if{latex}{\out{\hypertarget{method-simulate}{}}}
+\subsection{Method \code{simulate()}}{
+Iterate all particles forward in time over a series of steps,
+collecting output as they go. This is a helper around \verb{$run()}
+where you want to run to a series of points in time and save
+output. The returned object will be filtered by your active index,
+so that it has shape (\code{n_state} x \code{n_particles} x \code{length(step_end)})
+for single-parameter objects, and (\code{n_state} x \code{n_particles} x
+\code{n_pars} x \code{length(step_end)}) for multiparameter objects. Note that
+this method is very similar to \verb{$run()} except that the rank of
+the retuened array is one less. For a scalar \code{step_end} you would
+ordinarily want to use \verb{$run()} but the resulting numbers would
+be identical.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$simulate(step_end)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{step_end}}{A vector of time points that the simulation should
+report output at. This the first time must be at least the same
+as the current time, and every subsequent time must be equal or
+greater than those before it (ties are allowed though probably
+not wanted).}
 }
 \if{html}{\out{</div>}}
 }

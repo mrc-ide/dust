@@ -6,7 +6,10 @@ test_that("iterate simple walk", {
   np <- 10
 
   obj <- res$new(list(sd = 1), 0, np, seed = 1L)
-  m <- dust_iterate(obj, 0:ns)
+  expect_warning(
+    m <- dust_iterate(obj, 0:ns),
+    "$simulate() method directly (see ?dust_simulate)",
+    fixed = TRUE)
   expect_equal(dim(m), c(1, np, ns + 1))
 
   ## Compare against the direct version:
@@ -20,9 +23,11 @@ test_that("iterate simple walk", {
 test_that("filter output", {
   res <- dust_example("sir")
 
-  m1 <- dust_iterate(res$new(list(), 0, 100, seed = 1L), 0:100)
-  m2 <- dust_iterate(res$new(list(), 0, 100, seed = 1L), 0:100, 2L)
-  m3 <- dust_iterate(res$new(list(), 0, 100, seed = 1L), 0:100, c(1L, 3L))
+  suppressWarnings({
+    m1 <- dust_iterate(res$new(list(), 0, 100, seed = 1L), 0:100)
+    m2 <- dust_iterate(res$new(list(), 0, 100, seed = 1L), 0:100, 2L)
+    m3 <- dust_iterate(res$new(list(), 0, 100, seed = 1L), 0:100, c(1L, 3L))
+  })
 
   expect_equal(dim(m1), c(5, 100, 101))
   expect_equal(dim(m2), c(1, 100, 101))
@@ -46,10 +51,12 @@ test_that("validate start time", {
 test_that("Set names if provided", {
   res <- dust_example("sir")
 
-  m1 <- dust_iterate(res$new(list(), 0, 100, seed = 1L), 0:100,
-                     1:3)
-  m2 <- dust_iterate(res$new(list(), 0, 100, seed = 1L), 0:100,
-                     c(S = 1L, I = 2L, R = 3L))
+  suppressWarnings({
+    m1 <- dust_iterate(res$new(list(), 0, 100, seed = 1L), 0:100,
+                       1:3)
+    m2 <- dust_iterate(res$new(list(), 0, 100, seed = 1L), 0:100,
+                       c(S = 1L, I = 2L, R = 3L))
+  })
 
   expect_equal(unname(m1), unname(m2))
   expect_equal(rownames(m2), c("S", "I", "R"))

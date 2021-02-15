@@ -1,7 +1,18 @@
 ##' Iterate a dust model over time. This is a wrapper around calling
 ##' `$run()` and `$state()` repeatedly without doing anything very
 ##' interesting with the output. It is provided mostly as a
-##' quick-and-dirty way of getting started with a model.
+##' quick-and-dirty way of getting started with a model. This function
+##' is deprecated since v0.7.8 and will be removed in a future version
+##' of dust. Please use the `$simulate()` method directly on a dust
+##' object - see below for details to update your code.
+##'
+##' To migrate to use the method, set the index into the model (if
+##' using), and use the simulate method:
+##'
+##' ```
+##' mod$set_index(index) # if using
+##' mod$simulate(steps)
+##' ```
 ##'
 ##' @title Iterate a dust model
 ##'
@@ -29,7 +40,7 @@
 ##' steps <- seq(0, 400, by = 4)
 ##'
 ##' # Run the simulation:
-##' res <- dust::dust_iterate(obj, steps)
+##' res <- obj$simulate(steps)
 ##'
 ##' # Output is 1 x 100 x 100 (state, particle, time)
 ##' dim(res)
@@ -46,12 +57,9 @@ dust_iterate <- function(model, steps, index = NULL) {
   if (model$step() != steps[[1]]) {
     stop(sprintf("Expected first 'steps' element to be %d", model$step()))
   }
-  y <- model$state(index)
-  res <- array(NA_real_, dim = c(dim(y), length(steps)))
-  for (i in seq_along(steps)) {
-    model$run(steps[[i]])
-    res[, , i] <- model$state(index)
-  }
-  rownames(res) <- names(index)
-  res
+  .Deprecated("$simulate() method directly (see ?dust_simulate)")
+  old_index <- model$index()
+  on.exit(model$set_index(old_index))
+  model$set_index(index)
+  model$simulate(steps)
 }

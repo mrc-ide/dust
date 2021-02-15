@@ -18,6 +18,11 @@ SEXP dust_{{name}}_run(SEXP ptr, size_t step_end) {
 }
 
 [[cpp11::register]]
+SEXP dust_{{name}}_simulate(SEXP ptr, cpp11::sexp step_end) {
+  return dust_simulate<{{class}}>(ptr, step_end);
+}
+
+[[cpp11::register]]
 SEXP dust_{{name}}_set_index(SEXP ptr, cpp11::sexp r_index) {
   dust_set_index<{{class}}>(ptr, r_index);
   return R_NilValue;
@@ -84,18 +89,6 @@ SEXP dust_{{name}}_compare_data(SEXP ptr) {
 [[cpp11::register]]
 SEXP dust_{{name}}_filter(SEXP ptr, bool save_history) {
   return dust_filter<{{class}}>(ptr, save_history);
-}
-
-[[cpp11::register]]
-SEXP dust_{{name}}_simulate(cpp11::sexp r_steps,
-                            cpp11::list r_pars,
-                            cpp11::doubles_matrix r_state,
-                            cpp11::sexp r_index,
-                            const size_t n_threads,
-                            cpp11::sexp r_seed,
-                            bool return_state) {
-  return dust_simulate<{{class}}>(r_steps, r_pars, r_state, r_index,
-                                  n_threads, r_seed, return_state);
 }
 
 [[cpp11::register]]

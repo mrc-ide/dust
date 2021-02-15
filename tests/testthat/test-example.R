@@ -431,7 +431,7 @@ test_that("can't load invalid example", {
 test_that("can run volatility example", {
   res <- dust_example("volatility")
   obj <- res$new(list(), 0, 5000, seed = 1L)
-  y <- drop(dust_iterate(obj, 0:100))
+  y <- drop(obj$simulate(0:100))
   expect_lt(diff(range(colMeans(y))), 0.5)
 })
 
@@ -471,7 +471,7 @@ test_that("Can run compare_data", {
   np <- 10
   end <- 150 * 4
   steps <- seq(0, end, by = 4)
-  ans <- dust_iterate(res$new(list(), 0, np, seed = 1L), steps)
+  ans <- res$new(list(), 0, np, seed = 1L)$simulate(steps)
 
   ## Confirm the incidence calculation is correct:
   expect_equal(
@@ -570,4 +570,49 @@ test_that("volality compare is correct", {
   expect_lt(min(ll), ll_true)
   expect_gt(max(ll), ll_true)
   expect_equal(mean(ll), ll_true, tolerance = 0.01)
+})
+
+
+test_that("can simulate, respecting index", {
+  res <- dust_example("sir")
+
+  steps <- seq(0, 100, by = 10)
+  np <- 20
+  mod <- res$new(list(), 0, np, seed = 1L)
+  y <- mod$simulate(steps)
+  expect_equal(dim(y), c(5, np, length(steps)))
+  cmp <- suppressWarnings(
+    dust_iterate(res$new(list(), 0, np, seed = 1L), steps))
+  expect_equal(y, cmp)
+
+  mod2 <- res$new(list(), 0, np, seed = 1L)
+  mod2$set_index(5)
+  expect_identical(mod2$simulate(steps), y[5, , , drop = FALSE])
+})
+
+
+test_that("validate simulate steps", {
+  res <- dust_example("sir")
+
+  np <- 20
+  mod <- res$new(list(len = 5), 10, np, seed = 1L)
+  y <- matrix(runif(np * 5), 5, np)
+  mod$set_state(y)
+
+  expect_error(
+    mod$simulate(integer(0)),
+    "'step_end' must have at least one element")
+  expect_error(
+    mod$simulate(0:10),
+    "'step_end[1]' must be at least 10", fixed = TRUE)
+  expect_error(
+    mod$simulate(10:5),
+    "'step_end' must be non-decreasing (error on element 2)", fixed = TRUE)
+  expect_error(
+    mod$simulate(c(10, 20, 30, 20, 50)),
+    "'step_end' must be non-decreasing (error on element 4)", fixed = TRUE)
+
+  ## Unchanged
+  expect_equal(mod$step(), 10)
+  expect_equal(mod$state(), y)
 })
