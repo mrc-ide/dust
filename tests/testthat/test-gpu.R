@@ -1,13 +1,41 @@
 context("gpu")
 
 test_that("Can run device version of model on cpu", {
+  np <- 100
+  len <- 20
   gen <- dust_example("variable")
-  mod1 <- gen$new(list(len = 10), 0, 100, seed = 1L)
-  mod2 <- gen$new(list(len = 10), 0, 100, seed = 1L)
+  mod1 <- gen$new(list(len = len), 0, np, seed = 1L)
+  mod2 <- gen$new(list(len = len), 0, np, seed = 1L)
 
   expect_identical(
     mod1$run(10),
     mod2$run(10, TRUE))
+  expect_identical(
+    mod1$run(13),
+    mod2$run(13, TRUE))
+})
+
+
+test_that("Can use both device and cpu run functions", {
+  np <- 100
+  len <- 20
+  gen <- dust_example("variable")
+  mod1 <- gen$new(list(len = len), 0, np, seed = 1L)
+  mod2 <- gen$new(list(len = len), 0, np, seed = 1L)
+  mod3 <- gen$new(list(len = len), 0, np, seed = 1L)
+
+  expect_identical(
+    mod1$run(10),
+    mod2$run(10))
+  expect_identical(
+    mod1$run(13),
+    mod2$run(13, TRUE))
+  expect_identical(
+    mod1$run(19, TRUE),
+    mod2$run(19))
+  expect_identical(
+    mod1$state(),
+    mod3$run(19))
 })
 
 

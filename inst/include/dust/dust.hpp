@@ -931,7 +931,7 @@ void run_particles(size_t step_start, size_t step_end, size_t n_particles,
   if ((step_end - step_start) % 2 == 1) {
     // this is easily done without stl with memcpy:
     // memcpy(state, state_next, sizeof(real_t) * n_state);
-    std::copy_n(state_next, n_state, state);
+    std::copy_n(state_next, n_state * n_particles, state);
   }
 }
 
