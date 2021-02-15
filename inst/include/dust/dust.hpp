@@ -53,6 +53,14 @@ typedef nothing no_data;
 typedef nothing no_internal;
 typedef nothing no_shared;
 
+// By default we do not support anything on the gpu. This name might
+// change, but it does reflect our intent and it's likely that to work
+// on a GPU the model will have to provide a number of things. If of
+// those becomes a type (as with data, internal and shared) we could
+// use the same approach as above.
+template <typename T>
+struct has_gpu_support : std::false_type {};
+
 template <typename T>
 using shared_ptr = std::shared_ptr<const typename T::shared_t>;
 
@@ -404,7 +412,15 @@ public:
     _stale_device = true;
   }
 
-  void run_device(const size_t step_end) {
+  template <typename U = T>
+  typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
+  run_device(const size_t step_end) {
+    throw std::invalid_argument("GPU support not enabled for this object");
+  }
+
+  template <typename U = T>
+  typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
+  run_device(const size_t step_end) {
     refresh_device();
     const size_t n_int = 0, n_real = 0, n_state = n_state_full(),
       n_particles = _particles.size(), n_pars = n_pars_effective();
@@ -778,7 +794,23 @@ private:
     }
   }
 
-  void refresh_device() {
+  // Default noop refresh methods
+  template <typename U = T>
+  typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
+  refresh_device() {
+    _stale_device = false;
+  }
+
+  template <typename U = T>
+  typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
+  refresh_host() {
+    _stale_host = false;
+  }
+
+  // Real refresh methods where we have gpu support
+  template <typename U = T>
+  typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
+  refresh_device() {
     if (_stale_device) {
       const size_t np = n_particles(), ny = n_state_full();
       const size_t rng_len = dust::rng_state_t<real_t>::size();
@@ -807,9 +839,9 @@ private:
     }
   }
 
-  // TODO: could have RNG refresh/state refresh as separate functions
-  // Although RNG is basically part of state, so maybe this makes sense
-  void refresh_host() {
+  template <typename U = T>
+  typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
+  refresh_host() {
     if (_stale_host) {
       const size_t np = n_particles(), ny = n_state_full();
       const size_t rng_len = dust::rng_state_t<real_t>::size();
