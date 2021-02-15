@@ -99,7 +99,11 @@
     ##' output. The returned object will be filtered by your active index,
     ##' so that it has shape (`n_state` x `n_particles` x `length(step_end)`)
     ##' for single-parameter objects, and (`n_state` x `n_particles` x
-    ##' `n_pars` x `length(step_end)`) for multiparameter objects.
+    ##' `n_pars` x `length(step_end)`) for multiparameter objects. Note that
+    ##' this method is very similar to `$run()` except that the rank of
+    ##' the retuened array is one less. For a scalar `step_end` you would
+    ##' ordinarily want to use `$run()` but the resulting numbers would
+    ##' be identical.
     ##'
     ##' @param step_end A vector of time points that the simulation should
     ##'   report output at. This the first time must be at least the same

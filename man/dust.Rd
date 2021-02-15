@@ -312,7 +312,11 @@ where you want to run to a series of points in time and save
 output. The returned object will be filtered by your active index,
 so that it has shape (\code{n_state} x \code{n_particles} x \code{length(step_end)})
 for single-parameter objects, and (\code{n_state} x \code{n_particles} x
-\code{n_pars} x \code{length(step_end)}) for multiparameter objects.
+\code{n_pars} x \code{length(step_end)}) for multiparameter objects. Note that
+this method is very similar to \verb{$run()} except that the rank of
+the retuened array is one less. For a scalar \code{step_end} you would
+ordinarily want to use \verb{$run()} but the resulting numbers would
+be identical.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$simulate(step_end)}\if{html}{\out{</div>}}
 }
