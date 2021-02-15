@@ -83,7 +83,7 @@ all &quot;toy&quot; examples, being small and fast to run." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.9</span>
       </span>
     </div>
 
@@ -156,8 +156,8 @@ all "toy" examples, being small and fast to run.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>name</th>
-      <td><p>The name of the example to use. There are three
-examples: <code>sir</code>, <code>volatility</code> and <code>walk</code> (see Details).</p></td>
+      <td><p>The name of the example to use. There are four
+examples: <code>sir</code>, <code>variable</code>, <code>volatility</code> and <code>walk</code> (see Details).</p></td>
     </tr>
     </table>
 
@@ -190,6 +190,7 @@ time step.</p></li>
 #&gt;     name: function () 
 #&gt;     param: function () 
 #&gt;     run: function (step_end) 
+#&gt;     simulate: function (step_end) 
 #&gt;     set_index: function (index) 
 #&gt;     index: function () 
 #&gt;     n_threads: function () 
@@ -222,7 +223,6 @@ time step.</p></li>
 #&gt;     n_particles_: NULL
 #&gt;     ptr_: NULL
 #&gt;     param_: list
-#&gt;     simulate: function (steps, pars, state, index = NULL, n_threads = 1L, seed = NULL, 
 #&gt;   Parent env: &lt;environment: namespace:dust&gt;
 #&gt;   Locked objects: TRUE
 #&gt;   Locked class: FALSE
@@ -232,7 +232,8 @@ time step.</p></li>
 
 <span class='co'># Run the model for 400 steps, collecting "infected" every 4th step</span>
 <span class='va'>steps</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>400</span>, by <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span>
-<span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fu'>dust</span><span class='fu'>::</span><span class='fu'><a href='dust_iterate.html'>dust_iterate</a></span><span class='op'>(</span><span class='va'>mod</span>, <span class='va'>steps</span>, index <span class='op'>=</span> <span class='fl'>2L</span><span class='op'>)</span>
+<span class='va'>mod</span><span class='op'>$</span><span class='fu'>set_index</span><span class='op'>(</span><span class='fl'>2L</span><span class='op'>)</span>
+<span class='va'>y</span> <span class='op'>&lt;-</span> <span class='va'>mod</span><span class='op'>$</span><span class='fu'>simulate</span><span class='op'>(</span><span class='va'>steps</span><span class='op'>)</span>
 
 <span class='co'># A plot of our epidemic</span>
 <span class='fu'><a href='https://rdrr.io/r/graphics/matplot.html'>matplot</a></span><span class='op'>(</span><span class='va'>steps</span>, <span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/drop.html'>drop</a></span><span class='op'>(</span><span class='va'>y</span><span class='op'>)</span><span class='op'>)</span>, type <span class='op'>=</span> <span class='st'>"l"</span>, lty <span class='op'>=</span> <span class='fl'>1</span>, col <span class='op'>=</span> <span class='st'>"#00000044"</span>,

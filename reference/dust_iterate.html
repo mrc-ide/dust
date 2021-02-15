@@ -50,7 +50,10 @@
 <meta property="og:description" content="Iterate a dust model over time. This is a wrapper around calling
 $run() and $state() repeatedly without doing anything very
 interesting with the output. It is provided mostly as a
-quick-and-dirty way of getting started with a model." />
+quick-and-dirty way of getting started with a model. This function
+is deprecated since v0.7.8 and will be removed in a future version
+of dust. Please use the $simulate() method directly on a dust
+object - see below for details to update your code." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -83,7 +86,7 @@ quick-and-dirty way of getting started with a model." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.9</span>
       </span>
     </div>
 
@@ -146,7 +149,10 @@ quick-and-dirty way of getting started with a model." />
     <p>Iterate a dust model over time. This is a wrapper around calling
 <code>$run()</code> and <code>$state()</code> repeatedly without doing anything very
 interesting with the output. It is provided mostly as a
-quick-and-dirty way of getting started with a model.</p>
+quick-and-dirty way of getting started with a model. This function
+is deprecated since v0.7.8 and will be removed in a future version
+of dust. Please use the <code>$simulate()</code> method directly on a dust
+object - see below for details to update your code.</p>
     </div>
 
     <pre class="usage"><span class='fu'>dust_iterate</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>steps</span>, index <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
@@ -175,6 +181,13 @@ the model's step (i.e., <code>$step()</code>)</p></td>
 state, the second is particle number and the third is time, so
 that <code>output[i, j, k]</code> is the <code>i</code>th variable, <code>j</code>th particle and
 <code>k</code>th step.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>To migrate to use the method, set the index into the model (if
+using), and use the simulate method:</p><pre><span class='va'>mod</span><span class='op'>$</span><span class='fu'>set_index</span><span class='op'>(</span><span class='va'>index</span><span class='op'>)</span> <span class='co'># if using</span>
+<span class='va'>mod</span><span class='op'>$</span><span class='fu'>simulate</span><span class='op'>(</span><span class='va'>steps</span><span class='op'>)</span>
+</pre>
+
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Same random walk example as in ?dust</span>
@@ -187,7 +200,7 @@ that <code>output[i, j, k]</code> is the <code>i</code>th variable, <code>j</cod
 <span class='va'>steps</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>400</span>, by <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span>
 
 <span class='co'># Run the simulation:</span>
-<span class='va'>res</span> <span class='op'>&lt;-</span> <span class='fu'>dust</span><span class='fu'>::</span><span class='fu'>dust_iterate</span><span class='op'>(</span><span class='va'>obj</span>, <span class='va'>steps</span><span class='op'>)</span>
+<span class='va'>res</span> <span class='op'>&lt;-</span> <span class='va'>obj</span><span class='op'>$</span><span class='fu'>simulate</span><span class='op'>(</span><span class='va'>steps</span><span class='op'>)</span>
 
 <span class='co'># Output is 1 x 100 x 100 (state, particle, time)</span>
 <span class='fu'><a href='https://rdrr.io/r/base/dim.html'>dim</a></span><span class='op'>(</span><span class='va'>res</span><span class='op'>)</span>

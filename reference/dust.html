@@ -82,7 +82,7 @@ that can be used to work with the model (see the Details below)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.8</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.9</span>
       </span>
     </div>
 
@@ -283,6 +283,7 @@ be used (either specified with <code>[[dust::class()]]</code> or detected).</p><
 <li><p><a href='#method-name'><code>dust_class$name()</code></a></p></li>
 <li><p><a href='#method-param'><code>dust_class$param()</code></a></p></li>
 <li><p><a href='#method-run'><code>dust_class$run()</code></a></p></li>
+<li><p><a href='#method-simulate'><code>dust_class$simulate()</code></a></p></li>
 <li><p><a href='#method-set_index'><code>dust_class$set_index()</code></a></p></li>
 <li><p><a href='#method-index'><code>dust_class$index()</code></a></p></li>
 <li><p><a href='#method-n_threads'><code>dust_class$n_threads()</code></a></p></li>
@@ -382,6 +383,30 @@ at that point.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#
 <p><div class="arguments"></p><dl>
 <dt><code>step_end</code></dt><dd><p>Step to run to (if less than or equal to the current
 step(), silently nothing will happen)</p></dd>
+
+</dl><p></div></p>
+<p><hr>
+<a id="method-simulate"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/stats/simulate.html'>simulate()</a></code></h3>
+<p>Iterate all particles forward in time over a series of steps,
+collecting output as they go. This is a helper around <code>$run()</code>
+where you want to run to a series of points in time and save
+output. The returned object will be filtered by your active index,
+so that it has shape (<code>n_state</code> x <code>n_particles</code> x <code><a href='https://rdrr.io/r/base/length.html'>length(step_end)</a></code>)
+for single-parameter objects, and (<code>n_state</code> x <code>n_particles</code> x
+<code>n_pars</code> x <code><a href='https://rdrr.io/r/base/length.html'>length(step_end)</a></code>) for multiparameter objects. Note that
+this method is very similar to <code>$run()</code> except that the rank of
+the retuened array is one less. For a scalar <code>step_end</code> you would
+ordinarily want to use <code>$run()</code> but the resulting numbers would
+be identical.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>simulate</span><span class='op'>(</span><span class='va'>step_end</span><span class='op'>)</span></pre><p></div></p>
+
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>step_end</code></dt><dd><p>A vector of time points that the simulation should
+report output at. This the first time must be at least the same
+as the current time, and every subsequent time must be equal or
+greater than those before it (ties are allowed though probably
+not wanted).</p></dd>
 
 </dl><p></div></p>
 <p><hr>
@@ -703,6 +728,7 @@ If you have a multi-parameter dust object this will be a 4d array
 #&gt;     name: function () 
 #&gt;     param: function () 
 #&gt;     run: function (step_end) 
+#&gt;     simulate: function (step_end) 
 #&gt;     set_index: function (index) 
 #&gt;     index: function () 
 #&gt;     n_threads: function () 
@@ -735,7 +761,6 @@ If you have a multi-parameter dust object this will be a 4d array
 #&gt;     n_particles_: NULL
 #&gt;     ptr_: NULL
 #&gt;     param_: NULL
-#&gt;     simulate: function (steps, pars, state, index = NULL, n_threads = 1L, seed = NULL, 
 #&gt;   Parent env: &lt;environment: namespace:dust&gt;
 #&gt;   Locked objects: TRUE
 #&gt;   Locked class: FALSE
@@ -771,6 +796,7 @@ If you have a multi-parameter dust object this will be a 4d array
 #&gt;     set_pars: function (pars) 
 #&gt;     set_rng_state: function (rng_state) 
 #&gt;     set_state: function (state, step = NULL) 
+#&gt;     simulate: function (step_end) 
 #&gt;     state: function (index = NULL) 
 #&gt;     step: function () 
 #&gt;   Private:
@@ -781,8 +807,7 @@ If you have a multi-parameter dust object this will be a 4d array
 #&gt;     param_: NULL
 #&gt;     pars_: list
 #&gt;     pars_multi_: FALSE
-#&gt;     ptr_: externalptr
-#&gt;     simulate: function (steps, pars, state, index = NULL, n_threads = 1L, seed = NULL, </div><div class='input'>
+#&gt;     ptr_: externalptr</div><div class='input'>
 <span class='co'># Curent state is all zero</span>
 <span class='va'>obj</span><span class='op'>$</span><span class='fu'>state</span><span class='op'>(</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]
