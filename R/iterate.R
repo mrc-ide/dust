@@ -3,7 +3,7 @@
 ##' interesting with the output. It is provided mostly as a
 ##' quick-and-dirty way of getting started with a model. This function
 ##' is deprecated since v0.7.8 and will be removed in a future version
-##' of dust. Please use the `$iterate()` method directly on a dust
+##' of dust. Please use the `$simulate()` method directly on a dust
 ##' object - see below for details to update your code.
 ##'
 ##' To migrate to use the method, set the index into the model (if

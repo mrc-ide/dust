@@ -34,7 +34,7 @@
 ##' # Run the model for 400 steps, collecting "infected" every 4th step
 ##' steps <- seq(0, 400, by = 4)
 ##' mod$set_index(2L)
-##' y <- mod$iterate(steps)
+##' y <- mod$simulate(steps)
 ##'
 ##' # A plot of our epidemic
 ##' matplot(steps, t(drop(y)), type = "l", lty = 1, col = "#00000044",
