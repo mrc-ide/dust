@@ -37,7 +37,13 @@ sir <- R6::R6Class(
     },
 
     run = function(step_end) {
-      m <- dust_sir_run(private$ptr_, step_end)
+      m <- dust_sir_run(private$ptr_, step_end, FALSE)
+      rownames(m) <- names(private$index_)
+      m
+    },
+
+    run_device = function(step_end) {
+      m <- dust_sir_run(private$ptr_, step_end, TRUE)
       rownames(m) <- names(private$index_)
       m
     },
@@ -192,7 +198,13 @@ variable <- R6::R6Class(
     },
 
     run = function(step_end) {
-      m <- dust_variable_run(private$ptr_, step_end)
+      m <- dust_variable_run(private$ptr_, step_end, FALSE)
+      rownames(m) <- names(private$index_)
+      m
+    },
+
+    run_device = function(step_end) {
+      m <- dust_variable_run(private$ptr_, step_end, TRUE)
       rownames(m) <- names(private$index_)
       m
     },
@@ -347,7 +359,13 @@ volatility <- R6::R6Class(
     },
 
     run = function(step_end) {
-      m <- dust_volatility_run(private$ptr_, step_end)
+      m <- dust_volatility_run(private$ptr_, step_end, FALSE)
+      rownames(m) <- names(private$index_)
+      m
+    },
+
+    run_device = function(step_end) {
+      m <- dust_volatility_run(private$ptr_, step_end, TRUE)
       rownames(m) <- names(private$index_)
       m
     },
@@ -502,7 +520,13 @@ walk <- R6::R6Class(
     },
 
     run = function(step_end) {
-      m <- dust_walk_run(private$ptr_, step_end)
+      m <- dust_walk_run(private$ptr_, step_end, FALSE)
+      rownames(m) <- names(private$index_)
+      m
+    },
+
+    run_device = function(step_end) {
+      m <- dust_walk_run(private$ptr_, step_end, TRUE)
       rownames(m) <- names(private$index_)
       m
     },
