@@ -187,11 +187,11 @@ struct device_state {
   void initialise(size_t n_particles, size_t n_state) {
     const size_t n_rng = dust::rng_state_t<real_t>::size();
     // NOTE: not setting up yi_selected here, which was used in dustgpu
-    y = dust::DeviceArray<real_t>(n_state * n_particles);
-    rng = dust::DeviceArray<uint64_t>(n_rng * n_particles);
+    y = dust::device_array<real_t>(n_state * n_particles);
+    rng = dust::device_array<uint64_t>(n_rng * n_particles);
   }
-  dust::DeviceArray<real_t> y;
-  dust::DeviceArray<uint64_t> rng;
+  dust::device_array<real_t> y;
+  dust::device_array<uint64_t> rng;
 };
 
 }
@@ -831,8 +831,8 @@ private:
         }
       }
       // H -> D copies
-      _device_data.y.setArray(y);
-      _device_data.rng.setArray(rng);
+      _device_data.y.set_array(y);
+      _device_data.rng.set_array(rng);
       _stale_device = false;
     }
   }
@@ -848,8 +848,8 @@ private:
       std::vector<uint64_t> rngi(np * rng_len); // Interleaved RNG state
       std::vector<uint64_t> rng(np * rng_len); //  Deinterleaved RNG state
       // D -> H copies
-      _device_data.y.getArray(y);
-      _device_data.rng.getArray(rngi);
+      _device_data.y.get_array(y);
+      _device_data.rng.get_array(rngi);
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(_n_threads)
 #endif

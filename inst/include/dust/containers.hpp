@@ -11,28 +11,28 @@
 
 namespace dust {
 
-// TODO: move to device_array, get_array, set_array names
-// TODO: document the vibe of the CUDA bits
-// TODO: move to C++ standard exceptions
-// TOOD: can we use RAII for the CPU version?
 template <typename T>
-class DeviceArray {
+class device_array {
 public:
   // Default constructor
-  DeviceArray() : data_(nullptr), size_(0) {
+  device_array() : data_(nullptr), size_(0) {
   }
 
   // Constructor to allocate empty memory
-  DeviceArray(const size_t size) : size_(size) {
+  device_array(const size_t size) : size_(size) {
     data_ = (T*) std::malloc(size_ * sizeof(T));
     if (!data_) {
-      throw std::bad_alloc();
+      // This is not tested (or easily testable without mocking) but
+      // simple enough. This error will be caught by cpp11
+      //
+      // TODO: we might use `new` here which will throw automatically?
+      throw std::bad_alloc(); // # nocov
     }
     std::memset(data_, 0, size_ * sizeof(T));
   }
 
   // Constructor from vector
-  DeviceArray(const std::vector<T>& data) : size_(data.size()) {
+  device_array(const std::vector<T>& data) : size_(data.size()) {
     data_ = (T*) std::malloc(size_ * sizeof(T));
     if (!data_) {
       throw std::bad_alloc();
@@ -41,12 +41,12 @@ public:
   }
 
   // Copy
-  DeviceArray(const DeviceArray& other) : size_(other.size_) {
+  device_array(const device_array& other) : size_(other.size_) {
     std::memcpy(data_, other.data_, size_ * sizeof(T));
   }
 
   // Copy assign
-  DeviceArray& operator=(const DeviceArray& other) {
+  device_array& operator=(const device_array& other) {
     if (this != &other) {
       size_ = other.size_;
       std::free(data_);
@@ -56,7 +56,7 @@ public:
   }
 
   // Move
-  DeviceArray(DeviceArray&& other) : data_(nullptr), size_(0) {
+  device_array(device_array&& other) : data_(nullptr), size_(0) {
     data_ = other.data_;
     size_ = other.size_;
     other.data_ = nullptr;
@@ -64,7 +64,7 @@ public:
   }
 
   // Move assign
-  DeviceArray& operator=(DeviceArray&& other) {
+  device_array& operator=(device_array&& other) {
     if (this != &other) {
       std::free(data_);
       data_ = other.data_;
@@ -75,29 +75,20 @@ public:
     return *this;
   }
 
-  ~DeviceArray() {
+  ~device_array() {
     std::free(data_);
   }
 
-  void getArray(std::vector<T>& dst) const {
-    if (dst.size() > size_) {
-      std::stringstream msg;
-      msg << "Tried device to host copy with device array (" << size_ <<
-        ") shorter than host array (" << dst.size() << ")";
-      throw std::invalid_argument(msg.str());
-    }
+  void get_array(std::vector<T>& dst) const {
+    // NOTE: there was error checking here making sure that dest.size() <= size_
+    // but that's removed for now
     std::memcpy(dst.data(), data_, dst.size() * sizeof(T));
   }
 
-  void setArray(const std::vector<T>& src) {
-    if (src.size() > size_) {
-      std::stringstream msg;
-      msg << "Tried host to device copy with host array (" << src.size() <<
-        ") longer than device array (" << size_ << ")";
-      throw std::invalid_argument(msg.str());
-    } else {
-      size_ = src.size();
-    }
+  void set_array(const std::vector<T>& src) {
+    // NOTE: there was error checking here making sure that src.size() == size_
+    // but that's removed for now
+    size_ = src.size();
     std::memcpy(data_, src.data(), size_ * sizeof(T));
   }
 
