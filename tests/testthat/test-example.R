@@ -109,13 +109,13 @@ test_that("set index", {
 })
 
 
-test_that("reset clears the index", {
+test_that("reset does not clear the index", {
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 1, seed = 1L)
   mod$set_index(2:4)
   expect_equal(mod$run(0), matrix(2:4))
   mod$reset(list(len = 10), 0)
-  expect_equal(mod$run(0), matrix(1:10, 10, 1))
+  expect_equal(mod$run(0), matrix(2:4))
 })
 
 

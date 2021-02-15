@@ -198,14 +198,12 @@ public:
     _y_swap = other._y;
   }
 
-  size_t set_pars(const pars_t& pars) {
-    auto m = T(pars);
-    bool ret = m.size();
-    if (m.size() == _model.size()) {
-      _model = m;
-      ret = 0;
+  void set_pars(const Particle<T>& other, bool set_state) {
+    _model = other._model;
+    _step = other._step;
+    if (set_state) {
+      _y = _model.initial(_step);
     }
-    return ret;
   }
 
   void set_state(typename std::vector<real_t>::const_iterator state) {
@@ -240,7 +238,8 @@ public:
     _n_particles_total(n_particles),
     _n_threads(n_threads),
     _rng(_n_particles_total, seed) {
-    initialise(pars, step, n_particles);
+    initialise(pars, step, n_particles, true);
+    initialise_index();
   }
 
   Dust(const std::vector<pars_t>& pars, const size_t step,
@@ -250,38 +249,28 @@ public:
     _n_particles_total(n_particles * pars.size()),
     _n_threads(n_threads),
     _rng(_n_particles_total, seed) {
-    initialise(pars, step, n_particles);
+    initialise(pars, step, n_particles, true);
+    initialise_index();
   }
 
   void reset(const pars_t& pars, const size_t step) {
     const size_t n_particles = _particles.size();
-    initialise(pars, step, n_particles);
+    initialise(pars, step, n_particles, true);
   }
 
   void reset(const std::vector<pars_t>& pars, const size_t step) {
     const size_t n_particles = _particles.size() / pars.size();
-    initialise(pars, step, n_particles);
+    initialise(pars, step, n_particles, true);
   }
 
-  void set_pars(const pars_t pars) {
+  void set_pars(const pars_t& pars) {
     const size_t n_particles = _particles.size();
-    std::vector<size_t> err(n_particles);
-#ifdef _OPENMP
-    #pragma omp parallel for schedule(static) num_threads(_n_threads)
-#endif
-    for (size_t i = 0; i < n_particles; ++i) {
-      err[i] = _particles[i].set_pars(pars);
-    }
-    for (size_t i = 0; i < n_particles; ++i) {
-      if (err[i] > 0) {
-        std::stringstream msg;
-        msg << "Tried to initialise a particle with a different state size:" <<
-          " particle " << i + 1 << " had state size " <<
-          _particles[i].size() << " but new pars implies state size " <<
-          err[i];
-        throw std::invalid_argument(msg.str());
-      }
-    }
+    initialise(pars, step(), n_particles, false);
+  }
+
+  void set_pars(const std::vector<pars_t>& pars) {
+    const size_t n_particles = _particles.size();
+    initialise(pars, step(), n_particles / pars.size(), false);
   }
 
   // It's the callee's responsibility to ensure that index is in
@@ -567,41 +556,63 @@ private:
   dust::filter_state<real_t> filter_state_;
 
   void initialise(const pars_t& pars, const size_t step,
-                  const size_t n_particles) {
-    _particles.clear();
-    _particles.reserve(n_particles);
-    for (size_t i = 0; i < n_particles; ++i) {
-      _particles.push_back(Particle<T>(pars, step));
+                  const size_t n_particles, bool set_state) {
+    const size_t n = _particles.size() == 0 ? 0 : n_state_full();
+    Particle<T> p(pars, step);
+    if (n > 0 && p.size() != n) {
+      std::stringstream msg;
+      msg << "'pars' created inconsistent state size: " <<
+        "expected length " << n << " but created length " <<
+        p.size();
+      throw std::invalid_argument(msg.str());
     }
-    initialise_index();
+    if (_particles.size() == n_particles) {
+#ifdef _OPENMP
+      #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
+      for (size_t i = 0; i < n_particles; ++i) {
+        _particles[i].set_pars(p, set_state);
+      }
+    } else {
+      _particles.clear();
+      _particles.reserve(n_particles);
+      for (size_t i = 0; i < n_particles; ++i) {
+        _particles.push_back(p);
+      }
+    }
   }
 
   void initialise(const std::vector<pars_t>& pars, const size_t step,
-                  const size_t n_particles) {
-    // NOTE: we select the initialise function at runtime, but should
-    // always get it right. We might throw otherwise?
-    //
-    // We can throw here so need to make a new copy of particles.
-    std::vector<Particle<T>> particles;
-    particles.reserve(n_particles * _n_pars);
+                  const size_t n_particles, bool set_state) {
+        size_t n = _particles.size() == 0 ? 0 : n_state_full();
+    std::vector<Particle<T>> p;
     for (size_t i = 0; i < _n_pars; ++i) {
-      for (size_t j = 0; j < n_particles; ++j) {
-        particles.push_back(Particle<T>(pars[i], step));
+      p.push_back(Particle<T>(pars[i], step));
+      if (n > 0 && p.back().size() != n) {
+        std::stringstream msg;
+        msg << "'pars' created inconsistent state size: " <<
+          "expected length " << n << " but parameter set " << i + 1 <<
+          " created length " << p.back().size();
+        throw std::invalid_argument(msg.str());
       }
-      if (i > 0) {
-        const size_t n_old = particles.front().size();
-        const size_t n_new = particles.back().size();
-        if (n_old != n_new) {
-          std::stringstream msg;
-          msg << "Pars created different state sizes: pars " << i + 1 <<
-            " (of " << _n_pars << ") had length " << n_new <<
-            " but expected " << n_old;
-          throw std::invalid_argument(msg.str());
+      n = p.back().size(); // ensures all particles have same size
+    }
+    if (_particles.size() == _n_particles_total) {
+#ifdef _OPENMP
+      #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
+      for (size_t i = 0; i < _n_particles_total; ++i) {
+        _particles[i].set_pars(p[i / n_particles], set_state);
+      }
+    } else {
+      _particles.clear();
+      _particles.reserve(n_particles * _n_pars);
+      for (size_t i = 0; i < _n_pars; ++i) {
+        for (size_t j = 0; j < n_particles; ++j) {
+          _particles.push_back(p[i]);
         }
       }
     }
-    _particles = particles;
-    initialise_index();
   }
 
   void initialise_index() {
