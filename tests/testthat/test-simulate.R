@@ -148,9 +148,11 @@ test_that("steps must not be negative", {
   res <- dust_example("sir")
   y0 <- matrix(1, 1, 5)
   pars <- rep(list(list(sd = 1)), 5)
+
+  mod <- res$new(list(), 0, 1)
   expect_error(
-    suppressWarnings(dust_simulate(res, seq(-5, 10), pars, y0)),
-    "'step' must be non-negative")
+    mod$simulate(c(0:10, -5)),
+    "All elements of 'step_end' must be non-negative")
 })
 
 
