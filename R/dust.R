@@ -36,14 +36,8 @@ sir <- R6::R6Class(
       private$param_
     },
 
-    run = function(step_end) {
-      m <- dust_sir_run(private$ptr_, step_end, FALSE)
-      rownames(m) <- names(private$index_)
-      m
-    },
-
-    run_device = function(step_end) {
-      m <- dust_sir_run(private$ptr_, step_end, TRUE)
+    run = function(step_end, device = FALSE) {
+      m <- dust_sir_run(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
     },
@@ -197,14 +191,8 @@ variable <- R6::R6Class(
       private$param_
     },
 
-    run = function(step_end) {
-      m <- dust_variable_run(private$ptr_, step_end, FALSE)
-      rownames(m) <- names(private$index_)
-      m
-    },
-
-    run_device = function(step_end) {
-      m <- dust_variable_run(private$ptr_, step_end, TRUE)
+    run = function(step_end, device = FALSE) {
+      m <- dust_variable_run(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
     },
@@ -358,14 +346,8 @@ volatility <- R6::R6Class(
       private$param_
     },
 
-    run = function(step_end) {
-      m <- dust_volatility_run(private$ptr_, step_end, FALSE)
-      rownames(m) <- names(private$index_)
-      m
-    },
-
-    run_device = function(step_end) {
-      m <- dust_volatility_run(private$ptr_, step_end, TRUE)
+    run = function(step_end, device = FALSE) {
+      m <- dust_volatility_run(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
     },
@@ -519,14 +501,8 @@ walk <- R6::R6Class(
       private$param_
     },
 
-    run = function(step_end) {
-      m <- dust_walk_run(private$ptr_, step_end, FALSE)
-      rownames(m) <- names(private$index_)
-      m
-    },
-
-    run_device = function(step_end) {
-      m <- dust_walk_run(private$ptr_, step_end, TRUE)
+    run = function(step_end, device = FALSE) {
+      m <- dust_walk_run(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
     },
