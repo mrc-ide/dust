@@ -733,7 +733,6 @@ private:
       _shared = {pars.shared};
       initialise_device_data();
     }
-    initialise_index();
     _stale_host = false;
     _stale_device = true;
   }
@@ -776,7 +775,6 @@ private:
     }
     _stale_host = false;
     _stale_device = true;
-    initialise_index();
   }
 
   // This only gets called on construction; the size of these never
