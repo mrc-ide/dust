@@ -1,4 +1,4 @@
-# dust 0.7.7
+# dust 0.7.8
 
 * Allow `set_pars` method to be used with multiparameter dust objects (#125)
 * Enforce rule that once created a dust object may not change state size (i.e., the number of particles, state elements and number of parameter sets may not change). This was already assumed by mcstate
