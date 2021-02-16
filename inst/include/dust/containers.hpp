@@ -131,11 +131,11 @@ public:
   }
 
   interleaved<T> operator+(size_t by) {
-    return interleaved(data_ + by * stride_, stride_);
+    return interleaved(data_ + by * stride_, 0, stride_);
   }
 
   const interleaved<T> operator+(size_t by) const {
-    return interleaved(data_ + by * stride_, stride_);
+    return interleaved(data_ + by * stride_, 0, stride_);
   }
 
 private:
