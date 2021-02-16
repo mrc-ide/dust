@@ -194,6 +194,23 @@ struct device_state {
   dust::device_array<uint64_t> rng;
 };
 
+// We need to compute the size of space required for integers and
+// reals on the device, per particle. Because we work on the
+// requirement that every particle has the same dimension we pass an
+// arbitrary set of shared parameters (really the first) to
+// device_work_size. The underlying model can overload this template
+// for either real or int types and return the length of data
+// required.
+template <typename T>
+size_t device_work_size_int(typename dust::shared_ptr<T> shared) {
+  return 0;
+}
+
+template <typename T>
+size_t device_work_size_real(typename dust::shared_ptr<T> shared) {
+  return 0;
+}
+
 }
 
 // We'll need to expand this soon to cope with shared memory, but that
@@ -422,8 +439,8 @@ public:
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   run_device(const size_t step_end) {
     refresh_device();
-    const size_t n_int = 0, n_real = 0, n_state = n_state_full(),
-      n_particles = _particles.size(), n_pars = n_pars_effective();
+    const size_t n_int = dust::device_work_size_int<T>(_shared[0]);
+    const size_t n_real = dust::device_work_size_real<T>(_shared[0]);
     const size_t step_start = step();
     run_particles<T>(step_start, step_end, _particles.size(),
                      n_state_full(), n_int, n_real, n_pars_effective(),
