@@ -235,9 +235,10 @@ void update_device(size_t step,
                    dust::interleaved<typename T::real_t> state_next);
 
 template <typename T>
-void run_particles(size_t step_from, size_t step_to, size_t n_particles,
+void run_particles(size_t step_start, size_t step_end, size_t n_particles,
                    size_t n_state, size_t n_int, size_t n_real, size_t n_pars,
-                   typename T::real_t * state,
+                   typename T::real_t * state, typename T::real_t * state_next,
+                   int * internal_int, typename T::real_t internal_real,
                    std::vector<dust::shared_ptr<T>> shared,
                    uint64_t * rng_state);
 
@@ -442,9 +443,34 @@ public:
     const size_t n_int = dust::device_work_size_int<T>(_shared[0]);
     const size_t n_real = dust::device_work_size_real<T>(_shared[0]);
     const size_t step_start = step();
-    run_particles<T>(step_start, step_end, _particles.size(),
-                     n_state_full(), n_int, n_real, n_pars_effective(),
-                     _device_data.y.data(), _shared, _device_data.rng.data());
+
+    // Allocation for our internal storage. We won't ever move this
+    // back to the cpu
+    const size_t n_particles = _particles.size();
+    const size_t n_state = n_state_full();
+    std::vector<real_t> y_next(n_particles * n_state);
+    std::vector<int> internal_int(n_particles * n_int);
+    std::vector<real_t> internal_real(n_particles * n_real);
+
+    run_particles<T>(step_start, step_end, n_particles,
+                     n_state, n_int, n_real, n_pars_effective(),
+                     _device_data.y.data(), y_next.data(),
+                     internal_int.data(), internal_real.data(),
+                     _shared, _device_data.rng.data());
+
+    // In the inner loop, the swap will keep the locally scoped
+    // interleaved variables updated, but the interleaved variables
+    // passed in have not yet been updated.  If an even number of
+    // steps have been run state will have been swapped back into the
+    // original place, but an on odd number of steps the passed
+    // variables need to be swapped.
+    if ((step_end - step_start) % 2 == 1) {
+      // this is easily done without stl with memcpy:
+      // memcpy(_device_data.y.data(), y_next.data(), sizeof(real_t) * n_state);
+      real_t *dst = _device_data.y.data();
+      std::copy_n(y_next.data(), n_state * n_particles, dst);
+    }
+
     _stale_host = true;
     set_step(step_end);
   }
@@ -888,21 +914,12 @@ private:
 template <typename T>
 void run_particles(size_t step_start, size_t step_end, size_t n_particles,
                    size_t n_state, size_t n_int, size_t n_real, size_t n_pars,
-                   typename T::real_t * state,
+                   typename T::real_t * state, typename T::real_t * state_next,
+                   int * internal_int, typename T::real_t * internal_real,
                    std::vector<dust::shared_ptr<T>> shared,
                    uint64_t * rng_state) {
   typedef typename T::real_t real_t;
   const size_t n_particles_each = n_particles / n_pars;
-
-  // Allocation for our internal storage. We won't ever move this to
-  // or from the device so we just pass the size.
-  std::vector<real_t> state_next_v(n_particles * n_state);
-  std::vector<int> internal_int_v(n_particles * n_int);
-  std::vector<real_t> internal_real_v(n_particles * n_real);
-  real_t * state_next = state_next_v.data();
-  int * internal_int = internal_int_v.data();
-  real_t * internal_real = internal_real_v.data();
-  real_t * ret = state; // for ease of bookkeeping on return
 
   // omp here
   for (size_t i = 0; i < n_particles; ++i) {
@@ -912,7 +929,8 @@ void run_particles(size_t step_start, size_t step_end, size_t n_particles,
     dust::interleaved<real_t> p_internal_real(internal_real, i, n_particles);
     dust::interleaved<uint64_t> p_rng(rng_state, i, n_particles);
     // TODO: this needs work before moving to the device, but it might
-    // not be that bad in practice.
+    // not be that bad in practice. We'll need some extra code to deal
+    // with the blocks (before the loop) too.
     dust::shared_ptr<T> p_shared = shared[i / n_particles_each];
 
     dust::rng_state_t<real_t> rng_block = dust::get_rng_state<real_t>(p_rng);
@@ -930,21 +948,6 @@ void run_particles(size_t step_start, size_t step_end, size_t n_particles,
       // p_state_next = tmp;
     }
     dust::put_rng_state(rng_block, p_rng);
-
-    // In the inner loop, the swap will keep the locally scoped
-    // interleaved variables updated, but the interleaved variables
-    // passed in have not yet been updated.  If an even number of
-    // steps have been run state will have been swapped back into the
-    // original place, but an on odd number of steps the passed
-    // variables need to be swapped.
-  }
-
-  // This is going to require a bit of work to get exactly right as
-  // sometimes we hold the correct data
-  if ((step_end - step_start) % 2 == 1) {
-    // this is easily done without stl with memcpy:
-    // memcpy(state, state_next, sizeof(real_t) * n_state);
-    std::copy_n(state_next, n_state * n_particles, state);
   }
 }
 
