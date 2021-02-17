@@ -184,13 +184,23 @@ private:
 
 template <typename real_t>
 struct device_state {
-  void initialise(size_t n_particles, size_t n_state) {
+  void initialise(size_t n_particles, size_t n_state, size_t n_int,
+                  size_t n_real) {
     const size_t n_rng = dust::rng_state_t<real_t>::size();
     // NOTE: not setting up yi_selected here, which was used in dustgpu
     y = dust::device_array<real_t>(n_state * n_particles);
+    y_next = dust::device_array<real_t>(n_state * n_particles);
+    internal_int = dust::device_array<int>(n_int * n_particles);
+    internal_real = dust::device_array<real_t>(n_real * n_particles);
     rng = dust::device_array<uint64_t>(n_rng * n_particles);
   }
+  void swap() {
+    std::swap(y, y_next);
+  }
   dust::device_array<real_t> y;
+  dust::device_array<real_t> y_next;
+  dust::device_array<int> internal_int;
+  dust::device_array<real_t> internal_real;
   dust::device_array<uint64_t> rng;
 };
 
@@ -236,9 +246,9 @@ void update_device(size_t step,
 
 template <typename T>
 void run_particles(size_t step_start, size_t step_end, size_t n_particles,
-                   size_t n_state, size_t n_int, size_t n_real, size_t n_pars,
+                   size_t n_pars,
                    typename T::real_t * state, typename T::real_t * state_next,
-                   int * internal_int, typename T::real_t internal_real,
+                   int * internal_int, typename T::real_t * internal_real,
                    std::vector<dust::shared_ptr<T>> shared,
                    uint64_t * rng_state);
 
@@ -440,22 +450,13 @@ public:
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   run_device(const size_t step_end) {
     refresh_device();
-    const size_t n_int = dust::device_work_size_int<T>(_shared[0]);
-    const size_t n_real = dust::device_work_size_real<T>(_shared[0]);
     const size_t step_start = step();
 
-    // Allocation for our internal storage. We won't ever move this
-    // back to the cpu
-    const size_t n_particles = _particles.size();
-    const size_t n_state = n_state_full();
-    std::vector<real_t> y_next(n_particles * n_state);
-    std::vector<int> internal_int(n_particles * n_int);
-    std::vector<real_t> internal_real(n_particles * n_real);
-
-    run_particles<T>(step_start, step_end, n_particles,
-                     n_state, n_int, n_real, n_pars_effective(),
-                     _device_data.y.data(), y_next.data(),
-                     internal_int.data(), internal_real.data(),
+    run_particles<T>(step_start, step_end, _particles.size(),
+                     n_pars_effective(),
+                     _device_data.y.data(), _device_data.y_next.data(),
+                     _device_data.internal_int.data(),
+                     _device_data.internal_real.data(),
                      _shared, _device_data.rng.data());
 
     // In the inner loop, the swap will keep the locally scoped
@@ -465,11 +466,8 @@ public:
     // original place, but an on odd number of steps the passed
     // variables need to be swapped.
     if ((step_end - step_start) % 2 == 1) {
-      // this is easily done without stl with memcpy:
-      // memcpy(_device_data.y.data(), y_next.data(), sizeof(real_t) * n_state);
-      real_t *dst = _device_data.y.data();
-      std::copy_n(y_next.data(), n_state * n_particles, dst);
-    }
+      _device_data.swap();
+   }
 
     _stale_host = true;
     set_step(step_end);
@@ -819,7 +817,9 @@ private:
   // This only gets called on construction; the size of these never
   // changes.
   void initialise_device_data() {
-    _device_data.initialise(_particles.size(), n_state_full());
+    const size_t n_int = dust::device_work_size_int<T>(_shared[0]);
+    const size_t n_real = dust::device_work_size_real<T>(_shared[0]);
+    _device_data.initialise(_particles.size(), n_state_full(), n_int, n_real);
   }
 
   void initialise_index() {
@@ -913,7 +913,7 @@ private:
 // complicated in these in practice.
 template <typename T>
 void run_particles(size_t step_start, size_t step_end, size_t n_particles,
-                   size_t n_state, size_t n_int, size_t n_real, size_t n_pars,
+                   size_t n_pars,
                    typename T::real_t * state, typename T::real_t * state_next,
                    int * internal_int, typename T::real_t * internal_real,
                    std::vector<dust::shared_ptr<T>> shared,
