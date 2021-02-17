@@ -13,8 +13,8 @@ SEXP dust_{{name}}_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
 }
 
 [[cpp11::register]]
-SEXP dust_{{name}}_run(SEXP ptr, size_t step_end) {
-  return dust_run<{{class}}>(ptr, step_end);
+SEXP dust_{{name}}_run(SEXP ptr, size_t step_end, bool device) {
+  return dust_run<{{class}}>(ptr, step_end, device);
 }
 
 [[cpp11::register]]

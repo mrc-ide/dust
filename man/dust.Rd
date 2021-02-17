@@ -290,7 +290,7 @@ describes the contents of pars passed to the constructor or to
 Run the model up to a point in time, returning the filtered state
 at that point.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$run(step_end)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$run(step_end, device = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -298,6 +298,15 @@ at that point.
 \describe{
 \item{\code{step_end}}{Step to run to (if less than or equal to the current
 step(), silently nothing will happen)}
+
+\item{\code{device}}{\strong{Experimental!}: This argument may allow running on
+a GPU once support is finished, if the model supports it, and if
+the model is compiled appropriately (and assuming you have a
+suitable GPU). At present it exists for testing and will run
+slower than running with \code{device = TRUE}. The interpretation of
+this argument will likely change to allow selecting the gpu on
+systems with more than one. In short, please leave this argument
+alone unless you're developing dust.}
 }
 \if{html}{\out{</div>}}
 }

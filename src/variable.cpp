@@ -43,6 +43,25 @@ private:
   dust::shared_ptr<variable> shared;
 };
 
+// This is required to activate gpu support. We can possibly do this
+// automatically based on the existance of the template below though.
+template <>
+struct dust::has_gpu_support<variable> : std::true_type {};
+
+template <>
+void update_device<variable>(size_t step,
+                             const dust::interleaved<variable::real_t> state,
+                             dust::interleaved<int> internal_int,
+                             dust::interleaved<variable::real_t> internal_real,
+                             dust::shared_ptr<variable> shared,
+                             dust::rng_state_t<variable::real_t>& rng_state,
+                             dust::interleaved<variable::real_t> state_next) {
+  for (size_t i = 0; i < shared->len; ++i) {
+    state_next[i] =
+      dust::distr::rnorm(rng_state, state[i] + shared->mean, shared->sd);
+  }
+}
+
 #include <cpp11/list.hpp>
 template <>
 dust::pars_t<variable> dust_pars<variable>(cpp11::list pars) {
@@ -73,8 +92,8 @@ SEXP dust_variable_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
 }
 
 [[cpp11::register]]
-SEXP dust_variable_run(SEXP ptr, size_t step_end) {
-  return dust_run<variable>(ptr, step_end);
+SEXP dust_variable_run(SEXP ptr, size_t step_end, bool device) {
+  return dust_run<variable>(ptr, step_end, device);
 }
 
 [[cpp11::register]]
