@@ -17,14 +17,10 @@
 
 
 // TODO: move these into a utilities file
-// TODO: make safe to use with references
-//
-// NB: these functions expect pointer for dest and ref for src,
-// so if applying to a vector use .data().
-// If the vector is passed in this will still compile due to the template,
-// but as not passed by ref will update a copy not the vector itself
 template <typename T, typename U, typename Enable = void>
 size_t destride_copy(T dest, U& src, size_t at, size_t stride) {
+  static_assert(!std::is_reference<T>::value,
+                "destride_copy should only be used with reference types");
   size_t i;
   for (i = 0; at < src.size(); ++i, at += stride) {
     dest[i] = src[at];
@@ -34,12 +30,16 @@ size_t destride_copy(T dest, U& src, size_t at, size_t stride) {
 
 template <typename T, typename U>
 size_t stride_copy(T dest, U src, size_t at, size_t stride) {
+  static_assert(!std::is_reference<T>::value,
+                "stride_copy should only be used with reference types");
   dest[at] = src;
   return at + stride;
 }
 
 template <typename T, typename U>
 size_t stride_copy(T dest, const std::vector<U>& src, size_t at, size_t stride) {
+  static_assert(!std::is_reference<T>::value,
+                "stride_copy should only be used with reference types");
   for (size_t i = 0; i < src.size(); ++i, at += stride) {
     dest[at] = src[i];
   }
