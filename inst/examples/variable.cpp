@@ -40,8 +40,10 @@ private:
 
 // This is required to activate gpu support. We can possibly do this
 // automatically based on the existance of the template below though.
+namespace dust {
 template <>
-struct dust::has_gpu_support<variable> : std::true_type {};
+struct has_gpu_support<variable> : std::true_type {};
+}
 
 template <>
 void update_device<variable>(size_t step,
