@@ -594,11 +594,7 @@ public:
   }
 
   void set_rng_state(const std::vector<uint64_t>& rng_state) {
-    // TODO: In dustgpu we don't do a refresh_host() here but I think
-    // we need to. Otherwise if the canonical state is on the device
-    // it's out of sync. However, this is an issue for other things
-    // (e.g., set_state()) so we might need to think about this more
-    // generally.
+    refresh_host();
     _rng.import_state(rng_state);
     _stale_device = true;
   }
