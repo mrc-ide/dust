@@ -3,8 +3,8 @@
 
 #include <cstdint>
 #include <cstddef>
-#include <cstdlib> // malloc
 #include <cstring> // memcpy
+#include <new>
 #include <stdexcept>
 #include <sstream>
 #include <vector>
@@ -20,23 +20,13 @@ public:
 
   // Constructor to allocate empty memory
   device_array(const size_t size) : size_(size) {
-    data_ = (T*) std::malloc(size_ * sizeof(T));
-    if (!data_) {
-      // This is not tested (or easily testable without mocking) but
-      // simple enough. This error will be caught by cpp11
-      //
-      // TODO: we might use `new` here which will throw automatically?
-      throw std::bad_alloc(); // # nocov
-    }
+    data_ = new T[size_];
     std::memset(data_, 0, size_ * sizeof(T));
   }
 
   // Constructor from vector
   device_array(const std::vector<T>& data) : size_(data.size()) {
-    data_ = (T*) std::malloc(size_ * sizeof(T));
-    if (!data_) {
-      throw std::bad_alloc();
-    }
+    data_ = new T[size_];
     std::memcpy(data_, data.data(), size_ * sizeof(T));
   }
 
@@ -49,7 +39,11 @@ public:
   device_array& operator=(const device_array& other) {
     if (this != &other) {
       size_ = other.size_;
-      std::free(data_);
+      delete data_;
+      // NOTE: the version in dustgpu lacked the allocation here. It's
+      // very likely that we don't use this and we might replace body
+      // with a static assert.
+      data_ = new T[size_];
       std::memcpy(data_, other.data_, size_ * sizeof(T));
     }
     return *this;
@@ -66,7 +60,7 @@ public:
   // Move assign
   device_array& operator=(device_array&& other) {
     if (this != &other) {
-      std::free(data_);
+      delete data_;
       data_ = other.data_;
       size_ = other.size_;
       other.data_ = nullptr;
@@ -76,18 +70,14 @@ public:
   }
 
   ~device_array() {
-    std::free(data_);
+    delete data_;
   }
 
   void get_array(std::vector<T>& dst) const {
-    // NOTE: there was error checking here making sure that dest.size() <= size_
-    // but that's removed for now
     std::memcpy(dst.data(), data_, dst.size() * sizeof(T));
   }
 
   void set_array(const std::vector<T>& src) {
-    // NOTE: there was error checking here making sure that src.size() == size_
-    // but that's removed for now
     size_ = src.size();
     std::memcpy(data_, src.data(), size_ * sizeof(T));
   }
