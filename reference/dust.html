@@ -82,7 +82,7 @@ that can be used to work with the model (see the Details below)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.10</span>
       </span>
     </div>
 
@@ -377,12 +377,21 @@ describes the contents of pars passed to the constructor or to
 <a id="method-run"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>run()</code></h3>
 <p>Run the model up to a point in time, returning the filtered state
 at that point.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>run</span><span class='op'>(</span><span class='va'>step_end</span><span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>run</span><span class='op'>(</span><span class='va'>step_end</span>, device <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
 <dt><code>step_end</code></dt><dd><p>Step to run to (if less than or equal to the current
 step(), silently nothing will happen)</p></dd>
+
+<dt><code>device</code></dt><dd><p><strong>Experimental!</strong>: This argument may allow running on
+a GPU once support is finished, if the model supports it, and if
+the model is compiled appropriately (and assuming you have a
+suitable GPU). At present it exists for testing and will run
+slower than running with <code>device = TRUE</code>. The interpretation of
+this argument will likely change to allow selecting the gpu on
+systems with more than one. In short, please leave this argument
+alone unless you're developing dust.</p></dd>
 
 </dl><p></div></p>
 <p><hr>
@@ -727,7 +736,7 @@ If you have a multi-parameter dust object this will be a 4d array
 #&gt;     initialize: function (pars, step, n_particles, n_threads = 1L, seed = NULL, 
 #&gt;     name: function () 
 #&gt;     param: function () 
-#&gt;     run: function (step_end) 
+#&gt;     run: function (step_end, device = FALSE) 
 #&gt;     simulate: function (step_end) 
 #&gt;     set_index: function (index) 
 #&gt;     index: function () 
@@ -789,7 +798,7 @@ If you have a multi-parameter dust object this will be a 4d array
 #&gt;     resample: function (weights) 
 #&gt;     reset: function (pars, step) 
 #&gt;     rng_state: function (first_only = FALSE) 
-#&gt;     run: function (step_end) 
+#&gt;     run: function (step_end, device = FALSE) 
 #&gt;     set_data: function (data) 
 #&gt;     set_index: function (index) 
 #&gt;     set_n_threads: function (n_threads) 
