@@ -303,7 +303,10 @@ step(), silently nothing will happen)}
 a GPU once support is finished, if the model supports it, and if
 the model is compiled appropriately (and assuming you have a
 suitable GPU). At present it exists for testing and will run
-slower than running with \code{device = TRUE}.}
+slower than running with \code{device = TRUE}. The interpretation of
+this argument will likely change to allow selecting the gpu on
+systems with more than one. In short, please leave this argument
+alone unless you're developing dust.}
 }
 \if{html}{\out{</div>}}
 }
