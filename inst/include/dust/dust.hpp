@@ -184,22 +184,31 @@ private:
 
 template <typename real_t>
 struct device_state {
-  void initialise(size_t n_particles, size_t n_pars, size_t n_state,
+  void initialise(size_t n_particles, size_t n_state, size_t n_shared_len_,
                   size_t n_internal_int, size_t n_internal_real,
-                  size_t n_shared_int, size_t n_shared_real) {
+                  size_t n_shared_int_, size_t n_shared_real_) {
+    n_shared_len = n_shared_len_;
+    n_shared_int = n_shared_int_;
+    n_shared_real = n_shared_real_;
     const size_t n_rng = dust::rng_state_t<real_t>::size();
     // NOTE: not setting up yi_selected here, which was used in dustgpu
     y = dust::device_array<real_t>(n_state * n_particles);
     y_next = dust::device_array<real_t>(n_state * n_particles);
     internal_int = dust::device_array<int>(n_internal_int * n_particles);
     internal_real = dust::device_array<real_t>(n_internal_real * n_particles);
-    shared_int = dust::device_array<int>(n_shared_int * n_pars);
-    shared_real = dust::device_array<real_t>(n_shared_real * n_pars);
+    std::cout << "shared => int: " << n_shared_int * n_shared_len <<
+      ", real: " << n_shared_real * n_shared_len << std::endl;
+    shared_int = dust::device_array<int>(n_shared_int * n_shared_len);
+    shared_real = dust::device_array<real_t>(n_shared_real * n_shared_len);
     rng = dust::device_array<uint64_t>(n_rng * n_particles);
   }
   void swap() {
     std::swap(y, y_next);
   }
+
+  size_t n_shared_len;
+  size_t n_shared_int;
+  size_t n_shared_real;
   dust::device_array<real_t> y;
   dust::device_array<real_t> y_next;
   dust::device_array<int> internal_int;
@@ -283,6 +292,7 @@ void run_particles(size_t step_start, size_t step_end, size_t n_particles,
                    size_t n_pars,
                    typename T::real_t * state, typename T::real_t * state_next,
                    int * internal_int, typename T::real_t * internal_real,
+                   size_t n_shared_int, size_t n_shared_real,
                    const int * shared_int,
                    const typename T::real_t * shared_real,
                    uint64_t * rng_state);
@@ -492,6 +502,8 @@ public:
                      _device_data.y.data(), _device_data.y_next.data(),
                      _device_data.internal_int.data(),
                      _device_data.internal_real.data(),
+                     _device_data.n_shared_int,
+                     _device_data.n_shared_real,
                      _device_data.shared_int.data(),
                      _device_data.shared_real.data(),
                      _device_data.rng.data());
@@ -858,9 +870,9 @@ private:
   void initialise_device_data() {
     const size_t n_internal_int = dust::device_work_size_int<T>(_shared[0]);
     const size_t n_internal_real = dust::device_work_size_real<T>(_shared[0]);
-    const size_t n_shared_int = dust::device_work_size_int<T>(_shared[0]);
-    const size_t n_shared_real = dust::device_work_size_real<T>(_shared[0]);
-    _device_data.initialise(_particles.size(), _shared.size(), n_state_full(),
+    const size_t n_shared_int = dust::device_shared_size_int<T>(_shared[0]);
+    const size_t n_shared_real = dust::device_shared_size_real<T>(_shared[0]);
+    _device_data.initialise(_particles.size(), n_state_full(), _shared.size(),
                             n_internal_int, n_internal_real,
                             n_shared_int, n_shared_real);
   }
@@ -873,8 +885,8 @@ private:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   update_device_shared() {
-    const size_t n_shared_int = dust::device_work_size_int<T>(_shared[0]);
-    const size_t n_shared_real = dust::device_work_size_real<T>(_shared[0]);
+    const size_t n_shared_int = _device_data.n_shared_int;
+    const size_t n_shared_real = _device_data.n_shared_real;
     for (size_t i = 0; i < _shared.size(); ++i) {
       // TODO: John, I've not used set_array here at least for now;
       // this should work fine for the CPU but might need a bit of
@@ -981,6 +993,7 @@ void run_particles(size_t step_start, size_t step_end, size_t n_particles,
                    size_t n_pars,
                    typename T::real_t * state, typename T::real_t * state_next,
                    int * internal_int, typename T::real_t * internal_real,
+                   size_t n_shared_int, size_t n_shared_real,
                    const int * shared_int,
                    const typename T::real_t * shared_real,
                    uint64_t * rng_state) {
@@ -997,11 +1010,9 @@ void run_particles(size_t step_start, size_t step_end, size_t n_particles,
     // TODO: this needs work before moving to the device, but it might
     // not be that bad in practice. We'll need some extra code to deal
     // with the blocks (before the loop) too.
-    //
-    // TODO: for now not allowing multiple parameter blocks; for that
-    // we need to know the length of the memory. Will add in later.
-    const int * p_shared_int = shared_int; // + i * n_shared_int;
-    const real_t * p_shared_real = shared_real; // + i * n_shared_real;
+    const int j = i / n_particles_each;
+    const int * p_shared_int = shared_int + j * n_shared_int;
+    const real_t * p_shared_real = shared_real + j * n_shared_real;
 
     dust::rng_state_t<real_t> rng_block = dust::get_rng_state<real_t>(p_rng);
     for (size_t step = step_start; step < step_end; ++step) {
