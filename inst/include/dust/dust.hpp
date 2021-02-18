@@ -196,8 +196,6 @@ struct device_state {
     y_next = dust::device_array<real_t>(n_state * n_particles);
     internal_int = dust::device_array<int>(n_internal_int * n_particles);
     internal_real = dust::device_array<real_t>(n_internal_real * n_particles);
-    std::cout << "shared => int: " << n_shared_int * n_shared_len <<
-      ", real: " << n_shared_real * n_shared_len << std::endl;
     shared_int = dust::device_array<int>(n_shared_int * n_shared_len);
     shared_real = dust::device_array<real_t>(n_shared_real * n_shared_len);
     rng = dust::device_array<uint64_t>(n_rng * n_particles);
