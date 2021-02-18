@@ -43,6 +43,26 @@ private:
 namespace dust {
 template <>
 struct has_gpu_support<variable> : std::true_type {};
+
+template <>
+size_t device_shared_size_int<variable>(dust::shared_ptr<variable> shared) {
+  return 1;
+}
+
+template <>
+size_t device_shared_size_real<variable>(dust::shared_ptr<variable> shared) {
+  return 2;
+}
+
+template <>
+void device_shared_copy<variable>(dust::shared_ptr<variable> shared,
+                                  int * shared_int,
+                                  variable::real_t * shared_real) {
+  shared_int[0] = shared->len;
+  shared_real[0] = shared->mean;
+  shared_real[1] = shared->sd;
+}
+
 }
 
 template <>
