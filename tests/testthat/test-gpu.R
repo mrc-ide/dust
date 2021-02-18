@@ -46,3 +46,17 @@ test_that("Raise suitable error if model does not support GPU", {
     mod$run(10, TRUE),
     "GPU support not enabled for this object")
 })
+
+
+test_that("Can run multiple parameter sets", {
+  res <- dust_example("variable")
+  p <- list(list(len = 10, sd = 1), list(len = 10, sd = 10))
+  mod1 <- res$new(p, 0, 10, seed = 1L, pars_multi = TRUE)
+  mod2 <- res$new(p, 0, 10, seed = 1L, pars_multi = TRUE)
+  expect_identical(
+    mod1$run(10),
+    mod2$run(10, TRUE))
+  expect_identical(
+    mod1$run(13),
+    mod2$run(13, TRUE))
+})
