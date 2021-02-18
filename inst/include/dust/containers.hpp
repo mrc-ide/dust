@@ -39,7 +39,7 @@ public:
   device_array& operator=(const device_array& other) {
     if (this != &other) {
       size_ = other.size_;
-      delete data_;
+      delete[] data_;
       // NOTE: the version in dustgpu lacked the allocation here. It's
       // very likely that we don't use this and we might replace body
       // with a static assert.
@@ -60,7 +60,7 @@ public:
   // Move assign
   device_array& operator=(device_array&& other) {
     if (this != &other) {
-      delete data_;
+      delete[] data_;
       data_ = other.data_;
       size_ = other.size_;
       other.data_ = nullptr;
@@ -70,7 +70,7 @@ public:
   }
 
   ~device_array() {
-    delete data_;
+    delete[] data_;
   }
 
   void get_array(std::vector<T>& dst) const {
