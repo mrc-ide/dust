@@ -273,7 +273,8 @@ void update_device(size_t step,
                    const dust::interleaved<typename T::real_t> state,
                    dust::interleaved<int> internal_int,
                    dust::interleaved<typename T::real_t> internal_real,
-                   dust::shared_ptr<T> shared,
+                   const int * shared_int,
+                   const typename T::real_t * shared_real,
                    dust::rng_state_t<typename T::real_t>& rng_state,
                    dust::interleaved<typename T::real_t> state_next);
 
@@ -282,7 +283,8 @@ void run_particles(size_t step_start, size_t step_end, size_t n_particles,
                    size_t n_pars,
                    typename T::real_t * state, typename T::real_t * state_next,
                    int * internal_int, typename T::real_t * internal_real,
-                   std::vector<dust::shared_ptr<T>> shared,
+                   const int * shared_int,
+                   const typename T::real_t * shared_real,
                    uint64_t * rng_state);
 
 template <typename T>
@@ -490,7 +492,9 @@ public:
                      _device_data.y.data(), _device_data.y_next.data(),
                      _device_data.internal_int.data(),
                      _device_data.internal_real.data(),
-                     _shared, _device_data.rng.data());
+                     _device_data.shared_int.data(),
+                     _device_data.shared_real.data(),
+                     _device_data.rng.data());
 
     // In the inner loop, the swap will keep the locally scoped
     // interleaved variables updated, but the interleaved variables
@@ -872,6 +876,11 @@ private:
     const size_t n_shared_int = dust::device_work_size_int<T>(_shared[0]);
     const size_t n_shared_real = dust::device_work_size_real<T>(_shared[0]);
     for (size_t i = 0; i < _shared.size(); ++i) {
+      // TODO: John, I've not used set_array here at least for now;
+      // this should work fine for the CPU but might need a bit of
+      // support on the GPU? If needed we can stage the copy on the
+      // cpu by putting it into one std::vector and then doing two big
+      // set_array calls. We never need to worry about the return leg.
       int * dest_int = _device_data.shared_int.data() + n_shared_int * i;
       real_t * dest_real = _device_data.shared_real.data() + n_shared_real * i;
       dust::device_shared_copy<T>(_shared[i], dest_int, dest_real);
@@ -972,7 +981,8 @@ void run_particles(size_t step_start, size_t step_end, size_t n_particles,
                    size_t n_pars,
                    typename T::real_t * state, typename T::real_t * state_next,
                    int * internal_int, typename T::real_t * internal_real,
-                   std::vector<dust::shared_ptr<T>> shared,
+                   const int * shared_int,
+                   const typename T::real_t * shared_real,
                    uint64_t * rng_state) {
   typedef typename T::real_t real_t;
   const size_t n_particles_each = n_particles / n_pars;
@@ -987,7 +997,11 @@ void run_particles(size_t step_start, size_t step_end, size_t n_particles,
     // TODO: this needs work before moving to the device, but it might
     // not be that bad in practice. We'll need some extra code to deal
     // with the blocks (before the loop) too.
-    dust::shared_ptr<T> p_shared = shared[i / n_particles_each];
+    //
+    // TODO: for now not allowing multiple parameter blocks; for that
+    // we need to know the length of the memory. Will add in later.
+    const int * p_shared_int = shared_int; // + i * n_shared_int;
+    const real_t * p_shared_real = shared_real; // + i * n_shared_real;
 
     dust::rng_state_t<real_t> rng_block = dust::get_rng_state<real_t>(p_rng);
     for (size_t step = step_start; step < step_end; ++step) {
@@ -995,7 +1009,8 @@ void run_particles(size_t step_start, size_t step_end, size_t n_particles,
                        p_state,
                        p_internal_int,
                        p_internal_real,
-                       p_shared,
+                       p_shared_int,
+                       p_shared_real,
                        rng_block,
                        p_state_next);
       std::swap(p_state, p_state_next);

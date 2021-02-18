@@ -70,12 +70,16 @@ void update_device<variable>(size_t step,
                              const dust::interleaved<variable::real_t> state,
                              dust::interleaved<int> internal_int,
                              dust::interleaved<variable::real_t> internal_real,
-                             dust::shared_ptr<variable> shared,
+                             const int * shared_int,
+                             const variable::real_t * shared_real,
                              dust::rng_state_t<variable::real_t>& rng_state,
                              dust::interleaved<variable::real_t> state_next) {
-  for (size_t i = 0; i < shared->len; ++i) {
-    state_next[i] =
-      dust::distr::rnorm(rng_state, state[i] + shared->mean, shared->sd);
+  typedef variable::real_t real_t;
+  const size_t len = shared_int[0];
+  const real_t mean = shared_real[0];
+  const real_t sd = shared_real[1];
+  for (size_t i = 0; i < len; ++i) {
+    state_next[i] = dust::distr::rnorm(rng_state, state[i] + mean, sd);
   }
 }
 
