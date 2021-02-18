@@ -184,14 +184,17 @@ private:
 
 template <typename real_t>
 struct device_state {
-  void initialise(size_t n_particles, size_t n_state, size_t n_int,
-                  size_t n_real) {
+  void initialise(size_t n_particles, size_t n_pars, size_t n_state,
+                  size_t n_internal_int, size_t n_internal_real,
+                  size_t n_shared_int, size_t n_shared_real) {
     const size_t n_rng = dust::rng_state_t<real_t>::size();
     // NOTE: not setting up yi_selected here, which was used in dustgpu
     y = dust::device_array<real_t>(n_state * n_particles);
     y_next = dust::device_array<real_t>(n_state * n_particles);
-    internal_int = dust::device_array<int>(n_int * n_particles);
-    internal_real = dust::device_array<real_t>(n_real * n_particles);
+    internal_int = dust::device_array<int>(n_internal_int * n_particles);
+    internal_real = dust::device_array<real_t>(n_internal_real * n_particles);
+    shared_int = dust::device_array<int>(n_shared_int * n_pars);
+    shared_real = dust::device_array<real_t>(n_shared_real * n_pars);
     rng = dust::device_array<uint64_t>(n_rng * n_particles);
   }
   void swap() {
@@ -201,6 +204,8 @@ struct device_state {
   dust::device_array<real_t> y_next;
   dust::device_array<int> internal_int;
   dust::device_array<real_t> internal_real;
+  dust::device_array<int> shared_int;
+  dust::device_array<real_t> shared_real;
   dust::device_array<uint64_t> rng;
 };
 
@@ -845,9 +850,13 @@ private:
   // This only gets called on construction; the size of these never
   // changes.
   void initialise_device_data() {
-    const size_t n_int = dust::device_work_size_int<T>(_shared[0]);
-    const size_t n_real = dust::device_work_size_real<T>(_shared[0]);
-    _device_data.initialise(_particles.size(), n_state_full(), n_int, n_real);
+    const size_t n_internal_int = dust::device_work_size_int<T>(_shared[0]);
+    const size_t n_internal_real = dust::device_work_size_real<T>(_shared[0]);
+    const size_t n_shared_int = dust::device_work_size_int<T>(_shared[0]);
+    const size_t n_shared_real = dust::device_work_size_real<T>(_shared[0]);
+    _device_data.initialise(_particles.size(), _shared.size(), n_state_full(),
+                            n_internal_int, n_internal_real,
+                            n_shared_int, n_shared_real);
   }
 
   void initialise_index() {
