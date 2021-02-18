@@ -803,6 +803,7 @@ private:
       _shared = {pars.shared};
       initialise_device_data();
     }
+    update_device_shared();
     _stale_host = false;
     _stale_device = true;
   }
@@ -843,6 +844,7 @@ private:
       }
       initialise_device_data();
     }
+    update_device_shared();
     _stale_host = false;
     _stale_device = true;
   }
@@ -857,6 +859,23 @@ private:
     _device_data.initialise(_particles.size(), _shared.size(), n_state_full(),
                             n_internal_int, n_internal_real,
                             n_shared_int, n_shared_real);
+  }
+
+  template <typename U = T>
+  typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
+  update_device_shared() {
+  }
+
+  template <typename U = T>
+  typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
+  update_device_shared() {
+    const size_t n_shared_int = dust::device_work_size_int<T>(_shared[0]);
+    const size_t n_shared_real = dust::device_work_size_real<T>(_shared[0]);
+    for (size_t i = 0; i < _shared.size(); ++i) {
+      int * dest_int = _device_data.shared_int.data() + n_shared_int * i;
+      real_t * dest_real = _device_data.shared_real.data() + n_shared_real * i;
+      dust::device_shared_copy<T>(_shared[i], dest_int, dest_real);
+    }
   }
 
   void initialise_index() {
