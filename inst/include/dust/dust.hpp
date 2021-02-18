@@ -220,16 +220,16 @@ struct device_state {
 // reals on the device, per particle. Because we work on the
 // requirement that every particle has the same dimension we pass an
 // arbitrary set of shared parameters (really the first) to
-// device_work_size. The underlying model can overload this template
+// device_internal_size. The underlying model can overload this template
 // for either real or int types and return the length of data
 // required.
 template <typename T>
-size_t device_work_size_int(typename dust::shared_ptr<T> shared) {
+size_t device_internal_size_int(typename dust::shared_ptr<T> shared) {
   return 0;
 }
 
 template <typename T>
-size_t device_work_size_real(typename dust::shared_ptr<T> shared) {
+size_t device_internal_size_real(typename dust::shared_ptr<T> shared) {
   return 0;
 }
 
@@ -866,10 +866,11 @@ private:
   // This only gets called on construction; the size of these never
   // changes.
   void initialise_device_data() {
-    const size_t n_internal_int = dust::device_work_size_int<T>(_shared[0]);
-    const size_t n_internal_real = dust::device_work_size_real<T>(_shared[0]);
-    const size_t n_shared_int = dust::device_shared_size_int<T>(_shared[0]);
-    const size_t n_shared_real = dust::device_shared_size_real<T>(_shared[0]);
+    const auto s = _shared[0];
+    const size_t n_internal_int = dust::device_internal_size_int<T>(s);
+    const size_t n_internal_real = dust::device_internal_size_real<T>(s);
+    const size_t n_shared_int = dust::device_shared_size_int<T>(s);
+    const size_t n_shared_real = dust::device_shared_size_real<T>(s);
     _device_data.initialise(_particles.size(), n_state_full(), _shared.size(),
                             n_internal_int, n_internal_real,
                             n_shared_int, n_shared_real);
