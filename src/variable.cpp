@@ -63,9 +63,10 @@ template <>
 void device_shared_copy<variable>(dust::shared_ptr<variable> shared,
                                   int * shared_int,
                                   variable::real_t * shared_real) {
-  shared_int[0] = shared->len;
-  shared_real[0] = shared->mean;
-  shared_real[1] = shared->sd;
+  typedef variable::real_t real_t;
+  shared_int = dust::shared_copy<int>(shared_int, shared->len);
+  shared_real = dust::shared_copy<real_t>(shared_real, shared->mean);
+  shared_real = dust::shared_copy<real_t>(shared_real, shared->sd);
 }
 
 }
