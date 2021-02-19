@@ -886,16 +886,15 @@ private:
   update_device_shared() {
     const size_t n_shared_int = _device_data.n_shared_int;
     const size_t n_shared_real = _device_data.n_shared_real;
+    std::vector<int> shared_int(n_shared_int * n_pars_effective());
+    std::vector<real_t> shared_real(n_shared_real * n_pars_effective());
     for (size_t i = 0; i < _shared.size(); ++i) {
-      // TODO: John, I've not used set_array here at least for now;
-      // this should work fine for the CPU but might need a bit of
-      // support on the GPU? If needed we can stage the copy on the
-      // cpu by putting it into one std::vector and then doing two big
-      // set_array calls. We never need to worry about the return leg.
-      int * dest_int = _device_data.shared_int.data() + n_shared_int * i;
-      real_t * dest_real = _device_data.shared_real.data() + n_shared_real * i;
+      int * dest_int = shared_int.data() + n_shared_int * i;
+      real_t * dest_real = shared_real.data() + n_shared_real * i;
       dust::device_shared_copy<T>(_shared[i], dest_int, dest_real);
     }
+    _device_data.shared_int.set_array(shared_int);
+    _device_data.shared_real.set_array(shared_real);
   }
 
   void initialise_index() {
