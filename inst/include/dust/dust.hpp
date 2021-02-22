@@ -387,6 +387,7 @@ public:
   Dust(const pars_t& pars, const size_t step, const size_t n_particles,
        const size_t n_threads, const std::vector<uint64_t>& seed) :
     _n_pars(0),
+    _n_particles_each(n_particles),
     _n_particles_total(n_particles),
     _n_threads(n_threads),
     _rng(_n_particles_total, seed),
@@ -394,19 +395,28 @@ public:
     _stale_device(true) {
     initialise(pars, step, n_particles, true);
     initialise_index();
+    _shape = {n_particles};
   }
 
   Dust(const std::vector<pars_t>& pars, const size_t step,
        const size_t n_particles, const size_t n_threads,
-       const std::vector<uint64_t>& seed) :
+       const std::vector<uint64_t>& seed, std::vector<size_t> shape) :
     _n_pars(pars.size()),
-    _n_particles_total(n_particles * pars.size()),
+    _n_particles_each(n_particles == 0 ? 1 : n_particles),
+    _n_particles_total(_n_particles_each * pars.size()),
     _n_threads(n_threads),
     _rng(_n_particles_total, seed),
     _stale_host(false),
     _stale_device(true) {
-    initialise(pars, step, n_particles, true);
+    initialise(pars, step, std::max((n_particles == 0 ? 1 : n_particles), n_particles), true);
     initialise_index();
+    // constructing the shape here is harder than above.
+    if (n_particles > 0) {
+      _shape.push_back(n_particles);
+    }
+    for (auto i : shape) {
+      _shape.push_back(i);
+    }
   }
 
   void reset(const pars_t& pars, const size_t step) {
@@ -659,6 +669,10 @@ public:
     return _particles.front().step();
   }
 
+  const std::vector<size_t>& shape() const {
+    return _shape;
+  }
+
   std::vector<uint64_t> rng_state() {
     refresh_host();
     return _rng.export_state();
@@ -767,7 +781,9 @@ public:
 
 private:
   const size_t _n_pars; // 0 in the "single" case, >=1 otherwise
+  const size_t _n_particles_each; // Particles per parameter set
   const size_t _n_particles_total; // Total number of particles
+  std::vector<size_t> _shape; // shape of output
   size_t _n_threads;
   dust::pRNG<real_t> _rng;
   std::map<size_t, std::vector<data_t>> _data;

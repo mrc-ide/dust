@@ -32,6 +32,14 @@ inline std::vector<size_t> r_index_reorder_matrix(cpp11::sexp r_index,
                                                   const size_t n_pars);
 inline cpp11::integers as_integer(cpp11::sexp x, const char * name);
 
+inline std::vector<size_t> create_dimensions(size_t a,
+                                             const std::vector<size_t>& b) {
+  std::vector<size_t> ret(b.size() + 1);
+  ret[0] = a;
+  std::copy(b.begin(), b.end(), ret.begin() + 1);
+  return ret;
+}
+
 template <typename T>
 std::vector<T> matrix_to_vector(cpp11::doubles_matrix x);
 
@@ -45,10 +53,9 @@ inline void check_pars_multi(cpp11::list pars, size_t n);
 
 template <typename T>
 cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
-                       int n_particles, int n_threads,
+                       cpp11::sexp r_n_particles, int n_threads,
                        cpp11::sexp r_seed) {
   validate_size(step, "step");
-  validate_positive(n_particles, "n_particles");
   validate_positive(n_threads, "n_threads");
   std::vector<uint64_t> seed = as_rng_seed<typename T::real_t>(r_seed);
 
@@ -63,8 +70,25 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
       info_list[i] = dust_info<T>(pars[i]);
     }
     info = info_list;
-    d = new Dust<T>(pars, step, n_particles, n_threads, seed);
+    std::vector<size_t> shape;
+    cpp11::sexp dim_pars = r_pars.attr("dim");
+    if (dim_pars == R_NilValue) {
+      shape.push_back(pars.size());
+    } else {
+      cpp11::integers dim_pars_int = cpp11::as_cpp<cpp11::integers>(dim_pars);
+      for (int i = 0; i < dim_pars_int.size(); ++i) {
+        shape.push_back(dim_pars_int[i]);
+      }
+    }
+    size_t n_particles = 0;
+    if (r_n_particles != R_NilValue) {
+      n_particles = cpp11::as_cpp<int>(r_n_particles);
+      validate_size(n_particles, "n_particles");
+    }
+    d = new Dust<T>(pars, step, n_particles, n_threads, seed, shape);
   } else {
+    size_t n_particles = cpp11::as_cpp<int>(r_n_particles);
+    validate_positive(n_particles, "n_particles");
     dust::pars_t<T> pars = dust_pars<T>(r_pars);
     d = new Dust<T>(pars, step, n_particles, n_threads, seed);
     info = dust_info<T>(pars);
@@ -318,7 +342,7 @@ SEXP dust_state_full(Dust<T> *obj) {
   if (n_pars == 0) {
     ret = create_matrix(n_state_full, n_particles, dat);
   } else {
-    std::vector<size_t> dim{n_state_full, n_particles / n_pars, n_pars};
+    std::vector<size_t> dim = create_dimensions(n_state_full, obj->shape());
     ret = create_array(dim, dat);
   }
 
