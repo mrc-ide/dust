@@ -408,7 +408,7 @@ public:
     _rng(_n_particles_total, seed),
     _stale_host(false),
     _stale_device(true) {
-    initialise(pars, step, std::max((n_particles == 0 ? 1 : n_particles), n_particles), true);
+    initialise(pars, step, _n_particles_each, true);
     initialise_index();
     // constructing the shape here is harder than above.
     if (n_particles > 0) {
@@ -727,7 +727,6 @@ public:
     }
 
     const size_t n_particles = _particles.size();
-    const size_t n_particles_each = n_particles / n_pars_effective();
     std::vector<real_t> log_likelihood(n_pars_effective());
     std::vector<real_t> log_likelihood_step(n_pars_effective());
     std::vector<real_t> weights(n_particles);
@@ -752,9 +751,9 @@ public:
       auto wi = weights.begin();
       for (size_t i = 0; i < n_pars_effective(); ++i) {
         log_likelihood_step[i] =
-          scale_log_weights<real_t>(wi, n_particles_each);
+          scale_log_weights<real_t>(wi, _n_particles_each);
         log_likelihood[i] += log_likelihood_step[i];
-        wi += n_particles_each;
+        wi += _n_particles_each;
       }
 
       // We could move this below if wanted but we'd have to rewrite
