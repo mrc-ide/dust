@@ -28,10 +28,6 @@ inline void validate_positive(int x, const char *name);
 inline std::vector<size_t> validate_size(cpp11::sexp x, const char *name);
 inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax);
 inline std::vector<size_t> r_index_to_index_default(size_t n);
-inline std::vector<size_t> r_index_reorder_matrix(cpp11::sexp r_index,
-                                                  const size_t n_particles,
-                                                  const size_t n_pars);
-inline cpp11::integers as_integer(cpp11::sexp x, const char * name);
 
 template <typename T>
 cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
@@ -263,19 +259,8 @@ size_t dust_step(SEXP ptr) {
 template <typename T>
 void dust_reorder(SEXP ptr, cpp11::sexp r_index) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  size_t n_particles = obj->n_particles();
-  size_t n_pars = obj->n_pars();
-
-  std::vector<size_t> index;
-  if (n_pars == 0) {
-    index = r_index_to_index(r_index, n_particles);
-    if ((size_t)index.size() != n_particles) {
-      cpp11::stop("Expected a vector of length %d for 'index'", n_particles);
-    }
-  } else {
-    index = r_index_reorder_matrix(r_index, n_particles / n_pars, n_pars);
-  }
-
+  std::vector<size_t> index =
+    dust::helpers::check_reorder_index(r_index, obj->shape());
   obj->reorder(index);
 }
 
@@ -500,7 +485,7 @@ inline void validate_positive(int x, const char *name) {
 }
 
 inline std::vector<size_t> validate_size(cpp11::sexp r_x, const char * name) {
-  cpp11::integers r_xi = as_integer(r_x, name);
+  cpp11::integers r_xi = dust::helpers::as_integer(r_x, name);
   const size_t n = static_cast<size_t>(r_xi.size());
   std::vector<size_t> x;
   x.reserve(n);
@@ -523,7 +508,7 @@ inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax) {
     return r_index_to_index_default(nmax);
   }
 
-  cpp11::integers r_index_int = as_integer(r_index, "index");
+  cpp11::integers r_index_int = dust::helpers::as_integer(r_index, "index");
   const int n = r_index_int.size();
   std::vector<size_t> index;
   index.reserve(n);
@@ -537,36 +522,6 @@ inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax) {
   return index;
 }
 
-inline std::vector<size_t> r_index_reorder_matrix(cpp11::sexp r_index,
-                                                  const size_t n_particles,
-                                                  const size_t n_pars) {
-  if (!Rf_isMatrix(r_index)) {
-    cpp11::stop("Expected a matrix for 'index'");
-  }
-  cpp11::integers_matrix r_index_mat =
-    cpp11::as_cpp<cpp11::integers_matrix>(r_index);
-  if (static_cast<size_t>(r_index_mat.nrow()) != n_particles) {
-    cpp11::stop("Expected a matrix with %d rows for 'index'", n_particles);
-  }
-  if (static_cast<size_t>(r_index_mat.ncol()) != n_pars) {
-    cpp11::stop("Expected a matrix with %d columns for 'index'", n_pars);
-  }
-
-  const int * index_pars = INTEGER(r_index_mat);
-
-  std::vector<size_t> index;
-  index.reserve(n_particles * n_pars);
-  for (size_t i = 0, j = 0; i < n_pars; ++i) {
-    for (size_t k = 0; k < n_particles; ++j, ++k) {
-      int x = index_pars[j];
-      if (x < 1 || x > (int)n_particles) {
-        cpp11::stop("All elements of 'index' must lie in [1, %d]", n_particles);
-      }
-      index.push_back(i * n_particles + x - 1);
-    }
-  }
-  return index;
-}
 
 // Helper for the above; in the case where index is not given we
 // assume it would have been given as 1..n so generate out 0..(n-1)
@@ -577,28 +532,6 @@ inline std::vector<size_t> r_index_to_index_default(size_t n) {
     index.push_back(i);
   }
   return index;
-}
-
-inline cpp11::integers as_integer(cpp11::sexp x, const char * name) {
-  if (TYPEOF(x) == INTSXP) {
-    return cpp11::as_cpp<cpp11::integers>(x);
-  } else if (TYPEOF(x) == REALSXP) {
-    cpp11::doubles xn = cpp11::as_cpp<cpp11::doubles>(x);
-    size_t len = xn.size();
-    cpp11::writable::integers ret = cpp11::writable::integers(len);
-    for (size_t i = 0; i < len; ++i) {
-      double el = xn[i];
-      if (!cpp11::is_convertable_without_loss_to_integer(el)) {
-        cpp11::stop("All elements of '%s' must be integer-like",
-                    name, i + 1);
-      }
-      ret[i] = static_cast<int>(el);
-    }
-    return ret;
-  } else {
-    cpp11::stop("Expected a numeric vector for '%s'", name);
-    return cpp11::integers(); // never reached
-  }
 }
 
 #endif

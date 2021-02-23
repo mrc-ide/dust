@@ -4,6 +4,28 @@
 namespace dust {
 namespace helpers {
 
+inline cpp11::integers as_integer(cpp11::sexp x, const char * name) {
+  if (TYPEOF(x) == INTSXP) {
+    return cpp11::as_cpp<cpp11::integers>(x);
+  } else if (TYPEOF(x) == REALSXP) {
+    cpp11::doubles xn = cpp11::as_cpp<cpp11::doubles>(x);
+    size_t len = xn.size();
+    cpp11::writable::integers ret = cpp11::writable::integers(len);
+    for (size_t i = 0; i < len; ++i) {
+      double el = xn[i];
+      if (!cpp11::is_convertable_without_loss_to_integer(el)) {
+        cpp11::stop("All elements of '%s' must be integer-like",
+                    name, i + 1);
+      }
+      ret[i] = static_cast<int>(el);
+    }
+    return ret;
+  } else {
+    cpp11::stop("Expected a numeric vector for '%s'", name);
+    return cpp11::integers(); // never reached
+  }
+}
+
 cpp11::writable::integers state_array_dim(size_t n_state,
                                           const std::vector<size_t>& shape) {
   cpp11::writable::integers dim(shape.size() + 1);
@@ -150,10 +172,59 @@ std::vector<real_t> check_state(cpp11::sexp r_state, size_t n_state,
   return ret;
 }
 
+// There are few options here, and this transform applies to other
+// things (reorder weights)
+//
+// single: expect a vector of length shape[0] (n_particles)
+//
+// groupsd: expect a matrix of size n_particles x n_groups (this is shape)
+inline
+std::vector<size_t> check_reorder_index(cpp11::sexp r_index,
+                                        const std::vector<size_t>& shape) {
+  cpp11::integers r_index_data = as_integer(r_index, "index");
 
-template <typename T>
-T product(const std::vector<T>& v) {
-  return std::accumulate(v.begin(), v.end(), 1, std::multiplies<T>());
+  std::vector<size_t> index;
+
+  auto r_dim = r_index.attr("dim");
+  cpp11::integers dim;
+  if (r_dim == R_NilValue) {
+    dim = cpp11::writable::integers{static_cast<int>(r_index_data.size())};
+  } else {
+    dim = cpp11::as_cpp<cpp11::integers>(r_dim);
+  }
+  const size_t dim_len = dim.size();
+
+  if (dim_len != shape.size()) {
+    if (shape.size() == 1) {
+      cpp11::stop("Expected a vector for 'index'");
+    } else {
+      cpp11::stop("Expected an array of rank %d for 'index'", shape.size());
+    }
+  }
+
+  for (size_t i = 0; i < shape.size(); ++i) {
+    const size_t found = dim[i], expected = shape[i];
+    if (found != expected) {
+      cpp11::stop("Expected dimension %d of 'index' to be %d but given %d",
+                  i + 1, expected, found);
+    }
+  }
+
+  const size_t len = r_index_data.size();
+  const size_t n_particles = shape[0];
+  const size_t n_groups = len  / n_particles;
+  index.reserve(len);
+  for (size_t i = 0, j = 0; i < n_groups; ++i) {
+    for (size_t k = 0; k < n_particles; ++j, ++k) {
+      int x = r_index_data[j];
+      if (x < 1 || x > (int)n_particles) {
+        cpp11::stop("All elements of 'index' must lie in [1, %d]", n_particles);
+      }
+      index.push_back(i * n_particles + x - 1);
+    }
+  }
+
+  return index;
 }
 
 }
