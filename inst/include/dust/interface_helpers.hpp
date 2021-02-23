@@ -4,7 +4,8 @@
 namespace dust {
 namespace interface {
 
-inline cpp11::integers as_integer(cpp11::sexp x, const char * name) {
+inline
+cpp11::integers as_integer(cpp11::sexp x, const char * name) {
   if (TYPEOF(x) == INTSXP) {
     return cpp11::as_cpp<cpp11::integers>(x);
   } else if (TYPEOF(x) == REALSXP) {
@@ -26,19 +27,22 @@ inline cpp11::integers as_integer(cpp11::sexp x, const char * name) {
   }
 }
 
-inline void validate_size(int x, const char * name) {
+inline
+void validate_size(int x, const char * name) {
   if (x < 0) {
     cpp11::stop("'%s' must be non-negative", name);
   }
 }
 
-inline void validate_positive(int x, const char *name) {
+inline
+void validate_positive(int x, const char *name) {
   if (x <= 0) {
     cpp11::stop("'%s' must be positive", name);
   }
 }
 
-inline std::vector<size_t> validate_size(cpp11::sexp r_x, const char * name) {
+inline
+std::vector<size_t> validate_size(cpp11::sexp r_x, const char * name) {
   cpp11::integers r_xi = as_integer(r_x, name);
   const size_t n = static_cast<size_t>(r_xi.size());
   std::vector<size_t> x;
@@ -55,7 +59,8 @@ inline std::vector<size_t> validate_size(cpp11::sexp r_x, const char * name) {
 
 // Helper for the below; in the case where index is not given we
 // assume it would have been given as 1..n so generate out 0..(n-1)
-inline std::vector<size_t> seq_len(size_t n) {
+inline
+std::vector<size_t> seq_len(size_t n) {
   std::vector<size_t> index;
   index.reserve(n);
   for (size_t i = 0; i < n; ++i) {
@@ -68,7 +73,8 @@ inline std::vector<size_t> seq_len(size_t n) {
 // of size_t values in base-0 having checked that the values of the
 // vectors are approproate; that they will not fall outside of the
 // range [1, nmax] in base-1.
-inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax) {
+inline
+std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax) {
   if (r_index == R_NilValue) {
     return seq_len(nmax);
   }
@@ -87,6 +93,7 @@ inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax) {
   return index;
 }
 
+inline
 void check_dimensions(cpp11::sexp obj, size_t obj_size,
                       const std::vector<size_t>& shape,
                       const char * name) {
@@ -117,6 +124,7 @@ void check_dimensions(cpp11::sexp obj, size_t obj_size,
   }
 }
 
+inline
 cpp11::writable::integers state_array_dim(size_t n_state,
                                           const std::vector<size_t>& shape) {
   cpp11::writable::integers dim(shape.size() + 1);
@@ -125,6 +133,7 @@ cpp11::writable::integers state_array_dim(size_t n_state,
   return dim;
 }
 
+inline
 cpp11::writable::integers state_array_dim(size_t n_state,
                                           const std::vector<size_t>& shape,
                                           size_t n_time) {
@@ -135,6 +144,7 @@ cpp11::writable::integers state_array_dim(size_t n_state,
   return dim;
 }
 
+inline
 cpp11::sexp state_array(const std::vector<double>& dat, size_t n_state,
                         const std::vector<size_t>& shape) {
   cpp11::writable::doubles ret(dat.size());
@@ -145,6 +155,7 @@ cpp11::sexp state_array(const std::vector<double>& dat, size_t n_state,
   return ret;
 }
 
+inline
 cpp11::sexp state_array(const std::vector<double>& dat, size_t n_state,
                         const std::vector<size_t>& shape, size_t n_time) {
   cpp11::writable::doubles ret(dat.size());
@@ -155,6 +166,7 @@ cpp11::sexp state_array(const std::vector<double>& dat, size_t n_state,
   return ret;
 }
 
+inline
 cpp11::writable::integers vector_size_to_int(const std::vector<size_t> & x) {
   cpp11::writable::integers ret(x.size());
   std::copy(x.begin(), x.end(), ret.begin());
