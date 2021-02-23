@@ -128,9 +128,9 @@ sir::data_t dust_data<sir>(cpp11::list data) {
 
 [[cpp11::register]]
 SEXP dust_sir_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
-                         size_t n_particles, size_t n_threads,
+                         cpp11::sexp r_n_particles, size_t n_threads,
                          cpp11::sexp r_seed) {
-  return dust_alloc<sir>(r_pars, pars_multi, step, n_particles,
+  return dust_alloc<sir>(r_pars, pars_multi, step, r_n_particles,
                                n_threads, r_seed);
 }
 
