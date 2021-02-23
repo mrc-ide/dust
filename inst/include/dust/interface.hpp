@@ -12,6 +12,7 @@
 #include <cpp11/strings.hpp>
 
 #include <dust/rng_interface.hpp>
+#include <dust/interface_helpers.hpp>
 
 template <typename T>
 typename dust::pars_t<T> dust_pars(cpp11::list pars);
@@ -37,6 +38,16 @@ inline std::vector<size_t> create_dimensions(size_t a,
   std::vector<size_t> ret(b.size() + 1);
   ret[0] = a;
   std::copy(b.begin(), b.end(), ret.begin() + 1);
+  return ret;
+}
+
+inline std::vector<size_t> create_dimensions(size_t a,
+                                             const std::vector<size_t>& b,
+                                             size_t c) {
+  std::vector<size_t> ret(b.size() + 2);
+  ret[0] = a;
+  std::copy(b.begin(), b.end(), ret.begin() + 1);
+  ret[ret.size() - 1] = c;
   return ret;
 }
 
@@ -235,13 +246,14 @@ template <typename T>
 cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   const std::vector<size_t> step_end = validate_size(r_step_end, "step_end");
-  if (step_end.size() == 0) {
+  const size_t n_time = step_end.size();
+  if (n_time == 0) {
     cpp11::stop("'step_end' must have at least one element");
   }
   if (step_end[0] < obj->step()) {
     cpp11::stop("'step_end[1]' must be at least %d", obj->step());
   }
-  for (size_t i = 1; i < step_end.size(); ++i) {
+  for (size_t i = 1; i < n_time; ++i) {
     if (step_end[i] < step_end[i - 1]) {
       cpp11::stop("'step_end' must be non-decreasing (error on element %d)",
                   i + 1);
@@ -249,26 +261,7 @@ cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end) {
   }
 
   std::vector<typename T::real_t> dat = obj->simulate(step_end);
-  cpp11::writable::doubles ret(dat.size());
-  std::copy(dat.begin(), dat.end(), REAL(ret));
-
-  const int n_time = step_end.size();
-  const int n_state = obj->n_state();
-  const int n_particles = obj->n_particles();
-  const int n_pars = obj->n_pars();
-
-  if (n_pars == 0) {
-    ret.attr("dim") = cpp11::writable::integers({n_state,
-                                                 n_particles,
-                                                 n_time});
-  } else {
-    ret.attr("dim") = cpp11::writable::integers({n_state,
-                                                 n_particles / n_pars,
-                                                 n_pars,
-                                                 n_time});
-  }
-
-  return ret;
+  return dust::helpers::state_array(dat, obj->n_state(), obj->shape(), n_time);
 }
 
 template <typename T>
