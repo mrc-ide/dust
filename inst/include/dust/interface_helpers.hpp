@@ -118,8 +118,13 @@ void check_dimensions(cpp11::sexp obj, size_t obj_size,
   for (size_t i = 0; i < shape.size(); ++i) {
     const size_t found = dim[i], expected = shape[i];
     if (found != expected) {
-      cpp11::stop("Expected dimension %d of '%s' to be %d but given %d",
-                  i + 1, name, expected, found);
+      if (shape.size() == 1) {
+        cpp11::stop("Expected a vector of length %d for '%s' but given %d",
+                    expected, name, found);
+      } else {
+        cpp11::stop("Expected dimension %d of '%s' to be %d but given %d",
+                    i + 1, name, expected, found);
+      }
     }
   }
 }
@@ -185,7 +190,7 @@ inline void check_pars_multi(cpp11::list r_pars,
       cpp11::stop("Expected a list with no dimension attribute for 'pars'");
     }
     if (static_cast<size_t>(r_pars.size()) != expected) {
-      cpp11::stop("Expected a list with %d elements for 'pars' but given %d",
+      cpp11::stop("Expected a list of length %d for 'pars' but given %d",
                   expected, r_pars.size());
     }
   } else {
@@ -264,8 +269,13 @@ std::vector<real_t> check_state(cpp11::sexp r_state, size_t n_state,
       expected = is_shared ? shape[i] : shape[i - 1];
     }
     if (found != expected) {
-      cpp11::stop("Expected dimension %d of 'state' to be %d but given %d",
-                  i + 1, expected, found);
+      if (dim_len == 1) {
+        cpp11::stop("Expected a vector of length %d for 'state' but given %d",
+                    expected, found);
+      } else {
+        cpp11::stop("Expected dimension %d of 'state' to be %d but given %d",
+                    i + 1, expected, found);
+      }
     }
   }
 

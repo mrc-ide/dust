@@ -269,7 +269,7 @@ SEXP dust_resample(SEXP ptr, cpp11::doubles r_weights) {
 
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   size_t n_particles = obj->n_particles();
-  size_t n_pars = obj->n_pars();
+  size_t n_pars = obj->n_pars_effective();
   size_t n_particles_each = n_particles / n_pars;
 
   std::vector<real_t> weights =
