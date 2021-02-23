@@ -223,10 +223,10 @@ cpp11::sexp dust_run(SEXP ptr, int step_end, bool device) {
   std::vector<typename T::real_t> dat(len);
   obj->state(dat);
 
-  if (n_pars == 0) {
+  if (n_pars == 0 || obj->shape().size() == 0) {
     return create_matrix(n_state, n_particles, dat);
   } else {
-    std::vector<size_t> dim{n_state, n_particles / n_pars, n_pars};
+    std::vector<size_t> dim = create_dimensions(n_state, obj->shape());
     return create_array(dim, dat);
   }
 }
@@ -339,7 +339,7 @@ SEXP dust_state_full(Dust<T> *obj) {
   obj->state_full(dat);
 
   cpp11::sexp ret;
-  if (n_pars == 0) {
+  if (n_pars == 0 || obj->shape().size() == 0) {
     ret = create_matrix(n_state_full, n_particles, dat);
   } else {
     std::vector<size_t> dim = create_dimensions(n_state_full, obj->shape());
@@ -362,10 +362,10 @@ SEXP dust_state_select(Dust<T> *obj, cpp11::sexp r_index) {
   obj->state(index, dat);
 
   cpp11::sexp ret;
-  if (n_pars == 0) {
+  if (n_pars == 0 || obj->shape().size() == 0) {
     ret = create_matrix(n_state, n_particles, dat);
   } else {
-    std::vector<size_t> dim{n_state, n_particles / n_pars, n_pars};
+    std::vector<size_t> dim = create_dimensions(n_state, obj->shape());
     ret = create_array(dim, dat);
   }
 
