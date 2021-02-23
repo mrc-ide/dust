@@ -2,7 +2,7 @@
 #define DUST_INTERFACE_HELPERS_HPP
 
 namespace dust {
-namespace helpers {
+namespace interface {
 
 inline cpp11::integers as_integer(cpp11::sexp x, const char * name) {
   if (TYPEOF(x) == INTSXP) {
@@ -24,6 +24,67 @@ inline cpp11::integers as_integer(cpp11::sexp x, const char * name) {
     cpp11::stop("Expected a numeric vector for '%s'", name);
     return cpp11::integers(); // never reached
   }
+}
+
+inline void validate_size(int x, const char * name) {
+  if (x < 0) {
+    cpp11::stop("'%s' must be non-negative", name);
+  }
+}
+
+inline void validate_positive(int x, const char *name) {
+  if (x <= 0) {
+    cpp11::stop("'%s' must be positive", name);
+  }
+}
+
+inline std::vector<size_t> validate_size(cpp11::sexp r_x, const char * name) {
+  cpp11::integers r_xi = as_integer(r_x, name);
+  const size_t n = static_cast<size_t>(r_xi.size());
+  std::vector<size_t> x;
+  x.reserve(n);
+  for (size_t i = 0; i < n; ++i) {
+    int el = r_xi[i];
+    if (el < 0) {
+      cpp11::stop("All elements of '%s' must be non-negative", name);
+    }
+    x.push_back(el);
+  }
+  return x;
+}
+
+// Helper for the below; in the case where index is not given we
+// assume it would have been given as 1..n so generate out 0..(n-1)
+inline std::vector<size_t> seq_len(size_t n) {
+  std::vector<size_t> index;
+  index.reserve(n);
+  for (size_t i = 0; i < n; ++i) {
+    index.push_back(i);
+  }
+  return index;
+}
+
+// Converts an R vector of integers (in base-1) to a C++ std::vector
+// of size_t values in base-0 having checked that the values of the
+// vectors are approproate; that they will not fall outside of the
+// range [1, nmax] in base-1.
+inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax) {
+  if (r_index == R_NilValue) {
+    return seq_len(nmax);
+  }
+
+  cpp11::integers r_index_int = as_integer(r_index, "index");
+  const int n = r_index_int.size();
+  std::vector<size_t> index;
+  index.reserve(n);
+  for (int i = 0; i < n; ++i) {
+    int x = r_index_int[i];
+    if (x < 1 || x > (int)nmax) {
+      cpp11::stop("All elements of 'index' must lie in [1, %d]", nmax);
+    }
+    index.push_back(x - 1);
+  }
+  return index;
 }
 
 void check_dimensions(cpp11::sexp obj, size_t obj_size,

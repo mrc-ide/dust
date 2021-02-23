@@ -23,24 +23,18 @@ typename T::data_t dust_data(cpp11::list data);
 template <typename T>
 typename cpp11::sexp dust_info(const dust::pars_t<T>& pars);
 
-inline void validate_size(int x, const char * name);
-inline void validate_positive(int x, const char *name);
-inline std::vector<size_t> validate_size(cpp11::sexp x, const char *name);
-inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax);
-inline std::vector<size_t> r_index_to_index_default(size_t n);
-
 template <typename T>
 cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
                        cpp11::sexp r_n_particles, int n_threads,
                        cpp11::sexp r_seed) {
-  validate_size(step, "step");
-  validate_positive(n_threads, "n_threads");
+  dust::interface::validate_size(step, "step");
+  dust::interface::validate_positive(n_threads, "n_threads");
   std::vector<uint64_t> seed = as_rng_seed<typename T::real_t>(r_seed);
 
   Dust<T> *d = nullptr;
   cpp11::sexp info;
   if (pars_multi) {
-    dust::helpers::check_pars_multi(r_pars);
+    dust::interface::check_pars_multi(r_pars);
     std::vector<dust::pars_t<T>> pars;
     cpp11::writable::list info_list = cpp11::writable::list(r_pars.size());
     for (int i = 0; i < r_pars.size(); ++i) {
@@ -61,12 +55,12 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
     size_t n_particles = 0;
     if (r_n_particles != R_NilValue) {
       n_particles = cpp11::as_cpp<int>(r_n_particles);
-      validate_size(n_particles, "n_particles");
+      dust::interface::validate_size(n_particles, "n_particles");
     }
     d = new Dust<T>(pars, step, n_particles, n_threads, seed, shape);
   } else {
     size_t n_particles = cpp11::as_cpp<int>(r_n_particles);
-    validate_positive(n_particles, "n_particles");
+    dust::interface::validate_positive(n_particles, "n_particles");
     dust::pars_t<T> pars = dust_pars<T>(r_pars);
     d = new Dust<T>(pars, step, n_particles, n_threads, seed);
     info = dust_info<T>(pars);
@@ -74,7 +68,7 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
   cpp11::external_pointer<Dust<T>> ptr(d, true, false);
 
   cpp11::writable::integers r_shape =
-    dust::helpers::vector_size_to_int(d->shape());
+    dust::interface::vector_size_to_int(d->shape());
 
   return cpp11::writable::list({ptr, info, r_shape});
 }
@@ -83,7 +77,8 @@ template <typename T>
 void dust_set_index(SEXP ptr, cpp11::sexp r_index) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   const size_t index_max = obj->n_state_full();
-  const std::vector<size_t> index = r_index_to_index(r_index, index_max);
+  const std::vector<size_t> index =
+    dust::interface::r_index_to_index(r_index, index_max);
   obj->set_index(index);
 }
 
@@ -104,7 +99,7 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
     // TODO: what about the length and dimensions here? What is the
     // best thing to take for those? Possibly require an array to
     // disambiguate?
-    step = validate_size(r_step, "step");
+    step = dust::interface::validate_size(r_step, "step");
     if (!(step.size() == 1 || step.size() == obj->n_particles())) {
       cpp11::stop("Expected 'step' to be scalar or length %d",
                   obj->n_particles());
@@ -112,7 +107,8 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
   }
 
   if (r_state != R_NilValue) {
-    state = dust::helpers::check_state<real_t>(r_state, n_state, obj->shape());
+    state =
+      dust::interface::check_state<real_t>(r_state, n_state, obj->shape());
   }
 
   if (step.size() > 0) {
@@ -130,7 +126,7 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
 
 template <typename T>
 cpp11::sexp dust_run(SEXP ptr, int step_end, bool device) {
-  validate_size(step_end, "step_end");
+  dust::interface::validate_size(step_end, "step_end");
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   if (device) {
     obj->run_device(step_end);
@@ -144,13 +140,14 @@ cpp11::sexp dust_run(SEXP ptr, int step_end, bool device) {
   std::vector<typename T::real_t> dat(obj->n_state() * obj->n_particles());
   obj->state(dat);
 
-  return dust::helpers::state_array(dat, obj->n_state(), obj->shape());
+  return dust::interface::state_array(dat, obj->n_state(), obj->shape());
 }
 
 template <typename T>
 cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  const std::vector<size_t> step_end = validate_size(r_step_end, "step_end");
+  const std::vector<size_t> step_end =
+    dust::interface::validate_size(r_step_end, "step_end");
   const size_t n_time = step_end.size();
   if (n_time == 0) {
     cpp11::stop("'step_end' must have at least one element");
@@ -166,12 +163,13 @@ cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end) {
   }
 
   std::vector<typename T::real_t> dat = obj->simulate(step_end);
-  return dust::helpers::state_array(dat, obj->n_state(), obj->shape(), n_time);
+  return dust::interface::state_array(dat, obj->n_state(), obj->shape(),
+                                      n_time);
 }
 
 template <typename T>
 cpp11::sexp dust_reset(SEXP ptr, cpp11::list r_pars, int step) {
-  validate_size(step, "step");
+  dust::interface::validate_size(step, "step");
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   cpp11::sexp info;
   if (obj->n_pars() == 0) {
@@ -179,7 +177,7 @@ cpp11::sexp dust_reset(SEXP ptr, cpp11::list r_pars, int step) {
     obj->reset(pars, step);
     info = dust_info<T>(pars);
   } else {
-    dust::helpers::check_pars_multi(r_pars, obj->shape());
+    dust::interface::check_pars_multi(r_pars, obj->shape());
     std::vector<dust::pars_t<T>> pars;
     pars.reserve(obj->n_pars());
     cpp11::writable::list info_list = cpp11::writable::list(r_pars.size());
@@ -202,7 +200,7 @@ cpp11::sexp dust_set_pars(SEXP ptr, cpp11::list r_pars) {
     obj->set_pars(pars);
     info = dust_info<T>(pars);
   } else {
-    dust::helpers::check_pars_multi(r_pars, obj->shape());
+    dust::interface::check_pars_multi(r_pars, obj->shape());
     std::vector<dust::pars_t<T>> pars;
     pars.reserve(obj->n_pars());
     cpp11::writable::list info_list = cpp11::writable::list(r_pars.size());
@@ -234,20 +232,21 @@ SEXP dust_state_full(Dust<T> *obj) {
   std::vector<typename T::real_t> dat(len);
   obj->state_full(dat);
 
-  return dust::helpers::state_array(dat, n_state_full, obj->shape());
+  return dust::interface::state_array(dat, n_state_full, obj->shape());
 }
 
 template <typename T>
 SEXP dust_state_select(Dust<T> *obj, cpp11::sexp r_index) {
   const size_t index_max = obj->n_state_full();
-  const std::vector<size_t> index = r_index_to_index(r_index, index_max);
+  const std::vector<size_t> index =
+    dust::interface::r_index_to_index(r_index, index_max);
   const size_t n_state = static_cast<size_t>(index.size());
   const size_t len = n_state * obj->n_particles();
 
   std::vector<typename T::real_t> dat(len);
   obj->state(index, dat);
 
-  return dust::helpers::state_array(dat, n_state, obj->shape());
+  return dust::interface::state_array(dat, n_state, obj->shape());
 }
 
 template <typename T>
@@ -260,7 +259,7 @@ template <typename T>
 void dust_reorder(SEXP ptr, cpp11::sexp r_index) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   std::vector<size_t> index =
-    dust::helpers::check_reorder_index(r_index, obj->shape());
+    dust::interface::check_reorder_index(r_index, obj->shape());
   obj->reorder(index);
 }
 
@@ -274,7 +273,7 @@ SEXP dust_resample(SEXP ptr, cpp11::doubles r_weights) {
   size_t n_particles_each = n_particles / n_pars;
 
   std::vector<real_t> weights =
-    dust::helpers::check_resample_weights<real_t>(r_weights, obj->shape());
+    dust::interface::check_resample_weights<real_t>(r_weights, obj->shape());
   std::vector<size_t> idx = obj->resample(weights);
 
   cpp11::writable::integers ret(n_particles);
@@ -316,7 +315,7 @@ void dust_set_rng_state(SEXP ptr, cpp11::raws rng_state) {
 template <typename T>
 void dust_set_n_threads(SEXP ptr, int n_threads) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  validate_positive(n_threads, "n_threads");
+  dust::interface::validate_positive(n_threads, "n_threads");
   obj->set_n_threads(n_threads);
 }
 
@@ -331,7 +330,7 @@ template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typen
 void dust_set_data(SEXP ptr, cpp11::list r_data) {
   typedef typename T::data_t data_t;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  const size_t n_pars = obj->n_pars() == 0 ? 1 : obj->n_pars();
+  const size_t n_pars = obj->n_pars_effective();
 
   const size_t len = r_data.size();
   std::map<size_t, std::vector<data_t>> data;
@@ -362,12 +361,9 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
   }
   cpp11::writable::doubles ret_r(ret.size());
   std::copy(ret.begin(), ret.end(), REAL(ret_r));
-
-  const size_t n_pars = obj->n_pars();
-  if (n_pars > 0) {
-    const size_t n_particles_each = obj->n_particles() / n_pars;
-    ret_r.attr("dim") = cpp11::writable::integers({(int)n_particles_each,
-                                                   (int)n_pars});
+  if (obj->shape().size() > 1) {
+    ret_r.attr("dim") =
+      cpp11::writable::integers(obj->shape().begin(), obj->shape().end());
   }
 
   return ret_r;
@@ -389,14 +385,8 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_history) {
     // generally.
     const int n_data = history_data.size() / (n_state * n_particles);
     const int n_pars = obj->n_pars();
-    if (n_pars == 0) {
-      history_data.attr("dim") =
-        cpp11::writable::integers({n_state, n_particles, n_data});
-    } else {
-      const int n_particles_each = n_particles / n_pars;
-      history_data.attr("dim") =
-        cpp11::writable::integers({n_state, n_particles_each, n_pars, n_data});
-    }
+    history_data.attr("dim") =
+      dust::interface::state_array_dim(n_state, obj->shape(), n_data);
     history = history_data;
   }
   return cpp11::writable::list({"log_likelihood"_nm = log_likelihood,
@@ -444,68 +434,6 @@ template <typename T>
 int dust_n_state(SEXP ptr) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   return obj->n_state_full();
-}
-
-inline void validate_size(int x, const char * name) {
-  if (x < 0) {
-    cpp11::stop("'%s' must be non-negative", name);
-  }
-}
-
-inline void validate_positive(int x, const char *name) {
-  if (x <= 0) {
-    cpp11::stop("'%s' must be positive", name);
-  }
-}
-
-inline std::vector<size_t> validate_size(cpp11::sexp r_x, const char * name) {
-  cpp11::integers r_xi = dust::helpers::as_integer(r_x, name);
-  const size_t n = static_cast<size_t>(r_xi.size());
-  std::vector<size_t> x;
-  x.reserve(n);
-  for (size_t i = 0; i < n; ++i) {
-    int el = r_xi[i];
-    if (el < 0) {
-      cpp11::stop("All elements of '%s' must be non-negative", name);
-    }
-    x.push_back(el);
-  }
-  return x;
-}
-
-// Converts an R vector of integers (in base-1) to a C++ std::vector
-// of size_t values in base-0 having checked that the values of the
-// vectors are approproate; that they will not fall outside of the
-// range [1, nmax] in base-1.
-inline std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax) {
-  if (r_index == R_NilValue) {
-    return r_index_to_index_default(nmax);
-  }
-
-  cpp11::integers r_index_int = dust::helpers::as_integer(r_index, "index");
-  const int n = r_index_int.size();
-  std::vector<size_t> index;
-  index.reserve(n);
-  for (int i = 0; i < n; ++i) {
-    int x = r_index_int[i];
-    if (x < 1 || x > (int)nmax) {
-      cpp11::stop("All elements of 'index' must lie in [1, %d]", nmax);
-    }
-    index.push_back(x - 1);
-  }
-  return index;
-}
-
-
-// Helper for the above; in the case where index is not given we
-// assume it would have been given as 1..n so generate out 0..(n-1)
-inline std::vector<size_t> r_index_to_index_default(size_t n) {
-  std::vector<size_t> index;
-  index.reserve(n);
-  for (size_t i = 0; i < n; ++i) {
-    index.push_back(i);
-  }
-  return index;
 }
 
 #endif
