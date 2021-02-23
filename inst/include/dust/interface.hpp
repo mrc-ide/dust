@@ -34,9 +34,6 @@ inline std::vector<size_t> r_index_reorder_matrix(cpp11::sexp r_index,
 inline cpp11::integers as_integer(cpp11::sexp x, const char * name);
 
 template <typename T>
-std::vector<T> matrix_to_vector(cpp11::doubles_matrix x);
-
-template <typename T>
 cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
                        cpp11::sexp r_n_particles, int n_threads,
                        cpp11::sexp r_seed) {
@@ -96,13 +93,21 @@ void dust_set_index(SEXP ptr, cpp11::sexp r_index) {
 
 template <typename T>
 void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
-  Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  typedef typename T::real_t real_t;
 
-  // Do the validation here so that we leave this function having
-  // dealt with both or neither (i.e., do not fail on step after
-  // succeeding on state).
+  Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  const size_t n_state = obj->n_state_full();
+
+  // Do the validation on both arguments first so that we leave this
+  // function having dealt with both or neither (i.e., do not fail on
+  // step after succeeding on state).
   std::vector<size_t> step;
+  std::vector<real_t> state;
+
   if (r_step != R_NilValue) {
+    // TODO: what about the length and dimensions here? What is the
+    // best thing to take for those? Possibly require an array to
+    // disambiguate?
     step = validate_size(r_step, "step");
     if (!(step.size() == 1 || step.size() == obj->n_particles())) {
       cpp11::stop("Expected 'step' to be scalar or length %d",
@@ -111,86 +116,20 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
   }
 
   if (r_state != R_NilValue) {
-    if (obj->n_pars() > 0) {
-      dust_set_state_multi(obj, cpp11::as_cpp<cpp11::doubles>(r_state));
-    } else if (Rf_isMatrix(r_state)) {
-      dust_set_state(obj, cpp11::as_cpp<cpp11::doubles_matrix>(r_state));
+    state = dust::helpers::check_state<real_t>(r_state, n_state, obj->shape());
+  }
+
+  if (step.size() > 0) {
+    if (step.size() == 1) {
+      obj->set_step(step[0]);
     } else {
-      dust_set_state(obj, cpp11::as_cpp<cpp11::doubles>(r_state));
+      obj->set_step(step);
     }
   }
 
-  if (step.size() == 1) {
-    obj->set_step(step[0]);
-  } else if (step.size() > 1) {
-    obj->set_step(step);
+  if (state.size() > 0) {
+    obj->set_state(state, state.size() == n_state * obj->n_particles());
   }
-}
-
-template <typename T>
-void dust_set_state(Dust<T> *obj, cpp11::doubles r_state) {
-  const size_t n_state = obj->n_state_full();
-
-  if (static_cast<size_t>(r_state.size()) != n_state) {
-    cpp11::stop("Expected a vector with %d elements for 'state'", n_state);
-  }
-
-  const std::vector<typename T::real_t> state(r_state.begin(), r_state.end());
-  obj->set_state(state, false);
-}
-
-template <typename T>
-void dust_set_state(Dust<T> *obj, cpp11::doubles_matrix r_state) {
-  typedef typename T::real_t real_t;
-  const size_t n_state = obj->n_state_full();
-  const size_t n_particles = obj->n_particles();
-
-  if (static_cast<size_t>(r_state.nrow()) != n_state) {
-    cpp11::stop("Expected a matrix with %d rows for 'state'", n_state);
-  }
-  if (static_cast<size_t>(r_state.ncol()) != n_particles) {
-    cpp11::stop("Expected a matrix with %d columns for 'state'", n_particles);
-  }
-
-  std::vector<real_t> state = matrix_to_vector<real_t>(r_state);
-
-  obj->set_state(state, true);
-}
-
-// name could be improved!
-//
-// NOTE: because recycling the state is ambiguous here, we require a
-// full 3d matrix of state, at least for now. We might relax this
-// later once tests are in place.
-template <typename T>
-void dust_set_state_multi(Dust<T> *obj, cpp11::doubles r_state) {
-  const size_t n_state = obj->n_state_full();
-  const size_t n_pars = obj->n_pars();
-  const size_t n_particles_each = obj->n_particles() / n_pars;
-
-  cpp11::sexp r_dim_sexp = r_state.attr("dim");
-  if (r_dim_sexp == R_NilValue) {
-    cpp11::stop("Expected a 3d array for 'state' (but recieved a vector)");
-  }
-
-  cpp11::integers r_dim = cpp11::as_cpp<cpp11::integers>(r_dim_sexp);
-  if (r_dim.size() != 3) {
-    cpp11::stop("Expected a 3d array for 'state'");
-  }
-  if (static_cast<size_t>(r_dim[0]) != n_state) {
-    cpp11::stop("Expected a 3d array with %d rows for 'state'", n_state);
-  }
-  if (static_cast<size_t>(r_dim[1]) != n_particles_each) {
-    cpp11::stop("Expected a 3d array with %d columns for 'state'",
-                n_particles_each);
-  }
-  if (static_cast<size_t>(r_dim[2]) != n_pars) {
-    cpp11::stop("Expected a 3d array with dim[3] == %d for 'state'", n_pars);
-  }
-
-  const std::vector<typename T::real_t> state(r_state.begin(), r_state.end());
-
-  obj->set_state(state, true);
 }
 
 template <typename T>
@@ -660,15 +599,6 @@ inline cpp11::integers as_integer(cpp11::sexp x, const char * name) {
     cpp11::stop("Expected a numeric vector for '%s'", name);
     return cpp11::integers(); // never reached
   }
-}
-
-template <typename T>
-std::vector<T> matrix_to_vector(cpp11::doubles_matrix x) {
-  const size_t len = x.nrow() * x.ncol();
-  const double * x_data = REAL(x.data());
-  std::vector<T> ret(len);
-  std::copy(x_data, x_data + len, ret.begin());
-  return ret;
 }
 
 #endif
