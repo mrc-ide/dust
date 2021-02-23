@@ -36,8 +36,6 @@ inline cpp11::integers as_integer(cpp11::sexp x, const char * name);
 template <typename T>
 std::vector<T> matrix_to_vector(cpp11::doubles_matrix x);
 
-inline void check_pars_multi(cpp11::list pars, size_t n);
-
 template <typename T>
 cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
                        cpp11::sexp r_n_particles, int n_threads,
@@ -49,7 +47,7 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
   Dust<T> *d = nullptr;
   cpp11::sexp info;
   if (pars_multi) {
-    check_pars_multi(r_pars, 0);
+    dust::helpers::check_pars_multi(r_pars);
     std::vector<dust::pars_t<T>> pars;
     cpp11::writable::list info_list = cpp11::writable::list(r_pars.size());
     for (int i = 0; i < r_pars.size(); ++i) {
@@ -246,7 +244,7 @@ cpp11::sexp dust_reset(SEXP ptr, cpp11::list r_pars, int step) {
     obj->reset(pars, step);
     info = dust_info<T>(pars);
   } else {
-    check_pars_multi(r_pars, obj->n_pars());
+    dust::helpers::check_pars_multi(r_pars, obj->shape());
     std::vector<dust::pars_t<T>> pars;
     pars.reserve(obj->n_pars());
     cpp11::writable::list info_list = cpp11::writable::list(r_pars.size());
@@ -269,7 +267,7 @@ cpp11::sexp dust_set_pars(SEXP ptr, cpp11::list r_pars) {
     obj->set_pars(pars);
     info = dust_info<T>(pars);
   } else {
-    check_pars_multi(r_pars, obj->n_pars());
+    dust::helpers::check_pars_multi(r_pars, obj->shape());
     std::vector<dust::pars_t<T>> pars;
     pars.reserve(obj->n_pars());
     cpp11::writable::list info_list = cpp11::writable::list(r_pars.size());
@@ -671,17 +669,6 @@ std::vector<T> matrix_to_vector(cpp11::doubles_matrix x) {
   std::vector<T> ret(len);
   std::copy(x_data, x_data + len, ret.begin());
   return ret;
-}
-
-inline void check_pars_multi(cpp11::list r_pars, size_t n) {
-  if (r_pars.attr("names") != R_NilValue) {
-    cpp11::stop("Expected an unnamed list for 'pars' (given 'pars_multi')");
-  }
-  if (n == 0 && r_pars.size() == 0) {
-    cpp11::stop("Expected 'pars' to have at least one element");
-  } else if (n > 0 && static_cast<size_t>(r_pars.size()) != n) {
-    cpp11::stop("Expected a list with %d elements for 'pars'", n);
-  }
 }
 
 #endif
