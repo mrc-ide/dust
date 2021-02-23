@@ -36,12 +36,6 @@ inline cpp11::integers as_integer(cpp11::sexp x, const char * name);
 template <typename T>
 std::vector<T> matrix_to_vector(cpp11::doubles_matrix x);
 
-template <typename T>
-cpp11::sexp create_matrix(size_t nrow, size_t ncol, T& pars);
-
-template <typename T>
-cpp11::sexp create_array(const std::vector<size_t>& dim, T& pars);
-
 inline void check_pars_multi(cpp11::list pars, size_t n);
 
 template <typename T>
@@ -63,8 +57,8 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
       info_list[i] = dust_info<T>(pars[i]);
     }
     info = info_list;
-    std::vector<size_t> shape;
     cpp11::sexp dim_pars = r_pars.attr("dim");
+    std::vector<size_t> shape;
     if (dim_pars == R_NilValue) {
       shape.push_back(pars.size());
     } else {
@@ -88,7 +82,10 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
   }
   cpp11::external_pointer<Dust<T>> ptr(d, true, false);
 
-  return cpp11::writable::list({ptr, info});
+  cpp11::writable::integers r_shape =
+    dust::helpers::vector_size_to_int(d->shape());
+
+  return cpp11::writable::list({ptr, info, r_shape});
 }
 
 template <typename T>
@@ -209,7 +206,8 @@ cpp11::sexp dust_run(SEXP ptr, int step_end, bool device) {
   }
 
   // TODO: the allocation should come from the dust object, *or* we
-  // should be able to do this with a pointer to the C array.
+  // should be able to do this with a pointer to the C array. The
+  // current version helps noone.
   std::vector<typename T::real_t> dat(obj->n_state() * obj->n_particles());
   obj->state(dat);
 
@@ -642,37 +640,6 @@ inline std::vector<size_t> r_index_to_index_default(size_t n) {
     index.push_back(i);
   }
   return index;
-}
-
-template <typename T>
-cpp11::sexp create_matrix(size_t nrow, size_t ncol, T& pars) {
-  const size_t len = pars.size();
-  cpp11::writable::doubles ret(static_cast<R_xlen_t>(len));
-  double * dest = REAL(ret);
-  for (size_t i = 0; i < len; ++i) {
-    dest[i] = pars[i];
-  }
-
-  ret.attr("dim") = cpp11::writable::integers({(int)nrow, (int)ncol});
-  return ret;
-}
-
-template <typename T>
-cpp11::sexp create_array(const std::vector<size_t>& dim, T& pars) {
-  const size_t len = pars.size();
-  cpp11::writable::doubles ret(static_cast<R_xlen_t>(len));
-  double * dest = REAL(ret);
-  for (size_t i = 0; i < len; ++i) {
-    dest[i] = pars[i];
-  }
-
-  cpp11::writable::integers r_dim(dim.size());
-  for (size_t i = 0; i < dim.size(); ++i) {
-    r_dim[i] = dim[i];
-  }
-  ret.attr("dim") = r_dim;
-
-  return ret;
 }
 
 inline cpp11::integers as_integer(cpp11::sexp x, const char * name) {

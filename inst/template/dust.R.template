@@ -9,6 +9,8 @@
     info_ = NULL,
     n_threads_ = NULL,
     n_particles_ = NULL,
+    n_particles_each_ = NULL,
+    shape_ = NULL,
     ptr_ = NULL,
     param_ = {{param}}
   ),
@@ -62,8 +64,14 @@
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
       private$n_particles_ <- n_particles
+      if (pars_multi) {
+        private$n_particles_each_ <- n_particles / length(pars)
+      } else {
+        private$n_particles_each_ <- n_particles
+      }
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
+      private$shape_ <- res[[3L]]
     },
 
     ##' @description
@@ -164,6 +172,18 @@
     ##' Returns the number of particles
     n_particles = function() {
       private$n_particles_
+    },
+
+    ##' @description
+    ##' Returns the number of particles per parameter set
+    n_particles_each = function() {
+      private$n_particles_each_
+    },
+
+    ##' @description
+    ##' Returns the shape of the particles
+    shape = function() {
+      private$shape_
     },
 
     ##' @description

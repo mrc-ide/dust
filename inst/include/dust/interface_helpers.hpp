@@ -42,6 +42,12 @@ cpp11::sexp state_array(const std::vector<double>& dat, size_t n_state,
   return ret;
 }
 
+cpp11::writable::integers vector_size_to_int(const std::vector<size_t> & x) {
+  cpp11::writable::integers ret(x.size());
+  std::copy(x.begin(), x.end(), ret.begin());
+  return ret;
+}
+
 }
 }
 
