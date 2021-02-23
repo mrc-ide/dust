@@ -33,24 +33,6 @@ inline std::vector<size_t> r_index_reorder_matrix(cpp11::sexp r_index,
                                                   const size_t n_pars);
 inline cpp11::integers as_integer(cpp11::sexp x, const char * name);
 
-inline std::vector<size_t> create_dimensions(size_t a,
-                                             const std::vector<size_t>& b) {
-  std::vector<size_t> ret(b.size() + 1);
-  ret[0] = a;
-  std::copy(b.begin(), b.end(), ret.begin() + 1);
-  return ret;
-}
-
-inline std::vector<size_t> create_dimensions(size_t a,
-                                             const std::vector<size_t>& b,
-                                             size_t c) {
-  std::vector<size_t> ret(b.size() + 2);
-  ret[0] = a;
-  std::copy(b.begin(), b.end(), ret.begin() + 1);
-  ret[ret.size() - 1] = c;
-  return ret;
-}
-
 template <typename T>
 std::vector<T> matrix_to_vector(cpp11::doubles_matrix x);
 
@@ -226,20 +208,12 @@ cpp11::sexp dust_run(SEXP ptr, int step_end, bool device) {
     obj->run(step_end);
   }
 
-  const size_t n_state = obj->n_state();
-  const size_t n_particles = obj->n_particles();
-  const size_t n_pars = obj->n_pars();
-  const size_t len = n_state * n_particles;
-
-  std::vector<typename T::real_t> dat(len);
+  // TODO: the allocation should come from the dust object, *or* we
+  // should be able to do this with a pointer to the C array.
+  std::vector<typename T::real_t> dat(obj->n_state() * obj->n_particles());
   obj->state(dat);
 
-  if (n_pars == 0 || obj->shape().size() == 0) {
-    return create_matrix(n_state, n_particles, dat);
-  } else {
-    std::vector<size_t> dim = create_dimensions(n_state, obj->shape());
-    return create_array(dim, dat);
-  }
+  return dust::helpers::state_array(dat, obj->n_state(), obj->shape());
 }
 
 template <typename T>
@@ -324,22 +298,12 @@ SEXP dust_state(SEXP ptr, SEXP r_index) {
 template <typename T>
 SEXP dust_state_full(Dust<T> *obj) {
   const size_t n_state_full = obj->n_state_full();
-  const size_t n_particles = obj->n_particles();
-  const size_t n_pars = obj->n_pars();
-  const size_t len = n_state_full * n_particles;
+  const size_t len = n_state_full * obj->n_particles();
 
   std::vector<typename T::real_t> dat(len);
   obj->state_full(dat);
 
-  cpp11::sexp ret;
-  if (n_pars == 0 || obj->shape().size() == 0) {
-    ret = create_matrix(n_state_full, n_particles, dat);
-  } else {
-    std::vector<size_t> dim = create_dimensions(n_state_full, obj->shape());
-    ret = create_array(dim, dat);
-  }
-
-  return ret;
+  return dust::helpers::state_array(dat, n_state_full, obj->shape());
 }
 
 template <typename T>
@@ -347,22 +311,12 @@ SEXP dust_state_select(Dust<T> *obj, cpp11::sexp r_index) {
   const size_t index_max = obj->n_state_full();
   const std::vector<size_t> index = r_index_to_index(r_index, index_max);
   const size_t n_state = static_cast<size_t>(index.size());
-  const size_t n_particles = obj->n_particles();
-  const size_t n_pars = obj->n_pars();
-  const size_t len = n_state * n_particles;
+  const size_t len = n_state * obj->n_particles();
 
   std::vector<typename T::real_t> dat(len);
   obj->state(index, dat);
 
-  cpp11::sexp ret;
-  if (n_pars == 0 || obj->shape().size() == 0) {
-    ret = create_matrix(n_state, n_particles, dat);
-  } else {
-    std::vector<size_t> dim = create_dimensions(n_state, obj->shape());
-    ret = create_array(dim, dat);
-  }
-
-  return ret;
+  return dust::helpers::state_array(dat, n_state, obj->shape());
 }
 
 template <typename T>
