@@ -266,39 +266,15 @@ void dust_reorder(SEXP ptr, cpp11::sexp r_index) {
 
 template <typename T>
 SEXP dust_resample(SEXP ptr, cpp11::doubles r_weights) {
+  typedef typename T::real_t real_t;
+
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   size_t n_particles = obj->n_particles();
   size_t n_pars = obj->n_pars();
-  size_t n_particles_each = n_particles;
-  if (n_pars == 0) {
-    if (static_cast<size_t>(r_weights.size()) != n_particles) {
-      cpp11::stop("Expected a vector with %d elements for 'weights'",
-                  n_particles);
-    }
-  } else {
-    cpp11::sexp r_dim = r_weights.attr("dim");
-    if (r_dim == R_NilValue) {
-      cpp11::stop("Expected a matrix for 'weights', but given vector");
-    }
-    cpp11::integers dim = cpp11::as_cpp<cpp11::integers>(r_dim);
-    if (dim.size() != 2) {
-      cpp11::stop("Expected a matrix for 'weights'");
-    }
-    n_particles_each /= n_pars;
-    if (static_cast<size_t>(dim[0]) != n_particles_each) {
-      cpp11::stop("Expected a matrix with %d rows for 'weights'",
-                  n_particles_each);
-    }
-    if (static_cast<size_t>(dim[1]) != n_pars) {
-      cpp11::stop("Expected a matrix with %d columns for 'weights'", n_pars);
-    }
-  }
-  if (*std::min_element(r_weights.begin(), r_weights.end()) < 0) {
-    cpp11::stop("All weights must be positive");
-  }
-  const std::vector<typename T::real_t>
-    weights(r_weights.begin(), r_weights.end());
+  size_t n_particles_each = n_particles / n_pars;
 
+  std::vector<real_t> weights =
+    dust::helpers::check_resample_weights<real_t>(r_weights, obj->shape());
   std::vector<size_t> idx = obj->resample(weights);
 
   cpp11::writable::integers ret(n_particles);
@@ -308,9 +284,7 @@ SEXP dust_resample(SEXP ptr, cpp11::doubles r_weights) {
 
   // Same shape as on exit; we rescale the index so that it is
   // equivalent to the order that reorder would accept
-  if (n_pars > 0) {
-    ret.attr("dim") = r_weights.attr("dim");
-  }
+  ret.attr("dim") = r_weights.attr("dim");
   return ret;
 }
 

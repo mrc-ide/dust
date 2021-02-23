@@ -26,6 +26,36 @@ inline cpp11::integers as_integer(cpp11::sexp x, const char * name) {
   }
 }
 
+void check_dimensions(cpp11::sexp obj, size_t obj_size,
+                      const std::vector<size_t>& shape,
+                      const char * name) {
+  cpp11::integers dim;
+  auto r_dim = obj.attr("dim");
+  if (r_dim == R_NilValue) {
+    dim = cpp11::writable::integers{static_cast<int>(obj_size)};
+  } else {
+    dim = cpp11::as_cpp<cpp11::integers>(r_dim);
+  }
+
+  const size_t dim_len = dim.size();
+  if (dim_len != shape.size()) {
+    if (shape.size() == 1) {
+      cpp11::stop("Expected a vector for '%s'", name);
+    } else {
+      cpp11::stop("Expected an array of rank %d for '%s'",
+                  shape.size(), name);
+    }
+  }
+
+  for (size_t i = 0; i < shape.size(); ++i) {
+    const size_t found = dim[i], expected = shape[i];
+    if (found != expected) {
+      cpp11::stop("Expected dimension %d of '%s' to be %d but given %d",
+                  i + 1, name, expected, found);
+    }
+  }
+}
+
 cpp11::writable::integers state_array_dim(size_t n_state,
                                           const std::vector<size_t>& shape) {
   cpp11::writable::integers dim(shape.size() + 1);
@@ -177,42 +207,17 @@ std::vector<real_t> check_state(cpp11::sexp r_state, size_t n_state,
 //
 // single: expect a vector of length shape[0] (n_particles)
 //
-// groupsd: expect a matrix of size n_particles x n_groups (this is shape)
+// groups: expect a matrix of size n_particles x n_groups (this is shape)
 inline
 std::vector<size_t> check_reorder_index(cpp11::sexp r_index,
                                         const std::vector<size_t>& shape) {
   cpp11::integers r_index_data = as_integer(r_index, "index");
-
-  std::vector<size_t> index;
-
-  auto r_dim = r_index.attr("dim");
-  cpp11::integers dim;
-  if (r_dim == R_NilValue) {
-    dim = cpp11::writable::integers{static_cast<int>(r_index_data.size())};
-  } else {
-    dim = cpp11::as_cpp<cpp11::integers>(r_dim);
-  }
-  const size_t dim_len = dim.size();
-
-  if (dim_len != shape.size()) {
-    if (shape.size() == 1) {
-      cpp11::stop("Expected a vector for 'index'");
-    } else {
-      cpp11::stop("Expected an array of rank %d for 'index'", shape.size());
-    }
-  }
-
-  for (size_t i = 0; i < shape.size(); ++i) {
-    const size_t found = dim[i], expected = shape[i];
-    if (found != expected) {
-      cpp11::stop("Expected dimension %d of 'index' to be %d but given %d",
-                  i + 1, expected, found);
-    }
-  }
-
   const size_t len = r_index_data.size();
+  check_dimensions(r_index, len, shape, "index");
+
   const size_t n_particles = shape[0];
   const size_t n_groups = len  / n_particles;
+  std::vector<size_t> index;
   index.reserve(len);
   for (size_t i = 0, j = 0; i < n_groups; ++i) {
     for (size_t k = 0; k < n_particles; ++j, ++k) {
@@ -225,6 +230,19 @@ std::vector<size_t> check_reorder_index(cpp11::sexp r_index,
   }
 
   return index;
+}
+
+template <typename real_t>
+std::vector<real_t> check_resample_weights(cpp11::doubles r_weights,
+                                           const std::vector<size_t>& shape) {
+  const size_t len = r_weights.size();
+  check_dimensions(r_weights, len, shape, "weights");
+  if (*std::min_element(r_weights.begin(), r_weights.end()) < 0) {
+    cpp11::stop("All weights must be positive");
+  }
+  const std::vector<real_t>
+    weights(r_weights.begin(), r_weights.end());
+  return weights;
 }
 
 }
