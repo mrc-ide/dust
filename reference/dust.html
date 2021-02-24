@@ -82,7 +82,7 @@ that can be used to work with the model (see the Details below)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.13</span>
       </span>
     </div>
 
@@ -107,6 +107,9 @@ that can be used to work with the model (see the Details below)." />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/multi.html">multi</a>
+    </li>
     <li>
       <a href="../articles/rng.html">Random number generation</a>
     </li>
@@ -743,6 +746,8 @@ If you have a multi-parameter dust object this will be a 4d array
 #&gt;     n_threads: function () 
 #&gt;     n_state: function () 
 #&gt;     n_particles: function () 
+#&gt;     n_particles_each: function () 
+#&gt;     shape: function () 
 #&gt;     set_state: function (state, step = NULL) 
 #&gt;     reset: function (pars, step) 
 #&gt;     set_pars: function (pars) 
@@ -768,6 +773,8 @@ If you have a multi-parameter dust object this will be a 4d array
 #&gt;     info_: NULL
 #&gt;     n_threads_: NULL
 #&gt;     n_particles_: NULL
+#&gt;     n_particles_each_: NULL
+#&gt;     shape_: NULL
 #&gt;     ptr_: NULL
 #&gt;     param_: NULL
 #&gt;   Parent env: &lt;environment: namespace:dust&gt;
@@ -789,6 +796,7 @@ If you have a multi-parameter dust object this will be a 4d array
 #&gt;     initialize: function (pars, step, n_particles, n_threads = 1L, seed = NULL, 
 #&gt;     n_pars: function () 
 #&gt;     n_particles: function () 
+#&gt;     n_particles_each: function () 
 #&gt;     n_state: function () 
 #&gt;     n_threads: function () 
 #&gt;     name: function () 
@@ -805,6 +813,7 @@ If you have a multi-parameter dust object this will be a 4d array
 #&gt;     set_pars: function (pars) 
 #&gt;     set_rng_state: function (rng_state) 
 #&gt;     set_state: function (state, step = NULL) 
+#&gt;     shape: function () 
 #&gt;     simulate: function (step_end) 
 #&gt;     state: function (index = NULL) 
 #&gt;     step: function () 
@@ -812,11 +821,13 @@ If you have a multi-parameter dust object this will be a 4d array
 #&gt;     index_: NULL
 #&gt;     info_: NULL
 #&gt;     n_particles_: 30
+#&gt;     n_particles_each_: 30
 #&gt;     n_threads_: 1
 #&gt;     param_: NULL
 #&gt;     pars_: list
 #&gt;     pars_multi_: FALSE
-#&gt;     ptr_: externalptr</div><div class='input'>
+#&gt;     ptr_: externalptr
+#&gt;     shape_: 30</div><div class='input'>
 <span class='co'># Curent state is all zero</span>
 <span class='va'>obj</span><span class='op'>$</span><span class='fu'>state</span><span class='op'>(</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]
