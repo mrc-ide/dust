@@ -180,7 +180,8 @@ cpp11::sexp dust_reset(SEXP ptr, cpp11::list r_pars, int step) {
     obj->reset(pars, step);
     info = dust_info<T>(pars);
   } else {
-    dust::interface::check_pars_multi(r_pars, obj->shape());
+    dust::interface::check_pars_multi(r_pars, obj->shape(),
+                                      obj->pars_are_shared());
     std::vector<dust::pars_t<T>> pars;
     pars.reserve(obj->n_pars());
     cpp11::writable::list info_list = cpp11::writable::list(r_pars.size());
@@ -203,7 +204,8 @@ cpp11::sexp dust_set_pars(SEXP ptr, cpp11::list r_pars) {
     obj->set_pars(pars);
     info = dust_info<T>(pars);
   } else {
-    dust::interface::check_pars_multi(r_pars, obj->shape());
+    dust::interface::check_pars_multi(r_pars, obj->shape(),
+                                      obj->pars_are_shared());
     std::vector<dust::pars_t<T>> pars;
     pars.reserve(obj->n_pars());
     cpp11::writable::list info_list = cpp11::writable::list(r_pars.size());

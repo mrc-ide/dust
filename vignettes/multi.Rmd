@@ -165,3 +165,35 @@ dim(mod$simulate(0:10))
 ```
 
 Again here note that `mod$shape()` is sandwiched between the number of state variables and number of timesteps.
+
+## Considerations
+
+There are a few helpful things on single parameter objects that become ambiguous or awkward with multi-parameter objects. Starting with a single parameter object:
+
+```{r}
+pars <- list(beta = 0.1)
+mod <- sir$new(pars, 0, 8)
+```
+
+We might set all particles to have the same initial state:
+
+```{r}
+mod$set_state(c(1000, 10, 0, 0, 0))
+mod$state()
+```
+
+or we might set each particle to a different state, perhaps representing some stochasticity in starting values
+
+```{r}
+n <- rpois(8, 10)
+mod$set_state(rbind(1010 - n, n, 0, 0, 0))
+mod$state()
+```
+
+The difference here is the dimension of the new state. Recall that the state will always be in the form
+
+```
+n_state, shape[1], ..., shape[n]
+```
+
+If the dimension lacks the *first* element of shape, and if there is more than one particle per parameter set, then we replicate state across all particles that share that parameter set.

@@ -571,14 +571,12 @@ test_that("Can set pars into unreplicated multiparameter model", {
   expect_equal(y,
                matrix(cmp * vapply(p2, "[[", 1, "sd"), 7, 10, TRUE))
 
-  mod$set_state(matrix(0, 7, 10))
-
-  skip("FIXME") # need a change in check_pars_multi to handle this correctly.
   reshape <- function(p) {
     structure(p, dim = c(5, 2))
   }
   mod2 <- res$new(reshape(p1), 0, NULL, seed = 1L, pars_multi = TRUE)
   mod2$pars()
+  mod2$set_state(array(0, c(7, 5, 2)))
 
   expect_silent(mod2$set_pars(reshape(p2)))
   expect_identical(mod2$pars(), reshape(p2))

@@ -106,16 +106,22 @@ cpp11::integers object_dimensions(cpp11::sexp obj, size_t obj_size) {
 }
 
 inline
-void check_dimensions_rank(size_t dim_len, size_t shape_len,
+void check_dimensions_rank(size_t dim_len, size_t shape_len, bool is_list,
                            const char * name) {
   if (dim_len != shape_len) {
     if (shape_len == 1) {
-      cpp11::stop("Expected a vector for '%s'", name);
-    } else if (shape_len == 2) {
+      if (is_list) {
+        cpp11::stop("Expected a list with no dimension attribute for '%s'",
+                    name);
+      } else {
+        cpp11::stop("Expected a vector for '%s'", name);
+      }
+    } else if (shape_len == 2 && !is_list) {
       cpp11::stop("Expected a matrix for '%s'", name);
     } else {
-      cpp11::stop("Expected an array of rank %d for '%s'",
-                  shape_len, name);
+      const char * type = is_list ? "a list array" : "an array";
+      cpp11::stop("Expected %s of rank %d for '%s'",
+                  type, shape_len, name);
     }
   }
 }
@@ -123,14 +129,16 @@ void check_dimensions_rank(size_t dim_len, size_t shape_len,
 inline
 void check_dimensions_size(cpp11::integers dim,
                            const std::vector<size_t>& shape,
+                           bool is_list,
                            const char * name) {
   for (size_t i = 0; i < shape.size(); ++i) {
     const size_t found = dim[i], expected = shape[i];
     if (found != expected) {
       if (shape.size() == 1) {
-        cpp11::stop("Expected a vector of length %d for '%s' but given %d",
-                    expected, name, found);
-      } else if (shape.size() == 2) {
+        const char * type = is_list ? "list" : "vector";
+        cpp11::stop("Expected a %s of length %d for '%s' but given %d",
+                    type, expected, name, found);
+      } else if (shape.size() == 2 && !is_list) {
         const char * what = i == 0 ? "rows" : "cols";
         cpp11::stop("Expected a matrix with %d %s for '%s' but given %d",
                     expected, what, name, found);
@@ -145,10 +153,11 @@ void check_dimensions_size(cpp11::integers dim,
 inline
 void check_dimensions(cpp11::sexp obj, size_t obj_size,
                       const std::vector<size_t>& shape,
+                      bool is_list,
                       const char * name) {
   cpp11::integers dim = object_dimensions(obj, obj_size);
-  check_dimensions_rank(dim.size(), shape.size(), name);
-  check_dimensions_size(dim, shape, name);
+  check_dimensions_rank(dim.size(), shape.size(), is_list, name);
+  check_dimensions_size(dim, shape, is_list, name);
 }
 
 inline
@@ -201,39 +210,15 @@ cpp11::writable::integers vector_size_to_int(const std::vector<size_t> & x) {
 }
 
 inline void check_pars_multi(cpp11::list r_pars,
-                             const std::vector<size_t>& shape) {
+                             std::vector<size_t> shape,
+                             const bool pars_are_shared) {
   if (r_pars.attr("names") != R_NilValue) {
     cpp11::stop("Expected an unnamed list for 'pars' (given 'pars_multi')");
   }
-
-  // Lists with dimension attributes are confusing enough for people
-  // so we might need to improve the error messages here a little; we
-  // can do that in the check function probably by checking for
-  // list-ness in the SEXP
-  if (shape.size() <= 2) {
-    const size_t expected = shape.back();
-    if (r_pars.attr("dim") != R_NilValue) {
-      cpp11::stop("Expected a list with no dimension attribute for 'pars'");
-    }
-    if (static_cast<size_t>(r_pars.size()) != expected) {
-      cpp11::stop("Expected a list of length %d for 'pars' but given %d",
-                  expected, r_pars.size());
-    }
-  } else {
-    cpp11::integers dim = object_dimensions(r_pars, r_pars.size());
-    // I am not 100% sure that this is correct so leaving as-is for now
-    if (static_cast<size_t>(dim.size()) != shape.size()) {
-      cpp11::stop("Expected 'pars' to have rank %d but given rank %d",
-                  shape.size(), dim.size());
-    }
-    for (size_t i = 0; i < shape.size(); ++i) {
-      const size_t expected = shape[i], found = dim[i];
-      if (found != expected) {
-        cpp11::stop("Expected dimension %d of 'pars' to be %d but given %d",
-                    i + 1, expected, found);
-      }
-    }
+  if (pars_are_shared) {
+    shape = std::vector<size_t>(shape.begin() + 1, shape.end());
   }
+  check_dimensions(r_pars, r_pars.size(), shape, true, "pars");
 }
 
 // This version used on initialisation where we are trying to find
@@ -316,7 +301,7 @@ std::vector<size_t> check_reorder_index(cpp11::sexp r_index,
                                         const std::vector<size_t>& shape) {
   cpp11::integers r_index_data = as_integer(r_index, "index");
   const size_t len = r_index_data.size();
-  check_dimensions(r_index, len, shape, "index");
+  check_dimensions(r_index, len, shape, false, "index");
 
   const size_t n_particles = shape[0];
   const size_t n_groups = len  / n_particles;
@@ -339,7 +324,7 @@ template <typename real_t>
 std::vector<real_t> check_resample_weights(cpp11::doubles r_weights,
                                            const std::vector<size_t>& shape) {
   const size_t len = r_weights.size();
-  check_dimensions(r_weights, len, shape, "weights");
+  check_dimensions(r_weights, len, shape, false, "weights");
   if (*std::min_element(r_weights.begin(), r_weights.end()) < 0) {
     cpp11::stop("All weights must be positive");
   }
