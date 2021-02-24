@@ -10,9 +10,11 @@ sir <- R6::R6Class(
     info_ = NULL,
     n_threads_ = NULL,
     n_particles_ = NULL,
+    n_particles_each_ = NULL,
+    shape_ = NULL,
     ptr_ = NULL,
-    param_ = list(beta = list(required = FALSE), gamma = list(required = FALSE),
-    exp_noise = list(required = FALSE))
+    param_ = list(I0 = list(required = FALSE), beta = list(required = FALSE),
+    gamma = list(required = FALSE), exp_noise = list(required = FALSE))
   ),
 
   public = list(
@@ -23,9 +25,15 @@ sir <- R6::R6Class(
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
-      private$n_particles_ <- n_particles
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
+      private$shape_ <- res[[3L]]
+      private$n_particles_ <- prod(private$shape_)
+      if (pars_multi) {
+        private$n_particles_each_ <- private$n_particles_ / length(pars)
+      } else {
+        private$n_particles_each_ <- private$n_particles_
+      }
     },
 
     name = function() {
@@ -68,6 +76,14 @@ sir <- R6::R6Class(
 
     n_particles = function() {
       private$n_particles_
+    },
+
+    n_particles_each = function() {
+      private$n_particles_each_
+    },
+
+    shape = function() {
+      private$shape_
     },
 
     set_state = function(state, step = NULL) {
@@ -166,6 +182,8 @@ variable <- R6::R6Class(
     info_ = NULL,
     n_threads_ = NULL,
     n_particles_ = NULL,
+    n_particles_each_ = NULL,
+    shape_ = NULL,
     ptr_ = NULL,
     param_ = NULL
   ),
@@ -178,9 +196,15 @@ variable <- R6::R6Class(
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
-      private$n_particles_ <- n_particles
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
+      private$shape_ <- res[[3L]]
+      private$n_particles_ <- prod(private$shape_)
+      if (pars_multi) {
+        private$n_particles_each_ <- private$n_particles_ / length(pars)
+      } else {
+        private$n_particles_each_ <- private$n_particles_
+      }
     },
 
     name = function() {
@@ -223,6 +247,14 @@ variable <- R6::R6Class(
 
     n_particles = function() {
       private$n_particles_
+    },
+
+    n_particles_each = function() {
+      private$n_particles_each_
+    },
+
+    shape = function() {
+      private$shape_
     },
 
     set_state = function(state, step = NULL) {
@@ -321,6 +353,8 @@ volatility <- R6::R6Class(
     info_ = NULL,
     n_threads_ = NULL,
     n_particles_ = NULL,
+    n_particles_each_ = NULL,
+    shape_ = NULL,
     ptr_ = NULL,
     param_ = NULL
   ),
@@ -333,9 +367,15 @@ volatility <- R6::R6Class(
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
-      private$n_particles_ <- n_particles
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
+      private$shape_ <- res[[3L]]
+      private$n_particles_ <- prod(private$shape_)
+      if (pars_multi) {
+        private$n_particles_each_ <- private$n_particles_ / length(pars)
+      } else {
+        private$n_particles_each_ <- private$n_particles_
+      }
     },
 
     name = function() {
@@ -378,6 +418,14 @@ volatility <- R6::R6Class(
 
     n_particles = function() {
       private$n_particles_
+    },
+
+    n_particles_each = function() {
+      private$n_particles_each_
+    },
+
+    shape = function() {
+      private$shape_
     },
 
     set_state = function(state, step = NULL) {
@@ -476,6 +524,8 @@ walk <- R6::R6Class(
     info_ = NULL,
     n_threads_ = NULL,
     n_particles_ = NULL,
+    n_particles_each_ = NULL,
+    shape_ = NULL,
     ptr_ = NULL,
     param_ = NULL
   ),
@@ -488,9 +538,15 @@ walk <- R6::R6Class(
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
-      private$n_particles_ <- n_particles
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
+      private$shape_ <- res[[3L]]
+      private$n_particles_ <- prod(private$shape_)
+      if (pars_multi) {
+        private$n_particles_each_ <- private$n_particles_ / length(pars)
+      } else {
+        private$n_particles_each_ <- private$n_particles_
+      }
     },
 
     name = function() {
@@ -533,6 +589,14 @@ walk <- R6::R6Class(
 
     n_particles = function() {
       private$n_particles_
+    },
+
+    n_particles_each = function() {
+      private$n_particles_each_
+    },
+
+    shape = function() {
+      private$shape_
     },
 
     set_state = function(state, step = NULL) {

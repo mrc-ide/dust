@@ -1,0 +1,199 @@
+---
+title: "multi"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{multi}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  error = FALSE,
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5)
+lang_output <- function(x, lang) {
+  cat(c(sprintf("```%s", lang), x, "```"), sep = "\n")
+}
+cc_output <- function(x) lang_output(x, "cc")
+r_output <- function(x) lang_output(x, "r")
+plain_output <- function(x) lang_output(x, "plain")
+set.seed(1)
+```
+
+dust provides support for simulating lots of particles at once. But sometimes we want to structure these simulations in some way.
+
+To allow this, dust supports creating a model and indicating that the parameters represents some group of parameter sets. Consider our SIR example from `vignette("dust")`:
+
+```{r}
+sir <- dust::dust_example("sir")
+```
+
+For one parameter set with 8 particles we might do:
+
+```{r}
+pars <- list(beta = 0.1)
+mod <- sir$new(pars, 0, 8)
+```
+
+The "shape" of this model is most easily seen in the state:
+
+```{r}
+mod$state()
+```
+
+So here we have 5 state variables and 8 particles. The number of state variables is a property of the model, while the number of particles is a property of how you have configured the model, and we will call that the "shape"
+
+```{r}
+mod$shape()
+```
+
+There are also two helper methods which report the number of particles and number of particles per parameter set, here these will both report 8:
+
+```{r}
+mod$n_particles()
+mod$n_particles_each()
+```
+
+So far so easy.
+
+Suppose we have 2 regions (or other grouping) that we want to simulate at once and these have different parameter sets. We create an *unnamed list* containing the parameter sets
+
+```{r}
+pars <- list(list(beta = 0.1, I0 = 10), list(beta = 0.2, I0 = 12))
+```
+
+and then when creating the model we indicate that we want 4 particles each for our 2 parameter sets. The total number of particles will be 4 * 2 = 8
+
+```{r}
+mod <- sir$new(pars, 0, 4, pars_multi = TRUE)
+```
+
+The state has a different shape now:
+
+```{r}
+mod$state()
+```
+
+It's a 3-dimensional array with dimensions 5, 4, 2 corresponding to the number of state elements, number of replicates per parameter set and the number of parameter sets. Note that the second parameter set's state is different because the `I0` parameter specifies the number of infected individuals in the initial conditions.
+
+The "shape" of the data here is `c(4, 2)`
+
+```{r}
+mod$shape()
+```
+
+We still have 8 particles, but 4 per parameter set:
+
+```{r}
+mod$n_particles()
+mod$n_particles_each()
+```
+
+This sort of shape is useful where we want to fit multiple particle filters to the data, or simulate replicates blocked across a common set of parameters; that is we're interested in exploring the stochastic variation that occurs given a particular parameter set.
+
+But there are other way of shaping the state that are useful.
+
+Suppose that you have many parameter sets, each representing (say) an estimate based on some inference process
+
+```{r}
+pars <- lapply(runif(8, 0.05, 0.3), function(x) list(beta = x))
+```
+
+For this we might write:
+
+```{r}
+mod <- sir$new(pars, 0, 1, pars_multi = TRUE)
+```
+
+to indicate 1 particle per parameter. However, that's not ideal:
+
+```{r}
+dim(mod$state())
+mod$shape()
+```
+
+By doing this we end up with a weird dimension in the middle of our state. This would make sense if we were going to also replicate within the parameter set but does not make any sense this way.
+
+To indicate that we don't want this, pass `NULL` in for the number of particles:
+
+```{r}
+mod <- sir$new(pars, 0, NULL, pars_multi = TRUE)
+mod$state()
+mod$shape()
+```
+
+(why `NULL`? because if you tried `c(5, 1, 8)` and `c(5, NULL, 8)` you would see the same values as the two state vectors above).
+
+Further options are useful! Suppose in our previous case, the 8 parameter sets were themselves structured in some block, representing two groups of four parameter sets. To indicate this we create a list with dimensions:
+
+```{r}
+dim(pars) <- c(4, 2)
+pars
+```
+
+Then, when creating the object these dimensions will be applied to the data
+
+```{r}
+mod <- sir$new(pars, 0, NULL, pars_multi = TRUE)
+mod$state()
+mod$shape()
+```
+
+These options have implications for a number of methods, and for the basic running of the simulation. For example, when we run our model with structured parameters:
+
+```{r}
+res <- mod$simulate(0:10)
+dim(res)
+```
+
+Here the simulation output has dimensions:
+
+* 5 - the number of state variables
+* 4 - the first value of `mod$shape()`, as the first dimension of the parameters
+* 2 - the second value of `mod$shape()`, as the second dimension of the parameters
+* 11 - the number of timesteps recorded in the simulation
+
+Conversely if we'd *also* replicated parameters with this set of parameters we might see
+
+```{r}
+mod <- sir$new(pars, 0, 3, pars_multi = TRUE)
+mod$shape()
+dim(mod$simulate(0:10))
+```
+
+Again here note that `mod$shape()` is sandwiched between the number of state variables and number of timesteps.
+
+## Considerations
+
+There are a few helpful things on single parameter objects that become ambiguous or awkward with multi-parameter objects. Starting with a single parameter object:
+
+```{r}
+pars <- list(beta = 0.1)
+mod <- sir$new(pars, 0, 8)
+```
+
+We might set all particles to have the same initial state:
+
+```{r}
+mod$set_state(c(1000, 10, 0, 0, 0))
+mod$state()
+```
+
+or we might set each particle to a different state, perhaps representing some stochasticity in starting values
+
+```{r}
+n <- rpois(8, 10)
+mod$set_state(rbind(1010 - n, n, 0, 0, 0))
+mod$state()
+```
+
+The difference here is the dimension of the new state. Recall that the state will always be in the form
+
+```
+n_state, shape[1], ..., shape[n]
+```
+
+If the dimension lacks the *first* element of shape, and if there is more than one particle per parameter set, then we replicate state across all particles that share that parameter set.

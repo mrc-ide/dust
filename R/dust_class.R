@@ -19,6 +19,8 @@ dust_class <- R6::R6Class(
     info_ = NULL,
     n_threads_ = NULL,
     n_particles_ = NULL,
+    n_particles_each_ = NULL,
+    shape_ = NULL,
     ptr_ = NULL,
     param_ = NULL
   ),
@@ -151,6 +153,16 @@ dust_class <- R6::R6Class(
     ##' @description
     ##' Returns the number of particles
     n_particles = function() {
+    },
+
+    ##' @description
+    ##' Returns the number of particles per parameter set
+    n_particles_each = function() {
+    },
+
+    ##' @description
+    ##' Returns the shape of the particles
+    shape = function() {
     },
 
     ##' @description

@@ -128,7 +128,7 @@ test_that("set model state", {
   expect_equal(mod$state(), matrix(x))
   expect_error(
     mod$set_state(1),
-    "Expected a vector with 10 elements for 'state'")
+    "Expected a vector of length 10 for 'state'")
   expect_equal(mod$state(), matrix(x))
 })
 
@@ -142,7 +142,7 @@ test_that("set model state into multiple particles", {
   expect_equal(mod$state(), matrix(x, 10, 20))
   expect_error(
     mod$set_state(1),
-    "Expected a vector with 10 elements for 'state'")
+    "Expected a vector of length 10 for 'state'")
   expect_equal(mod$state(), matrix(x, 10, 20))
 })
 
@@ -156,10 +156,10 @@ test_that("set model state with a matrix", {
   expect_equal(mod$state(), m)
   expect_error(
     mod$set_state(m[, c(1, 1, 2, 2)]),
-    "Expected a matrix with 2 columns for 'state'")
+    "Expected a matrix with 2 cols for 'state' but given 4")
   expect_error(
     mod$set_state(m[1:5, ]),
-    "Expected a matrix with 10 rows for 'state'")
+    "Expected a matrix with 10 rows for 'state' but given 5")
   expect_equal(mod$state(), m)
 })
 
@@ -222,6 +222,8 @@ test_that("validate reorder vector is correct length", {
                "Expected a vector of length 10 for 'index'")
   expect_error(obj$reorder(rep(1L, 100)),
                "Expected a vector of length 10 for 'index'")
+  expect_error(obj$reorder(cbind(1:10)),
+               "Expected a vector for 'index'")
 })
 
 
@@ -243,7 +245,7 @@ test_that("validate reorder vector is in correct range", {
 
 
 test_that("run in float mode", {
-  res_d <- dust(dust_file("examples/walk.cpp"), quiet = TRUE)
+  res_d <- dust_example("walk")
 
   path <- tempfile(fileext = ".cpp")
   code <- readLines(dust_file("examples/walk.cpp"))
@@ -535,7 +537,7 @@ test_that("resample error cases", {
   w <- runif(obj$n_particles())
 
   expect_error(obj$resample(w[-1]),
-               "Expected a vector with 7 elements for 'weights'")
+               "Expected a vector of length 7 for 'weights'")
   expect_error(obj$resample(c(w[-1], -1)),
                "All weights must be positive")
   expect_identical(obj$state(), m)

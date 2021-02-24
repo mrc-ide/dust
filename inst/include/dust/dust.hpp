@@ -387,26 +387,38 @@ public:
   Dust(const pars_t& pars, const size_t step, const size_t n_particles,
        const size_t n_threads, const std::vector<uint64_t>& seed) :
     _n_pars(0),
+    _n_particles_each(n_particles),
     _n_particles_total(n_particles),
+    _pars_are_shared(true),
     _n_threads(n_threads),
     _rng(_n_particles_total, seed),
     _stale_host(false),
     _stale_device(true) {
     initialise(pars, step, n_particles, true);
     initialise_index();
+    _shape = {n_particles};
   }
 
   Dust(const std::vector<pars_t>& pars, const size_t step,
        const size_t n_particles, const size_t n_threads,
-       const std::vector<uint64_t>& seed) :
+       const std::vector<uint64_t>& seed, std::vector<size_t> shape) :
     _n_pars(pars.size()),
-    _n_particles_total(n_particles * pars.size()),
+    _n_particles_each(n_particles == 0 ? 1 : n_particles),
+    _n_particles_total(_n_particles_each * pars.size()),
+    _pars_are_shared(n_particles != 0),
     _n_threads(n_threads),
     _rng(_n_particles_total, seed),
     _stale_host(false),
     _stale_device(true) {
-    initialise(pars, step, n_particles, true);
+    initialise(pars, step, _n_particles_each, true);
     initialise_index();
+    // constructing the shape here is harder than above.
+    if (n_particles > 0) {
+      _shape.push_back(n_particles);
+    }
+    for (auto i : shape) {
+      _shape.push_back(i);
+    }
   }
 
   void reset(const pars_t& pars, const size_t step) {
@@ -437,19 +449,17 @@ public:
 
   // It's the callee's responsibility to ensure this is the correct length:
   //
-  // * if is_matrix is false then state must be length n_state_full()
+  // * if individual is false then state must be length n_state_full()
   //   and all particles get the state
-  // * if is_matrix is true, state must be length (n_state_full() *
+  // * if individual is true, state must be length (n_state_full() *
   //   n_particles()) and every particle gets a different state.
-  void set_state(const std::vector<real_t>& state, bool is_matrix) {
+  void set_state(const std::vector<real_t>& state, bool individual) {
     const size_t n_particles = _particles.size();
     const size_t n_state = n_state_full();
+    const size_t n = individual ? 1 : _n_particles_each;
     auto it = state.begin();
     for (size_t i = 0; i < n_particles; ++i) {
-      _particles[i].set_state(it);
-      if (is_matrix) {
-        it += n_state;
-      }
+      _particles[i].set_state(it + (i / n) * n_state);
     }
     _stale_device = true;
   }
@@ -655,8 +665,16 @@ public:
     return _n_pars == 0 ? 1 : _n_pars;
   }
 
+  bool pars_are_shared() const {
+    return _pars_are_shared;
+  }
+
   size_t step() const {
     return _particles.front().step();
+  }
+
+  const std::vector<size_t>& shape() const {
+    return _shape;
   }
 
   std::vector<uint64_t> rng_state() {
@@ -713,7 +731,6 @@ public:
     }
 
     const size_t n_particles = _particles.size();
-    const size_t n_particles_each = n_particles / n_pars_effective();
     std::vector<real_t> log_likelihood(n_pars_effective());
     std::vector<real_t> log_likelihood_step(n_pars_effective());
     std::vector<real_t> weights(n_particles);
@@ -738,9 +755,9 @@ public:
       auto wi = weights.begin();
       for (size_t i = 0; i < n_pars_effective(); ++i) {
         log_likelihood_step[i] =
-          scale_log_weights<real_t>(wi, n_particles_each);
+          scale_log_weights<real_t>(wi, _n_particles_each);
         log_likelihood[i] += log_likelihood_step[i];
-        wi += n_particles_each;
+        wi += _n_particles_each;
       }
 
       // We could move this below if wanted but we'd have to rewrite
@@ -767,7 +784,10 @@ public:
 
 private:
   const size_t _n_pars; // 0 in the "single" case, >=1 otherwise
+  const size_t _n_particles_each; // Particles per parameter set
   const size_t _n_particles_total; // Total number of particles
+  const bool _pars_are_shared; // Does the n_particles dimension exist in shape?
+  std::vector<size_t> _shape; // shape of output
   size_t _n_threads;
   dust::pRNG<real_t> _rng;
   std::map<size_t, std::vector<data_t>> _data;
@@ -1029,59 +1049,6 @@ void run_particles(size_t step_start, size_t step_end, size_t n_particles,
     }
     dust::put_rng_state(rng_block, p_rng);
   }
-}
-
-template <typename T>
-std::vector<typename T::real_t>
-dust_simulate(const std::vector<size_t>& steps,
-              const std::vector<dust::pars_t<T>>& pars,
-              std::vector<typename T::real_t>& state,
-              const std::vector<size_t>& index,
-              const size_t n_threads,
-              std::vector<uint64_t>& seed,
-              bool save_state) {
-  typedef typename T::real_t real_t;
-  const size_t n_state_return = index.size();
-  const size_t n_particles = pars.size();
-  std::vector<Particle<T>> particles;
-  particles.reserve(n_particles);
-  for (size_t i = 0; i < n_particles; ++i) {
-    particles.push_back(Particle<T>(pars[i], steps[0]));
-    if (i > 0 && particles.back().size() != particles.front().size()) {
-      std::stringstream msg;
-      msg << "Particles have different state sizes: particle " << i + 1 <<
-        " had length " << particles.back().size() << " but expected " <<
-        particles.front().size();
-      throw std::invalid_argument(msg.str());
-    }
-  }
-  const size_t n_state_full = particles.front().size();
-
-  dust::pRNG<real_t> rng(n_particles, seed);
-  std::vector<real_t> ret(n_particles * n_state_return * steps.size());
-  size_t n_steps = steps.size();
-
-#ifdef _OPENMP
-  #pragma omp parallel for schedule(static) num_threads(n_threads)
-#endif
-  for (size_t i = 0; i < particles.size(); ++i) {
-    particles[i].set_state(state.begin() + n_state_full * i);
-    for (size_t t = 0; t < n_steps; ++t) {
-      particles[i].run(steps[t], rng.state(i));
-      size_t offset = t * n_state_return * n_particles + i * n_state_return;
-      particles[i].state(index, ret.begin() + offset);
-    }
-    if (save_state) {
-      particles[i].state_full(state.begin() + n_state_full * i);
-    }
-  }
-
-  // To continue we'd also need the rng state:
-  if (save_state) {
-    rng.export_state(seed);
-  }
-
-  return ret;
 }
 
 #endif

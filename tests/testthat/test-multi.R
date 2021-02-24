@@ -43,6 +43,11 @@ test_that("create trivial 2 element mulitdust object", {
   expect_equal(y2, array(y1, c(1, 5, 2)))
 
   expect_identical(obj1$rng_state(), obj2$rng_state())
+
+  expect_equal(obj1$n_particles(), 10)
+  expect_equal(obj2$n_particles(), 10)
+  expect_equal(obj1$n_particles_each(), 10)
+  expect_equal(obj2$n_particles_each(), 5)
 })
 
 
@@ -106,21 +111,19 @@ test_that("Can set state", {
 
   expect_error(
     mod$set_state(c(y)),
-    "Expected a 3d array for 'state' (but recieved a vector)",
-    fixed = TRUE)
+    "Expected array of rank 2 or 3 for 'state'")
   expect_error(
     mod$set_state(matrix(c(y), c(ns, nd * np))),
-    "Expected a 3d array for 'state'")
+    "Expected a matrix with 3 cols for 'state' but given 39")
   expect_error(
     mod$set_state(y[-1, , ]),
-    "Expected a 3d array with 7 rows for 'state'")
+    "Expected dimension 1 of 'state' to be 7 but given 6")
   expect_error(
     mod$set_state(y[, -1, ]),
-    "Expected a 3d array with 13 columns for 'state'")
+    "Expected dimension 2 of 'state' to be 13 but given 12")
   expect_error(
     mod$set_state(y[, , -1]),
-    "Expected a 3d array with dim[3] == 3 for 'state'",
-    fixed = TRUE)
+    "Expected dimension 3 of 'state' to be 3 but given 2")
 
   ## Unchanged
   expect_equal(mod$state(), y)
@@ -225,10 +228,10 @@ test_that("Can avoid invalid reorder index matrices", {
     "Expected a matrix for 'index'")
   expect_error(
     mod$reorder(i[-1, ]),
-    "Expected a matrix with 13 rows for 'index'")
+    "Expected a matrix with 13 rows for 'index' but given 12")
   expect_error(
     mod$reorder(i[, -1]),
-    "Expected a matrix with 3 columns for 'index'")
+    "Expected a matrix with 3 cols for 'index' but given 2")
   i[1] <- np + 1
   expect_error(
     mod$reorder(i),
@@ -285,10 +288,6 @@ test_that("Can't change parameter size on reset or set_pars", {
   res <- dust_example("variable")
   pars <- rep(list(list(len = 7)), 5)
   obj <- res$new(pars, 0, 10, seed = 1L, pars_multi = TRUE)
-  expect_error(obj$reset(pars[-1], 0),
-               "Expected a list with 5 elements for 'pars'")
-  expect_error(obj$set_pars(pars[-1]),
-               "Expected a list with 5 elements for 'pars'")
   pars2 <- rep(list(list(len = 8)), 5)
   expect_error(
     obj$reset(pars2, 0),
@@ -308,6 +307,35 @@ test_that("Can't change parameter size on reset or set_pars", {
     obj$set_pars(pars3),
     paste("'pars' created inconsistent state size:",
           "expected length 7 but parameter set 3 created length 8"))
+})
+
+
+test_that("Validate parameter suitability", {
+  res <- dust_example("variable")
+  pars <- rep(list(list(len = 7)), 6)
+  obj <- res$new(pars, 0, 10, seed = 1L, pars_multi = TRUE)
+
+  expect_error(obj$reset(pars[-1], 0),
+               "Expected a list of length 6 for 'pars'")
+  expect_error(obj$set_pars(pars[-1]),
+               "Expected a list of length 6 for 'pars'")
+
+  expect_error(
+    obj$set_pars(pars[[1]]),
+    "Expected an unnamed list for 'pars' (given 'pars_multi')",
+    fixed = TRUE)
+  expect_error(
+    obj$reset(pars[[1]], 0),
+    "Expected an unnamed list for 'pars' (given 'pars_multi')",
+    fixed = TRUE)
+
+  pars2 <- structure(pars, dim = c(2, 3))
+  expect_error(
+    obj$set_pars(pars2),
+    "Expected a list with no dimension attribute for 'pars'")
+  expect_error(
+    obj$reset(pars2, 0),
+    "Expected a list with no dimension attribute for 'pars'")
 })
 
 
@@ -452,13 +480,13 @@ test_that("resample multi validates inputs", {
   w <- cbind(runif(7), runif(7))
   expect_error(
     obj$resample(c(w)),
-    "Expected a matrix for 'weights', but given vector")
+    "Expected a matrix for 'weights'")
   expect_error(
     obj$resample(w[-1, ]),
-    "Expected a matrix with 7 rows for 'weights'")
+    "Expected a matrix with 7 rows for 'weights' but given 6")
   expect_error(
     obj$resample(w[, -1, drop = FALSE]),
-    "Expected a matrix with 2 columns for 'weights'")
+    "Expected a matrix with 2 cols for 'weights' but given 1")
   expect_error(
     obj$resample(array(w, c(dim(w), 1))),
     "Expected a matrix for 'weights'")
@@ -482,4 +510,173 @@ test_that("must use an unnamed list", {
     res$new(pars, 0, 7, pars_multi = TRUE),
     "Expected an unnamed list for 'pars' (given 'pars_multi')",
     fixed = TRUE)
+})
+
+
+test_that("Can create unreplicated multi-pars examples", {
+  p <- lapply(runif(10), function(x) list(len = 7, sd = x))
+  res <- dust_example("variable")
+  mod <- res$new(p, 0, NULL, seed = 1L, pars_multi = TRUE)
+  s <- mod$state()
+  expect_equal(s, matrix(1:7, 7, 10))
+
+  s[] <- runif(length(s))
+  expect_silent(mod$set_state(s))
+  expect_identical(mod$state(), s)
+
+  expect_equal(mod$shape(), 10)
+
+  s <- mod$simulate(0:5)
+  expect_equal(dim(s), c(7, 10, 6))
+  expect_equal(mod$n_particles_each(), 1)
+  expect_equal(mod$n_particles(), 10)
+})
+
+
+test_that("Can set state into 3d model", {
+  p <- lapply(runif(10), function(x) list(len = 7, sd = x))
+  dim(p) <- c(2, 5)
+  res <- dust_example("variable")
+  mod <- res$new(p, 0, 3, seed = 1L, pars_multi = TRUE)
+  s <- mod$state()
+  expect_equal(dim(s), c(7, 3, 2, 5)) # n_state, n_particles, dim(pars)
+  expect_equal(mod$shape(), c(3, 2, 5))
+  expect_equal(mod$n_particles_each(), 3)
+  expect_equal(mod$n_particles(), 3 * 2 * 5)
+
+  s <- mod$state()
+  s[] <- runif(length(s))
+  expect_silent(mod$set_state(s))
+
+  s2 <- s
+  s2[] <- runif(length(s2))
+  expect_error(mod$set_state(c(s2)),
+               "Expected array of rank 3 or 4 for 'state'")
+})
+
+
+test_that("Can set pars into unreplicated multiparameter model", {
+  p1 <- lapply(runif(10), function(x) list(len = 7, sd = x))
+  p2 <- lapply(runif(10), function(x) list(len = 7, sd = x))
+  res <- dust_example("variable")
+  mod <- res$new(p1, 0, NULL, seed = 1L, pars_multi = TRUE)
+  expect_silent(mod$set_pars(p2))
+  expect_identical(mod$pars(), p2)
+
+  mod$set_state(matrix(0, 7, 10))
+
+  y <- mod$run(1)
+
+  cmp <- dust_rng$new(1L, 10)$norm_rand(7 * 10)
+  expect_equal(y,
+               matrix(cmp * vapply(p2, "[[", 1, "sd"), 7, 10, TRUE))
+
+  reshape <- function(p) {
+    structure(p, dim = c(5, 2))
+  }
+  mod2 <- res$new(reshape(p1), 0, NULL, seed = 1L, pars_multi = TRUE)
+  mod2$pars()
+  mod2$set_state(array(0, c(7, 5, 2)))
+
+  expect_silent(mod2$set_pars(reshape(p2)))
+  expect_identical(mod2$pars(), reshape(p2))
+  y2 <- mod2$run(1)
+  expect_equal(dim(y2), c(7, 5, 2))
+  expect_equal(c(y2), c(y))
+})
+
+
+test_that("Can set pars into a structured parameter model", {
+  p1 <- lapply(runif(10), function(x) list(len = 7, sd = x))
+  p2 <- lapply(runif(10), function(x) list(len = 7, sd = x))
+  p3 <- lapply(runif(10), function(x) list(len = 7, sd = x))
+  dim(p1) <- dim(p2) <- c(5, 2)
+
+  res <- dust_example("variable")
+  mod <- res$new(p1, 0, 6, seed = 1L, pars_multi = TRUE)
+
+  expect_silent(mod$set_pars(p2))
+  expect_identical(mod$pars(), p2)
+
+  expect_error(mod$set_pars(p3),
+               "Expected a list array of rank 2 for 'pars'")
+  expect_error(mod$set_pars(p2[-1, ]),
+               "cted dimension 1 of 'pars' to be 5 but given 4")
+})
+
+
+test_that("Can set state into a multiparameter model, shared + flat", {
+  res <- dust_example("variable")
+  p <- lapply(runif(6), function(x) list(len = 5, sd = x))
+  mod <- res$new(p, 0, 7, pars_multi = TRUE)
+
+  s <- mod$state()
+  y <- array(as.numeric(seq_along(s)), dim(s))
+
+  ## Set full model state:
+  expect_silent(mod$set_state(y))
+  expect_identical(mod$state(), y)
+
+  ## Replicate model state:
+  mod$set_state(y[, 1, ])
+  expect_identical(mod$state(), y[, rep(1, 7), ])
+})
+
+
+test_that("Can set state into a multiparameter model, unshared + flat", {
+  res <- dust_example("variable")
+  p <- lapply(runif(6), function(x) list(len = 5, sd = x))
+  mod <- res$new(p, 0, NULL, pars_multi = TRUE)
+
+  s <- mod$state()
+  y <- array(as.numeric(seq_along(s)), dim(s))
+
+  ## Set full model state:
+  expect_silent(mod$set_state(y))
+  expect_identical(mod$state(), y)
+
+  expect_error(mod$set_state(y[, 1]),
+               "Expected a matrix for 'state'")
+  expect_error(mod$set_state(y[, 1, drop = FALSE]),
+               "Expected a matrix with 6 cols for 'state' but given 1")
+})
+
+
+test_that("Can set state into a multiparameter model, shared + structured", {
+  res <- dust_example("variable")
+  p <- lapply(runif(6), function(x) list(len = 5, sd = x))
+  dim(p) <- 3:2
+  mod <- res$new(p, 0, 7, pars_multi = TRUE)
+
+  s <- mod$state()
+  y <- array(as.numeric(seq_along(s)), dim(s))
+
+  ## Set full model state:
+  expect_silent(mod$set_state(y))
+  expect_identical(mod$state(), y)
+
+  ## Replicate model state:
+  mod$set_state(y[, 1, , ])
+  expect_identical(mod$state(), y[, rep(1, 7), , ])
+})
+
+
+test_that("Can set state into a multiparameter model, unshared + structured", {
+  res <- dust_example("variable")
+  p <- lapply(runif(6), function(x) list(len = 5, sd = x))
+  dim(p) <- 3:2
+  mod <- res$new(p, 0, NULL, pars_multi = TRUE)
+
+  s <- mod$state()
+  y <- array(as.numeric(seq_along(s)), dim(s))
+
+  ## Set full model state:
+  expect_silent(mod$set_state(y))
+  expect_identical(mod$state(), y)
+
+  ## Replicate model state:
+  expect_error(mod$set_state(y[, 1, ]),
+               "Expected an array of rank 3 for 'state'")
+  expect_error(mod$set_state(y[, 1, , drop = FALSE]),
+               "Expected dimension 2 of 'state' to be 3 but given 1")
 })
