@@ -220,13 +220,13 @@ test_that("Can avoid invalid reorder index matrices", {
   i <- replicate(nd, sample.int(np, np, replace = TRUE))
   expect_error(
     mod$reorder(c(i)),
-    "Expected an array of rank 2 for 'index'")
+    "Expected a matrix for 'index'")
   expect_error(
     mod$reorder(i[-1, ]),
-    "Expected dimension 1 of 'index' to be 13 but given 12")
+    "Expected a matrix with 13 rows for 'index' but given 12")
   expect_error(
     mod$reorder(i[, -1]),
-    "Expected dimension 2 of 'index' to be 3 but given 2")
+    "Expected a matrix with 3 cols for 'index' but given 2")
   i[1] <- np + 1
   expect_error(
     mod$reorder(i),
@@ -450,16 +450,16 @@ test_that("resample multi validates inputs", {
   w <- cbind(runif(7), runif(7))
   expect_error(
     obj$resample(c(w)),
-    "Expected an array of rank 2 for 'weights'")
+    "Expected a matrix for 'weights'")
   expect_error(
     obj$resample(w[-1, ]),
-    "Expected dimension 1 of 'weights' to be 7 but given 6")
+    "Expected a matrix with 7 rows for 'weights' but given 6")
   expect_error(
     obj$resample(w[, -1, drop = FALSE]),
-    "Expected dimension 2 of 'weights' to be 2 but given 1")
+    "Expected a matrix with 2 cols for 'weights' but given 1")
   expect_error(
     obj$resample(array(w, c(dim(w), 1))),
-    "Expected an array of rank 2 for 'weights'")
+    "Expected a matrix for 'weights'")
 
   ## Unchanged:
   expect_identical(obj$state(), m)
