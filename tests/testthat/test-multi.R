@@ -586,6 +586,25 @@ test_that("Can set pars into unreplicated multiparameter model", {
 })
 
 
+test_that("Can set pars into a structured parameter model", {
+  p1 <- lapply(runif(10), function(x) list(len = 7, sd = x))
+  p2 <- lapply(runif(10), function(x) list(len = 7, sd = x))
+  p3 <- lapply(runif(10), function(x) list(len = 7, sd = x))
+  dim(p1) <- dim(p2) <- c(5, 2)
+
+  res <- dust_example("variable")
+  mod <- res$new(p1, 0, 6, seed = 1L, pars_multi = TRUE)
+
+  expect_silent(mod$set_pars(p2))
+  expect_identical(mod$pars(), p2)
+
+  expect_error(mod$set_pars(p3),
+               "Expected a list array of rank 2 for 'pars'")
+  expect_error(mod$set_pars(p2[-1, ]),
+               "cted dimension 1 of 'pars' to be 5 but given 4")
+})
+
+
 test_that("Can set state into a multiparameter model, shared + flat", {
   res <- dust_example("variable")
   p <- lapply(runif(6), function(x) list(len = 5, sd = x))
