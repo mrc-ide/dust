@@ -106,21 +106,19 @@ test_that("Can set state", {
 
   expect_error(
     mod$set_state(c(y)),
-    "Expected a 3d array for 'state' (but recieved a vector)",
-    fixed = TRUE)
+    "Expected array of rank 2 or 3 for 'state' but given rank 1")
   expect_error(
     mod$set_state(matrix(c(y), c(ns, nd * np))),
-    "Expected a 3d array for 'state'")
+    "Expected dimension 2 of 'state' to be 3 but given 39")
   expect_error(
     mod$set_state(y[-1, , ]),
-    "Expected a 3d array with 7 rows for 'state'")
+    "Expected dimension 1 of 'state' to be 7 but given 6")
   expect_error(
     mod$set_state(y[, -1, ]),
-    "Expected a 3d array with 13 columns for 'state'")
+    "Expected dimension 2 of 'state' to be 13 but given 12")
   expect_error(
     mod$set_state(y[, , -1]),
-    "Expected a 3d array with dim[3] == 3 for 'state'",
-    fixed = TRUE)
+    "Expected dimension 3 of 'state' to be 3 but given 2")
 
   ## Unchanged
   expect_equal(mod$state(), y)
@@ -222,13 +220,13 @@ test_that("Can avoid invalid reorder index matrices", {
   i <- replicate(nd, sample.int(np, np, replace = TRUE))
   expect_error(
     mod$reorder(c(i)),
-    "Expected a matrix for 'index'")
+    "Expected an array of rank 2 for 'index'")
   expect_error(
     mod$reorder(i[-1, ]),
-    "Expected a matrix with 13 rows for 'index'")
+    "Expected dimension 1 of 'index' to be 13 but given 12")
   expect_error(
     mod$reorder(i[, -1]),
-    "Expected a matrix with 3 columns for 'index'")
+    "Expected dimension 2 of 'index' to be 3 but given 2")
   i[1] <- np + 1
   expect_error(
     mod$reorder(i),
@@ -286,9 +284,9 @@ test_that("Can't change parameter size on reset or set_pars", {
   pars <- rep(list(list(len = 7)), 5)
   obj <- res$new(pars, 0, 10, seed = 1L, pars_multi = TRUE)
   expect_error(obj$reset(pars[-1], 0),
-               "Expected a list with 5 elements for 'pars'")
+               "Expected a list of length 5 for 'pars'")
   expect_error(obj$set_pars(pars[-1]),
-               "Expected a list with 5 elements for 'pars'")
+               "Expected a list of length 5 for 'pars'")
   pars2 <- rep(list(list(len = 8)), 5)
   expect_error(
     obj$reset(pars2, 0),
@@ -452,16 +450,16 @@ test_that("resample multi validates inputs", {
   w <- cbind(runif(7), runif(7))
   expect_error(
     obj$resample(c(w)),
-    "Expected a matrix for 'weights', but given vector")
+    "Expected an array of rank 2 for 'weights'")
   expect_error(
     obj$resample(w[-1, ]),
-    "Expected a matrix with 7 rows for 'weights'")
+    "Expected dimension 1 of 'weights' to be 7 but given 6")
   expect_error(
     obj$resample(w[, -1, drop = FALSE]),
-    "Expected a matrix with 2 columns for 'weights'")
+    "Expected dimension 2 of 'weights' to be 2 but given 1")
   expect_error(
     obj$resample(array(w, c(dim(w), 1))),
-    "Expected a matrix for 'weights'")
+    "Expected an array of rank 2 for 'weights'")
 
   ## Unchanged:
   expect_identical(obj$state(), m)
