@@ -149,8 +149,8 @@ cpp11::writable::integers state_array_dim(size_t n_state,
   return dim;
 }
 
-inline
-cpp11::sexp state_array(const std::vector<double>& dat, size_t n_state,
+template <typename real_t>
+cpp11::sexp state_array(const std::vector<real_t>& dat, size_t n_state,
                         const std::vector<size_t>& shape) {
   cpp11::writable::doubles ret(dat.size());
   std::copy(dat.begin(), dat.end(), REAL(ret));
@@ -160,8 +160,8 @@ cpp11::sexp state_array(const std::vector<double>& dat, size_t n_state,
   return ret;
 }
 
-inline
-cpp11::sexp state_array(const std::vector<double>& dat, size_t n_state,
+template <typename real_t>
+cpp11::sexp state_array(const std::vector<real_t>& dat, size_t n_state,
                         const std::vector<size_t>& shape, size_t n_time) {
   cpp11::writable::doubles ret(dat.size());
   std::copy(dat.begin(), dat.end(), REAL(ret));

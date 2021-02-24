@@ -243,7 +243,7 @@ test_that("validate reorder vector is in correct range", {
 
 
 test_that("run in float mode", {
-  res_d <- dust(dust_file("examples/walk.cpp"), quiet = TRUE)
+  res_d <- dust_example("walk")
 
   path <- tempfile(fileext = ".cpp")
   code <- readLines(dust_file("examples/walk.cpp"))
