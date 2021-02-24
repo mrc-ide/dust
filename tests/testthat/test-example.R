@@ -222,6 +222,8 @@ test_that("validate reorder vector is correct length", {
                "Expected a vector of length 10 for 'index'")
   expect_error(obj$reorder(rep(1L, 100)),
                "Expected a vector of length 10 for 'index'")
+  expect_error(obj$reorder(cbind(1:10)),
+               "Expected a vector for 'index'")
 })
 
 

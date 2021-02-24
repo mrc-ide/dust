@@ -288,10 +288,6 @@ test_that("Can't change parameter size on reset or set_pars", {
   res <- dust_example("variable")
   pars <- rep(list(list(len = 7)), 5)
   obj <- res$new(pars, 0, 10, seed = 1L, pars_multi = TRUE)
-  expect_error(obj$reset(pars[-1], 0),
-               "Expected a list of length 5 for 'pars'")
-  expect_error(obj$set_pars(pars[-1]),
-               "Expected a list of length 5 for 'pars'")
   pars2 <- rep(list(list(len = 8)), 5)
   expect_error(
     obj$reset(pars2, 0),
@@ -311,6 +307,35 @@ test_that("Can't change parameter size on reset or set_pars", {
     obj$set_pars(pars3),
     paste("'pars' created inconsistent state size:",
           "expected length 7 but parameter set 3 created length 8"))
+})
+
+
+test_that("Validate parameter suitability", {
+  res <- dust_example("variable")
+  pars <- rep(list(list(len = 7)), 6)
+  obj <- res$new(pars, 0, 10, seed = 1L, pars_multi = TRUE)
+
+  expect_error(obj$reset(pars[-1], 0),
+               "Expected a list of length 6 for 'pars'")
+  expect_error(obj$set_pars(pars[-1]),
+               "Expected a list of length 6 for 'pars'")
+
+  expect_error(
+    obj$set_pars(pars[[1]]),
+    "Expected an unnamed list for 'pars' (given 'pars_multi')",
+    fixed = TRUE)
+  expect_error(
+    obj$reset(pars[[1]], 0),
+    "Expected an unnamed list for 'pars' (given 'pars_multi')",
+    fixed = TRUE)
+
+  pars2 <- structure(pars, dim = c(2, 3))
+  expect_error(
+    obj$set_pars(pars2),
+    "Expected a list with no dimension attribute for 'pars'")
+  expect_error(
+    obj$reset(pars2, 0),
+    "Expected a list with no dimension attribute for 'pars'")
 })
 
 
@@ -488,7 +513,7 @@ test_that("must use an unnamed list", {
 })
 
 
-test_that("Can crate unreplicated multi-pars examples", {
+test_that("Can create unreplicated multi-pars examples", {
   p <- lapply(runif(10), function(x) list(len = 7, sd = x))
   res <- dust_example("variable")
   mod <- res$new(p, 0, NULL, seed = 1L, pars_multi = TRUE)
@@ -505,4 +530,59 @@ test_that("Can crate unreplicated multi-pars examples", {
   expect_equal(dim(s), c(7, 10, 6))
   expect_equal(mod$n_particles_each(), 1)
   expect_equal(mod$n_particles(), 10)
+})
+
+
+test_that("Can set state into 3d model", {
+  p <- lapply(runif(10), function(x) list(len = 7, sd = x))
+  dim(p) <- c(2, 5)
+  res <- dust_example("variable")
+  mod <- res$new(p, 0, 3, seed = 1L, pars_multi = TRUE)
+  s <- mod$state()
+  expect_equal(dim(s), c(7, 3, 2, 5)) # n_state, n_particles, dim(pars)
+  expect_equal(mod$shape(), c(3, 2, 5))
+  expect_equal(mod$n_particles_each(), 3)
+  expect_equal(mod$n_particles(), 3 * 2 * 5)
+
+  s <- mod$state()
+  s[] <- runif(length(s))
+  expect_silent(mod$set_state(s))
+
+  s2 <- s
+  s2[] <- runif(length(s2))
+  expect_error(mod$set_state(c(s2)),
+               "Expected array of rank 3 or 4 for 'state' but given rank 1")
+})
+
+
+test_that("Can set pars into unreplicated multiparameter model", {
+  p1 <- lapply(runif(10), function(x) list(len = 7, sd = x))
+  p2 <- lapply(runif(10), function(x) list(len = 7, sd = x))
+  res <- dust_example("variable")
+  mod <- res$new(p1, 0, NULL, seed = 1L, pars_multi = TRUE)
+  expect_silent(mod$set_pars(p2))
+  expect_identical(mod$pars(), p2)
+
+  mod$set_state(matrix(0, 7, 10))
+
+  y <- mod$run(1)
+
+  cmp <- dust_rng$new(1L, 10)$norm_rand(7 * 10)
+  expect_equal(y,
+               matrix(cmp * vapply(p2, "[[", 1, "sd"), 7, 10, TRUE))
+
+  mod$set_state(matrix(0, 7, 10))
+
+  skip("FIXME") # need a change in check_pars_multi to handle this correctly.
+  reshape <- function(p) {
+    structure(p, dim = c(5, 2))
+  }
+  mod2 <- res$new(reshape(p1), 0, NULL, seed = 1L, pars_multi = TRUE)
+  mod2$pars()
+
+  expect_silent(mod2$set_pars(reshape(p2)))
+  expect_identical(mod2$pars(), reshape(p2))
+  y2 <- mod2$run(1)
+  expect_equal(dim(y2), c(7, 5, 2))
+  expect_equal(c(y2), c(y))
 })
