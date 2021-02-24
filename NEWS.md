@@ -1,3 +1,7 @@
+# dust 0.7.13
+
+* Improved handling of multi-parameter models, allowing parameter sets to be structured and handling of the special case of one particle per parameter set, outlined in `vignette("multi")` (#169)
+
 # dust 0.7.9
 
 * Deprecate `dust::dust_simulate` and `dust::dust_iterate` which are replaced with a new method `$simulate` on the object which retains state and makes this more powerful (#100, #119, #121)
