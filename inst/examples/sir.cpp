@@ -78,7 +78,8 @@ template <>
 dust::pars_t<sir> dust_pars<sir>(cpp11::list pars) {
   typedef sir::real_t real_t;
   // Initial state values
-  real_t I0 = 10.0;
+  // [[dust::param(I0, required = FALSE)]]
+  real_t I0 = with_default(10, pars["I0"]);
   real_t S0 = 1000.0;
   real_t R0 = 0.0;
 

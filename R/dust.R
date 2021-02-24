@@ -13,8 +13,8 @@ sir <- R6::R6Class(
     n_particles_each_ = NULL,
     shape_ = NULL,
     ptr_ = NULL,
-    param_ = list(beta = list(required = FALSE), gamma = list(required = FALSE),
-    exp_noise = list(required = FALSE))
+    param_ = list(I0 = list(required = FALSE), beta = list(required = FALSE),
+    gamma = list(required = FALSE), exp_noise = list(required = FALSE))
   ),
 
   public = list(
