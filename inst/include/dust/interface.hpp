@@ -108,7 +108,8 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
 
   if (r_state != R_NilValue) {
     state =
-      dust::interface::check_state<real_t>(r_state, n_state, obj->shape());
+      dust::interface::check_state<real_t>(r_state, n_state, obj->shape(),
+                                           obj->pars_are_shared());
   }
 
   if (state.size() > 0) {

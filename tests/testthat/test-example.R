@@ -156,10 +156,10 @@ test_that("set model state with a matrix", {
   expect_equal(mod$state(), m)
   expect_error(
     mod$set_state(m[, c(1, 1, 2, 2)]),
-    "Expected dimension 2 of 'state' to be 2 but given 4")
+    "Expected a matrix with 2 cols for 'state' but given 4")
   expect_error(
     mod$set_state(m[1:5, ]),
-    "Expected dimension 1 of 'state' to be 10 but given 5")
+    "Expected a matrix with 10 rows for 'state' but given 5")
   expect_equal(mod$state(), m)
 })
 

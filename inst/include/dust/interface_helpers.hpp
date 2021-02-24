@@ -251,42 +251,30 @@ inline void check_pars_multi(cpp11::list r_pars) {
 //   array of n_state x n_particles_each x n_a x n_b => individual
 template <typename real_t>
 std::vector<real_t> check_state(cpp11::sexp r_state, size_t n_state,
-                                const std::vector<size_t>& shape) {
+                                const std::vector<size_t>& shape,
+                                const bool is_shared) {
   cpp11::doubles r_state_data = cpp11::as_cpp<cpp11::doubles>(r_state);
-  cpp11::integers dim = object_dimensions(r_state, r_state_data.size());
-  const size_t dim_len = dim.size();
+  const size_t state_len = r_state_data.size();
 
-  // Expected lengths
-  const size_t len_shared = shape.size(), len_individual = shape.size() + 1;
-
-  if (dim_len != len_shared && dim_len != len_individual) {
-    cpp11::stop("Expected array of rank %d or %d for 'state' but given rank %d",
-                len_shared, len_individual, dim_len);
-  }
-
-  const bool is_shared = dim_len == len_shared;
-  for (size_t i = 0; i < static_cast<size_t>(dim_len); ++i) {
-    const size_t found = dim[i];
-    size_t expected;
-    if (i == 0) {
-      expected = n_state;
+  std::vector<size_t> shape_check{n_state};
+  if (is_shared) {
+    const size_t dim_len = object_dimensions(r_state, state_len).size();
+    const size_t len_shared = shape.size(), len_individual = shape.size() + 1;
+    if (dim_len == len_individual) {
+      shape_check.insert(shape_check.end(), shape.begin(), shape.end());
+    } else if (dim_len == len_shared) {
+      shape_check.insert(shape_check.end(), shape.begin() + 1, shape.end());
     } else {
-      expected = is_shared ? shape[i] : shape[i - 1];
+      cpp11::stop("Expected array of rank %d or %d for 'state'",
+                  len_shared, len_individual);
     }
-    if (found != expected) {
-      if (dim_len == 1) {
-        cpp11::stop("Expected a vector of length %d for 'state' but given %d",
-                    expected, found);
-      } else {
-        cpp11::stop("Expected dimension %d of 'state' to be %d but given %d",
-                    i + 1, expected, found);
-      }
-    }
+  } else {
+    shape_check.insert(shape_check.end(), shape.begin(), shape.end());
   }
+  check_dimensions(r_state, state_len, shape_check, false, "state");
 
-  const size_t len = r_state_data.size();
-  std::vector<real_t> ret(len);
-  std::copy_n(REAL(r_state_data.data()), len, ret.begin());
+  std::vector<real_t> ret(state_len);
+  std::copy_n(REAL(r_state_data.data()), state_len, ret.begin());
   return ret;
 }
 

@@ -111,10 +111,10 @@ test_that("Can set state", {
 
   expect_error(
     mod$set_state(c(y)),
-    "Expected array of rank 2 or 3 for 'state' but given rank 1")
+    "Expected array of rank 2 or 3 for 'state'")
   expect_error(
     mod$set_state(matrix(c(y), c(ns, nd * np))),
-    "Expected dimension 2 of 'state' to be 3 but given 39")
+    "Expected a matrix with 3 cols for 'state' but given 39")
   expect_error(
     mod$set_state(y[-1, , ]),
     "Expected dimension 1 of 'state' to be 7 but given 6")
@@ -551,7 +551,7 @@ test_that("Can set state into 3d model", {
   s2 <- s
   s2[] <- runif(length(s2))
   expect_error(mod$set_state(c(s2)),
-               "Expected array of rank 3 or 4 for 'state' but given rank 1")
+               "Expected array of rank 3 or 4 for 'state'")
 })
 
 
@@ -601,4 +601,63 @@ test_that("Can set state into a multiparameter model, shared + flat", {
   ## Replicate model state:
   mod$set_state(y[, 1, ])
   expect_identical(mod$state(), y[, rep(1, 7), ])
+})
+
+
+test_that("Can set state into a multiparameter model, unshared + flat", {
+  res <- dust_example("variable")
+  p <- lapply(runif(6), function(x) list(len = 5, sd = x))
+  mod <- res$new(p, 0, NULL, pars_multi = TRUE)
+
+  s <- mod$state()
+  y <- array(as.numeric(seq_along(s)), dim(s))
+
+  ## Set full model state:
+  expect_silent(mod$set_state(y))
+  expect_identical(mod$state(), y)
+
+  expect_error(mod$set_state(y[, 1]),
+               "Expected a matrix for 'state'")
+  expect_error(mod$set_state(y[, 1, drop = FALSE]),
+               "Expected a matrix with 6 cols for 'state' but given 1")
+})
+
+
+test_that("Can set state into a multiparameter model, shared + structured", {
+  res <- dust_example("variable")
+  p <- lapply(runif(6), function(x) list(len = 5, sd = x))
+  dim(p) <- 3:2
+  mod <- res$new(p, 0, 7, pars_multi = TRUE)
+
+  s <- mod$state()
+  y <- array(as.numeric(seq_along(s)), dim(s))
+
+  ## Set full model state:
+  expect_silent(mod$set_state(y))
+  expect_identical(mod$state(), y)
+
+  ## Replicate model state:
+  mod$set_state(y[, 1, , ])
+  expect_identical(mod$state(), y[, rep(1, 7), , ])
+})
+
+
+test_that("Can set state into a multiparameter model, unshared + structured", {
+  res <- dust_example("variable")
+  p <- lapply(runif(6), function(x) list(len = 5, sd = x))
+  dim(p) <- 3:2
+  mod <- res$new(p, 0, NULL, pars_multi = TRUE)
+
+  s <- mod$state()
+  y <- array(as.numeric(seq_along(s)), dim(s))
+
+  ## Set full model state:
+  expect_silent(mod$set_state(y))
+  expect_identical(mod$state(), y)
+
+  ## Replicate model state:
+  expect_error(mod$set_state(y[, 1, ]),
+               "Expected an array of rank 3 for 'state'")
+  expect_error(mod$set_state(y[, 1, , drop = FALSE]),
+               "Expected dimension 2 of 'state' to be 3 but given 1")
 })
