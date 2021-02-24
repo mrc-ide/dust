@@ -7,6 +7,22 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  error = FALSE,
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5)
+lang_output <- function(x, lang) {
+  cat(c(sprintf("```%s", lang), x, "```"), sep = "\n")
+}
+cc_output <- function(x) lang_output(x, "cc")
+r_output <- function(x) lang_output(x, "r")
+plain_output <- function(x) lang_output(x, "plain")
+set.seed(1)
+```
+
 dust provides support for simulating lots of particles at once. But sometimes we want to structure these simulations in some way.
 
 To allow this, dust supports creating a model and indicating that the parameters represents some group of parameter sets. Consider our SIR example from `vignette("dust")`:
@@ -66,7 +82,7 @@ This sort of shape is useful where we want to fit multiple particle filters to t
 
 Suppose that you have many parameter sets, each representing (say) an estimate based on some inference process
 
-```
+```{r}
 pars <- lapply(runif(8, 0.05, 0.3), function(x) list(beta = x))
 ```
 
