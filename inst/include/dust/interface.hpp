@@ -111,16 +111,19 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
       dust::interface::check_state<real_t>(r_state, n_state, obj->shape());
   }
 
+  if (state.size() > 0) {
+    obj->set_state(state, state.size() == n_state * obj->n_particles());
+  }
+
+  // It is important to set the step *after* the state as if it is a
+  // vector then the particles will be run until they reach the latest
+  // state found within the vector.
   if (step.size() > 0) {
     if (step.size() == 1) {
       obj->set_step(step[0]);
     } else {
       obj->set_step(step);
     }
-  }
-
-  if (state.size() > 0) {
-    obj->set_state(state, state.size() == n_state * obj->n_particles());
   }
 }
 
