@@ -43,6 +43,11 @@ test_that("create trivial 2 element mulitdust object", {
   expect_equal(y2, array(y1, c(1, 5, 2)))
 
   expect_identical(obj1$rng_state(), obj2$rng_state())
+
+  expect_equal(obj1$n_particles(), 10)
+  expect_equal(obj2$n_particles(), 10)
+  expect_equal(obj1$n_particles_each(), 10)
+  expect_equal(obj2$n_particles_each(), 5)
 })
 
 
@@ -480,4 +485,24 @@ test_that("must use an unnamed list", {
     res$new(pars, 0, 7, pars_multi = TRUE),
     "Expected an unnamed list for 'pars' (given 'pars_multi')",
     fixed = TRUE)
+})
+
+
+test_that("Can crate unreplicated multi-pars examples", {
+  p <- lapply(runif(10), function(x) list(len = 7, sd = x))
+  res <- dust_example("variable")
+  mod <- res$new(p, 0, NULL, seed = 1L, pars_multi = TRUE)
+  s <- mod$state()
+  expect_equal(s, matrix(1:7, 7, 10))
+
+  s[] <- runif(length(s))
+  expect_silent(mod$set_state(s))
+  expect_identical(mod$state(), s)
+
+  expect_equal(mod$shape(), 10)
+
+  s <- mod$simulate(0:5)
+  expect_equal(dim(s), c(7, 10, 6))
+  expect_equal(mod$n_particles_each(), 1)
+  expect_equal(mod$n_particles(), 10)
 })

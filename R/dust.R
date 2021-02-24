@@ -25,15 +25,15 @@ sir <- R6::R6Class(
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
-      private$n_particles_ <- n_particles
-      if (pars_multi) {
-        private$n_particles_each_ <- n_particles / length(pars)
-      } else {
-        private$n_particles_each_ <- n_particles
-      }
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
+      private$n_particles_ <- prod(private$shape_)
+      if (pars_multi) {
+        private$n_particles_each_ <- private$n_particles_ / length(pars)
+      } else {
+        private$n_particles_each_ <- private$n_particles_
+      }
     },
 
     name = function() {
@@ -196,15 +196,15 @@ variable <- R6::R6Class(
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
-      private$n_particles_ <- n_particles
-      if (pars_multi) {
-        private$n_particles_each_ <- n_particles / length(pars)
-      } else {
-        private$n_particles_each_ <- n_particles
-      }
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
+      private$n_particles_ <- prod(private$shape_)
+      if (pars_multi) {
+        private$n_particles_each_ <- private$n_particles_ / length(pars)
+      } else {
+        private$n_particles_each_ <- private$n_particles_
+      }
     },
 
     name = function() {
@@ -367,15 +367,15 @@ volatility <- R6::R6Class(
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
-      private$n_particles_ <- n_particles
-      if (pars_multi) {
-        private$n_particles_each_ <- n_particles / length(pars)
-      } else {
-        private$n_particles_each_ <- n_particles
-      }
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
+      private$n_particles_ <- prod(private$shape_)
+      if (pars_multi) {
+        private$n_particles_each_ <- private$n_particles_ / length(pars)
+      } else {
+        private$n_particles_each_ <- private$n_particles_
+      }
     },
 
     name = function() {
@@ -538,15 +538,15 @@ walk <- R6::R6Class(
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
-      private$n_particles_ <- n_particles
-      if (pars_multi) {
-        private$n_particles_each_ <- n_particles / length(pars)
-      } else {
-        private$n_particles_each_ <- n_particles
-      }
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
+      private$n_particles_ <- prod(private$shape_)
+      if (pars_multi) {
+        private$n_particles_each_ <- private$n_particles_ / length(pars)
+      } else {
+        private$n_particles_each_ <- private$n_particles_
+      }
     },
 
     name = function() {

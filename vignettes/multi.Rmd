@@ -50,6 +50,13 @@ So here we have 5 state variables and 8 particles. The number of state variables
 mod$shape()
 ```
 
+There are also two helper methods which report the number of particles and number of particles per parameter set, here these will both report 8:
+
+```{r}
+mod$n_particles()
+mod$n_particles_each()
+```
+
 So far so easy.
 
 Suppose we have 2 regions (or other grouping) that we want to simulate at once and these have different parameter sets. We create an *unnamed list* containing the parameter sets
@@ -78,7 +85,16 @@ The "shape" of the data here is `c(4, 2)`
 mod$shape()
 ```
 
-This sort of shape is useful where we want to fit multiple particle filters to the data, or simulate replicates blocked across a common set of parameters. But there are other way of shaping the state that are useful.
+We still have 8 particles, but 4 per parameter set:
+
+```{r}
+mod$n_particles()
+mod$n_particles_each()
+```
+
+This sort of shape is useful where we want to fit multiple particle filters to the data, or simulate replicates blocked across a common set of parameters; that is we're interested in exploring the stochastic variation that occurs given a particular parameter set.
+
+But there are other way of shaping the state that are useful.
 
 Suppose that you have many parameter sets, each representing (say) an estimate based on some inference process
 
