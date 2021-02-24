@@ -449,19 +449,17 @@ public:
 
   // It's the callee's responsibility to ensure this is the correct length:
   //
-  // * if is_matrix is false then state must be length n_state_full()
+  // * if individual is false then state must be length n_state_full()
   //   and all particles get the state
-  // * if is_matrix is true, state must be length (n_state_full() *
+  // * if individual is true, state must be length (n_state_full() *
   //   n_particles()) and every particle gets a different state.
-  void set_state(const std::vector<real_t>& state, bool is_matrix) {
+  void set_state(const std::vector<real_t>& state, bool individual) {
     const size_t n_particles = _particles.size();
     const size_t n_state = n_state_full();
+    const size_t n = individual ? 1 : _n_particles_each;
     auto it = state.begin();
     for (size_t i = 0; i < n_particles; ++i) {
-      _particles[i].set_state(it);
-      if (is_matrix) {
-        it += n_state;
-      }
+      _particles[i].set_state(it + (i / n) * n_state);
     }
     _stale_device = true;
   }

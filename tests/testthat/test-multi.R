@@ -584,3 +584,21 @@ test_that("Can set pars into unreplicated multiparameter model", {
   expect_equal(dim(y2), c(7, 5, 2))
   expect_equal(c(y2), c(y))
 })
+
+
+test_that("Can set state into a multiparameter model, shared + flat", {
+  res <- dust_example("variable")
+  p <- lapply(runif(6), function(x) list(len = 5, sd = x))
+  mod <- res$new(p, 0, 7, pars_multi = TRUE)
+
+  s <- mod$state()
+  y <- array(as.numeric(seq_along(s)), dim(s))
+
+  ## Set full model state:
+  expect_silent(mod$set_state(y))
+  expect_identical(mod$state(), y)
+
+  ## Replicate model state:
+  mod$set_state(y[, 1, ])
+  expect_identical(mod$state(), y[, rep(1, 7), ])
+})
