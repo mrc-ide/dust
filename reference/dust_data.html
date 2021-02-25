@@ -87,7 +87,7 @@ objects." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.14</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.15</span>
       </span>
     </div>
 
@@ -113,10 +113,13 @@ objects." />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/multi.html">multi</a>
+      <a href="../articles/design.html">dust: Principles and design</a>
     </li>
     <li>
-      <a href="../articles/rng.html">Random number generation</a>
+      <a href="../articles/multi.html">dust: Multiple parameter sets</a>
+    </li>
+    <li>
+      <a href="../articles/rng.html">dust: Random number generation</a>
     </li>
   </ul>
 </li>
@@ -203,7 +206,7 @@ object.</p></li>
 parameters. This number must match the number of parameter sets
 that your dust object is created with</p></li>
 <li><p><code>&lt;column_name&gt;</code> (e.g., multi = "country"); the name of a column
-within your data to split the data at. This columm must be a
+within your data to split the data at. This column must be a
 factor, and that factor must have levels that map to integers 1,
 2, ..., n (e.g., <code><a href='https://rdrr.io/r/base/unique.html'>unique(as.integer(object[[multi]]))</a></code> returns
 the integers <code>1:n</code>).</p></li>

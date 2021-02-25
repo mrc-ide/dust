@@ -82,7 +82,7 @@ that can be used to work with the model (see the Details below)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.14</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.15</span>
       </span>
     </div>
 
@@ -108,10 +108,13 @@ that can be used to work with the model (see the Details below)." />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/multi.html">multi</a>
+      <a href="../articles/design.html">dust: Principles and design</a>
     </li>
     <li>
-      <a href="../articles/rng.html">Random number generation</a>
+      <a href="../articles/multi.html">dust: Multiple parameter sets</a>
+    </li>
+    <li>
+      <a href="../articles/rng.html">dust: Random number generation</a>
     </li>
   </ul>
 </li>
@@ -262,7 +265,7 @@ pars object used to create the pars fed into the particles.</p>
     
 
 
-<p>You can optionally use C++ psuedo-attributes to configure the
+<p>You can optionally use C++ pseudo-attributes to configure the
 generated code. Currently we support two attributes:</p><ul>
 <li><p><code>[[dust::class(classname)]]</code> will tell dust the name of your
 target C++ class (in this example <code>classname</code>). You will need to
@@ -292,6 +295,8 @@ be used (either specified with <code>[[dust::class()]]</code> or detected).</p><
 <li><p><a href='#method-n_threads'><code>dust_class$n_threads()</code></a></p></li>
 <li><p><a href='#method-n_state'><code>dust_class$n_state()</code></a></p></li>
 <li><p><a href='#method-n_particles'><code>dust_class$n_particles()</code></a></p></li>
+<li><p><a href='#method-n_particles_each'><code>dust_class$n_particles_each()</code></a></p></li>
+<li><p><a href='#method-shape'><code>dust_class$shape()</code></a></p></li>
 <li><p><a href='#method-set_state'><code>dust_class$set_state()</code></a></p></li>
 <li><p><a href='#method-reset'><code>dust_class$reset()</code></a></p></li>
 <li><p><a href='#method-set_pars'><code>dust_class$set_pars()</code></a></p></li>
@@ -349,7 +354,7 @@ least 1</p></dd>
 your model were compiled with OMP support (details to come).
 <code>n_particles</code> should be a multiple of <code>n_threads</code> (e.g., if you use 8
 threads, then you should have 8, 16, 24, etc particles). However, this
-is not compulsary.</p></dd>
+is not compulsory.</p></dd>
 
 <dt><code>seed</code></dt><dd><p>The seed to use for the random number generator. Can
 be a positive integer, <code>NULL</code> (initialise with R's random number
@@ -392,7 +397,7 @@ a GPU once support is finished, if the model supports it, and if
 the model is compiled appropriately (and assuming you have a
 suitable GPU). At present it exists for testing and will run
 slower than running with <code>device = TRUE</code>. The interpretation of
-this argument will likely change to allow selecting the gpu on
+this argument will likely change to allow selecting the GPU on
 systems with more than one. In short, please leave this argument
 alone unless you're developing dust.</p></dd>
 
@@ -407,7 +412,7 @@ so that it has shape (<code>n_state</code> x <code>n_particles</code> x <code><a
 for single-parameter objects, and (<code>n_state</code> x <code>n_particles</code> x
 <code>n_pars</code> x <code><a href='https://rdrr.io/r/base/length.html'>length(step_end)</a></code>) for multiparameter objects. Note that
 this method is very similar to <code>$run()</code> except that the rank of
-the retuened array is one less. For a scalar <code>step_end</code> you would
+the returned array is one less. For a scalar <code>step_end</code> you would
 ordinarily want to use <code>$run()</code> but the resulting numbers would
 be identical.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>simulate</span><span class='op'>(</span><span class='va'>step_end</span><span class='op'>)</span></pre><p></div></p>
@@ -459,6 +464,16 @@ validated, and an error thrown if an invalid index is given).</p></dd>
 <p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>n_particles</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
+<a id="method-n_particles_each"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>n_particles_each()</code></h3>
+<p>Returns the number of particles per parameter set</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>n_particles_each</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
+<a id="method-shape"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>shape()</code></h3>
+<p>Returns the shape of the particles</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>shape</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
 <a id="method-set_state"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>set_state()</code></h3>
 <p>Set the "state" vector for all particles, overriding whatever your
 models <code>initial()</code> method provides.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
@@ -476,7 +491,7 @@ states at once).</p></dd>
 <dt><code>step</code></dt><dd><p>If not <code>NULL</code>, then this sets the initial step. If this
 is a vector (with the same length as the number of particles), then
 particles are started from different initial steps and run up to the
-larges step given (i.e., <code><a href='https://rdrr.io/r/base/Extremes.html'>max(step)</a></code>)</p></dd>
+largest step given (i.e., <code><a href='https://rdrr.io/r/base/Extremes.html'>max(step)</a></code>)</p></dd>
 
 </dl><p></div></p>
 <p><hr>
@@ -533,7 +548,7 @@ take.</p></dd>
 </dl><p></div></p>
 <p><hr>
 <a id="method-resample"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>resample()</code></h3>
-<p>Reasmple particles according to some weight.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p>Resample particles according to some weight.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>resample</span><span class='op'>(</span><span class='va'>weights</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
