@@ -23,7 +23,7 @@ plain_output <- function(x) lang_output(x, "plain")
 set.seed(1)
 ```
 
-Fundamentally, stochastic Monte Carlo models are extremely simple. Consider a random walk in one dimension - we might write that in base R functions by creating a function that takes a current state `state` and a list of parameters:
+Fundamentally, using a computer to create a realisation from stochastic Monte Carlo models is extremely simple. Consider a random walk in one dimension - we might write that in base R functions by creating a function that takes a current state `state` and a list of parameters:
 
 ```{r}
 update_walk <- function(state, pars) {
@@ -72,7 +72,7 @@ that would draw the 10 numbers in parallel rather than in series. When drawing a
 
 As such it makes sense (to us at least) to store the state of each stream's random number generator separately, so if we have `n` particles within a `dust` object we have `n` separate streams, and we might think of the model state as being the state that is declared by the user as a vector of doubles alongside the random number state. During each model step, the model state is updated and so is the random number state.
 
-This might seem wasteful, and if we used the [Mersenne Twister](https://en.wikipedia.org/wiki/Mersenne_Twister) it would be to some degree as each particle would require 2560 bytes of additional state. In contrast the [xoshiro](http://prng.di.unimi.it/) generators that we use require only 256 bytes of state; the same as 4 double-precision floating point numbers. So for any nontrivial simulation it's not a very large overhead.
+This might seem wasteful, and if we used the popular [Mersenne Twister](https://en.wikipedia.org/wiki/Mersenne_Twister) it would be to some degree as each particle would require 2560 bytes of additional state. In contrast the newer [xoshiro](http://prng.di.unimi.it/) generators that we use require only 256 bytes of state; the same as 4 double-precision floating point numbers. So for any nontrivial simulation it's not a very large overhead.
 
 Setting the seed for these runs is not trivial, particularly as the number of simultaneous particles increase. If you've used random numbers with the [future](https://cran.r-project.org/package=future) package you may have seen it raise a warning if you do not configure it to use a "L'Ecuyer-CMRG" which adapts R's native random number seeds to be safe in parallel.
 
@@ -80,8 +80,8 @@ The reason for this is that if different streams start from seeds that are set v
 
 Ideally we want a similar set of properties to R's `set.seed` method; the user provides an arbitrary integer and we seed _all_ the random number streams using this in a way that is reproducible and also statistically robust. We also want the streams to be reproducible even when the number of particles changes, for particle indices that are shared. To do this we take two steps:
 
-* First, we seed the first stream using the `splitmix64` RNG, following the xoshiro docs. This ensures that the resulting xoshiro random number seed does not contain too many zeros
-* Then, for each subsequent chain we take a "jump" in the sequence. This is a special move implemented by the RNG that is equivalent to 2^128 draws (about 10^38).
+* First, we seed the first stream using the `splitmix64` RNG, following the xoshiro docs. This expands a single 64-bit integer into the 256-bits of RNG state, while ensuring that the resulting full xoshiro random number seed does not contain all zeros.
+* Then, for each subsequent chain we take a "jump" in the sequence. This is a special move implemented by the RNG that is equivalent to 2^128 draws (about 10^38). Note that the period of the xoshiro generator used in 2^256.
 
 With this setup we are free to parallelise the system as each realisation is completely independent of each other; the problem has become "[embarrassingly parallel](https://en.wikipedia.org/wiki/Embarrassingly_parallel)". In practice we do this using [OpenMP](https://www.openmp.org/) where available as this is well supported from R and gracefully falls back on serial operation where not available.  See `dust::dust_openmp_support` for information on your system's OpenMP configuration as seen by R:
 
@@ -95,16 +95,16 @@ The properties of the random number generator are discussed further in `vignette
 
 ## Efficient running
 
-A general rule-of-thumb is to avoid unneeded allocations in tight loops; with this sort of stochastic iteration everything is a tight loop! However, we've reduced the problem scope to just providing an update method and if that does not allocate then the whole thing runs in fixed space without having to worry.
+A general rule-of-thumb is to avoid unneeded memory allocations in tight loops; with this sort of stochastic iteration everything is a tight loop! However, we've reduced the problem scope to just providing an update method, and as long as that does not issue memory allocations then the whole thing runs in fixed space without having to worry.
 
 ## Efficient state handling
 
 For nontrivial systems, we often want to record a subset of states - potentially a very small fraction of the total states computed. For example, in our [sircovid](https://mrc-ide.github.io/sircovid/) model we track several thousand states (representing populations in various stages of disease transmission, in different ages, with different vaccination status etc), but most of the time we only need to report on a few tens of these in order to fit to data or to examine key outputs.
 
-Reducing the number of state variables returned at different points in the process has several advantages
+Reducing the number of state variables returned at different points in the process has several advantages:
 
-* Saving space: if you run a model with 2000 states, and 1000 replicates and record trajectories over 100 timesteps, that represents 100 million double precision numbers, or 1.6 GB of memory or disk (before compression). These are not unrealistic numbers, but would make even a simple sensitivity analysis all-but impossible to work with.
-* Saving time: copying data around is surprisingly slow
+* Saving space: if you run a model with 2000 states, 1000 replicates and record their trajectories over 100 timesteps, that represents 100 million double precision numbers, or 1.6 GB of memory or disk (before compression). These are not unrealistic numbers, but would make even a simple sensitivity analysis all-but impossible to work with.
+* Saving time: copying data around is surprisingly slow.
 
 To enable this, you can restrict the state returned by most methods; some by default and others when you call them.
 
@@ -113,10 +113,10 @@ To enable this, you can restrict the state returned by most methods; some by def
 
 In both cases, if `index` was named then the returned state carries these names as its rownames.
 
-The ordering of the state is important; we always have dimensions that will contain
+The ordering of the state is important; we always have dimensions that will contain:
 
-1. the states within a single particle
-2. the particles within a time (may be several dimensions; see `vignette("multi")`)
+1. the model states within a single particle
+2. the particles within a time-step (may be several dimensions; see `vignette("multi")`)
 3. the time dimension if using
 
 This is to minimise churn during writing, and to help with concatenation. Multiple particles data is stored consecutively and read and written in order. Each time step is written at once. And you can append states from different times easily. The `aperm()` function will be useful for reshaping this output to a different dimension order if you require one.
@@ -131,19 +131,19 @@ Normally we have in the object several things:
 
 * the random number state: this is effectively a matrix of 64-bit integers
 * the model state: this is effectively a matrix of floating point numbers, typically `double`s
-* the model parameters: this is specific to the model in question and these are likely shared across multiple particles). This is presented to all particles within a group as an immutable pointer, which allows safe simultaneous access by multiple threads
+* the model parameters: this is specific to the model in question (and these are likely shared across multiple particles). This is presented to all particles within a group as an immutable pointer, which allows safe simultaneous access by multiple threads
 * the model _internal state_: this is also specific to the model and dust has no control over this. Because each particle has its own state they can safely write to it when running parallel (compare with parameters). Typically this space is *allocated* at model construction. For models that come from [odin.dust](https://mrc-ide.github.io/odin.dust/) this is used as "scratch" space that we write to during an update but which does not conceptually persist between steps.
 
-There is one subtlety about internal state: we assume that the state entirely specifies a model in a Markov process and we don't guarantee that models with mutable internal state that is not conceptually discarded each iteration. This is because if we reorder particles what we really do is reorder the *state vector* and not this internal state. This prevents implementing things like models with "delays" in the current design. We may relax constraint this if it is needed.
+There is one subtlety about internal state: we assume that the state entirely specifies a model in a Markov process, and so we don't guarantee that models with mutable internal state will not be discarded between each iteration. This is because if we reorder particles what we really do is reorder the *state vector* and not this internal state. This prevents implementing things like models with "delays" in the current design. We may relax constraint this if it is needed.
 
-The sorts of verbs that we need given this include:
+Given this, the sorts of verbs that we need include:
 
 * Setting model state (`$set_state`) - leaves RNG state and parameters untouched but replaces model state for all particles. This is useful for model initialisation and for performing arbitrary model state changes.
 * Running the model up to a time point (`$run`) - runs the model's `update` method as many times as required to reach the new time point, returning the model state at this time point. This is useful where you might want to change the system at this time point, then continue.
 * Running the model and collecting history (`$simulate`) - as for `$run` but also collects partial state at a number of times along the way. This always has one more dimension than `$run` (being time) and the two functions coexist so that dimensionality is easy to program against.
 * Reset particles and their parameters (`$reset` and `$set_pars`) which
 
-In addition, we have more specific methods oriented towards [particle filtering](https://en.wikipedia.org/wiki/Particle_filter)
+In addition, we have more specific methods oriented towards [particle filtering](https://en.wikipedia.org/wiki/Particle_filter):
 
 * Reordering the particles (`$reorder`) - shuffles particle state among particles within a parameter set. This is useful for implementing a resampling algorithms and updates only the state (as for `$set_state`, leaving RNG state and internal state untouched)
 * Resampling particles according to some weight vector (`$resample`) which implements a bootstrap sampling algorithm on top of `$reorder`
