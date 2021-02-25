@@ -1,8 +1,8 @@
 ---
-title: "multi"
+title: "dust: Multiple parameter sets"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{multi}
+  %\VignetteIndexEntry{dust: Multiple parameter sets}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

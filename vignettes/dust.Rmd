@@ -1,8 +1,8 @@
 ---
-title: "dust"
+title: "dust: Introduction"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{dust}
+  %\VignetteIndexEntry{dust: Introduction}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
