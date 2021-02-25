@@ -13,6 +13,7 @@ example_filter <- function() {
 ## Functions that derive from mcstate, and which act as tests against
 ## fiddly C++ implementations.
 scale_log_weights <- function(w) {
+  w[!is.finite(w)] <- -Inf
   max_w <- max(w)
   wi <- exp(w - max_w)
   tot <- sum(wi)

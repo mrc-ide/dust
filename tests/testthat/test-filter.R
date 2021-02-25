@@ -93,3 +93,36 @@ test_that("can filter history using index", {
   expect_equal(ans1$log_likelihood, ans2$log_likelihood)
   expect_equal(ans1$history, ans2$history[c(1, 5), , , ])
 })
+
+
+test_that("log weights scaling calculation is correct", {
+  w <- runif(10)
+  lw <- log(w)
+  res <- cpp_scale_log_weights(lw)
+
+  expect_equal(max(res$weights), 1)
+  expect_equal(res$weights, w / max(w))
+  expect_equal(exp(res$average), mean(w))
+})
+
+
+test_that("scale log weights copes with NaN", {
+  w <- log(runif(10))
+  expect_equal(scale_log_weights(w),
+               cpp_scale_log_weights(w))
+
+  w[3] <- NaN
+  res <- cpp_scale_log_weights(w)
+  expect_equal(res$weights[[3]], 0)
+  expect_equal(res, scale_log_weights(w))
+
+  w[3] <- NA
+  res <- cpp_scale_log_weights(w)
+  expect_equal(res$weights[[3]], 0)
+  expect_equal(res, scale_log_weights(w))
+
+  w[3] <- -Inf
+  res <- cpp_scale_log_weights(w)
+  expect_equal(res$weights[[3]], 0)
+  expect_equal(res, scale_log_weights(w))
+})

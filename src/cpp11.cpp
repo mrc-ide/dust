@@ -267,6 +267,13 @@ extern "C" SEXP _dust_dust_sir_n_state(SEXP ptr) {
     return cpp11::as_sexp(dust_sir_n_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
   END_CPP11
 }
+// tools.cpp
+cpp11::list cpp_scale_log_weights(std::vector<double> w);
+extern "C" SEXP _dust_cpp_scale_log_weights(SEXP w) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(cpp_scale_log_weights(cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(w)));
+  END_CPP11
+}
 // variable.cpp
 SEXP dust_variable_alloc(cpp11::list r_pars, bool pars_multi, size_t step, cpp11::sexp r_n_particles, size_t n_threads, cpp11::sexp r_seed);
 extern "C" SEXP _dust_dust_variable_alloc(SEXP r_pars, SEXP pars_multi, SEXP step, SEXP r_n_particles, SEXP n_threads, SEXP r_seed) {
@@ -676,6 +683,7 @@ extern "C" SEXP _dust_dust_walk_n_state(SEXP ptr) {
 extern "C" {
 /* .Call calls */
 extern SEXP _dust_cpp_openmp_info();
+extern SEXP _dust_cpp_scale_log_weights(SEXP);
 extern SEXP _dust_dust_dbetabinom(SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_dbinom(SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_dnbinom(SEXP, SEXP, SEXP, SEXP);
@@ -772,6 +780,7 @@ extern SEXP _dust_dust_walk_step(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"_dust_cpp_openmp_info",               (DL_FUNC) &_dust_cpp_openmp_info,               0},
+    {"_dust_cpp_scale_log_weights",         (DL_FUNC) &_dust_cpp_scale_log_weights,         1},
     {"_dust_dust_dbetabinom",               (DL_FUNC) &_dust_dust_dbetabinom,               5},
     {"_dust_dust_dbinom",                   (DL_FUNC) &_dust_dust_dbinom,                   4},
     {"_dust_dust_dnbinom",                  (DL_FUNC) &_dust_dust_dnbinom,                  4},
