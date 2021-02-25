@@ -53,7 +53,7 @@ It's very rare that one might want to run a single stochastic simulation; normal
 
 ### Parallelisation
 
-One cannot just draw multiple numbers from a single random number generator at once. That is, given a generator like those built into R, there is no paralel equivalent to
+One cannot just draw multiple numbers from a single random number generator at once. That is, given a generator like those built into R, there is no parallel equivalent to
 
 ```r
 runif(10)
@@ -67,14 +67,14 @@ This might seem wasteful, and if we used the [Mersenne Twister](https://en.wikip
 
 Setting the seed for these runs is not trivial, particularly as the number of simultaneous particles increase. If you've used random numbers with the [future](https://cran.r-project.org/package=future) package you may have seen it raise a warning if you do not configure it to use a "L'Ecuyer-CMRG" which adapts R's native random number seeds to be safe in parallel.
 
-The reason for this that if differnet streams start from seeds that are set via poor heuristics (e.g., system time) they might be exactly the same. If they were set randomly, then they might collide (see [John Cook's description of the birthday paradox here](https://www.johndcook.com/blog/2016/01/29/random-number-generator-seed-mistakes/)) and if they are picked sequentially there's no guarantee that these streams might not be correlated.
+The reason for this that if different streams start from seeds that are set via poor heuristics (e.g., system time) they might be exactly the same. If they were set randomly, then they might collide (see [John Cook's description of the birthday paradox here](https://www.johndcook.com/blog/2016/01/29/random-number-generator-seed-mistakes/)) and if they are picked sequentially there's no guarantee that these streams might not be correlated.
 
 Ideally we want a similar set of properties to R's `set.seed` method; the user provides an arbitrary integer and we seed _all_ the random number streams using this in a way that is reproducible and also statistically robust. We also want the streams to be reproducible even when the number of particles changes, for particle indices that are shared. To do this we take two steps:
 
 * First, we seed the first stream using the `splitmix64` RNG, following the xoshiro docs. This ensures that the resulting xoshiro random number seed does not contain too many zeros
-* Then, for each subsequent chain we take a "jump" in the sequence. This is a special move implemented by the RNG that is equivent to 2^128 draws (about 10^38).
+* Then, for each subsequent chain we take a "jump" in the sequence. This is a special move implemented by the RNG that is equivalent to 2^128 draws (about 10^38).
 
-With this setup we are free to parallelise the system as each realisation is completely independent of each other; the problem has become "[embarassingly parallel](https://en.wikipedia.org/wiki/Embarrassingly_parallel)". In practice we do this using [OpenMP](https://www.openmp.org/) where available as this is well supported from R and gracefully falls back on serial operation where not available.  See `dust::dust_openmp_support` for information on your system's OpenMP configuration as seen by R:
+With this setup we are free to parallelise the system as each realisation is completely independent of each other; the problem has become "[embarrassingly parallel](https://en.wikipedia.org/wiki/Embarrassingly_parallel)". In practice we do this using [OpenMP](https://www.openmp.org/) where available as this is well supported from R and gracefully falls back on serial operation where not available.  See `dust::dust_openmp_support` for information on your system's OpenMP configuration as seen by R:
 
 ```{r}
 dust::dust_openmp_support()
@@ -97,9 +97,9 @@ Reducing the number of state variables returned at different points in the proce
 * Saving space: if you run a model with 2000 states, and 1000 replicates and record trajectories over 100 timesteps, that represents 100 million double precision numbers, or 1.6 GB of memory or disk (before compression). These are not unrealistic numbers, but would make even a simple sensitivity analysis all-but impossible to work with.
 * Saving time: copying data around is surprisingly slow
 
-To enable this, you can restrict the state retured by most methods; some by default and others when you call them.
+To enable this, you can restrict the state returned by most methods; some by default and others when you call them.
 
-* The `$run()` and `$simulate()` methods move the system fowards in time and returns the state at that point; it uses an index set into the object with `$set_index()`. The intention here is that these would be repeatedly called and so we validate the index once and use it over and over.
+* The `$run()` and `$simulate()` methods move the system forwards in time and returns the state at that point; it uses an index set into the object with `$set_index()`. The intention here is that these would be repeatedly called and so we validate the index once and use it over and over.
 * The `$state()` method returns the model state and accepts an argument `index` as the state to return
 
 In both cases, if `index` was named then the returned state carries these names as its rownames.
@@ -136,7 +136,7 @@ The sorts of verbs that we need given this include:
 
 In addition, we have more specific methods oriented towards [particle filtering](https://en.wikipedia.org/wiki/Particle_filter)
 
-* Reordering the particles (`$reorder`) - shuffles particle state among particles within a parameter set. This is useful for implemeting a resampling algorithms and updates only the state (as for `$set_state`, leaving RNG state and internal state untouched)
+* Reordering the particles (`$reorder`) - shuffles particle state among particles within a parameter set. This is useful for implementing a resampling algorithms and updates only the state (as for `$set_state`, leaving RNG state and internal state untouched)
 * Resampling particles according to some weight vector (`$resample`) which implements a bootstrap sampling algorithm on top of `$reorder`
 * Run a bootstrap particle filter (`$filter`) which implements a bootstrap particle filter using the above methods, in the case where the model provides a compare function. This is likely to be a bit low level for direct use, and is better approached via the interface in [mcstate](https://mrc-ide.github.io/mcstate/)
 

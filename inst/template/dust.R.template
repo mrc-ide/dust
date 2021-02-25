@@ -43,7 +43,7 @@
     ##' your model were compiled with OMP support (details to come).
     ##' `n_particles` should be a multiple of `n_threads` (e.g., if you use 8
     ##' threads, then you should have 8, 16, 24, etc particles). However, this
-    ##' is not compulsary.
+    ##' is not compulsory.
     ##'
     ##' @param seed The seed to use for the random number generator. Can
     ##' be a positive integer, `NULL` (initialise with R's random number
@@ -100,7 +100,7 @@
     ##' the model is compiled appropriately (and assuming you have a
     ##' suitable GPU). At present it exists for testing and will run
     ##' slower than running with `device = TRUE`. The interpretation of
-    ##' this argument will likely change to allow selecting the gpu on
+    ##' this argument will likely change to allow selecting the GPU on
     ##' systems with more than one. In short, please leave this argument
     ##' alone unless you're developing dust.
     run = function(step_end, device = FALSE) {
@@ -118,7 +118,7 @@
     ##' for single-parameter objects, and (`n_state` x `n_particles` x
     ##' `n_pars` x `length(step_end)`) for multiparameter objects. Note that
     ##' this method is very similar to `$run()` except that the rank of
-    ##' the retuened array is one less. For a scalar `step_end` you would
+    ##' the returned array is one less. For a scalar `step_end` you would
     ##' ordinarily want to use `$run()` but the resulting numbers would
     ##' be identical.
     ##'
@@ -200,7 +200,7 @@
     ##' @param step If not `NULL`, then this sets the initial step. If this
     ##' is a vector (with the same length as the number of particles), then
     ##' particles are started from different initial steps and run up to the
-    ##' larges step given (i.e., `max(step)`)
+    ##' largest step given (i.e., `max(step)`)
     set_state = function(state, step = NULL) {
       dust_{{name}}_set_state(private$ptr_, state, step)
       invisible()
@@ -256,7 +256,7 @@
     },
 
     ##' @description
-    ##' Reasmple particles according to some weight.
+    ##' Resample particles according to some weight.
     ##'
     ##' @param weights A numeric vector representing particle weights.
     ##' For a "multi-parameter" dust object this should be be a matrix

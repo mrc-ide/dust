@@ -103,7 +103,7 @@
 ##'
 ##' @section Configuring your model:
 ##'
-##' You can optionally use C++ psuedo-attributes to configure the
+##' You can optionally use C++ pseudo-attributes to configure the
 ##'   generated code. Currently we support two attributes:
 ##'
 ##' * `[[dust::class(classname)]]` will tell dust the name of your

@@ -115,7 +115,7 @@ pars object used to create the pars fed into the particles.
 \section{Configuring your model}{
 
 
-You can optionally use C++ psuedo-attributes to configure the
+You can optionally use C++ pseudo-attributes to configure the
 generated code. Currently we support two attributes:
 \itemize{
 \item \verb{[[dust::class(classname)]]} will tell dust the name of your
@@ -181,6 +181,8 @@ obj$state()
 \item \href{#method-n_threads}{\code{dust_class$n_threads()}}
 \item \href{#method-n_state}{\code{dust_class$n_state()}}
 \item \href{#method-n_particles}{\code{dust_class$n_particles()}}
+\item \href{#method-n_particles_each}{\code{dust_class$n_particles_each()}}
+\item \href{#method-shape}{\code{dust_class$shape()}}
 \item \href{#method-set_state}{\code{dust_class$set_state()}}
 \item \href{#method-reset}{\code{dust_class$reset()}}
 \item \href{#method-set_pars}{\code{dust_class$set_pars()}}
@@ -244,7 +246,7 @@ least 1}
 your model were compiled with OMP support (details to come).
 \code{n_particles} should be a multiple of \code{n_threads} (e.g., if you use 8
 threads, then you should have 8, 16, 24, etc particles). However, this
-is not compulsary.}
+is not compulsory.}
 
 \item{\code{seed}}{The seed to use for the random number generator. Can
 be a positive integer, \code{NULL} (initialise with R's random number
@@ -304,7 +306,7 @@ a GPU once support is finished, if the model supports it, and if
 the model is compiled appropriately (and assuming you have a
 suitable GPU). At present it exists for testing and will run
 slower than running with \code{device = TRUE}. The interpretation of
-this argument will likely change to allow selecting the gpu on
+this argument will likely change to allow selecting the GPU on
 systems with more than one. In short, please leave this argument
 alone unless you're developing dust.}
 }
@@ -323,7 +325,7 @@ so that it has shape (\code{n_state} x \code{n_particles} x \code{length(step_en
 for single-parameter objects, and (\code{n_state} x \code{n_particles} x
 \code{n_pars} x \code{length(step_end)}) for multiparameter objects. Note that
 this method is very similar to \verb{$run()} except that the rank of
-the retuened array is one less. For a scalar \code{step_end} you would
+the returned array is one less. For a scalar \code{step_end} you would
 ordinarily want to use \verb{$run()} but the resulting numbers would
 be identical.
 \subsection{Usage}{
@@ -407,6 +409,26 @@ Returns the number of particles
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-n_particles_each"></a>}}
+\if{latex}{\out{\hypertarget{method-n_particles_each}{}}}
+\subsection{Method \code{n_particles_each()}}{
+Returns the number of particles per parameter set
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$n_particles_each()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-shape"></a>}}
+\if{latex}{\out{\hypertarget{method-shape}{}}}
+\subsection{Method \code{shape()}}{
+Returns the shape of the particles
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$shape()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-set_state"></a>}}
 \if{latex}{\out{\hypertarget{method-set_state}{}}}
 \subsection{Method \code{set_state()}}{
@@ -429,7 +451,7 @@ states at once).}
 \item{\code{step}}{If not \code{NULL}, then this sets the initial step. If this
 is a vector (with the same length as the number of particles), then
 particles are started from different initial steps and run up to the
-larges step given (i.e., \code{max(step)})}
+largest step given (i.e., \code{max(step)})}
 }
 \if{html}{\out{</div>}}
 }
@@ -523,7 +545,7 @@ take.}
 \if{html}{\out{<a id="method-resample"></a>}}
 \if{latex}{\out{\hypertarget{method-resample}{}}}
 \subsection{Method \code{resample()}}{
-Reasmple particles according to some weight.
+Resample particles according to some weight.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$resample(weights)}\if{html}{\out{</div>}}
 }
