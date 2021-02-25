@@ -134,7 +134,48 @@ Normally we have in the object several things:
 * the model parameters: this is specific to the model in question (and these are likely shared across multiple particles). This is presented to all particles within a group as an immutable pointer, which allows safe simultaneous access by multiple threads
 * the model _internal state_: this is also specific to the model and dust has no control over this. Because each particle has its own state they can safely write to it when running parallel (compare with parameters). Typically this space is *allocated* at model construction. For models that come from [odin.dust](https://mrc-ide.github.io/odin.dust/) this is used as "scratch" space that we write to during an update but which does not conceptually persist between steps.
 
-There is one subtlety about internal state: we assume that the state entirely specifies a model in a Markov process, and so we don't guarantee that models with mutable internal state will not be discarded between each iteration. This is because if we reorder particles what we really do is reorder the *state vector* and not this internal state. This prevents implementing things like models with "delays" in the current design. We may relax constraint this if it is needed.
+The internal state is the the hardest to understand in this set. Suppose that we had a model that each time step we wanted to do something like take the median value found in a set of random number draws. We might want to write the update function like
+
+```c++
+  struct internal_t {
+    std::vector<real_t> samples;
+  };
+  // ...
+  void update(size_t step, const real_t * state,
+              dust::rng_state_t<real_t>& rng_state, real_t * state_next) {
+    for (size_t i = 0; i < shared->n; ++i) {
+      internal.samples[i] = dust::distr::unif_norm(rng_state)
+    }
+    state_next[0] = median(samples);
+  }
+```
+
+with median defined as something like
+
+```c++
+template <typename T, typename U>
+T median(U& v) {
+  const size_t m = v.size() / 2;
+  std::nth_element(u.begin(), u.begin() + m, u.end());
+  return v[m];
+}
+```
+
+this takes advantage of some internal space of the correct size in internal memory. This might be configured with
+
+```c++
+dust::pars_t<model> dust_pars<model>(cpp11::list user) {
+  typedef typename model::real_t real_t;
+  auto shared = std::make_shared<model::shared_t>();
+  shared->n = 10;
+  model::internal_t internal{std::vector<model::real_t>(shared->n)};
+  return dust::pars_t<model>(shared, internal);
+}
+```
+
+There is one additional subtlety about internal state: we assume that the state entirely specifies a model in a Markov process, and so we don't guarantee that models with mutable internal state will not be discarded between each iteration. Above, `samples` is configured in the `dust_pars` method (so allocated there), and is used in `update`, but it should not be read from within the `update` method before it is written to, because it might contain some other particle's scratch space.
+
+The reason why this is important is because if we reorder particles what we really do is reorder the *state vector* and not this internal state. This prevents implementing things like models with "delays" in the current design. We may relax constraint this if it is needed.
 
 Given this, the sorts of verbs that we need include:
 
