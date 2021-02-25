@@ -8,7 +8,7 @@
 ##'   update the population between each step.
 ##'
 ##' * `volatility`: A volatility model that might be applied to
-##'   currency flucations etc.
+##'   currency fluctuations etc.
 ##'
 ##' * `walk`: A 1D random walk, following a Gaussian distribution each
 ##'   time step.

@@ -54,14 +54,14 @@
 ##'   number of independent simulations to perform (i.e.,
 ##'   `length(pars)`).
 ##'
-##' @param index An optional index, indicating the indicies of the
+##' @param index An optional index, indicating the indices of the
 ##'   state vectors that you want output recorded for.
 ##'
 ##' @param n_threads Number of OMP threads to use, if `dust` and your
 ##'   model were compiled with OMP support.  The number of simulations
 ##'   (`length(pars)`) should be a multiple of `n_threads` (e.g., if
 ##'   you use 8 threads, then you should have 8, 16, 24, etc
-##'   particles). However, this is not compulsary.
+##'   particles). However, this is not compulsory.
 ##'
 ##' @param seed The seed to use for the random number generator. Can
 ##'   be a positive integer, `NULL` (initialise with R's random number

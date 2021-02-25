@@ -29,7 +29,7 @@
 ##'   parameters. This number must match the number of parameter sets
 ##'   that your dust object is created with
 ##' * `<column_name>` (e.g., multi = "country"); the name of a column
-##'   within your data to split the data at. This columm must be a
+##'   within your data to split the data at. This column must be a
 ##'   factor, and that factor must have levels that map to integers 1,
 ##'   2, ..., n (e.g., `unique(as.integer(object[[multi]]))` returns
 ##'   the integers `1:n`).

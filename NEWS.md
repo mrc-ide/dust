@@ -1,3 +1,7 @@
+# dust 0.7.15
+
+* Add new design vignette - see `vignette("design")` (#161)
+
 # dust 0.7.13
 
 * Improved handling of multi-parameter models, allowing parameter sets to be structured and handling of the special case of one particle per parameter set, outlined in `vignette("multi")` (#169)

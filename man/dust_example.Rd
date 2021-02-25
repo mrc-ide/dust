@@ -26,7 +26,7 @@ all "toy" examples, being small and fast to run.
 epidemiological model.  Draws from the binomial distribution to
 update the population between each step.
 \item \code{volatility}: A volatility model that might be applied to
-currency flucations etc.
+currency fluctuations etc.
 \item \code{walk}: A 1D random walk, following a Gaussian distribution each
 time step.
 }
