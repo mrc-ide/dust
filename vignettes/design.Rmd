@@ -47,13 +47,22 @@ So why does `dust` apparently require thousands of lines of code to do this?
 
 ## Running multiple realisations
 
-### Organisation
+It's very rare that one might want to run a single stochastic simulation; normally we want to run a group together.  There are several ways that we might want to do that:
 
-It's very rare that one might want to run a single stochastic simulation; normally we want to run a group together.
+* For a single set of parameters and a starting state run a set of simulations, as they will differ due to the stochasticity in the model
+* In addition to the above, perhaps run with different starting points, representing uncertainty in initial conditions
+* In addition to the above, run for many parameter sets at once possibly with one particle per parameter, possibly with many per parameter
+* In addition to the above, the parameters themselves are grouped into blocks
 
-### Parallelisation
+There book-keeping for this can get tedious and error prone if done by hand. In dust, we try and restrict concern about this to a few points, and for the simulation itself -- the interaction that we expect to take the longest in any interesting model -- we just run a big loop over time and all particles no matter what type of structure they might represent from the above.
 
-One cannot just draw multiple numbers from a single random number generator at once. That is, given a generator like those built into R, there is no parallel equivalent to
+See `vignette("multi")` for details of interacting with different ways that you might want to structure your simulations.
+
+## Parallelisation
+
+Once we we're running multiple simulations at once, things will get slower and we might look to parallelism to try and speed up our simulations.
+
+However, one cannot just draw multiple numbers from a single random number generator at once. That is, given a generator like those built into R, there is no parallel equivalent to
 
 ```r
 runif(10)
