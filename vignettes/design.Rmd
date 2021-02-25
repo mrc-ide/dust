@@ -60,7 +60,7 @@ See `vignette("multi")` for details of interacting with different ways that you 
 
 ## Parallelisation
 
-Once we we're running multiple simulations at once, things will get slower and we might look to parallelism to try and speed up our simulations.
+Once we're running multiple simulations at once, things will get slower and we might look to parallelism to try and speed up our simulations.
 
 However, one cannot just draw multiple numbers from a single random number generator at once. That is, given a generator like those built into R, there is no parallel equivalent to
 
@@ -72,11 +72,11 @@ that would draw the 10 numbers in parallel rather than in series. When drawing a
 
 As such it makes sense (to us at least) to store the state of each stream's random number generator separately, so if we have `n` particles within a `dust` object we have `n` separate streams, and we might think of the model state as being the state that is declared by the user as a vector of doubles alongside the random number state. During each model step, the model state is updated and so is the random number state.
 
-This might seem wasteful, and if we used the [Mersenne Twister](https://en.wikipedia.org/wiki/Mersenne_Twister) it would be to some degree as each particle would require 2560 bytes of additional state. In contrast the [xoshiro](http://prng.di.unimi.it/) generators that we 256 bytes of state; the same as 4 double-precision floating point numbers. So for any nontrivial simulation it's not a very large overhead.
+This might seem wasteful, and if we used the [Mersenne Twister](https://en.wikipedia.org/wiki/Mersenne_Twister) it would be to some degree as each particle would require 2560 bytes of additional state. In contrast the [xoshiro](http://prng.di.unimi.it/) generators that we use require only 256 bytes of state; the same as 4 double-precision floating point numbers. So for any nontrivial simulation it's not a very large overhead.
 
 Setting the seed for these runs is not trivial, particularly as the number of simultaneous particles increase. If you've used random numbers with the [future](https://cran.r-project.org/package=future) package you may have seen it raise a warning if you do not configure it to use a "L'Ecuyer-CMRG" which adapts R's native random number seeds to be safe in parallel.
 
-The reason for this that if different streams start from seeds that are set via poor heuristics (e.g., system time) they might be exactly the same. If they were set randomly, then they might collide (see [John Cook's description of the birthday paradox here](https://www.johndcook.com/blog/2016/01/29/random-number-generator-seed-mistakes/)) and if they are picked sequentially there's no guarantee that these streams might not be correlated.
+The reason for this is that if different streams start from seeds that are set via poor heuristics (e.g., system time) they might be exactly the same. If they were set randomly, then they might collide (see [John Cook's description of the birthday paradox here](https://www.johndcook.com/blog/2016/01/29/random-number-generator-seed-mistakes/)) and if they are picked sequentially there's no guarantee that these streams might not be correlated.
 
 Ideally we want a similar set of properties to R's `set.seed` method; the user provides an arbitrary integer and we seed _all_ the random number streams using this in a way that is reproducible and also statistically robust. We also want the streams to be reproducible even when the number of particles changes, for particle indices that are shared. To do this we take two steps:
 
