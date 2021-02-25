@@ -148,6 +148,10 @@ dust_sir_n_state <- function(ptr) {
   .Call(`_dust_dust_sir_n_state`, ptr)
 }
 
+cpp_scale_log_weights <- function(w) {
+  .Call(`_dust_cpp_scale_log_weights`, w)
+}
+
 dust_variable_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed) {
   .Call(`_dust_dust_variable_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed)
 }
