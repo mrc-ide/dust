@@ -119,7 +119,7 @@ The ordering of the state is important; we always have dimensions that will cont
 2. the particles within a time-step (may be several dimensions; see `vignette("multi")`)
 3. the time dimension if using
 
-This is to minimise churn during writing, and to help with concatenation. Multiple particles data is stored consecutively and read and written in order. Each time step is written at once. And you can append states from different times easily. The `aperm()` function will be useful for reshaping this output to a different dimension order if you require one.
+This is to minimise repeatedly moving around data during writing, and to help with concatenation. Multiple particles data is stored consecutively and read and written in order. Each time step is written at once. And you can append states from different times easily. The `aperm()` function will be useful for reshaping this output to a different dimension order if you require one.
 
 In order to pull all of this off, we allocate all our memory up front, in C++ and pass back to R a "pointer" to this memory, which will live for as long as your model object. This means that even if your model requires GBs of memory to run, it is never copied back and forth into R (where it would be subject to R's [copy-on-write semantics](https://en.wikipedia.org/wiki/Copy-on-write) but instead accessed only when needed, and written to in place following C++ reference semantics.
 
@@ -147,7 +147,7 @@ In addition, we have more specific methods oriented towards [particle filtering]
 
 * Reordering the particles (`$reorder`) - shuffles particle state among particles within a parameter set. This is useful for implementing a resampling algorithms and updates only the state (as for `$set_state`, leaving RNG state and internal state untouched)
 * Resampling particles according to some weight vector (`$resample`) which implements a bootstrap sampling algorithm on top of `$reorder`
-* Run a bootstrap particle filter (`$filter`) which implements a bootstrap particle filter using the above methods, in the case where the model provides a compare function. This is likely to be a bit low level for direct use, and is better approached via the interface in [mcstate](https://mrc-ide.github.io/mcstate/)
+* Run a bootstrap particle filter (`$filter`) which is implemented using the above methods, in the case where the model provides a compare function. This is likely to be a bit low level for direct use, and is better approached via the interface in [mcstate](https://mrc-ide.github.io/mcstate/)
 
 ## A compilation target
 
