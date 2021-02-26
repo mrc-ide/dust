@@ -144,7 +144,7 @@ model <- walk$new(list(sd = 1), 0, 20, n_threads = 1)
 model$run(100)
 ```
 
-We use as many random number generators as their are particles, so if you run fewer particles or more, increase the threads or decrease, the results will be the same (see `vignette("design")` for more on this).
+We use as many random number generators as there are particles, so if you run fewer particles or more, increase the threads or decrease, the results will be the same (see `vignette("design")` for more on this).
 
 ## A more interesting example
 
@@ -154,7 +154,7 @@ Consider now an SIR model (Susceptible - Infected - Recovered). This sort of mod
 cc_output(readLines(dust:::dust_file("examples/sir.cpp")))
 ```
 
-There is a bit different here to the version that is shown before for the walk model, but the core parts are only slightly different:
+There a few changes here compared to the version that was shown before for the walk model, but the core parts are only slightly different:
 
 * the `initial` method is slightly more complicated as we initialise a 3-element vector
 * our `shared_t` object has significantly more elements
