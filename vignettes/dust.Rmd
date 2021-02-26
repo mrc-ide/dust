@@ -24,11 +24,12 @@ plain_output <- function(x) lang_output(x, "plain")
 
 Stochastic models can be used in statistical inference via methods such as [particle filtering](https://en.wikipedia.org/wiki/Particle_filter) but doing so requires that the models can be run over and over again very quickly. While R has excellent support for sampling from distributions, it is not necessarily well suited for this sort of problem because R is single threaded, so we are forced to evaluate realisations of the stochastic process in series (one after another) rather than in parallel.
 
-The `dust` package provides tools to help write stochastic models that can be evaluated in parallel. It does not itself provide any statistical support such as particle filter; see the [mcstate](https://mrc-ide.github.io/mcstate) package for that. Instead, it focuses on providing:
+The `dust` package provides tools to help write stochastic models that can be evaluated in parallel. It does not directly provide statistical methods; see the [mcstate](https://mrc-ide.github.io/mcstate) package for that. Instead, it focuses on providing:
 
 * a fast random number generator that can be evaluated in parallel (see `vignette("rng")` for details)
 * a way of wrapping a user-provided model, itself written as a C++ class
 * a lightweight interface that drives this model from R
+* a set of useful primitives for developing sequential Monte Carlo methods.
 
 ## A simple example - random walk
 
@@ -42,13 +43,13 @@ To implement this model in dust we write out a C++ file that looks like:
 cc_output(readLines(dust:::dust_file("examples/walk.cpp")))
 ```
 
-There are two main parts here; the class (`walk`) and an interface function (`dust_data`).
+There are two main parts here; the class (`walk`) and an interface function (`dust_pars`).
 
 The class is what does most of the work. It is important that this does not use anything in the R api as it may be called in parallel. Therefore use only C++ standard library types.  It has to provide every public type or method as the example above:
 
 * the type `real_t` has to exist and indicate what sort of numeric type you use for "real numbers". Typically this will be `double`,but if you need a different type (longer or shorter) you can use it here.
 * the type `data_t` which for now should match exactly the construction `typedef dust::no_data data_t` until we stabilise and document this interface
-* the type `shared_t` is whatever data your model needs that is *shared across all particles*, and unmodified during the model update (most likely parameters), and an object of this type will be passed to your constructor as the `.shared` field to `pars` (see `dust_pars` below)
+* the type `shared_t` is whatever data your model needs that is shared across a number of particles, and unmodified during the model update (most likely parameters), and an object of this type will be passed to your constructor as the `.shared` field to `pars` (see `dust_pars` below, and see `vignette("multi")` for more on parameters)
 * the type `internal_t` is whatever internal data your model needs (most likely scratch space used for intermediate calculations), and an object of this type will be passed to your constructor as the `.internal` field to `pars` (see `dust_pars` below)
 * the constructor must take only one argument, being `const dust::dust_pars<model>&`. You can do what you want in the constructor - here we just copy `shared` (containing parameters) into the object with the `pars` argument (we use the private member `shared` here but this can be anything you want, though the type is important)
 * the method `size()` must return the "size" of the system - how many state variables it has. Here we're considering a single individual moving randomly so the size is always 1
@@ -143,7 +144,7 @@ model <- walk$new(list(sd = 1), 0, 20, n_threads = 1)
 model$run(100)
 ```
 
-We use as many random number generators as their are threads, so if you run fewer particles or more, increase the threads or decrease, the results will be the same.
+We use as many random number generators as their are particles, so if you run fewer particles or more, increase the threads or decrease, the results will be the same (see `vignette("design")` for more on this).
 
 ## A more interesting example
 
@@ -153,7 +154,7 @@ Consider now an SIR model (Susceptible - Infected - Recovered). This sort of mod
 cc_output(readLines(dust:::dust_file("examples/sir.cpp")))
 ```
 
-There is not much different here to the version that is shown before for the walk model;
+There is a bit different here to the version that is shown before for the walk model, but the core parts are only slightly different:
 
 * the `initial` method is slightly more complicated as we initialise a 3-element vector
 * our `shared_t` object has significantly more elements
@@ -172,7 +173,7 @@ sir <- dust::dust_example("sir")
 
 To get information about the parameters, use `coef()` on the generator
 
-```
+```{r sir_coef}
 coef(sir)
 ```
 
@@ -232,15 +233,22 @@ model$state(c(S = 1L, R = 3L))
 
 Again, this copies names from the index if they are present.
 
-In order to run the simulation beginning-to-end, we use `dust::dust_iterate()`; this function is purely a convenience function and the intention is that you would write your own (see [`mcstate`](https://mrc-ide.github.io/mcstate) for example).
+In order to run the simulation beginning-to-end, we use the `$simulate` method on a dust object, which runs over a set of steps and records the state at each.
 
 ```{r sir_run_collect}
 model <- sir$new(list(), 0, 200)
+model$set_index(2L)
 steps <- seq(0, 600, by = 5)
-state <- dust::dust_iterate(model, steps, 2L)
+state <- model$simulate(steps)
 ```
 
-The output here is a 1 x 200 x 121 matrix (n state x n particles x n steps) and we need to drop the first dimension and transpose the others for ease of plotting:
+The output here is a 1 x 200 x 121 matrix (n state x n particles x n steps)
+
+```{r sir_run_dim}
+dim(state)
+```
+
+we need to drop the first dimension and transpose the others for ease of plotting:
 
 ```{r sir_transform}
 traces <- t(drop(state))
@@ -369,41 +377,20 @@ model$state()
 
 ### Reset the model
 
-A model can be "reset" rather than recreated. This is important in a simulation context because if you recreate the model you will reset the seed. So if you are performing stochastic realisations you should continue with your random number stream, not start again from the same seed.
+After running model once, we need to "reset" it to run again. You should not create a new model as that will re-seed a new set of random state, but continue with the state in your old model.
 
-To illustrate the problem, here is a naive simulation of a random walk, first simulating with a standard deviation of 1, then of 2, each time with 20 particles:
+Suppose we run our model with sd of 1 for 200 steps
 
 ```{r}
-model <- walk$new(list(sd = 1), 0, 200)
+model <- walk$new(list(sd = 1), 0, 200, seed = 1L)
 y1 <- model$run(100)
+```
 
+we then use `reset` to set new parameters into the model and set the time back to zero and can run again
+
+```{r}
 model <- walk$new(list(sd = 2), 0, 200)
 y2 <- model$run(100)
-
-head(c(y1))
-head(c(y2))
-```
-
-Everything looks reasonable until you plot the data:
-
-```{r}
-plot(y1 ~ y2, asp = 1)
-abline(0, 0.5, col = "red", lty = 2)
-```
-
-because of the way normal random numbers are drawn, these are the same results, scaled!
-
-Instead, we should use `reset()`
-
-```{r}
-model <- walk$new(list(sd = 1), 0, 200)
-y1 <- model$run(100)
-
-model$reset(list(sd = 2), 0)
-y2 <- model$run(100)
-
-plot(y1 ~ y2, asp = 1)
-abline(0, 0.5, col = "red", lty = 2)
 ```
 
 ## Use within a package
