@@ -13,6 +13,7 @@
 
 #include <dust/rng_interface.hpp>
 #include <dust/interface_helpers.hpp>
+#include <dust/device_info.hpp>
 
 template <typename T>
 typename dust::pars_t<T> dust_pars(cpp11::list pars);
@@ -330,36 +331,6 @@ void dust_set_n_threads(SEXP ptr, int n_threads) {
 template <typename T>
 cpp11::sexp dust_info(const dust::pars_t<T>& pars) {
   return R_NilValue;
-}
-
-template <typename T>
-cpp11::sexp dust_device_info() {
-#ifdef __NVCC__
-  int device_count;
-  CUDA_CALL(cudaGetDeviceCount(&device_count));
-
-  cpp11::writable::integers ids(device_count);
-  cpp11::writable::doubles memory(device_count);
-  cpp11::writable::strings names(device_count);
-
-  if (device_count > 0) {
-    for (int i = 0; i < device_count; ++i) {
-      cudaDeviceProp properties;
-      CUDA_CALL(cudaGetDeviceProperties(&properties, i));
-      ids[i] = i;
-      names[i] = properties.name;
-      memory[i] = static_cast<double>(properties.totalGlobalMem) / (1024 * 1024);
-    }
-  }
-  using namespace cpp11::literals;
-  return cpp11::writable::list({
-    "id"_nm = ids,
-    "name"_nm = names,
-    "memory_mb"_nm = memory
-  });
-#else
-  return R_NilValue;
-#endif
 }
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
