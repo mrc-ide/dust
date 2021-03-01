@@ -1243,13 +1243,13 @@ KERNEL void run_particles(size_t step_start, size_t step_end, size_t n_particles
   auto block = cooperative_groups::this_thread_block();
   if (use_shared_L1) {
     int * shared_block_int = shared_block;
-    cooperative_groups::memcpy_async(block, shared_block_int, p_shared_int, sizeof(int) * n_shared_int);
+    shared_mem_cpy(block, shared_block_int, p_shared_int, n_shared_int);
     p_shared_int = shared_block_int;
 
     // Must only have a single __shared__ definition, cast to use different
     // types within it
     real_t * shared_block_real = (real_t*)&shared_block[n_shared_int];
-    cooperative_groups::memcpy_async(block, shared_block_real, p_shared_real, sizeof(real_t) * n_shared_real);
+    shared_mem_cpy(block, shared_block_real, p_shared_real, n_shared_real);
     p_shared_real = shared_block_real;
 
     // Pick particle index based on block, don't process if off the end
@@ -1262,8 +1262,7 @@ KERNEL void run_particles(size_t step_start, size_t step_end, size_t n_particles
   }
 
   // Required to sync loads into L1 cache
-  // Previously __syncthreads()
-  cooperative_groups::wait(block);
+  shared_mem_wait(block);
 
   if (i < max_i) {
 #else
