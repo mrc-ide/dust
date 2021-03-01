@@ -57,3 +57,6 @@ void dust_{{name}}_set_n_threads(SEXP ptr, int n_threads);
 
 [[cpp11::register]]
 int dust_{{name}}_n_state(SEXP ptr);
+
+[[cpp11::register]]
+cpp11::sexp dust_{{name}}_device_info();

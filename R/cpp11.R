@@ -148,6 +148,10 @@ dust_sir_n_state <- function(ptr) {
   .Call(`_dust_dust_sir_n_state`, ptr)
 }
 
+dust_sir_device_info <- function() {
+  .Call(`_dust_dust_sir_device_info`)
+}
+
 cpp_scale_log_weights <- function(w) {
   .Call(`_dust_cpp_scale_log_weights`, w)
 }
@@ -228,6 +232,10 @@ dust_variable_n_state <- function(ptr) {
   .Call(`_dust_dust_variable_n_state`, ptr)
 }
 
+dust_variable_device_info <- function() {
+  .Call(`_dust_dust_variable_device_info`)
+}
+
 dust_volatility_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed) {
   .Call(`_dust_dust_volatility_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed)
 }
@@ -304,6 +312,10 @@ dust_volatility_n_state <- function(ptr) {
   .Call(`_dust_dust_volatility_n_state`, ptr)
 }
 
+dust_volatility_device_info <- function() {
+  .Call(`_dust_dust_volatility_device_info`)
+}
+
 dust_walk_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed) {
   .Call(`_dust_dust_walk_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed)
 }
@@ -378,4 +390,8 @@ dust_walk_set_n_threads <- function(ptr, n_threads) {
 
 dust_walk_n_state <- function(ptr) {
   .Call(`_dust_dust_walk_n_state`, ptr)
+}
+
+dust_walk_device_info <- function() {
+  .Call(`_dust_dust_walk_device_info`)
 }

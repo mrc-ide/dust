@@ -468,7 +468,9 @@ cpp11::sexp dust_capabilities() {
   bool cuda = false;
 #endif
   bool compare = !std::is_same<dust::no_data, typename T::data_t>::value;
-  return cpp11::writable::list({"openmp"_nm = openmp, "compare"_nm = compare, "cuda"_nm = cuda});
+  return cpp11::writable::list({"openmp"_nm = openmp,
+                                "compare"_nm = compare,
+                                "cuda"_nm = cuda});
 }
 
 template <typename T>

@@ -85,3 +85,7 @@ void dust_{{name}}_set_n_threads(SEXP ptr, int n_threads) {
 int dust_{{name}}_n_state(SEXP ptr) {
   return dust_n_state<{{class}}>(ptr);
 }
+
+cpp11::sexp dust_{{name}}_device_info() {
+  return dust_device_info<{{class}}>();
+}

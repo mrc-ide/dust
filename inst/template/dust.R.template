@@ -324,6 +324,16 @@
     },
 
     ##' @description
+    ##' Returns a logical, indicating if this model was compiled with
+    ##' "CUDA" support, in which case it will react to the `device`
+    ##' argument passed to the run method. This method can also be used
+    ##' as a static method by running it directly
+    ##' as `{{name}}$public_methods$has_cuda()`
+    has_cuda = function() {
+      dust_{{name}}_capabilities()[["cuda"]]
+    },
+
+    ##' @description
     ##' Returns the number of distinct pars elements required. This is `0`
     ##' where the object was initialised with `pars_multi = FALSE` and
     ##' an integer otherwise.  For multi-pars dust objects, Where `pars`
@@ -396,6 +406,14 @@
     ##' (state x particles x parameter x time).
     filter = function(save_history = FALSE) {
       dust_{{name}}_filter(private$ptr_, save_history)
+    },
+
+    ##' @description
+    ##' **Experimental!** Return information about GPU devices, if the model
+    ##' has been compiled with CUDA/GPU support. This can be called as a
+    ##' static  method.
+    device_info = function() {
+      dust_{{name}}_device_info()
     }
   ))
 class({{name}}) <- c("dust_generator", class({{name}}))
