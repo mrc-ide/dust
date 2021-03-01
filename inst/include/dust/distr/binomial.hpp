@@ -145,7 +145,7 @@ HOSTDEVICE int rbinom(rng_state_t<real_t>& rng_state, int n,
   if (n == 0 || p == 0) {
     draw = 0;
   } else if (p == 1) {
-    return n;
+    draw = n;
   } else {
     // TODO: Should control for this too, but not really clear what we
     // need to do to safely deal.
