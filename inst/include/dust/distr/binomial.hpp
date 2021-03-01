@@ -87,21 +87,21 @@ inline HOSTDEVICE real_t btrs(rng_state_t<real_t>& rng_state, int n_int, real_t 
   const real_t stddev = std::sqrt(n * p * (1 - p));
 
   // Other coefficients for Transformed Rejection sampling.
-  const real_t b = static_cast<real_t>(1.15f) + static_cast<real_t>(2.53f) * stddev;
-  const real_t a = static_cast<real_t>(-0.0873f) + static_cast<real_t>(0.0248f) * b + static_cast<real_t>(0.01f) * p;
-  const real_t c = n * p + static_cast<real_t>(0.5f);
-  const real_t v_r = static_cast<real_t>(0.92f) - static_cast<real_t>(4.2f) / b;
+  const real_t b = static_cast<real_t>(1.15) + static_cast<real_t>(2.53) * stddev;
+  const real_t a = static_cast<real_t>(-0.0873) + static_cast<real_t>(0.0248) * b + static_cast<real_t>(0.01) * p;
+  const real_t c = n * p + half;
+  const real_t v_r = static_cast<real_t>(0.92) - static_cast<real_t>(4.2) / b;
   const real_t r = p / (1 - p);
 
-  const real_t alpha = (static_cast<real_t>(2.83f) + static_cast<real_t>(5.1f) / b) * stddev;
+  const real_t alpha = (static_cast<real_t>(2.83) + static_cast<real_t>(5.1) / b) * stddev;
   const real_t m = std::floor((n + 1) * p);
 
   real_t draw;
   while (true) {
     real_t u = dust::unif_rand<real_t, real_t>(rng_state);
     real_t v = dust::unif_rand<real_t, real_t>(rng_state);
-    u = u - static_cast<real_t>(0.5f);
-    real_t us = static_cast<real_t>(0.5f) - std::fabs(u);
+    u -= half;
+    real_t us = half - std::fabs(u);
     real_t k = std::floor((2 * a / us + b) * u + c);
 
     // Region for which the box is tight, and we
@@ -109,7 +109,7 @@ inline HOSTDEVICE real_t btrs(rng_state_t<real_t>& rng_state, int n_int, real_t 
     // 0.86 * v_r times. In the limit as n * p is large,
     // the acceptance rate converges to ~79% (and in the lower
     // regime it is ~24%).
-    if (us >= static_cast<real_t>(0.07f) && v <= v_r) {
+    if (us >= static_cast<real_t>(0.07) && v <= v_r) {
       draw = k;
       break;
     }
