@@ -1,7 +1,11 @@
-generate_dust <- function(filename, quiet, workdir, cache) {
+generate_dust <- function(filename, quiet, workdir, gpu,
+                          cache) {
   config <- parse_metadata(filename)
   hash <- hash_file(filename)
   base <- sprintf("%s%s", config$name, hash)
+  if (gpu) {
+    base <- paste0(base, "gpu")
+  }
 
   if (base %in% names(cache)) {
     return(cache[[base]])
@@ -24,21 +28,32 @@ generate_dust <- function(filename, quiet, workdir, cache) {
                            file.path(path, "NAMESPACE"))
   substitute_dust_template(data, "dust.R.template",
                            file.path(path, "R/dust.R"))
-  substitute_dust_template(data, "dust.cpp",
-                           file.path(path, "src", "dust.cpp"))
-  substitute_dust_template(data, "Makevars",
-                           file.path(path, "src", "Makevars"))
+  substitute_dust_template(data, "dust.hpp",
+                           file.path(path, "src", "dust.hpp"))
+
+  if (gpu) {
+    substitute_dust_template(data, "dust.cpp",
+                             file.path(path, "src", "dust.cu"))
+    substitute_dust_template(data, "Makevars.cuda",
+                             file.path(path, "src", "Makevars"))
+  } else {
+    substitute_dust_template(data, "dust.cpp",
+                             file.path(path, "src", "dust.cpp"))
+    substitute_dust_template(data, "Makevars",
+                             file.path(path, "src", "Makevars"))
+  }
 
   cpp11::cpp_register(path, quiet = quiet)
 
-  res <- list(key = base, data = data, path = path)
-  cache[[res$key]] <- res
+  res <- list(key = base, gpu = gpu, data = data, path = path)
+  cache[[base]] <- res
   res
 }
 
 
-compile_and_load <- function(filename, quiet = FALSE, workdir = NULL) {
-  res <- generate_dust(filename, quiet, workdir, cache)
+compile_and_load <- function(filename, quiet = FALSE, workdir = NULL,
+                             gpu = FALSE) {
+  res <- generate_dust(filename, quiet, workdir, gpu, cache)
 
   if (is.null(res$env)) {
     path <- res$path

@@ -164,9 +164,11 @@ package_generate <- function(filename) {
                       collapse = "\n")
   code_r <- glue_whisker(template_r, data)
 
+  template_hpp <- read_lines(dust_file("template/dust.hpp"))
   template_cpp <- read_lines(dust_file("template/dust.cpp"))
+  code_hpp <- glue_whisker(template_hpp, data)
   code_cpp <- glue_whisker(template_cpp, data)
-  src <- set_names(code_cpp, basename(filename))
+  src <- set_names(paste(code_hpp, code_cpp, sep = "\n\n"), basename(filename))
   list(src = src, r = code_r)
 }
 

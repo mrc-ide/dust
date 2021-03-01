@@ -5,6 +5,8 @@
 #include <vector>
 #include <limits>
 
+#include <dust/cuda.cuh>
+
 // This is derived from http://prng.di.unimi.it/xoshiro256starstar.c
 // and http://prng.di.unimi.it/splitmix64.c, copies of which are
 // included in the package (in inst/rng in the source package). The
@@ -19,22 +21,22 @@ namespace dust {
 template <typename T>
 struct rng_state_t {
   typedef T real_t;
-  static size_t size() {
+  static HOSTDEVICE size_t size() {
     return 4;
   }
   uint64_t state[4];
-  uint64_t& operator[](size_t i) {
+  HOSTDEVICE uint64_t& operator[](size_t i) {
     return state[i];
   }
 };
 
-static inline uint64_t rotl(const uint64_t x, int k) {
+static inline HOSTDEVICE uint64_t rotl(const uint64_t x, int k) {
   return (x << k) | (x >> (64 - k));
 }
 
 // This is the core generator (next() in the original C code)
 template <typename T>
-inline uint64_t xoshiro_next(rng_state_t<T>& state) {
+inline HOSTDEVICE uint64_t xoshiro_next(rng_state_t<T>& state) {
   const uint64_t result = rotl(state[1] * 5, 7) * 9;
 
   const uint64_t t = state[1] << 17;
@@ -51,7 +53,7 @@ inline uint64_t xoshiro_next(rng_state_t<T>& state) {
   return result;
 }
 
-inline uint64_t splitmix64(uint64_t seed) {
+inline HOST uint64_t splitmix64(uint64_t seed) {
   uint64_t z = (seed += 0x9e3779b97f4a7c15);
   z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9;
   z = (z ^ (z >> 27)) * 0x94d049bb133111eb;
@@ -59,7 +61,7 @@ inline uint64_t splitmix64(uint64_t seed) {
 }
 
 template <typename T>
-inline std::vector<uint64_t> xoshiro_initial_seed(uint64_t seed) {
+inline HOST std::vector<uint64_t> xoshiro_initial_seed(uint64_t seed) {
   // normal brain: for i in 1:4
   // advanced brain: -funroll-loops
   // galaxy brain:
@@ -75,7 +77,7 @@ inline std::vector<uint64_t> xoshiro_initial_seed(uint64_t seed) {
    to 2^128 calls to next(); it can be used to generate 2^128
    non-overlapping subsequences for parallel computations. */
 template <typename T>
-inline void xoshiro_jump(rng_state_t<T>& state) {
+inline HOST void xoshiro_jump(rng_state_t<T>& state) {
   static const uint64_t JUMP[] = { 0x180ec6d33cfd0aba, 0xd5a61266f0c9392c,
                                    0xa9582618e03fc9aa, 0x39abdc4529b1661c };
 
@@ -106,7 +108,7 @@ inline void xoshiro_jump(rng_state_t<T>& state) {
    from each of which jump() will generate 2^64 non-overlapping
    subsequences for parallel distributed computations. */
 template <typename T>
-inline void xoshiro_long_jump(rng_state_t<T>& state) {
+inline HOST void xoshiro_long_jump(rng_state_t<T>& state) {
   static const uint64_t LONG_JUMP[] =
     { 0x76e15d3efefdcbbf, 0xc5004e441c522fb3,
       0x77710069854ee241, 0x39109bb02acbe635 };
@@ -134,9 +136,32 @@ inline void xoshiro_long_jump(rng_state_t<T>& state) {
 }
 
 template <typename T, typename U = T>
-U unif_rand(rng_state_t<T>& state) {
+HOST U unif_rand(rng_state_t<T>& state) {
   const uint64_t value = xoshiro_next(state);
   return U(value) / U(std::numeric_limits<uint64_t>::max());
+}
+
+template <>
+inline HOSTDEVICE double unif_rand(rng_state_t<double>& state) {
+  const uint64_t value = xoshiro_next(state);
+#ifdef __CUDA_ARCH__
+  // 18446744073709551616.0 == __ull2double_rn(UINT64_MAX)
+  double rand = (__ddiv_rn(__ull2double_rn(value), 18446744073709551616.0));
+#else
+  double rand = double(value) / double(std::numeric_limits<uint64_t>::max());
+#endif
+  return rand;
+}
+
+template <>
+inline HOSTDEVICE float unif_rand(rng_state_t<float>& state) {
+  const uint64_t value = xoshiro_next(state);
+#ifdef __CUDA_ARCH__
+  float rand = (__fdiv_rn(__ull2float_rn(value), 18446744073709551616.0f));
+#else
+  float rand = float(value) / float(std::numeric_limits<uint64_t>::max());
+#endif
+  return rand;
 }
 
 }

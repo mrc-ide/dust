@@ -130,6 +130,10 @@
 ##'   uses a temporary directory.  By using a different directory of
 ##'   your choosing you can see the generated code.
 ##'
+##' @param gpu Logical, indicating if we should generate GPU
+##'   code. This requires a considerable amount of additional software
+##'   installed as well as a CUDA-compatible GPU.
+##'
 ##' @export
 ##' @examples
 ##'
@@ -167,9 +171,9 @@
 ##'
 ##' # See the state again
 ##' obj$state()
-dust <- function(filename, quiet = FALSE, workdir = NULL) {
+dust <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE) {
   assert_file_exists(filename)
-  compile_and_load(filename, quiet, workdir)
+  compile_and_load(filename, quiet, workdir, gpu)
 }
 
 

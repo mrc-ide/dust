@@ -332,6 +332,36 @@ cpp11::sexp dust_info(const dust::pars_t<T>& pars) {
   return R_NilValue;
 }
 
+template <typename T>
+cpp11::sexp dust_device_info() {
+#ifdef __NVCC__
+  int device_count;
+  CUDA_CALL(cudaGetDeviceCount(&device_count));
+
+  cpp11::writable::integers ids(device_count);
+  cpp11::writable::doubles memory(device_count);
+  cpp11::writable::strings names(device_count);
+
+  if (device_count > 0) {
+    for (int i = 0; i < device_count; ++i) {
+      cudaDeviceProp properties;
+      CUDA_CALL(cudaGetDeviceProperties(&properties, i));
+      ids[i] = i;
+      names[i] = properties.name;
+      memory[i] = static_cast<double>(properties.totalGlobalMem) / (1024 * 1024);
+    }
+  }
+  using namespace cpp11::literals;
+  return cpp11::writable::list({
+    "id"_nm = ids,
+    "name"_nm = names,
+    "memory_mb"_nm = memory
+  });
+#else
+  return R_NilValue;
+#endif
+}
+
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 void dust_set_data(SEXP ptr, cpp11::list r_data) {
   typedef typename T::data_t data_t;
@@ -390,6 +420,7 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_history) {
     // or at least the history object. Still this is going to work
     // generally.
     const int n_data = history_data.size() / (n_state * n_particles);
+    const int n_pars = obj->n_pars();
     history_data.attr("dim") =
       dust::interface::state_array_dim(n_state, obj->shape(), n_data);
     history = history_data;
@@ -431,8 +462,13 @@ cpp11::sexp dust_capabilities() {
 #else
   bool openmp = false;
 #endif
+#ifdef __NVCC__
+  bool cuda = true;
+#else
+  bool cuda = false;
+#endif
   bool compare = !std::is_same<dust::no_data, typename T::data_t>::value;
-  return cpp11::writable::list({"openmp"_nm = openmp, "compare"_nm = compare});
+  return cpp11::writable::list({"openmp"_nm = openmp, "compare"_nm = compare, "cuda"_nm = cuda});
 }
 
 template <typename T>

@@ -21,7 +21,7 @@ test_that("Interface passes arguments as expected", {
   mockery::expect_called(mock_compile_and_load, 1L)
   expect_equal(
     mockery::mock_args(mock_compile_and_load)[[1]],
-    list(filename, TRUE, workdir))
+    list(filename, TRUE, workdir, FALSE))
 })
 
 
