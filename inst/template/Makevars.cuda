@@ -2,7 +2,7 @@
 CXX_STD = CXX14
 OBJECTS = cpp11.o dust.o
 # TODO: make configurable
-DUST_PATH_CUDA=usr/local/cuda-11.1/lib64
+DUST_PATH_CUDA=/usr/local/cuda-11.1/lib64
 PKG_LIBS = -L${DUST_PATH_CUDA} -lcudart $(SHLIB_OPENMP_CXXFLAGS)
 PKG_CXXFLAGS=-I{{path_dust_include}} -DHAVE_INLINE $(SHLIB_OPENMP_CXXFLAGS)
 
