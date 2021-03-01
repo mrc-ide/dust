@@ -42,7 +42,14 @@ real_t HOSTDEVICE binomial_inversion(rng_state_t<real_t>& rng_state, int n, real
   const real_t g = r * (n + 1);
   real_t f = fast_pow(q, n);
   int k = 0;
-  while (u >= f) {
+#ifdef __NVCC__
+  // Assumes float for now - use DBL_EPSILON if real_t == double
+  const real_t epsilon = FLT_EPSILON;
+#else
+  constexpr real_t epsilon = std::numeric_limits<real_t>::epsilon();
+#endif
+  // while (u >= f) { // TODO: fix this
+  while (u - f >= 1E-6 && f > epsilon) {
     u -= f;
     k++;
     f *= (g / k - r);
