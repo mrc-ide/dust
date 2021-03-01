@@ -130,8 +130,8 @@ inline HOSTDEVICE real_t btrs(rng_state_t<real_t>& rng_state, int n_int, real_t 
 }
 
 template <typename real_t>
-int rbinom(rng_state_t<real_t>& rng_state, int n,
-           typename rng_state_t<real_t>::real_t p) {
+HOSTDEVICE int rbinom(rng_state_t<real_t>& rng_state, int n,
+                      typename rng_state_t<real_t>::real_t p) {
   int draw;
 
   // Early exit:

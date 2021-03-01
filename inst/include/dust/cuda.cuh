@@ -12,6 +12,7 @@
 #define __nv_exec_check_disable__ _Pragma("nv_exec_check_disable")
 
 #include <stdio.h>
+#include <sstream>
 
 // Standard cuda library functions
 #include <cuda.h>
