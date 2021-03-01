@@ -282,6 +282,15 @@ dust_class <- R6::R6Class(
     },
 
     ##' @description
+    ##' Returns a logical, indicating if this model was compiled with
+    ##' "CUDA" support, in which case it will react to the `device`
+    ##' argument passed to the run method. This method can also be used
+    ##' as a static method by running it directly
+    ##' as `dust_class$public_methods$has_cuda()`
+    has_cuda = function() {
+    },
+
+    ##' @description
     ##' Returns the number of distinct pars elements required. This is `0`
     ##' where the object was initialised with `pars_multi = FALSE` and
     ##' an integer otherwise.  For multi-pars dust objects, Where `pars`
@@ -345,6 +354,13 @@ dust_class <- R6::R6Class(
     ##' If you have a multi-parameter dust object this will be a 4d array
     ##' (state x particles x parameter x time).
     filter = function(save_history = FALSE) {
+    },
+
+    ##' @description
+    ##' **Experimental!** Return information about GPU devices, if the model
+    ##' has been compiled with CUDA/GPU support. This can be called as a
+    ##' static  method.
+    device_info = function() {
     }
   ))
 class(dust_class) <- c("dust_generator", class(dust_class))

@@ -5,7 +5,7 @@
 \alias{dust_class}
 \title{Create a dust model from a C++ input file}
 \usage{
-dust(filename, quiet = FALSE, workdir = NULL)
+dust(filename, quiet = FALSE, workdir = NULL, gpu = FALSE)
 }
 \arguments{
 \item{filename}{The path to a single C++ file}
@@ -17,6 +17,10 @@ displayed on compilation failure regardless of the value used.}
 \item{workdir}{Optional working directory to use.  If \code{NULL}
 uses a temporary directory.  By using a different directory of
 your choosing you can see the generated code.}
+
+\item{gpu}{Logical, indicating if we should generate GPU
+code. This requires a considerable amount of additional software
+installed as well as a CUDA-compatible GPU.}
 }
 \description{
 Create a dust model from a C++ input file.  This function will
@@ -195,12 +199,14 @@ obj$state()
 \item \href{#method-rng_state}{\code{dust_class$rng_state()}}
 \item \href{#method-set_rng_state}{\code{dust_class$set_rng_state()}}
 \item \href{#method-has_openmp}{\code{dust_class$has_openmp()}}
+\item \href{#method-has_cuda}{\code{dust_class$has_cuda()}}
 \item \href{#method-n_pars}{\code{dust_class$n_pars()}}
 \item \href{#method-set_n_threads}{\code{dust_class$set_n_threads()}}
 \item \href{#method-has_compare}{\code{dust_class$has_compare()}}
 \item \href{#method-set_data}{\code{dust_class$set_data()}}
 \item \href{#method-compare_data}{\code{dust_class$compare_data()}}
 \item \href{#method-filter}{\code{dust_class$filter()}}
+\item \href{#method-device_info}{\code{dust_class$device_info()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -649,6 +655,20 @@ as \code{dust_class$public_methods$has_openmp()}
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-has_cuda"></a>}}
+\if{latex}{\out{\hypertarget{method-has_cuda}{}}}
+\subsection{Method \code{has_cuda()}}{
+Returns a logical, indicating if this model was compiled with
+"CUDA" support, in which case it will react to the \code{device}
+argument passed to the run method. This method can also be used
+as a static method by running it directly
+as \code{dust_class$public_methods$has_cuda()}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$has_cuda()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-n_pars"></a>}}
 \if{latex}{\out{\hypertarget{method-n_pars}{}}}
 \subsection{Method \code{n_pars()}}{
@@ -758,5 +778,17 @@ If you have a multi-parameter dust object this will be a 4d array
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-device_info"></a>}}
+\if{latex}{\out{\hypertarget{method-device_info}{}}}
+\subsection{Method \code{device_info()}}{
+\strong{Experimental!} Return information about GPU devices, if the model
+has been compiled with CUDA/GPU support. This can be called as a
+static  method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$device_info()}\if{html}{\out{</div>}}
+}
+
 }
 }
