@@ -62,6 +62,33 @@ test_that("Can run multiple parameter sets", {
 })
 
 
+test_that("Can reorder on the device", {
+  res <- dust_example("variable")
+  p <- list(list(len = 10, sd = 1), list(len = 10, sd = 10))
+
+  np <- 13
+  mod1 <- res$new(p, 0, np, seed = 1L, pars_multi = TRUE)
+  mod2 <- res$new(p, 0, np, seed = 1L, pars_multi = TRUE)
+  mod1$set_index(integer(0))
+  mod2$set_index(integer(0))
+
+  idx <- cbind(sample(np, np, TRUE), sample(np, np, TRUE))
+
+  expect_identical(
+    mod1$run(10),
+    mod2$run(10, TRUE))
+
+  mod1$reorder(idx)
+  mod2$reorder(idx)
+
+  expect_identical(
+    mod1$run(13),
+    mod2$run(13, TRUE))
+
+  expect_identical(mod1$state(), mod2$state())
+})
+
+
 test_that("Can generate cuda compatible code", {
   info <- list(
     has_cuda = TRUE,

@@ -143,7 +143,9 @@ cpp11::sexp dust_run(SEXP ptr, int step_end, bool device) {
   // should be able to do this with a pointer to the C array. The
   // current version helps noone.
   std::vector<typename T::real_t> dat(obj->n_state() * obj->n_particles());
-  obj->state(dat);
+  if (obj->n_state() > 0) {
+    obj->state(dat);
+  }
 
   return dust::interface::state_array(dat, obj->n_state(), obj->shape());
 }
