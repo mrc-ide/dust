@@ -34,6 +34,30 @@ size_t stride_copy(T dest, const std::vector<U>& src, size_t at,
   return at;
 }
 
+#ifdef __NVCC__
+template <typename T>
+T epsilon_nvcc();
+
+template <>
+inline float epsilon_nvcc() {
+  return FLT_EPSILON;
+}
+
+template <>
+inline double epsilon_nvcc() {
+  return DBL_EPSILON;
+}
+#endif
+
+template <typename T>
+T epsilon() {
+#ifdef __NVCC__
+  return epsilon_nvcc<T>();
+#else
+  return std::numeric_limits<T>::epsilon();
+#endif
+}
+
 }
 }
 
