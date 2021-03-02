@@ -70,15 +70,10 @@ dust_cuda_configuration <- function(path_cuda_lib = NULL,
                                     path_cub_include = NULL,
                                     quiet = TRUE,
                                     forget = FALSE) {
-  no_cuda <- list(
-    has_cuda = FALSE,
-    cuda_version = NULL,
-    devices = NULL,
-    path_cuda_lib = NULL,
-    path_cub_include = NULL)
-  tryCatch(
-    cuda_configuration(path_cuda_lib, path_cub_include, quiet, forget),
-    error = function(e) no_cuda)
+  if (is.null(cache$cuda) || forget) {
+    cache$cuda <- cuda_configuration(path_cuda_lib, path_cub_include, quiet)
+  }
+  cache$cuda
 }
 
 
@@ -119,9 +114,16 @@ dust_cuda_options <- function(..., debug = FALSE, profile = FALSE,
 
 
 cuda_configuration <- function(path_cuda_lib = NULL, path_cub_include = NULL,
-                               quiet = FALSE, forget = FALSE) {
-  if (is.null(cache$cuda) || forget) {
-    dat <- cuda_create_test_package(path_cuda_lib, path_cub_include)
+                               quiet = FALSE) {
+  no_cuda <- list(
+    has_cuda = FALSE,
+    cuda_version = NULL,
+    devices = NULL,
+    path_cuda_lib = NULL,
+    path_cub_include = NULL)
+
+  tryCatch({
+    dat <- cuda_create_test_package(path_cuda_lib)
     pkg <- pkgload::load_all(dat$path, export_all = FALSE, quiet = quiet,
                              helpers = FALSE, attach_testthat = FALSE)
     on.exit(pkgload::unload(dat$name))
@@ -132,10 +134,9 @@ cuda_configuration <- function(path_cuda_lib = NULL, path_cub_include = NULL,
     paths <- list(
       path_cuda_lib = path_cuda_lib,
       path_cub_include = path_cub_include)
-    cache$cuda <- c(info, paths)
-  }
 
-  cache$cuda
+    c(info, paths)
+  }, error = function(e) no_cuda)
 }
 
 
@@ -159,12 +160,12 @@ cuda_path_cub_include <- function(version, path) {
     return(path)
   }
   path <- cuda_cub_path_default()
-  if (file.exists(file.path(path, "cub"))) {
+  if (!is.null(path)) {
     check_path(path, "default path (R >= 4.0.0)")
     return(path)
   }
 
-  stop("Did not find cub sources, see ?dust_cuda_configuration")
+  stop("Did not find cub headers, see ?dust_cuda_configuration")
 }
 
 
@@ -185,9 +186,7 @@ cuda_flag_helper <- function(value, prefix) {
 }
 
 
-cuda_create_test_package <- function(path_cub_include = NULL,
-                                     path_cuda_lib = NULL,
-                                     path = tempfile()) {
+cuda_create_test_package <- function(path_cuda_lib = NULL, path = tempfile()) {
   stopifnot(!file.exists(path))
 
   suffix <- paste(sample(c(0:9, letters[1:6]), 8, TRUE), collapse = "")
@@ -214,11 +213,8 @@ cuda_create_test_package <- function(path_cub_include = NULL,
 }
 
 
-cuda_install_cub <- function(path, version = "1.9.10") {
-  if (is.null(path)) {
-    stopifnot(getRversion() >= "4.0.0")
-    path <- cuda_cub_path_default()
-  }
+cuda_install_cub <- function(path, version = "1.9.10", quiet = FALSE) {
+  path <- path %||% cuda_cub_path_default()
   if (file.exists(path)) {
     stop(sprintf("Path already exists: '%s'", path))
   }
@@ -226,7 +222,7 @@ cuda_install_cub <- function(path, version = "1.9.10") {
   url <- sprintf("https://github.com/nvidia/cub/archive/%s.zip", version)
   tmp_zip <- tempfile(fileext = ".zip")
   tmp_src <- tempfile()
-  download.file(url, tmp_zip, mode = "wb")
+  download.file(url, tmp_zip, mode = "wb", quiet = quiet)
 
   dir.create(tmp_src, FALSE, TRUE)
   unzip(tmp_zip, exdir = tmp_src)

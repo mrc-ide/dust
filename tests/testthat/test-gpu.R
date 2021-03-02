@@ -85,3 +85,133 @@ test_that("Can generate cuda compatible code", {
   expect_match(txt, "-I/path/to/cub", all = FALSE, fixed = TRUE)
   expect_match(txt, "-gencode=arch=compute_75,code=sm_75", all = FALSE)
 })
+
+
+test_that("Generate default cuda configuration", {
+  skip_if_not_installed("mockery")
+  mock_create <- mockery::mock(stop("no nvcc found!"))
+  res <- with_mock(
+    "dust:::cuda_create_test_package" = mock_create,
+    cuda_configuration())
+  expect_equal(res,
+               list(has_cuda = FALSE,
+                    cuda_version = NULL,
+                    devices = NULL,
+                    path_cuda_lib = NULL,
+                    path_cub_include = NULL))
+})
+
+
+test_that("Retrieve configuration", {
+  skip_if_not_installed("mockery")
+  mock_create <- mockery::mock(stop("no nvcc found!"))
+  mock_ctp <- mockery::mock(mock_create_test_package())
+  res <- with_mock(
+    "dust:::cuda_create_test_package" = mock_ctp,
+    cuda_configuration(quiet = TRUE))
+  mockery::expect_called(mock_ctp, 1)
+  expect_equal(res, c(example_cuda_config(),
+                      list(path_cuda_lib = NULL, path_cub_include = NULL)))
+})
+
+
+test_that("locate cub", {
+  skip_if_not_installed("mockery")
+  path_good <- tempfile()
+  path_bad <- tempfile()
+  dir.create(file.path(path_good, "cub"), FALSE, TRUE)
+
+  version_10 <- numeric_version("10.1.243")
+  version_11 <- numeric_version("11.1.243")
+  expect_error(
+    cuda_path_cub_include(version_10, path_bad),
+    "Did not find directory 'cub' within '.+' \\(via provided argument\\)")
+  expect_equal(cuda_path_cub_include(version_10, path_good), path_good)
+
+  expect_error(
+    withr::with_envvar(
+      c(DUST_CUB_PATH_INCLUDE = path_bad),
+      cuda_path_cub_include(version_10, NULL)),
+    "Did not find directory 'cub' within '.+' \\(via environment variable")
+  withr::with_envvar(
+    c(DUST_CUB_PATH_INCLUDE = path_good),
+    expect_equal(cuda_path_cub_include(version_10, NULL), path_good))
+  withr::with_envvar(
+    c(DUST_CUB_PATH_INCLUDE = path_good),
+    expect_null(cuda_path_cub_include(version_11, NULL)))
+
+  res <- with_mock(
+    "dust:::cuda_cub_path_default" = mockery::mock(path_bad, path_good, NULL),
+    expect_error(
+      cuda_path_cub_include(version_10, NULL),
+      "Did not find directory 'cub' within '.+' \\(via default path"),
+    expect_equal(cuda_path_cub_include(version_10, NULL), path_good),
+    expect_error(
+      cuda_path_cub_include(version_10, NULL),
+      "Did not find cub headers"))
+})
+
+
+test_that("cuda_cub_path_default returns sensible values by R version", {
+  expect_null(cuda_cub_path_default("3.6.3"))
+  testthat::skip_if(getRversion() < numeric_version("4.0.0"), "old R")
+  expect_equal(cuda_cub_path_default("4.0.0"),
+               file.path(tools::R_user_dir("dust", "data"), "cub"))
+})
+
+
+test_that("install cub", {
+  skip_on_cran()
+  skip_if_offline()
+
+  path <- tempfile()
+  expect_equal(cuda_install_cub(path, quiet = TRUE), path)
+  expect_setequal(dir(path), c("cub", "LICENSE.TXT"))
+  expect_true(file.exists(file.path(path, "cub", "cub.cuh")))
+
+  expect_error(cuda_install_cub(path, quiet = TRUE),
+               "Path already exists")
+})
+
+
+test_that("Set the cuda options", {
+  info <- example_cuda_config()
+  expect_mapequal(
+    cuda_options(info, FALSE, FALSE, FALSE)$flags,
+    list(nvcc_flags = "-O2",
+         gencode = "-gencode=arch=compute_75,code=sm_75",
+         cub_include = "",
+         lib_flags = ""))
+
+  expect_mapequal(
+    cuda_options(info, TRUE, TRUE, FALSE)$flags,
+    list(nvcc_flags = "-g -G -O0 -pg --generate-line-info",
+         gencode = "-gencode=arch=compute_75,code=sm_75",
+         cub_include = "",
+         lib_flags = ""))
+
+  info$path_cub_include <- "/path/to/cub"
+  info$path_cuda_lib <- "/path/to/cuda"
+
+  expect_mapequal(
+    cuda_options(info, FALSE, FALSE, TRUE)$flags,
+    list(nvcc_flags = "-O2 --use_fast_math",
+         gencode = "-gencode=arch=compute_75,code=sm_75",
+         cub_include = "-I/path/to/cub",
+         lib_flags = "-L/path/to/cuda"))
+})
+
+
+test_that("can create sensible cuda options", {
+  skip_if_not_installed("mockery")
+  opts <- cuda_options(example_cuda_config(), FALSE, FALSE, FALSE)
+  mock_dust_cuda_options <- mockery::mock(opts, cycle = TRUE)
+
+  mockery::stub(cuda_check, 'dust_cuda_options', mock_dust_cuda_options)
+  expect_null(cuda_check(NULL))
+  expect_null(cuda_check(FALSE))
+  expect_equal(cuda_check(TRUE), opts)
+  expect_equal(cuda_check(opts), opts)
+  expect_error(cuda_check("something"),
+               "'x' must be a cuda_options")
+})
