@@ -97,9 +97,9 @@ glue_whisker <- function(template, data) {
 
 
 dust_template_data <- function(model, config, cuda) {
-  ret <- list(model = model,
-              name = config$name,
-              class = config$class,
-              param = deparse_param(config$param),
-              cuda = cuda$flags)
+  list(model = model,
+       name = config$name,
+       class = config$class,
+       param = deparse_param(config$param),
+       cuda = cuda$flags)
 }

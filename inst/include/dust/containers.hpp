@@ -193,6 +193,7 @@ public:
   size_t& size() {
     return size_;
   }
+
 private:
   device_array ( const device_array<void> & ) = delete;
   device_array ( device_array<void> && ) = delete;

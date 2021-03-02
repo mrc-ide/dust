@@ -1211,7 +1211,6 @@ private:
       _stale_host = false;
     }
   }
-
 };
 
 template <typename T>
