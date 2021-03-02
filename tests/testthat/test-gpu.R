@@ -60,3 +60,28 @@ test_that("Can run multiple parameter sets", {
     mod1$run(13),
     mod2$run(13, TRUE))
 })
+
+
+test_that("Can generate cuda compatible code", {
+  info <- list(
+    has_cuda = TRUE,
+    cuda_version = numeric_version("10.1.0"),
+    devices = data.frame(id = 0, version = 75L),
+    path_cuda_lib = "/path/to/cuda",
+    path_cub_include = "/path/to/cub")
+  cuda <- cuda_options(info, FALSE, FALSE, FALSE)
+
+  workdir <- tempfile()
+  cache <- new.env(parent = emptyenv())
+  res <- generate_dust(dust_file("examples/sirs.cpp"), TRUE, workdir, cuda,
+                       cache)
+
+  expect_setequal(
+    dir(file.path(res$path, "src")),
+    c("dust.hpp", "dust.cu", "cpp11.cpp", "Makevars"))
+
+  txt <- readLines(file.path(res$path, "src", "Makevars"))
+  expect_match(txt, "-L/path/to/cuda", all = FALSE, fixed = TRUE)
+  expect_match(txt, "-I/path/to/cub", all = FALSE, fixed = TRUE)
+  expect_match(txt, "-gencode=arch=compute_75,code=sm_75", all = FALSE)
+})

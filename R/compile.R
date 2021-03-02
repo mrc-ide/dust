@@ -2,7 +2,7 @@ generate_dust <- function(filename, quiet, workdir, cuda, cache) {
   config <- parse_metadata(filename)
   hash <- hash_file(filename)
   base <- sprintf("%s%s", config$name, hash)
-  gpu <- !is.null(cuda)
+  gpu <- isTRUE(cuda$has_cuda)
   if (gpu) {
     base <- paste0(base, "gpu")
   }
@@ -101,5 +101,5 @@ dust_template_data <- function(model, config, cuda) {
               name = config$name,
               class = config$class,
               param = deparse_param(config$param),
-              cuda = cuda)
+              cuda = cuda$flags)
 }

@@ -176,11 +176,6 @@ cuda_cub_path_default <- function(r_version = getRversion()) {
 }
 
 
-cuda_lib_flags <- function(path_cuda_lib) {
-  cuda_flag_helper(path_cuda_lib, "-L")
-}
-
-
 cuda_flag_helper <- function(value, prefix) {
   if (is.null(value)) {
     ""
@@ -265,12 +260,14 @@ cuda_options <- function(info, debug, profile, fast_math) {
             info$devices$version, info$devices$version),
     collapse = " ")
 
-  ret <- list(nvcc_flags = nvcc_flags,
-              gencode = gencode,
-              cub_include = cuda_flag_helper(info$path_cub_include, "-I"),
-              lib_flags = cuda_flag_helper(info$path_lib, "-L"))
-  class(ret) <- "cuda_options"
-  ret
+  info$flags <- list(
+    nvcc_flags = nvcc_flags,
+    gencode = gencode,
+    cub_include = cuda_flag_helper(info$path_cub_include, "-I"),
+    lib_flags = cuda_flag_helper(info$path_cuda_lib, "-L"))
+
+  class(info) <- "cuda_options"
+  info
 }
 
 
