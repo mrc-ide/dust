@@ -26,8 +26,6 @@
 #include <cooperative_groups/memcpy_async.h>
 #endif
 
-#include <cooperative_groups/memcpy_async.h>
-
 // cub functions (included with CUDA>=11)
 #include <cub/device/device_select.cuh>
 
