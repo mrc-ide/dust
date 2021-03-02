@@ -28,28 +28,19 @@ KERNEL void scatter_device(int* scatter_index,
 }
 
 template <typename T>
-KERNEL void run_particles(size_t step_start, size_t step_end, size_t n_particles,
-                   size_t n_pars,
-                   typename T::real_t * state, typename T::real_t * state_next,
-                   int * internal_int, typename T::real_t * internal_real,
-                   size_t n_shared_int, size_t n_shared_real,
-                   const int * shared_int,
-                   const typename T::real_t * shared_real,
-                   uint64_t * rng_state,
-                   bool use_shared_L1);
-
-
-
-template <typename T>
-KERNEL void run_particles(size_t step_start, size_t step_end, size_t n_particles,
-                   size_t n_pars,
-                   typename T::real_t * state, typename T::real_t * state_next,
-                   int * internal_int, typename T::real_t * internal_real,
-                   size_t n_shared_int, size_t n_shared_real,
-                   const int * shared_int,
-                   const typename T::real_t * shared_real,
-                   uint64_t * rng_state,
-                   bool use_shared_L1) {
+KERNEL void run_particles(size_t step_start,
+                          size_t step_end,
+                          size_t n_particles,
+                          size_t n_pars,
+                          typename T::real_t * state,
+                          typename T::real_t * state_next,
+                          int * internal_int,
+                          typename T::real_t * internal_real,
+                          size_t n_shared_int, size_t n_shared_real,
+                          const int * shared_int,
+                          const typename T::real_t * shared_real,
+                          uint64_t * rng_state,
+                          bool use_shared_L1) {
   typedef typename T::real_t real_t;
   const size_t n_particles_each = n_particles / n_pars;
 
@@ -79,7 +70,8 @@ KERNEL void run_particles(size_t step_start, size_t step_end, size_t n_particles
     p_shared_real = shared_block_real;
 
     // Pick particle index based on block, don't process if off the end
-    i = j * n_particles_each + (blockIdx.x % block_per_pars) * blockDim.x + threadIdx.x;
+    i = j * n_particles_each + (blockIdx.x % block_per_pars) * blockDim.x +
+      threadIdx.x;
     max_i = n_particles_each * (j + 1);
   } else {
     // Otherwise CUDA thread number = particle

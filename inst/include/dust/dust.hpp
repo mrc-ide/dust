@@ -165,22 +165,25 @@ public:
     size_t blockSize = 128;
     size_t blockCount;
     bool use_shared_L1 = true;
-    size_t shared_size_bytes = _device_data.n_shared_int * n_pars_effective() * sizeof(int) +
-                               _device_data.n_shared_real * n_pars_effective() * sizeof(real_t);
+    size_t shared_size_bytes =
+      _device_data.n_shared_int * n_pars_effective() * sizeof(int) +
+      _device_data.n_shared_real * n_pars_effective() * sizeof(real_t);
     if (_n_particles_each < warp_size || shared_size_bytes > _shared_size) {
-      // If not enough particles per pars to make a whole block use shared, or
-      // if shared_t too big for L1, turn it off, and run in 'classic' mode where
-      // each particle is totally independent
+      // If not enough particles per pars to make a whole block use
+      // shared, or if shared_t too big for L1, turn it off, and run
+      // in 'classic' mode where each particle is totally independent
       use_shared_L1 = false;
       shared_size_bytes = 0;
       blockCount = n_particles() * (n_particles() + blockSize - 1) / blockSize;
     } else {
-      // If it's possible to make blocks with shared_t in L1 cache, each block runs
-      // a pars set. Each pars set has enough blocks to run all of its particles,
-      // the final block may have some threads that don't do anything (hang off the end)
-      blockSize =
-        std::min(128, warp_size * static_cast<int>((_n_particles_each + warp_size - 1) / warp_size));
-      blockCount = n_pars_effective() * (_n_particles_each + blockSize - 1) / blockSize;
+      // If it's possible to make blocks with shared_t in L1 cache,
+      // each block runs a pars set. Each pars set has enough blocks
+      // to run all of its particles, the final block may have some
+      // threads that don't do anything (hang off the end)
+      blockSize = warp_size * (_n_particles_each + warp_size - 1) / warp_size;
+      blockSize = std::min(static_cast<size_t>(128), blockSize);
+      blockCount = n_pars_effective() * (_n_particles_each + blockSize - 1) /
+        blockSize;
     }
     run_particles<T><<<blockCount, blockSize, shared_size_bytes>>>(
                      step_start, step_end, _particles.size(),
@@ -327,8 +330,9 @@ public:
       // e.g. 4 particles with 3 states ABC stored on device as
       // [1_A, 2_A, 3_A, 4_A, 1_B, 2_B, 3_B, 4_B, 1_C, 2_C, 3_C, 4_C]
       // e.g. index [3, 1, 3, 2] with would be
-      // [3_A, 1_A, 3_A, 2_A, 3_B, 1_B, 3_B, 2_B, 3_C, 1_C, 3_C, 2_C] interleaved
-      // i.e. input repeated n_state_full times, plus a strided offset
+      // [3_A, 1_A, 3_A, 2_A, 3_B, 1_B, 3_B, 2_B, 3_C, 1_C, 3_C, 2_C]
+      // interleaved, i.e. input repeated n_state_full times, plus a strided
+      // offset
       // [3, 1, 3, 2, 3 + 4, 1 + 4, 3 + 4, 2 + 4, 3 + 8, 1 + 8, 3 + 8, 2 + 8]
       // [3, 1, 3, 2, 7, 5, 7, 6, 11, 9, 11, 10]
       std::vector<int> scatter_state(n_state * n_particles);
@@ -343,7 +347,8 @@ public:
       _device_data.scatter_index.set_array(scatter_state);
 #ifdef __NVCC__
       const size_t blockSize = 128;
-      const size_t blockCount = (scatter_state.size() + blockSize - 1) / blockSize;
+      const size_t blockCount =
+        (scatter_state.size() + blockSize - 1) / blockSize;
       scatter_device<real_t><<<blockCount, blockSize>>>(
         _device_data.scatter_index.data(),
         _device_data.y.data(),
@@ -730,7 +735,8 @@ private:
     // [1_A, 2_A, 3_A, 4_A, 1_B, 2_B, 3_B, 4_B, 1_C, 2_C, 3_C, 4_C]
     // e.g. index [1, 3] would be
     // [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1] bool index on interleaved state
-    // i.e. initialise to zero and copy 1 np times, at each offset given in index
+    // i.e. initialise to zero and copy 1 np times, at each offset given in
+    // index
     for (auto idx_pos = _index.cbegin(); idx_pos != _index.cend(); idx_pos++) {
       std::fill_n(bool_idx.begin() + (*idx_pos * n_particles), n_particles, 1);
     }
