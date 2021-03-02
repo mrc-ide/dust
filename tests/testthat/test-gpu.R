@@ -207,11 +207,104 @@ test_that("can create sensible cuda options", {
   opts <- cuda_options(example_cuda_config(), FALSE, FALSE, FALSE)
   mock_dust_cuda_options <- mockery::mock(opts, cycle = TRUE)
 
-  mockery::stub(cuda_check, 'dust_cuda_options', mock_dust_cuda_options)
+  mockery::stub(cuda_check, "dust_cuda_options", mock_dust_cuda_options)
   expect_null(cuda_check(NULL))
   expect_null(cuda_check(FALSE))
   expect_equal(cuda_check(TRUE), opts)
   expect_equal(cuda_check(opts), opts)
   expect_error(cuda_check("something"),
                "'x' must be a cuda_options")
+})
+
+
+test_that("Can generate test package code", {
+  res <- cuda_create_test_package("/path/to/cuda")
+  expect_true(file.exists(res$path))
+  expect_setequal(
+    dir(res$path),
+    c("DESCRIPTION", "NAMESPACE", "src"))
+  expect_setequal(
+    dir(file.path(res$path, "src")),
+    c("dust.cu", "dust.hpp", "Makevars"))
+  txt <- readLines(file.path(res$path, "src", "Makevars"))
+  expect_match(txt, "-L/path/to/cuda", all = FALSE, fixed = TRUE)
+  expect_false(any(grepl("gencode", txt)))
+})
+
+
+test_that("High-level interface caches", {
+  skip_if_not_installed("mockery")
+  prev <- cache$cuda
+  on.exit(cache$cuda <- NULL)
+
+  cfg1 <- list(has_cuda = FALSE)
+  cfg2 <- example_cuda_config()
+  cache$cuda <- NULL
+  mock_cuda_configuration <- mockery::mock(cfg1, cfg2)
+  path_lib <- "/path/to/lib"
+  path_include <- "/path/to/include"
+
+  mockery::stub(dust_cuda_configuration, "cuda_configuration",
+                mock_cuda_configuration)
+
+  ## Cache miss, call:
+  expect_identical(
+    dust_cuda_configuration(path_lib, path_include, FALSE, TRUE),
+    cfg1)
+  expect_identical(cache$cuda, cfg1)
+  mockery::expect_called(mock_cuda_configuration, 1)
+  expect_equal(
+    mockery::mock_args(mock_cuda_configuration)[[1]],
+    list(path_lib, path_include, FALSE))
+
+  ## Cache hit, no call:
+  expect_identical(
+    dust_cuda_configuration(path_lib, path_include, FALSE),
+    cfg1)
+  mockery::expect_called(mock_cuda_configuration, 1)
+
+  ## Cache invalidation, call:
+  expect_identical(
+    dust_cuda_configuration(path_lib, path_include, FALSE, TRUE),
+    cfg2)
+  expect_identical(cache$cuda, cfg2)
+  mockery::expect_called(mock_cuda_configuration, 2)
+  expect_equal(
+    mockery::mock_args(mock_cuda_configuration)[[1]],
+    list(path_lib, path_include, FALSE))
+
+  ## Cache hit, no call:
+  expect_identical(
+    dust_cuda_configuration(path_lib, path_include, FALSE),
+    cfg2)
+  mockery::expect_called(mock_cuda_configuration, 2)
+})
+
+
+test_that("high level interface to cuda options", {
+  skip_if_not_installed("mockery")
+
+  cfg1 <- example_cuda_config()
+  cfg2 <- list(has_cuda = FALSE)
+  mock_cuda_configuration <- mockery::mock(cfg1, cfg2)
+
+  mockery::stub(dust_cuda_options, "dust_cuda_configuration",
+                mock_cuda_configuration)
+
+  path_lib <- "/path/cuda/lib"
+  res <- dust_cuda_options(path_cuda_lib = path_lib)
+  expect_identical(res, cuda_options(cfg1, FALSE, FALSE, FALSE))
+  mockery::expect_called(mock_cuda_configuration, 1)
+  expect_equal(
+    mockery::mock_args(mock_cuda_configuration)[[1]],
+    list(path_cuda_lib = path_lib))
+
+  expect_error(
+    dust_cuda_options(path_cuda_lib = path_lib),
+    "cuda not supported on this machine")
+
+  mockery::expect_called(mock_cuda_configuration, 2)
+  expect_equal(
+    mockery::mock_args(mock_cuda_configuration)[[2]],
+    list(path_cuda_lib = path_lib))
 })
