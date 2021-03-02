@@ -20,7 +20,9 @@ your choosing you can see the generated code.}
 
 \item{gpu}{Logical, indicating if we should generate GPU
 code. This requires a considerable amount of additional software
-installed as well as a CUDA-compatible GPU.}
+installed as well as a CUDA-compatible GPU. If \code{TRUE}, then we
+call \link{dust_cuda_options} with no arguments. Alternatively,
+call that function and pass the value here (e.g, \code{gpu = dust::dust_cuda_options(debug = TRUE)})}
 }
 \description{
 Create a dust model from a C++ input file.  This function will

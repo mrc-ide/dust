@@ -132,7 +132,10 @@
 ##'
 ##' @param gpu Logical, indicating if we should generate GPU
 ##'   code. This requires a considerable amount of additional software
-##'   installed as well as a CUDA-compatible GPU.
+##'   installed as well as a CUDA-compatible GPU. If `TRUE`, then we
+##'   call [dust::dust_cuda_options] with no arguments. Alternatively,
+##'   call that function and pass the value here (e.g, `gpu =
+##'   dust::dust_cuda_options(debug = TRUE)`)
 ##'
 ##' @export
 ##' @examples
@@ -173,7 +176,7 @@
 ##' obj$state()
 dust <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE) {
   assert_file_exists(filename)
-  compile_and_load(filename, quiet, workdir, gpu)
+  compile_and_load(filename, quiet, workdir, cuda_check(gpu))
 }
 
 

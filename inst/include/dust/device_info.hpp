@@ -5,12 +5,15 @@
 
 #include <cpp11/integers.hpp>
 #include <cpp11/doubles.hpp>
+#include <cpp11/logicals.hpp>
 #include <cpp11/list.hpp>
-#include <dust/cuda.cuh>
+#include <cpp11/data_frame.hpp>
+#include <dust/cuda_call.cuh>
 
 template <typename T>
 cpp11::sexp dust_device_info() {
   using namespace cpp11::literals;
+  cpp11::writable::logicals has_cuda(1);
 #ifdef __NVCC__
   int device_count;
   CUDA_CALL(cudaGetDeviceCount(&device_count));
@@ -46,9 +49,9 @@ cpp11::sexp dust_device_info() {
     "version"_nm = version
     });
 
-  cpp11::writable::logicals has_cuda({true});
+  has_cuda[0] = true;
 #else
-  cpp11::writable::logicals has_cuda({false});
+  has_cuda[0] = false;
   cpp11::sexp cuda_version = R_NilValue;
   cpp11::sexp devices = R_NilValue;
 #endif

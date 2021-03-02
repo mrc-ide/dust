@@ -1,18 +1,18 @@
-generate_dust <- function(filename, quiet, workdir, gpu,
-                          cache) {
+generate_dust <- function(filename, quiet, workdir, cuda, cache) {
   config <- parse_metadata(filename)
   hash <- hash_file(filename)
   base <- sprintf("%s%s", config$name, hash)
+  gpu <- !is.null(cuda)
   if (gpu) {
     base <- paste0(base, "gpu")
   }
 
-  if (base %in% names(cache)) {
-    return(cache[[base]])
+  if (base %in% names(cache$models)) {
+    return(cache$models[[base]])
   }
 
   model <- read_lines(filename)
-  data <- dust_template_data(model, config)
+  data <- dust_template_data(model, config, cuda)
 
   ## These two are used in the non-package version only
   data$base <- base
@@ -31,29 +31,29 @@ generate_dust <- function(filename, quiet, workdir, gpu,
   substitute_dust_template(data, "dust.hpp",
                            file.path(path, "src", "dust.hpp"))
 
-  if (gpu) {
-    substitute_dust_template(data, "dust.cpp",
-                             file.path(path, "src", "dust.cu"))
-    substitute_dust_template(data, "Makevars.cuda",
-                             file.path(path, "src", "Makevars"))
-  } else {
+  if (is.null(cuda)) {
     substitute_dust_template(data, "dust.cpp",
                              file.path(path, "src", "dust.cpp"))
     substitute_dust_template(data, "Makevars",
+                             file.path(path, "src", "Makevars"))
+  } else {
+    substitute_dust_template(data, "dust.cpp",
+                             file.path(path, "src", "dust.cu"))
+    substitute_dust_template(data, "Makevars.cuda",
                              file.path(path, "src", "Makevars"))
   }
 
   cpp11::cpp_register(path, quiet = quiet)
 
   res <- list(key = base, gpu = gpu, data = data, path = path)
-  cache[[base]] <- res
+  cache$models[[base]] <- res
   res
 }
 
 
 compile_and_load <- function(filename, quiet = FALSE, workdir = NULL,
-                             gpu = FALSE) {
-  res <- generate_dust(filename, quiet, workdir, gpu, cache)
+                             cuda = NULL) {
+  res <- generate_dust(filename, quiet, workdir, cuda, cache)
 
   if (is.null(res$env)) {
     path <- res$path
@@ -71,7 +71,7 @@ compile_and_load <- function(filename, quiet = FALSE, workdir = NULL,
     res$env <- tmp$env
     res$gen <- res$env[[res$data$name]]
 
-    cache[[res$key]] <- res
+    cache$models[[res$key]] <- res
   }
 
   res$gen
@@ -96,9 +96,10 @@ glue_whisker <- function(template, data) {
 }
 
 
-dust_template_data <- function(model, config) {
-  list(model = model,
-       name = config$name,
-       class = config$class,
-       param = deparse_param(config$param))
+dust_template_data <- function(model, config, cuda) {
+  ret <- list(model = model,
+              name = config$name,
+              class = config$class,
+              param = deparse_param(config$param),
+              cuda = cuda)
 }

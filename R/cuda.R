@@ -71,7 +71,7 @@ dust_cuda_configuration <- function(path_cuda_lib = NULL,
                                     quiet = TRUE,
                                     forget = FALSE) {
   no_cuda <- list(
-    has_cuda = NULL,
+    has_cuda = FALSE,
     cuda_version = NULL,
     devices = NULL,
     path_cuda_lib = NULL,
@@ -82,10 +82,46 @@ dust_cuda_configuration <- function(path_cuda_lib = NULL,
 }
 
 
+##' Create options for compiling for CUDA.  Unless you need to change
+##' paths to libraries/headers, or change the debug level you will
+##' probably not need to directly use this. However, it's potentially
+##' useful to see what is being passed to the compiler.
+##'
+##' @title Create CUDA options
+##'
+##' @param ... Arguments passed to [dust::dust_cuda_configuration]
+##'
+##' @param debug Logical, indicating if we should compile for debug
+##'   (adding `-g` and `-O0`)
+##'
+##' @param profile Logical, indicating if we should enable profiling
+##'
+##' @param fast_math Logical, indicating if we should enable "fast
+##'   math", which lets the optimiser enable optimisations that break
+##'   IEEE compliance and disables some error checking
+##'
+##' @return An object of type `cuda_options`, which is subject to
+##'   change, but can be passed into `dust`
+##'
+##' @export
+##' @examples
+##' tryCatch(
+##'   dust::dust_cuda_options(),
+##'   error = function(e) NULL)
+dust_cuda_options <- function(..., debug = FALSE, profile = FALSE,
+                              fast_math = FALSE) {
+  info <- dust_cuda_configuration(...)
+  if (!info$has_cuda) {
+    stop("cuda not supported on this machine")
+  }
+  cuda_options(info, debug, profile, fast_math)
+}
+
+
 cuda_configuration <- function(path_cuda_lib = NULL, path_cub_include = NULL,
                                quiet = FALSE, forget = FALSE) {
   if (is.null(cache$cuda) || forget) {
-    dat <- cuda_create_test_package(path_cuda_lib)
+    dat <- cuda_create_test_package(path_cuda_lib, path_cub_include)
     pkg <- pkgload::load_all(dat$path, export_all = FALSE, quiet = quiet,
                              helpers = FALSE, attach_testthat = FALSE)
     on.exit(pkgload::unload(dat$name))
@@ -128,7 +164,7 @@ cuda_path_cub_include <- function(version, path) {
     return(path)
   }
 
-  stop("Did not find cub sources, please install and set DUST_CUB_PATH_INCLUDE")
+  stop("Did not find cub sources, see ?dust_cuda_configuration")
 }
 
 
@@ -141,15 +177,22 @@ cuda_cub_path_default <- function(r_version = getRversion()) {
 
 
 cuda_lib_flags <- function(path_cuda_lib) {
-  if (is.null(path_cuda_lib)) {
+  cuda_flag_helper(path_cuda_lib, "-L")
+}
+
+
+cuda_flag_helper <- function(value, prefix) {
+  if (is.null(value)) {
     ""
   } else {
-    sprintf("-L%s", path_cuda_lib)
+    sprintf("%s%s", prefix, value)
   }
 }
 
 
-cuda_create_test_package <- function(path_cuda_lib = NULL, path = tempfile()) {
+cuda_create_test_package <- function(path_cub_include = NULL,
+                                     path_cuda_lib = NULL,
+                                     path = tempfile()) {
   stopifnot(!file.exists(path))
 
   suffix <- paste(sample(c(0:9, letters[1:6]), 8, TRUE), collapse = "")
@@ -159,21 +202,20 @@ cuda_create_test_package <- function(path_cuda_lib = NULL, path = tempfile()) {
   dir.create(path_src, FALSE, TRUE)
   data <- list(base = base,
                path_dust_include = dust_file("include"),
-               cuda_lib_flags = cuda_lib_flags(path_cuda_lib))
-  file.copy(dust_file("cuda/device_info.cu"), path_src)
-  file.copy(dust_file("cuda/device_info.hpp"), path_src)
-  substitute_template(data, dust_file("cuda/Makevars"),
-                      file.path(path_src, "Makevars"))
+               cuda = list(gencode = "",
+                           nvcc_flags = "-O0",
+                           cub_include = "",
+                           lib_flags = cuda_flag_helper(path_cuda_lib, "-L")))
+
+  file.copy(dust_file("cuda/dust.cu"), path_src)
+  file.copy(dust_file("cuda/dust.hpp"), path_src)
+  substitute_dust_template(data, "Makevars.cuda",
+                           file.path(path_src, "Makevars"))
   substitute_dust_template(data, "DESCRIPTION",
                            file.path(path, "DESCRIPTION"))
   substitute_dust_template(data, "NAMESPACE",
                            file.path(path, "NAMESPACE"))
   list(name = base, path = path)
-}
-
-
-cuda_version <- function(x) {
-  numeric_version(paste(x, collapse = "."))
 }
 
 
@@ -202,4 +244,47 @@ cuda_install_cub <- function(path, version = "1.9.10") {
   file.copy(file.path(tmp_src, base, "cub"), path, recursive = TRUE)
 
   path
+}
+
+
+cuda_options <- function(info, debug, profile, fast_math) {
+  if (debug) {
+    nvcc_flags <- "-g -G -O0"
+  } else {
+    nvcc_flags <- "-O2"
+  }
+  if (profile) {
+    nvcc_flags <- paste(nvcc_flags, "-pg --generate-line-info")
+  }
+  if (fast_math) {
+    nvcc_flags <- paste(nvcc_flags, "--use_fast_math")
+  }
+
+  gencode <- paste(
+    sprintf("-gencode=arch=compute_%d,code=sm_%d",
+            info$devices$version, info$devices$version),
+    collapse = " ")
+
+  ret <- list(nvcc_flags = nvcc_flags,
+              gencode = gencode,
+              cub_include = cuda_flag_helper(info$path_cub_include, "-I"),
+              lib_flags = cuda_flag_helper(info$path_lib, "-L"))
+  class(ret) <- "cuda_options"
+  ret
+}
+
+
+cuda_check <- function(x) {
+  if (is.null(x)) {
+    return(NULL)
+  }
+  if (is.logical(x)) {
+    if (x) {
+      return(dust_cuda_options())
+    } else {
+      return(NULL)
+    }
+  }
+  assert_is(x, "cuda_options")
+  x
 }
