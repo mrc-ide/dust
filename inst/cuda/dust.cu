@@ -1,5 +1,5 @@
 // -*- c++ -*-
-#include "dust.hpp"
+#include <cpp11.hpp>
 #include <dust/device_info.hpp>
 
 cpp11::sexp dust_device_info() {
