@@ -87,7 +87,7 @@ dust_cuda_configuration <- function(path_cuda_lib = NULL,
 ##' @param ... Arguments passed to [dust::dust_cuda_configuration]
 ##'
 ##' @param debug Logical, indicating if we should compile for debug
-##'   (adding `-g` and `-O0`)
+##'   (adding `-g`, `-G` and `-O0`)
 ##'
 ##' @param profile Logical, indicating if we should enable profiling
 ##'

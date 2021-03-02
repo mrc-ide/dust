@@ -132,9 +132,10 @@
 ##'
 ##' @param gpu Logical, indicating if we should generate GPU
 ##'   code. This requires a considerable amount of additional software
-##'   installed as well as a CUDA-compatible GPU. If `TRUE`, then we
-##'   call [dust::dust_cuda_options] with no arguments. Alternatively,
-##'   call that function and pass the value here (e.g, `gpu =
+##'   installed (CUDA toolkit and drivers) as well as a
+##'   CUDA-compatible GPU. If `TRUE`, then we call
+##'   [dust::dust_cuda_options] with no arguments. Alternatively, call
+##'   that function and pass the value here (e.g, `gpu =
 ##'   dust::dust_cuda_options(debug = TRUE)`)
 ##'
 ##' @export

@@ -10,7 +10,7 @@ dust_cuda_options(..., debug = FALSE, profile = FALSE, fast_math = FALSE)
 \item{...}{Arguments passed to \link{dust_cuda_configuration}}
 
 \item{debug}{Logical, indicating if we should compile for debug
-(adding \code{-g} and \code{-O0})}
+(adding \code{-g}, \code{-G} and \code{-O0})}
 
 \item{profile}{Logical, indicating if we should enable profiling}
 
