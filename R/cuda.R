@@ -8,13 +8,21 @@
 ##' session.  Later versions of dust will cache this across sessions
 ##' too.
 ##'
+##' Not all installations leave the CUDA libraries on the default
+##' paths, and you may need to provide it. Specifically, when we link
+##' the dynamic library, if the linker complains about not being able
+##' to find `libcudart` then your CUDA libraries are not in the
+##' default location. You can manually pass in the `path_cuda_lib`
+##' argument, or set the `DUST_PATH_CUDA_LIB` environment variable (in
+##' that order of precedence).
+##'
 ##' If you are using older CUDA (< 11.0.0) then you need to provide
 ##' [CUB](https://nvlabs.github.io/cub/) headers, which we use to
 ##' manage state on the device (these are included in CUDA 11.0.0 and
 ##' higher). You can provide this as:
 ##'
 ##' * a path to this function (`path_cub_include`)
-##' * the environment variable DUST_CUB_PATH_INCLUDE
+##' * the environment variable DUST_PATH_CUB_INCLUDE
 ##' * CUB headers installed into the default location (R >= 4.0.0,
 ##'   see below).
 ##'
@@ -30,7 +38,10 @@
 ##' ```
 ##'
 ##' which will install CUB into the default path (provide a path on
-##' older versions of R and set this path as DUST_CUB_PATH_INCLUDE).
+##' older versions of R and set this path as DUST_PATH_CUB_INCLUDE).
+##'
+##' For editing your .Renviron file to set these environment
+##' variables, `usethis::edit_r_environ()` is very helpful.
 ##'
 ##' @title Detect CUDA configuration
 ##'
@@ -122,13 +133,15 @@ cuda_configuration <- function(path_cuda_lib = NULL, path_cub_include = NULL,
     path_cuda_lib = NULL,
     path_cub_include = NULL)
 
+  path_cuda_lib <- cuda_path_cuda_lib(path_cuda_lib)
+
   tryCatch({
     dat <- cuda_create_test_package(path_cuda_lib)
     pkg <- pkgload::load_all(dat$path, export_all = FALSE, quiet = quiet,
                              helpers = FALSE, attach_testthat = FALSE)
     on.exit(pkgload::unload(dat$name))
-
     info <- pkg$env$dust_device_info()
+    path_cuda_lib <- cuda_path_cuda_lib(path_cuda_lib)
     path_cub_include <-
       cuda_path_cub_include(info$cuda_version, path_cub_include)
     paths <- list(
@@ -137,6 +150,26 @@ cuda_configuration <- function(path_cuda_lib = NULL, path_cub_include = NULL,
 
     c(info, paths)
   }, error = function(e) no_cuda)
+}
+
+
+cuda_path_cuda_lib <- function(path) {
+  check_path <- function(path, reason) {
+    if (!any(grepl("^libcudart", dir(path), ignore.case = TRUE))) {
+      stop(sprintf("Did not find 'libcudart' within '%s' (via %s)",
+                   path, reason))
+    }
+  }
+  if (!is.null(path)) {
+    check_path(path, "provided argument")
+    return(path)
+  }
+  path <- Sys.getenv("DUST_PATH_CUDA_LIB", NA_character_)
+  if (!is.na(path)) {
+    check_path(path, "environment variable 'DUST_PATH_CUDA_LIB'")
+    return(path)
+  }
+  NULL
 }
 
 
@@ -154,9 +187,9 @@ cuda_path_cub_include <- function(version, path) {
   if (version >= numeric_version("11.0.0")) {
     return(NULL)
   }
-  path <- Sys.getenv("DUST_CUB_PATH_INCLUDE", NA_character_)
+  path <- Sys.getenv("DUST_PATH_CUB_INCLUDE", NA_character_)
   if (!is.na(path)) {
-    check_path(path, "environment variable 'DUST_CUB_PATH_INCLUDE'")
+    check_path(path, "environment variable 'DUST_PATH_CUB_INCLUDE'")
     return(path)
   }
   path <- cuda_cub_path_default()
@@ -186,7 +219,7 @@ cuda_flag_helper <- function(value, prefix) {
 }
 
 
-cuda_create_test_package <- function(path_cuda_lib = NULL, path = tempfile()) {
+cuda_create_test_package <- function(path_cuda_lib, path = tempfile()) {
   stopifnot(!file.exists(path))
 
   suffix <- paste(sample(c(0:9, letters[1:6]), 8, TRUE), collapse = "")

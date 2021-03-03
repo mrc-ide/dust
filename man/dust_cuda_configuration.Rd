@@ -57,13 +57,21 @@ session.  Later versions of dust will cache this across sessions
 too.
 }
 \details{
+Not all installations leave the CUDA libraries on the default
+paths, and you may need to provide it. Specifically, when we link
+the dynamic library, if the linker complains about not being able
+to find \code{libcudart} then your CUDA libraries are not in the
+default location. You can manually pass in the \code{path_cuda_lib}
+argument, or set the \code{DUST_PATH_CUDA_LIB} environment variable (in
+that order of precedence).
+
 If you are using older CUDA (< 11.0.0) then you need to provide
 \href{https://nvlabs.github.io/cub/}{CUB} headers, which we use to
 manage state on the device (these are included in CUDA 11.0.0 and
 higher). You can provide this as:
 \itemize{
 \item a path to this function (\code{path_cub_include})
-\item the environment variable DUST_CUB_PATH_INCLUDE
+\item the environment variable DUST_PATH_CUB_INCLUDE
 \item CUB headers installed into the default location (R >= 4.0.0,
 see below).
 }
@@ -77,7 +85,10 @@ To install CUB you can do:\preformatted{dust:::cuda_install_cub(NULL)
 }
 
 which will install CUB into the default path (provide a path on
-older versions of R and set this path as DUST_CUB_PATH_INCLUDE).
+older versions of R and set this path as DUST_PATH_CUB_INCLUDE).
+
+For editing your .Renviron file to set these environment
+variables, \code{usethis::edit_r_environ()} is very helpful.
 }
 \examples{
 dust::dust_cuda_configuration()

@@ -157,14 +157,14 @@ test_that("locate cub", {
 
   expect_error(
     withr::with_envvar(
-      c(DUST_CUB_PATH_INCLUDE = path_bad),
+      c(DUST_PATH_CUB_INCLUDE = path_bad),
       cuda_path_cub_include(version_10, NULL)),
     "Did not find directory 'cub' within '.+' \\(via environment variable")
   withr::with_envvar(
-    c(DUST_CUB_PATH_INCLUDE = path_good),
+    c(DUST_PATH_CUB_INCLUDE = path_good),
     expect_equal(cuda_path_cub_include(version_10, NULL), path_good))
   withr::with_envvar(
-    c(DUST_CUB_PATH_INCLUDE = path_good),
+    c(DUST_PATH_CUB_INCLUDE = path_good),
     expect_null(cuda_path_cub_include(version_11, NULL)))
 
   res <- with_mock(
@@ -176,6 +176,33 @@ test_that("locate cub", {
     expect_error(
       cuda_path_cub_include(version_10, NULL),
       "Did not find cub headers"))
+})
+
+
+test_that("locate cuda libs", {
+  skip_if_not_installed("mockery")
+  path_good <- tempfile()
+  path_bad <- tempfile()
+  dir.create(path_good, FALSE, TRUE)
+  file.create(file.path(path_good, "libcudart.so"))
+
+  expect_error(
+    cuda_path_cuda_lib(path_bad),
+    "Did not find 'libcudart' within '.+' \\(via provided argument\\)")
+  expect_equal(cuda_path_cuda_lib(path_good), path_good)
+
+  expect_error(
+    withr::with_envvar(
+      c(DUST_PATH_CUDA_LIB = path_bad),
+      cuda_path_cuda_lib(NULL)),
+    "Did not find 'libcudart' within '.+' \\(via environment variable")
+  withr::with_envvar(
+    c(DUST_PATH_CUDA_LIB = path_good),
+    expect_equal(cuda_path_cuda_lib(NULL), path_good))
+
+  withr::with_envvar(
+    c(DUST_PATH_CUDA_LIB = NA_character_),
+    expect_null(cuda_path_cuda_lib(NULL)))
 })
 
 
