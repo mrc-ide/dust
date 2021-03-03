@@ -45,11 +45,16 @@ real_t HOSTDEVICE binomial_inversion(rng_state_t<real_t>& rng_state, int n, real
   int k = 0;
 
   real_t f_prev = f;
-  while (u >= f && f != f_prev) {
-    f_prev = f;
+  while (u >= f) {
     u -= f;
     k++;
     f *= (g / k - r);
+    // This catches an issue seen running with floats where we end up
+    // unable to decrease 'f' because we've run out of precision
+    if (f == f_prev) {
+      break;
+    }
+    f_prev = f;
   }
 
   return k;
