@@ -20,7 +20,7 @@ sir <- R6::R6Class(
 
   public = list(
     initialize = function(pars, step, n_particles, n_threads = 1L,
-                          seed = NULL, pars_multi = FALSE, device_id = NULL) {
+                          seed = NULL, pars_multi = FALSE, device_id = 0L) {
       res <- dust_sir_alloc(pars, pars_multi, step, n_particles,
                         n_threads, seed, device_id)
       private$pars_ <- pars
@@ -205,7 +205,7 @@ variable <- R6::R6Class(
 
   public = list(
     initialize = function(pars, step, n_particles, n_threads = 1L,
-                          seed = NULL, pars_multi = FALSE, device_id = NULL) {
+                          seed = NULL, pars_multi = FALSE, device_id = 0L) {
       res <- dust_variable_alloc(pars, pars_multi, step, n_particles,
                         n_threads, seed, device_id)
       private$pars_ <- pars
@@ -390,7 +390,7 @@ volatility <- R6::R6Class(
 
   public = list(
     initialize = function(pars, step, n_particles, n_threads = 1L,
-                          seed = NULL, pars_multi = FALSE, device_id = NULL) {
+                          seed = NULL, pars_multi = FALSE, device_id = 0L) {
       res <- dust_volatility_alloc(pars, pars_multi, step, n_particles,
                         n_threads, seed, device_id)
       private$pars_ <- pars
@@ -575,7 +575,7 @@ walk <- R6::R6Class(
 
   public = list(
     initialize = function(pars, step, n_particles, n_threads = 1L,
-                          seed = NULL, pars_multi = FALSE, device_id = NULL) {
+                          seed = NULL, pars_multi = FALSE, device_id = 0L) {
       res <- dust_walk_alloc(pars, pars_multi, step, n_particles,
                         n_threads, seed, device_id)
       private$pars_ <- pars

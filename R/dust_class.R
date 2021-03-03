@@ -74,7 +74,7 @@ dust_class <- R6::R6Class(
     ##' device ids; this can be called before object creation as
     ##' `dust_class$public_methods$device_info()`
     initialize = function(pars, step, n_particles, n_threads = 1L,
-                          seed = NULL, pars_multi = FALSE, device_id = NULL) {
+                          seed = NULL, pars_multi = FALSE, device_id = 0L) {
     },
 
     ##' @description

@@ -235,7 +235,7 @@ is the same size.
   n_threads = 1L,
   seed = NULL,
   pars_multi = FALSE,
-  device_id = NULL
+  device_id = 0L
 )}\if{html}{\out{</div>}}
 }
 
