@@ -780,7 +780,7 @@ private:
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   refresh_device() {
     if (_device_id < 0) {
-      throw std::runtime_error("Can't refresh a non-existant device");
+      throw std::runtime_error("Can't refresh a non-existent device");
     }
     if (_stale_device) {
       const size_t np = n_particles(), ny = n_state_full();

@@ -67,6 +67,7 @@ void device_shared_copy<variable>(dust::shared_ptr<variable> shared,
 }
 
 template <>
+DEVICE
 void update_device<variable>(size_t step,
                              const dust::interleaved<variable::real_t> state,
                              dust::interleaved<int> internal_int,

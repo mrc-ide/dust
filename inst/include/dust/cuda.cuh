@@ -8,7 +8,10 @@
 #define HOSTDEVICE __host__ __device__
 #define KERNEL __global__
 
-// This is necessary due to templates which are __host__ __device__
+// This is necessary due to templates which are __host__ __device__;
+// whenever a HOSTDEVICE function is called from another HOSTDEVICE
+// function the compiler gets confused as itcan't tell which one it's
+// going to use. This suppresses the warning as it is ok here.
 #define __nv_exec_check_disable__ _Pragma("nv_exec_check_disable")
 
 #include <dust/cuda_call.cuh>

@@ -53,6 +53,10 @@ inline HOSTDEVICE uint64_t xoshiro_next(rng_state_t<T>& state) {
   return result;
 }
 
+// We don't really need to use HOST, but I put them explicitly in all
+// the functions in this file as the RNG was trickiest to get right on
+// both CPU and GPU, and this seemed to make it clear which you are
+// allowed to use in kernels
 inline HOST uint64_t splitmix64(uint64_t seed) {
   uint64_t z = (seed += 0x9e3779b97f4a7c15);
   z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9;

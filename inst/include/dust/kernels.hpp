@@ -1,6 +1,8 @@
 #ifndef DUST_KERNELS_HPP
 #define DUST_KERNELS_HPP
 
+// This is the main model update, will be defined by the model code
+// (see inst/examples/variable.cpp for an example)
 template <typename T>
 DEVICE void update_device(size_t step,
                    const dust::interleaved<typename T::real_t> state,
@@ -18,8 +20,9 @@ KERNEL void scatter_device(int* scatter_index,
                            real_t* scatter_state,
                            size_t state_size) {
 #ifdef __NVCC__
-  int i = blockIdx.x * blockDim.x + threadIdx.x;
-  if (i < state_size) {
+  // https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/
+  for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < state_size;
+       i += blockDim.x * gridDim.x) {
 #else
   for (size_t i = 0; i < state_size; ++i) {
 #endif
