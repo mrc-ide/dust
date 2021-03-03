@@ -69,12 +69,16 @@ dust_class <- R6::R6Class(
     ##' the object.
     ##'
     ##' @param device_id Integer, indicating the device to use, where the
-    ##' model has gpu support. If not given we fall back on the id 0.
-    ##' See the method `$device_info()` for available
-    ##' device ids; this can be called before object creation as
+    ##' model has gpu support. If not given, then the default value of
+    ##' `NULL` will fall back on the first found device if any are
+    ##' available. An error is thrown if the device id given is larger
+    ##' than those reported to be available (note that CUDA numbers devices
+    ##' from 0, so that '0' is the first device, and so on). Negative values
+    ##' disable the use of a device.' See the method `$device_info()` for
+    ##' available device ids; this can be called before object creation as
     ##' `dust_class$public_methods$device_info()`
     initialize = function(pars, step, n_particles, n_threads = 1L,
-                          seed = NULL, pars_multi = FALSE, device_id = 0L) {
+                          seed = NULL, pars_multi = FALSE, device_id = NULL) {
     },
 
     ##' @description

@@ -14,9 +14,7 @@ inline int cuda_devices_count() {
   int device_count = 0;
   #ifdef __NVCC__
   cudaError_t status = cudaGetDeviceCount(&device_count);
-  if (status == cudaErrorNoDevice) {
-    device_count = 0;
-  } else if (status != cudaSuccess) {
+  if (status != cudaSuccess && status != cudaErrorNoDevice) {
     throw_cuda_error(__FILE__, __LINE__, status);
   }
   #endif

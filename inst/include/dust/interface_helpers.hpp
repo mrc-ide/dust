@@ -1,6 +1,8 @@
 #ifndef DUST_INTERFACE_HELPERS_HPP
 #define DUST_INTERFACE_HELPERS_HPP
 
+#include <dust/device_info.hpp>
+
 namespace dust {
 namespace interface {
 
@@ -319,6 +321,23 @@ std::vector<real_t> check_resample_weights(cpp11::doubles r_weights,
   const std::vector<real_t>
     weights(r_weights.begin(), r_weights.end());
   return weights;
+}
+
+inline int check_device_id(cpp11::sexp r_device_id) {
+  const int n_devices = cuda_devices_count();
+  const int device_id_max = n_devices - 1;
+  int device_id = -1;
+  if (r_device_id == R_NilValue) {
+    device_id = device_id_max > 0 ? 0 : -1;
+  } else {
+    device_id = cpp11::as_cpp<int>(r_device_id);
+    if (device_id > device_id_max) {
+      cpp11::stop("Invalid 'device_id' %d, must be at most %d",
+                  device_id, device_id_max);
+    }
+  }
+
+  return device_id;
 }
 
 }

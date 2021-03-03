@@ -235,7 +235,7 @@ is the same size.
   n_threads = 1L,
   seed = NULL,
   pars_multi = FALSE,
-  device_id = 0L
+  device_id = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -271,9 +271,13 @@ simulation. This has an effect on many of the other methods of
 the object.}
 
 \item{\code{device_id}}{Integer, indicating the device to use, where the
-model has gpu support. If not given we fall back on the id 0.
-See the method \verb{$device_info()} for available
-device ids; this can be called before object creation as
+model has gpu support. If not given, then the default value of
+\code{NULL} will fall back on the first found device if any are
+available. An error is thrown if the device id given is larger
+than those reported to be available (note that CUDA numbers devices
+from 0, so that '0' is the first device, and so on). Negative values
+disable the use of a device.' See the method \verb{$device_info()} for
+available device ids; this can be called before object creation as
 \code{dust_class$public_methods$device_info()}}
 }
 \if{html}{\out{</div>}}

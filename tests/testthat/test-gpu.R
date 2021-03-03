@@ -369,8 +369,10 @@ test_that("Can provide device id", {
   len <- 20
   gen <- dust_example("variable")
   expect_error(
-    gen$new(list(len = len), 0, np, device_id = -10),
-    "'device_id' must be non-negative")
-  mod <- gen$new(list(len = len), 0, np, device_id = 10)
-  expect_equal(r6_private(mod)$device_id_, 10)
+    gen$new(list(len = len), 0, np, device_id = 2),
+    "Invalid 'device_id' 2, must be at most -1")
+  mod <- gen$new(list(len = len), 0, np, device_id = -10)
+  expect_equal(r6_private(mod)$device_id_, -10)
+  mod <- gen$new(list(len = len), 0, np, device_id = NULL)
+  expect_equal(r6_private(mod)$device_id_, -1)
 })

@@ -27,10 +27,12 @@ typename cpp11::sexp dust_info(const dust::pars_t<T>& pars);
 template <typename T>
 cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
                        cpp11::sexp r_n_particles, int n_threads,
-                       cpp11::sexp r_seed, int device_id) {
+                       cpp11::sexp r_seed, cpp11::sexp r_device_id) {
   dust::interface::validate_size(step, "step");
   dust::interface::validate_positive(n_threads, "n_threads");
   std::vector<uint64_t> seed = as_rng_seed<typename T::real_t>(r_seed);
+
+  const int device_id = dust::interface::check_device_id(r_device_id);
 
   Dust<T> *d = nullptr;
   cpp11::sexp info;
@@ -71,7 +73,7 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
   cpp11::writable::integers r_shape =
     dust::interface::vector_size_to_int(d->shape());
 
-  return cpp11::writable::list({ptr, info, r_shape});
+  return cpp11::writable::list({ptr, info, r_shape, cpp11::as_sexp(device_id)});
 }
 
 template <typename T>
