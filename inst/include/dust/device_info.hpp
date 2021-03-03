@@ -16,7 +16,13 @@ cpp11::sexp dust_device_info() {
   cpp11::writable::logicals has_cuda(1);
 #ifdef __NVCC__
   int device_count;
-  CUDA_CALL(cudaGetDeviceCount(&device_count));
+  cudaError_t status = cudaGetDeviceCount(&device_count);
+
+  if (status == cudaErrorNoDevice) {
+    device_count = 0;
+  } else if (status != cudaSuccess) {
+    throw_cuda_error(__FILE__, __LINE__, status);
+  }
 
   cpp11::writable::integers ids(device_count);
   cpp11::writable::doubles memory(device_count);
