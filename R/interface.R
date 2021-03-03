@@ -137,7 +137,7 @@
 ##'   [dust::dust_cuda_options] with no arguments. Alternatively, call
 ##'   that function and pass the value here (e.g, `gpu =
 ##'   dust::dust_cuda_options(debug = TRUE)`). Note that due to the
-##'   use of the `__syncwarp()` primative this may require a GPU with
+##'   use of the `__syncwarp()` primitive this may require a GPU with
 ##'   compute version 70 or higher.
 ##'
 ##' @export

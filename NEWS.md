@@ -1,6 +1,6 @@
 # dust 0.8.0
 
-* Add gpu support (#73)
+* Add GPU support (#73)
 
 # dust 0.7.15
 

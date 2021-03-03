@@ -24,7 +24,7 @@ installed (CUDA toolkit and drivers) as well as a
 CUDA-compatible GPU. If \code{TRUE}, then we call
 \link{dust_cuda_options} with no arguments. Alternatively, call
 that function and pass the value here (e.g, \code{gpu = dust::dust_cuda_options(debug = TRUE)}). Note that due to the
-use of the \verb{__syncwarp()} primative this may require a GPU with
+use of the \verb{__syncwarp()} primitive this may require a GPU with
 compute version 70 or higher.}
 }
 \description{
@@ -273,7 +273,7 @@ simulation. This has an effect on many of the other methods of
 the object.}
 
 \item{\code{device_id}}{Integer, indicating the device to use, where the
-model has gpu support. If not given, then the default value of
+model has GPU support. If not given, then the default value of
 \code{NULL} will fall back on the first found device if any are
 available. An error is thrown if the device id given is larger
 than those reported to be available (note that CUDA numbers devices

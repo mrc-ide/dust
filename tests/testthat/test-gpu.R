@@ -397,7 +397,7 @@ test_that("Error if using gpu features without device", {
   mod <- gen$new(list(len = len), 0, np, seed = 1L, device_id = -1L)
   expect_error(
     mod$run(10, TRUE),
-    "Can't refresh a non-existant device")
+    "Can't refresh a non-existent device")
 })
 
 

@@ -1,5 +1,6 @@
 AppVeyor
 CMRG
+CUDA
 ClassGenerator
 CodeFactor
 GBs
@@ -10,6 +11,7 @@ OMP
 OpenMP
 Poisson
 R's
+Renviron
 Resample
 SEIR
 STL
@@ -30,6 +32,7 @@ openmp
 pseudo
 rd
 rng
+sd
 sircovid
 src
 stochasticity

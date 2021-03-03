@@ -15,8 +15,8 @@ dust_cuda_options(..., debug = FALSE, profile = FALSE, fast_math = FALSE)
 \item{profile}{Logical, indicating if we should enable profiling}
 
 \item{fast_math}{Logical, indicating if we should enable "fast
-math", which lets the optimiser enable optimisations that break
-IEEE compliance and disables some error checking (see \href{https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html}{the cuda docs}
+maths", which lets the optimiser enable optimisations that break
+IEEE compliance and disables some error checking (see \href{https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html}{the CUDA docs}
 for more details.}
 }
 \value{

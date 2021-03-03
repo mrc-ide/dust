@@ -51,7 +51,7 @@ change. This function tries to compile a small program with \code{nvcc}
 and confirms that this can be loaded into R, then uses that
 program to query the presence and capabilities of your NVIDIA
 GPUs. If this works, then you can use the GPU-enabled dust
-features, and the infomation returned will help us.  It's quite
+features, and the information returned will help us.  It's quite
 slow to execute (several seconds) so we cache the value within a
 session.  Later versions of dust will cache this across sessions
 too.
@@ -91,7 +91,7 @@ For editing your .Renviron file to set these environment
 variables, \code{usethis::edit_r_environ()} is very helpful.
 }
 \examples{
-# If you have your cuda library in an unusual location, then you
+# If you have your CUDA library in an unusual location, then you
 # may need to add a path_cuda_lib argument:
 dust::dust_cuda_configuration(
   path_cuda_lib = "/usr/local/cuda-11.1/lib64",

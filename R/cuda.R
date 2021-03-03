@@ -3,7 +3,7 @@
 ##' and confirms that this can be loaded into R, then uses that
 ##' program to query the presence and capabilities of your NVIDIA
 ##' GPUs. If this works, then you can use the GPU-enabled dust
-##' features, and the infomation returned will help us.  It's quite
+##' features, and the information returned will help us.  It's quite
 ##' slow to execute (several seconds) so we cache the value within a
 ##' session.  Later versions of dust will cache this across sessions
 ##' too.
@@ -76,7 +76,7 @@
 ##'
 ##' @export
 ##' @examples
-##' # If you have your cuda library in an unusual location, then you
+##' # If you have your CUDA library in an unusual location, then you
 ##' # may need to add a path_cuda_lib argument:
 ##' dust::dust_cuda_configuration(
 ##'   path_cuda_lib = "/usr/local/cuda-11.1/lib64",
@@ -112,8 +112,8 @@ dust_cuda_configuration <- function(path_cuda_lib = NULL,
 ##' @param profile Logical, indicating if we should enable profiling
 ##'
 ##' @param fast_math Logical, indicating if we should enable "fast
-##'   math", which lets the optimiser enable optimisations that break
-##'   IEEE compliance and disables some error checking (see [the cuda
+##'   maths", which lets the optimiser enable optimisations that break
+##'   IEEE compliance and disables some error checking (see [the CUDA
 ##'   docs](https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html)
 ##'   for more details.
 ##'
