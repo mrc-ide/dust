@@ -335,3 +335,15 @@ test_that("high level interface to cuda options", {
     mockery::mock_args(mock_cuda_configuration)[[2]],
     list(path_cuda_lib = path_lib))
 })
+
+
+test_that("Can provide device id", {
+  np <- 100
+  len <- 20
+  gen <- dust_example("variable")
+  expect_error(
+    gen$new(list(len = len), 0, np, device_id = -10),
+    "'device_id' must be non-negative")
+  mod <- gen$new(list(len = len), 0, np, device_id = 10)
+  expect_equal(r6_private(mod)$device_id_, 10)
+})

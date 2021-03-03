@@ -234,7 +234,8 @@ is the same size.
   n_particles,
   n_threads = 1L,
   seed = NULL,
-  pars_multi = FALSE
+  pars_multi = FALSE,
+  device_id = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -268,6 +269,12 @@ interpreted as a set of different initialisations, and that we
 should prepare \code{n_particles * length(pars)} particles for
 simulation. This has an effect on many of the other methods of
 the object.}
+
+\item{\code{device_id}}{Integer, indicating the device to use, where the
+model has gpu support. If not given we fall back on the id 0.
+See the method \verb{$device_info()} for available
+device ids; this can be called before object creation as
+\code{dust_class$public_methods$device_info()}}
 }
 \if{html}{\out{</div>}}
 }
@@ -788,7 +795,7 @@ If you have a multi-parameter dust object this will be a 4d array
 \subsection{Method \code{device_info()}}{
 \strong{Experimental!} Return information about GPU devices, if the model
 has been compiled with CUDA/GPU support. This can be called as a
-static  method.
+static method by running \code{dust_class$public_methods$device_info()}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$device_info()}\if{html}{\out{</div>}}
 }

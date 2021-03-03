@@ -13,21 +13,23 @@ sir <- R6::R6Class(
     n_particles_each_ = NULL,
     shape_ = NULL,
     ptr_ = NULL,
+    device_id_ = NULL,
     param_ = list(I0 = list(required = FALSE), beta = list(required = FALSE),
     gamma = list(required = FALSE), exp_noise = list(required = FALSE))
   ),
 
   public = list(
     initialize = function(pars, step, n_particles, n_threads = 1L,
-                          seed = NULL, pars_multi = FALSE) {
+                          seed = NULL, pars_multi = FALSE, device_id = NULL) {
       res <- dust_sir_alloc(pars, pars_multi, step, n_particles,
-                        n_threads, seed)
+                        n_threads, seed, device_id)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
+      private$device_id_ <- device_id
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -175,7 +177,11 @@ sir <- R6::R6Class(
     },
 
     device_info = function() {
-      dust_sir_device_info()
+      ret <- dust_sir_device_info()
+      if (ret$has_cuda && exists("private", inherits = FALSE)) {
+        ret$device_id <- private$device_id_
+      }
+      ret
     }
   ))
 class(sir) <- c("dust_generator", class(sir))
@@ -193,20 +199,22 @@ variable <- R6::R6Class(
     n_particles_each_ = NULL,
     shape_ = NULL,
     ptr_ = NULL,
+    device_id_ = NULL,
     param_ = NULL
   ),
 
   public = list(
     initialize = function(pars, step, n_particles, n_threads = 1L,
-                          seed = NULL, pars_multi = FALSE) {
+                          seed = NULL, pars_multi = FALSE, device_id = NULL) {
       res <- dust_variable_alloc(pars, pars_multi, step, n_particles,
-                        n_threads, seed)
+                        n_threads, seed, device_id)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
+      private$device_id_ <- device_id
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -354,7 +362,11 @@ variable <- R6::R6Class(
     },
 
     device_info = function() {
-      dust_variable_device_info()
+      ret <- dust_variable_device_info()
+      if (ret$has_cuda && exists("private", inherits = FALSE)) {
+        ret$device_id <- private$device_id_
+      }
+      ret
     }
   ))
 class(variable) <- c("dust_generator", class(variable))
@@ -372,20 +384,22 @@ volatility <- R6::R6Class(
     n_particles_each_ = NULL,
     shape_ = NULL,
     ptr_ = NULL,
+    device_id_ = NULL,
     param_ = NULL
   ),
 
   public = list(
     initialize = function(pars, step, n_particles, n_threads = 1L,
-                          seed = NULL, pars_multi = FALSE) {
+                          seed = NULL, pars_multi = FALSE, device_id = NULL) {
       res <- dust_volatility_alloc(pars, pars_multi, step, n_particles,
-                        n_threads, seed)
+                        n_threads, seed, device_id)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
+      private$device_id_ <- device_id
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -533,7 +547,11 @@ volatility <- R6::R6Class(
     },
 
     device_info = function() {
-      dust_volatility_device_info()
+      ret <- dust_volatility_device_info()
+      if (ret$has_cuda && exists("private", inherits = FALSE)) {
+        ret$device_id <- private$device_id_
+      }
+      ret
     }
   ))
 class(volatility) <- c("dust_generator", class(volatility))
@@ -551,20 +569,22 @@ walk <- R6::R6Class(
     n_particles_each_ = NULL,
     shape_ = NULL,
     ptr_ = NULL,
+    device_id_ = NULL,
     param_ = NULL
   ),
 
   public = list(
     initialize = function(pars, step, n_particles, n_threads = 1L,
-                          seed = NULL, pars_multi = FALSE) {
+                          seed = NULL, pars_multi = FALSE, device_id = NULL) {
       res <- dust_walk_alloc(pars, pars_multi, step, n_particles,
-                        n_threads, seed)
+                        n_threads, seed, device_id)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
+      private$device_id_ <- device_id
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -712,7 +732,11 @@ walk <- R6::R6Class(
     },
 
     device_info = function() {
-      dust_walk_device_info()
+      ret <- dust_walk_device_info()
+      if (ret$has_cuda && exists("private", inherits = FALSE)) {
+        ret$device_id <- private$device_id_
+      }
+      ret
     }
   ))
 class(walk) <- c("dust_generator", class(walk))

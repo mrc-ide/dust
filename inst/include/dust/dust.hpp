@@ -27,7 +27,8 @@ public:
   typedef typename T::data_t data_t;
 
   Dust(const pars_t& pars, const size_t step, const size_t n_particles,
-       const size_t n_threads, const std::vector<uint64_t>& seed) :
+       const size_t n_threads, const std::vector<uint64_t>& seed,
+       size_t device_id) :
     _n_pars(0),
     _n_particles_each(n_particles),
     _n_particles_total(n_particles),
@@ -37,7 +38,7 @@ public:
     _stale_host(false),
     _stale_device(true) {
 #ifdef __NVCC__
-    initialise_device(0); // TODO - set this from value in constructor
+    initialise_device(device_id);
 #endif
     initialise(pars, step, n_particles, true);
     initialise_index();
@@ -46,7 +47,8 @@ public:
 
   Dust(const std::vector<pars_t>& pars, const size_t step,
        const size_t n_particles, const size_t n_threads,
-       const std::vector<uint64_t>& seed, std::vector<size_t> shape) :
+       const std::vector<uint64_t>& seed, size_t device_id,
+       std::vector<size_t> shape) :
     _n_pars(pars.size()),
     _n_particles_each(n_particles == 0 ? 1 : n_particles),
     _n_particles_total(_n_particles_each * pars.size()),
@@ -56,7 +58,7 @@ public:
     _stale_host(false),
     _stale_device(true) {
 #ifdef __NVCC__
-    initialise_device(0); // TODO - set this from value in constructor
+    initialise_device(device_id);
 #endif
     initialise(pars, step, _n_particles_each, true);
     initialise_index();

@@ -22,6 +22,7 @@ dust_class <- R6::R6Class(
     n_particles_each_ = NULL,
     shape_ = NULL,
     ptr_ = NULL,
+    device_id_ = NULL,
     param_ = NULL
   ),
 
@@ -66,8 +67,14 @@ dust_class <- R6::R6Class(
     ##' should prepare `n_particles * length(pars)` particles for
     ##' simulation. This has an effect on many of the other methods of
     ##' the object.
+    ##'
+    ##' @param device_id Integer, indicating the device to use, where the
+    ##' model has gpu support. If not given we fall back on the id 0.
+    ##' See the method `$device_info()` for available
+    ##' device ids; this can be called before object creation as
+    ##' `dust_class$public_methods$device_info()`
     initialize = function(pars, step, n_particles, n_threads = 1L,
-                          seed = NULL, pars_multi = FALSE) {
+                          seed = NULL, pars_multi = FALSE, device_id = NULL) {
     },
 
     ##' @description
@@ -359,7 +366,7 @@ dust_class <- R6::R6Class(
     ##' @description
     ##' **Experimental!** Return information about GPU devices, if the model
     ##' has been compiled with CUDA/GPU support. This can be called as a
-    ##' static  method.
+    ##' static method by running `dust_class$public_methods$device_info()`
     device_info = function() {
     }
   ))

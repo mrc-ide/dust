@@ -72,8 +72,8 @@ cpp_openmp_info <- function() {
   .Call(`_dust_cpp_openmp_info`)
 }
 
-dust_sir_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed) {
-  .Call(`_dust_dust_sir_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed)
+dust_sir_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_id) {
+  .Call(`_dust_dust_sir_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_id)
 }
 
 dust_sir_run <- function(ptr, step_end, device) {
@@ -156,8 +156,8 @@ cpp_scale_log_weights <- function(w) {
   .Call(`_dust_cpp_scale_log_weights`, w)
 }
 
-dust_variable_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed) {
-  .Call(`_dust_dust_variable_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed)
+dust_variable_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_id) {
+  .Call(`_dust_dust_variable_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_id)
 }
 
 dust_variable_run <- function(ptr, step_end, device) {
@@ -236,8 +236,8 @@ dust_variable_device_info <- function() {
   .Call(`_dust_dust_variable_device_info`)
 }
 
-dust_volatility_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed) {
-  .Call(`_dust_dust_volatility_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed)
+dust_volatility_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_id) {
+  .Call(`_dust_dust_volatility_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_id)
 }
 
 dust_volatility_run <- function(ptr, step_end, device) {
@@ -316,8 +316,8 @@ dust_volatility_device_info <- function() {
   .Call(`_dust_dust_volatility_device_info`)
 }
 
-dust_walk_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed) {
-  .Call(`_dust_dust_walk_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed)
+dust_walk_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_id) {
+  .Call(`_dust_dust_walk_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_id)
 }
 
 dust_walk_run <- function(ptr, step_end, device) {

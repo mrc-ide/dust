@@ -2,7 +2,7 @@
 [[cpp11::register]]
 SEXP dust_{{name}}_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                          cpp11::sexp r_n_particles, size_t n_threads,
-                         cpp11::sexp r_seed);
+                         cpp11::sexp r_seed, int device_id);
 
 [[cpp11::register]]
 SEXP dust_{{name}}_run(SEXP ptr, size_t step_end, bool device);

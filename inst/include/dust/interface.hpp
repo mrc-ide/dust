@@ -27,10 +27,12 @@ typename cpp11::sexp dust_info(const dust::pars_t<T>& pars);
 template <typename T>
 cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
                        cpp11::sexp r_n_particles, int n_threads,
-                       cpp11::sexp r_seed) {
+                       cpp11::sexp r_seed, int device_id) {
   dust::interface::validate_size(step, "step");
   dust::interface::validate_positive(n_threads, "n_threads");
   std::vector<uint64_t> seed = as_rng_seed<typename T::real_t>(r_seed);
+
+  dust::interface::validate_size(device_id, "device_id");
 
   Dust<T> *d = nullptr;
   cpp11::sexp info;
@@ -58,12 +60,12 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
       n_particles = cpp11::as_cpp<int>(r_n_particles);
       dust::interface::validate_size(n_particles, "n_particles");
     }
-    d = new Dust<T>(pars, step, n_particles, n_threads, seed, shape);
+    d = new Dust<T>(pars, step, n_particles, n_threads, seed, device_id, shape);
   } else {
     size_t n_particles = cpp11::as_cpp<int>(r_n_particles);
     dust::interface::validate_positive(n_particles, "n_particles");
     dust::pars_t<T> pars = dust_pars<T>(r_pars);
-    d = new Dust<T>(pars, step, n_particles, n_threads, seed);
+    d = new Dust<T>(pars, step, n_particles, n_threads, seed, device_id);
     info = dust_info<T>(pars);
   }
   cpp11::external_pointer<Dust<T>> ptr(d, true, false);

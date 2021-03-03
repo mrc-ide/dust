@@ -3,7 +3,7 @@
 [[cpp11::register]]
 SEXP dust_walk_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                          cpp11::sexp r_n_particles, size_t n_threads,
-                         cpp11::sexp r_seed);
+                         cpp11::sexp r_seed, int device_id);
 
 [[cpp11::register]]
 SEXP dust_walk_run(SEXP ptr, size_t step_end, bool device);
@@ -107,9 +107,9 @@ dust::pars_t<walk> dust_pars<walk>(cpp11::list pars) {
 
 SEXP dust_walk_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                          cpp11::sexp r_n_particles, size_t n_threads,
-                         cpp11::sexp r_seed) {
+                         cpp11::sexp r_seed, int device_id) {
   return dust_alloc<walk>(r_pars, pars_multi, step, r_n_particles,
-                               n_threads, r_seed);
+                               n_threads, r_seed, device_id);
 }
 
 SEXP dust_walk_run(SEXP ptr, size_t step_end, bool device) {
