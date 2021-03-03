@@ -389,3 +389,18 @@ test_that("Error if using gpu features without device", {
     mod$run(10, TRUE),
     "Can't refresh a non-existant device")
 })
+
+
+test_that("Can provide device id to non-gpu model with no effect", {
+  np <- 10
+  gen <- dust_example("sir")
+  expect_error(
+    gen$new(list(), 0, np, device_id = 2),
+    "Invalid 'device_id' 2, must be at most 0")
+  mod <- gen$new(list(), 0, np, device_id = -10)
+  expect_equal(r6_private(mod)$device_id_, -10)
+  mod <- gen$new(list(), 0, np, device_id = NULL)
+  expect_equal(r6_private(mod)$device_id_, -1)
+  mod <- gen$new(list(), 0, np, device_id = 0L)
+  expect_equal(r6_private(mod)$device_id_, 0)
+})
