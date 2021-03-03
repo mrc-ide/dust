@@ -7,6 +7,7 @@
 namespace dust {
 namespace distr {
 
+__nv_exec_check_disable__
 template <typename real_t>
 HOSTDEVICE inline real_t box_muller(rng_state_t<real_t>& rng_state) {
   // This function implements the Box-Muller transform:
