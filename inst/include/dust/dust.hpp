@@ -34,6 +34,7 @@ public:
     _n_particles_total(n_particles),
     _pars_are_shared(true),
     _n_threads(n_threads),
+    _device_id(device_id),
     _rng(_n_particles_total, seed),
     _stale_host(false),
     _stale_device(true) {
@@ -54,6 +55,7 @@ public:
     _n_particles_total(_n_particles_each * pars.size()),
     _pars_are_shared(n_particles != 0),
     _n_threads(n_threads),
+    _device_id(device_id),
     _rng(_n_particles_total, seed),
     _stale_host(false),
     _stale_device(true) {
@@ -560,6 +562,7 @@ private:
   const bool _pars_are_shared; // Does the n_particles dimension exist in shape?
   std::vector<size_t> _shape; // shape of output
   size_t _n_threads;
+  int _device_id;
   dust::pRNG<real_t> _rng;
   std::map<size_t, std::vector<data_t>> _data;
 
@@ -591,6 +594,9 @@ private:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   initialise_device(const int device_id) {
+    if (device_id < 0) {
+      return;
+    }
 #ifdef __NVCC__
     CUDA_CALL(cudaSetDevice(device_id));
     CUDA_CALL(cudaDeviceSetCacheConfig(cudaFuncCachePreferL1));
@@ -682,6 +688,9 @@ private:
   // This only gets called on construction; the size of these never
   // changes.
   void initialise_device_data() {
+    if (_device_id < 0) {
+      return;
+    }
     const auto s = _shared[0];
     const size_t n_internal_int = dust::device_internal_size_int<T>(s);
     const size_t n_internal_real = dust::device_internal_size_real<T>(s);
@@ -700,6 +709,9 @@ private:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   update_device_shared() {
+    if (_device_id < 0) {
+      return;
+    }
     const size_t n_shared_int = _device_data.n_shared_int;
     const size_t n_shared_real = _device_data.n_shared_real;
     std::vector<int> shared_int(n_shared_int * n_pars_effective());
@@ -731,6 +743,9 @@ private:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   update_device_index() {
+    if (_device_id < 0) {
+      return;
+    }
     size_t n_particles = _particles.size();
     std::vector<char> bool_idx(n_state_full() * n_particles, 0);
     // e.g. 4 particles with 3 states ABC stored on device as
@@ -763,6 +778,9 @@ private:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   refresh_device() {
+    if (_device_id < 0) {
+      throw std::runtime_error("Can't refresh a non-existant device");
+    }
     if (_stale_device) {
       const size_t np = n_particles(), ny = n_state_full();
       const size_t rng_len = dust::rng_state_t<real_t>::size();

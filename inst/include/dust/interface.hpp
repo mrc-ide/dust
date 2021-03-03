@@ -32,8 +32,6 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
   dust::interface::validate_positive(n_threads, "n_threads");
   std::vector<uint64_t> seed = as_rng_seed<typename T::real_t>(r_seed);
 
-  dust::interface::validate_size(device_id, "device_id");
-
   Dust<T> *d = nullptr;
   cpp11::sexp info;
   if (pars_multi) {
