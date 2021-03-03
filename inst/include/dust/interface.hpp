@@ -395,7 +395,6 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_history) {
     // or at least the history object. Still this is going to work
     // generally.
     const int n_data = history_data.size() / (n_state * n_particles);
-    const int n_pars = obj->n_pars();
     history_data.attr("dim") =
       dust::interface::state_array_dim(n_state, obj->shape(), n_data);
     history = history_data;
