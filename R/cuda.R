@@ -76,7 +76,16 @@
 ##'
 ##' @export
 ##' @examples
-##' dust::dust_cuda_configuration()
+##' # If you have your cuda library in an unusual location, then you
+##' # may need to add a path_cuda_lib argument:
+##' dust::dust_cuda_configuration(
+##'   path_cuda_lib = "/usr/local/cuda-11.1/lib64",
+##'   forget = TRUE, quiet = FALSE)
+##'
+##' # However, if things are installed in the default location or you
+##' # have set the environment variables described above, then this
+##' # may work:
+##' dust::dust_cuda_configuration(forget = TRUE, quiet = FALSE)
 dust_cuda_configuration <- function(path_cuda_lib = NULL,
                                     path_cub_include = NULL,
                                     quiet = TRUE,
@@ -104,7 +113,9 @@ dust_cuda_configuration <- function(path_cuda_lib = NULL,
 ##'
 ##' @param fast_math Logical, indicating if we should enable "fast
 ##'   math", which lets the optimiser enable optimisations that break
-##'   IEEE compliance and disables some error checking
+##'   IEEE compliance and disables some error checking (see [the cuda
+##'   docs](https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html)
+##'   for more details.
 ##'
 ##' @return An object of type `cuda_options`, which is subject to
 ##'   change, but can be passed into `dust`
@@ -133,9 +144,8 @@ cuda_configuration <- function(path_cuda_lib = NULL, path_cub_include = NULL,
     path_cuda_lib = NULL,
     path_cub_include = NULL)
 
-  path_cuda_lib <- cuda_path_cuda_lib(path_cuda_lib)
-
   tryCatch({
+    path_cuda_lib <- cuda_path_cuda_lib(path_cuda_lib)
     dat <- cuda_create_test_package(path_cuda_lib)
     pkg <- pkgload::load_all(dat$path, export_all = FALSE, quiet = quiet,
                              helpers = FALSE, attach_testthat = FALSE)

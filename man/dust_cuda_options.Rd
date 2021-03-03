@@ -16,7 +16,8 @@ dust_cuda_options(..., debug = FALSE, profile = FALSE, fast_math = FALSE)
 
 \item{fast_math}{Logical, indicating if we should enable "fast
 math", which lets the optimiser enable optimisations that break
-IEEE compliance and disables some error checking}
+IEEE compliance and disables some error checking (see \href{https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html}{the cuda docs}
+for more details.}
 }
 \value{
 An object of type \code{cuda_options}, which is subject to

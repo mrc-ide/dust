@@ -91,5 +91,14 @@ For editing your .Renviron file to set these environment
 variables, \code{usethis::edit_r_environ()} is very helpful.
 }
 \examples{
-dust::dust_cuda_configuration()
+# If you have your cuda library in an unusual location, then you
+# may need to add a path_cuda_lib argument:
+dust::dust_cuda_configuration(
+  path_cuda_lib = "/usr/local/cuda-11.1/lib64",
+  forget = TRUE, quiet = FALSE)
+
+# However, if things are installed in the default location or you
+# have set the environment variables described above, then this
+# may work:
+dust::dust_cuda_configuration(forget = TRUE, quiet = FALSE)
 }

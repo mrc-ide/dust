@@ -23,7 +23,9 @@ code. This requires a considerable amount of additional software
 installed (CUDA toolkit and drivers) as well as a
 CUDA-compatible GPU. If \code{TRUE}, then we call
 \link{dust_cuda_options} with no arguments. Alternatively, call
-that function and pass the value here (e.g, \code{gpu = dust::dust_cuda_options(debug = TRUE)})}
+that function and pass the value here (e.g, \code{gpu = dust::dust_cuda_options(debug = TRUE)}). Note that due to the
+use of the \verb{__syncwarp()} primative this may require a GPU with
+compute version 70 or higher.}
 }
 \description{
 Create a dust model from a C++ input file.  This function will
