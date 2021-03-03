@@ -4,7 +4,7 @@ steps:
 
   - wait
 
-  - label: :allthethings: "Build cuda image"
+  - label: ":allthethings: Build cuda image"
     command: docker/build_cuda
 
   - wait
