@@ -5,7 +5,7 @@ test_that("Can run device version of model on cpu", {
   len <- 20
   gen <- dust_example("variable")
   mod1 <- gen$new(list(len = len), 0, np, seed = 1L)
-  mod2 <- gen$new(list(len = len), 0, np, seed = 1L)
+  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_id = 0L)
 
   expect_identical(
     mod1$run(10),
@@ -20,8 +20,8 @@ test_that("Can use both device and cpu run functions", {
   np <- 100
   len <- 20
   gen <- dust_example("variable")
-  mod1 <- gen$new(list(len = len), 0, np, seed = 1L)
-  mod2 <- gen$new(list(len = len), 0, np, seed = 1L)
+  mod1 <- gen$new(list(len = len), 0, np, seed = 1L, device_id = 0L)
+  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_id = 0L)
   mod3 <- gen$new(list(len = len), 0, np, seed = 1L)
 
   expect_identical(
@@ -52,7 +52,7 @@ test_that("Can run multiple parameter sets", {
   res <- dust_example("variable")
   p <- list(list(len = 10, sd = 1), list(len = 10, sd = 10))
   mod1 <- res$new(p, 0, 10, seed = 1L, pars_multi = TRUE)
-  mod2 <- res$new(p, 0, 10, seed = 1L, pars_multi = TRUE)
+  mod2 <- res$new(p, 0, 10, seed = 1L, pars_multi = TRUE, device_id = 0L)
   expect_identical(
     mod1$run(10),
     mod2$run(10, TRUE))
@@ -68,7 +68,7 @@ test_that("Can reorder on the device", {
 
   np <- 13
   mod1 <- res$new(p, 0, np, seed = 1L, pars_multi = TRUE)
-  mod2 <- res$new(p, 0, np, seed = 1L, pars_multi = TRUE)
+  mod2 <- res$new(p, 0, np, seed = 1L, pars_multi = TRUE, device_id = 0L)
   mod1$set_index(integer(0))
   mod2$set_index(integer(0))
 
@@ -370,9 +370,22 @@ test_that("Can provide device id", {
   gen <- dust_example("variable")
   expect_error(
     gen$new(list(len = len), 0, np, device_id = 2),
-    "Invalid 'device_id' 2, must be at most -1")
+    "Invalid 'device_id' 2, must be at most 0")
   mod <- gen$new(list(len = len), 0, np, device_id = -10)
   expect_equal(r6_private(mod)$device_id_, -10)
   mod <- gen$new(list(len = len), 0, np, device_id = NULL)
   expect_equal(r6_private(mod)$device_id_, -1)
+  mod <- gen$new(list(len = len), 0, np, device_id = 0L)
+  expect_equal(r6_private(mod)$device_id_, 0)
+})
+
+
+test_that("Error if using gpu features without device", {
+  np <- 100
+  len <- 20
+  gen <- dust_example("variable")
+  mod <- gen$new(list(len = len), 0, np, seed = 1L, device_id = -1L)
+  expect_error(
+    mod$run(10, TRUE),
+    "Can't refresh a non-existant device")
 })
