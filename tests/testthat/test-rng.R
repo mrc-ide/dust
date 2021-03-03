@@ -115,6 +115,20 @@ test_that("binomial numbers on the 'small' path", {
 })
 
 
+test_that("binomial random numbers from floats have correct distribution", {
+  test_rbinom_double <- function(i, m, n, p) {
+    dust_rng$new(1, 1)$rbinom(m, n, p)
+  }
+  m <- 100000
+  n <- 958L
+  p <- 0.004145
+  yf <- test_rbinom_float(1L, m, n, p)
+  yd <- test_rbinom_double(1L, m, n, p)
+  expect_equal(mean(yf), mean(yd), tolerance = 1e-4)
+  expect_equal(var(yf), var(yd), tolerance = 1e-3)
+})
+
+
 test_that("binomial numbers and their complement are the same (np small)", {
   m <- 100
   n <- 20L

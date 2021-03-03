@@ -68,6 +68,10 @@ dust_rng_state <- function(ptr) {
   .Call(`_dust_dust_rng_state`, ptr)
 }
 
+test_rbinom_float <- function(r_seed, n_samples, size, p) {
+  .Call(`_dust_test_rbinom_float`, r_seed, n_samples, size, p)
+}
+
 cpp_openmp_info <- function() {
   .Call(`_dust_cpp_openmp_info`)
 }

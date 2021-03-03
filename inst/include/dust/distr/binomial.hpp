@@ -29,15 +29,9 @@ HOSTDEVICE real_t fast_pow(real_t x, int n) {
   return pow;
 }
 
-// Binomial random numbers via inversion (for low np only!). Draw a
-// random number from U(0, 1) and find the 'n' up the distribution
-// (given p) that corresponds to this
 __nv_exec_check_disable__
 template <typename real_t>
-real_t HOSTDEVICE binomial_inversion(rng_state_t<real_t>& rng_state, int n, real_t p) {
-  real_t u = dust::unif_rand<real_t>(rng_state);
-
-  // This is equivalent to qbinom(u, n, p)
+real_t HOSTDEVICE binomial_inversion_calc(real_t u, int n, real_t p) {
   const real_t q = 1 - p;
   const real_t r = p / q;
   const real_t g = r * (n + 1);
@@ -49,14 +43,30 @@ real_t HOSTDEVICE binomial_inversion(rng_state_t<real_t>& rng_state, int n, real
     u -= f;
     k++;
     f *= (g / k - r);
-    // This catches an issue seen running with floats where we end up
-    // unable to decrease 'f' because we've run out of precision
     if (f == f_prev) {
-      break;
+      // This catches an issue seen running with floats where we end
+      // up unable to decrease 'f' because we've run out of
+      // precision. In this case we'll try again with a better u
+      return -1;
     }
     f_prev = f;
   }
 
+  return k;
+}
+
+// Binomial random numbers via inversion (for low np only!). Draw a
+// random number from U(0, 1) and find the 'n' up the distribution
+// (given p) that corresponds to this
+__nv_exec_check_disable__
+template <typename real_t>
+real_t HOSTDEVICE binomial_inversion(rng_state_t<real_t>& rng_state, int n,
+                                     real_t p) {
+  real_t k = -1;
+  do {
+    real_t u = dust::unif_rand(rng_state);
+    k = binomial_inversion_calc(u, n, p);
+  } while (k < 0);
   return k;
 }
 

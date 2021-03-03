@@ -125,6 +125,13 @@ extern "C" SEXP _dust_dust_rng_state(SEXP ptr) {
     return cpp11::as_sexp(dust_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
   END_CPP11
 }
+// dust_rng.cpp
+cpp11::sexp test_rbinom_float(cpp11::sexp r_seed, int n_samples, int size, double p);
+extern "C" SEXP _dust_test_rbinom_float(SEXP r_seed, SEXP n_samples, SEXP size, SEXP p) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(test_rbinom_float(cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<int>>(n_samples), cpp11::as_cpp<cpp11::decay_t<int>>(size), cpp11::as_cpp<cpp11::decay_t<double>>(p)));
+  END_CPP11
+}
 // openmp.cpp
 cpp11::writable::list cpp_openmp_info();
 extern "C" SEXP _dust_cpp_openmp_info() {
@@ -809,6 +816,7 @@ extern SEXP _dust_dust_walk_set_state(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_walk_simulate(SEXP, SEXP);
 extern SEXP _dust_dust_walk_state(SEXP, SEXP);
 extern SEXP _dust_dust_walk_step(SEXP);
+extern SEXP _dust_test_rbinom_float(SEXP, SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"_dust_cpp_openmp_info",               (DL_FUNC) &_dust_cpp_openmp_info,               0},
@@ -910,6 +918,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_walk_simulate",            (DL_FUNC) &_dust_dust_walk_simulate,            2},
     {"_dust_dust_walk_state",               (DL_FUNC) &_dust_dust_walk_state,               2},
     {"_dust_dust_walk_step",                (DL_FUNC) &_dust_dust_walk_step,                1},
+    {"_dust_test_rbinom_float",             (DL_FUNC) &_dust_test_rbinom_float,             4},
     {NULL, NULL, 0}
 };
 }
