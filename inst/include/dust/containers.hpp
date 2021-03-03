@@ -190,9 +190,6 @@ public:
   size_t size() const {
     return size_;
   }
-  size_t& size() {
-    return size_;
-  }
 
 private:
   device_array ( const device_array<void> & ) = delete;

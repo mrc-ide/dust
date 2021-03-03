@@ -256,9 +256,10 @@ public:
       size_t index_size = _index.size();
     if (_stale_host) {
 #ifdef __NVCC__
+      size_t size_select_tmp = _device_data.select_tmp.size();
       // Run the selection and copy items back
       cub::DeviceSelect::Flagged(_device_data.select_tmp.data(),
-                                 _device_data.select_tmp.size(),
+                                 size_select_tmp,
                                  _device_data.y.data(),
                                  _device_data.index.data(),
                                  _device_data.y_selected.data(),
