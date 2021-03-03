@@ -82,7 +82,7 @@ that can be used to work with the model (see the Details below)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.17</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.0</span>
       </span>
     </div>
 
@@ -153,7 +153,7 @@ compile the dust support around your model and return an object
 that can be used to work with the model (see the Details below).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>dust</span><span class='op'>(</span><span class='va'>filename</span>, quiet <span class='op'>=</span> <span class='cn'>FALSE</span>, workdir <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>dust</span><span class='op'>(</span><span class='va'>filename</span>, quiet <span class='op'>=</span> <span class='cn'>FALSE</span>, workdir <span class='op'>=</span> <span class='cn'>NULL</span>, gpu <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -173,6 +173,17 @@ displayed on compilation failure regardless of the value used.</p></td>
       <td><p>Optional working directory to use.  If <code>NULL</code>
 uses a temporary directory.  By using a different directory of
 your choosing you can see the generated code.</p></td>
+    </tr>
+    <tr>
+      <th>gpu</th>
+      <td><p>Logical, indicating if we should generate GPU
+code. This requires a considerable amount of additional software
+installed (CUDA toolkit and drivers) as well as a
+CUDA-compatible GPU. If <code>TRUE</code>, then we call
+<a href='dust_cuda_options.html'>dust_cuda_options</a> with no arguments. Alternatively, call
+that function and pass the value here (e.g, <code>gpu = dust::dust_cuda_options(debug = TRUE)</code>). Note that due to the
+use of the <code>__syncwarp()</code> primitive this may require a GPU with
+compute version 70 or higher.</p></td>
     </tr>
     </table>
 
@@ -309,12 +320,14 @@ be used (either specified with <code>[[dust::class()]]</code> or detected).</p><
 <li><p><a href='#method-rng_state'><code>dust_class$rng_state()</code></a></p></li>
 <li><p><a href='#method-set_rng_state'><code>dust_class$set_rng_state()</code></a></p></li>
 <li><p><a href='#method-has_openmp'><code>dust_class$has_openmp()</code></a></p></li>
+<li><p><a href='#method-has_cuda'><code>dust_class$has_cuda()</code></a></p></li>
 <li><p><a href='#method-n_pars'><code>dust_class$n_pars()</code></a></p></li>
 <li><p><a href='#method-set_n_threads'><code>dust_class$set_n_threads()</code></a></p></li>
 <li><p><a href='#method-has_compare'><code>dust_class$has_compare()</code></a></p></li>
 <li><p><a href='#method-set_data'><code>dust_class$set_data()</code></a></p></li>
 <li><p><a href='#method-compare_data'><code>dust_class$compare_data()</code></a></p></li>
 <li><p><a href='#method-filter'><code>dust_class$filter()</code></a></p></li>
+<li><p><a href='#method-device_info'><code>dust_class$device_info()</code></a></p></li>
 </ul>
 <p><hr>
 <a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
@@ -335,7 +348,8 @@ is the same size.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href
   <span class='va'>n_particles</span>,
   n_threads <span class='op'>=</span> <span class='fl'>1L</span>,
   seed <span class='op'>=</span> <span class='cn'>NULL</span>,
-  pars_multi <span class='op'>=</span> <span class='cn'>FALSE</span>
+  pars_multi <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  device_id <span class='op'>=</span> <span class='cn'>NULL</span>
 <span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
@@ -367,6 +381,16 @@ interpreted as a set of different initialisations, and that we
 should prepare <code>n_particles * length(pars)</code> particles for
 simulation. This has an effect on many of the other methods of
 the object.</p></dd>
+
+<dt><code>device_id</code></dt><dd><p>Integer, indicating the device to use, where the
+model has GPU support. If not given, then the default value of
+<code>NULL</code> will fall back on the first found device if any are
+available. An error is thrown if the device id given is larger
+than those reported to be available (note that CUDA numbers devices
+from 0, so that '0' is the first device, and so on). Negative values
+disable the use of a device.' See the method <code>$device_info()</code> for
+available device ids; this can be called before object creation as
+<code>dust_class$public_methods$device_info()</code></p></dd>
 
 </dl><p></div></p>
 <p><hr>
@@ -618,6 +642,15 @@ as <code>dust_class$public_methods$has_openmp()</code></p><h4 class='hasAnchor' 
 <p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>has_openmp</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
+<a id="method-has_cuda"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>has_cuda()</code></h3>
+<p>Returns a logical, indicating if this model was compiled with
+"CUDA" support, in which case it will react to the <code>device</code>
+argument passed to the run method. This method can also be used
+as a static method by running it directly
+as <code>dust_class$public_methods$has_cuda()</code></p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>has_cuda</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
 <a id="method-n_pars"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>n_pars()</code></h3>
 <p>Returns the number of distinct pars elements required. This is <code>0</code>
 where the object was initialised with <code>pars_multi = FALSE</code> and
@@ -692,6 +725,13 @@ If you have a multi-parameter dust object this will be a 4d array
 (state x particles x parameter x time).</p></dd>
 
 </dl><p></div></p>
+<p><hr>
+<a id="method-device_info"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>device_info()</code></h3>
+<p><strong>Experimental!</strong> Return information about GPU devices, if the model
+has been compiled with CUDA/GPU support. This can be called as a
+static method by running <code>dust_class$public_methods$device_info()</code></p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>device_info</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+
 
 
 
@@ -775,12 +815,14 @@ If you have a multi-parameter dust object this will be a 4d array
 #&gt;     rng_state: function (first_only = FALSE) 
 #&gt;     set_rng_state: function (rng_state) 
 #&gt;     has_openmp: function () 
+#&gt;     has_cuda: function () 
 #&gt;     n_pars: function () 
 #&gt;     set_n_threads: function (n_threads) 
 #&gt;     has_compare: function () 
 #&gt;     set_data: function (data) 
 #&gt;     compare_data: function () 
 #&gt;     filter: function (save_history = FALSE) 
+#&gt;     device_info: function () 
 #&gt;   Private:
 #&gt;     pars_: NULL
 #&gt;     pars_multi_: NULL
@@ -791,6 +833,7 @@ If you have a multi-parameter dust object this will be a 4d array
 #&gt;     n_particles_each_: NULL
 #&gt;     shape_: NULL
 #&gt;     ptr_: NULL
+#&gt;     device_id_: NULL
 #&gt;     param_: NULL
 #&gt;   Parent env: &lt;environment: namespace:dust&gt;
 #&gt;   Locked objects: TRUE
@@ -803,8 +846,10 @@ If you have a multi-parameter dust object this will be a 4d array
 </div><div class='output co'>#&gt; &lt;dust&gt;
 #&gt;   Public:
 #&gt;     compare_data: function () 
+#&gt;     device_info: function () 
 #&gt;     filter: function (save_history = FALSE) 
 #&gt;     has_compare: function () 
+#&gt;     has_cuda: function () 
 #&gt;     has_openmp: function () 
 #&gt;     index: function () 
 #&gt;     info: function () 
@@ -833,6 +878,7 @@ If you have a multi-parameter dust object this will be a 4d array
 #&gt;     state: function (index = NULL) 
 #&gt;     step: function () 
 #&gt;   Private:
+#&gt;     device_id_: -1
 #&gt;     index_: NULL
 #&gt;     info_: NULL
 #&gt;     n_particles_: 30

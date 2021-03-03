@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.17</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.0</span>
       </span>
     </div>
 
@@ -220,12 +220,14 @@
 <span class="co">#&gt;     rng_state: function (first_only = FALSE) </span>
 <span class="co">#&gt;     set_rng_state: function (rng_state) </span>
 <span class="co">#&gt;     has_openmp: function () </span>
+<span class="co">#&gt;     has_cuda: function () </span>
 <span class="co">#&gt;     n_pars: function () </span>
 <span class="co">#&gt;     set_n_threads: function (n_threads) </span>
 <span class="co">#&gt;     has_compare: function () </span>
 <span class="co">#&gt;     set_data: function (data) </span>
 <span class="co">#&gt;     compare_data: function () </span>
 <span class="co">#&gt;     filter: function (save_history = FALSE) </span>
+<span class="co">#&gt;     device_info: function () </span>
 <span class="co">#&gt;   Private:</span>
 <span class="co">#&gt;     pars_: NULL</span>
 <span class="co">#&gt;     pars_multi_: NULL</span>
@@ -236,6 +238,7 @@
 <span class="co">#&gt;     n_particles_each_: NULL</span>
 <span class="co">#&gt;     shape_: NULL</span>
 <span class="co">#&gt;     ptr_: NULL</span>
+<span class="co">#&gt;     device_id_: NULL</span>
 <span class="co">#&gt;     param_: NULL</span>
 <span class="co">#&gt;   Parent env: &lt;environment: namespace:dust&gt;</span>
 <span class="co">#&gt;   Locked objects: TRUE</span>
@@ -256,8 +259,10 @@
 <span class="co">#&gt; &lt;dust&gt;</span>
 <span class="co">#&gt;   Public:</span>
 <span class="co">#&gt;     compare_data: function () </span>
+<span class="co">#&gt;     device_info: function () </span>
 <span class="co">#&gt;     filter: function (save_history = FALSE) </span>
 <span class="co">#&gt;     has_compare: function () </span>
+<span class="co">#&gt;     has_cuda: function () </span>
 <span class="co">#&gt;     has_openmp: function () </span>
 <span class="co">#&gt;     index: function () </span>
 <span class="co">#&gt;     info: function () </span>
@@ -286,6 +291,7 @@
 <span class="co">#&gt;     state: function (index = NULL) </span>
 <span class="co">#&gt;     step: function () </span>
 <span class="co">#&gt;   Private:</span>
+<span class="co">#&gt;     device_id_: -1</span>
 <span class="co">#&gt;     index_: NULL</span>
 <span class="co">#&gt;     info_: NULL</span>
 <span class="co">#&gt;     n_particles_: 20</span>
@@ -306,21 +312,21 @@
 <p>and we can run the model for 100 steps, which returns the state at the end of the walk (and not at any intermediate steps):</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>
-<span class="co">#&gt;           [,1]      [,2]      [,3]     [,4]     [,5]     [,6]      [,7]</span>
-<span class="co">#&gt; [1,] -7.678494 -5.041889 -6.466737 11.07043 4.407809 1.570347 -15.30187</span>
-<span class="co">#&gt;           [,8]     [,9]    [,10]    [,11]     [,12]   [,13]     [,14]     [,15]</span>
-<span class="co">#&gt; [1,] -18.66704 12.32956 2.359488 1.342303 -2.771419 2.06356 -29.83805 -16.71481</span>
-<span class="co">#&gt;         [,16]     [,17]    [,18]     [,19]    [,20]</span>
-<span class="co">#&gt; [1,] 5.015336 -13.21737 12.01987 -14.97451 15.52491</span></code></pre></div>
+<span class="co">#&gt;           [,1]     [,2]    [,3]      [,4]      [,5]      [,6]     [,7]    [,8]</span>
+<span class="co">#&gt; [1,] -22.18836 4.369841 7.90213 -8.199297 -10.64186 -8.031936 11.19068 -5.4086</span>
+<span class="co">#&gt;          [,9]    [,10]    [,11]     [,12]    [,13]     [,14]     [,15]    [,16]</span>
+<span class="co">#&gt; [1,] 13.36241 6.911754 18.50555 -8.844619 1.971556 -2.792387 -5.444277 8.417087</span>
+<span class="co">#&gt;        [,17]   [,18]     [,19]    [,20]</span>
+<span class="co">#&gt; [1,] 23.0842 4.55789 -3.516877 2.772877</span></code></pre></div>
 <p>We can also directly retrieve the state from our object</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt;           [,1]      [,2]      [,3]     [,4]     [,5]     [,6]      [,7]</span>
-<span class="co">#&gt; [1,] -7.678494 -5.041889 -6.466737 11.07043 4.407809 1.570347 -15.30187</span>
-<span class="co">#&gt;           [,8]     [,9]    [,10]    [,11]     [,12]   [,13]     [,14]     [,15]</span>
-<span class="co">#&gt; [1,] -18.66704 12.32956 2.359488 1.342303 -2.771419 2.06356 -29.83805 -16.71481</span>
-<span class="co">#&gt;         [,16]     [,17]    [,18]     [,19]    [,20]</span>
-<span class="co">#&gt; [1,] 5.015336 -13.21737 12.01987 -14.97451 15.52491</span></code></pre></div>
+<span class="co">#&gt;           [,1]     [,2]    [,3]      [,4]      [,5]      [,6]     [,7]    [,8]</span>
+<span class="co">#&gt; [1,] -22.18836 4.369841 7.90213 -8.199297 -10.64186 -8.031936 11.19068 -5.4086</span>
+<span class="co">#&gt;          [,9]    [,10]    [,11]     [,12]    [,13]     [,14]     [,15]    [,16]</span>
+<span class="co">#&gt; [1,] 13.36241 6.911754 18.50555 -8.844619 1.971556 -2.792387 -5.444277 8.417087</span>
+<span class="co">#&gt;        [,17]   [,18]     [,19]    [,20]</span>
+<span class="co">#&gt; [1,] 23.0842 4.55789 -3.516877 2.772877</span></code></pre></div>
 <p>At this point our particles have been run for 100 steps with standard deviation 1 at each step so they <a href="https://en.wikipedia.org/wiki/Random_walk#Gaussian_random_walk">will be distributed following Normal(0, 10)</a>. This is easier to see if we simulate a lot of particles:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">walk</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">20000</span><span class="op">)</span>
@@ -338,22 +344,22 @@
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">walk</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">20</span>, n_threads <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>
-<span class="co">#&gt;            [,1]     [,2]      [,3]      [,4]      [,5]      [,6]      [,7]</span>
-<span class="co">#&gt; [1,] 0.09437105 10.46797 -6.201947 -11.86457 -5.359582 -1.486248 -2.329989</span>
-<span class="co">#&gt;          [,8]      [,9]     [,10]    [,11]    [,12]    [,13]      [,14]</span>
-<span class="co">#&gt; [1,] 14.61632 -3.536643 -7.460905 12.18049 9.831818 2.432855 -0.2502531</span>
-<span class="co">#&gt;          [,15]    [,16]    [,17]      [,18]      [,19]     [,20]</span>
-<span class="co">#&gt; [1,] -11.64521 2.532915 13.71561 -0.5357792 -0.4530842 -1.067741</span></code></pre></div>
+<span class="co">#&gt;           [,1]     [,2]  [,3]      [,4]      [,5]     [,6]     [,7]      [,8]</span>
+<span class="co">#&gt; [1,] -6.966504 4.633547 5.874 -3.641966 -21.79543 1.200857 8.047398 -6.109465</span>
+<span class="co">#&gt;          [,9]    [,10]     [,11]    [,12]     [,13]    [,14]    [,15]    [,16]</span>
+<span class="co">#&gt; [1,] 17.73485 6.258064 -4.330722 4.653685 -3.017739 14.12845 17.97384 1.221705</span>
+<span class="co">#&gt;          [,17]     [,18]     [,19]    [,20]</span>
+<span class="co">#&gt; [1,] -2.154477 -3.957504 -18.47648 2.246326</span></code></pre></div>
 <p>Running this same code in series will give the same results:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">walk</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">20</span>, n_threads <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>
-<span class="co">#&gt;          [,1]     [,2]     [,3]      [,4]      [,5]      [,6]      [,7]</span>
-<span class="co">#&gt; [1,] 10.12836 7.386337 18.74283 -20.50704 -3.924018 -25.34803 -0.334425</span>
-<span class="co">#&gt;          [,8]     [,9]     [,10]    [,11]     [,12]     [,13]    [,14]    [,15]</span>
-<span class="co">#&gt; [1,] 8.092814 15.63887 -8.056433 0.119418 -20.57395 -2.457761 10.87857 3.032909</span>
-<span class="co">#&gt;         [,16]     [,17]    [,18]   [,19]     [,20]</span>
-<span class="co">#&gt; [1,] -10.9619 -4.228864 9.325129 15.3277 -4.143327</span></code></pre></div>
+<span class="co">#&gt;          [,1]     [,2]      [,3]      [,4]      [,5]     [,6]    [,7]     [,8]</span>
+<span class="co">#&gt; [1,] 7.842361 -6.56599 -13.10918 0.3194492 -9.157668 3.239158 13.6938 24.76597</span>
+<span class="co">#&gt;          [,9]    [,10]    [,11]     [,12]    [,13]     [,14]     [,15]    [,16]</span>
+<span class="co">#&gt; [1,] 9.492931 1.377108 16.07687 -6.747859 2.922535 -2.420237 -1.935709 -13.9811</span>
+<span class="co">#&gt;          [,17]    [,18]    [,19]     [,20]</span>
+<span class="co">#&gt; [1,] -7.080134 24.36828 14.20593 -27.41285</span></code></pre></div>
 <p>We use as many random number generators as there are particles, so if you run fewer particles or more, increase the threads or decrease, the results will be the same (see <code><a href="../articles/design.html">vignette("design")</a></code> for more on this).</p>
 </div>
 </div>
@@ -555,47 +561,47 @@
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span><span class="fl">10</span><span class="op">)</span>
 <span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]</span>
-<span class="co">#&gt; [1,]   10   14   12   11   16   14   16   12   11    12     9    13    12    12</span>
+<span class="co">#&gt; [1,]   10   15   11    7   13   17   16    9   10    13    12    19    15    20</span>
 <span class="co">#&gt;      [,15] [,16] [,17] [,18] [,19] [,20]</span>
-<span class="co">#&gt; [1,]    11    14    17    14    13    17</span>
+<span class="co">#&gt; [1,]     5    13    15    11    12     9</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span><span class="fl">20</span><span class="op">)</span>
 <span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]</span>
-<span class="co">#&gt; [1,]   21   18   13   15   19   19   18   11   16    13     9    17    11    11</span>
+<span class="co">#&gt; [1,]   15   15   15    7   14   17   19   11   10    13    18    19    26    27</span>
 <span class="co">#&gt;      [,15] [,16] [,17] [,18] [,19] [,20]</span>
-<span class="co">#&gt; [1,]    12    18    17    22    20    20</span></code></pre></div>
+<span class="co">#&gt; [1,]     5    12    19    13    15    11</span></code></pre></div>
 <p>This is useful when you have many compartments or variables that you are not that interested in during running the model. For a particle filter you might be fitting to the sum of all infected individuals over a number of compartments, so rather than returning hundreds of values back (times hundreds of particles) you can return back much less data and keep things nice and fast.</p>
 <p>If the index vector is named, then those names will be used as row names on the returned object:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">set_index</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>I <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span><span class="op">)</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span><span class="fl">30</span><span class="op">)</span>
 <span class="co">#&gt;   [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]</span>
-<span class="co">#&gt; I   33   23   23   22   23   27   19   15   23    12    18    17    19    11</span>
+<span class="co">#&gt; I   16   26   17    8   23   20   25   15   15    20    21    23    33    22</span>
 <span class="co">#&gt;   [,15] [,16] [,17] [,18] [,19] [,20]</span>
-<span class="co">#&gt; I    21    21    23    20    22    25</span></code></pre></div>
+<span class="co">#&gt; I     8    18    25    29    18    11</span></code></pre></div>
 <p>We can always use <code>$state()</code> to get the whole state vector:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]</span>
-<span class="co">#&gt; [1,]  966  975  979  975  973  969  981  987  979   988   983   983   984   987</span>
-<span class="co">#&gt; [2,]   33   23   23   22   23   27   19   15   23    12    18    17    19    11</span>
-<span class="co">#&gt; [3,]   11   12    8   13   14   14   10    8    8    10     9    10     7    12</span>
-<span class="co">#&gt; [4,]   34   25   21   25   27   31   19   13   21    12    17    17    16    13</span>
-<span class="co">#&gt; [5,]    4    2    2    4    3    5    1    1    2     0     4     1     0     1</span>
+<span class="co">#&gt; [1,]  989  972  979  994  972  976  973  989  987   983   980   974   963   973</span>
+<span class="co">#&gt; [2,]   16   26   17    8   23   20   25   15   15    20    21    23    33    22</span>
+<span class="co">#&gt; [3,]    5   12   14    8   15   14   12    6    8     7     9    13    14    15</span>
+<span class="co">#&gt; [4,]   11   28   21    6   28   24   27   11   13    17    20    26    37    27</span>
+<span class="co">#&gt; [5,]    0    5    1    0    1    2    3    2    1     2     0     1     3     0</span>
 <span class="co">#&gt;      [,15] [,16] [,17] [,18] [,19] [,20]</span>
-<span class="co">#&gt; [1,]   982   971   975   973   978   973</span>
-<span class="co">#&gt; [2,]    21    21    23    20    22    25</span>
-<span class="co">#&gt; [3,]     7    18    12    17    10    12</span>
-<span class="co">#&gt; [4,]    18    29    25    27    22    27</span>
-<span class="co">#&gt; [5,]     2     5     1     2     3     3</span></code></pre></div>
+<span class="co">#&gt; [1,]   996   984   975   972   982   988</span>
+<span class="co">#&gt; [2,]     8    18    25    29    18    11</span>
+<span class="co">#&gt; [3,]     6     8    10     9    10    11</span>
+<span class="co">#&gt; [4,]     4    16    25    28    18    12</span>
+<span class="co">#&gt; [5,]     0     2     2     4     2     1</span></code></pre></div>
 <p>or select only variables of interest:</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>S <span class="op">=</span> <span class="fl">1L</span>, R <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt;   [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]</span>
-<span class="co">#&gt; S  966  975  979  975  973  969  981  987  979   988   983   983   984   987</span>
-<span class="co">#&gt; R   11   12    8   13   14   14   10    8    8    10     9    10     7    12</span>
+<span class="co">#&gt; S  989  972  979  994  972  976  973  989  987   983   980   974   963   973</span>
+<span class="co">#&gt; R    5   12   14    8   15   14   12    6    8     7     9    13    14    15</span>
 <span class="co">#&gt;   [,15] [,16] [,17] [,18] [,19] [,20]</span>
-<span class="co">#&gt; S   982   971   975   973   978   973</span>
-<span class="co">#&gt; R     7    18    12    17    10    12</span></code></pre></div>
+<span class="co">#&gt; S   996   984   975   972   982   988</span>
+<span class="co">#&gt; R     6     8    10     9    10    11</span></code></pre></div>
 <p>Again, this copies names from the index if they are present.</p>
 <p>In order to run the simulation beginning-to-end, we use the <code>$simulate</code> method on a dust object, which runs over a set of steps and records the state at each.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
@@ -629,43 +635,45 @@
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">walk</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">20</span><span class="op">)</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-<span class="co">#&gt;            [,1]      [,2]      [,3]      [,4]     [,5]       [,6]       [,7]</span>
-<span class="co">#&gt; [1,] -0.3598166 0.2658364 0.1560813 -0.483882 1.722267 -0.1380523 -0.5274329</span>
-<span class="co">#&gt;          [,8]      [,9]      [,10]      [,11]    [,12]    [,13]     [,14]</span>
-<span class="co">#&gt; [1,] 0.699007 -0.130138 0.01783886 -0.5199773 1.030125 1.221677 -1.294283</span>
-<span class="co">#&gt;            [,15]     [,16]     [,17]     [,18]     [,19]     [,20]</span>
-<span class="co">#&gt; [1,] -0.07700891 0.2874008 -0.311785 0.1057458 -1.105505 0.4611948</span></code></pre></div>
+<span class="co">#&gt;            [,1]      [,2]      [,3]      [,4]     [,5]        [,6]       [,7]</span>
+<span class="co">#&gt; [1,] 0.01004022 0.9806158 -1.102269 0.3912883 1.149347 -0.04725424 -0.5309568</span>
+<span class="co">#&gt;           [,8]     [,9]     [,10]     [,11]      [,12]     [,13]     [,14]</span>
+<span class="co">#&gt; [1,] 0.4278386 1.094224 0.4941281 0.8111931 -0.3616806 0.5531751 0.2496544</span>
+<span class="co">#&gt;        [,15]      [,16]      [,17]     [,18]       [,19]        [,20]</span>
+<span class="co">#&gt; [1,] 1.51618 -0.1582193 -0.8161224 -1.049659 0.002086468 -0.008013289</span></code></pre></div>
 <p>Suppose that we wanted to reorder these particles so that they were in decreasing order:</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">index</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span><span class="op">(</span><span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
 <span class="va">index</span>
-<span class="co">#&gt;  [1] 14 19  7 11  4  1 17  6  9 15 10 18  3  2 16 20  8 12 13  5</span></code></pre></div>
+<span class="co">#&gt;  [1]  3 18 17  7 12 16  6 20 19  1 14  4  8 10 13 11  2  9  5 15</span></code></pre></div>
 <p>We then pass this <code>index</code> to the reorder method:</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">reorder</span><span class="op">(</span><span class="va">index</span><span class="op">)</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt;           [,1]      [,2]       [,3]       [,4]      [,5]       [,6]      [,7]</span>
-<span class="co">#&gt; [1,] -1.294283 -1.105505 -0.5274329 -0.5199773 -0.483882 -0.3598166 -0.311785</span>
-<span class="co">#&gt;            [,8]      [,9]       [,10]      [,11]     [,12]     [,13]     [,14]</span>
-<span class="co">#&gt; [1,] -0.1380523 -0.130138 -0.07700891 0.01783886 0.1057458 0.1560813 0.2658364</span>
-<span class="co">#&gt;          [,15]     [,16]    [,17]    [,18]    [,19]    [,20]</span>
-<span class="co">#&gt; [1,] 0.2874008 0.4611948 0.699007 1.030125 1.221677 1.722267</span></code></pre></div>
+<span class="co">#&gt;           [,1]      [,2]       [,3]       [,4]       [,5]       [,6]</span>
+<span class="co">#&gt; [1,] -1.102269 -1.049659 -0.8161224 -0.5309568 -0.3616806 -0.1582193</span>
+<span class="co">#&gt;             [,7]         [,8]        [,9]      [,10]     [,11]     [,12]</span>
+<span class="co">#&gt; [1,] -0.04725424 -0.008013289 0.002086468 0.01004022 0.2496544 0.3912883</span>
+<span class="co">#&gt;          [,13]     [,14]     [,15]     [,16]     [,17]    [,18]    [,19]</span>
+<span class="co">#&gt; [1,] 0.4278386 0.4941281 0.5531751 0.8111931 0.9806158 1.094224 1.149347</span>
+<span class="co">#&gt;        [,20]</span>
+<span class="co">#&gt; [1,] 1.51618</span></code></pre></div>
 <p>We can then continue our random walk. There is no need to sample every particle and particles can appear multiple times in the sample, but the total number must be conserved. Suppose that we want to to sample particles based on how close they are to 0:</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">dnorm</a></span><span class="op">(</span><span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
 <span class="va">index</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">TRUE</span> , prob <span class="op">=</span> <span class="va">p</span><span class="op">)</span>
 <span class="va">index</span>
-<span class="co">#&gt;  [1]  5 13 20 16  3 19 15  4  6 15  4 10  2 15 14  9 11 13  8 14</span></code></pre></div>
+<span class="co">#&gt;  [1] 11 20  1 13 15  9  7 16  1 13  7 16  8 17  2  6 17 12 15 10</span></code></pre></div>
 <p>We can then apply this sampling:</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">reorder</span><span class="op">(</span><span class="va">index</span><span class="op">)</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt;           [,1]      [,2]     [,3]      [,4]       [,5]     [,6]      [,7]</span>
-<span class="co">#&gt; [1,] -0.483882 0.1560813 1.722267 0.4611948 -0.5274329 1.221677 0.2874008</span>
-<span class="co">#&gt;            [,8]       [,9]     [,10]      [,11]       [,12]     [,13]     [,14]</span>
-<span class="co">#&gt; [1,] -0.5199773 -0.3598166 0.2874008 -0.5199773 -0.07700891 -1.105505 0.2874008</span>
-<span class="co">#&gt;          [,15]     [,16]      [,17]     [,18]      [,19]     [,20]</span>
-<span class="co">#&gt; [1,] 0.2658364 -0.130138 0.01783886 0.1560813 -0.1380523 0.2658364</span></code></pre></div>
+<span class="co">#&gt;           [,1]    [,2]      [,3]      [,4]      [,5]        [,6]        [,7]</span>
+<span class="co">#&gt; [1,] 0.2496544 1.51618 -1.102269 0.4278386 0.5531751 0.002086468 -0.04725424</span>
+<span class="co">#&gt;           [,8]      [,9]     [,10]       [,11]     [,12]        [,13]     [,14]</span>
+<span class="co">#&gt; [1,] 0.8111931 -1.102269 0.4278386 -0.04725424 0.8111931 -0.008013289 0.9806158</span>
+<span class="co">#&gt;          [,15]      [,16]     [,17]     [,18]     [,19]      [,20]</span>
+<span class="co">#&gt; [1,] -1.049659 -0.1582193 0.9806158 0.3912883 0.5531751 0.01004022</span></code></pre></div>
 <p>This is not terribly useful on its own but is a key part of a particle filter.</p>
 </div>
 <div id="set-initial-state" class="section level3">
@@ -704,25 +712,25 @@
 <code class="sourceCode R"><span class="va">step0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">30</span>, <span class="fl">20</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="va">model</span> <span class="op">&lt;-</span> <span class="va">sir</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">20</span><span class="op">)</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">set_state</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="fl">10</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, <span class="va">step0</span><span class="op">)</span></code></pre></div>
-<p>After initialisation, our model is now at 28, the last step referenced in <code>step0</code></p>
+<p>After initialisation, our model is now at 29, the last step referenced in <code>step0</code></p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">step</span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; [1] 28</span></code></pre></div>
+<span class="co">#&gt; [1] 29</span></code></pre></div>
 <p>and the initial states are a mix of states, despite having been seeded with the same 10 infected individuals, as different particles have run for different numbers of steps to reach this common time point:</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]</span>
-<span class="co">#&gt; [1,]  995  991  988 1000  994  995  994 1000  998   989  1000   996   981   997</span>
-<span class="co">#&gt; [2,]   12   16   15   10   11   14   12   10   11    18    10     6    25    11</span>
-<span class="co">#&gt; [3,]    3    3    7    0    5    1    4    0    1     3     0     8     4     2</span>
-<span class="co">#&gt; [4,]    5    9   12    0    6    5    6    0    2    11     0     4    19     3</span>
-<span class="co">#&gt; [5,]    2    3    3    0    3    5    2    0    2     3     0     1     6     2</span>
+<span class="co">#&gt; [1,] 1000 1000  982  977  999 1000  986  986  997   998   969   999   991   985</span>
+<span class="co">#&gt; [2,]    9    8   19   26   11   10   14   16   12    11    29    10    16    19</span>
+<span class="co">#&gt; [3,]    1    2    9    7    0    0   10    8    1     1    12     1     3     6</span>
+<span class="co">#&gt; [4,]    0    0   18   23    1    0   14   14    3     2    31     1     9    15</span>
+<span class="co">#&gt; [5,]    0    0    1    2    1    0    1    0    1     1     0     1     1     1</span>
 <span class="co">#&gt;      [,15] [,16] [,17] [,18] [,19] [,20]</span>
-<span class="co">#&gt; [1,]   989   986   994   992   988   993</span>
-<span class="co">#&gt; [2,]    18    17    12    10    16    13</span>
-<span class="co">#&gt; [3,]     3     7     4     8     6     4</span>
-<span class="co">#&gt; [4,]    11    14     6     8    12     7</span>
-<span class="co">#&gt; [5,]     2     1     2     1     2     4</span></code></pre></div>
+<span class="co">#&gt; [1,]   997   973   991   992   984   990</span>
+<span class="co">#&gt; [2,]     8    28    12    15    20    13</span>
+<span class="co">#&gt; [3,]     5     9     7     3     6     7</span>
+<span class="co">#&gt; [4,]     3    27     9     8    16    10</span>
+<span class="co">#&gt; [5,]     0     1     0     0     1     1</span></code></pre></div>
 <p>From this point we can continue to run the simulation as before:</p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">steps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="va">step0</span><span class="op">)</span>, <span class="fl">600</span>, by <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>
@@ -743,14 +751,14 @@
 <span class="co">#&gt; [1] 0</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]</span>
-<span class="co">#&gt; [1,] 1003  996  994 1004 1001  999 1001 1004  999  1003  1004   995   997   997</span>
-<span class="co">#&gt; [2,]    7   14   16    6    9   11    9    6   11     7     6    15    13    13</span>
+<span class="co">#&gt; [1,] 1002  999 1002  997  995 1005  999  996  997   999  1001   998  1001   997</span>
+<span class="co">#&gt; [2,]    8   11    8   13   15    5   11   14   13    11     9    12     9    13</span>
 <span class="co">#&gt; [3,]    0    0    0    0    0    0    0    0    0     0     0     0     0     0</span>
 <span class="co">#&gt; [4,]    0    0    0    0    0    0    0    0    0     0     0     0     0     0</span>
 <span class="co">#&gt; [5,]    0    0    0    0    0    0    0    0    0     0     0     0     0     0</span>
 <span class="co">#&gt;      [,15] [,16] [,17] [,18] [,19] [,20]</span>
-<span class="co">#&gt; [1,]   999  1001  1004  1005   998  1000</span>
-<span class="co">#&gt; [2,]    11     9     6     5    12    10</span>
+<span class="co">#&gt; [1,]  1004   997   999   997  1005   999</span>
+<span class="co">#&gt; [2,]     6    13    11    13     5    11</span>
 <span class="co">#&gt; [3,]     0     0     0     0     0     0</span>
 <span class="co">#&gt; [4,]     0     0     0     0     0     0</span>
 <span class="co">#&gt; [5,]     0     0     0     0     0     0</span></code></pre></div>
@@ -758,20 +766,20 @@
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">set_state</span><span class="op">(</span><span class="va">state0</span>, <span class="va">step0</span><span class="op">)</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">step</span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; [1] 28</span>
+<span class="co">#&gt; [1] 29</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]</span>
-<span class="co">#&gt; [1,] 1002  986  982 1003 1001  996  995 1004  992   994  1004   977   989   985</span>
-<span class="co">#&gt; [2,]    7   17   25    7    7   12   10    6   17    14     6    22    17    20</span>
-<span class="co">#&gt; [3,]    1    7    3    0    2    2    5    0    1     2     0    11     4     5</span>
-<span class="co">#&gt; [4,]    1   10   12    1    0    3    6    0    7     9     0    18     8    12</span>
-<span class="co">#&gt; [5,]    1    1    6    1    0    3    1    0    5     4     0     3     2     6</span>
+<span class="co">#&gt; [1,] 1001  998  975  981  995 1005  977  980  996   999   993   998   989   970</span>
+<span class="co">#&gt; [2,]    8   10   29   21   15    5   29   17   14    10     9    12    20    35</span>
+<span class="co">#&gt; [3,]    1    2    6    8    0    0    4   13    0     1     8     0     1     5</span>
+<span class="co">#&gt; [4,]    1    1   27   16    0    0   22   16    1     0     8     0    12    27</span>
+<span class="co">#&gt; [5,]    0    0    4    0    0    0    3    2    1     0     0     0     0     1</span>
 <span class="co">#&gt;      [,15] [,16] [,17] [,18] [,19] [,20]</span>
-<span class="co">#&gt; [1,]   991   992  1000   998   969   999</span>
-<span class="co">#&gt; [2,]    12    10     6     7    32     9</span>
-<span class="co">#&gt; [3,]     7     8     4     5     9     2</span>
-<span class="co">#&gt; [4,]     8     9     4     7    29     1</span>
-<span class="co">#&gt; [5,]     1     0     0     1     7     0</span></code></pre></div>
+<span class="co">#&gt; [1,]  1001   982   974   988  1001   992</span>
+<span class="co">#&gt; [2,]     6    21    26    19     7     9</span>
+<span class="co">#&gt; [3,]     3     7    10     3     2     9</span>
+<span class="co">#&gt; [4,]     3    15    25     9     4     7</span>
+<span class="co">#&gt; [5,]     0     1     2     0     0     1</span></code></pre></div>
 </div>
 <div id="reset-the-model" class="section level3">
 <h3 class="hasAnchor">
@@ -856,7 +864,7 @@ License: CC0</code></pre>
 <p>To prepare the package, run <code><a href="../reference/dust_package.html">dust::dust_package()</a></code>:</p>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">dust</span><span class="fu">::</span><span class="fu"><a href="../reference/dust_package.html">dust_package</a></span><span class="op">(</span><span class="va">path</span><span class="op">)</span>
-<span class="co">#&gt; ℹ 19 functions decorated with [[cpp11::register]]</span>
+<span class="co">#&gt; ℹ 20 functions decorated with [[cpp11::register]]</span>
 <span class="co">#&gt; ✔ generated file cpp11.R</span>
 <span class="co">#&gt; ✔ generated file cpp11.cpp</span></code></pre></div>
 <p>The directory structure now has more files:</p>
@@ -874,155 +882,202 @@ License: CC0</code></pre>
 #&gt;     ├── cpp11.cpp
 #&gt;     └── walk.cpp</code></pre>
 <p>The file <code>src/walk.cpp</code> are generated by dust and should not be edited. They include your model, but also a bit of helper code:</p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode cc"><code class="sourceCode cpp"><span id="cb48-1"><a href="#cb48-1"></a><span class="co">// Generated by dust (version 0.7.17) - do not edit</span></span>
-<span id="cb48-2"><a href="#cb48-2"></a><span class="pp">#include </span><span class="im">&lt;iostream&gt;</span></span>
-<span id="cb48-3"><a href="#cb48-3"></a><span class="pp">#include </span><span class="im">&lt;dust/dust.hpp&gt;</span></span>
-<span id="cb48-4"><a href="#cb48-4"></a><span class="pp">#include </span><span class="im">&lt;dust/interface.hpp&gt;</span></span>
-<span id="cb48-5"><a href="#cb48-5"></a></span>
-<span id="cb48-6"><a href="#cb48-6"></a><span class="kw">class</span> walk {</span>
-<span id="cb48-7"><a href="#cb48-7"></a><span class="kw">public</span>:</span>
-<span id="cb48-8"><a href="#cb48-8"></a>  <span class="kw">typedef</span> <span class="dt">double</span> <span class="dt">real_t</span>;</span>
-<span id="cb48-9"><a href="#cb48-9"></a>  <span class="kw">typedef</span> dust::no_data <span class="dt">data_t</span>;</span>
-<span id="cb48-10"><a href="#cb48-10"></a>  <span class="kw">typedef</span> dust::no_internal <span class="dt">internal_t</span>;</span>
-<span id="cb48-11"><a href="#cb48-11"></a></span>
-<span id="cb48-12"><a href="#cb48-12"></a>  <span class="kw">struct</span> <span class="dt">shared_t</span> {</span>
-<span id="cb48-13"><a href="#cb48-13"></a>    <span class="dt">real_t</span> sd;</span>
-<span id="cb48-14"><a href="#cb48-14"></a>  };</span>
-<span id="cb48-15"><a href="#cb48-15"></a></span>
-<span id="cb48-16"><a href="#cb48-16"></a>  walk(<span class="at">const</span> dust::<span class="dt">pars_t</span>&lt;walk&gt;&amp; pars) : shared(pars.shared) {</span>
-<span id="cb48-17"><a href="#cb48-17"></a>  }</span>
-<span id="cb48-18"><a href="#cb48-18"></a></span>
-<span id="cb48-19"><a href="#cb48-19"></a>  <span class="dt">size_t</span> size() <span class="at">const</span> {</span>
-<span id="cb48-20"><a href="#cb48-20"></a>    <span class="cf">return</span> <span class="dv">1</span>;</span>
-<span id="cb48-21"><a href="#cb48-21"></a>  }</span>
+<div class="sourceCode" id="cb48"><pre class="sourceCode cc"><code class="sourceCode cpp"><span id="cb48-1"><a href="#cb48-1"></a><span class="co">// Generated by dust (version 0.8.0) - do not edit</span></span>
+<span id="cb48-2"><a href="#cb48-2"></a><span class="pp">#include </span><span class="im">&lt;cpp11.hpp&gt;</span></span>
+<span id="cb48-3"><a href="#cb48-3"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
+<span id="cb48-4"><a href="#cb48-4"></a>SEXP dust_walk_alloc(cpp11::list r_pars, <span class="dt">bool</span> pars_multi, <span class="dt">size_t</span> step,</span>
+<span id="cb48-5"><a href="#cb48-5"></a>                         cpp11::sexp r_n_particles, <span class="dt">size_t</span> n_threads,</span>
+<span id="cb48-6"><a href="#cb48-6"></a>                         cpp11::sexp r_seed, cpp11::sexp device_id);</span>
+<span id="cb48-7"><a href="#cb48-7"></a></span>
+<span id="cb48-8"><a href="#cb48-8"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
+<span id="cb48-9"><a href="#cb48-9"></a>SEXP dust_walk_run(SEXP ptr, <span class="dt">size_t</span> step_end, <span class="dt">bool</span> device);</span>
+<span id="cb48-10"><a href="#cb48-10"></a></span>
+<span id="cb48-11"><a href="#cb48-11"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
+<span id="cb48-12"><a href="#cb48-12"></a>SEXP dust_walk_simulate(SEXP ptr, cpp11::sexp step_end);</span>
+<span id="cb48-13"><a href="#cb48-13"></a></span>
+<span id="cb48-14"><a href="#cb48-14"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
+<span id="cb48-15"><a href="#cb48-15"></a>SEXP dust_walk_set_index(SEXP ptr, cpp11::sexp r_index);</span>
+<span id="cb48-16"><a href="#cb48-16"></a></span>
+<span id="cb48-17"><a href="#cb48-17"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
+<span id="cb48-18"><a href="#cb48-18"></a>SEXP dust_walk_set_state(SEXP ptr, SEXP r_state, SEXP r_step);</span>
+<span id="cb48-19"><a href="#cb48-19"></a></span>
+<span id="cb48-20"><a href="#cb48-20"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
+<span id="cb48-21"><a href="#cb48-21"></a>SEXP dust_walk_reset(SEXP ptr, cpp11::list r_pars, <span class="dt">size_t</span> step);</span>
 <span id="cb48-22"><a href="#cb48-22"></a></span>
-<span id="cb48-23"><a href="#cb48-23"></a>  <span class="bu">std::</span>vector&lt;<span class="dt">real_t</span>&gt; initial(<span class="dt">size_t</span> step) {</span>
-<span id="cb48-24"><a href="#cb48-24"></a>    <span class="bu">std::</span>vector&lt;<span class="dt">real_t</span>&gt; ret = {<span class="dv">0</span>};</span>
-<span id="cb48-25"><a href="#cb48-25"></a>    <span class="cf">return</span> ret;</span>
-<span id="cb48-26"><a href="#cb48-26"></a>  }</span>
-<span id="cb48-27"><a href="#cb48-27"></a></span>
-<span id="cb48-28"><a href="#cb48-28"></a>  <span class="dt">void</span> update(<span class="dt">size_t</span> step, <span class="at">const</span> <span class="dt">real_t</span> * state,</span>
-<span id="cb48-29"><a href="#cb48-29"></a>              dust::<span class="dt">rng_state_t</span>&lt;<span class="dt">real_t</span>&gt;&amp; rng_state,</span>
-<span id="cb48-30"><a href="#cb48-30"></a>              <span class="dt">real_t</span> * state_next) {</span>
-<span id="cb48-31"><a href="#cb48-31"></a>    <span class="dt">real_t</span> mean = state[<span class="dv">0</span>];</span>
-<span id="cb48-32"><a href="#cb48-32"></a>    state_next[<span class="dv">0</span>] = dust::distr::rnorm(rng_state, mean, shared-&gt;sd);</span>
-<span id="cb48-33"><a href="#cb48-33"></a>  }</span>
+<span id="cb48-23"><a href="#cb48-23"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
+<span id="cb48-24"><a href="#cb48-24"></a>SEXP dust_walk_state(SEXP ptr, SEXP r_index);</span>
+<span id="cb48-25"><a href="#cb48-25"></a></span>
+<span id="cb48-26"><a href="#cb48-26"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
+<span id="cb48-27"><a href="#cb48-27"></a><span class="dt">size_t</span> dust_walk_step(SEXP ptr);</span>
+<span id="cb48-28"><a href="#cb48-28"></a></span>
+<span id="cb48-29"><a href="#cb48-29"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
+<span id="cb48-30"><a href="#cb48-30"></a><span class="dt">void</span> dust_walk_reorder(SEXP ptr, cpp11::sexp r_index);</span>
+<span id="cb48-31"><a href="#cb48-31"></a></span>
+<span id="cb48-32"><a href="#cb48-32"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
+<span id="cb48-33"><a href="#cb48-33"></a>SEXP dust_walk_resample(SEXP ptr, cpp11::doubles r_weights);</span>
 <span id="cb48-34"><a href="#cb48-34"></a></span>
-<span id="cb48-35"><a href="#cb48-35"></a><span class="kw">private</span>:</span>
-<span id="cb48-36"><a href="#cb48-36"></a>  dust::shared_ptr&lt;walk&gt; shared;</span>
-<span id="cb48-37"><a href="#cb48-37"></a>};</span>
-<span id="cb48-38"><a href="#cb48-38"></a></span>
-<span id="cb48-39"><a href="#cb48-39"></a><span class="pp">#include </span><span class="im">&lt;cpp11/list.hpp&gt;</span></span>
-<span id="cb48-40"><a href="#cb48-40"></a><span class="kw">template</span> &lt;&gt;</span>
-<span id="cb48-41"><a href="#cb48-41"></a>dust::<span class="dt">pars_t</span>&lt;walk&gt; dust_pars&lt;walk&gt;(cpp11::list pars) {</span>
-<span id="cb48-42"><a href="#cb48-42"></a>  walk::<span class="dt">real_t</span> sd = cpp11::as_cpp&lt;walk::<span class="dt">real_t</span>&gt;(pars[<span class="st">"sd"</span>]);</span>
-<span id="cb48-43"><a href="#cb48-43"></a>  <span class="cf">return</span> dust::<span class="dt">pars_t</span>&lt;walk&gt;(walk::<span class="dt">shared_t</span>{sd});</span>
-<span id="cb48-44"><a href="#cb48-44"></a>}</span>
-<span id="cb48-45"><a href="#cb48-45"></a></span>
-<span id="cb48-46"><a href="#cb48-46"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
-<span id="cb48-47"><a href="#cb48-47"></a>SEXP dust_walk_alloc(cpp11::list r_pars, <span class="dt">bool</span> pars_multi, <span class="dt">size_t</span> step,</span>
-<span id="cb48-48"><a href="#cb48-48"></a>                         cpp11::sexp r_n_particles, <span class="dt">size_t</span> n_threads,</span>
-<span id="cb48-49"><a href="#cb48-49"></a>                         cpp11::sexp r_seed) {</span>
-<span id="cb48-50"><a href="#cb48-50"></a>  <span class="cf">return</span> dust_alloc&lt;walk&gt;(r_pars, pars_multi, step, r_n_particles,</span>
-<span id="cb48-51"><a href="#cb48-51"></a>                               n_threads, r_seed);</span>
-<span id="cb48-52"><a href="#cb48-52"></a>}</span>
-<span id="cb48-53"><a href="#cb48-53"></a></span>
-<span id="cb48-54"><a href="#cb48-54"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
-<span id="cb48-55"><a href="#cb48-55"></a>SEXP dust_walk_run(SEXP ptr, <span class="dt">size_t</span> step_end, <span class="dt">bool</span> device) {</span>
-<span id="cb48-56"><a href="#cb48-56"></a>  <span class="cf">return</span> dust_run&lt;walk&gt;(ptr, step_end, device);</span>
-<span id="cb48-57"><a href="#cb48-57"></a>}</span>
+<span id="cb48-35"><a href="#cb48-35"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
+<span id="cb48-36"><a href="#cb48-36"></a>SEXP dust_walk_set_pars(SEXP ptr, cpp11::list r_pars);</span>
+<span id="cb48-37"><a href="#cb48-37"></a></span>
+<span id="cb48-38"><a href="#cb48-38"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
+<span id="cb48-39"><a href="#cb48-39"></a>SEXP dust_walk_rng_state(SEXP ptr, <span class="dt">bool</span> first_only);</span>
+<span id="cb48-40"><a href="#cb48-40"></a></span>
+<span id="cb48-41"><a href="#cb48-41"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
+<span id="cb48-42"><a href="#cb48-42"></a>SEXP dust_walk_set_rng_state(SEXP ptr, cpp11::raws rng_state);</span>
+<span id="cb48-43"><a href="#cb48-43"></a></span>
+<span id="cb48-44"><a href="#cb48-44"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
+<span id="cb48-45"><a href="#cb48-45"></a>SEXP dust_walk_set_data(SEXP ptr, cpp11::list data);</span>
+<span id="cb48-46"><a href="#cb48-46"></a></span>
+<span id="cb48-47"><a href="#cb48-47"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
+<span id="cb48-48"><a href="#cb48-48"></a>SEXP dust_walk_compare_data(SEXP ptr);</span>
+<span id="cb48-49"><a href="#cb48-49"></a></span>
+<span id="cb48-50"><a href="#cb48-50"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
+<span id="cb48-51"><a href="#cb48-51"></a>SEXP dust_walk_filter(SEXP ptr, <span class="dt">bool</span> save_history);</span>
+<span id="cb48-52"><a href="#cb48-52"></a></span>
+<span id="cb48-53"><a href="#cb48-53"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
+<span id="cb48-54"><a href="#cb48-54"></a>cpp11::sexp dust_walk_capabilities();</span>
+<span id="cb48-55"><a href="#cb48-55"></a></span>
+<span id="cb48-56"><a href="#cb48-56"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
+<span id="cb48-57"><a href="#cb48-57"></a><span class="dt">void</span> dust_walk_set_n_threads(SEXP ptr, <span class="dt">int</span> n_threads);</span>
 <span id="cb48-58"><a href="#cb48-58"></a></span>
 <span id="cb48-59"><a href="#cb48-59"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
-<span id="cb48-60"><a href="#cb48-60"></a>SEXP dust_walk_simulate(SEXP ptr, cpp11::sexp step_end) {</span>
-<span id="cb48-61"><a href="#cb48-61"></a>  <span class="cf">return</span> dust_simulate&lt;walk&gt;(ptr, step_end);</span>
-<span id="cb48-62"><a href="#cb48-62"></a>}</span>
-<span id="cb48-63"><a href="#cb48-63"></a></span>
-<span id="cb48-64"><a href="#cb48-64"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
-<span id="cb48-65"><a href="#cb48-65"></a>SEXP dust_walk_set_index(SEXP ptr, cpp11::sexp r_index) {</span>
-<span id="cb48-66"><a href="#cb48-66"></a>  dust_set_index&lt;walk&gt;(ptr, r_index);</span>
-<span id="cb48-67"><a href="#cb48-67"></a>  <span class="cf">return</span> R_NilValue;</span>
-<span id="cb48-68"><a href="#cb48-68"></a>}</span>
-<span id="cb48-69"><a href="#cb48-69"></a></span>
-<span id="cb48-70"><a href="#cb48-70"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
-<span id="cb48-71"><a href="#cb48-71"></a>SEXP dust_walk_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {</span>
-<span id="cb48-72"><a href="#cb48-72"></a>  dust_set_state&lt;walk&gt;(ptr, r_state, r_step);</span>
-<span id="cb48-73"><a href="#cb48-73"></a>  <span class="cf">return</span> R_NilValue;</span>
-<span id="cb48-74"><a href="#cb48-74"></a>}</span>
-<span id="cb48-75"><a href="#cb48-75"></a></span>
-<span id="cb48-76"><a href="#cb48-76"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
-<span id="cb48-77"><a href="#cb48-77"></a>SEXP dust_walk_reset(SEXP ptr, cpp11::list r_pars, <span class="dt">size_t</span> step) {</span>
-<span id="cb48-78"><a href="#cb48-78"></a>  <span class="cf">return</span> dust_reset&lt;walk&gt;(ptr, r_pars, step);</span>
-<span id="cb48-79"><a href="#cb48-79"></a>}</span>
+<span id="cb48-60"><a href="#cb48-60"></a><span class="dt">int</span> dust_walk_n_state(SEXP ptr);</span>
+<span id="cb48-61"><a href="#cb48-61"></a></span>
+<span id="cb48-62"><a href="#cb48-62"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
+<span id="cb48-63"><a href="#cb48-63"></a>cpp11::sexp dust_walk_device_info();</span>
+<span id="cb48-64"><a href="#cb48-64"></a></span>
+<span id="cb48-65"><a href="#cb48-65"></a><span class="pp">#include </span><span class="im">&lt;dust/dust.hpp&gt;</span></span>
+<span id="cb48-66"><a href="#cb48-66"></a><span class="pp">#include </span><span class="im">&lt;dust/interface.hpp&gt;</span></span>
+<span id="cb48-67"><a href="#cb48-67"></a></span>
+<span id="cb48-68"><a href="#cb48-68"></a><span class="kw">class</span> walk {</span>
+<span id="cb48-69"><a href="#cb48-69"></a><span class="kw">public</span>:</span>
+<span id="cb48-70"><a href="#cb48-70"></a>  <span class="kw">typedef</span> <span class="dt">double</span> <span class="dt">real_t</span>;</span>
+<span id="cb48-71"><a href="#cb48-71"></a>  <span class="kw">typedef</span> dust::no_data <span class="dt">data_t</span>;</span>
+<span id="cb48-72"><a href="#cb48-72"></a>  <span class="kw">typedef</span> dust::no_internal <span class="dt">internal_t</span>;</span>
+<span id="cb48-73"><a href="#cb48-73"></a></span>
+<span id="cb48-74"><a href="#cb48-74"></a>  <span class="kw">struct</span> <span class="dt">shared_t</span> {</span>
+<span id="cb48-75"><a href="#cb48-75"></a>    <span class="dt">real_t</span> sd;</span>
+<span id="cb48-76"><a href="#cb48-76"></a>  };</span>
+<span id="cb48-77"><a href="#cb48-77"></a></span>
+<span id="cb48-78"><a href="#cb48-78"></a>  walk(<span class="at">const</span> dust::<span class="dt">pars_t</span>&lt;walk&gt;&amp; pars) : shared(pars.shared) {</span>
+<span id="cb48-79"><a href="#cb48-79"></a>  }</span>
 <span id="cb48-80"><a href="#cb48-80"></a></span>
-<span id="cb48-81"><a href="#cb48-81"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
-<span id="cb48-82"><a href="#cb48-82"></a>SEXP dust_walk_state(SEXP ptr, SEXP r_index) {</span>
-<span id="cb48-83"><a href="#cb48-83"></a>  <span class="cf">return</span> dust_state&lt;walk&gt;(ptr, r_index);</span>
-<span id="cb48-84"><a href="#cb48-84"></a>}</span>
-<span id="cb48-85"><a href="#cb48-85"></a></span>
-<span id="cb48-86"><a href="#cb48-86"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
-<span id="cb48-87"><a href="#cb48-87"></a><span class="dt">size_t</span> dust_walk_step(SEXP ptr) {</span>
-<span id="cb48-88"><a href="#cb48-88"></a>  <span class="cf">return</span> dust_step&lt;walk&gt;(ptr);</span>
-<span id="cb48-89"><a href="#cb48-89"></a>}</span>
-<span id="cb48-90"><a href="#cb48-90"></a></span>
-<span id="cb48-91"><a href="#cb48-91"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
-<span id="cb48-92"><a href="#cb48-92"></a><span class="dt">void</span> dust_walk_reorder(SEXP ptr, cpp11::sexp r_index) {</span>
-<span id="cb48-93"><a href="#cb48-93"></a>  <span class="cf">return</span> dust_reorder&lt;walk&gt;(ptr, r_index);</span>
-<span id="cb48-94"><a href="#cb48-94"></a>}</span>
-<span id="cb48-95"><a href="#cb48-95"></a></span>
-<span id="cb48-96"><a href="#cb48-96"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
-<span id="cb48-97"><a href="#cb48-97"></a>SEXP dust_walk_resample(SEXP ptr, cpp11::doubles r_weights) {</span>
-<span id="cb48-98"><a href="#cb48-98"></a>  <span class="cf">return</span> dust_resample&lt;walk&gt;(ptr, r_weights);</span>
-<span id="cb48-99"><a href="#cb48-99"></a>}</span>
+<span id="cb48-81"><a href="#cb48-81"></a>  <span class="dt">size_t</span> size() <span class="at">const</span> {</span>
+<span id="cb48-82"><a href="#cb48-82"></a>    <span class="cf">return</span> <span class="dv">1</span>;</span>
+<span id="cb48-83"><a href="#cb48-83"></a>  }</span>
+<span id="cb48-84"><a href="#cb48-84"></a></span>
+<span id="cb48-85"><a href="#cb48-85"></a>  <span class="bu">std::</span>vector&lt;<span class="dt">real_t</span>&gt; initial(<span class="dt">size_t</span> step) {</span>
+<span id="cb48-86"><a href="#cb48-86"></a>    <span class="bu">std::</span>vector&lt;<span class="dt">real_t</span>&gt; ret = {<span class="dv">0</span>};</span>
+<span id="cb48-87"><a href="#cb48-87"></a>    <span class="cf">return</span> ret;</span>
+<span id="cb48-88"><a href="#cb48-88"></a>  }</span>
+<span id="cb48-89"><a href="#cb48-89"></a></span>
+<span id="cb48-90"><a href="#cb48-90"></a>  <span class="dt">void</span> update(<span class="dt">size_t</span> step, <span class="at">const</span> <span class="dt">real_t</span> * state,</span>
+<span id="cb48-91"><a href="#cb48-91"></a>              dust::<span class="dt">rng_state_t</span>&lt;<span class="dt">real_t</span>&gt;&amp; rng_state,</span>
+<span id="cb48-92"><a href="#cb48-92"></a>              <span class="dt">real_t</span> * state_next) {</span>
+<span id="cb48-93"><a href="#cb48-93"></a>    <span class="dt">real_t</span> mean = state[<span class="dv">0</span>];</span>
+<span id="cb48-94"><a href="#cb48-94"></a>    state_next[<span class="dv">0</span>] = dust::distr::rnorm(rng_state, mean, shared-&gt;sd);</span>
+<span id="cb48-95"><a href="#cb48-95"></a>  }</span>
+<span id="cb48-96"><a href="#cb48-96"></a></span>
+<span id="cb48-97"><a href="#cb48-97"></a><span class="kw">private</span>:</span>
+<span id="cb48-98"><a href="#cb48-98"></a>  dust::shared_ptr&lt;walk&gt; shared;</span>
+<span id="cb48-99"><a href="#cb48-99"></a>};</span>
 <span id="cb48-100"><a href="#cb48-100"></a></span>
-<span id="cb48-101"><a href="#cb48-101"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
-<span id="cb48-102"><a href="#cb48-102"></a>SEXP dust_walk_set_pars(SEXP ptr, cpp11::list r_pars) {</span>
-<span id="cb48-103"><a href="#cb48-103"></a>  <span class="cf">return</span> dust_set_pars&lt;walk&gt;(ptr, r_pars);</span>
-<span id="cb48-104"><a href="#cb48-104"></a>}</span>
-<span id="cb48-105"><a href="#cb48-105"></a></span>
-<span id="cb48-106"><a href="#cb48-106"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
-<span id="cb48-107"><a href="#cb48-107"></a>SEXP dust_walk_rng_state(SEXP ptr, <span class="dt">bool</span> first_only) {</span>
-<span id="cb48-108"><a href="#cb48-108"></a>  <span class="cf">return</span> dust_rng_state&lt;walk&gt;(ptr, first_only);</span>
-<span id="cb48-109"><a href="#cb48-109"></a>}</span>
-<span id="cb48-110"><a href="#cb48-110"></a></span>
-<span id="cb48-111"><a href="#cb48-111"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
-<span id="cb48-112"><a href="#cb48-112"></a>SEXP dust_walk_set_rng_state(SEXP ptr, cpp11::raws rng_state) {</span>
-<span id="cb48-113"><a href="#cb48-113"></a>  dust_set_rng_state&lt;walk&gt;(ptr, rng_state);</span>
-<span id="cb48-114"><a href="#cb48-114"></a>  <span class="cf">return</span> R_NilValue;</span>
-<span id="cb48-115"><a href="#cb48-115"></a>}</span>
-<span id="cb48-116"><a href="#cb48-116"></a></span>
-<span id="cb48-117"><a href="#cb48-117"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
-<span id="cb48-118"><a href="#cb48-118"></a>SEXP dust_walk_set_data(SEXP ptr, cpp11::list data) {</span>
-<span id="cb48-119"><a href="#cb48-119"></a>  dust_set_data&lt;walk&gt;(ptr, data);</span>
-<span id="cb48-120"><a href="#cb48-120"></a>  <span class="cf">return</span> R_NilValue;</span>
+<span id="cb48-101"><a href="#cb48-101"></a><span class="pp">#include </span><span class="im">&lt;cpp11/list.hpp&gt;</span></span>
+<span id="cb48-102"><a href="#cb48-102"></a><span class="kw">template</span> &lt;&gt;</span>
+<span id="cb48-103"><a href="#cb48-103"></a>dust::<span class="dt">pars_t</span>&lt;walk&gt; dust_pars&lt;walk&gt;(cpp11::list pars) {</span>
+<span id="cb48-104"><a href="#cb48-104"></a>  walk::<span class="dt">real_t</span> sd = cpp11::as_cpp&lt;walk::<span class="dt">real_t</span>&gt;(pars[<span class="st">"sd"</span>]);</span>
+<span id="cb48-105"><a href="#cb48-105"></a>  <span class="cf">return</span> dust::<span class="dt">pars_t</span>&lt;walk&gt;(walk::<span class="dt">shared_t</span>{sd});</span>
+<span id="cb48-106"><a href="#cb48-106"></a>}</span>
+<span id="cb48-107"><a href="#cb48-107"></a></span>
+<span id="cb48-108"><a href="#cb48-108"></a>SEXP dust_walk_alloc(cpp11::list r_pars, <span class="dt">bool</span> pars_multi, <span class="dt">size_t</span> step,</span>
+<span id="cb48-109"><a href="#cb48-109"></a>                         cpp11::sexp r_n_particles, <span class="dt">size_t</span> n_threads,</span>
+<span id="cb48-110"><a href="#cb48-110"></a>                         cpp11::sexp r_seed, cpp11::sexp device_id) {</span>
+<span id="cb48-111"><a href="#cb48-111"></a>  <span class="cf">return</span> dust_alloc&lt;walk&gt;(r_pars, pars_multi, step, r_n_particles,</span>
+<span id="cb48-112"><a href="#cb48-112"></a>                               n_threads, r_seed, device_id);</span>
+<span id="cb48-113"><a href="#cb48-113"></a>}</span>
+<span id="cb48-114"><a href="#cb48-114"></a></span>
+<span id="cb48-115"><a href="#cb48-115"></a>SEXP dust_walk_run(SEXP ptr, <span class="dt">size_t</span> step_end, <span class="dt">bool</span> device) {</span>
+<span id="cb48-116"><a href="#cb48-116"></a>  <span class="cf">return</span> dust_run&lt;walk&gt;(ptr, step_end, device);</span>
+<span id="cb48-117"><a href="#cb48-117"></a>}</span>
+<span id="cb48-118"><a href="#cb48-118"></a></span>
+<span id="cb48-119"><a href="#cb48-119"></a>SEXP dust_walk_simulate(SEXP ptr, cpp11::sexp step_end) {</span>
+<span id="cb48-120"><a href="#cb48-120"></a>  <span class="cf">return</span> dust_simulate&lt;walk&gt;(ptr, step_end);</span>
 <span id="cb48-121"><a href="#cb48-121"></a>}</span>
 <span id="cb48-122"><a href="#cb48-122"></a></span>
-<span id="cb48-123"><a href="#cb48-123"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
-<span id="cb48-124"><a href="#cb48-124"></a>SEXP dust_walk_compare_data(SEXP ptr) {</span>
-<span id="cb48-125"><a href="#cb48-125"></a>  <span class="cf">return</span> dust_compare_data&lt;walk&gt;(ptr);</span>
+<span id="cb48-123"><a href="#cb48-123"></a>SEXP dust_walk_set_index(SEXP ptr, cpp11::sexp r_index) {</span>
+<span id="cb48-124"><a href="#cb48-124"></a>  dust_set_index&lt;walk&gt;(ptr, r_index);</span>
+<span id="cb48-125"><a href="#cb48-125"></a>  <span class="cf">return</span> R_NilValue;</span>
 <span id="cb48-126"><a href="#cb48-126"></a>}</span>
 <span id="cb48-127"><a href="#cb48-127"></a></span>
-<span id="cb48-128"><a href="#cb48-128"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
-<span id="cb48-129"><a href="#cb48-129"></a>SEXP dust_walk_filter(SEXP ptr, <span class="dt">bool</span> save_history) {</span>
-<span id="cb48-130"><a href="#cb48-130"></a>  <span class="cf">return</span> dust_filter&lt;walk&gt;(ptr, save_history);</span>
+<span id="cb48-128"><a href="#cb48-128"></a>SEXP dust_walk_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {</span>
+<span id="cb48-129"><a href="#cb48-129"></a>  dust_set_state&lt;walk&gt;(ptr, r_state, r_step);</span>
+<span id="cb48-130"><a href="#cb48-130"></a>  <span class="cf">return</span> R_NilValue;</span>
 <span id="cb48-131"><a href="#cb48-131"></a>}</span>
 <span id="cb48-132"><a href="#cb48-132"></a></span>
-<span id="cb48-133"><a href="#cb48-133"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
-<span id="cb48-134"><a href="#cb48-134"></a>cpp11::sexp dust_walk_capabilities() {</span>
-<span id="cb48-135"><a href="#cb48-135"></a>  <span class="cf">return</span> dust_capabilities&lt;walk&gt;();</span>
-<span id="cb48-136"><a href="#cb48-136"></a>}</span>
-<span id="cb48-137"><a href="#cb48-137"></a></span>
-<span id="cb48-138"><a href="#cb48-138"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
-<span id="cb48-139"><a href="#cb48-139"></a><span class="dt">void</span> dust_walk_set_n_threads(SEXP ptr, <span class="dt">int</span> n_threads) {</span>
-<span id="cb48-140"><a href="#cb48-140"></a>  <span class="cf">return</span> dust_set_n_threads&lt;walk&gt;(ptr, n_threads);</span>
-<span id="cb48-141"><a href="#cb48-141"></a>}</span>
-<span id="cb48-142"><a href="#cb48-142"></a></span>
-<span id="cb48-143"><a href="#cb48-143"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
-<span id="cb48-144"><a href="#cb48-144"></a><span class="dt">int</span> dust_walk_n_state(SEXP ptr) {</span>
-<span id="cb48-145"><a href="#cb48-145"></a>  <span class="cf">return</span> dust_n_state&lt;walk&gt;(ptr);</span>
-<span id="cb48-146"><a href="#cb48-146"></a>}</span></code></pre></div>
+<span id="cb48-133"><a href="#cb48-133"></a>SEXP dust_walk_reset(SEXP ptr, cpp11::list r_pars, <span class="dt">size_t</span> step) {</span>
+<span id="cb48-134"><a href="#cb48-134"></a>  <span class="cf">return</span> dust_reset&lt;walk&gt;(ptr, r_pars, step);</span>
+<span id="cb48-135"><a href="#cb48-135"></a>}</span>
+<span id="cb48-136"><a href="#cb48-136"></a></span>
+<span id="cb48-137"><a href="#cb48-137"></a>SEXP dust_walk_state(SEXP ptr, SEXP r_index) {</span>
+<span id="cb48-138"><a href="#cb48-138"></a>  <span class="cf">return</span> dust_state&lt;walk&gt;(ptr, r_index);</span>
+<span id="cb48-139"><a href="#cb48-139"></a>}</span>
+<span id="cb48-140"><a href="#cb48-140"></a></span>
+<span id="cb48-141"><a href="#cb48-141"></a><span class="dt">size_t</span> dust_walk_step(SEXP ptr) {</span>
+<span id="cb48-142"><a href="#cb48-142"></a>  <span class="cf">return</span> dust_step&lt;walk&gt;(ptr);</span>
+<span id="cb48-143"><a href="#cb48-143"></a>}</span>
+<span id="cb48-144"><a href="#cb48-144"></a></span>
+<span id="cb48-145"><a href="#cb48-145"></a><span class="dt">void</span> dust_walk_reorder(SEXP ptr, cpp11::sexp r_index) {</span>
+<span id="cb48-146"><a href="#cb48-146"></a>  <span class="cf">return</span> dust_reorder&lt;walk&gt;(ptr, r_index);</span>
+<span id="cb48-147"><a href="#cb48-147"></a>}</span>
+<span id="cb48-148"><a href="#cb48-148"></a></span>
+<span id="cb48-149"><a href="#cb48-149"></a>SEXP dust_walk_resample(SEXP ptr, cpp11::doubles r_weights) {</span>
+<span id="cb48-150"><a href="#cb48-150"></a>  <span class="cf">return</span> dust_resample&lt;walk&gt;(ptr, r_weights);</span>
+<span id="cb48-151"><a href="#cb48-151"></a>}</span>
+<span id="cb48-152"><a href="#cb48-152"></a></span>
+<span id="cb48-153"><a href="#cb48-153"></a>SEXP dust_walk_set_pars(SEXP ptr, cpp11::list r_pars) {</span>
+<span id="cb48-154"><a href="#cb48-154"></a>  <span class="cf">return</span> dust_set_pars&lt;walk&gt;(ptr, r_pars);</span>
+<span id="cb48-155"><a href="#cb48-155"></a>}</span>
+<span id="cb48-156"><a href="#cb48-156"></a></span>
+<span id="cb48-157"><a href="#cb48-157"></a>SEXP dust_walk_rng_state(SEXP ptr, <span class="dt">bool</span> first_only) {</span>
+<span id="cb48-158"><a href="#cb48-158"></a>  <span class="cf">return</span> dust_rng_state&lt;walk&gt;(ptr, first_only);</span>
+<span id="cb48-159"><a href="#cb48-159"></a>}</span>
+<span id="cb48-160"><a href="#cb48-160"></a></span>
+<span id="cb48-161"><a href="#cb48-161"></a>SEXP dust_walk_set_rng_state(SEXP ptr, cpp11::raws rng_state) {</span>
+<span id="cb48-162"><a href="#cb48-162"></a>  dust_set_rng_state&lt;walk&gt;(ptr, rng_state);</span>
+<span id="cb48-163"><a href="#cb48-163"></a>  <span class="cf">return</span> R_NilValue;</span>
+<span id="cb48-164"><a href="#cb48-164"></a>}</span>
+<span id="cb48-165"><a href="#cb48-165"></a></span>
+<span id="cb48-166"><a href="#cb48-166"></a>SEXP dust_walk_set_data(SEXP ptr, cpp11::list data) {</span>
+<span id="cb48-167"><a href="#cb48-167"></a>  dust_set_data&lt;walk&gt;(ptr, data);</span>
+<span id="cb48-168"><a href="#cb48-168"></a>  <span class="cf">return</span> R_NilValue;</span>
+<span id="cb48-169"><a href="#cb48-169"></a>}</span>
+<span id="cb48-170"><a href="#cb48-170"></a></span>
+<span id="cb48-171"><a href="#cb48-171"></a>SEXP dust_walk_compare_data(SEXP ptr) {</span>
+<span id="cb48-172"><a href="#cb48-172"></a>  <span class="cf">return</span> dust_compare_data&lt;walk&gt;(ptr);</span>
+<span id="cb48-173"><a href="#cb48-173"></a>}</span>
+<span id="cb48-174"><a href="#cb48-174"></a></span>
+<span id="cb48-175"><a href="#cb48-175"></a>SEXP dust_walk_filter(SEXP ptr, <span class="dt">bool</span> save_history) {</span>
+<span id="cb48-176"><a href="#cb48-176"></a>  <span class="cf">return</span> dust_filter&lt;walk&gt;(ptr, save_history);</span>
+<span id="cb48-177"><a href="#cb48-177"></a>}</span>
+<span id="cb48-178"><a href="#cb48-178"></a></span>
+<span id="cb48-179"><a href="#cb48-179"></a>cpp11::sexp dust_walk_capabilities() {</span>
+<span id="cb48-180"><a href="#cb48-180"></a>  <span class="cf">return</span> dust_capabilities&lt;walk&gt;();</span>
+<span id="cb48-181"><a href="#cb48-181"></a>}</span>
+<span id="cb48-182"><a href="#cb48-182"></a></span>
+<span id="cb48-183"><a href="#cb48-183"></a><span class="dt">void</span> dust_walk_set_n_threads(SEXP ptr, <span class="dt">int</span> n_threads) {</span>
+<span id="cb48-184"><a href="#cb48-184"></a>  <span class="cf">return</span> dust_set_n_threads&lt;walk&gt;(ptr, n_threads);</span>
+<span id="cb48-185"><a href="#cb48-185"></a>}</span>
+<span id="cb48-186"><a href="#cb48-186"></a></span>
+<span id="cb48-187"><a href="#cb48-187"></a><span class="dt">int</span> dust_walk_n_state(SEXP ptr) {</span>
+<span id="cb48-188"><a href="#cb48-188"></a>  <span class="cf">return</span> dust_n_state&lt;walk&gt;(ptr);</span>
+<span id="cb48-189"><a href="#cb48-189"></a>}</span>
+<span id="cb48-190"><a href="#cb48-190"></a></span>
+<span id="cb48-191"><a href="#cb48-191"></a>cpp11::sexp dust_walk_device_info() {</span>
+<span id="cb48-192"><a href="#cb48-192"></a>  <span class="cf">return</span> dust_device_info&lt;walk&gt;();</span>
+<span id="cb48-193"><a href="#cb48-193"></a>}</span></code></pre></div>
 <p>The file <code>R/dust.R</code> contains the R interface generated by dust with the constructor objects (all models’ constructors will be collected into this file, which also should not be edited).</p>
 <div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">## Generated by dust (version 0.7.17) - do not edit</span>
+<code class="sourceCode R"><span class="co">## Generated by dust (version 0.8.0) - do not edit</span>
 <span class="va">walk</span> <span class="op">&lt;-</span> <span class="fu">R6</span><span class="fu">::</span><span class="kw"><a href="https://r6.r-lib.org/reference/R6Class.html">R6Class</a></span><span class="op">(</span>
   <span class="st">"dust"</span>,
   cloneable <span class="op">=</span> <span class="cn">FALSE</span>,
@@ -1037,20 +1092,22 @@ License: CC0</code></pre>
     n_particles_each_ <span class="op">=</span> <span class="cn">NULL</span>,
     shape_ <span class="op">=</span> <span class="cn">NULL</span>,
     ptr_ <span class="op">=</span> <span class="cn">NULL</span>,
+    device_id_ <span class="op">=</span> <span class="cn">NULL</span>,
     param_ <span class="op">=</span> <span class="cn">NULL</span>
   <span class="op">)</span>,
 
   public <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
     initialize <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">pars</span>, <span class="va">step</span>, <span class="va">n_particles</span>, <span class="va">n_threads</span> <span class="op">=</span> <span class="fl">1L</span>,
-                          <span class="va">seed</span> <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">pars_multi</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span>
+                          <span class="va">seed</span> <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">pars_multi</span> <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">device_id</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span>
       <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">dust_walk_alloc</span><span class="op">(</span><span class="va">pars</span>, <span class="va">pars_multi</span>, <span class="va">step</span>, <span class="va">n_particles</span>,
-                        <span class="va">n_threads</span>, <span class="va">seed</span><span class="op">)</span>
+                        <span class="va">n_threads</span>, <span class="va">seed</span>, <span class="va">device_id</span><span class="op">)</span>
       <span class="va">private</span><span class="op">$</span><span class="va">pars_</span> <span class="op">&lt;-</span> <span class="va">pars</span>
       <span class="va">private</span><span class="op">$</span><span class="va">pars_multi_</span> <span class="op">&lt;-</span> <span class="va">pars_multi</span>
       <span class="va">private</span><span class="op">$</span><span class="va">n_threads_</span> <span class="op">&lt;-</span> <span class="va">n_threads</span>
       <span class="va">private</span><span class="op">$</span><span class="va">ptr_</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span>
       <span class="va">private</span><span class="op">$</span><span class="va">info_</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">[[</span><span class="fl">2L</span><span class="op">]</span><span class="op">]</span>
       <span class="va">private</span><span class="op">$</span><span class="va">shape_</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">[[</span><span class="fl">3L</span><span class="op">]</span><span class="op">]</span>
+      <span class="va">private</span><span class="op">$</span><span class="va">device_id_</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">[[</span><span class="fl">4L</span><span class="op">]</span><span class="op">]</span>
       <span class="va">private</span><span class="op">$</span><span class="va">n_particles_</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/prod.html">prod</a></span><span class="op">(</span><span class="va">private</span><span class="op">$</span><span class="va">shape_</span><span class="op">)</span>
       <span class="kw">if</span> <span class="op">(</span><span class="va">pars_multi</span><span class="op">)</span> <span class="op">{</span>
         <span class="va">private</span><span class="op">$</span><span class="va">n_particles_each_</span> <span class="op">&lt;-</span> <span class="va">private</span><span class="op">$</span><span class="va">n_particles_</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">pars</span><span class="op">)</span>
@@ -1166,6 +1223,10 @@ License: CC0</code></pre>
       <span class="fu">dust_walk_capabilities</span><span class="op">(</span><span class="op">)</span><span class="op">[[</span><span class="st">"openmp"</span><span class="op">]</span><span class="op">]</span>
     <span class="op">}</span>,
 
+    has_cuda <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span>
+      <span class="fu">dust_walk_capabilities</span><span class="op">(</span><span class="op">)</span><span class="op">[[</span><span class="st">"cuda"</span><span class="op">]</span><span class="op">]</span>
+    <span class="op">}</span>,
+
     n_pars <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span>
       <span class="kw">if</span> <span class="op">(</span><span class="va">private</span><span class="op">$</span><span class="va">pars_multi_</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">private</span><span class="op">$</span><span class="va">pars_</span><span class="op">)</span> <span class="kw">else</span> <span class="fl">0L</span>
     <span class="op">}</span>,
@@ -1191,6 +1252,14 @@ License: CC0</code></pre>
 
     filter <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">save_history</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span>
       <span class="fu">dust_walk_filter</span><span class="op">(</span><span class="va">private</span><span class="op">$</span><span class="va">ptr_</span>, <span class="va">save_history</span><span class="op">)</span>
+    <span class="op">}</span>,
+
+    device_info <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span>
+      <span class="va">ret</span> <span class="op">&lt;-</span> <span class="fu">dust_walk_device_info</span><span class="op">(</span><span class="op">)</span>
+      <span class="kw">if</span> <span class="op">(</span><span class="va">ret</span><span class="op">$</span><span class="va">has_cuda</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/exists.html">exists</a></span><span class="op">(</span><span class="st">"private"</span>, inherits <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+        <span class="va">ret</span><span class="op">$</span><span class="va">device_id</span> <span class="op">&lt;-</span> <span class="va">private</span><span class="op">$</span><span class="va">device_id_</span>
+      <span class="op">}</span>
+      <span class="va">ret</span>
     <span class="op">}</span>
   <span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span><span class="op">(</span><span class="va">walk</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"dust_generator"</span>, <span class="fu"><a href="https://rdrr.io/r/base/class.html">class</a></span><span class="op">(</span><span class="va">walk</span><span class="op">)</span><span class="op">)</span></code></pre></div>
