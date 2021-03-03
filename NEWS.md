@@ -1,3 +1,7 @@
+# dust 0.8.0
+
+* Add GPU support (#73)
+
 # dust 0.7.15
 
 * Add new design vignette - see `vignette("design")` (#161)

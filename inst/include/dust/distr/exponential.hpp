@@ -16,12 +16,13 @@ namespace distr {
 // Faster generators will exist but we can swap one in if it becomes
 // important.
 template <typename real_t>
-real_t exp_rand(rng_state_t<real_t>& rng_state) {
+HOSTDEVICE real_t exp_rand(rng_state_t<real_t>& rng_state) {
   return -std::log(dust::unif_rand(rng_state));
 }
 
+__nv_exec_check_disable__
 template <typename real_t>
-real_t rexp(rng_state_t<real_t>& rng_state, real_t rate) {
+HOSTDEVICE real_t rexp(rng_state_t<real_t>& rng_state, real_t rate) {
   return exp_rand(rng_state) / rate;
 }
 

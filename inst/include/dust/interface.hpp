@@ -13,6 +13,7 @@
 
 #include <dust/rng_interface.hpp>
 #include <dust/interface_helpers.hpp>
+#include <dust/device_info.hpp>
 
 template <typename T>
 typename dust::pars_t<T> dust_pars(cpp11::list pars);
@@ -26,10 +27,12 @@ typename cpp11::sexp dust_info(const dust::pars_t<T>& pars);
 template <typename T>
 cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
                        cpp11::sexp r_n_particles, int n_threads,
-                       cpp11::sexp r_seed) {
+                       cpp11::sexp r_seed, cpp11::sexp r_device_id) {
   dust::interface::validate_size(step, "step");
   dust::interface::validate_positive(n_threads, "n_threads");
   std::vector<uint64_t> seed = as_rng_seed<typename T::real_t>(r_seed);
+
+  const int device_id = dust::interface::check_device_id(r_device_id);
 
   Dust<T> *d = nullptr;
   cpp11::sexp info;
@@ -57,12 +60,12 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
       n_particles = cpp11::as_cpp<int>(r_n_particles);
       dust::interface::validate_size(n_particles, "n_particles");
     }
-    d = new Dust<T>(pars, step, n_particles, n_threads, seed, shape);
+    d = new Dust<T>(pars, step, n_particles, n_threads, seed, device_id, shape);
   } else {
     size_t n_particles = cpp11::as_cpp<int>(r_n_particles);
     dust::interface::validate_positive(n_particles, "n_particles");
     dust::pars_t<T> pars = dust_pars<T>(r_pars);
-    d = new Dust<T>(pars, step, n_particles, n_threads, seed);
+    d = new Dust<T>(pars, step, n_particles, n_threads, seed, device_id);
     info = dust_info<T>(pars);
   }
   cpp11::external_pointer<Dust<T>> ptr(d, true, false);
@@ -70,7 +73,7 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
   cpp11::writable::integers r_shape =
     dust::interface::vector_size_to_int(d->shape());
 
-  return cpp11::writable::list({ptr, info, r_shape});
+  return cpp11::writable::list({ptr, info, r_shape, cpp11::as_sexp(device_id)});
 }
 
 template <typename T>
@@ -142,7 +145,9 @@ cpp11::sexp dust_run(SEXP ptr, int step_end, bool device) {
   // should be able to do this with a pointer to the C array. The
   // current version helps noone.
   std::vector<typename T::real_t> dat(obj->n_state() * obj->n_particles());
-  obj->state(dat);
+  if (obj->n_state() > 0) {
+    obj->state(dat);
+  }
 
   return dust::interface::state_array(dat, obj->n_state(), obj->shape());
 }
@@ -431,8 +436,15 @@ cpp11::sexp dust_capabilities() {
 #else
   bool openmp = false;
 #endif
+#ifdef __NVCC__
+  bool cuda = true;
+#else
+  bool cuda = false;
+#endif
   bool compare = !std::is_same<dust::no_data, typename T::data_t>::value;
-  return cpp11::writable::list({"openmp"_nm = openmp, "compare"_nm = compare});
+  return cpp11::writable::list({"openmp"_nm = openmp,
+                                "compare"_nm = compare,
+                                "cuda"_nm = cuda});
 }
 
 template <typename T>

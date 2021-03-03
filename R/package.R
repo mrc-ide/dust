@@ -152,7 +152,7 @@ package_validate_namespace_usedynlib <- function(exprs, name) {
 package_generate <- function(filename) {
   config <- parse_metadata(filename)
   model <- read_lines(filename)
-  data <- dust_template_data(model, config)
+  data <- dust_template_data(model, config, NULL)
 
   template_r <- readLines(dust_file("template/dust.R.template"))
   ## Drop all the roxygen comments here before writing out the R
@@ -164,9 +164,11 @@ package_generate <- function(filename) {
                       collapse = "\n")
   code_r <- glue_whisker(template_r, data)
 
+  template_hpp <- read_lines(dust_file("template/dust.hpp"))
   template_cpp <- read_lines(dust_file("template/dust.cpp"))
+  code_hpp <- glue_whisker(template_hpp, data)
   code_cpp <- glue_whisker(template_cpp, data)
-  src <- set_names(code_cpp, basename(filename))
+  src <- set_names(paste(code_hpp, code_cpp, sep = "\n\n"), basename(filename))
   list(src = src, r = code_r)
 }
 

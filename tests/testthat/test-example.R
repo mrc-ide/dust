@@ -618,3 +618,21 @@ test_that("validate simulate steps", {
   expect_equal(mod$step(), 10)
   expect_equal(mod$state(), y)
 })
+
+
+test_that("no device info by default", {
+  no_cuda <- list(has_cuda = FALSE,
+                  cuda_version = NULL,
+                  devices = data.frame(id = integer(0),
+                                       name = character(0),
+                                       memory = numeric(0),
+                                       version = integer(0),
+                                       stringsAsFactors = FALSE))
+  res <- dust_example("sir")
+  expect_false(res$public_methods$has_cuda())
+  expect_equal(res$public_methods$device_info(), no_cuda)
+
+  mod <- res$new(list(), 0, 1)
+  expect_false(mod$has_cuda())
+  expect_equal(mod$device_info(), no_cuda)
+})

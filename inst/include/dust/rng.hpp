@@ -82,9 +82,9 @@ private:
 };
 
 template <typename T>
-rng_state_t<T> get_rng_state(const dust::interleaved<uint64_t>& full_rng_state) {
+DEVICE rng_state_t<T> get_rng_state(const dust::interleaved<uint64_t>& full_rng_state) {
   rng_state_t<T> rng_state;
-  for (size_t i = 0; i < rng_state_t<T>::size(); i++) {
+  for (size_t i = 0; i < rng_state.size(); i++) {
     rng_state.state[i] = full_rng_state[i];
   }
   return rng_state;
@@ -92,9 +92,9 @@ rng_state_t<T> get_rng_state(const dust::interleaved<uint64_t>& full_rng_state) 
 
 // Write state into global memory
 template <typename T>
-void put_rng_state(rng_state_t<T>& rng_state,
+DEVICE void put_rng_state(rng_state_t<T>& rng_state,
                    dust::interleaved<uint64_t>& full_rng_state) {
-  for (size_t i = 0; i < rng_state_t<T>::size(); i++) {
+  for (size_t i = 0; i < rng_state.size(); i++) {
     full_rng_state[i] = rng_state.state[i];
   }
 }
@@ -102,9 +102,3 @@ void put_rng_state(rng_state_t<T>& rng_state,
 }
 
 #endif
-
-template <typename T, typename U = typename T::real_t>
-U unif_rand(T& state) {
-  const uint64_t value = xoshiro_next(state);
-  return U(value) / U(std::numeric_limits<uint64_t>::max());
-}

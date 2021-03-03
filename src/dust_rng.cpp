@@ -165,3 +165,18 @@ cpp11::writable::raws dust_rng_state(SEXP ptr) {
   std::memcpy(RAW(ret), state.data(), len);
   return ret;
 }
+
+// This is is not for general use, trying to trigger a bug
+[[cpp11::register]]
+cpp11::sexp test_rbinom_float(cpp11::sexp r_seed, int n_samples,
+                              int size, double p) {
+  std::vector<uint64_t> seed = as_rng_seed<float>(r_seed);
+  dust::pRNG<float> rng(1, seed);
+  cpp11::writable::integers ret = cpp11::writable::integers(n_samples);
+  int * y = INTEGER(ret);
+  const float p_f = p;
+  for (size_t i = 0; i < (size_t)n_samples; ++i) {
+    y[i] = dust::distr::rbinom(rng.state(0), size, p_f);
+  }
+  return ret;
+}

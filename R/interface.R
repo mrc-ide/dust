@@ -130,6 +130,16 @@
 ##'   uses a temporary directory.  By using a different directory of
 ##'   your choosing you can see the generated code.
 ##'
+##' @param gpu Logical, indicating if we should generate GPU
+##'   code. This requires a considerable amount of additional software
+##'   installed (CUDA toolkit and drivers) as well as a
+##'   CUDA-compatible GPU. If `TRUE`, then we call
+##'   [dust::dust_cuda_options] with no arguments. Alternatively, call
+##'   that function and pass the value here (e.g, `gpu =
+##'   dust::dust_cuda_options(debug = TRUE)`). Note that due to the
+##'   use of the `__syncwarp()` primitive this may require a GPU with
+##'   compute version 70 or higher.
+##'
 ##' @export
 ##' @examples
 ##'
@@ -167,9 +177,9 @@
 ##'
 ##' # See the state again
 ##' obj$state()
-dust <- function(filename, quiet = FALSE, workdir = NULL) {
+dust <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE) {
   assert_file_exists(filename)
-  compile_and_load(filename, quiet, workdir)
+  compile_and_load(filename, quiet, workdir, cuda_check(gpu))
 }
 
 

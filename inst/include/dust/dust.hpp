@@ -1,10 +1,6 @@
 #ifndef DUST_DUST_HPP
 #define DUST_DUST_HPP
 
-#include <dust/rng.hpp>
-#include <dust/densities.hpp>
-#include <dust/tools.hpp>
-
 #include <algorithm>
 #include <memory>
 #include <map>
@@ -15,367 +11,13 @@
 #include <omp.h>
 #endif
 
-
-// TODO: move these into a utilities file
-template <typename T, typename U, typename Enable = void>
-size_t destride_copy(T dest, U& src, size_t at, size_t stride) {
-  static_assert(!std::is_reference<T>::value,
-                "destride_copy should only be used with reference types");
-  size_t i;
-  for (i = 0; at < src.size(); ++i, at += stride) {
-    dest[i] = src[at];
-  }
-  return i;
-}
-
-template <typename T, typename U>
-size_t stride_copy(T dest, U src, size_t at, size_t stride) {
-  static_assert(!std::is_reference<T>::value,
-                "stride_copy should only be used with reference types");
-  dest[at] = src;
-  return at + stride;
-}
-
-template <typename T, typename U>
-size_t stride_copy(T dest, const std::vector<U>& src, size_t at, size_t stride) {
-  static_assert(!std::is_reference<T>::value,
-                "stride_copy should only be used with reference types");
-  for (size_t i = 0; i < src.size(); ++i, at += stride) {
-    dest[at] = src[i];
-  }
-  return at;
-}
-
-
-namespace dust {
-struct nothing {};
-typedef nothing no_data;
-typedef nothing no_internal;
-typedef nothing no_shared;
-
-// By default we do not support anything on the gpu. This name might
-// change, but it does reflect our intent and it's likely that to work
-// on a GPU the model will have to provide a number of things. If of
-// those becomes a type (as with data, internal and shared) we could
-// use the same approach as above.
-template <typename T>
-struct has_gpu_support : std::false_type {};
-
-template <typename T>
-using shared_ptr = std::shared_ptr<const typename T::shared_t>;
-
-template <typename T>
-struct pars_t {
-  std::shared_ptr<const typename T::shared_t> shared;
-  typename T::internal_t internal;
-
-  pars_t(std::shared_ptr<const typename T::shared_t> shared_,
-         typename T::internal_t internal_) :
-    shared(shared_), internal(internal_) {
-  }
-  pars_t(typename T::shared_t shared_,
-         typename T::internal_t internal_) :
-    shared(std::make_shared<const typename T::shared_t>(shared_)),
-    internal(internal_) {
-  }
-  pars_t(typename T::shared_t shared_) :
-    pars_t(shared_, dust::nothing()) {
-  }
-  pars_t(typename T::internal_t internal_) :
-    pars_t(dust::nothing(), internal_) {
-  }
-};
-
-template <typename real_t>
-class filter_state {
-public:
-  filter_state(size_t n_state, size_t n_particles, size_t n_data) :
-    n_state_(n_state), n_particles_(n_particles), n_data_(n_data), offset_(0) {
-    resize(n_state, n_particles, n_data);
-  }
-
-  // default constructable
-  filter_state() : filter_state(0, 0, 0) {
-  }
-
-  void resize(size_t n_state, size_t n_particles, size_t n_data) {
-    n_state_ = n_state;
-    n_particles_ = n_particles;
-    n_data_ = n_data;
-    offset_ = 0;
-    history_value.resize(n_state_ * n_particles_ * (n_data_ + 1));
-    history_order.resize(n_particles_ * (n_data_ + 1));
-    for (size_t i = 0; i < n_particles_; ++i) {
-      history_order[i] = i;
-    }
-  }
-
-  typename std::vector<real_t>::iterator history_value_iterator() {
-    return history_value.begin() + offset_ * n_state_ * n_particles_;
-  }
-
-  typename std::vector<size_t>::iterator history_order_iterator() {
-    return history_order.begin() + offset_ * n_particles_;
-  }
-
-  std::vector<real_t> history() const {
-    std::vector<real_t> ret(size());
-    history(ret.begin());
-    return ret;
-  }
-
-  // This is a particularly unpleasant bit of bookkeeping and is
-  // adapted from mcstate (see the helper files in tests for a
-  // translation of the the code). As we proceed we store the values
-  // of particles *before* resampling and then we store the index used
-  // in resampling. We do not resample all the history at each
-  // resample as that is prohibitively expensive.
-  //
-  // So to output sensible history we start with a particle and we
-  // look to see where it "came from" in the previous step
-  // (history_index) and propagate this backward in time to
-  // reconstruct what is in effect a multifurcating tree.
-  // This is analogous to the particle ancestor concept in the
-  // particle filter literature.
-  //
-  // It's possible we could do this more efficiently for some subset
-  // of particles too (give me the history of just one particle) by
-  // breaking the function before the loop over 'k'.
-  //
-  // Note that we treat history_order and history_value as read-only
-  // though this process so one could safely call this multiple times.
-  template <typename Iterator>
-  void history(Iterator ret) const {
-    std::vector<size_t> index_particle(n_particles_);
-    for (size_t i = 0; i < n_particles_; ++i) {
-      index_particle[i] = i;
-    }
-    for (size_t k = 0; k < n_data_ + 1; ++k) {
-      size_t i = n_data_ - k;
-      auto const it_order = history_order.begin() + i * n_particles_;
-      auto const it_value = history_value.begin() + i * n_state_ * n_particles_;
-      auto it_ret = ret + i * n_state_ * n_particles_;
-      for (size_t j = 0; j < n_particles_; ++j) {
-        const size_t idx = *(it_order + index_particle[j]);
-        index_particle[j] = idx;
-        std::copy_n(it_value + idx * n_state_, n_state_,
-                    it_ret + j * n_state_);
-      }
-    }
-  }
-
-  size_t size() const {
-    return history_value.size();
-  }
-
-  void advance() {
-    offset_++;
-  }
-
-private:
-  size_t n_state_;
-  size_t n_particles_;
-  size_t n_data_;
-  size_t offset_;
-  size_t len_;
-  std::vector<real_t> history_value;
-  std::vector<size_t> history_order;
-};
-
-template <typename real_t>
-struct device_state {
-  void initialise(size_t n_particles, size_t n_state, size_t n_shared_len_,
-                  size_t n_internal_int, size_t n_internal_real,
-                  size_t n_shared_int_, size_t n_shared_real_) {
-    n_shared_len = n_shared_len_;
-    n_shared_int = n_shared_int_;
-    n_shared_real = n_shared_real_;
-    const size_t n_rng = dust::rng_state_t<real_t>::size();
-    // NOTE: not setting up yi_selected here, which was used in dustgpu
-    y = dust::device_array<real_t>(n_state * n_particles);
-    y_next = dust::device_array<real_t>(n_state * n_particles);
-    internal_int = dust::device_array<int>(n_internal_int * n_particles);
-    internal_real = dust::device_array<real_t>(n_internal_real * n_particles);
-    shared_int = dust::device_array<int>(n_shared_int * n_shared_len);
-    shared_real = dust::device_array<real_t>(n_shared_real * n_shared_len);
-    rng = dust::device_array<uint64_t>(n_rng * n_particles);
-  }
-  void swap() {
-    std::swap(y, y_next);
-  }
-
-  size_t n_shared_len;
-  size_t n_shared_int;
-  size_t n_shared_real;
-  dust::device_array<real_t> y;
-  dust::device_array<real_t> y_next;
-  dust::device_array<int> internal_int;
-  dust::device_array<real_t> internal_real;
-  dust::device_array<int> shared_int;
-  dust::device_array<real_t> shared_real;
-  dust::device_array<uint64_t> rng;
-};
-
-// We need to compute the size of space required for integers and
-// reals on the device, per particle. Because we work on the
-// requirement that every particle has the same dimension we pass an
-// arbitrary set of shared parameters (really the first) to
-// device_internal_size. The underlying model can overload this template
-// for either real or int types and return the length of data
-// required.
-template <typename T>
-size_t device_internal_size_int(typename dust::shared_ptr<T> shared) {
-  return 0;
-}
-
-template <typename T>
-size_t device_internal_size_real(typename dust::shared_ptr<T> shared) {
-  return 0;
-}
-
-template <typename T>
-size_t device_shared_size_int(typename dust::shared_ptr<T> shared) {
-  return 0;
-}
-
-template <typename T>
-size_t device_shared_size_real(typename dust::shared_ptr<T> shared) {
-  return 0;
-}
-
-template <typename T>
-void device_shared_copy(typename dust::shared_ptr<T> shared,
-                        int * shared_int,
-                        typename T::real_t * shared_real) {
-}
-
-template <typename T>
-T* shared_copy(T* dest, const std::vector<T>& src) {
-  memcpy(dest, src.data(), src.size() * sizeof(T));
-  return dest + src.size();
-}
-
-template <typename T>
-T* shared_copy(T* dest, const T src) {
-  *dest = src;
-  return dest + 1;
-}
-
-}
-
-// We'll need to expand this soon to cope with shared memory, but that
-// will be coming via another change to dust. Or we can do it here
-// with a shared object that contains just:
-// template <typename T>
-// struct shared_t {
-//   const real_t const * real_data;
-//   const int * const * int_data;
-//   // plus lengths?
-// };
-//
-// which can just point at the data in the vector because it will live
-// longer than the object.
-template <typename T>
-void update_device(size_t step,
-                   const dust::interleaved<typename T::real_t> state,
-                   dust::interleaved<int> internal_int,
-                   dust::interleaved<typename T::real_t> internal_real,
-                   const int * shared_int,
-                   const typename T::real_t * shared_real,
-                   dust::rng_state_t<typename T::real_t>& rng_state,
-                   dust::interleaved<typename T::real_t> state_next);
-
-template <typename T>
-void run_particles(size_t step_start, size_t step_end, size_t n_particles,
-                   size_t n_pars,
-                   typename T::real_t * state, typename T::real_t * state_next,
-                   int * internal_int, typename T::real_t * internal_real,
-                   size_t n_shared_int, size_t n_shared_real,
-                   const int * shared_int,
-                   const typename T::real_t * shared_real,
-                   uint64_t * rng_state);
-
-template <typename T>
-class Particle {
-public:
-  typedef dust::pars_t<T> pars_t;
-  typedef typename T::real_t real_t;
-  typedef typename T::data_t data_t;
-
-  Particle(pars_t pars, size_t step) :
-    _model(pars),
-    _step(step),
-    _y(_model.initial(_step)),
-    _y_swap(_model.size()) {
-  }
-
-  void run(const size_t step_end, dust::rng_state_t<real_t>& rng_state) {
-    while (_step < step_end) {
-      _model.update(_step, _y.data(), rng_state, _y_swap.data());
-      _step++;
-      std::swap(_y, _y_swap);
-    }
-  }
-
-  void state(const std::vector<size_t>& index,
-             typename std::vector<real_t>::iterator end_state) const {
-    for (size_t i = 0; i < index.size(); ++i) {
-      *(end_state + i) = _y[index[i]];
-    }
-  }
-
-  void state_full(typename std::vector<real_t>::iterator end_state) const {
-    for (size_t i = 0; i < _y.size(); ++i) {
-      *(end_state + i) = _y[i];
-    }
-  }
-
-  size_t size() const {
-    return _y.size();
-  }
-
-  size_t step() const {
-    return _step;
-  }
-
-  void swap() {
-    std::swap(_y, _y_swap);
-  }
-
-  void set_step(const size_t step) {
-    _step = step;
-  }
-
-  void set_state(const Particle<T>& other) {
-    _y_swap = other._y;
-  }
-
-  void set_pars(const Particle<T>& other, bool set_state) {
-    _model = other._model;
-    _step = other._step;
-    if (set_state) {
-      _y = _model.initial(_step);
-    }
-  }
-
-  void set_state(typename std::vector<real_t>::const_iterator state) {
-    for (size_t i = 0; i < _y.size(); ++i, ++state) {
-      _y[i] = *state;
-    }
-  }
-
-  real_t compare_data(const data_t& data,
-                      dust::rng_state_t<real_t>& rng_state) {
-    return _model.compare_data(_y.data(), data, rng_state);
-  }
-
-private:
-  T _model;
-  size_t _step;
-
-  std::vector<real_t> _y;
-  std::vector<real_t> _y_swap;
-};
+#include <dust/rng.hpp>
+#include <dust/densities.hpp>
+#include <dust/tools.hpp>
+#include <dust/types.hpp>
+#include <dust/utils.hpp>
+#include <dust/particle.hpp>
+#include <dust/kernels.hpp>
 
 template <typename T>
 class Dust {
@@ -385,15 +27,20 @@ public:
   typedef typename T::data_t data_t;
 
   Dust(const pars_t& pars, const size_t step, const size_t n_particles,
-       const size_t n_threads, const std::vector<uint64_t>& seed) :
+       const size_t n_threads, const std::vector<uint64_t>& seed,
+       size_t device_id) :
     _n_pars(0),
     _n_particles_each(n_particles),
     _n_particles_total(n_particles),
     _pars_are_shared(true),
     _n_threads(n_threads),
+    _device_id(device_id),
     _rng(_n_particles_total, seed),
     _stale_host(false),
     _stale_device(true) {
+#ifdef __NVCC__
+    initialise_device(device_id);
+#endif
     initialise(pars, step, n_particles, true);
     initialise_index();
     _shape = {n_particles};
@@ -401,15 +48,20 @@ public:
 
   Dust(const std::vector<pars_t>& pars, const size_t step,
        const size_t n_particles, const size_t n_threads,
-       const std::vector<uint64_t>& seed, std::vector<size_t> shape) :
+       const std::vector<uint64_t>& seed, size_t device_id,
+       std::vector<size_t> shape) :
     _n_pars(pars.size()),
     _n_particles_each(n_particles == 0 ? 1 : n_particles),
     _n_particles_total(_n_particles_each * pars.size()),
     _pars_are_shared(n_particles != 0),
     _n_threads(n_threads),
+    _device_id(device_id),
     _rng(_n_particles_total, seed),
     _stale_host(false),
     _stale_device(true) {
+#ifdef __NVCC__
+    initialise_device(device_id);
+#endif
     initialise(pars, step, _n_particles_each, true);
     initialise_index();
     // constructing the shape here is harder than above.
@@ -420,6 +72,13 @@ public:
       _shape.push_back(i);
     }
   }
+
+// This could be removed/commented out eventually
+#ifdef __NVCC__
+  ~Dust() {
+    CUDA_CALL_NOTHROW(cudaProfilerStop());
+  }
+#endif
 
   void reset(const pars_t& pars, const size_t step) {
     const size_t n_particles = _particles.size();
@@ -445,13 +104,14 @@ public:
   // range [0, n-1]
   void set_index(const std::vector<size_t>& index) {
     _index = index;
+    update_device_index();
   }
 
   // It's the callee's responsibility to ensure this is the correct length:
   //
-  // * if individual is false then state must be length n_state_full()
+  // * if is_matrix is false then state must be length n_state_full()
   //   and all particles get the state
-  // * if individual is true, state must be length (n_state_full() *
+  // * if is_matrix is true, state must be length (n_state_full() *
   //   n_particles()) and every particle gets a different state.
   void set_state(const std::vector<real_t>& state, bool individual) {
     const size_t n_particles = _particles.size();
@@ -504,7 +164,45 @@ public:
   run_device(const size_t step_end) {
     refresh_device();
     const size_t step_start = step();
-
+#ifdef __NVCC__
+    // Set up blocks and shared memory preferences
+    size_t blockSize = 128;
+    size_t blockCount;
+    bool use_shared_L1 = true;
+    size_t shared_size_bytes =
+      _device_data.n_shared_int * n_pars_effective() * sizeof(int) +
+      _device_data.n_shared_real * n_pars_effective() * sizeof(real_t);
+    if (_n_particles_each < warp_size || shared_size_bytes > _shared_size) {
+      // If not enough particles per pars to make a whole block use
+      // shared, or if shared_t too big for L1, turn it off, and run
+      // in 'classic' mode where each particle is totally independent
+      use_shared_L1 = false;
+      shared_size_bytes = 0;
+      blockCount = n_particles() * (n_particles() + blockSize - 1) / blockSize;
+    } else {
+      // If it's possible to make blocks with shared_t in L1 cache,
+      // each block runs a pars set. Each pars set has enough blocks
+      // to run all of its particles, the final block may have some
+      // threads that don't do anything (hang off the end)
+      blockSize = warp_size * (_n_particles_each + warp_size - 1) / warp_size;
+      blockSize = std::min(static_cast<size_t>(128), blockSize);
+      blockCount = n_pars_effective() * (_n_particles_each + blockSize - 1) /
+        blockSize;
+    }
+    run_particles<T><<<blockCount, blockSize, shared_size_bytes>>>(
+                     step_start, step_end, _particles.size(),
+                     n_pars_effective(),
+                     _device_data.y.data(), _device_data.y_next.data(),
+                     _device_data.internal_int.data(),
+                     _device_data.internal_real.data(),
+                     _device_data.n_shared_int,
+                     _device_data.n_shared_real,
+                     _device_data.shared_int.data(),
+                     _device_data.shared_real.data(),
+                     _device_data.rng.data(),
+                     use_shared_L1);
+    CUDA_CALL(cudaDeviceSynchronize());
+#else
     run_particles<T>(step_start, step_end, _particles.size(),
                      n_pars_effective(),
                      _device_data.y.data(), _device_data.y_next.data(),
@@ -514,7 +212,9 @@ public:
                      _device_data.n_shared_real,
                      _device_data.shared_int.data(),
                      _device_data.shared_real.data(),
-                     _device_data.rng.data());
+                     _device_data.rng.data(),
+                     false);
+#endif
 
     // In the inner loop, the swap will keep the locally scoped
     // interleaved variables updated, but the interleaved variables
@@ -550,16 +250,48 @@ public:
     return state(end_state.begin());
   }
 
+  // TODO: tidy this up with some templates
   void state(typename std::vector<real_t>::iterator end_state) {
-    refresh_host();
+      size_t np = _particles.size();
+      size_t index_size = _index.size();
+    if (_stale_host) {
+#ifdef __NVCC__
+      size_t size_select_tmp = _device_data.select_tmp.size();
+      // Run the selection and copy items back
+      cub::DeviceSelect::Flagged(_device_data.select_tmp.data(),
+                                 size_select_tmp,
+                                 _device_data.y.data(),
+                                 _device_data.index.data(),
+                                 _device_data.y_selected.data(),
+                                 _device_data.n_selected.data(),
+                                 _device_data.y.size());
+      std::vector<real_t> y_selected(np * index_size);
+      _device_data.y_selected.get_array(y_selected);
+
 #ifdef _OPENMP
-    #pragma omp parallel for schedule(static) num_threads(_n_threads)
+      #pragma omp parallel for schedule(static) num_threads(_n_threads)
 #endif
-    for (size_t i = 0; i < _particles.size(); ++i) {
-      _particles[i].state(_index, end_state + i * _index.size());
+      for (size_t i = 0; i < np; ++i) {
+        dust::utils::destride_copy(end_state + i * index_size, y_selected, i,
+                                   np);
+      }
+#else
+      refresh_host();
+#endif
+    }
+    // This would be better as an else, but the ifdefs are clearer this way
+    if (!_stale_host) {
+#ifdef _OPENMP
+      #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
+      for (size_t i = 0; i < np; ++i) {
+        _particles[i].state(_index, end_state + i * index_size);
+      }
     }
   }
 
+  // TODO: this does not use device_select. But if index is being provided
+  // may not matter much
   void state(std::vector<size_t> index,
              std::vector<real_t>& end_state) {
     refresh_host();
@@ -596,19 +328,61 @@ public:
   // contents of the particle state (uses the set_state() and swap()
   // methods on particles).
   void reorder(const std::vector<size_t>& index) {
-    refresh_host();
+    if (_stale_host) {
+      size_t n_particles = _particles.size();
+      size_t n_state = n_state_full();
+
+      // e.g. 4 particles with 3 states ABC stored on device as
+      // [1_A, 2_A, 3_A, 4_A, 1_B, 2_B, 3_B, 4_B, 1_C, 2_C, 3_C, 4_C]
+      // e.g. index [3, 1, 3, 2] with would be
+      // [3_A, 1_A, 3_A, 2_A, 3_B, 1_B, 3_B, 2_B, 3_C, 1_C, 3_C, 2_C]
+      // interleaved, i.e. input repeated n_state_full times, plus a strided
+      // offset
+      // [3, 1, 3, 2, 3 + 4, 1 + 4, 3 + 4, 2 + 4, 3 + 8, 1 + 8, 3 + 8, 2 + 8]
+      // [3, 1, 3, 2, 7, 5, 7, 6, 11, 9, 11, 10]
+      std::vector<int> scatter_state(n_state * n_particles);
 #ifdef _OPENMP
-    #pragma omp parallel for schedule(static) num_threads(_n_threads)
+      #pragma omp parallel for schedule(static) num_threads(_n_threads)
 #endif
-    for (size_t i = 0; i < _particles.size(); ++i) {
-      size_t j = index[i];
-      _particles[i].set_state(_particles[j]);
-    }
+      for (size_t i = 0; i < n_state; ++i) {
+        for (size_t j = 0; j < n_particles; ++j) {
+          scatter_state[i * n_particles + j] = index[j] + i * n_particles;
+        }
+      }
+      _device_data.scatter_index.set_array(scatter_state);
+#ifdef __NVCC__
+      const size_t blockSize = 128;
+      const size_t blockCount =
+        (scatter_state.size() + blockSize - 1) / blockSize;
+      scatter_device<real_t><<<blockCount, blockSize>>>(
+        _device_data.scatter_index.data(),
+        _device_data.y.data(),
+        _device_data.y_next.data(),
+        scatter_state.size());
+      CUDA_CALL(cudaDeviceSynchronize());
+#else
+      scatter_device<real_t>(
+        _device_data.scatter_index.data(),
+        _device_data.y.data(),
+        _device_data.y_next.data(),
+        scatter_state.size());
+#endif
+      _device_data.swap();
+    } else {
+      _stale_device = true;
 #ifdef _OPENMP
-    #pragma omp parallel for schedule(static) num_threads(_n_threads)
+      #pragma omp parallel for schedule(static) num_threads(_n_threads)
 #endif
-    for (size_t i = 0; i < _particles.size(); ++i) {
-      _particles[i].swap();
+      for (size_t i = 0; i < _particles.size(); ++i) {
+        size_t j = index[i];
+        _particles[i].set_state(_particles[j]);
+      }
+#ifdef _OPENMP
+      #pragma omp parallel for schedule(static) num_threads(_n_threads)
+#endif
+      for (size_t i = 0; i < _particles.size(); ++i) {
+        _particles[i].swap();
+      }
     }
   }
 
@@ -789,6 +563,7 @@ private:
   const bool _pars_are_shared; // Does the n_particles dimension exist in shape?
   std::vector<size_t> _shape; // shape of output
   size_t _n_threads;
+  int _device_id;
   dust::pRNG<real_t> _rng;
   std::map<size_t, std::vector<data_t>> _data;
 
@@ -808,6 +583,34 @@ private:
 
   bool _stale_host;
   bool _stale_device;
+  size_t _shared_size;
+
+  // Sets device
+  template <typename U = T>
+  typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
+  initialise_device(const int device_id) {
+    throw std::invalid_argument("GPU support not enabled for this object");
+  }
+
+  template <typename U = T>
+  typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
+  initialise_device(const int device_id) {
+    if (device_id < 0) {
+      return;
+    }
+#ifdef __NVCC__
+    CUDA_CALL(cudaSetDevice(device_id));
+    CUDA_CALL(cudaDeviceSetCacheConfig(cudaFuncCachePreferL1));
+
+    int shared_size = 0;
+    CUDA_CALL(cudaDeviceGetAttribute(&shared_size,
+                                     cudaDevAttrMaxSharedMemoryPerBlock,
+                                     device_id));
+    _shared_size = static_cast<size_t>(shared_size);
+
+    CUDA_CALL(cudaProfilerStart());
+#endif
+  }
 
   void initialise(const pars_t& pars, const size_t step,
                   const size_t n_particles, bool set_state) {
@@ -886,6 +689,9 @@ private:
   // This only gets called on construction; the size of these never
   // changes.
   void initialise_device_data() {
+    if (_device_id < 0) {
+      return;
+    }
     const auto s = _shared[0];
     const size_t n_internal_int = dust::device_internal_size_int<T>(s);
     const size_t n_internal_real = dust::device_internal_size_real<T>(s);
@@ -904,6 +710,9 @@ private:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   update_device_shared() {
+    if (_device_id < 0) {
+      return;
+    }
     const size_t n_shared_int = _device_data.n_shared_int;
     const size_t n_shared_real = _device_data.n_shared_real;
     std::vector<int> shared_int(n_shared_int * n_pars_effective());
@@ -924,6 +733,33 @@ private:
     for (size_t i = 0; i < n; ++i) {
       _index.push_back(i);
     }
+    update_device_index();
+  }
+
+  template <typename U = T>
+  typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
+  update_device_index() {
+  }
+
+  template <typename U = T>
+  typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
+  update_device_index() {
+    if (_device_id < 0) {
+      return;
+    }
+    size_t n_particles = _particles.size();
+    std::vector<char> bool_idx(n_state_full() * n_particles, 0);
+    // e.g. 4 particles with 3 states ABC stored on device as
+    // [1_A, 2_A, 3_A, 4_A, 1_B, 2_B, 3_B, 4_B, 1_C, 2_C, 3_C, 4_C]
+    // e.g. index [1, 3] would be
+    // [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1] bool index on interleaved state
+    // i.e. initialise to zero and copy 1 np times, at each offset given in
+    // index
+    for (auto idx_pos = _index.cbegin(); idx_pos != _index.cend(); idx_pos++) {
+      std::fill_n(bool_idx.begin() + (*idx_pos * n_particles), n_particles, 1);
+    }
+    _device_data.index.set_array(bool_idx);
+    _device_data.set_cub_tmp();
   }
 
   // Default noop refresh methods
@@ -943,6 +779,9 @@ private:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   refresh_device() {
+    if (_device_id < 0) {
+      throw std::runtime_error("Can't refresh a non-existent device");
+    }
     if (_stale_device) {
       const size_t np = n_particles(), ny = n_state_full();
       const size_t rng_len = dust::rng_state_t<real_t>::size();
@@ -955,13 +794,14 @@ private:
       for (size_t i = 0; i < np; ++i) {
         // Interleave state
         _particles[i].state_full(y_tmp.begin());
-        stride_copy(y.data(), y_tmp, i, np);
+        dust::utils::stride_copy(y.data(), y_tmp, i, np);
 
         // Interleave RNG state
         dust::rng_state_t<real_t> p_rng = _rng.state(i);
         size_t rng_offset = i;
         for (size_t j = 0; j < rng_len; ++j) {
-          rng_offset = stride_copy(rng.data(), p_rng[j], rng_offset, np);
+          rng_offset = dust::utils::stride_copy(rng.data(), p_rng[j],
+                                                rng_offset, np);
         }
       }
       // H -> D copies
@@ -988,7 +828,7 @@ private:
       #pragma omp parallel for schedule(static) num_threads(_n_threads)
 #endif
       for (size_t i = 0; i < np; ++i) {
-        destride_copy(y_tmp.data(), y, i, np);
+        dust::utils::destride_copy(y_tmp.data(), y, i, np);
         _particles[i].set_state(y_tmp.begin());
 
         // Destride RNG
@@ -1001,54 +841,5 @@ private:
     }
   }
 };
-
-// TODO: The exact type here for the shared memory will likely change;
-// we'll need to do some translation in dust into native types in
-// order to make the device copy possible. There's nothing really
-// complicated in these in practice.
-template <typename T>
-void run_particles(size_t step_start, size_t step_end, size_t n_particles,
-                   size_t n_pars,
-                   typename T::real_t * state, typename T::real_t * state_next,
-                   int * internal_int, typename T::real_t * internal_real,
-                   size_t n_shared_int, size_t n_shared_real,
-                   const int * shared_int,
-                   const typename T::real_t * shared_real,
-                   uint64_t * rng_state) {
-  typedef typename T::real_t real_t;
-  const size_t n_particles_each = n_particles / n_pars;
-
-  // omp here
-  for (size_t i = 0; i < n_particles; ++i) {
-    dust::interleaved<real_t> p_state(state, i, n_particles);
-    dust::interleaved<real_t> p_state_next(state_next, i, n_particles);
-    dust::interleaved<int> p_internal_int(internal_int, i, n_particles);
-    dust::interleaved<real_t> p_internal_real(internal_real, i, n_particles);
-    dust::interleaved<uint64_t> p_rng(rng_state, i, n_particles);
-    // TODO: this needs work before moving to the device, but it might
-    // not be that bad in practice. We'll need some extra code to deal
-    // with the blocks (before the loop) too.
-    const int j = i / n_particles_each;
-    const int * p_shared_int = shared_int + j * n_shared_int;
-    const real_t * p_shared_real = shared_real + j * n_shared_real;
-
-    dust::rng_state_t<real_t> rng_block = dust::get_rng_state<real_t>(p_rng);
-    for (size_t step = step_start; step < step_end; ++step) {
-      update_device<T>(step,
-                       p_state,
-                       p_internal_int,
-                       p_internal_real,
-                       p_shared_int,
-                       p_shared_real,
-                       rng_block,
-                       p_state_next);
-      std::swap(p_state, p_state_next);
-      // dust::interleaved<real_t> tmp = p_state;
-      // p_state = p_state_next;
-      // p_state_next = tmp;
-    }
-    dust::put_rng_state(rng_block, p_rng);
-  }
-}
 
 #endif

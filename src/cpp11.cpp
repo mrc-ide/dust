@@ -125,6 +125,13 @@ extern "C" SEXP _dust_dust_rng_state(SEXP ptr) {
     return cpp11::as_sexp(dust_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
   END_CPP11
 }
+// dust_rng.cpp
+cpp11::sexp test_rbinom_float(cpp11::sexp r_seed, int n_samples, int size, double p);
+extern "C" SEXP _dust_test_rbinom_float(SEXP r_seed, SEXP n_samples, SEXP size, SEXP p) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(test_rbinom_float(cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<int>>(n_samples), cpp11::as_cpp<cpp11::decay_t<int>>(size), cpp11::as_cpp<cpp11::decay_t<double>>(p)));
+  END_CPP11
+}
 // openmp.cpp
 cpp11::writable::list cpp_openmp_info();
 extern "C" SEXP _dust_cpp_openmp_info() {
@@ -133,10 +140,10 @@ extern "C" SEXP _dust_cpp_openmp_info() {
   END_CPP11
 }
 // sir.cpp
-SEXP dust_sir_alloc(cpp11::list r_pars, bool pars_multi, size_t step, cpp11::sexp r_n_particles, size_t n_threads, cpp11::sexp r_seed);
-extern "C" SEXP _dust_dust_sir_alloc(SEXP r_pars, SEXP pars_multi, SEXP step, SEXP r_n_particles, SEXP n_threads, SEXP r_seed) {
+SEXP dust_sir_alloc(cpp11::list r_pars, bool pars_multi, size_t step, cpp11::sexp r_n_particles, size_t n_threads, cpp11::sexp r_seed, cpp11::sexp device_id);
+extern "C" SEXP _dust_dust_sir_alloc(SEXP r_pars, SEXP pars_multi, SEXP step, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP device_id) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_sir_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(step), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed)));
+    return cpp11::as_sexp(dust_sir_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(step), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(device_id)));
   END_CPP11
 }
 // sir.cpp
@@ -267,6 +274,13 @@ extern "C" SEXP _dust_dust_sir_n_state(SEXP ptr) {
     return cpp11::as_sexp(dust_sir_n_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
   END_CPP11
 }
+// sir.cpp
+cpp11::sexp dust_sir_device_info();
+extern "C" SEXP _dust_dust_sir_device_info() {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sir_device_info());
+  END_CPP11
+}
 // tools.cpp
 cpp11::list cpp_scale_log_weights(std::vector<double> w);
 extern "C" SEXP _dust_cpp_scale_log_weights(SEXP w) {
@@ -275,10 +289,10 @@ extern "C" SEXP _dust_cpp_scale_log_weights(SEXP w) {
   END_CPP11
 }
 // variable.cpp
-SEXP dust_variable_alloc(cpp11::list r_pars, bool pars_multi, size_t step, cpp11::sexp r_n_particles, size_t n_threads, cpp11::sexp r_seed);
-extern "C" SEXP _dust_dust_variable_alloc(SEXP r_pars, SEXP pars_multi, SEXP step, SEXP r_n_particles, SEXP n_threads, SEXP r_seed) {
+SEXP dust_variable_alloc(cpp11::list r_pars, bool pars_multi, size_t step, cpp11::sexp r_n_particles, size_t n_threads, cpp11::sexp r_seed, cpp11::sexp device_id);
+extern "C" SEXP _dust_dust_variable_alloc(SEXP r_pars, SEXP pars_multi, SEXP step, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP device_id) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_variable_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(step), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed)));
+    return cpp11::as_sexp(dust_variable_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(step), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(device_id)));
   END_CPP11
 }
 // variable.cpp
@@ -409,11 +423,18 @@ extern "C" SEXP _dust_dust_variable_n_state(SEXP ptr) {
     return cpp11::as_sexp(dust_variable_n_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
   END_CPP11
 }
-// volatility.cpp
-SEXP dust_volatility_alloc(cpp11::list r_pars, bool pars_multi, size_t step, cpp11::sexp r_n_particles, size_t n_threads, cpp11::sexp r_seed);
-extern "C" SEXP _dust_dust_volatility_alloc(SEXP r_pars, SEXP pars_multi, SEXP step, SEXP r_n_particles, SEXP n_threads, SEXP r_seed) {
+// variable.cpp
+cpp11::sexp dust_variable_device_info();
+extern "C" SEXP _dust_dust_variable_device_info() {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_volatility_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(step), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed)));
+    return cpp11::as_sexp(dust_variable_device_info());
+  END_CPP11
+}
+// volatility.cpp
+SEXP dust_volatility_alloc(cpp11::list r_pars, bool pars_multi, size_t step, cpp11::sexp r_n_particles, size_t n_threads, cpp11::sexp r_seed, cpp11::sexp device_id);
+extern "C" SEXP _dust_dust_volatility_alloc(SEXP r_pars, SEXP pars_multi, SEXP step, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP device_id) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_volatility_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(step), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(device_id)));
   END_CPP11
 }
 // volatility.cpp
@@ -544,11 +565,18 @@ extern "C" SEXP _dust_dust_volatility_n_state(SEXP ptr) {
     return cpp11::as_sexp(dust_volatility_n_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
   END_CPP11
 }
-// walk.cpp
-SEXP dust_walk_alloc(cpp11::list r_pars, bool pars_multi, size_t step, cpp11::sexp r_n_particles, size_t n_threads, cpp11::sexp r_seed);
-extern "C" SEXP _dust_dust_walk_alloc(SEXP r_pars, SEXP pars_multi, SEXP step, SEXP r_n_particles, SEXP n_threads, SEXP r_seed) {
+// volatility.cpp
+cpp11::sexp dust_volatility_device_info();
+extern "C" SEXP _dust_dust_volatility_device_info() {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_walk_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(step), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed)));
+    return cpp11::as_sexp(dust_volatility_device_info());
+  END_CPP11
+}
+// walk.cpp
+SEXP dust_walk_alloc(cpp11::list r_pars, bool pars_multi, size_t step, cpp11::sexp r_n_particles, size_t n_threads, cpp11::sexp r_seed, cpp11::sexp device_id);
+extern "C" SEXP _dust_dust_walk_alloc(SEXP r_pars, SEXP pars_multi, SEXP step, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP device_id) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_walk_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(step), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(device_id)));
   END_CPP11
 }
 // walk.cpp
@@ -679,6 +707,13 @@ extern "C" SEXP _dust_dust_walk_n_state(SEXP ptr) {
     return cpp11::as_sexp(dust_walk_n_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
   END_CPP11
 }
+// walk.cpp
+cpp11::sexp dust_walk_device_info();
+extern "C" SEXP _dust_dust_walk_device_info() {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_walk_device_info());
+  END_CPP11
+}
 
 extern "C" {
 /* .Call calls */
@@ -701,9 +736,10 @@ extern SEXP _dust_dust_rng_runif(SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_rng_size(SEXP);
 extern SEXP _dust_dust_rng_state(SEXP);
 extern SEXP _dust_dust_rng_unif_rand(SEXP, SEXP);
-extern SEXP _dust_dust_sir_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_sir_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_sir_capabilities();
 extern SEXP _dust_dust_sir_compare_data(SEXP);
+extern SEXP _dust_dust_sir_device_info();
 extern SEXP _dust_dust_sir_filter(SEXP, SEXP);
 extern SEXP _dust_dust_sir_n_state(SEXP);
 extern SEXP _dust_dust_sir_reorder(SEXP, SEXP);
@@ -720,9 +756,10 @@ extern SEXP _dust_dust_sir_set_state(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_sir_simulate(SEXP, SEXP);
 extern SEXP _dust_dust_sir_state(SEXP, SEXP);
 extern SEXP _dust_dust_sir_step(SEXP);
-extern SEXP _dust_dust_variable_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_variable_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_variable_capabilities();
 extern SEXP _dust_dust_variable_compare_data(SEXP);
+extern SEXP _dust_dust_variable_device_info();
 extern SEXP _dust_dust_variable_filter(SEXP, SEXP);
 extern SEXP _dust_dust_variable_n_state(SEXP);
 extern SEXP _dust_dust_variable_reorder(SEXP, SEXP);
@@ -739,9 +776,10 @@ extern SEXP _dust_dust_variable_set_state(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_variable_simulate(SEXP, SEXP);
 extern SEXP _dust_dust_variable_state(SEXP, SEXP);
 extern SEXP _dust_dust_variable_step(SEXP);
-extern SEXP _dust_dust_volatility_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_volatility_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_volatility_capabilities();
 extern SEXP _dust_dust_volatility_compare_data(SEXP);
+extern SEXP _dust_dust_volatility_device_info();
 extern SEXP _dust_dust_volatility_filter(SEXP, SEXP);
 extern SEXP _dust_dust_volatility_n_state(SEXP);
 extern SEXP _dust_dust_volatility_reorder(SEXP, SEXP);
@@ -758,9 +796,10 @@ extern SEXP _dust_dust_volatility_set_state(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_volatility_simulate(SEXP, SEXP);
 extern SEXP _dust_dust_volatility_state(SEXP, SEXP);
 extern SEXP _dust_dust_volatility_step(SEXP);
-extern SEXP _dust_dust_walk_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_walk_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_walk_capabilities();
 extern SEXP _dust_dust_walk_compare_data(SEXP);
+extern SEXP _dust_dust_walk_device_info();
 extern SEXP _dust_dust_walk_filter(SEXP, SEXP);
 extern SEXP _dust_dust_walk_n_state(SEXP);
 extern SEXP _dust_dust_walk_reorder(SEXP, SEXP);
@@ -777,6 +816,7 @@ extern SEXP _dust_dust_walk_set_state(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_walk_simulate(SEXP, SEXP);
 extern SEXP _dust_dust_walk_state(SEXP, SEXP);
 extern SEXP _dust_dust_walk_step(SEXP);
+extern SEXP _dust_test_rbinom_float(SEXP, SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"_dust_cpp_openmp_info",               (DL_FUNC) &_dust_cpp_openmp_info,               0},
@@ -798,9 +838,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_rng_size",                 (DL_FUNC) &_dust_dust_rng_size,                 1},
     {"_dust_dust_rng_state",                (DL_FUNC) &_dust_dust_rng_state,                1},
     {"_dust_dust_rng_unif_rand",            (DL_FUNC) &_dust_dust_rng_unif_rand,            2},
-    {"_dust_dust_sir_alloc",                (DL_FUNC) &_dust_dust_sir_alloc,                6},
+    {"_dust_dust_sir_alloc",                (DL_FUNC) &_dust_dust_sir_alloc,                7},
     {"_dust_dust_sir_capabilities",         (DL_FUNC) &_dust_dust_sir_capabilities,         0},
     {"_dust_dust_sir_compare_data",         (DL_FUNC) &_dust_dust_sir_compare_data,         1},
+    {"_dust_dust_sir_device_info",          (DL_FUNC) &_dust_dust_sir_device_info,          0},
     {"_dust_dust_sir_filter",               (DL_FUNC) &_dust_dust_sir_filter,               2},
     {"_dust_dust_sir_n_state",              (DL_FUNC) &_dust_dust_sir_n_state,              1},
     {"_dust_dust_sir_reorder",              (DL_FUNC) &_dust_dust_sir_reorder,              2},
@@ -817,9 +858,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_sir_simulate",             (DL_FUNC) &_dust_dust_sir_simulate,             2},
     {"_dust_dust_sir_state",                (DL_FUNC) &_dust_dust_sir_state,                2},
     {"_dust_dust_sir_step",                 (DL_FUNC) &_dust_dust_sir_step,                 1},
-    {"_dust_dust_variable_alloc",           (DL_FUNC) &_dust_dust_variable_alloc,           6},
+    {"_dust_dust_variable_alloc",           (DL_FUNC) &_dust_dust_variable_alloc,           7},
     {"_dust_dust_variable_capabilities",    (DL_FUNC) &_dust_dust_variable_capabilities,    0},
     {"_dust_dust_variable_compare_data",    (DL_FUNC) &_dust_dust_variable_compare_data,    1},
+    {"_dust_dust_variable_device_info",     (DL_FUNC) &_dust_dust_variable_device_info,     0},
     {"_dust_dust_variable_filter",          (DL_FUNC) &_dust_dust_variable_filter,          2},
     {"_dust_dust_variable_n_state",         (DL_FUNC) &_dust_dust_variable_n_state,         1},
     {"_dust_dust_variable_reorder",         (DL_FUNC) &_dust_dust_variable_reorder,         2},
@@ -836,9 +878,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_variable_simulate",        (DL_FUNC) &_dust_dust_variable_simulate,        2},
     {"_dust_dust_variable_state",           (DL_FUNC) &_dust_dust_variable_state,           2},
     {"_dust_dust_variable_step",            (DL_FUNC) &_dust_dust_variable_step,            1},
-    {"_dust_dust_volatility_alloc",         (DL_FUNC) &_dust_dust_volatility_alloc,         6},
+    {"_dust_dust_volatility_alloc",         (DL_FUNC) &_dust_dust_volatility_alloc,         7},
     {"_dust_dust_volatility_capabilities",  (DL_FUNC) &_dust_dust_volatility_capabilities,  0},
     {"_dust_dust_volatility_compare_data",  (DL_FUNC) &_dust_dust_volatility_compare_data,  1},
+    {"_dust_dust_volatility_device_info",   (DL_FUNC) &_dust_dust_volatility_device_info,   0},
     {"_dust_dust_volatility_filter",        (DL_FUNC) &_dust_dust_volatility_filter,        2},
     {"_dust_dust_volatility_n_state",       (DL_FUNC) &_dust_dust_volatility_n_state,       1},
     {"_dust_dust_volatility_reorder",       (DL_FUNC) &_dust_dust_volatility_reorder,       2},
@@ -855,9 +898,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_volatility_simulate",      (DL_FUNC) &_dust_dust_volatility_simulate,      2},
     {"_dust_dust_volatility_state",         (DL_FUNC) &_dust_dust_volatility_state,         2},
     {"_dust_dust_volatility_step",          (DL_FUNC) &_dust_dust_volatility_step,          1},
-    {"_dust_dust_walk_alloc",               (DL_FUNC) &_dust_dust_walk_alloc,               6},
+    {"_dust_dust_walk_alloc",               (DL_FUNC) &_dust_dust_walk_alloc,               7},
     {"_dust_dust_walk_capabilities",        (DL_FUNC) &_dust_dust_walk_capabilities,        0},
     {"_dust_dust_walk_compare_data",        (DL_FUNC) &_dust_dust_walk_compare_data,        1},
+    {"_dust_dust_walk_device_info",         (DL_FUNC) &_dust_dust_walk_device_info,         0},
     {"_dust_dust_walk_filter",              (DL_FUNC) &_dust_dust_walk_filter,              2},
     {"_dust_dust_walk_n_state",             (DL_FUNC) &_dust_dust_walk_n_state,             1},
     {"_dust_dust_walk_reorder",             (DL_FUNC) &_dust_dust_walk_reorder,             2},
@@ -874,6 +918,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_walk_simulate",            (DL_FUNC) &_dust_dust_walk_simulate,            2},
     {"_dust_dust_walk_state",               (DL_FUNC) &_dust_dust_walk_state,               2},
     {"_dust_dust_walk_step",                (DL_FUNC) &_dust_dust_walk_step,                1},
+    {"_dust_test_rbinom_float",             (DL_FUNC) &_dust_test_rbinom_float,             4},
     {NULL, NULL, 0}
 };
 }

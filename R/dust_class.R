@@ -22,6 +22,7 @@ dust_class <- R6::R6Class(
     n_particles_each_ = NULL,
     shape_ = NULL,
     ptr_ = NULL,
+    device_id_ = NULL,
     param_ = NULL
   ),
 
@@ -66,8 +67,18 @@ dust_class <- R6::R6Class(
     ##' should prepare `n_particles * length(pars)` particles for
     ##' simulation. This has an effect on many of the other methods of
     ##' the object.
+    ##'
+    ##' @param device_id Integer, indicating the device to use, where the
+    ##' model has GPU support. If not given, then the default value of
+    ##' `NULL` will fall back on the first found device if any are
+    ##' available. An error is thrown if the device id given is larger
+    ##' than those reported to be available (note that CUDA numbers devices
+    ##' from 0, so that '0' is the first device, and so on). Negative values
+    ##' disable the use of a device.' See the method `$device_info()` for
+    ##' available device ids; this can be called before object creation as
+    ##' `dust_class$public_methods$device_info()`
     initialize = function(pars, step, n_particles, n_threads = 1L,
-                          seed = NULL, pars_multi = FALSE) {
+                          seed = NULL, pars_multi = FALSE, device_id = NULL) {
     },
 
     ##' @description
@@ -282,6 +293,15 @@ dust_class <- R6::R6Class(
     },
 
     ##' @description
+    ##' Returns a logical, indicating if this model was compiled with
+    ##' "CUDA" support, in which case it will react to the `device`
+    ##' argument passed to the run method. This method can also be used
+    ##' as a static method by running it directly
+    ##' as `dust_class$public_methods$has_cuda()`
+    has_cuda = function() {
+    },
+
+    ##' @description
     ##' Returns the number of distinct pars elements required. This is `0`
     ##' where the object was initialised with `pars_multi = FALSE` and
     ##' an integer otherwise.  For multi-pars dust objects, Where `pars`
@@ -345,6 +365,13 @@ dust_class <- R6::R6Class(
     ##' If you have a multi-parameter dust object this will be a 4d array
     ##' (state x particles x parameter x time).
     filter = function(save_history = FALSE) {
+    },
+
+    ##' @description
+    ##' **Experimental!** Return information about GPU devices, if the model
+    ##' has been compiled with CUDA/GPU support. This can be called as a
+    ##' static method by running `dust_class$public_methods$device_info()`
+    device_info = function() {
     }
   ))
 class(dust_class) <- c("dust_generator", class(dust_class))
