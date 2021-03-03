@@ -43,13 +43,18 @@ real_t HOSTDEVICE binomial_inversion(rng_state_t<real_t>& rng_state, int n, real
   const real_t g = r * (n + 1);
   real_t f = fast_pow(q, n);
   int k = 0;
-  const real_t epsilon = dust::utils::epsilon<real_t>();
 
-  // while (u >= f) { // TODO: fix this
-  while (u - f >= 1E-6 && f > epsilon) {
+  real_t f_prev = f;
+  while (u >= f) {
     u -= f;
     k++;
     f *= (g / k - r);
+    // This catches an issue seen running with floats where we end up
+    // unable to decrease 'f' because we've run out of precision
+    if (f == f_prev) {
+      break;
+    }
+    f_prev = f;
   }
 
   return k;
