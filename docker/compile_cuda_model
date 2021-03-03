@@ -1,0 +1,12 @@
+#!/usr/bin/env Rscript
+path <- system.file("examples/variable.cpp", package = "dust", mustWork = TRUE)
+message("Checking CUDA configuration")
+dust::dust_cuda_configuration(quiet = FALSE)
+message("Compiling...")
+gen <- dust::dust(path, gpu = TRUE)
+message("Initialising...")
+mod <- gen$new(list(len = 10, sd = 1), 0, 100, seed = 1L)
+message("Running...")
+y <- mod$run(10)
+message("Success!")
+invisible(TRUE)
