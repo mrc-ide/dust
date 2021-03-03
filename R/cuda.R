@@ -149,7 +149,12 @@ cuda_configuration <- function(path_cuda_lib = NULL, path_cub_include = NULL,
       path_cub_include = path_cub_include)
 
     c(info, paths)
-  }, error = function(e) no_cuda)
+  }, error = function(e) {
+    if (!quiet) {
+      message("nvcc detection reported failure:\n", e$message)
+    }
+    no_cuda
+  })
 }
 
 

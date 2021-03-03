@@ -142,6 +142,16 @@ test_that("Retrieve configuration", {
 })
 
 
+test_that("Report error if requested", {
+  skip_if_not_installed("mockery")
+  mock_create <- mockery::mock(stop("no nvcc found!"))
+  res <- with_mock(
+    "dust:::cuda_create_test_package" = mock_create,
+    expect_message(cuda_configuration(),
+                   "nvcc detection reported failure:.*no nvcc found!"))
+})
+
+
 test_that("locate cub", {
   skip_if_not_installed("mockery")
   path_good <- tempfile()
