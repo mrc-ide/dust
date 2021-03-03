@@ -270,10 +270,10 @@ cuda_install_cub <- function(path, version = "1.9.10", quiet = FALSE) {
   url <- sprintf("https://github.com/nvidia/cub/archive/%s.zip", version)
   tmp_zip <- tempfile(fileext = ".zip")
   tmp_src <- tempfile()
-  download.file(url, tmp_zip, mode = "wb", quiet = quiet)
+  utils::download.file(url, tmp_zip, mode = "wb", quiet = quiet)
 
   dir.create(tmp_src, FALSE, TRUE)
-  unzip(tmp_zip, exdir = tmp_src)
+  utils::unzip(tmp_zip, exdir = tmp_src)
   base <- sprintf("cub-%s", version)
   stopifnot(file.exists(file.path(tmp_src, base)))
 
