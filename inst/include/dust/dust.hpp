@@ -74,7 +74,7 @@ public:
 // This could be removed/commented out eventually
 #ifdef __NVCC__
   ~Dust() {
-    CUDA_CALL(cudaProfilerStop());
+    CUDA_CALL_NOTHROW(cudaProfilerStop());
   }
 #endif
 

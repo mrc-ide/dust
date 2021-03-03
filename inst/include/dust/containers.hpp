@@ -97,7 +97,7 @@ public:
 
   ~device_array() {
 #ifdef __NVCC__
-    CUDA_CALL(cudaFree(data_));
+    CUDA_CALL_NOTHROW(cudaFree(data_));
 #else
     delete[] data_;
 #endif
@@ -158,7 +158,7 @@ public:
   }
   ~device_array() {
 #ifdef __NVCC__
-    CUDA_CALL(cudaFree(data_));
+    CUDA_CALL_NOTHROW(cudaFree(data_));
 #else
     std::free(data_);
 #endif
