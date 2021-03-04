@@ -83,7 +83,7 @@ HOSTDEVICE inline real_t stirling_approx_tail_calc(real_t k) {
 template <>
 HOSTDEVICE inline float stirling_approx_tail(float k) {
   float tail;
-  if (k <= k_tail_values_max) {
+  if (k <= k_tail_values_max_f) {
     tail = k_tail_values_f[static_cast<int>(k)];
   } else {
     tail = stirling_approx_tail_calc(k);
@@ -94,7 +94,7 @@ HOSTDEVICE inline float stirling_approx_tail(float k) {
 template <>
 HOSTDEVICE inline double stirling_approx_tail(double k) {
   double tail;
-  if (k <= k_tail_values_max) {
+  if (k <= k_tail_values_max_d) {
     tail = k_tail_values_d[static_cast<int>(k)];
   } else {
     tail = stirling_approx_tail_calc(k);

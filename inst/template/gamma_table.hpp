@@ -8,7 +8,8 @@
 #define CONSTANT const
 #endif
 
-CONSTANT int k_tail_values_max = {{max_k}};
+CONSTANT int k_tail_values_max_f = {{k_max_f}};
+CONSTANT int k_tail_values_max_d = {{k_max_d}};
 
 CONSTANT
 float k_tail_values_f[] = {
