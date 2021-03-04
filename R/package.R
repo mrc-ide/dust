@@ -73,7 +73,8 @@ dust_package <- function(path, quiet = FALSE) {
   if (file.exists(pkg_makevars)) {
     package_validate_makevars_openmp(read_lines(pkg_makevars))
   } else {
-    writelines_if_changed(read_lines(dust_file("template/Makevars.pkg")), pkg_makevars)
+    writelines_if_changed(
+      read_lines(dust_file("template/Makevars.pkg")), pkg_makevars)
   }
 
   ## 5. compile attributes
