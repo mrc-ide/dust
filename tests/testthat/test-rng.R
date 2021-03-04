@@ -80,6 +80,8 @@ test_that("run binomial random numbers", {
   p <- 0.1
 
   ans1 <- dust_rng$new(1, 1)$rbinom(m, n, p)
+  sum(ans1); sd(ans1)
+
   ans2 <- dust_rng$new(1, 1)$rbinom(m, n, p)
   expect_identical(ans1, ans2)
 

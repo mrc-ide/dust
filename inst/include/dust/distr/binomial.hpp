@@ -71,18 +71,33 @@ real_t HOSTDEVICE binomial_inversion(rng_state_t<real_t>& rng_state, int n,
 }
 
 template <typename real_t>
-HOSTDEVICE real_t stirling_approx_tail(real_t k) {
+HOSTDEVICE real_t stirling_approx_tail(real_t k);
+
+template <typename real_t>
+HOSTDEVICE inline real_t stirling_approx_tail_calc(real_t k) {
   const real_t one = 1;
-  real_t tail;
-  if (k <= 127) {
-#ifdef __CUDA_ARCH__
-    tail = cudakTailValues[static_cast<int>(k)];
-#else
-    tail = kTailValues[static_cast<int>(k)];
-#endif
+  real_t kp1sq = (k + 1) * (k + 1);
+  return (one / 12 - (one / 360 - one / 1260 / kp1sq) / kp1sq) / (k + 1);
+}
+
+template <>
+HOSTDEVICE inline float stirling_approx_tail(float k) {
+  float tail;
+  if (k <= k_tail_values_max) {
+    tail = k_tail_values_f[static_cast<int>(k)];
   } else {
-    real_t kp1sq = (k + 1) * (k + 1);
-    tail = (one / 12 - (one / 360 - one / 1260 / kp1sq) / kp1sq) / (k + 1);
+    tail = stirling_approx_tail_calc(k);
+  }
+  return tail;
+}
+
+template <>
+HOSTDEVICE inline double stirling_approx_tail(double k) {
+  double tail;
+  if (k <= k_tail_values_max) {
+    tail = k_tail_values_d[static_cast<int>(k)];
+  } else {
+    tail = stirling_approx_tail_calc(k);
   }
   return tail;
 }
