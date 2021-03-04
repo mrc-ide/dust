@@ -85,8 +85,13 @@ is_integer_like <- function(x) {
 
 
 writelines_if_changed <- function(text, path) {
-  skip <- file.exists(path) && identical(readLines(path), text)
+  skip <- file.exists(path) && same_content(path, text)
   if (!skip) {
     writeLines(text, path)
   }
+}
+
+
+same_content <- function(path, text) {
+  identical(read_lines(path), paste(as.character(text), collapse = "\n"))
 }
