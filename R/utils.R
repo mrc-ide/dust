@@ -82,3 +82,11 @@ is_integer_like <- function(x) {
   length(x) == 1 && !is.na(x) &&
     (is.integer(x) || (is.numeric(x) && isTRUE(all.equal(x, round(x)))))
 }
+
+
+writelines_if_changed <- function(text, path) {
+  skip <- file.exists(path) && identical(readLines(path), text)
+  if (!skip) {
+    writeLines(text, path)
+  }
+}

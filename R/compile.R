@@ -81,7 +81,7 @@ compile_and_load <- function(filename, quiet = FALSE, workdir = NULL,
 substitute_template <- function(data, src, dest) {
   template <- read_lines(src)
   txt <- glue_whisker(template, data)
-  writeLines(txt, dest)
+  writelines_if_changed(txt, dest)
 }
 
 
