@@ -86,7 +86,10 @@ HOSTDEVICE inline float stirling_approx_tail(float k) {
   if (k <= k_tail_values_max_f) {
     tail = k_tail_values_f[static_cast<int>(k)];
   } else {
-    tail = stirling_approx_tail_calc(k);
+    // We've chosen our table length on the float case to never git
+    // this branch; we'll come back and test this properly on dust
+    // issue #191
+    tail = stirling_approx_tail_calc(k); // #nocov
   }
   return tail;
 }
