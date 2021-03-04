@@ -43,8 +43,6 @@ generate_dust <- function(filename, quiet, workdir, cuda, cache) {
                              file.path(path, "src", "Makevars"))
   }
 
-  cpp11::cpp_register(path, quiet = quiet)
-
   res <- list(key = base, gpu = gpu, data = data, path = path)
   cache$models[[base]] <- res
   res

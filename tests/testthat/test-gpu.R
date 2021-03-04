@@ -105,7 +105,7 @@ test_that("Can generate cuda compatible code", {
 
   expect_setequal(
     dir(file.path(res$path, "src")),
-    c("dust.hpp", "dust.cu", "cpp11.cpp", "Makevars"))
+    c("dust.hpp", "dust.cu", "Makevars"))
 
   txt <- readLines(file.path(res$path, "src", "Makevars"))
   expect_match(txt, "-L/path/to/cuda", all = FALSE, fixed = TRUE)
