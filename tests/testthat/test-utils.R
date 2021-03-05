@@ -55,3 +55,30 @@ test_that("assert_is", {
   expect_error(assert_is(thing, c("x", "y")),
                "'thing' must be a x / y")
 })
+
+
+test_that("writelines_if_changed doesn't replace file", {
+  text1 <- c("a", "b", "c")
+  text2 <- c("a", "b", "c", "d")
+  str1 <- paste(text1, collapse = "\n")
+  str2 <- structure(str1, class = "glue")
+  path <- tempfile()
+  writelines_if_changed(text1, path)
+  expect_true(same_content(path, text1))
+  expect_true(same_content(path, str1))
+  expect_true(same_content(path, str2))
+  writelines_if_changed(str1, path)
+  writelines_if_changed(str2, path)
+  expect_true(file.exists(path))
+  expect_equal(readLines(path), text1)
+  t <- file.mtime(path)
+  writelines_if_changed(text1, path)
+  expect_identical(file.mtime(path), t)
+  writelines_if_changed(text2, path)
+  expect_equal(readLines(path), text2)
+  ## I don't trust times and sub-second accuracy not guaranted; see
+  ## ?file.mtime
+  skip_on_cran()
+  skip_on_os("windows")
+  expect_gt(file.mtime(path), t)
+})

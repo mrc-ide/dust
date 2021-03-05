@@ -61,18 +61,20 @@ dust_package <- function(path, quiet = FALSE) {
 
   for (d in data) {
     for (p in names(d$src)) {
-      writeLines(c(dust_header("//"), d$src[[p]]), file.path(path_src, p))
+      writelines_if_changed(
+        c(dust_header("//"), d$src[[p]]), file.path(path_src, p))
     }
   }
 
   code_r <- c(dust_header("##"), vcapply(data, "[[", "r"))
-  writeLines(code_r, file.path(path_r, "dust.R"))
+  writelines_if_changed(code_r, file.path(path_r, "dust.R"))
 
   pkg_makevars <- file.path(path, "src/Makevars")
   if (file.exists(pkg_makevars)) {
     package_validate_makevars_openmp(read_lines(pkg_makevars))
   } else {
-    writeLines(read_lines(dust_file("template/Makevars.pkg")), pkg_makevars)
+    writelines_if_changed(
+      read_lines(dust_file("template/Makevars.pkg")), pkg_makevars)
   }
 
   ## 5. compile attributes

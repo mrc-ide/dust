@@ -43,8 +43,6 @@ generate_dust <- function(filename, quiet, workdir, cuda, cache) {
                              file.path(path, "src", "Makevars"))
   }
 
-  cpp11::cpp_register(path, quiet = quiet)
-
   res <- list(key = base, gpu = gpu, data = data, path = path)
   cache$models[[base]] <- res
   res
@@ -81,7 +79,7 @@ compile_and_load <- function(filename, quiet = FALSE, workdir = NULL,
 substitute_template <- function(data, src, dest) {
   template <- read_lines(src)
   txt <- glue_whisker(template, data)
-  writeLines(txt, dest)
+  writelines_if_changed(txt, dest)
 }
 
 
