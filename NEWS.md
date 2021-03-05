@@ -1,3 +1,7 @@
+# dust 0.8.3
+
+* Reduce host and memcpy usage in device reorder by computing scatter index within the kernel (#198)
+
 # dust 0.8.2
 
 * Don't rewrite files with identical content during generation; this avoids recompilation of code across sessions when the argument `workdir` is used with `dust::dust` (#195)
