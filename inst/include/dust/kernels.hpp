@@ -64,6 +64,8 @@ KERNEL void run_particles(size_t step_start,
   // into __shared__ L1
   extern __shared__ int shared_block[];
   auto block = cooperative_groups::this_thread_block();
+  static_assert(sizeof(real_t) >= sizeof(int),
+                "real_t and int shared memory not alignable");
   if (use_shared_L1) {
     int * shared_block_int = shared_block;
     shared_mem_cpy(block, shared_block_int, p_shared_int, n_shared_int);
@@ -74,7 +76,6 @@ KERNEL void run_particles(size_t step_start,
     // Furthermore, writing must be aligned to the word length (may be an issue
     // with int and real, as odd n_shared_int leaves pointer in the middle of an
     // 8-byte word)
-    assert(sizeof(real_t) >= sizeof(int));
     size_t real_ptr_start = n_shared_int +
       dust::utils::align_padding(n_shared_int * sizeof(int), sizeof(real_t)) / sizeof(int);
     real_t * shared_block_real = (real_t*)&shared_block[real_ptr_start];
