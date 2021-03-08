@@ -193,7 +193,7 @@ struct device_state {
   dust::device_array<char> index;
   dust::device_array<int> n_selected;
   dust::device_array<void> select_tmp;
-  dust::device_array<int> scatter_index;
+  dust::device_array<size_t> scatter_index;
 };
 
 // We need to compute the size of space required for integers and
