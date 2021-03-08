@@ -34,6 +34,10 @@ size_t stride_copy(T dest, const std::vector<U>& src, size_t at,
   return at;
 }
 
+inline HOSTDEVICE size_t align_padding(const size_t offset, const size_t align) {
+  return offset % align ? align - offset % align : 0));
+}
+
 #ifdef __NVCC__
 template <typename T>
 HOSTDEVICE T epsilon_nvcc();

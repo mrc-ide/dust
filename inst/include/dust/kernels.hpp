@@ -1,6 +1,8 @@
 #ifndef DUST_KERNELS_HPP
 #define DUST_KERNELS_HPP
 
+#include <assert.h>
+
 // This is the main model update, will be defined by the model code
 // (see inst/examples/variable.cpp for an example)
 template <typename T>
@@ -68,7 +70,13 @@ KERNEL void run_particles(size_t step_start,
 
     // Must only have a single __shared__ definition, cast to use different
     // types within it
-    real_t * shared_block_real = (real_t*)&shared_block[n_shared_int];
+    // Furthermore, writing must be aligned to the word length (may be an issue
+    // with int and real, as odd n_shared_int leaves pointer in the middle of an
+    // 8-byte word)
+    assert(sizeof(real_t) > sizeof(int));
+    size_t real_ptr_start = n_shared_int +
+      align_padding(n_shared_int * sizeof(int), sizeof(real_t)) / sizeof(int);
+    real_t * shared_block_real = (real_t*)&shared_block[real_ptr_start];
     shared_mem_cpy(block, shared_block_real, p_shared_real, n_shared_real);
     p_shared_real = shared_block_real;
 
