@@ -34,8 +34,9 @@ size_t stride_copy(T dest, const std::vector<U>& src, size_t at,
   return at;
 }
 
-inline HOSTDEVICE size_t align_padding(const size_t offset, const size_t align) {
-  size_t remainder = offset % align;
+template <typename T, typename U = T>
+inline HOSTDEVICE T align_padding(const T offset, const U align) {
+  T remainder = offset % align;
   return remainder ? align - remainder : 0;
 }
 
