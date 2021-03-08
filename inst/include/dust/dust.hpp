@@ -170,10 +170,8 @@ public:
     size_t blockCount;
     bool use_shared_L1 = true;
     size_t n_shared_int_effective = _device_data.n_shared_int +
-      align_padding(_device_data.n_shared_int * sizeof(int), sizeof(real_t))
-      / sizeof(int);
-    size_t shared_size_bytes =
-      n_shared_int_effective * sizeof(int) +
+      dust::utils::align_padding(_device_data.n_shared_int * sizeof(int), sizeof(real_t)) / sizeof(int);
+    size_t shared_size_bytes = n_shared_int_effective * sizeof(int) +
       _device_data.n_shared_real * sizeof(real_t);
     if (_n_particles_each < warp_size || shared_size_bytes > _shared_size) {
       // If not enough particles per pars to make a whole block use

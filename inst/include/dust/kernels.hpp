@@ -76,7 +76,7 @@ KERNEL void run_particles(size_t step_start,
     // 8-byte word)
     assert(sizeof(real_t) > sizeof(int));
     size_t real_ptr_start = n_shared_int +
-      align_padding(n_shared_int * sizeof(int), sizeof(real_t)) / sizeof(int);
+      dust::utils::align_padding(n_shared_int * sizeof(int), sizeof(real_t)) / sizeof(int);
     real_t * shared_block_real = (real_t*)&shared_block[real_ptr_start];
     shared_mem_cpy(block, shared_block_real, p_shared_real, n_shared_real);
     p_shared_real = shared_block_real;
