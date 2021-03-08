@@ -15,7 +15,7 @@ DEVICE void update_device(size_t step,
 
 // __global__ for shuffling particles
 template<typename real_t>
-KERNEL void scatter_device(const int* index,
+KERNEL void scatter_device(const size_t* index,
                            real_t* state,
                            real_t* scatter_state,
                            const size_t n_state,
