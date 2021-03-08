@@ -51,7 +51,7 @@ inline HOSTDEVICE double epsilon_nvcc() {
 
 template <typename T>
 HOSTDEVICE T epsilon() {
-#ifdef __NVCC__
+#ifdef __CUDA_ARCH__
   return epsilon_nvcc<T>();
 #else
   return std::numeric_limits<T>::epsilon();
