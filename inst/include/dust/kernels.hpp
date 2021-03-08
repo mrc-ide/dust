@@ -85,7 +85,7 @@ KERNEL void run_particles(size_t step_start,
     // Furthermore, writing must be aligned to the word length (may be an issue
     // with int and real, as odd n_shared_int leaves pointer in the middle of an
     // 8-byte word)
-    assert(sizeof(real_t) > sizeof(int));
+    assert(sizeof(real_t) >= sizeof(int));
     size_t real_ptr_start = n_shared_int +
       dust::utils::align_padding(n_shared_int * sizeof(int), sizeof(real_t)) / sizeof(int);
     real_t * shared_block_real = (real_t*)&shared_block[real_ptr_start];
