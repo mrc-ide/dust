@@ -28,12 +28,13 @@ KERNEL void scatter_device(const size_t* index,
   // offset
   // [3, 1, 3, 2, 3 + 4, 1 + 4, 3 + 4, 2 + 4, 3 + 8, 1 + 8, 3 + 8, 2 + 8]
   // [3, 1, 3, 2, 7, 5, 7, 6, 11, 9, 11, 10]
+  int state_size = n_state * n_particles;
 #ifdef __NVCC__
   // https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/
   for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < state_size;
        i += blockDim.x * gridDim.x) {
 #else
-  for (size_t i = 0; i < n_state * n_particles; ++i) {
+  for (int i = 0; i < state_size; ++i) {
 #endif
     const int scatter_index = index[i % n_particles] + (i / n_particles) * n_particles;
     scatter_state[i] = state[scatter_index];
