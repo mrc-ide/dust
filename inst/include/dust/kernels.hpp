@@ -2,6 +2,7 @@
 #define DUST_KERNELS_HPP
 
 #include <assert.h>
+#include <dust/utils.h>
 
 // This is the main model update, will be defined by the model code
 // (see inst/examples/variable.cpp for an example)
