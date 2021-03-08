@@ -1,3 +1,7 @@
+# dust 0.8.3
+
+* Fix issue with `rnorm()` running on a GPU (device code).
+
 # dust 0.8.2
 
 * Don't rewrite files with identical content during generation; this avoids recompilation of code across sessions when the argument `workdir` is used with `dust::dust` (#195)

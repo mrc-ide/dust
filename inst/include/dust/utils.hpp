@@ -39,12 +39,12 @@ template <typename T>
 HOSTDEVICE T epsilon_nvcc();
 
 template <>
-inline HOSTDEVICE float epsilon_nvcc() {
+inline DEVICE float epsilon_nvcc() {
   return FLT_EPSILON;
 }
 
 template <>
-inline HOSTDEVICE double epsilon_nvcc() {
+inline DEVICE double epsilon_nvcc() {
   return DBL_EPSILON;
 }
 #endif
