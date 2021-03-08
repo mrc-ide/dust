@@ -35,7 +35,8 @@ size_t stride_copy(T dest, const std::vector<U>& src, size_t at,
 }
 
 inline HOSTDEVICE size_t align_padding(const size_t offset, const size_t align) {
-  return offset % align ? align - offset % align : 0));
+  size_t remainder = offset % align;
+  return remainder ? align - remainder : 0;
 }
 
 #ifdef __NVCC__
