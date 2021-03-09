@@ -1,3 +1,7 @@
+# dust 0.8.4
+
+* Reduce host and memcpy usage in device reorder by computing scatter index within the kernel (#198)
+
 # dust 0.8.3
 
 * Fix issue with `rnorm()` running on a GPU (device code).

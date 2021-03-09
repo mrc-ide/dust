@@ -156,7 +156,7 @@ struct device_state {
     rng = dust::device_array<uint64_t>(n_rng * n_particles);
     index = dust::device_array<char>(n_state * n_particles);
     n_selected = dust::device_array<int>(1);
-    scatter_index = dust::device_array<int>(n_state * n_particles);
+    scatter_index = dust::device_array<size_t>(n_particles);
     set_cub_tmp();
   }
   void swap() {
@@ -193,7 +193,7 @@ struct device_state {
   dust::device_array<char> index;
   dust::device_array<int> n_selected;
   dust::device_array<void> select_tmp;
-  dust::device_array<int> scatter_index;
+  dust::device_array<size_t> scatter_index;
 };
 
 // We need to compute the size of space required for integers and
