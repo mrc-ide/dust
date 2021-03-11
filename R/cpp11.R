@@ -136,8 +136,8 @@ dust_sir_compare_data <- function(ptr) {
   .Call(`_dust_dust_sir_compare_data`, ptr)
 }
 
-dust_sir_filter <- function(ptr, save_history) {
-  .Call(`_dust_dust_sir_filter`, ptr, save_history)
+dust_sir_filter <- function(ptr, save_trajectories, step_snapshot) {
+  .Call(`_dust_dust_sir_filter`, ptr, save_trajectories, step_snapshot)
 }
 
 dust_sir_capabilities <- function() {
@@ -220,8 +220,8 @@ dust_variable_compare_data <- function(ptr) {
   .Call(`_dust_dust_variable_compare_data`, ptr)
 }
 
-dust_variable_filter <- function(ptr, save_history) {
-  .Call(`_dust_dust_variable_filter`, ptr, save_history)
+dust_variable_filter <- function(ptr, save_trajectories, step_snapshot) {
+  .Call(`_dust_dust_variable_filter`, ptr, save_trajectories, step_snapshot)
 }
 
 dust_variable_capabilities <- function() {
@@ -300,8 +300,8 @@ dust_volatility_compare_data <- function(ptr) {
   .Call(`_dust_dust_volatility_compare_data`, ptr)
 }
 
-dust_volatility_filter <- function(ptr, save_history) {
-  .Call(`_dust_dust_volatility_filter`, ptr, save_history)
+dust_volatility_filter <- function(ptr, save_trajectories, step_snapshot) {
+  .Call(`_dust_dust_volatility_filter`, ptr, save_trajectories, step_snapshot)
 }
 
 dust_volatility_capabilities <- function() {
@@ -380,8 +380,8 @@ dust_walk_compare_data <- function(ptr) {
   .Call(`_dust_dust_walk_compare_data`, ptr)
 }
 
-dust_walk_filter <- function(ptr, save_history) {
-  .Call(`_dust_dust_walk_filter`, ptr, save_history)
+dust_walk_filter <- function(ptr, save_trajectories, step_snapshot) {
+  .Call(`_dust_dust_walk_filter`, ptr, save_trajectories, step_snapshot)
 }
 
 dust_walk_capabilities <- function() {

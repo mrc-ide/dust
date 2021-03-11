@@ -347,6 +347,31 @@ inline int check_device_id(cpp11::sexp r_device_id) {
   return device_id;
 }
 
+// We might just do this check entirely on the R side but this should
+// be pretty fast.
+inline std::vector<size_t> check_step_snapshot(cpp11::sexp r_step_snapshot) {
+  std::vector<size_t> step_snapshot;
+  if (r_step_snapshot == R_NilValue) {
+    return step_snapshot;
+  }
+
+  cpp11::integers r_step_snapshot_int =
+    cpp11::as_cpp<cpp11::integers>(r_step_snapshot);
+  step_snapshot.reserve(r_step_snapshot_int.size());
+  for (size_t i = 0; i < step_snapshot.size(); ++i) {
+    const int step = r_step_snapshot_int[i];
+    if (step < 0) {
+      cpp11::stop("'step_snapshot' must be positive");
+    }
+    if (i > 0 && step <= r_step_snapshot_int[i - 1]) {
+      cpp11::stop("'step_snapshot' must be strictly increasing");
+    }
+    step_snapshot.push_back(step);
+  }
+
+  return step_snapshot;
+}
+
 }
 }
 
