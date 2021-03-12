@@ -137,7 +137,6 @@ test_that("Can save out state during a run", {
   mod <- dat$model$new(list(), 0, np, seed = 10L)
   mod$set_data(dat$dat_dust)
 
-  ## TODO: handle better doubles here using as_integer
   step_snapshot <- c(100L, 200L, 400L)
 
   ## We can perform the entire particle filter manually with the C
