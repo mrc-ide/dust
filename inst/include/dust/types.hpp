@@ -182,18 +182,7 @@ private:
 };
 
 template <typename real_t>
-class filter_state {
-public:
-  filter_state() {
-  }
-
-  void resize(size_t n_state_trajectory, size_t n_state_snapshot,
-              size_t n_particles,
-              size_t n_step_trajectory, std::vector<size_t> step_snapshot) {
-    trajectories.resize(n_state_trajectory, n_particles, n_step_trajectory);
-    snapshots.resize(n_state_snapshot, n_particles, step_snapshot);
-  }
-
+struct filter_state {
   filter_trajectories<real_t> trajectories;
   filter_snapshots<real_t> snapshots;
 };
