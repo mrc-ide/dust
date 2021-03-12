@@ -47,7 +47,8 @@ SEXP dust_{{name}}_set_data(SEXP ptr, cpp11::list data);
 SEXP dust_{{name}}_compare_data(SEXP ptr);
 
 [[cpp11::register]]
-SEXP dust_{{name}}_filter(SEXP ptr, bool save_history);
+SEXP dust_{{name}}_filter(SEXP ptr, bool save_trajectories,
+                          cpp11::sexp step_snapshot);
 
 [[cpp11::register]]
 cpp11::sexp dust_{{name}}_capabilities();

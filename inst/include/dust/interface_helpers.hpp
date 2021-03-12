@@ -347,6 +347,36 @@ inline int check_device_id(cpp11::sexp r_device_id) {
   return device_id;
 }
 
+template <typename T>
+std::vector<size_t> check_step_snapshot(cpp11::sexp r_step_snapshot,
+                                        const std::map<size_t, T>& data) {
+  std::vector<size_t> step_snapshot;
+  if (r_step_snapshot == R_NilValue) {
+    return step_snapshot;
+  }
+
+  cpp11::integers r_step_snapshot_int =
+    as_integer(r_step_snapshot, "step_snapshot");
+
+  step_snapshot.reserve(r_step_snapshot_int.size());
+  for (int i = 0; i < r_step_snapshot_int.size(); ++i) {
+    const int step = r_step_snapshot_int[i];
+    if (step < 0) {
+      cpp11::stop("'step_snapshot' must be positive");
+    }
+    if (i > 0 && step <= r_step_snapshot_int[i - 1]) {
+      cpp11::stop("'step_snapshot' must be strictly increasing");
+    }
+    if (data.find(step) == data.end()) {
+      cpp11::stop("'step_snapshot[%d]' (step %d) was not found in data",
+                  i + 1, step);
+    }
+    step_snapshot.push_back(step);
+  }
+
+  return step_snapshot;
+}
+
 }
 }
 

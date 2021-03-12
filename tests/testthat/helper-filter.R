@@ -21,7 +21,7 @@ scale_log_weights <- function(w) {
 }
 
 
-filter_history_reorder <- function(value, order) {
+filter_trajectories_reorder <- function(value, order) {
   index_particle <- seq_len(ncol(value))
   n_state <- nrow(value)
   n_particles <- length(index_particle)
@@ -38,9 +38,9 @@ filter_history_reorder <- function(value, order) {
 
 
 ## The C++ version of the above is closer to this, which might be
-## useful if we decide to expose getting just one particle's history
-## (or some set) out of the history.
-filter_history_reorder_cpp <- function(value, order) {
+## useful if we decide to expose getting just one particle's trajectories
+## (or some set) out of the trajectories.
+filter_trajectories_reorder_cpp <- function(value, order) {
   n_state <- nrow(value)
   n_particles <- ncol(value)
   n_data <- ncol(order)

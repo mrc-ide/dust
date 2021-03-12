@@ -305,13 +305,17 @@ public:
   }
 
   void state_full(std::vector<real_t>& end_state) {
+    state_full(end_state.begin());
+  }
+
+  void state_full(typename std::vector<real_t>::iterator end_state) {
     refresh_host();
     const size_t n = n_state_full();
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
 #endif
     for (size_t i = 0; i < _particles.size(); ++i) {
-      _particles[i].state_full(end_state.begin() + i * n);
+      _particles[i].state_full(end_state + i * n);
     }
   }
 
@@ -428,6 +432,14 @@ public:
     return _pars_are_shared;
   }
 
+  size_t n_data() const {
+    return _data.size();
+  }
+
+  const std::map<size_t, std::vector<data_t>>& data() const {
+    return _data;
+  }
+
   size_t step() const {
     return _particles.front().step();
   }
@@ -484,22 +496,22 @@ public:
     }
   }
 
-  std::vector<real_t> filter(bool save_history) {
-    if (_data.size() == 0) {
-      throw std::invalid_argument("Data has not been set for this object");
-    }
-
+  std::vector<real_t> filter(bool save_trajectories,
+                             std::vector<size_t> step_snapshot) {
     const size_t n_particles = _particles.size();
+    const size_t n_data = _data.size();
     std::vector<real_t> log_likelihood(n_pars_effective());
     std::vector<real_t> log_likelihood_step(n_pars_effective());
     std::vector<real_t> weights(n_particles);
     std::vector<size_t> kappa(n_particles);
 
-    if (save_history) {
-      filter_state_.resize(_index.size(), _particles.size(), _data.size());
-      state(filter_state_.history_value_iterator());
-      filter_state_.advance();
+    if (save_trajectories) {
+      filter_state_.trajectories.resize(_index.size(), n_particles, n_data);
+      state(filter_state_.trajectories.value_iterator());
+      filter_state_.trajectories.advance();
     }
+
+    filter_state_.snapshots.resize(n_state_full(), n_particles, step_snapshot);
 
     for (auto & d : _data) {
       run(d.first);
@@ -520,17 +532,23 @@ public:
       }
 
       // We could move this below if wanted but we'd have to rewrite
-      // the re-sort algorithm.
-      if (save_history) {
-        state(filter_state_.history_value_iterator());
+      // the re-sort algorithm; that would be worth doing I think
+      // https://github.com/mrc-ide/dust/issues/202
+      if (save_trajectories) {
+        state(filter_state_.trajectories.value_iterator());
       }
 
       resample(weights, kappa);
 
-      if (save_history) {
+      if (save_trajectories) {
         std::copy(kappa.begin(), kappa.end(),
-                  filter_state_.history_order_iterator());
-        filter_state_.advance();
+                  filter_state_.trajectories.order_iterator());
+        filter_state_.trajectories.advance();
+      }
+
+      if (filter_state_.snapshots.is_snapshot_step(d.first)) {
+        state_full(filter_state_.snapshots.value_iterator());
+        filter_state_.snapshots.advance();
       }
     }
 

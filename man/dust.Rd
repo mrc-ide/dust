@@ -779,18 +779,24 @@ next few versions. You \emph{must} \verb{$reset()} the filter before using
 this method to get sensible values. We will tinker with this in
 future versions to allow things like partial runs.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$filter(save_history = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$filter(save_trajectories = FALSE, step_snapshot = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{save_history}}{Logical, indicating if the filtered particle
-trajectories should be saved. If \code{TRUE} then the \code{history} element
-will be a 3d array (state x particles x time) containing the state
-values, selected according to the index set with \verb{$set_index()}.
-If you have a multi-parameter dust object this will be a 4d array
-(state x particles x parameter x time).}
+\item{\code{save_trajectories}}{Logical, indicating if the filtered particle
+trajectories should be saved. If \code{TRUE} then the \code{trajectories} element
+will be a multidimensional array (\verb{state x <shape> x time})
+containing the state values, selected according to the index set
+with \verb{$set_index()}.}
+
+\item{\code{step_snapshot}}{Optional integer vector indicating steps
+that we should record a snapshot of the full particle filter state.
+If given it must be strictly increasing vector whose elements
+match steps given in the \code{data} object. The return value with be
+a multidimensional array (\verb{state x <shape> x step_snapshot})
+containing full state values at the requested steps.}
 }
 \if{html}{\out{</div>}}
 }

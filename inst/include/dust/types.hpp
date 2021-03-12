@@ -41,16 +41,14 @@ struct pars_t {
   }
 };
 
+// The first issue is that we need real names for these things. One is
+// the indexed state that we store over all time - these are
+// "trajectories". The other all state at a few times - these are
+// "snapshots"
 template <typename real_t>
-class filter_state {
+class filter_trajectories {
 public:
-  filter_state(size_t n_state, size_t n_particles, size_t n_data) :
-    n_state_(n_state), n_particles_(n_particles), n_data_(n_data), offset_(0) {
-    resize(n_state, n_particles, n_data);
-  }
-
-  // default constructable
-  filter_state() : filter_state(0, 0, 0) {
+  filter_trajectories() {
   }
 
   void resize(size_t n_state, size_t n_particles, size_t n_data) {
@@ -65,11 +63,11 @@ public:
     }
   }
 
-  typename std::vector<real_t>::iterator history_value_iterator() {
+  typename std::vector<real_t>::iterator value_iterator() {
     return history_value.begin() + offset_ * n_state_ * n_particles_;
   }
 
-  typename std::vector<size_t>::iterator history_order_iterator() {
+  typename std::vector<size_t>::iterator order_iterator() {
     return history_order.begin() + offset_ * n_particles_;
   }
 
@@ -135,6 +133,58 @@ private:
   size_t len_;
   std::vector<real_t> history_value;
   std::vector<size_t> history_order;
+  std::vector<real_t> state_value;
+};
+
+template <typename real_t>
+class filter_snapshots {
+public:
+  filter_snapshots() {
+  }
+
+  void resize(size_t n_state, size_t n_particles, std::vector<size_t> steps) {
+    n_state_ = n_state;
+    n_particles_ = n_particles;
+    n_steps_ = steps.size();
+    offset_ = 0;
+    steps_ = steps;
+    state_.resize(n_state_ * n_particles_ * n_steps_);
+  }
+
+  bool is_snapshot_step(size_t step) {
+    return offset_ < n_steps_ && steps_[offset_] == step;
+  }
+
+  typename std::vector<real_t>::iterator value_iterator() {
+    return state_.begin() + offset_ * n_state_ * n_particles_;
+  }
+
+  void advance() {
+    offset_++;
+  }
+
+  size_t size() const {
+    return state_.size();
+  }
+
+  template <typename Iterator>
+  void history(Iterator dest) const {
+    std::copy(state_.begin(), state_.end(), dest);
+  }
+
+private:
+  size_t n_state_;
+  size_t n_particles_;
+  size_t n_steps_;
+  size_t offset_;
+  std::vector<size_t> steps_;
+  std::vector<real_t> state_;
+};
+
+template <typename real_t>
+struct filter_state {
+  filter_trajectories<real_t> trajectories;
+  filter_snapshots<real_t> snapshots;
 };
 
 template <typename real_t>

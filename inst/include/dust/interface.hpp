@@ -381,26 +381,45 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
 }
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
-cpp11::sexp dust_filter(SEXP ptr, bool save_history) {
+cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
+                        cpp11::sexp r_step_snapshot) {
   using namespace cpp11::literals;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  cpp11::writable::doubles log_likelihood(obj->filter(save_history));
-  cpp11::sexp history;
-  if (save_history) {
-    cpp11::writable::doubles history_data(obj->filter_history().size());
-    obj->filter_history().history(REAL(history_data));
-    const int n_state = obj->n_state();
-    const int n_particles = obj->n_particles();
-    // This feels like something that dust should be able to tell us,
-    // or at least the history object. Still this is going to work
-    // generally.
-    const int n_data = history_data.size() / (n_state * n_particles);
-    history_data.attr("dim") =
-      dust::interface::state_array_dim(n_state, obj->shape(), n_data);
-    history = history_data;
+
+  if (obj->data().empty()) {
+    cpp11::stop("Data has not been set for this object");
   }
+
+  std::vector<size_t> step_snapshot =
+    dust::interface::check_step_snapshot(r_step_snapshot, obj->data());
+  cpp11::writable::doubles
+    log_likelihood(obj->filter(save_trajectories, step_snapshot));
+
+  cpp11::sexp r_trajectories, r_snapshots;
+
+  if (save_trajectories) {
+    auto& trajectories = obj->filter_history().trajectories;
+    cpp11::writable::doubles trajectories_data(trajectories.size());
+    trajectories.history(REAL(trajectories_data));
+    trajectories_data.attr("dim") =
+      dust::interface::state_array_dim(obj->n_state(), obj->shape(),
+                                       obj->n_data() + 1);
+    r_trajectories = trajectories_data;
+  }
+
+  if (r_step_snapshot != R_NilValue) {
+    auto& snapshots = obj->filter_history().snapshots;
+    cpp11::writable::doubles snapshots_data(snapshots.size());
+    snapshots.history(REAL(snapshots_data));
+    snapshots_data.attr("dim") =
+      dust::interface::state_array_dim(obj->n_state_full(), obj->shape(),
+                                       step_snapshot.size());
+    r_snapshots = snapshots_data;
+  }
+
   return cpp11::writable::list({"log_likelihood"_nm = log_likelihood,
-                                "history"_nm = history});
+                                "trajectories"_nm = r_trajectories,
+                                "snapshots"_nm = r_snapshots});
 }
 
 // Based on the value of the data_t in the underlying model class we
@@ -423,7 +442,8 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
 }
 
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
-cpp11::sexp dust_filter(SEXP ptr, bool save_history) {
+cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
+                        cpp11::sexp step_snapshot) {
   disable_method("filter");
   return R_NilValue; // #nocov never gets here
 }
