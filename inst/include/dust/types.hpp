@@ -151,7 +151,7 @@ public:
     state_.resize(n_state_ * n_particles_ * n_steps_);
   }
 
-  bool collect(size_t step) {
+  bool is_snapshot_step(size_t step) {
     return offset_ < n_steps_ && steps_[offset_] == step;
   }
 

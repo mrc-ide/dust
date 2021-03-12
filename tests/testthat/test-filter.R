@@ -9,7 +9,7 @@ test_that("Can run the filter", {
 
   mod$set_data(dat$dat_dust)
 
-  ## We can perform the entire particle filter manually with the C
+  ## We can perform the entire particle filter manually with the C++
   ## version, and this will run entirely on the dust generator
   n_data <- length(dat$dat_dust)
   ll <- numeric(n_data)
@@ -130,8 +130,6 @@ test_that("scale log weights copes with NaN", {
 })
 
 
-## This is badly wrong: we've written into some incorrect memory and
-## we never aligned correctly with the steps! Baby steps.
 test_that("Can save out state during a run", {
   dat <- example_filter()
 

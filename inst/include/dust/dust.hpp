@@ -533,6 +533,7 @@ public:
 
       // We could move this below if wanted but we'd have to rewrite
       // the re-sort algorithm; that would be worth doing I think
+      // https://github.com/mrc-ide/dust/issues/202
       if (save_trajectories) {
         state(filter_state_.trajectories.value_iterator());
       }
@@ -545,7 +546,7 @@ public:
         filter_state_.trajectories.advance();
       }
 
-      if (filter_state_.snapshots.collect(d.first)) {
+      if (filter_state_.snapshots.is_snapshot_step(d.first)) {
         state_full(filter_state_.snapshots.value_iterator());
         filter_state_.snapshots.advance();
       }
