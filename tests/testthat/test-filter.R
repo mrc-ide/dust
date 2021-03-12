@@ -164,3 +164,27 @@ test_that("Can save out state during a run", {
   ans <- mod$filter(step_snapshot = step_snapshot)
   expect_equal(ans$snapshots, s)
 })
+
+
+test_that("Validate step_snapshot", {
+  dat <- example_filter()
+  mod <- dat$model$new(list(), 0, 10, seed = 10L)
+
+  mod$set_data(dat$dat_dust)
+  expect_error(
+    mod$filter(step_snapshot = c(100.1, 200.1, 400.1)),
+    "All elements of 'step_snapshot' must be integer-like")
+  expect_error(
+    mod$filter(step_snapshot = c(100, -200, 400)),
+    "'step_snapshot' must be positive")
+  expect_error(
+    mod$filter(step_snapshot = c(100, 400, 200)),
+    "'step_snapshot' must be strictly increasing")
+  expect_error(
+    mod$filter(step_snapshot = c(100, 200, 200)),
+    "'step_snapshot' must be strictly increasing")
+  expect_error(
+    mod$filter(step_snapshot = c(100, 201, 400)),
+    "'step_snapshot[2]' (step 201) was not found in data",
+    fixed = TRUE)
+})

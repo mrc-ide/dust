@@ -386,8 +386,12 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
   using namespace cpp11::literals;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
 
+  if (obj->data().empty()) {
+    cpp11::stop("Data has not been set for this object");
+  }
+
   std::vector<size_t> step_snapshot =
-    dust::interface::check_step_snapshot(r_step_snapshot);
+    dust::interface::check_step_snapshot(r_step_snapshot, obj->data());
   cpp11::writable::doubles
     log_likelihood(obj->filter(save_trajectories, step_snapshot));
 

@@ -436,6 +436,10 @@ public:
     return _data.size();
   }
 
+  const std::map<size_t, std::vector<data_t>>& data() const {
+    return _data;
+  }
+
   size_t step() const {
     return _particles.front().step();
   }
@@ -494,10 +498,6 @@ public:
 
   std::vector<real_t> filter(bool save_trajectories,
                              std::vector<size_t> step_snapshot) {
-    if (_data.size() == 0) {
-      throw std::invalid_argument("Data has not been set for this object");
-    }
-
     const size_t n_particles = _particles.size();
     const size_t n_data = _data.size();
     std::vector<real_t> log_likelihood(n_pars_effective());

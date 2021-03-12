@@ -347,10 +347,9 @@ inline int check_device_id(cpp11::sexp r_device_id) {
   return device_id;
 }
 
-// We might just do this check entirely on the R side but this should
-// be pretty fast.
-// TODO: need to validate this against the data times or we get nonsense
-inline std::vector<size_t> check_step_snapshot(cpp11::sexp r_step_snapshot) {
+template <typename T>
+std::vector<size_t> check_step_snapshot(cpp11::sexp r_step_snapshot,
+                                        const std::map<size_t, T>& data) {
   std::vector<size_t> step_snapshot;
   if (r_step_snapshot == R_NilValue) {
     return step_snapshot;
@@ -367,6 +366,10 @@ inline std::vector<size_t> check_step_snapshot(cpp11::sexp r_step_snapshot) {
     }
     if (i > 0 && step <= r_step_snapshot_int[i - 1]) {
       cpp11::stop("'step_snapshot' must be strictly increasing");
+    }
+    if (data.find(step) == data.end()) {
+      cpp11::stop("'step_snapshot[%d]' (step %d) was not found in data",
+                  i + 1, step);
     }
     step_snapshot.push_back(step);
   }
