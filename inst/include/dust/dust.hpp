@@ -492,8 +492,8 @@ public:
     }
   }
 
-  std::vector<real_t> filter(bool save_history,
-                             std::vector<size_t> save_state) {
+  std::vector<real_t> filter(bool save_trajectories,
+                             std::vector<size_t> step_snapshot) {
     if (_data.size() == 0) {
       throw std::invalid_argument("Data has not been set for this object");
     }
@@ -505,13 +505,13 @@ public:
     std::vector<real_t> weights(n_particles);
     std::vector<size_t> kappa(n_particles);
 
-    if (save_history) {
+    if (save_trajectories) {
       filter_state_.trajectories.resize(_index.size(), n_particles, n_data);
       state(filter_state_.trajectories.value_iterator());
       filter_state_.trajectories.advance();
     }
 
-    filter_state_.snapshots.resize(n_state_full(), n_particles, save_state);
+    filter_state_.snapshots.resize(n_state_full(), n_particles, step_snapshot);
 
     for (auto & d : _data) {
       run(d.first);
@@ -533,13 +533,13 @@ public:
 
       // We could move this below if wanted but we'd have to rewrite
       // the re-sort algorithm; that would be worth doing I think
-      if (save_history) {
+      if (save_trajectories) {
         state(filter_state_.trajectories.value_iterator());
       }
 
       resample(weights, kappa);
 
-      if (save_history) {
+      if (save_trajectories) {
         std::copy(kappa.begin(), kappa.end(),
                   filter_state_.trajectories.order_iterator());
         filter_state_.trajectories.advance();
@@ -547,6 +547,7 @@ public:
 
       if (filter_state_.snapshots.collect(d.first)) {
         state_full(filter_state_.snapshots.value_iterator());
+        filter_state_.snapshots.advance();
       }
     }
 

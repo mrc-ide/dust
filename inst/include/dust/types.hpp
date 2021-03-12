@@ -152,15 +152,15 @@ public:
   }
 
   bool collect(size_t step) {
-    bool ret = offset_ < n_steps_ && steps_[offset_] == step;
-    if (ret) {
-      offset_++;
-    }
-    return ret;
+    return offset_ < n_steps_ && steps_[offset_] == step;
   }
 
   typename std::vector<real_t>::iterator value_iterator() {
     return state_.begin() + offset_ * n_state_ * n_particles_;
+  }
+
+  void advance() {
+    offset_++;
   }
 
   size_t size() const {

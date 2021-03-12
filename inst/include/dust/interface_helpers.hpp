@@ -349,6 +349,7 @@ inline int check_device_id(cpp11::sexp r_device_id) {
 
 // We might just do this check entirely on the R side but this should
 // be pretty fast.
+// TODO: need to validate this against the data times or we get nonsense
 inline std::vector<size_t> check_step_snapshot(cpp11::sexp r_step_snapshot) {
   std::vector<size_t> step_snapshot;
   if (r_step_snapshot == R_NilValue) {
@@ -356,9 +357,10 @@ inline std::vector<size_t> check_step_snapshot(cpp11::sexp r_step_snapshot) {
   }
 
   cpp11::integers r_step_snapshot_int =
-    cpp11::as_cpp<cpp11::integers>(r_step_snapshot);
+    as_integer(r_step_snapshot, "step_snapshot");
+
   step_snapshot.reserve(r_step_snapshot_int.size());
-  for (size_t i = 0; i < step_snapshot.size(); ++i) {
+  for (int i = 0; i < r_step_snapshot_int.size(); ++i) {
     const int step = r_step_snapshot_int[i];
     if (step < 0) {
       cpp11::stop("'step_snapshot' must be positive");

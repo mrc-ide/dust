@@ -128,3 +128,39 @@ test_that("scale log weights copes with NaN", {
   expect_equal(res$weights[[3]], 0)
   expect_equal(res, scale_log_weights(w))
 })
+
+
+## This is badly wrong: we've written into some incorrect memory and
+## we never aligned correctly with the steps! Baby steps.
+test_that("Can save out state during a run", {
+  dat <- example_filter()
+
+  np <- 10
+  mod <- dat$model$new(list(), 0, np, seed = 10L)
+  mod$set_data(dat$dat_dust)
+
+  ## TODO: handle better doubles here using as_integer
+  step_snapshot <- c(100L, 200L, 400L)
+
+  ## We can perform the entire particle filter manually with the C
+  ## version, and this will run entirely on the dust generator
+  s <- array(NA_real_, c(5L, np, length(step_snapshot)))
+
+  for (i in seq_along(dat$dat_dust)) {
+    to <- dat$dat_dust[[i]][[1]]
+    mod$run(to)
+    weights <- mod$compare_data()
+    tmp <- scale_log_weights(weights)
+    idx <- mod$resample(tmp$weights)
+
+    j <- match(to, step_snapshot)
+    if (!is.na(j)) {
+      s[, , j] <- mod$state()
+    }
+  }
+
+  mod <- dat$model$new(list(), 0, np, seed = 10L)
+  mod$set_data(dat$dat_dust)
+  ans <- mod$filter(step_snapshot = step_snapshot)
+  expect_equal(ans$snapshots, s)
+})
