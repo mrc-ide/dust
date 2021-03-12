@@ -1,3 +1,7 @@
+# dust 0.8.5
+
+* The `filter` method can save snapshots at points along a run (#176)
+
 # dust 0.8.4
 
 * Reduce host and memcpy usage in device reorder by computing scatter index within the kernel (#198)
