@@ -27,21 +27,23 @@ test_that("Can run the filter", {
     hi[, i + 1] <- idx
   }
   cmp_log_likelihood <- Reduce(`+`, ll) # naive sum()
-  cmp_history <- filter_history_reorder(hv, hi)
+  cmp_trajectories <- filter_trajectories_reorder(hv, hi)
 
   mod <- dat$model$new(list(), 0, np, seed = 10L)
   mod$set_data(dat$dat_dust)
   ans <- mod$filter()
   expect_equal(ans,
                list(log_likelihood = cmp_log_likelihood,
-                    history = NULL))
+                    trajectories = NULL,
+                    snapshots = NULL))
 
   mod <- dat$model$new(list(), 0, np, seed = 10L)
   mod$set_data(dat$dat_dust)
   ans <- mod$filter(TRUE)
   expect_equal(ans,
                list(log_likelihood = cmp_log_likelihood,
-                    history = cmp_history))
+                    trajectories = cmp_trajectories,
+                    snapshots = NULL))
 })
 
 
@@ -69,13 +71,13 @@ test_that("Can run multiple filters at once", {
   expect_equal(ans$log_likelihood[[1]], cmp_res[[1]]$log_likelihood)
   expect_equal(ans$log_likelihood[[2]], cmp_res[[2]]$log_likelihood)
 
-  expect_equal(dim(ans$history), c(5, 10, 2, 151))
-  expect_equal(ans$history[, , 1, ], cmp_res[[1]]$history)
-  expect_equal(ans$history[, , 2, ], cmp_res[[2]]$history)
+  expect_equal(dim(ans$trajectories), c(5, 10, 2, 151))
+  expect_equal(ans$trajectories[, , 1, ], cmp_res[[1]]$trajectories)
+  expect_equal(ans$trajectories[, , 2, ], cmp_res[[2]]$trajectories)
 })
 
 
-test_that("can filter history using index", {
+test_that("can filter trajectories using index", {
   dat <- example_filter()
 
   np <- 10
@@ -91,7 +93,7 @@ test_that("can filter history using index", {
   ans2 <- mod2$filter(TRUE)
 
   expect_equal(ans1$log_likelihood, ans2$log_likelihood)
-  expect_equal(ans1$history, ans2$history[c(1, 5), , , ])
+  expect_equal(ans1$trajectories, ans2$trajectories[c(1, 5), , , ])
 })
 
 

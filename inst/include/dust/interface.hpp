@@ -399,7 +399,7 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
     trajectories.history(REAL(trajectories_data));
     trajectories_data.attr("dim") =
       dust::interface::state_array_dim(obj->n_state(), obj->shape(),
-                                       obj->n_data());
+                                       obj->n_data() + 1);
     r_trajectories = trajectories_data;
   }
 

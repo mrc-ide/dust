@@ -506,8 +506,6 @@ public:
     std::vector<size_t> kappa(n_particles);
 
     if (save_history) {
-      // TODO: should this be n_data + 1?
-      // TODO: why are we ok not to set up the first index?
       filter_state_.trajectories.resize(_index.size(), n_particles, n_data);
       state(filter_state_.trajectories.value_iterator());
       filter_state_.trajectories.advance();
