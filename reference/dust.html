@@ -82,7 +82,7 @@ that can be used to work with the model (see the Details below)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5</span>
       </span>
     </div>
 
@@ -713,16 +713,22 @@ this function may be result in a different answer.</p><h4 class='hasAnchor' id='
 next few versions. You <em>must</em> <code>$reset()</code> the filter before using
 this method to get sensible values. We will tinker with this in
 future versions to allow things like partial runs.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>filter</span><span class='op'>(</span>save_history <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>filter</span><span class='op'>(</span>save_trajectories <span class='op'>=</span> <span class='cn'>FALSE</span>, step_snapshot <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
-<dt><code>save_history</code></dt><dd><p>Logical, indicating if the filtered particle
-trajectories should be saved. If <code>TRUE</code> then the <code>history</code> element
-will be a 3d array (state x particles x time) containing the state
-values, selected according to the index set with <code>$set_index()</code>.
-If you have a multi-parameter dust object this will be a 4d array
-(state x particles x parameter x time).</p></dd>
+<dt><code>save_trajectories</code></dt><dd><p>Logical, indicating if the filtered particle
+trajectories should be saved. If <code>TRUE</code> then the <code>trajectories</code> element
+will be a multidimensional array (<code>state x &lt;shape&gt; x time</code>)
+containing the state values, selected according to the index set
+with <code>$set_index()</code>.</p></dd>
+
+<dt><code>step_snapshot</code></dt><dd><p>Optional integer vector indicating steps
+that we should record a snapshot of the full particle filter state.
+If given it must be strictly increasing vector whose elements
+match steps given in the <code>data</code> object. The return value with be
+a multidimensional array (<code>state x &lt;shape&gt; x step_snapshot</code>)
+containing full state values at the requested steps.</p></dd>
 
 </dl><p></div></p>
 <p><hr>
@@ -821,7 +827,7 @@ static method by running <code>dust_class$public_methods$device_info()</code></p
 #&gt;     has_compare: function () 
 #&gt;     set_data: function (data) 
 #&gt;     compare_data: function () 
-#&gt;     filter: function (save_history = FALSE) 
+#&gt;     filter: function (save_trajectories = FALSE, step_snapshot = NULL) 
 #&gt;     device_info: function () 
 #&gt;   Private:
 #&gt;     pars_: NULL
@@ -847,7 +853,7 @@ static method by running <code>dust_class$public_methods$device_info()</code></p
 #&gt;   Public:
 #&gt;     compare_data: function () 
 #&gt;     device_info: function () 
-#&gt;     filter: function (save_history = FALSE) 
+#&gt;     filter: function (save_trajectories = FALSE, step_snapshot = NULL) 
 #&gt;     has_compare: function () 
 #&gt;     has_cuda: function () 
 #&gt;     has_openmp: function () 
