@@ -398,7 +398,7 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
   cpp11::sexp r_trajectories, r_snapshots;
 
   if (save_trajectories) {
-    const auto trajectories = obj->filter_history().trajectories;
+    auto& trajectories = obj->filter_history().trajectories;
     cpp11::writable::doubles trajectories_data(trajectories.size());
     trajectories.history(REAL(trajectories_data));
     trajectories_data.attr("dim") =
@@ -408,7 +408,7 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
   }
 
   if (r_step_snapshot != R_NilValue) {
-    const auto snapshots = obj->filter_history().snapshots;
+    auto& snapshots = obj->filter_history().snapshots;
     cpp11::writable::doubles snapshots_data(snapshots.size());
     snapshots.history(REAL(snapshots_data));
     snapshots_data.attr("dim") =
