@@ -18,7 +18,9 @@ static void throw_cuda_error(const char *file, int line, cudaError_t status) {
     msg << file << "(" << line << ") CUDA Error Occurred:\n" <<
       cudaGetErrorString(status);
   }
+#ifdef DUST_ENABLE_CUDA_PROFILER
   cudaProfilerStop();
+#endif
   throw std::runtime_error(msg.str());
 }
 

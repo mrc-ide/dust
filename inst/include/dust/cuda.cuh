@@ -56,11 +56,13 @@ DEVICE void shared_mem_wait(cooperative_groups::thread_block& block) {
 #endif
 }
 
+
 #else
 #define DEVICE
 #define HOST
 #define HOSTDEVICE
 #define KERNEL
+#undef DUST_CUDA_ENABLE_PROFILER
 #define __nv_exec_check_disable__
 #endif
 

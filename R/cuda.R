@@ -293,7 +293,8 @@ cuda_options <- function(info, debug, profile, fast_math) {
     nvcc_flags <- "-O2"
   }
   if (profile) {
-    nvcc_flags <- paste(nvcc_flags, "-pg --generate-line-info")
+    nvcc_flags <- paste(nvcc_flags, "-pg --generate-line-info",
+                        "-DDUST_ENABLE_CUDA_PROFILER")
   }
   if (fast_math) {
     nvcc_flags <- paste(nvcc_flags, "--use_fast_math")
