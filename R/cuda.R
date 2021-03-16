@@ -121,7 +121,7 @@ dust_cuda_configuration <- function(path_cuda_lib = NULL,
 ##'   options will not be passed to your normal C++ compiler, nor the
 ##'   linker (for that use R's user Makevars system). This can be used
 ##'   to do things like tune the maximum number of registers
-##'   (`--maxregcount=x`). If not `NULL`, this must be a character
+##'   (`--maxrregcount x`). If not `NULL`, this must be a character
 ##'   vector, which will be concatenated with spaces between options.
 ##'
 ##' @return An object of type `cuda_options`, which is subject to
