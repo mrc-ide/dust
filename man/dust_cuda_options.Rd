@@ -29,7 +29,7 @@ for more details.}
 options will not be passed to your normal C++ compiler, nor the
 linker (for that use R's user Makevars system). This can be used
 to do things like tune the maximum number of registers
-(\code{--maxregcount=x}). If not \code{NULL}, this must be a character
+(\verb{--maxrregcount x}). If not \code{NULL}, this must be a character
 vector, which will be concatenated with spaces between options.}
 }
 \value{
