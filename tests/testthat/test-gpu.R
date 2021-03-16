@@ -249,7 +249,8 @@ test_that("Set the cuda options", {
 
   expect_mapequal(
     cuda_options(info, TRUE, TRUE, FALSE)$flags,
-    list(nvcc_flags = "-g -G -O0 -pg --generate-line-info",
+    list(nvcc_flags = paste("-g -G -O0 -pg --generate-line-info",
+                            "-DDUST_ENABLE_CUDA_PROFILER"),
          gencode = "-gencode=arch=compute_75,code=sm_75",
          cub_include = "",
          lib_flags = ""))
