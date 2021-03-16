@@ -96,7 +96,7 @@ test_that("Can generate cuda compatible code", {
     devices = data.frame(id = 0, version = 75L),
     path_cuda_lib = "/path/to/cuda",
     path_cub_include = "/path/to/cub")
-  cuda <- cuda_options(info, FALSE, FALSE, FALSE)
+  cuda <- cuda_options(info, FALSE, FALSE, FALSE, NULL)
 
   workdir <- tempfile()
   cache <- new.env(parent = emptyenv())
@@ -241,14 +241,14 @@ test_that("install cub", {
 test_that("Set the cuda options", {
   info <- example_cuda_config()
   expect_mapequal(
-    cuda_options(info, FALSE, FALSE, FALSE)$flags,
+    cuda_options(info, FALSE, FALSE, FALSE, NULL)$flags,
     list(nvcc_flags = "-O2",
          gencode = "-gencode=arch=compute_75,code=sm_75",
          cub_include = "",
          lib_flags = ""))
 
   expect_mapequal(
-    cuda_options(info, TRUE, TRUE, FALSE)$flags,
+    cuda_options(info, TRUE, TRUE, FALSE, NULL)$flags,
     list(nvcc_flags = paste("-g -G -O0 -pg --generate-line-info",
                             "-DDUST_ENABLE_CUDA_PROFILER"),
          gencode = "-gencode=arch=compute_75,code=sm_75",
@@ -259,8 +259,22 @@ test_that("Set the cuda options", {
   info$path_cuda_lib <- "/path/to/cuda"
 
   expect_mapequal(
-    cuda_options(info, FALSE, FALSE, TRUE)$flags,
+    cuda_options(info, FALSE, FALSE, TRUE, NULL)$flags,
     list(nvcc_flags = "-O2 --use_fast_math",
+         gencode = "-gencode=arch=compute_75,code=sm_75",
+         cub_include = "-I/path/to/cub",
+         lib_flags = "-L/path/to/cuda"))
+
+  expect_mapequal(
+    cuda_options(info, FALSE, FALSE, FALSE, "--maxregcount=100")$flags,
+    list(nvcc_flags = "-O2 --maxregcount=100",
+         gencode = "-gencode=arch=compute_75,code=sm_75",
+         cub_include = "-I/path/to/cub",
+         lib_flags = "-L/path/to/cuda"))
+  expect_mapequal(
+    cuda_options(info, FALSE, FALSE, FALSE,
+                 c("--maxregcount=100", "--use_fast_math"))$flags,
+    list(nvcc_flags = "-O2 --maxregcount=100 --use_fast_math",
          gencode = "-gencode=arch=compute_75,code=sm_75",
          cub_include = "-I/path/to/cub",
          lib_flags = "-L/path/to/cuda"))
@@ -269,7 +283,7 @@ test_that("Set the cuda options", {
 
 test_that("can create sensible cuda options", {
   skip_if_not_installed("mockery")
-  opts <- cuda_options(example_cuda_config(), FALSE, FALSE, FALSE)
+  opts <- cuda_options(example_cuda_config(), FALSE, FALSE, FALSE, NULL)
   mock_dust_cuda_options <- mockery::mock(opts, cycle = TRUE)
 
   mockery::stub(cuda_check, "dust_cuda_options", mock_dust_cuda_options)
@@ -358,7 +372,7 @@ test_that("high level interface to cuda options", {
 
   path_lib <- "/path/cuda/lib"
   res <- dust_cuda_options(path_cuda_lib = path_lib)
-  expect_identical(res, cuda_options(cfg1, FALSE, FALSE, FALSE))
+  expect_identical(res, cuda_options(cfg1, FALSE, FALSE, FALSE, NULL))
   mockery::expect_called(mock_cuda_configuration, 1)
   expect_equal(
     mockery::mock_args(mock_cuda_configuration)[[1]],
