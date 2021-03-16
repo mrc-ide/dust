@@ -73,8 +73,10 @@ public:
     }
   }
 
-// This could be removed/commented out eventually
-#ifdef __NVCC__
+  // We only need a destructor when running with cuda profiling; don't
+  // include ond otherwise because we don't actually follow the rule
+  // of 3/5/0
+#ifdef DUST_ENABLE_CUDA_PROFILER
   ~Dust() {
     CUDA_CALL_NOTHROW(cudaProfilerStop());
   }
@@ -611,7 +613,9 @@ private:
                                      device_id));
     _shared_size = static_cast<size_t>(shared_size);
 
+#ifdef DUST_ENABLE_CUDA_PROFILER
     CUDA_CALL(cudaProfilerStart());
+#endif
 #endif
   }
 

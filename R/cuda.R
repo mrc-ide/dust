@@ -117,6 +117,13 @@ dust_cuda_configuration <- function(path_cuda_lib = NULL,
 ##'   docs](https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html)
 ##'   for more details.
 ##'
+##' @param flags Optional extra arguments to pass to nvcc. These
+##'   options will not be passed to your normal C++ compiler, nor the
+##'   linker (for that use R's user Makevars system). This can be used
+##'   to do things like tune the maximum number of registers
+##'   (`--maxrregcount x`). If not `NULL`, this must be a character
+##'   vector, which will be concatenated with spaces between options.
+##'
 ##' @return An object of type `cuda_options`, which is subject to
 ##'   change, but can be passed into `dust`
 ##'
@@ -126,12 +133,12 @@ dust_cuda_configuration <- function(path_cuda_lib = NULL,
 ##'   dust::dust_cuda_options(),
 ##'   error = function(e) NULL)
 dust_cuda_options <- function(..., debug = FALSE, profile = FALSE,
-                              fast_math = FALSE) {
+                              fast_math = FALSE, flags = NULL) {
   info <- dust_cuda_configuration(...)
   if (!info$has_cuda) {
     stop("cuda not supported on this machine")
   }
-  cuda_options(info, debug, profile, fast_math)
+  cuda_options(info, debug, profile, fast_math, flags)
 }
 
 
@@ -286,17 +293,21 @@ cuda_install_cub <- function(path, version = "1.9.10", quiet = FALSE) {
 }
 
 
-cuda_options <- function(info, debug, profile, fast_math) {
+cuda_options <- function(info, debug, profile, fast_math, flags) {
   if (debug) {
     nvcc_flags <- "-g -G -O0"
   } else {
     nvcc_flags <- "-O2"
   }
   if (profile) {
-    nvcc_flags <- paste(nvcc_flags, "-pg --generate-line-info")
+    nvcc_flags <- paste(nvcc_flags, "-pg --generate-line-info",
+                        "-DDUST_ENABLE_CUDA_PROFILER")
   }
   if (fast_math) {
     nvcc_flags <- paste(nvcc_flags, "--use_fast_math")
+  }
+  if (!is.null(flags)) {
+    nvcc_flags <- paste(nvcc_flags, paste(flags, collapse = " "))
   }
 
   gencode <- paste(

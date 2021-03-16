@@ -4,7 +4,13 @@
 \alias{dust_cuda_options}
 \title{Create CUDA options}
 \usage{
-dust_cuda_options(..., debug = FALSE, profile = FALSE, fast_math = FALSE)
+dust_cuda_options(
+  ...,
+  debug = FALSE,
+  profile = FALSE,
+  fast_math = FALSE,
+  flags = NULL
+)
 }
 \arguments{
 \item{...}{Arguments passed to \link{dust_cuda_configuration}}
@@ -18,6 +24,13 @@ dust_cuda_options(..., debug = FALSE, profile = FALSE, fast_math = FALSE)
 maths", which lets the optimiser enable optimisations that break
 IEEE compliance and disables some error checking (see \href{https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html}{the CUDA docs}
 for more details.}
+
+\item{flags}{Optional extra arguments to pass to nvcc. These
+options will not be passed to your normal C++ compiler, nor the
+linker (for that use R's user Makevars system). This can be used
+to do things like tune the maximum number of registers
+(\verb{--maxrregcount x}). If not \code{NULL}, this must be a character
+vector, which will be concatenated with spaces between options.}
 }
 \value{
 An object of type \code{cuda_options}, which is subject to
