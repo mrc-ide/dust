@@ -83,7 +83,7 @@ useful to see what is being passed to the compiler." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.6</span>
       </span>
     </div>
 
@@ -155,7 +155,13 @@ probably not need to directly use this. However, it's potentially
 useful to see what is being passed to the compiler.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>dust_cuda_options</span><span class='op'>(</span><span class='va'>...</span>, debug <span class='op'>=</span> <span class='cn'>FALSE</span>, profile <span class='op'>=</span> <span class='cn'>FALSE</span>, fast_math <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>dust_cuda_options</span><span class='op'>(</span>
+  <span class='va'>...</span>,
+  debug <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  profile <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  fast_math <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  flags <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -179,6 +185,15 @@ useful to see what is being passed to the compiler.</p>
 maths", which lets the optimiser enable optimisations that break
 IEEE compliance and disables some error checking (see <a href='https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html'>the CUDA docs</a>
 for more details.</p></td>
+    </tr>
+    <tr>
+      <th>flags</th>
+      <td><p>Optional extra arguments to pass to nvcc. These
+options will not be passed to your normal C++ compiler, nor the
+linker (for that use R's user Makevars system). This can be used
+to do things like tune the maximum number of registers
+(<code>--maxrregcount x</code>). If not <code>NULL</code>, this must be a character
+vector, which will be concatenated with spaces between options.</p></td>
     </tr>
     </table>
 
