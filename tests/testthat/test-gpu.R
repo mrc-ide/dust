@@ -429,3 +429,20 @@ test_that("Can provide device id to non-gpu model with no effect", {
   mod <- gen$new(list(), 0, np, device_id = 0L)
   expect_equal(r6_private(mod)$device_id_, 0)
 })
+
+
+test_that("Can use sirs gpu model", {
+  gen <- dust(dust_file("examples/sirs.cpp"), quiet = TRUE)
+  np <- 100
+  len <- 20
+
+  mod1 <- gen$new(list(), 0, np, seed = 1L)
+  mod2 <- gen$new(list(), 0, np, seed = 1L, device_id = 0L)
+
+  expect_identical(
+    mod1$run(10),
+    mod2$run(10, TRUE))
+  expect_identical(
+    mod1$run(13),
+    mod2$run(13, TRUE))
+})
