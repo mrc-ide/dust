@@ -160,11 +160,11 @@ to continue running the object until either you reset it (with
 
 Things are worse on a GPU; if an error is thrown by the RNG code
 (happens in \code{rbinom} when given impossible inputs such as
-negative sizes, or probabilities outside of \link{0, 1}) then we
-currently use CUDA's \verb{__trap()} function which will require a
-process restart to be able to use any device function again,
-covering all methods in the class.  However, this is preferable
-to the infinite loop that would otherwise be caused.
+negative sizes, probabilities less than zero or greater than 1)
+then we currently use CUDA's \verb{__trap()} function which will
+require a process restart to be able to use any device function
+again, covering all methods in the class.  However, this is
+preferable to the infinite loop that would otherwise be caused.
 }
 
 \examples{
