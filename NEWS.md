@@ -1,6 +1,6 @@
 # dust 0.8.7
 
-* Invalid inputs in `rbinom` are converted into exceptions which are safely thrown even from parallel code. After an error, the object will be in an inconsistent state as not all particles will have completed their run and you must reset the object (via `reset()` or `set_state()`) to continue (#190)
+* Invalid inputs in `rbinom` are converted into exceptions which are safely thrown even from parallel code (#190)
 
 # dust 0.8.5
 
