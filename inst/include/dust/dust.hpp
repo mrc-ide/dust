@@ -150,8 +150,13 @@ public:
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
 #endif
     for (size_t i = 0; i < _particles.size(); ++i) {
-      _particles[i].run(step_end, _rng.state(i));
+      try {
+        _particles[i].run(step_end, _rng.state(i));
+      } catch (std::exception const& e) {
+        _errors.capture(e, i);
+      }
     }
+    _errors.report();
     _stale_device = true;
   }
 
@@ -240,12 +245,17 @@ public:
     #pragma omp parallel for schedule(static) num_threads(_n_threads)
 #endif
     for (size_t i = 0; i < _particles.size(); ++i) {
-      for (size_t t = 0; t < n_time; ++t) {
-        _particles[i].run(step_end[t], _rng.state(i));
-        size_t offset = t * n_state() * n_particles() + i * n_state();
-        _particles[i].state(_index, ret.begin() + offset);
+      try {
+        for (size_t t = 0; t < n_time; ++t) {
+          _particles[i].run(step_end[t], _rng.state(i));
+          size_t offset = t * n_state() * n_particles() + i * n_state();
+          _particles[i].state(_index, ret.begin() + offset);
+        }
+      } catch (std::exception const& e) {
+        _errors.capture(e, i);
       }
     }
+    _errors.report();
     return ret;
   }
 
@@ -450,6 +460,16 @@ public:
     return _shape;
   }
 
+  void check_errors() {
+    if (_errors.unresolved()) {
+      throw std::runtime_error("Errors pending; reset required");
+    }
+  }
+
+  void reset_errors() {
+    _errors.reset();
+  }
+
   std::vector<uint64_t> rng_state() {
     refresh_host();
     return _rng.export_state();
@@ -571,6 +591,7 @@ private:
   int _device_id;
   dust::pRNG<real_t> _rng;
   std::map<size_t, std::vector<data_t>> _data;
+  dust::openmp_errors _errors;
 
   std::vector<size_t> _index;
   std::vector<Particle<T>> _particles;
@@ -638,6 +659,7 @@ private:
         _particles[i].set_pars(p, set_state);
       }
       _shared[0] = pars.shared;
+      reset_errors();
     } else {
       _particles.clear();
       _particles.reserve(n_particles);
@@ -645,6 +667,7 @@ private:
         _particles.push_back(p);
       }
       _shared = {pars.shared};
+      _errors = dust::openmp_errors(n_particles);
       initialise_device_data();
     }
     update_device_shared();
@@ -677,6 +700,7 @@ private:
       for (size_t i = 0; i < pars.size(); ++i) {
         _shared[i] = pars[i].shared;
       }
+      reset_errors();
     } else {
       _particles.clear();
       _particles.reserve(n_particles * _n_pars);
@@ -686,6 +710,7 @@ private:
         }
         _shared.push_back(pars[i].shared);
       }
+      _errors = dust::openmp_errors(n_particles);
       initialise_device_data();
     }
     update_device_shared();

@@ -165,6 +165,30 @@ test_that("binomial numbers and their complement are the same (np large)", {
 })
 
 
+test_that("Binomial random numbers prevent bad inputs", {
+  skip_on_cran() # potentially system dependent
+  r <- dust_rng$new(1, 1)
+  r$rbinom(1, 0L, 0)
+  expect_error(
+    r$rbinom(1, 1L, -1),
+    "Invalid call to rbinom with n = 1, p = -1")
+  expect_error(
+    r$rbinom(1, 1L, 0 - 1e-8),
+    "Invalid call to rbinom with n = 1, p = -1e-08")
+  expect_error(
+    r$rbinom(1, 1L, 2),
+    "Invalid call to rbinom with n = 1, p = 2")
+  ## TODO: this is not a great error here, but there's not much that
+  ## can be done without a lot of faff with the underlying print
+  expect_error(
+    r$rbinom(1, 1L, 1 + 1e-8),
+    "Invalid call to rbinom with n = 1, p = 1")
+  expect_error(
+    r$rbinom(1, -1L, 0.5),
+    "Invalid call to rbinom with n = -1, p = 0.5")
+})
+
+
 test_that("poisson numbers", {
   n <- 100000
   lambda <- 5

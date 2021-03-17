@@ -129,12 +129,19 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
       obj->set_step(step);
     }
   }
+
+  // If we set both initial conditions and step then we're safe to
+  // continue here.
+  if (state.size() > 0 && step.size() > 0) {
+    obj->reset_errors();
+  }
 }
 
 template <typename T>
 cpp11::sexp dust_run(SEXP ptr, int step_end, bool device) {
   dust::interface::validate_size(step_end, "step_end");
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  obj->check_errors();
   if (device) {
     obj->run_device(step_end);
   } else {
@@ -155,6 +162,7 @@ cpp11::sexp dust_run(SEXP ptr, int step_end, bool device) {
 template <typename T>
 cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  obj->check_errors();
   const std::vector<size_t> step_end =
     dust::interface::validate_size(r_step_end, "step_end");
   const size_t n_time = step_end.size();
@@ -263,6 +271,7 @@ SEXP dust_state_select(Dust<T> *obj, cpp11::sexp r_index) {
 template <typename T>
 size_t dust_step(SEXP ptr) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  obj->check_errors();
   return obj->step();
 }
 
@@ -366,6 +375,7 @@ void dust_set_data(SEXP ptr, cpp11::list r_data) {
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 cpp11::sexp dust_compare_data(SEXP ptr) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  obj->check_errors();
   std::vector<typename T::real_t> ret = obj->compare_data();
   if (ret.size() == 0) {
     return R_NilValue;
@@ -385,6 +395,7 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
                         cpp11::sexp r_step_snapshot) {
   using namespace cpp11::literals;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  obj->check_errors();
 
   if (obj->data().empty()) {
     cpp11::stop("Data has not been set for this object");

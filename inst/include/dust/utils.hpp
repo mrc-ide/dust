@@ -64,6 +64,15 @@ HOSTDEVICE T epsilon() {
 #endif
 }
 
+inline void throw_message(const char * msg) {
+#ifdef __CUDA_ARCH__
+    printf("%s\n", msg);
+    assert(0);
+#else
+    throw std::runtime_error(msg);
+#endif
+}
+
 }
 }
 
