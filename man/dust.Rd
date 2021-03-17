@@ -140,6 +140,33 @@ be used (either specified with \verb{[[dust::class()]]} or detected).
 }
 }
 
+\section{Error handling}{
+
+
+Your model throw exceptions as a last resort. One such last resort
+exists if \code{rbinom} is given invalid inputs to prevent an
+infinite loop. If an error is thrown, all particles will
+complete their current run, and then the error will be rethrown
+\itemize{
+\item this is required by our parallel processing design. Once this
+happens though the state of the system is "inconsistent" as it
+contains particles that have run for different lengths of
+time. You can extract the state of the system at the point of
+failure (which may help with debugging) but you will be unable
+to continue running the object until either you reset it (with
+\verb{$reset()}) or set \emph{both} the state and step with
+\verb{$set_state()}. An error will be thrown otherwise.
+}
+
+Things are worse on a GPU; if an error is thrown by the RNG code
+(happens in \code{rbinom} when given impossible inputs such as
+negative sizes, or probabilities outside of \link{0, 1}) then we
+currently use CUDA's \verb{__trap()} function which will require a
+process restart to be able to use any device function again,
+covering all methods in the class.  However, this is preferable
+to the infinite loop that would otherwise be caused.
+}
+
 \examples{
 
 # dust includes a couple of very simple examples
