@@ -1,3 +1,7 @@
+# dust 0.8.7
+
+* Invalid inputs in `rbinom` are converted into exceptions which are safely thrown even from parallel code (#190)
+
 # dust 0.8.5
 
 * The `filter` method can save snapshots at points along a run (#176)

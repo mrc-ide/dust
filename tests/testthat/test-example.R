@@ -636,3 +636,49 @@ test_that("no device info by default", {
   expect_false(mod$has_cuda())
   expect_equal(mod$device_info(), no_cuda)
 })
+
+
+test_that("throw when triggering invalid binomials", {
+  res <- dust_example("sir")
+  mod <- res$new(list(), 0, 10)
+  s <- mod$state()
+  s[2, c(4, 9)] <- c(-1, -10)
+  mod$set_state(s)
+
+  err <- expect_error(
+    mod$run(10),
+    "2 particles reported errors")
+  expect_match(
+    err$message,
+    "- 4: Invalid call to rbinom with n = -1, p =")
+  expect_match(
+    err$message,
+    "- 9: Invalid call to rbinom with n = -10, p =")
+  expect_equal(mod$state()[, c(4, 9)], s[, c(4, 9)])
+  expect_error(mod$step(), "Errors pending; reset required")
+  expect_error(mod$run(10), "Errors pending; reset required")
+  expect_error(mod$simulate(10:20), "Errors pending; reset required")
+  expect_error(mod$compare_data(), "Errors pending; reset required")
+  expect_error(mod$filter(), "Errors pending; reset required")
+
+  ## This will clear the errors:
+  mod$set_state(abs(s), 0)
+  ## And we can run again:
+  expect_silent(mod$run(10))
+  expect_equal(mod$step(), 10)
+})
+
+
+test_that("Truncate errors past certain point", {
+  res <- dust_example("sir")
+  mod <- res$new(list(), 0, 10)
+  s <- mod$state()
+  s[2, ] <- -10
+  mod$set_state(s)
+  err <- expect_error(
+    mod$simulate(0:10),
+    "10 particles reported errors")
+  expect_match(
+    err$message,
+    "(and 6 more)", fixed = TRUE)
+})

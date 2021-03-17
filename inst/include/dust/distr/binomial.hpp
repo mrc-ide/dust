@@ -176,15 +176,13 @@ HOSTDEVICE int rbinom(rng_state_t<real_t>& rng_state, int n,
     draw = 0;
   } else if (p == 1) {
     draw = n;
+  } else if (n < 0 || p < 0 || p > 1) {
+    char buffer[256];
+    snprintf(buffer, 256, "Invalid call to rbinom with n = %d, p = %g",
+             n, p);
+    dust::utils::throw_message(buffer);
+    draw = 0; // never happens
   } else {
-    // TODO: Should control for this too, but not really clear what we
-    // need to do to safely deal.
-    /*
-      if (n < 0 || p < 0 || p > 1) {
-      return NaN;
-      }
-    */
-
     real_t q = p;
     if (p > static_cast<real_t>(0.5)) {
       q = 1 - q;
