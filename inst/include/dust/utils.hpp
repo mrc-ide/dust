@@ -1,6 +1,8 @@
 #ifndef DUST_UTILS_HPP
 #define DUST_UTILS_HPP
 
+#include <cassert>
+
 namespace dust {
 namespace utils {
 
