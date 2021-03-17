@@ -36,6 +36,7 @@ public:
     _n_threads(n_threads),
     _device_id(device_id),
     _rng(_n_particles_total, seed),
+    _errors(n_particles),
     _stale_host(false),
     _stale_device(true) {
 #ifdef __NVCC__
@@ -57,6 +58,7 @@ public:
     _n_threads(n_threads),
     _device_id(device_id),
     _rng(_n_particles_total, seed),
+    _errors(n_particles),
     _stale_host(false),
     _stale_device(true) {
 #ifdef __NVCC__
@@ -659,7 +661,6 @@ private:
         _particles[i].set_pars(p, set_state);
       }
       _shared[0] = pars.shared;
-      reset_errors();
     } else {
       _particles.clear();
       _particles.reserve(n_particles);
@@ -667,9 +668,9 @@ private:
         _particles.push_back(p);
       }
       _shared = {pars.shared};
-      _errors = dust::openmp_errors(n_particles);
       initialise_device_data();
     }
+    reset_errors();
     update_device_shared();
     _stale_host = false;
     _stale_device = true;
@@ -700,7 +701,6 @@ private:
       for (size_t i = 0; i < pars.size(); ++i) {
         _shared[i] = pars[i].shared;
       }
-      reset_errors();
     } else {
       _particles.clear();
       _particles.reserve(n_particles * _n_pars);
@@ -710,9 +710,9 @@ private:
         }
         _shared.push_back(pars[i].shared);
       }
-      _errors = dust::openmp_errors(n_particles);
       initialise_device_data();
     }
+    reset_errors();
     update_device_shared();
     _stale_host = false;
     _stale_device = true;

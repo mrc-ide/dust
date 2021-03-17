@@ -676,7 +676,7 @@ test_that("Truncate errors past certain point", {
   s[2, ] <- -10
   mod$set_state(s)
   err <- expect_error(
-    mod$run(10),
+    mod$simulate(0:10),
     "10 particles reported errors")
   expect_match(
     err$message,
