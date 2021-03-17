@@ -177,10 +177,16 @@ HOSTDEVICE int rbinom(rng_state_t<real_t>& rng_state, int n,
   } else if (p == 1) {
     draw = n;
   } else if (n < 0 || p < 0 || p > 1) {
+#ifdef __CUDA_ARCH__
+    // This is unrecoverable
+    printf("Invalid call to rbinom with n = %d, p = %g\n", n, p);
+    __trap();
+#else
     char buffer[256];
     snprintf(buffer, 256, "Invalid call to rbinom with n = %d, p = %g",
              n, p);
-    dust::utils::throw_message(buffer);
+    throw std::runtime_error(buffer);
+#endif
     draw = 0; // never happens
   } else {
     real_t q = p;

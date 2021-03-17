@@ -37,7 +37,7 @@ public:
     real_t R = state[2];
     real_t N = S + I + R;
 
-    real_t p_SI = 1 - exp(- shared->beta * I / (real_t) N);
+    real_t p_SI = 1 - exp(- shared->beta * I / N);
     real_t p_IR = 1 - exp(-(shared->gamma));
     real_t p_RS = 1 - exp(- shared->alpha);
 
@@ -84,4 +84,60 @@ dust::pars_t<sirs> dust_pars<sirs>(cpp11::list pars) {
 
   sirs::shared_t shared{S0, I0, R0, alpha, beta, gamma, dt};
   return dust::pars_t<sirs>(shared);
+}
+
+namespace dust {
+template <>
+struct has_gpu_support<sirs> : std::true_type {};
+
+template <>
+size_t device_shared_size_int<sirs>(dust::shared_ptr<sirs> shared) {
+  return 0;
+}
+
+template <>
+size_t device_shared_size_real<sirs>(dust::shared_ptr<sirs> shared) {
+  return 4;
+}
+
+template <>
+void device_shared_copy<sirs>(dust::shared_ptr<sirs> shared,
+                              int * shared_int,
+                              sirs::real_t * shared_real) {
+  typedef sirs::real_t real_t;
+  shared_real = dust::shared_copy<real_t>(shared_real, shared->alpha);
+  shared_real = dust::shared_copy<real_t>(shared_real, shared->beta);
+  shared_real = dust::shared_copy<real_t>(shared_real, shared->gamma);
+  shared_real = dust::shared_copy<real_t>(shared_real, shared->dt);
+}
+
+}
+
+template <>
+DEVICE void update_device<sirs>(size_t step,
+                                const dust::interleaved<sirs::real_t> state,
+                                dust::interleaved<int> internal_int,
+                                dust::interleaved<sirs::real_t> internal_real,
+                                const int * shared_int,
+                                const sirs::real_t * shared_real,
+                                dust::rng_state_t<sirs::real_t>& rng_state,
+                                dust::interleaved<sirs::real_t> state_next) {
+  typedef sirs::real_t real_t;
+  const real_t alpha = shared_real[0];
+  const real_t beta = shared_real[1];
+  const real_t gamma = shared_real[2];
+  const real_t dt = shared_real[3];
+  const real_t S = state[0];
+  const real_t I = state[1];
+  const real_t R = state[2];
+  const real_t N = S + I + R;
+  const real_t p_SI = 1 - exp(- beta * I / N);
+  const real_t p_IR = 1 - exp(- gamma);
+  const real_t p_RS = 1 - exp(- alpha);
+  const real_t n_SI = dust::distr::rbinom(rng_state, S, p_SI * dt);
+  const real_t n_IR = dust::distr::rbinom(rng_state, I, p_IR * dt);
+  const real_t n_RS = dust::distr::rbinom(rng_state, R, p_RS * dt);
+  state_next[0] = S - n_SI + n_RS;
+  state_next[1] = I + n_SI - n_IR;
+  state_next[2] = R + n_IR - n_RS;
 }
