@@ -258,22 +258,22 @@ struct device_state {
 // for either real or int types and return the length of data
 // required.
 template <typename T>
-size_t device_internal_size_int(typename dust::shared_ptr<T> shared) {
+size_t device_internal_int_size(typename dust::shared_ptr<T> shared) {
   return 0;
 }
 
 template <typename T>
-size_t device_internal_size_real(typename dust::shared_ptr<T> shared) {
+size_t device_internal_real_size(typename dust::shared_ptr<T> shared) {
   return 0;
 }
 
 template <typename T>
-size_t device_shared_size_int(typename dust::shared_ptr<T> shared) {
+size_t device_shared_int_size(typename dust::shared_ptr<T> shared) {
   return 0;
 }
 
 template <typename T>
-size_t device_shared_size_real(typename dust::shared_ptr<T> shared) {
+size_t device_shared_real_size(typename dust::shared_ptr<T> shared) {
   return 0;
 }
 

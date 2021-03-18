@@ -91,12 +91,12 @@ template <>
 struct has_gpu_support<sirs> : std::true_type {};
 
 template <>
-size_t device_shared_size_int<sirs>(dust::shared_ptr<sirs> shared) {
+size_t device_shared_int_size<sirs>(dust::shared_ptr<sirs> shared) {
   return 0;
 }
 
 template <>
-size_t device_shared_size_real<sirs>(dust::shared_ptr<sirs> shared) {
+size_t device_shared_real_size<sirs>(dust::shared_ptr<sirs> shared) {
   return 4;
 }
 

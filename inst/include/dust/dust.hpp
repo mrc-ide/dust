@@ -725,10 +725,10 @@ private:
       return;
     }
     const auto s = _shared[0];
-    const size_t n_internal_int = dust::device_internal_size_int<T>(s);
-    const size_t n_internal_real = dust::device_internal_size_real<T>(s);
-    const size_t n_shared_int = dust::device_shared_size_int<T>(s);
-    const size_t n_shared_real = dust::device_shared_size_real<T>(s);
+    const size_t n_internal_int = dust::device_internal_int_size<T>(s);
+    const size_t n_internal_real = dust::device_internal_real_size<T>(s);
+    const size_t n_shared_int = dust::device_shared_int_size<T>(s);
+    const size_t n_shared_real = dust::device_shared_real_size<T>(s);
     _device_data.initialise(_particles.size(), n_state_full(), _shared.size(),
                             n_internal_int, n_internal_real,
                             n_shared_int, n_shared_real);
