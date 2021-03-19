@@ -10,7 +10,9 @@ template <typename real_t>
 int rpois(rng_state_t<real_t>& rng_state,
           typename rng_state_t<real_t>::real_t lambda) {
   int x = 0;
-  if (lambda < 10) {
+  if (lambda == 0) {
+    // do nothing, but leave this branch in to help the GPU
+  } else if (lambda < 10) {
     // Knuth's algorithm for generating Poisson random variates.
     // Given a Poisson process, the time between events is exponentially
     // distributed. If we have a Poisson process with rate lambda, then,

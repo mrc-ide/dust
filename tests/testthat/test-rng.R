@@ -219,6 +219,15 @@ test_that("Big poisson numbers", {
 })
 
 
+test_that("Short circuit exit does not update rng state", {
+  rng <- dust_rng$new(1, 1)
+  s <- rng$state()
+  ans <- rng$rpois(100, 0)
+  expect_equal(ans, rep(0, 100))
+  expect_identical(rng$state(), s)
+})
+
+
 test_that("norm_rand agrees with rnorm", {
   n <- 100000
   ans <- dust_rng$new(2, 1)$norm_rand(n)
