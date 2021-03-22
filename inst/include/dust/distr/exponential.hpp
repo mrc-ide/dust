@@ -22,7 +22,8 @@ HOSTDEVICE real_t exp_rand(rng_state_t<real_t>& rng_state) {
 
 __nv_exec_check_disable__
 template <typename real_t>
-HOSTDEVICE real_t rexp(rng_state_t<real_t>& rng_state, real_t rate) {
+HOSTDEVICE real_t rexp(rng_state_t<real_t>& rng_state,
+                       typename rng_state_t<real_t>::real_t rate) {
   return exp_rand(rng_state) / rate;
 }
 

@@ -20,56 +20,48 @@ dust_dpois <- function(x, lambda, log) {
   .Call(`_dust_dust_dpois`, x, lambda, log)
 }
 
-dust_rng_alloc <- function(r_seed, n_generators) {
-  .Call(`_dust_dust_rng_alloc`, r_seed, n_generators)
+dust_rng_alloc <- function(r_seed, n_generators, is_float) {
+  .Call(`_dust_dust_rng_alloc`, r_seed, n_generators, is_float)
 }
 
-dust_rng_size <- function(ptr) {
-  .Call(`_dust_dust_rng_size`, ptr)
+dust_rng_jump <- function(ptr, is_float) {
+  invisible(.Call(`_dust_dust_rng_jump`, ptr, is_float))
 }
 
-dust_rng_jump <- function(ptr) {
-  invisible(.Call(`_dust_dust_rng_jump`, ptr))
+dust_rng_long_jump <- function(ptr, is_float) {
+  invisible(.Call(`_dust_dust_rng_long_jump`, ptr, is_float))
 }
 
-dust_rng_long_jump <- function(ptr) {
-  invisible(.Call(`_dust_dust_rng_long_jump`, ptr))
+dust_rng_unif_rand <- function(ptr, n, is_float) {
+  .Call(`_dust_dust_rng_unif_rand`, ptr, n, is_float)
 }
 
-dust_rng_unif_rand <- function(ptr, n) {
-  .Call(`_dust_dust_rng_unif_rand`, ptr, n)
+dust_rng_norm_rand <- function(ptr, n, is_float) {
+  .Call(`_dust_dust_rng_norm_rand`, ptr, n, is_float)
 }
 
-dust_rng_norm_rand <- function(ptr, n) {
-  .Call(`_dust_dust_rng_norm_rand`, ptr, n)
+dust_rng_runif <- function(ptr, n, r_min, r_max, is_float) {
+  .Call(`_dust_dust_rng_runif`, ptr, n, r_min, r_max, is_float)
 }
 
-dust_rng_runif <- function(ptr, n, r_min, r_max) {
-  .Call(`_dust_dust_rng_runif`, ptr, n, r_min, r_max)
+dust_rng_rexp <- function(ptr, n, r_rate, is_float) {
+  .Call(`_dust_dust_rng_rexp`, ptr, n, r_rate, is_float)
 }
 
-dust_rng_rexp <- function(ptr, n, r_rate) {
-  .Call(`_dust_dust_rng_rexp`, ptr, n, r_rate)
+dust_rng_rnorm <- function(ptr, n, r_mean, r_sd, is_float) {
+  .Call(`_dust_dust_rng_rnorm`, ptr, n, r_mean, r_sd, is_float)
 }
 
-dust_rng_rnorm <- function(ptr, n, r_mean, r_sd) {
-  .Call(`_dust_dust_rng_rnorm`, ptr, n, r_mean, r_sd)
+dust_rng_rbinom <- function(ptr, n, r_size, r_prob, is_float) {
+  .Call(`_dust_dust_rng_rbinom`, ptr, n, r_size, r_prob, is_float)
 }
 
-dust_rng_rbinom <- function(ptr, n, r_size, r_prob) {
-  .Call(`_dust_dust_rng_rbinom`, ptr, n, r_size, r_prob)
+dust_rng_rpois <- function(ptr, n, r_lambda, is_float) {
+  .Call(`_dust_dust_rng_rpois`, ptr, n, r_lambda, is_float)
 }
 
-dust_rng_rpois <- function(ptr, n, r_lambda) {
-  .Call(`_dust_dust_rng_rpois`, ptr, n, r_lambda)
-}
-
-dust_rng_state <- function(ptr) {
-  .Call(`_dust_dust_rng_state`, ptr)
-}
-
-test_rbinom_float <- function(r_seed, n_samples, size, p) {
-  .Call(`_dust_test_rbinom_float`, r_seed, n_samples, size, p)
+dust_rng_state <- function(ptr, is_float) {
+  .Call(`_dust_dust_rng_state`, ptr, is_float)
 }
 
 cpp_openmp_info <- function() {

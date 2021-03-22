@@ -1,6 +1,8 @@
 #ifndef DUST_INTERFACE_HELPERS_HPP
 #define DUST_INTERFACE_HELPERS_HPP
 
+#include <map>
+#include <cpp11/strings.hpp>
 #include <dust/device_info.hpp>
 
 namespace dust {
