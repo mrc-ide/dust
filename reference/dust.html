@@ -82,7 +82,7 @@ that can be used to work with the model (see the Details below)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.13</span>
       </span>
     </div>
 
@@ -242,10 +242,12 @@ the R API in any way as these functions will be called in
 parallel.</p>
 <p>You must also provide a data/parameter-wrangling function for
 producing an object of type <code>dust::pars_t&lt;model&gt;</code> from an R list.  We
-use cpp11 for this.  Your function will look like:</p><pre>template &lt;&gt;
+use cpp11 for this.  Your function will look like:</p><pre>namespace dust {
+template &lt;&gt;
 dust::pars_t&lt;model&gt; dust_pars&lt;model&gt;(cpp11::list pars) {
   // ...
   return dust::pars_t&lt;model&gt;(shared, internal);
+}
 }
 </pre>
 
@@ -259,10 +261,12 @@ you may use the single-argument constructor overload to
 <code>dust::pars_t</code> which is equivalent to using <code>dust::no_shared</code> or
 <code>dust::no_internal</code> for the missing argument.</p>
 <p>Your model <em>may</em> provided a template specialisation
-<code>dust_info&lt;model&gt;()</code> returning a <code>cpp11::sexp</code> for
-returning arbitrary information back to the R session:</p><pre>template &lt;&gt;
+<code>dust::dust_info&lt;model&gt;()</code> returning a <code>cpp11::sexp</code> for
+returning arbitrary information back to the R session:</p><pre>namespace dust {
+template &lt;&gt;
 cpp11::sexp dust_info&lt;model&gt;(const dust::pars_t&lt;sir&gt;&amp; pars) {
   return cpp11::wrap(...);
+}
 }
 </pre>
 
@@ -808,11 +812,14 @@ static method by running <code>dust_class$public_methods$device_info()</code></p
 #&gt;   dust::shared_ptr&lt;walk&gt; shared;
 #&gt; };
 #&gt; 
-#&gt; #include &lt;cpp11/list.hpp&gt;
+#&gt; namespace dust {
+#&gt; 
 #&gt; template &lt;&gt;
 #&gt; dust::pars_t&lt;walk&gt; dust_pars&lt;walk&gt;(cpp11::list pars) {
 #&gt;   walk::real_t sd = cpp11::as_cpp&lt;walk::real_t&gt;(pars["sd"]);
 #&gt;   return dust::pars_t&lt;walk&gt;(walk::shared_t{sd});
+#&gt; }
+#&gt; 
 #&gt; }</div><div class='input'>
 <span class='co'># The model can be compiled and loaded with dust::dust(filename)</span>
 <span class='co'># but it's faster in this example to use the prebuilt version in</span>
