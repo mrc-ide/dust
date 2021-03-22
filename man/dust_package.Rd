@@ -41,6 +41,15 @@ following "Writing R Extensions" (see section "OpenMP support").
 If your package does contain a \code{src/Makevars} file we do not
 attempt to edit it but will error if it looks like it does not
 contain these lines or similar.
+
+You also need to make sure that your package loads the dynamic
+library; if you are using roxygen, then you might create a file
+(say, \code{R/zzz.R}) containing\preformatted{#' @useDynLib packagename, .registration = TRUE
+NULL
+}
+
+substituting \code{packagename} for your package name as
+appropriate. This will create an entry in \code{NAMESPACE}.
 }
 \examples{
 # This is explained in more detail in the package vignette

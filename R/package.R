@@ -26,6 +26,18 @@
 ##' attempt to edit it but will error if it looks like it does not
 ##' contain these lines or similar.
 ##'
+##' You also need to make sure that your package loads the dynamic
+##' library; if you are using roxygen, then you might create a file
+##' (say, `R/zzz.R`) containing
+##'
+##' ```
+##' #' @useDynLib packagename, .registration = TRUE
+##' NULL
+##' ```
+##'
+##' substituting `packagename` for your package name as
+##' appropriate. This will create an entry in `NAMESPACE`.
+##'
 ##' @param path Path to the package
 ##'
 ##' @param quiet Passed to `cpp11::cpp_register`, if `TRUE` suppresses
