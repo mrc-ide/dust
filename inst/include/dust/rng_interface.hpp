@@ -3,6 +3,9 @@
 
 #include <R_ext/Random.h>
 
+namespace dust {
+namespace interface {
+
 template <typename T>
 std::vector<uint64_t> as_rng_seed(cpp11::sexp r_seed) {
   auto seed_type = TYPEOF(r_seed);
@@ -22,13 +25,16 @@ std::vector<uint64_t> as_rng_seed(cpp11::sexp r_seed) {
   } else if (seed_type == NILSXP) {
     GetRNGstate();
     size_t seed_int =
-      std::ceil(std::abs(unif_rand()) * std::numeric_limits<size_t>::max());
+      std::ceil(std::abs(::unif_rand()) * std::numeric_limits<size_t>::max());
     PutRNGstate();
     seed = dust::xoshiro_initial_seed<T>(seed_int);
   } else {
     cpp11::stop("Invalid type for 'seed'");
   }
   return seed;
+}
+
+}
 }
 
 #endif

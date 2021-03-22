@@ -31,9 +31,12 @@ private:
   dust::shared_ptr<walk> shared;
 };
 
-#include <cpp11/list.hpp>
+namespace dust {
+
 template <>
 dust::pars_t<walk> dust_pars<walk>(cpp11::list pars) {
   walk::real_t sd = cpp11::as_cpp<walk::real_t>(pars["sd"]);
   return dust::pars_t<walk>(walk::shared_t{sd});
+}
+
 }

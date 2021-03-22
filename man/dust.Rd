@@ -89,10 +89,12 @@ parallel.
 
 You must also provide a data/parameter-wrangling function for
 producing an object of type \verb{dust::pars_t<model>} from an R list.  We
-use cpp11 for this.  Your function will look like:\preformatted{template <>
+use cpp11 for this.  Your function will look like:\preformatted{namespace dust \{
+template <>
 dust::pars_t<model> dust_pars<model>(cpp11::list pars) \{
   // ...
   return dust::pars_t<model>(shared, internal);
+\}
 \}
 }
 
@@ -107,10 +109,12 @@ you may use the single-argument constructor overload to
 \code{dust::no_internal} for the missing argument.
 
 Your model \emph{may} provided a template specialisation
-\verb{dust_info<model>()} returning a \code{cpp11::sexp} for
-returning arbitrary information back to the R session:\preformatted{template <>
+\verb{dust::dust_info<model>()} returning a \code{cpp11::sexp} for
+returning arbitrary information back to the R session:\preformatted{namespace dust \{
+template <>
 cpp11::sexp dust_info<model>(const dust::pars_t<sir>& pars) \{
   return cpp11::wrap(...);
+\}
 \}
 }
 

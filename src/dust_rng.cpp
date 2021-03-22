@@ -15,7 +15,7 @@ namespace rng {
 
 template <typename real_t>
 SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators) {
-  std::vector<uint64_t> seed = as_rng_seed<real_t>(r_seed);
+  std::vector<uint64_t> seed = dust::interface::as_rng_seed<real_t>(r_seed);
   dust::pRNG<real_t> *rng = new dust::pRNG<real_t>(n_generators, seed);
   return dust_rng_ptr_t<real_t>(rng);
 }

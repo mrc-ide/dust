@@ -45,10 +45,11 @@ private:
   dust::shared_ptr<parallel> shared;
 };
 
-#include <cpp11/list.hpp>
+namespace dust {
 template <>
 dust::pars_t<parallel> dust_pars<parallel>(cpp11::list pars) {
   parallel::real_t sd = cpp11::as_cpp<parallel::real_t>(pars["sd"]);
   parallel::shared_t shared{sd};
   return dust::pars_t<parallel>(shared);
+}
 }

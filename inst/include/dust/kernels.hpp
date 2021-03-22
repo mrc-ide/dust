@@ -4,8 +4,11 @@
 #include <assert.h>
 #include <dust/utils.hpp>
 
+namespace dust {
+
 // This is the main model update, will be defined by the model code
-// (see inst/examples/variable.cpp for an example)
+// (see inst/examples/variable.cpp for an example). This is unique
+// within the file in that we expect that the user will specialise it.
 template <typename T>
 DEVICE void update_device(size_t step,
                    const dust::interleaved<typename T::real_t> state,
@@ -79,7 +82,8 @@ KERNEL void run_particles(size_t step_start,
                 "real_t and int shared memory not alignable");
   if (use_shared_L1) {
     int * shared_block_int = shared_block;
-    shared_mem_cpy(block, shared_block_int, p_shared_int, n_shared_int);
+    dust::cuda::shared_mem_cpy(block, shared_block_int, p_shared_int,
+                               n_shared_int);
     p_shared_int = shared_block_int;
 
     // Must only have a single __shared__ definition, cast to use different
@@ -90,7 +94,8 @@ KERNEL void run_particles(size_t step_start,
     size_t real_ptr_start = n_shared_int +
       dust::utils::align_padding(n_shared_int * sizeof(int), sizeof(real_t)) / sizeof(int);
     real_t * shared_block_real = (real_t*)&shared_block[real_ptr_start];
-    shared_mem_cpy(block, shared_block_real, p_shared_real, n_shared_real);
+    dust::cuda::shared_mem_cpy(block, shared_block_real, p_shared_real,
+                               n_shared_real);
     p_shared_real = shared_block_real;
 
     // Pick particle index based on block, don't process if off the end
@@ -104,7 +109,7 @@ KERNEL void run_particles(size_t step_start,
   }
 
   // Required to sync loads into L1 cache
-  shared_mem_wait(block);
+  dust::cuda::shared_mem_wait(block);
 
   if (i < max_i) {
 #else
@@ -142,6 +147,8 @@ KERNEL void run_particles(size_t step_start,
     block.sync();
 #endif
   }
+}
+
 }
 
 #endif

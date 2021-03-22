@@ -67,12 +67,12 @@ private:
   dust::shared_ptr<sir> shared;
 };
 
-#include <cpp11/list.hpp>
-
 // Helper function for accepting values with defaults
 inline double with_default(double default_value, cpp11::sexp value) {
   return value == R_NilValue ? default_value : cpp11::as_cpp<double>(value);
 }
+
+namespace dust {
 
 template <>
 dust::pars_t<sir> dust_pars<sir>(cpp11::list pars) {
@@ -120,4 +120,6 @@ cpp11::sexp dust_info<sir>(const dust::pars_t<sir>& pars) {
 template <>
 sir::data_t dust_data<sir>(cpp11::list data) {
   return sir::data_t{cpp11::as_cpp<double>(data["incidence"])};
+}
+
 }

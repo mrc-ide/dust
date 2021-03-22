@@ -38,8 +38,6 @@ private:
   dust::shared_ptr<variable> shared;
 };
 
-// This is required to activate gpu support. We can possibly do this
-// automatically based on the existance of the template below though.
 namespace dust {
 template <>
 struct has_gpu_support<variable> : std::true_type {};
@@ -64,8 +62,6 @@ void device_shared_copy<variable>(dust::shared_ptr<variable> shared,
   shared_real = dust::shared_copy<real_t>(shared_real, shared->sd);
 }
 
-}
-
 template <>
 DEVICE
 void update_device<variable>(size_t step,
@@ -85,7 +81,6 @@ void update_device<variable>(size_t step,
   }
 }
 
-#include <cpp11/list.hpp>
 template <>
 dust::pars_t<variable> dust_pars<variable>(cpp11::list pars) {
   typedef variable::real_t real_t;
@@ -104,4 +99,6 @@ dust::pars_t<variable> dust_pars<variable>(cpp11::list pars) {
 
   variable::shared_t shared{len, mean, sd};
   return dust::pars_t<variable>(shared);
+}
+
 }

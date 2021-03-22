@@ -1,8 +1,11 @@
-#ifndef DUST_TOOLS_HPP
-#define DUST_TOOLS_HPP
+#ifndef DUST_FILTER_TOOLS_HPP
+#define DUST_FILTER_TOOLS_HPP
 
 #include <algorithm>
 #include <numeric>
+
+namespace dust {
+namespace filter {
 
 template <typename real_t>
 void resample_weight(typename std::vector<real_t>::const_iterator w,
@@ -53,6 +56,9 @@ real_t scale_log_weights(typename std::vector<real_t>::iterator w, size_t n) {
     tot += *wi;
   }
   return std::log(tot / n) + max_w;
+}
+
+}
 }
 
 #endif

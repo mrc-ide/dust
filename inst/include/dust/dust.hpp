@@ -13,11 +13,13 @@
 
 #include <dust/rng.hpp>
 #include <dust/densities.hpp>
-#include <dust/tools.hpp>
+#include <dust/filter_tools.hpp>
 #include <dust/types.hpp>
 #include <dust/utils.hpp>
 #include <dust/particle.hpp>
 #include <dust/kernels.hpp>
+
+namespace dust {
 
 template <typename T>
 class Dust {
@@ -174,6 +176,7 @@ public:
     refresh_device();
     const size_t step_start = step();
 #ifdef __NVCC__
+    const int warp_size = dust::cuda::warp_size;
     // Set up blocks and shared memory preferences
     size_t blockSize = 128;
     size_t blockCount;
@@ -199,7 +202,7 @@ public:
       blockCount = n_pars_effective() * (_n_particles_each + blockSize - 1) /
         blockSize;
     }
-    run_particles<T><<<blockCount, blockSize, shared_size_bytes>>>(
+    dust::run_particles<T><<<blockCount, blockSize, shared_size_bytes>>>(
                      step_start, step_end, _particles.size(),
                      n_pars_effective(),
                      _device_data.y.data(), _device_data.y_next.data(),
@@ -213,7 +216,7 @@ public:
                      use_shared_L1);
     CUDA_CALL(cudaDeviceSynchronize());
 #else
-    run_particles<T>(step_start, step_end, _particles.size(),
+    dust::run_particles<T>(step_start, step_end, _particles.size(),
                      n_pars_effective(),
                      _device_data.y.data(), _device_data.y_next.data(),
                      _device_data.internal_int.data(),
@@ -336,7 +339,7 @@ public:
   // There are two obvious ways of reordering; we can construct a
   // completely new set of particles, like
   //
-  //   std::vector<Particle<T>> next;
+  //   std::vector<dust::Particle<T>> next;
   //   for (auto const& i: index) {
   //     next.push_back(_particles[i]);
   //   }
@@ -355,7 +358,7 @@ public:
       const size_t blockSize = 128;
       const size_t blockCount =
         (n_state * n_particles + blockSize - 1) / blockSize;
-      scatter_device<real_t><<<blockCount, blockSize>>>(
+      dust::scatter_device<real_t><<<blockCount, blockSize>>>(
         _device_data.scatter_index.data(),
         _device_data.y.data(),
         _device_data.y_next.data(),
@@ -363,7 +366,7 @@ public:
         n_particles);
       CUDA_CALL(cudaDeviceSynchronize());
 #else
-      scatter_device<real_t>(
+      dust::scatter_device<real_t>(
         _device_data.scatter_index.data(),
         _device_data.y.data(),
         _device_data.y_next.data(),
@@ -403,7 +406,7 @@ public:
       // One parameter set; shuffle among all particles
       const size_t np = _particles.size();
       real_t u = dust::unif_rand(_rng.state(0));
-      resample_weight(it_weights, np, u, 0, it_index);
+      dust::filter::resample_weight(it_weights, np, u, 0, it_index);
     } else {
       // Multiple parameter set; shuffle within each group
       // independently (and therefore in parallel)
@@ -414,7 +417,7 @@ public:
       for (size_t i = 0; i < _n_pars; ++i) {
         const size_t j = i * np;
         real_t u = dust::unif_rand(_rng.state(j));
-        resample_weight(it_weights + j, np, u, j, it_index + j);
+        dust::filter::resample_weight(it_weights + j, np, u, j, it_index + j);
       }
     }
 
@@ -533,11 +536,7 @@ private:
   dust::openmp_errors _errors;
 
   std::vector<size_t> _index;
-  std::vector<Particle<T>> _particles;
-  // TODO: this is complicated where we have more than one parameter
-  // set; there we need to keep track of a vector of these
-  // things. This will do for now but we'll need to consider this
-  // carefully in the actual GPU implementation.
+  std::vector<dust::Particle<T>> _particles;
   std::vector<dust::shared_ptr<T>> _shared;
 
   // New things for device support
@@ -579,7 +578,7 @@ private:
   void initialise(const pars_t& pars, const size_t step,
                   const size_t n_particles, bool set_state) {
     const size_t n = _particles.size() == 0 ? 0 : n_state_full();
-    Particle<T> p(pars, step);
+    dust::Particle<T> p(pars, step);
     if (n > 0 && p.size() != n) {
       std::stringstream msg;
       msg << "'pars' created inconsistent state size: " <<
@@ -613,9 +612,9 @@ private:
   void initialise(const std::vector<pars_t>& pars, const size_t step,
                   const size_t n_particles, bool set_state) {
     size_t n = _particles.size() == 0 ? 0 : n_state_full();
-    std::vector<Particle<T>> p;
+    std::vector<dust::Particle<T>> p;
     for (size_t i = 0; i < _n_pars; ++i) {
-      p.push_back(Particle<T>(pars[i], step));
+      p.push_back(dust::Particle<T>(pars[i], step));
       if (n > 0 && p.back().size() != n) {
         std::stringstream msg;
         msg << "'pars' created inconsistent state size: " <<
@@ -807,5 +806,7 @@ private:
     }
   }
 };
+
+}
 
 #endif

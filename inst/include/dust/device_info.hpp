@@ -10,7 +10,10 @@
 #include <cpp11/data_frame.hpp>
 #include <dust/cuda_call.cuh>
 
-inline int cuda_devices_count() {
+namespace dust {
+namespace cuda {
+
+inline int devices_count() {
   int device_count = 0;
 #ifdef __NVCC__
   cudaError_t status = cudaGetDeviceCount(&device_count);
@@ -22,10 +25,10 @@ inline int cuda_devices_count() {
 }
 
 template <typename T>
-cpp11::sexp dust_device_info() {
+cpp11::sexp device_info() {
   using namespace cpp11::literals;
   cpp11::writable::logicals has_cuda(1);
-  int device_count = cuda_devices_count();
+  int device_count = devices_count();
 
   cpp11::writable::integers ids(device_count);
   cpp11::writable::doubles memory(device_count);
@@ -67,6 +70,9 @@ cpp11::sexp dust_device_info() {
   return cpp11::writable::list({"has_cuda"_nm = has_cuda,
                                 "cuda_version"_nm = cuda_version,
                                 "devices"_nm = devices});
+}
+
+}
 }
 
 #endif

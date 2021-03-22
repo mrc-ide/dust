@@ -27,6 +27,9 @@
 // cub functions (included with CUDA>=11)
 #include <cub/device/device_select.cuh>
 
+namespace dust {
+namespace cuda {
+
 const int warp_size = 32;
 
 template <typename T>
@@ -56,6 +59,8 @@ DEVICE void shared_mem_wait(cooperative_groups::thread_block& block) {
 #endif
 }
 
+}
+}
 
 #else
 #define DEVICE

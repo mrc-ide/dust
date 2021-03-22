@@ -16,6 +16,8 @@
 #include <dust/device_info.hpp>
 #include <dust/filter.hpp>
 
+namespace dust {
+
 template <typename T>
 typename dust::pars_t<T> dust_pars(cpp11::list pars);
 
@@ -23,7 +25,11 @@ template <typename T>
 typename T::data_t dust_data(cpp11::list data);
 
 template <typename T>
-typename cpp11::sexp dust_info(const dust::pars_t<T>& pars);
+cpp11::sexp dust_info(const dust::pars_t<T>& pars) {
+  return R_NilValue;
+}
+
+namespace r {
 
 template <typename T>
 cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
@@ -31,7 +37,8 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
                        cpp11::sexp r_seed, cpp11::sexp r_device_id) {
   dust::interface::validate_size(step, "step");
   dust::interface::validate_positive(n_threads, "n_threads");
-  std::vector<uint64_t> seed = as_rng_seed<typename T::real_t>(r_seed);
+  std::vector<uint64_t> seed =
+    dust::interface::as_rng_seed<typename T::real_t>(r_seed);
 
   const int device_id = dust::interface::check_device_id(r_device_id);
 
@@ -235,16 +242,6 @@ cpp11::sexp dust_set_pars(SEXP ptr, cpp11::list r_pars) {
 }
 
 template <typename T>
-SEXP dust_state(SEXP ptr, SEXP r_index) {
-  Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  if (r_index == R_NilValue) {
-    return dust_state_full(obj);
-  } else {
-    return dust_state_select(obj, r_index);
-  }
-}
-
-template <typename T>
 SEXP dust_state_full(Dust<T> *obj) {
   const size_t n_state_full = obj->n_state_full();
   const size_t len = n_state_full * obj->n_particles();
@@ -267,6 +264,16 @@ SEXP dust_state_select(Dust<T> *obj, cpp11::sexp r_index) {
   obj->state(index, dat);
 
   return dust::interface::state_array(dat, n_state, obj->shape());
+}
+
+template <typename T>
+SEXP dust_state(SEXP ptr, SEXP r_index) {
+  Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  if (r_index == R_NilValue) {
+    return dust_state_full(obj);
+  } else {
+    return dust_state_select(obj, r_index);
+  }
 }
 
 template <typename T>
@@ -340,13 +347,6 @@ void dust_set_n_threads(SEXP ptr, int n_threads) {
   obj->set_n_threads(n_threads);
 }
 
-// Trivial default implementation of a method for getting back
-// arbitrary information from the object.
-template <typename T>
-cpp11::sexp dust_info(const dust::pars_t<T>& pars) {
-  return R_NilValue;
-}
-
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 void dust_set_data(SEXP ptr, cpp11::list r_data) {
   typedef typename T::data_t data_t;
@@ -402,13 +402,13 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
     cpp11::stop("Data has not been set for this object");
   }
 
-  dust::filter_state<real_t> filter_state;
+  dust::filter::filter_state<real_t> filter_state;
 
   std::vector<size_t> step_snapshot =
     dust::interface::check_step_snapshot(r_step_snapshot, obj->data());
   cpp11::writable::doubles
-    log_likelihood(dust::filter(obj, filter_state,
-                                save_trajectories, step_snapshot));
+    log_likelihood(dust::filter::filter(obj, filter_state,
+                                        save_trajectories, step_snapshot));
 
   cpp11::sexp r_trajectories, r_snapshots;
 
@@ -487,6 +487,9 @@ template <typename T>
 int dust_n_state(SEXP ptr) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   return obj->n_state_full();
+}
+
+}
 }
 
 #endif
