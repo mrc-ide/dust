@@ -181,3 +181,18 @@ test_that("guess class", {
   expect_equal(parse_metadata_guess_class("\tclass\tTheClass  "), "TheClass")
   expect_equal(parse_metadata_guess_class("class TheClass{"), "TheClass")
 })
+
+
+test_that("Create nice parameter strings", {
+  expect_equal(deparse_param(NULL), "NULL")
+  expect_equal(deparse_param(list()), "NULL")
+  expect_equal(deparse_param(list(a = list(default = 1))),
+               "list(a = list(default = 1))")
+  expect_equal(deparse_param(list(a = list(default = 1),
+                                  b = list(default = 2))),
+               "list(a = list(default = 1),\n     b = list(default = 2))")
+
+  expect_equal(deparse_param(list(a = list(x = 1, y = 2),
+                                  b = list(x = 3, y = 4))),
+               "list(a = list(x = 1, y = 2),\n     b = list(x = 3, y = 4))")
+})

@@ -118,5 +118,12 @@ parse_metadata_guess_class <- function(txt) {
 
 
 deparse_param <- function(x) {
-  paste(sub("\\s+$", "", deparse(x)), collapse = "\n")
+  n <- length(x)
+  if (n == 0L) {
+    return("NULL")
+  }
+  str <- vcapply(x, function(x) paste(deparse(x, 120L), collapse = "\n"))
+  start <- rep(c("list(", "     "), c(1L, n - 1L))
+  end <- rep(c(",", ")"), c(n - 1L, 1L))
+  paste(sprintf("%s%s = %s%s", start, names(x), str, end), collapse = "\n")
 }
