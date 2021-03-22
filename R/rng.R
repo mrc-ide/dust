@@ -32,7 +32,8 @@ dust_rng <- R6::R6Class(
   private = list(
     ptr = NULL,
     n_generators = NULL,
-    float = NULL
+    float = NULL,
+    real_t = NULL
   ),
 
   public = list(
@@ -44,13 +45,18 @@ dust_rng <- R6::R6Class(
     ##'   function never runs in parallel, this is used to create a set of
     ##'   interleaved independent generators as dust would use in a model.
     ##'
-    ##' @param float Use `float` (rather than `double`) for the numbers.
-    ##'   This will have no (or negligible) impact on speed, but exists
-    ##'   to test the low-precision generators.
-    initialize = function(seed, n_generators = 1L, float = FALSE) {
-      private$ptr <- dust_rng_alloc(seed, n_generators, float)
+    ##' @param real_type The type of floating point number to use. Currently
+    ##'   only `float` and `double` are supported (with `double` being
+    ##'   the default). This will have no (or negligible) impact on speed,
+    ##'   but exists to test the low-precision generators.
+    initialize = function(seed, n_generators = 1L, real_type = "double") {
+      if (!(real_type %in% c("double", "float"))) {
+        stop("Invalid value for 'real_type': must be 'double' or 'float'")
+      }
+      private$float <- real_type == "float"
+      private$ptr <- dust_rng_alloc(seed, n_generators, private$float)
       private$n_generators <- n_generators
-      private$float <- float
+      private$real_t <- real_type
     },
 
     ##' @description Number of generators available
@@ -59,7 +65,7 @@ dust_rng <- R6::R6Class(
     },
 
     ##' @description Indicates the floating point type
-    real_t = function() {
+    real_type = function() {
       if (private$float) "float" else "double"
     },
 
