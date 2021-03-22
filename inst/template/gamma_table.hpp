@@ -8,6 +8,9 @@
 #define CONSTANT const
 #endif
 
+namespace dust {
+namespace distr {
+
 CONSTANT int k_tail_values_max_f = {{k_max_f}};
 CONSTANT int k_tail_values_max_d = {{k_max_d}};
 
@@ -20,5 +23,8 @@ CONSTANT
 double k_tail_values_d[] = {
 {{values_double}}
 };
+
+}
+}
 
 #endif

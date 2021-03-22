@@ -327,7 +327,7 @@ std::vector<real_t> check_resample_weights(cpp11::doubles r_weights,
 
 inline int check_device_id(cpp11::sexp r_device_id) {
 #ifdef __NVCC__
-  const int n_devices = cuda_devices_count();
+  const int n_devices = dust::cuda::devices_count();
 #else
   // We allow a device_id set to 0 to allow us to test the device
   // storage. However, if compiling with nvcc the device id must be

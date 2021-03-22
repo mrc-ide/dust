@@ -1,7 +1,11 @@
 #ifndef DUST_FILTER_HPP
 #define DUST_FILTER_HPP
 
+#include <dust/filter_state.hpp>
+#include <dust/filter_tools.hpp>
+
 namespace dust {
+namespace filter {
 
 template <typename T>
 std::vector<typename T::real_t> filter(Dust<T> * obj,
@@ -68,6 +72,7 @@ std::vector<typename T::real_t> filter(Dust<T> * obj,
   return log_likelihood;
 }
 
+}
 }
 
 #endif

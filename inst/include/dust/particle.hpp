@@ -1,6 +1,8 @@
 #ifndef DUST_PARTICLE_HPP
 #define DUST_PARTICLE_HPP
 
+namespace dust {
+
 template <typename T>
 class Particle {
 public:
@@ -15,7 +17,7 @@ public:
     _y_swap(_model.size()) {
   }
 
-  void run(const size_t step_end, dust::rng_state_t<real_t>& rng_state) {
+  void run(const size_t step_end, rng_state_t<real_t>& rng_state) {
     while (_step < step_end) {
       _model.update(_step, _y.data(), rng_state, _y_swap.data());
       _step++;
@@ -71,7 +73,7 @@ public:
   }
 
   real_t compare_data(const data_t& data,
-                      dust::rng_state_t<real_t>& rng_state) {
+                      rng_state_t<real_t>& rng_state) {
     return _model.compare_data(_y.data(), data, rng_state);
   }
 
@@ -82,5 +84,7 @@ private:
   std::vector<real_t> _y;
   std::vector<real_t> _y_swap;
 };
+
+}
 
 #endif

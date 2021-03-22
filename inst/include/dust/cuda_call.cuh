@@ -10,6 +10,9 @@
 #include <cuda_runtime.h>
 #include <cuda_profiler_api.h>
 
+namespace dust {
+namespace cuda {
+
 static void throw_cuda_error(const char *file, int line, cudaError_t status) {
   std::stringstream msg;
   if (status == cudaErrorUnknown) {
@@ -33,6 +36,9 @@ static void handle_cuda_error(const char *file, int line,
   if (status != cudaSuccess || (status = cudaGetLastError()) != cudaSuccess) {
     throw_cuda_error(file, line, status);
   }
+}
+
+}
 }
 
 #define CUDA_CALL( err ) (handle_cuda_error(__FILE__, __LINE__ , err))
