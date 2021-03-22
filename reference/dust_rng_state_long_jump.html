@@ -86,7 +86,7 @@ generating the same sequence of random numbers." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.14</span>
       </span>
     </div>
 
@@ -188,7 +188,7 @@ larger than one will repeatedly advance the state.</p></td>
 <span class='va'>state</span> <span class='op'>&lt;-</span> <span class='va'>rng</span><span class='op'>$</span><span class='fu'>state</span><span class='op'>(</span><span class='op'>)</span>
 
 <span class='co'># We can advance this state</span>
-<span class='fu'>dust_rng_state_long_jump</span><span class='op'>(</span><span class='va'>state</span><span class='op'>)</span>
+<span class='fu'>dust</span><span class='fu'>::</span><span class='fu'>dust_rng_state_long_jump</span><span class='op'>(</span><span class='va'>state</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;  [1] 77 69 c2 44 65 7b dc 93 49 c7 93 ef dd 06 fc 47 cf af f3 d0 80 97 01 68 45
 #&gt; [26] a2 90 f4 38 dd 4d 0a</div><div class='input'>
 <span class='co'># Which gives the same result as long_jump on the original generator</span>
@@ -198,7 +198,7 @@ larger than one will repeatedly advance the state.</p></td>
 </div><div class='output co'>#&gt;  [1] 28 e8 de 5c 48 69 5b c3 44 02 9b 76 47 bd 81 a1 77 f7 63 47 53 29 1c e2 3a
 #&gt; [26] 0e 35 97 28 0a 59 c4</div><div class='input'>
 <span class='co'># Multiple jumps can be taken by using the "times" argument</span>
-<span class='fu'>dust_rng_state_long_jump</span><span class='op'>(</span><span class='va'>state</span>, <span class='fl'>2</span><span class='op'>)</span>
+<span class='fu'>dust</span><span class='fu'>::</span><span class='fu'>dust_rng_state_long_jump</span><span class='op'>(</span><span class='va'>state</span>, <span class='fl'>2</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;  [1] 28 e8 de 5c 48 69 5b c3 44 02 9b 76 47 bd 81 a1 77 f7 63 47 53 29 1c e2 3a
 #&gt; [26] 0e 35 97 28 0a 59 c4</div></pre>
   </div>

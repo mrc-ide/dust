@@ -83,7 +83,7 @@ src/model.cpp." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.14</span>
       </span>
     </div>
 
@@ -193,7 +193,45 @@ PKG_LIBS=$(SHLIB_OPENMP_CXXFLAGS)
 If your package does contain a <code>src/Makevars</code> file we do not
 attempt to edit it but will error if it looks like it does not
 contain these lines or similar.</p>
+<p>You also need to make sure that your package loads the dynamic
+library; if you are using roxygen, then you might create a file
+(say, <code>R/zzz.R</code>) containing</p><pre><span class='co'>#' @useDynLib packagename, .registration = TRUE</span>
+<span class='cn'>NULL</span>
+</pre>
 
+<p>substituting <code>packagename</code> for your package name as
+appropriate. This will create an entry in <code>NAMESPACE</code>.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='../articles/dust.html'>vignette("dust")</a></code> which contains more discussion of this
+process</p></div>
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># This is explained in more detail in the package vignette</span>
+<span class='va'>path</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span><span class='op'>(</span><span class='st'>"examples/sir.cpp"</span>, package <span class='op'>=</span> <span class='st'>"dust"</span>, mustWork <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='va'>dest</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempfile</a></span><span class='op'>(</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/files2.html'>dir.create</a></span><span class='op'>(</span><span class='va'>dest</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/files2.html'>dir.create</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='va'>dest</span>, <span class='st'>"inst/dust"</span><span class='op'>)</span>, <span class='cn'>FALSE</span>, <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/writeLines.html'>writeLines</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Package: example"</span>,
+             <span class='st'>"Version: 0.0.1"</span>,
+             <span class='st'>"LinkingTo: cpp11, dust"</span><span class='op'>)</span>,
+           <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='va'>dest</span>, <span class='st'>"DESCRIPTION"</span><span class='op'>)</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/writeLines.html'>writeLines</a></span><span class='op'>(</span><span class='st'>"useDynLib('example', .registration = TRUE)"</span>,
+           <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='va'>dest</span>, <span class='st'>"NAMESPACE"</span><span class='op'>)</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/files.html'>file.copy</a></span><span class='op'>(</span><span class='va'>path</span>, <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='va'>dest</span>, <span class='st'>"inst/dust"</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
+<span class='co'># An absolutely minimal skeleton contains a DESCRIPTION, NAMESPACE</span>
+<span class='co'># and one or more dust model files to compile:</span>
+<span class='fu'><a href='https://rdrr.io/r/base/list.files.html'>dir</a></span><span class='op'>(</span><span class='va'>dest</span>, recursive <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] "DESCRIPTION"       "inst/dust/sir.cpp" "NAMESPACE"        </div><div class='input'>
+<span class='co'># Running dust_package will fill in the rest</span>
+<span class='fu'>dust</span><span class='fu'>::</span><span class='fu'>dust_package</span><span class='op'>(</span><span class='va'>dest</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'><span style='color: #00BBBB;'>ℹ</span><span> 20 functions decorated with [[cpp11::register]]</span></div><div class='output co'>#&gt; <span class='message'></span><span style='color: #00BB00;'>✔</span><span> generated file </span><span style='color: #0000BB;'>cpp11.R</span><span></span></div><div class='output co'>#&gt; <span class='message'></span><span style='color: #00BB00;'>✔</span><span> generated file </span><span style='color: #0000BB;'>cpp11.cpp</span><span></span></div><div class='input'>
+<span class='co'># More files here now</span>
+<span class='fu'><a href='https://rdrr.io/r/base/list.files.html'>dir</a></span><span class='op'>(</span><span class='va'>dest</span>, recursive <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] "DESCRIPTION"       "inst/dust/sir.cpp" "NAMESPACE"        
+#&gt; [4] "R/cpp11.R"         "R/dust.R"          "src/cpp11.cpp"    
+#&gt; [7] "src/Makevars"      "src/sir.cpp"      </div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
