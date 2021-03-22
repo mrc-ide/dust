@@ -19,6 +19,8 @@
 #include <dust/particle.hpp>
 #include <dust/kernels.hpp>
 
+namespace dust {
+
 template <typename T>
 class Dust {
 public:
@@ -199,7 +201,7 @@ public:
       blockCount = n_pars_effective() * (_n_particles_each + blockSize - 1) /
         blockSize;
     }
-    run_particles<T><<<blockCount, blockSize, shared_size_bytes>>>(
+    dust::kernels::run_particles<T><<<blockCount, blockSize, shared_size_bytes>>>(
                      step_start, step_end, _particles.size(),
                      n_pars_effective(),
                      _device_data.y.data(), _device_data.y_next.data(),
@@ -213,7 +215,7 @@ public:
                      use_shared_L1);
     CUDA_CALL(cudaDeviceSynchronize());
 #else
-    run_particles<T>(step_start, step_end, _particles.size(),
+    dust::kernels::run_particles<T>(step_start, step_end, _particles.size(),
                      n_pars_effective(),
                      _device_data.y.data(), _device_data.y_next.data(),
                      _device_data.internal_int.data(),
@@ -355,7 +357,7 @@ public:
       const size_t blockSize = 128;
       const size_t blockCount =
         (n_state * n_particles + blockSize - 1) / blockSize;
-      scatter_device<real_t><<<blockCount, blockSize>>>(
+      dust::kernels::scatter_device<real_t><<<blockCount, blockSize>>>(
         _device_data.scatter_index.data(),
         _device_data.y.data(),
         _device_data.y_next.data(),
@@ -363,7 +365,7 @@ public:
         n_particles);
       CUDA_CALL(cudaDeviceSynchronize());
 #else
-      scatter_device<real_t>(
+      dust::kernels::scatter_device<real_t>(
         _device_data.scatter_index.data(),
         _device_data.y.data(),
         _device_data.y_next.data(),
@@ -803,5 +805,7 @@ private:
     }
   }
 };
+
+}
 
 #endif
