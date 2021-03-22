@@ -4,7 +4,7 @@
 namespace dust {
 
 template <typename T>
-std::vector<typename T::real_t> filter(T * obj,
+std::vector<typename T::real_t> filter(Dust<T> * obj,
                                        filter_state<typename T::real_t>& state,
                                        bool save_trajectories,
                                        std::vector<size_t> step_snapshot) {
