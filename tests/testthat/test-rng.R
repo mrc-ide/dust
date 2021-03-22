@@ -543,3 +543,10 @@ test_that("float interface works as expected", {
   rng_d$long_jump()
   expect_identical(rng_f$state(), rng_d$state())
 })
+
+
+test_that("Require double or float", {
+  expect_error(
+    dust_rng$new(1, 5, "binary16"),
+    "Invalid value for 'real_type': must be 'double' or 'float'")
+})
