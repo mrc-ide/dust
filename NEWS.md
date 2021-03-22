@@ -1,3 +1,7 @@
+# dust 0.8.15
+
+* Removed functions `dust::dust_simulate` and `dust::dust_iterate`, which were deprecated in 0.7.9 (#215)
+
 # dust 0.8.7
 
 * Invalid inputs in `rbinom` are converted into exceptions which are safely thrown even from parallel code (#190)
