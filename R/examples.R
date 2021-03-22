@@ -13,13 +13,13 @@
 ##' * `walk`: A 1D random walk, following a Gaussian distribution each
 ##'   time step.
 ##'
-##' @title Access dust's built-in examples.
+##' @title Access dust's built-in examples
 ##'
 ##' @param name The name of the example to use. There are four
 ##'   examples: `sir`, `variable`, `volatility` and `walk` (see Details).
 ##'
-##' @return A [`dust`] object that can be used to create a model.  See
-##'   examples for usage.
+##' @return A [`dust`](dust_class) object that can be used to create a
+##'   model.  See examples for usage.
 ##'
 ##' @export
 ##' @examples

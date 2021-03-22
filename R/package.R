@@ -32,8 +32,37 @@
 ##'   informational notices about updates to the cpp11 files
 ##'
 ##' @title Create dust model in package
+##'
 ##' @return Nothing, this function is called for its side effects
+##'
+##' @seealso `vignette("dust")` which contains more discussion of this
+##'   process
+##'
 ##' @export
+##'
+##' @examples
+##' # This is explained in more detail in the package vignette
+##' path <- system.file("examples/sir.cpp", package = "dust", mustWork = TRUE)
+##' dest <- tempfile()
+##' dir.create(dest)
+##' dir.create(file.path(dest, "inst/dust"), FALSE, TRUE)
+##' writeLines(c("Package: example",
+##'              "Version: 0.0.1",
+##'              "LinkingTo: cpp11, dust"),
+##'            file.path(dest, "DESCRIPTION"))
+##' writeLines("useDynLib('example', .registration = TRUE)",
+##'            file.path(dest, "NAMESPACE"))
+##' file.copy(path, file.path(dest, "inst/dust"))
+##'
+##' # An absolutely minimal skeleton contains a DESCRIPTION, NAMESPACE
+##' # and one or more dust model files to compile:
+##' dir(dest, recursive = TRUE)
+##'
+##' # Running dust_package will fill in the rest
+##' dust::dust_package(dest)
+##'
+##' # More files here now
+##' dir(dest, recursive = TRUE)
 dust_package <- function(path, quiet = FALSE) {
   ## 1. check that the package is legit
   root <- package_validate(path)

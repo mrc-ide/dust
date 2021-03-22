@@ -6,7 +6,7 @@
 ##'
 ##' @export
 ##' @examples
-##' rng <- dust_rng$new(42)
+##' rng <- dust::dust_rng$new(42)
 ##'
 ##' # Shorthand for Uniform(0, 1)
 ##' rng$unif_rand(5)
@@ -190,14 +190,14 @@ dust_rng <- R6::R6Class(
 ##' state <- rng$state()
 ##'
 ##' # We can advance this state
-##' dust_rng_state_long_jump(state)
+##' dust::dust_rng_state_long_jump(state)
 ##'
 ##' # Which gives the same result as long_jump on the original generator
 ##' rng$long_jump()$state()
 ##' rng$long_jump()$state()
 ##'
 ##' # Multiple jumps can be taken by using the "times" argument
-##' dust_rng_state_long_jump(state, 2)
+##' dust::dust_rng_state_long_jump(state, 2)
 dust_rng_state_long_jump <- function(state, times = 1L) {
   assert_is(state, "raw")
   rng <- dust_rng$new(state)

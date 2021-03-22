@@ -104,7 +104,7 @@ dust_cuda_configuration <- function(path_cuda_lib = NULL,
 ##'
 ##' @title Create CUDA options
 ##'
-##' @param ... Arguments passed to [dust::dust_cuda_configuration]
+##' @param ... Arguments passed to [dust::dust_cuda_configuration()]
 ##'
 ##' @param debug Logical, indicating if we should compile for debug
 ##'   (adding `-g`, `-G` and `-O0`)
@@ -125,7 +125,7 @@ dust_cuda_configuration <- function(path_cuda_lib = NULL,
 ##'   vector, which will be concatenated with spaces between options.
 ##'
 ##' @return An object of type `cuda_options`, which is subject to
-##'   change, but can be passed into `dust`
+##'   change, but can be passed into [dust::dust] as argument `gpu`
 ##'
 ##' @export
 ##' @examples

@@ -15,7 +15,8 @@ header <- c(
   "## really needed here as this does not *do* anything, so consider this",
   "## a hack to allow Roxygen's R6 documentation to work.",
   "",
-  "##' @rdname dust",
-  "##' @name dust")
+  "## The code and object below have exactly the interface of all generated",
+  "## dust objects, and this page acts as a reference for all such methods",
+  "## modelled on the ?regex page in base R's documentation")
 
 writeLines(c(header, txt), "R/dust_class.R")

@@ -2,7 +2,7 @@
 % Please edit documentation in R/examples.R
 \name{dust_example}
 \alias{dust_example}
-\title{Access dust's built-in examples.}
+\title{Access dust's built-in examples}
 \usage{
 dust_example(name)
 }
@@ -11,8 +11,8 @@ dust_example(name)
 examples: \code{sir}, \code{variable}, \code{volatility} and \code{walk} (see Details).}
 }
 \value{
-A \code{\link{dust}} object that can be used to create a model.  See
-examples for usage.
+A \href{dust_class}{\code{dust}} object that can be used to create a
+model.  See examples for usage.
 }
 \description{
 Access dust's built-in examples. These are compiled into the

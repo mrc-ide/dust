@@ -42,3 +42,31 @@ If your package does contain a \code{src/Makevars} file we do not
 attempt to edit it but will error if it looks like it does not
 contain these lines or similar.
 }
+\examples{
+# This is explained in more detail in the package vignette
+path <- system.file("examples/sir.cpp", package = "dust", mustWork = TRUE)
+dest <- tempfile()
+dir.create(dest)
+dir.create(file.path(dest, "inst/dust"), FALSE, TRUE)
+writeLines(c("Package: example",
+             "Version: 0.0.1",
+             "LinkingTo: cpp11, dust"),
+           file.path(dest, "DESCRIPTION"))
+writeLines("useDynLib('example', .registration = TRUE)",
+           file.path(dest, "NAMESPACE"))
+file.copy(path, file.path(dest, "inst/dust"))
+
+# An absolutely minimal skeleton contains a DESCRIPTION, NAMESPACE
+# and one or more dust model files to compile:
+dir(dest, recursive = TRUE)
+
+# Running dust_package will fill in the rest
+dust::dust_package(dest)
+
+# More files here now
+dir(dest, recursive = TRUE)
+}
+\seealso{
+\code{vignette("dust")} which contains more discussion of this
+process
+}
