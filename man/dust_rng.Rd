@@ -34,6 +34,7 @@ rng$rpois(5, 2)
 \itemize{
 \item \href{#method-new}{\code{dust_rng$new()}}
 \item \href{#method-size}{\code{dust_rng$size()}}
+\item \href{#method-real_t}{\code{dust_rng$real_t()}}
 \item \href{#method-jump}{\code{dust_rng$jump()}}
 \item \href{#method-long_jump}{\code{dust_rng$long_jump()}}
 \item \href{#method-unif_rand}{\code{dust_rng$unif_rand()}}
@@ -52,7 +53,7 @@ rng$rpois(5, 2)
 \subsection{Method \code{new()}}{
 Create a \code{dust_rng} object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$new(seed, n_generators = 1L)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$new(seed, n_generators = 1L, float = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -63,6 +64,10 @@ Create a \code{dust_rng} object
 \item{\code{n_generators}}{The number of generators to use. While this
 function never runs in parallel, this is used to create a set of
 interleaved independent generators as dust would use in a model.}
+
+\item{\code{float}}{Use \code{float} (rather than \code{double}) for the numbers.
+This will have no (or negligible) impact on speed, but exists
+to test the low-precision generators.}
 }
 \if{html}{\out{</div>}}
 }
@@ -74,6 +79,16 @@ interleaved independent generators as dust would use in a model.}
 Number of generators available
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng$size()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-real_t"></a>}}
+\if{latex}{\out{\hypertarget{method-real_t}{}}}
+\subsection{Method \code{real_t()}}{
+Indicates the floating point type
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$real_t()}\if{html}{\out{</div>}}
 }
 
 }

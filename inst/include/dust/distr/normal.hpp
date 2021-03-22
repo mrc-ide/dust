@@ -30,8 +30,8 @@ HOSTDEVICE inline real_t box_muller(rng_state_t<real_t>& rng_state) {
 __nv_exec_check_disable__
 template <typename real_t>
 HOSTDEVICE real_t rnorm(rng_state_t<real_t>& rng_state,
-             typename rng_state_t<real_t>::real_t mean,
-             typename rng_state_t<real_t>::real_t sd) {
+                        typename rng_state_t<real_t>::real_t mean,
+                        typename rng_state_t<real_t>::real_t sd) {
   real_t z = box_muller<real_t>(rng_state);
   return z * sd + mean;
 }

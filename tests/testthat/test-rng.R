@@ -115,34 +115,6 @@ test_that("binomial numbers on the 'small' path", {
 })
 
 
-test_that("binomial random numbers from floats have correct distribution", {
-  test_rbinom_double <- function(i, m, n, p) {
-    dust_rng$new(1, 1)$rbinom(m, n, p)
-  }
-  m <- 100000
-  n <- 958L
-  p <- 0.004145
-  yf <- test_rbinom_float(1L, m, n, p)
-  yd <- test_rbinom_double(1L, m, n, p)
-  expect_equal(mean(yf), mean(yd), tolerance = 1e-4)
-  expect_equal(var(yf), var(yd), tolerance = 1e-3)
-})
-
-
-test_that("binomial random numbers from floats have correct distribution", {
-  test_rbinom_double <- function(i, m, n, p) {
-    dust_rng$new(1, 1)$rbinom(m, n, p)
-  }
-  m <- 100000
-  n <- 100L
-  p <- 0.1
-  yf <- test_rbinom_float(1L, m, n, p)
-  yd <- test_rbinom_double(1L, m, n, p)
-  expect_equal(mean(yf), mean(yd), tolerance = 1e-4)
-  expect_equal(var(yf), var(yd), tolerance = 1e-3)
-})
-
-
 test_that("binomial numbers and their complement are the same (np small)", {
   m <- 100
   n <- 20L
@@ -378,6 +350,7 @@ test_that("initialise parallel rng with binary state and drop", {
   rng10 <- dust_rng$new(seed, 10L)
   rng5 <- dust_rng$new(rng10$state(), 5L)
   expect_identical(rng5$state(), rng10$state()[seq_len(5 * 4 * 8)])
+  expect_identical(dust_rng$new(rng10$state(), 5L, TRUE)$state(), rng5$state())
 })
 
 
@@ -388,6 +361,8 @@ test_that("require that raw vector is of sensible size", {
                "Expected raw vector of length as multiple of 32 for 'seed'")
   expect_error(dust_rng$new(raw(63), 1L),
                "Expected raw vector of length as multiple of 32 for 'seed'")
+  expect_error(dust_rng$new(raw(63), 1L, TRUE),
+               "Expected raw vector of length as multiple of 32 for 'seed'")
 })
 
 
@@ -397,8 +372,15 @@ test_that("initialise with NULL, generating a seed from R", {
   set.seed(1)
   rng2 <- dust_rng$new(NULL, 1L)
   rng3 <- dust_rng$new(NULL, 1L)
+  set.seed(1)
+  rng4 <- dust_rng$new(NULL, 1L, TRUE)
+  rng5 <- dust_rng$new(NULL, 1L, TRUE)
+
   expect_identical(rng2$state(), rng1$state())
   expect_false(identical(rng3$state(), rng2$state()))
+
+  expect_identical(rng4$state(), rng1$state())
+  expect_identical(rng5$state(), rng3$state())
 })
 
 
@@ -408,6 +390,9 @@ test_that("can't create rng with silly things", {
     "Invalid type for 'seed'")
   expect_error(
     dust_rng$new(function(x) 2, 1L),
+    "Invalid type for 'seed'")
+  expect_error(
+    dust_rng$new(function(x) 2, 1L, TRUE),
     "Invalid type for 'seed'")
 })
 
@@ -438,4 +423,122 @@ test_that("can jump the rng state with dust_rng_state_long_jump", {
   expect_identical(dust_rng_state_long_jump(state), r1)
   expect_identical(dust_rng_state_long_jump(state), r1)
   expect_identical(dust_rng_state_long_jump(state, 2), r2)
+})
+
+
+test_that("binomial random numbers from floats have correct distribution", {
+  m <- 100000
+  n <- 958L
+  p <- 0.004145
+  yf <- dust_rng$new(1, 1, TRUE)$rbinom(m, n, p)
+  yd <- dust_rng$new(1, 1, FALSE)$rbinom(m, n, p)
+  expect_equal(mean(yf), mean(yd), tolerance = 1e-4)
+  expect_equal(var(yf), var(yd), tolerance = 1e-3)
+})
+
+
+test_that("binomial random numbers from floats have correct distribution", {
+  m <- 100000
+  n <- 100L
+  p <- 0.1
+  yf <- dust_rng$new(1, 1, TRUE)$rbinom(m, n, p)
+  yd <- dust_rng$new(1, 1, FALSE)$rbinom(m, n, p)
+  expect_equal(mean(yf), mean(yd), tolerance = 1e-4)
+  expect_equal(var(yf), var(yd), tolerance = 1e-3)
+})
+
+
+test_that("float/double binom identical behaviour in corner cases", {
+  rng_f <- dust_rng$new(1, 1, TRUE)
+
+  ## Short circuiting does not advance rng:
+  s <- rng_f$state()
+  expect_equal(rng_f$rbinom(100, 0, 0.1), rep(0, 100))
+  expect_equal(rng_f$rbinom(100, 5, 0), rep(0, 100))
+  expect_equal(rng_f$rbinom(100, 5, 1), rep(5, 100))
+  expect_identical(rng_f$state(), s)
+
+  ## ...nor does an error
+  expect_error(
+    rng_f$rbinom(100, -1, 0.5),
+    "Invalid call to rbinom with n = -1, p = 0.5")
+  expect_identical(rng_f$state(), s)
+
+  ## and a draw and its complement are the same
+  n <- 20L
+  ans1 <- dust_rng$new(1, 1, TRUE)$rbinom(100, n, 0.2)
+  ans2 <- dust_rng$new(1, 1, TRUE)$rbinom(100, n, 0.8)
+  expect_equal(ans1, n - ans2)
+})
+
+
+test_that("poisson random numbers from floats have correct distribution", {
+  n <- 100000
+  lambda <- 10
+  yf <- dust_rng$new(1, 1, TRUE)$rpois(n, lambda)
+  yd <- dust_rng$new(1, 1, FALSE)$rpois(n, lambda)
+  expect_equal(mean(yf), mean(yd), tolerance = 1e-4)
+  expect_equal(var(yf), var(yd), tolerance = 1e-3)
+})
+
+
+test_that("uniform random numbers from floats have correct distribution", {
+  n <- 100000
+  min <- -2
+  max <- 4
+  yf <- dust_rng$new(1, 1, TRUE)$runif(n, min, max)
+  yd <- dust_rng$new(1, 1, FALSE)$runif(n, min, max)
+  expect_lt(max(abs(yf - yd)), 1e-6)
+})
+
+
+test_that("normal random numbers from floats have correct distribution", {
+  n <- 100000
+  mu <- 2
+  sd <- 0.1
+  yf <- dust_rng$new(1, 1, TRUE)$rnorm(n, mu, sd)
+  yd <- dust_rng$new(1, 1, FALSE)$rnorm(n, mu, sd)
+  expect_lt(max(abs(yf - yd)), 1e-6)
+})
+
+
+test_that("std uniform random numbers from floats have correct distribution", {
+  n <- 100000
+  yf <- dust_rng$new(1, 1, TRUE)$unif_rand(n)
+  yd <- dust_rng$new(1, 1, FALSE)$unif_rand(n)
+  expect_lt(max(abs(yf - yd)), 1e-6)
+})
+
+
+test_that("std normal random numbers from floats have correct distribution", {
+  n <- 100000
+  yf <- dust_rng$new(1, 1, TRUE)$norm_rand(n)
+  yd <- dust_rng$new(1, 1, FALSE)$norm_rand(n)
+  expect_lt(max(abs(yf - yd)), 4e-6)
+})
+
+
+test_that("exponential random numbers from floats have correct distribution", {
+  n <- 100000
+  rate <- 4
+  yf <- dust_rng$new(1, 1, TRUE)$rexp(n, rate)
+  yd <- dust_rng$new(1, 1, FALSE)$rexp(n, rate)
+  expect_lt(max(abs(yf - yd)), 1e-6)
+})
+
+
+test_that("float interface works as expected", {
+  rng_f <- dust_rng$new(1, 5, TRUE)
+  rng_d <- dust_rng$new(1, 5, FALSE)
+  expect_equal(rng_f$real_t(), "float")
+  expect_equal(rng_d$real_t(), "double")
+  expect_equal(rng_f$size(), 5L)
+  expect_equal(rng_d$size(), 5L)
+  expect_identical(rng_f$state(), rng_d$state())
+  rng_f$jump()
+  rng_d$jump()
+  expect_identical(rng_f$state(), rng_d$state())
+  rng_f$long_jump()
+  rng_d$long_jump()
+  expect_identical(rng_f$state(), rng_d$state())
 })
