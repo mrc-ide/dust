@@ -583,9 +583,6 @@ test_that("can simulate, respecting index", {
   mod <- res$new(list(), 0, np, seed = 1L)
   y <- mod$simulate(steps)
   expect_equal(dim(y), c(5, np, length(steps)))
-  cmp <- suppressWarnings(
-    dust_iterate(res$new(list(), 0, np, seed = 1L), steps))
-  expect_equal(y, cmp)
 
   mod2 <- res$new(list(), 0, np, seed = 1L)
   mod2$set_index(5)
@@ -681,4 +678,16 @@ test_that("Truncate errors past certain point", {
   expect_match(
     err$message,
     "(and 6 more)", fixed = TRUE)
+})
+
+
+test_that("steps must not be negative", {
+  res <- dust_example("sir")
+  y0 <- matrix(1, 1, 5)
+  pars <- rep(list(list(sd = 1)), 5)
+
+  mod <- res$new(list(), 0, 1)
+  expect_error(
+    mod$simulate(c(0:10, -5)),
+    "All elements of 'step_end' must be non-negative")
 })
