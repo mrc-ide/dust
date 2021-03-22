@@ -44,12 +44,12 @@ private:
   dust::shared_ptr<volatility> shared;
 };
 
-#include <cpp11/list.hpp>
-
 // Helper function for accepting values with defaults
 inline double with_default(double default_value, cpp11::sexp value) {
   return value == R_NilValue ? default_value : cpp11::as_cpp<double>(value);
 }
+
+namespace dust {
 
 template <>
 dust::pars_t<volatility> dust_pars<volatility>(cpp11::list pars) {
@@ -67,4 +67,6 @@ dust::pars_t<volatility> dust_pars<volatility>(cpp11::list pars) {
 template <>
 volatility::data_t dust_data<volatility>(cpp11::list data) {
   return volatility::data_t{cpp11::as_cpp<double>(data["observed"])};
+}
+
 }

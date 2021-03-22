@@ -54,7 +54,7 @@ private:
   dust::shared_ptr<sirs> shared;
 };
 
-#include <cpp11/list.hpp>
+namespace dust {
 template <>
 dust::pars_t<sirs> dust_pars<sirs>(cpp11::list pars) {
   // Initial state values
@@ -86,7 +86,6 @@ dust::pars_t<sirs> dust_pars<sirs>(cpp11::list pars) {
   return dust::pars_t<sirs>(shared);
 }
 
-namespace dust {
 template <>
 struct has_gpu_support<sirs> : std::true_type {};
 
@@ -109,8 +108,6 @@ void device_shared_copy<sirs>(dust::shared_ptr<sirs> shared,
   shared_real = dust::shared_copy<real_t>(shared_real, shared->beta);
   shared_real = dust::shared_copy<real_t>(shared_real, shared->gamma);
   shared_real = dust::shared_copy<real_t>(shared_real, shared->dt);
-}
-
 }
 
 template <>
@@ -140,4 +137,6 @@ DEVICE void update_device<sirs>(size_t step,
   state_next[0] = S - n_SI + n_RS;
   state_next[1] = I + n_SI - n_IR;
   state_next[2] = R + n_IR - n_RS;
+}
+
 }

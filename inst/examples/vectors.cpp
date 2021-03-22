@@ -46,6 +46,8 @@ private:
   internal_t internal;
 };
 
+namespace dust {
+
 template<>
 dust::pars_t<vectors> dust_pars<vectors>(cpp11::list user) {
   typedef typename vectors::real_t real_t;
@@ -77,4 +79,6 @@ cpp11::sexp dust_info<vectors>(const dust::pars_t<vectors>& pars) {
   cpp11::writable::strings nms({"y", "x"});
   ret.names() = nms;
   return ret;
+}
+
 }

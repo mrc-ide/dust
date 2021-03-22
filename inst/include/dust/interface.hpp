@@ -16,6 +16,8 @@
 #include <dust/device_info.hpp>
 #include <dust/filter.hpp>
 
+namespace dust {
+
 template <typename T>
 typename dust::pars_t<T> dust_pars(cpp11::list pars);
 
@@ -23,16 +25,10 @@ template <typename T>
 typename T::data_t dust_data(cpp11::list data);
 
 template <typename T>
-typename cpp11::sexp dust_info(const dust::pars_t<T>& pars);
-
-// Trivial default implementation of a method for getting back
-// arbitrary information from the object.
-template <typename T>
 cpp11::sexp dust_info(const dust::pars_t<T>& pars) {
   return R_NilValue;
 }
 
-namespace dust {
 namespace r {
 
 template <typename T>

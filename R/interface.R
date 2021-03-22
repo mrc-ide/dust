@@ -67,10 +67,12 @@
 ##'   use cpp11 for this.  Your function will look like:
 ##'
 ##' ```
+##' namespace dust {
 ##' template <>
 ##' dust::pars_t<model> dust_pars<model>(cpp11::list pars) {
 ##'   // ...
 ##'   return dust::pars_t<model>(shared, internal);
+##' }
 ##' }
 ##' ```
 ##'
@@ -85,13 +87,15 @@
 ##'   `dust::no_internal` for the missing argument.
 ##'
 ##' Your model *may* provided a template specialisation
-##'   `dust_info<model>()` returning a `cpp11::sexp` for
+##'   `dust::dust_info<model>()` returning a `cpp11::sexp` for
 ##'   returning arbitrary information back to the R session:
 ##'
 ##' ```
+##' namespace dust {
 ##' template <>
 ##' cpp11::sexp dust_info<model>(const dust::pars_t<sir>& pars) {
 ##'   return cpp11::wrap(...);
+##' }
 ##' }
 ##' ```
 ##'

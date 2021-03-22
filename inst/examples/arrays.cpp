@@ -49,6 +49,8 @@ private:
   internal_t internal;
 };
 
+namespace dust {
+
 template<>
 dust::pars_t<arrays> dust_pars<arrays>(cpp11::list user) {
   auto shared = std::make_shared<arrays::shared_t>();
@@ -77,4 +79,6 @@ cpp11::sexp dust_info<arrays>(const dust::pars_t<arrays>& pars) {
   cpp11::writable::strings nms({"y", "x"});
   ret.names() = nms;
   return ret;
+}
+
 }

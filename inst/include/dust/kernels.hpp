@@ -4,6 +4,8 @@
 #include <assert.h>
 #include <dust/utils.hpp>
 
+namespace dust {
+
 // This is the main model update, will be defined by the model code
 // (see inst/examples/variable.cpp for an example). This is unique
 // within the file in that we expect that the user will specialise it.
@@ -16,9 +18,6 @@ DEVICE void update_device(size_t step,
                    const typename T::real_t * shared_real,
                    dust::rng_state_t<typename T::real_t>& rng_state,
                    dust::interleaved<typename T::real_t> state_next);
-
-namespace dust {
-namespace kernels {
 
 // __global__ for shuffling particles
 template<typename real_t>
@@ -150,7 +149,6 @@ KERNEL void run_particles(size_t step_start,
   }
 }
 
-}
 }
 
 #endif
