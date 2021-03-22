@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.11</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.12</span>
       </span>
     </div>
 
@@ -115,11 +115,12 @@
 <span class="va">rng</span>
 <span class="co">#&gt; &lt;dust_rng&gt;</span>
 <span class="co">#&gt;   Public:</span>
-<span class="co">#&gt;     initialize: function (seed, n_generators = 1L) </span>
+<span class="co">#&gt;     initialize: function (seed, n_generators = 1L, real_type = "double") </span>
 <span class="co">#&gt;     jump: function () </span>
 <span class="co">#&gt;     long_jump: function () </span>
 <span class="co">#&gt;     norm_rand: function (n) </span>
 <span class="co">#&gt;     rbinom: function (n, size, prob) </span>
+<span class="co">#&gt;     real_type: function () </span>
 <span class="co">#&gt;     rexp: function (n, rate) </span>
 <span class="co">#&gt;     rnorm: function (n, mean, sd) </span>
 <span class="co">#&gt;     rpois: function (n, lambda) </span>
@@ -128,8 +129,10 @@
 <span class="co">#&gt;     state: function () </span>
 <span class="co">#&gt;     unif_rand: function (n) </span>
 <span class="co">#&gt;   Private:</span>
-<span class="co">#&gt;     n_generators: NULL</span>
-<span class="co">#&gt;     ptr: externalptr</span></code></pre></div>
+<span class="co">#&gt;     float: FALSE</span>
+<span class="co">#&gt;     n_generators: 1</span>
+<span class="co">#&gt;     ptr: externalptr</span>
+<span class="co">#&gt;     real_t: double</span></code></pre></div>
 <p>Currently only a few distributions are supported, with an interface that mimics R’s interface both in names of functions and of arguments, with the exception that there are no default arguments:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">rng</span><span class="op">$</span><span class="fu">rnorm</span><span class="op">(</span><span class="fl">100</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>
@@ -222,9 +225,9 @@
 <span class="co">#&gt; # A tibble: 3 x 6</span>
 <span class="co">#&gt;   expression               min median `itr/sec` mem_alloc `gc/sec`</span>
 <span class="co">#&gt;   &lt;bch:expr&gt;             &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 rng1$unif_rand(1000)    16.1   21.2    48388.    7.86KB     9.68</span>
-<span class="co">#&gt; 2 rng1$runif(1000, 0, 1)  25.0   29.1    27635.   23.58KB    11.1 </span>
-<span class="co">#&gt; 3 runif(1000)             28.7   31.9    30880.   12.75KB     6.18</span></code></pre></div>
+<span class="co">#&gt; 1 rng1$unif_rand(1000)    18.7   23.5    43631.    7.86KB    13.1 </span>
+<span class="co">#&gt; 2 rng1$runif(1000, 0, 1)  28.5   31.5    27527.   23.58KB    11.0 </span>
+<span class="co">#&gt; 3 runif(1000)             31.0   32.7    28690.   12.75KB     5.74</span></code></pre></div>
 <p>The difference between <code>unif_rand</code> and <code>runif</code> here is the cost of recycling the parameters, not the actual generation!</p>
 <p>Binomial distribution, small <code>n * p</code>, which uses an inversion algorithm</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
@@ -239,8 +242,8 @@
 <span class="co">#&gt; # A tibble: 2 x 6</span>
 <span class="co">#&gt;   expression                min median `itr/sec` mem_alloc `gc/sec`</span>
 <span class="co">#&gt;   &lt;bch:expr&gt;              &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 rng1$rbinom(1000, n, p)  43.5   48.2    20368.    3.95KB     2.04</span>
-<span class="co">#&gt; 2 rbinom(1000, n, p)       54.9   59.9    16021.   16.66KB     4.18</span></code></pre></div>
+<span class="co">#&gt; 1 rng1$rbinom(1000, n, p)  48.3   51.8    17051.    3.95KB     2.03</span>
+<span class="co">#&gt; 2 rbinom(1000, n, p)       57.9   61.4    13830.   16.66KB     2.06</span></code></pre></div>
 <p>(note we vary <code>n</code> and <code>p</code> here as we’ve optimised things for random parameter access).</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">9999</span><span class="op">:</span><span class="fl">10000</span>, length.out <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span>
@@ -253,8 +256,8 @@
 <span class="co">#&gt; # A tibble: 2 x 6</span>
 <span class="co">#&gt;   expression                min median `itr/sec` mem_alloc `gc/sec`</span>
 <span class="co">#&gt;   &lt;bch:expr&gt;              &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 rng1$rbinom(1000, n, p)  83.0   92.0    10262.    3.95KB     0   </span>
-<span class="co">#&gt; 2 rbinom(1000, n, p)       91.8  103.      9597.    14.3KB     2.03</span></code></pre></div>
+<span class="co">#&gt; 1 rng1$rbinom(1000, n, p)  89.0   95.2     8564.    3.95KB     2.04</span>
+<span class="co">#&gt; 2 rbinom(1000, n, p)       97.7  104.      7263.    14.3KB     1.98</span></code></pre></div>
 <p>Practically, performance will vary based on the parameters of the distributions and the underlying algorithms, and the principle performance gain we hope to get here is driven by the ability to parallelise safely rather than the speed of the draws themselves.</p>
 </div>
   </div>

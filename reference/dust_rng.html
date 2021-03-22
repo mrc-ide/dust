@@ -82,7 +82,7 @@ primarily meant for debugging and testing." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.11</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.12</span>
       </span>
     </div>
 
@@ -163,6 +163,7 @@ primarily meant for debugging and testing.</p>
 <ul>
 <li><p><a href='#method-new'><code>dust_rng$new()</code></a></p></li>
 <li><p><a href='#method-size'><code>dust_rng$size()</code></a></p></li>
+<li><p><a href='#method-real_type'><code>dust_rng$real_type()</code></a></p></li>
 <li><p><a href='#method-jump'><code>dust_rng$jump()</code></a></p></li>
 <li><p><a href='#method-long_jump'><code>dust_rng$long_jump()</code></a></p></li>
 <li><p><a href='#method-unif_rand'><code>dust_rng$unif_rand()</code></a></p></li>
@@ -177,7 +178,7 @@ primarily meant for debugging and testing.</p>
 <p><hr>
 <a id="method-new"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>new()</code></h3>
 <p>Create a <code>dust_rng</code> object</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>dust_rng</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>seed</span>, n_generators <span class='op'>=</span> <span class='fl'>1L</span><span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>dust_rng</span><span class='op'>$</span><span class='fu'>new</span><span class='op'>(</span><span class='va'>seed</span>, n_generators <span class='op'>=</span> <span class='fl'>1L</span>, real_type <span class='op'>=</span> <span class='st'>"double"</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
@@ -187,11 +188,21 @@ primarily meant for debugging and testing.</p>
 function never runs in parallel, this is used to create a set of
 interleaved independent generators as dust would use in a model.</p></dd>
 
+<dt><code>real_type</code></dt><dd><p>The type of floating point number to use. Currently
+only <code>float</code> and <code>double</code> are supported (with <code>double</code> being
+the default). This will have no (or negligible) impact on speed,
+but exists to test the low-precision generators.</p></dd>
+
 </dl><p></div></p>
 <p><hr>
 <a id="method-size"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>size()</code></h3>
 <p>Number of generators available</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>dust_rng</span><span class='op'>$</span><span class='fu'>size</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+
+<p><hr>
+<a id="method-real_type"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>real_type()</code></h3>
+<p>Indicates the floating point type</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_rng</span><span class='op'>$</span><span class='fu'>real_type</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 <p><hr>
 <a id="method-jump"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>jump()</code></h3>
