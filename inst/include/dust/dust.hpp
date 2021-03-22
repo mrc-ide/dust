@@ -176,6 +176,7 @@ public:
     refresh_device();
     const size_t step_start = step();
 #ifdef __NVCC__
+    const int warp_size = dust::cuda::warp_size;
     // Set up blocks and shared memory preferences
     size_t blockSize = 128;
     size_t blockCount;
