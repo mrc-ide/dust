@@ -520,69 +520,6 @@ public:
     }
   }
 
-  std::vector<real_t> filter(bool save_trajectories,
-                             std::vector<size_t> step_snapshot) {
-    const size_t n_particles = _particles.size();
-    const size_t n_data = _data.size();
-    std::vector<real_t> log_likelihood(n_pars_effective());
-    std::vector<real_t> log_likelihood_step(n_pars_effective());
-    std::vector<real_t> weights(n_particles);
-    std::vector<size_t> kappa(n_particles);
-
-    if (save_trajectories) {
-      filter_state_.trajectories.resize(_index.size(), n_particles, n_data);
-      state(filter_state_.trajectories.value_iterator());
-      filter_state_.trajectories.advance();
-    }
-
-    filter_state_.snapshots.resize(n_state_full(), n_particles, step_snapshot);
-
-    for (auto & d : _data) {
-      run(d.first);
-      compare_data(weights, d.second);
-
-      // TODO: we should cope better with the case where all weights
-      // are 0; I think that is the behaviour in the model (or rather
-      // the case where there is no data and so we do not resample)
-      //
-      // TODO: we should cope better with the case where one filter
-      // has become impossible but others continue, but that's hard!
-      auto wi = weights.begin();
-      for (size_t i = 0; i < n_pars_effective(); ++i) {
-        log_likelihood_step[i] =
-          scale_log_weights<real_t>(wi, _n_particles_each);
-        log_likelihood[i] += log_likelihood_step[i];
-        wi += _n_particles_each;
-      }
-
-      // We could move this below if wanted but we'd have to rewrite
-      // the re-sort algorithm; that would be worth doing I think
-      // https://github.com/mrc-ide/dust/issues/202
-      if (save_trajectories) {
-        state(filter_state_.trajectories.value_iterator());
-      }
-
-      resample(weights, kappa);
-
-      if (save_trajectories) {
-        std::copy(kappa.begin(), kappa.end(),
-                  filter_state_.trajectories.order_iterator());
-        filter_state_.trajectories.advance();
-      }
-
-      if (filter_state_.snapshots.is_snapshot_step(d.first)) {
-        state_full(filter_state_.snapshots.value_iterator());
-        filter_state_.snapshots.advance();
-      }
-    }
-
-    return log_likelihood;
-  }
-
-  const dust::filter_state<real_t>& filter_history() const {
-    return filter_state_;
-  }
-
 private:
   const size_t _n_pars; // 0 in the "single" case, >=1 otherwise
   const size_t _n_particles_each; // Particles per parameter set
@@ -602,9 +539,6 @@ private:
   // things. This will do for now but we'll need to consider this
   // carefully in the actual GPU implementation.
   std::vector<dust::shared_ptr<T>> _shared;
-
-  // Only used if we have data; this is going to change around a bit.
-  dust::filter_state<real_t> filter_state_;
 
   // New things for device support
   dust::device_state<real_t> _device_data;

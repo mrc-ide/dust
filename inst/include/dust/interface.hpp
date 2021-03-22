@@ -14,6 +14,7 @@
 #include <dust/rng_interface.hpp>
 #include <dust/interface_helpers.hpp>
 #include <dust/device_info.hpp>
+#include <dust/filter.hpp>
 
 template <typename T>
 typename dust::pars_t<T> dust_pars(cpp11::list pars);
@@ -393,7 +394,7 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
                         cpp11::sexp r_step_snapshot) {
-  using namespace cpp11::literals;
+  typedef typename T::real_t real_t;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
 
@@ -401,15 +402,18 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
     cpp11::stop("Data has not been set for this object");
   }
 
+  dust::filter_state<real_t> filter_state;
+
   std::vector<size_t> step_snapshot =
     dust::interface::check_step_snapshot(r_step_snapshot, obj->data());
   cpp11::writable::doubles
-    log_likelihood(obj->filter(save_trajectories, step_snapshot));
+    log_likelihood(dust::filter(obj, filter_state,
+                                save_trajectories, step_snapshot));
 
   cpp11::sexp r_trajectories, r_snapshots;
 
   if (save_trajectories) {
-    auto& trajectories = obj->filter_history().trajectories;
+    const auto& trajectories = filter_state.trajectories;
     cpp11::writable::doubles trajectories_data(trajectories.size());
     trajectories.history(REAL(trajectories_data));
     trajectories_data.attr("dim") =
@@ -419,7 +423,7 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
   }
 
   if (r_step_snapshot != R_NilValue) {
-    auto& snapshots = obj->filter_history().snapshots;
+    const auto& snapshots = filter_state.snapshots;
     cpp11::writable::doubles snapshots_data(snapshots.size());
     snapshots.history(REAL(snapshots_data));
     snapshots_data.attr("dim") =
@@ -428,6 +432,7 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
     r_snapshots = snapshots_data;
   }
 
+  using namespace cpp11::literals;
   return cpp11::writable::list({"log_likelihood"_nm = log_likelihood,
                                 "trajectories"_nm = r_trajectories,
                                 "snapshots"_nm = r_snapshots});
