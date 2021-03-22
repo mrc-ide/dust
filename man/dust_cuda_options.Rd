@@ -13,7 +13,7 @@ dust_cuda_options(
 )
 }
 \arguments{
-\item{...}{Arguments passed to \link{dust_cuda_configuration}}
+\item{...}{Arguments passed to \code{\link[=dust_cuda_configuration]{dust_cuda_configuration()}}}
 
 \item{debug}{Logical, indicating if we should compile for debug
 (adding \code{-g}, \code{-G} and \code{-O0})}
@@ -34,7 +34,7 @@ vector, which will be concatenated with spaces between options.}
 }
 \value{
 An object of type \code{cuda_options}, which is subject to
-change, but can be passed into \code{dust}
+change, but can be passed into \link{dust} as argument \code{gpu}
 }
 \description{
 Create options for compiling for CUDA.  Unless you need to change

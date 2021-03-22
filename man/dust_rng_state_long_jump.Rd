@@ -31,12 +31,12 @@ rng <- dust::dust_rng$new(1)
 state <- rng$state()
 
 # We can advance this state
-dust_rng_state_long_jump(state)
+dust::dust_rng_state_long_jump(state)
 
 # Which gives the same result as long_jump on the original generator
 rng$long_jump()$state()
 rng$long_jump()$state()
 
 # Multiple jumps can be taken by using the "times" argument
-dust_rng_state_long_jump(state, 2)
+dust::dust_rng_state_long_jump(state, 2)
 }

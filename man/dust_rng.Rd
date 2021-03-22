@@ -9,7 +9,7 @@ numbers with the same RNG as dust uses internally.  This is
 primarily meant for debugging and testing.
 }
 \examples{
-rng <- dust_rng$new(42)
+rng <- dust::dust_rng$new(42)
 
 # Shorthand for Uniform(0, 1)
 rng$unif_rand(5)

@@ -6,8 +6,19 @@
 ## really needed here as this does not *do* anything, so consider this
 ## a hack to allow Roxygen's R6 documentation to work.
 
-##' @rdname dust
-##' @name dust
+## The code and object below have exactly the interface of all generated
+## dust objects, and this page acts as a reference for all such methods
+## modelled on the ?regex page in base R's documentation
+##' @name dust_class
+##' @rdname dust_class
+##' @title The dust class
+##'
+##' @description
+##'
+##' All "dust" dust models are really [R6][R6::R6Class] objects and
+##'   expose the same set of "methods".  To create a dust model of
+##'   your own, see [dust::dust] and to interact with some built-in
+##'   ones see [dust::dust_example()]
 dust_class <- R6::R6Class(
   "dust",
   cloneable = FALSE,

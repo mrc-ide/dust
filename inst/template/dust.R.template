@@ -1,3 +1,13 @@
+##' @name dust_class
+##' @rdname dust_class
+##' @title The dust class
+##'
+##' @description
+##'
+##' All "dust" dust models are really [R6][R6::R6Class] objects and
+##'   expose the same set of "methods".  To create a dust model of
+##'   your own, see [dust::dust] and to interact with some built-in
+##'   ones see [dust::dust_example()]
 {{name}} <- R6::R6Class(
   "dust",
   cloneable = FALSE,

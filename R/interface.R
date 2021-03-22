@@ -1,6 +1,7 @@
 ##' Create a dust model from a C++ input file.  This function will
 ##' compile the dust support around your model and return an object
-##' that can be used to work with the model (see the Details below).
+##' that can be used to work with the model (see the Details below,
+##' and [dust_class]).
 ##'
 ##' @section Input requirements:
 ##'
@@ -166,6 +167,9 @@
 ##'   dust::dust_cuda_options(debug = TRUE)`). Note that due to the
 ##'   use of the `__syncwarp()` primitive this may require a GPU with
 ##'   compute version 70 or higher.
+##'
+##' @seealso [dust_class] for a description of the class of created
+##'   objects, and [dust::dust_example()] for some pre-built examples.
 ##'
 ##' @export
 ##' @examples
