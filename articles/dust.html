@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.16</span>
       </span>
     </div>
 
@@ -315,21 +315,21 @@
 <p>and we can run the model for 100 steps, which returns the state at the end of the walk (and not at any intermediate steps):</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>
-<span class="co">#&gt;           [,1]     [,2]      [,3]     [,4]     [,5]   [,6]      [,7]      [,8]</span>
-<span class="co">#&gt; [1,] -13.67372 3.110994 -6.253228 10.10082 5.436617 10.916 -11.99601 -14.25979</span>
-<span class="co">#&gt;           [,9]     [,10]     [,11]     [,12]     [,13]     [,14]    [,15]</span>
-<span class="co">#&gt; [1,] -9.961339 -13.01427 -2.872751 -3.704519 -5.897327 -13.30985 10.33731</span>
-<span class="co">#&gt;          [,16]    [,17]    [,18]    [,19]    [,20]</span>
-<span class="co">#&gt; [1,] -2.994377 11.08717 9.522184 6.156312 4.580072</span></code></pre></div>
+<span class="co">#&gt;          [,1]     [,2]     [,3]     [,4]     [,5]     [,6]     [,7]     [,8]</span>
+<span class="co">#&gt; [1,] 20.61549 5.769704 26.36577 7.739138 -13.8473 -18.9271 6.198417 3.078668</span>
+<span class="co">#&gt;          [,9]     [,10]    [,11]     [,12]    [,13]     [,14]    [,15]    [,16]</span>
+<span class="co">#&gt; [1,] 13.42673 -6.634064 7.233586 -1.017473 4.428621 -12.03998 5.153743 2.855892</span>
+<span class="co">#&gt;          [,17]    [,18]     [,19]     [,20]</span>
+<span class="co">#&gt; [1,] -3.061384 4.285187 -10.77324 -4.880723</span></code></pre></div>
 <p>We can also directly retrieve the state from our object</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt;           [,1]     [,2]      [,3]     [,4]     [,5]   [,6]      [,7]      [,8]</span>
-<span class="co">#&gt; [1,] -13.67372 3.110994 -6.253228 10.10082 5.436617 10.916 -11.99601 -14.25979</span>
-<span class="co">#&gt;           [,9]     [,10]     [,11]     [,12]     [,13]     [,14]    [,15]</span>
-<span class="co">#&gt; [1,] -9.961339 -13.01427 -2.872751 -3.704519 -5.897327 -13.30985 10.33731</span>
-<span class="co">#&gt;          [,16]    [,17]    [,18]    [,19]    [,20]</span>
-<span class="co">#&gt; [1,] -2.994377 11.08717 9.522184 6.156312 4.580072</span></code></pre></div>
+<span class="co">#&gt;          [,1]     [,2]     [,3]     [,4]     [,5]     [,6]     [,7]     [,8]</span>
+<span class="co">#&gt; [1,] 20.61549 5.769704 26.36577 7.739138 -13.8473 -18.9271 6.198417 3.078668</span>
+<span class="co">#&gt;          [,9]     [,10]    [,11]     [,12]    [,13]     [,14]    [,15]    [,16]</span>
+<span class="co">#&gt; [1,] 13.42673 -6.634064 7.233586 -1.017473 4.428621 -12.03998 5.153743 2.855892</span>
+<span class="co">#&gt;          [,17]    [,18]     [,19]     [,20]</span>
+<span class="co">#&gt; [1,] -3.061384 4.285187 -10.77324 -4.880723</span></code></pre></div>
 <p>At this point our particles have been run for 100 steps with standard deviation 1 at each step so they <a href="https://en.wikipedia.org/wiki/Random_walk#Gaussian_random_walk">will be distributed following Normal(0, 10)</a>. This is easier to see if we simulate a lot of particles:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">walk</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">20000</span><span class="op">)</span>
@@ -347,22 +347,22 @@
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">walk</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">20</span>, n_threads <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>
-<span class="co">#&gt;          [,1]     [,2]      [,3]      [,4]     [,5]      [,6]      [,7]</span>
-<span class="co">#&gt; [1,] 6.129184 12.98643 -18.65693 -6.809684 1.860792 -17.80817 -5.030228</span>
-<span class="co">#&gt;           [,8]      [,9]    [,10]       [,11]    [,12]    [,13]     [,14]</span>
-<span class="co">#&gt; [1,] -10.60441 -5.049946 12.85026 -0.06231866 3.006715 12.26228 -18.40801</span>
-<span class="co">#&gt;          [,15]    [,16]    [,17]     [,18]    [,19]     [,20]</span>
-<span class="co">#&gt; [1,] -17.01418 5.898381 3.687488 -12.55586 3.867125 -3.547268</span></code></pre></div>
+<span class="co">#&gt;          [,1]      [,2]    [,3]      [,4]     [,5]      [,6]      [,7]     [,8]</span>
+<span class="co">#&gt; [1,] 3.938212 -23.95932 9.08912 -2.203082 11.17009 -10.44493 0.7471921 -2.68707</span>
+<span class="co">#&gt;          [,9]    [,10]     [,11]     [,12]     [,13]    [,14]    [,15]</span>
+<span class="co">#&gt; [1,] 10.12658 5.760268 -7.195194 -6.113181 -3.990931 7.885667 6.234386</span>
+<span class="co">#&gt;          [,16]     [,17]    [,18]    [,19]     [,20]</span>
+<span class="co">#&gt; [1,] -14.36544 0.3605085 2.814531 17.63138 -12.09137</span></code></pre></div>
 <p>Running this same code in series will give the same results:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">walk</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">20</span>, n_threads <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>
-<span class="co">#&gt;          [,1]      [,2]      [,3]      [,4]     [,5]     [,6]     [,7]    [,8]</span>
-<span class="co">#&gt; [1,] 21.34704 -11.55056 -9.199005 -4.498472 17.00522 8.288472 20.89146 10.9749</span>
-<span class="co">#&gt;           [,9]      [,10]    [,11]   [,12]    [,13]     [,14]     [,15]</span>
-<span class="co">#&gt; [1,] 0.6363977 -0.6461758 -19.8105 14.0618 7.022483 -2.183912 -12.34701</span>
-<span class="co">#&gt;          [,16]     [,17]   [,18]     [,19]    [,20]</span>
-<span class="co">#&gt; [1,] -9.804574 -6.042874 3.68925 -2.949761 5.982211</span></code></pre></div>
+<span class="co">#&gt;          [,1]     [,2]     [,3]    [,4]     [,5]     [,6]    [,7]      [,8]</span>
+<span class="co">#&gt; [1,] 13.76641 9.986939 23.55216 17.9025 17.36866 -15.9108 7.02436 0.7162025</span>
+<span class="co">#&gt;           [,9]     [,10]    [,11]     [,12]     [,13]     [,14]    [,15]</span>
+<span class="co">#&gt; [1,] -15.60228 -10.96148 4.187139 -2.367823 0.9826812 -8.113001 15.42503</span>
+<span class="co">#&gt;          [,16]    [,17]    [,18]     [,19]    [,20]</span>
+<span class="co">#&gt; [1,] -11.68181 4.135251 18.31827 -22.70782 4.749455</span></code></pre></div>
 <p>We use as many random number generators as there are particles, so if you run fewer particles or more, increase the threads or decrease, the results will be the same (see <code><a href="../articles/design.html">vignette("design")</a></code> for more on this).</p>
 </div>
 </div>
@@ -566,47 +566,47 @@
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span><span class="fl">10</span><span class="op">)</span>
 <span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]</span>
-<span class="co">#&gt; [1,]   12   15    9    9   15   13   13   11   10    10    16    14    15    11</span>
+<span class="co">#&gt; [1,]   13   14   16   10   13   16   14   17   10    10     7    10    16    11</span>
 <span class="co">#&gt;      [,15] [,16] [,17] [,18] [,19] [,20]</span>
-<span class="co">#&gt; [1,]    10    15    13    11    16    20</span>
+<span class="co">#&gt; [1,]    15    18    11    13     9    16</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span><span class="fl">20</span><span class="op">)</span>
 <span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]</span>
-<span class="co">#&gt; [1,]   13   16   12   10   16   11   14   11   17    10    24    19    17    15</span>
+<span class="co">#&gt; [1,]   14   21   18   17   21   17   10   26   15    11     7    11    23     8</span>
 <span class="co">#&gt;      [,15] [,16] [,17] [,18] [,19] [,20]</span>
-<span class="co">#&gt; [1,]    14    22    13    14    16    25</span></code></pre></div>
+<span class="co">#&gt; [1,]    20    22    18     8    14    19</span></code></pre></div>
 <p>This is useful when you have many compartments or variables that you are not that interested in during running the model. For a particle filter you might be fitting to the sum of all infected individuals over a number of compartments, so rather than returning hundreds of values back (times hundreds of particles) you can return back much less data and keep things nice and fast.</p>
 <p>If the index vector is named, then those names will be used as row names on the returned object:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">set_index</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>I <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span><span class="op">)</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span><span class="fl">30</span><span class="op">)</span>
 <span class="co">#&gt;   [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]</span>
-<span class="co">#&gt; I   14   15   21   19   17   10   19   26   21    12    31    25    24    19</span>
+<span class="co">#&gt; I   13   34   21   24   23   21   16   39   16    14    10    15    29     9</span>
 <span class="co">#&gt;   [,15] [,16] [,17] [,18] [,19] [,20]</span>
-<span class="co">#&gt; I    18    30    19    21    23    38</span></code></pre></div>
+<span class="co">#&gt; I    29    32    27     9    19    25</span></code></pre></div>
 <p>We can always use <code>$state()</code> to get the whole state vector:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]</span>
-<span class="co">#&gt; [1,]  989  979  983  982  975  988  979  977  982   987   967   973   977   979</span>
-<span class="co">#&gt; [2,]   14   15   21   19   17   10   19   26   21    12    31    25    24    19</span>
-<span class="co">#&gt; [3,]    7   16    6    9   18   12   12    7    7    11    12    12     9    12</span>
-<span class="co">#&gt; [4,]   11   21   17   18   25   12   21   23   18    13    33    27    23    21</span>
-<span class="co">#&gt; [5,]    3    1    1    4    1    0    3    2    2     0     4     4     4     2</span>
+<span class="co">#&gt; [1,]  989  963  977  978  977  978  986  957  984   990   992   987   964   991</span>
+<span class="co">#&gt; [2,]   13   34   21   24   23   21   16   39   16    14    10    15    29     9</span>
+<span class="co">#&gt; [3,]    8   13   12    8   10   11    8   14   10     6     8     8    17    10</span>
+<span class="co">#&gt; [4,]   11   37   23   22   23   22   14   43   16    10     8    13    36     9</span>
+<span class="co">#&gt; [5,]    0    4    1    2    2    1    4    4    2     0     0     2     1     0</span>
 <span class="co">#&gt;      [,15] [,16] [,17] [,18] [,19] [,20]</span>
-<span class="co">#&gt; [1,]   977   966   975   979   977   964</span>
-<span class="co">#&gt; [2,]    18    30    19    21    23    38</span>
-<span class="co">#&gt; [3,]    15    14    16    10    10     8</span>
-<span class="co">#&gt; [4,]    23    34    25    21    23    36</span>
-<span class="co">#&gt; [5,]     2     4     4     6     3     8</span></code></pre></div>
+<span class="co">#&gt; [1,]   967   966   974   988   983   971</span>
+<span class="co">#&gt; [2,]    29    32    27     9    19    25</span>
+<span class="co">#&gt; [3,]    14    12     9    13     8    14</span>
+<span class="co">#&gt; [4,]    33    34    26    12    17    29</span>
+<span class="co">#&gt; [5,]     2     4     4     1     3     2</span></code></pre></div>
 <p>or select only variables of interest:</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>S <span class="op">=</span> <span class="fl">1L</span>, R <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt;   [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]</span>
-<span class="co">#&gt; S  989  979  983  982  975  988  979  977  982   987   967   973   977   979</span>
-<span class="co">#&gt; R    7   16    6    9   18   12   12    7    7    11    12    12     9    12</span>
+<span class="co">#&gt; S  989  963  977  978  977  978  986  957  984   990   992   987   964   991</span>
+<span class="co">#&gt; R    8   13   12    8   10   11    8   14   10     6     8     8    17    10</span>
 <span class="co">#&gt;   [,15] [,16] [,17] [,18] [,19] [,20]</span>
-<span class="co">#&gt; S   977   966   975   979   977   964</span>
-<span class="co">#&gt; R    15    14    16    10    10     8</span></code></pre></div>
+<span class="co">#&gt; S   967   966   974   988   983   971</span>
+<span class="co">#&gt; R    14    12     9    13     8    14</span></code></pre></div>
 <p>Again, this copies names from the index if they are present.</p>
 <p>In order to run the simulation beginning-to-end, we use the <code>$simulate</code> method on a dust object, which runs over a set of steps and records the state at each.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
@@ -640,43 +640,43 @@
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">walk</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">20</span><span class="op">)</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-<span class="co">#&gt;           [,1]      [,2]      [,3]     [,4]      [,5]      [,6]       [,7]</span>
-<span class="co">#&gt; [1,] -1.401443 0.9266538 -1.424931 1.746484 -1.076961 0.2809532 -0.9559334</span>
-<span class="co">#&gt;           [,8]       [,9]    [,10]   [,11]      [,12]     [,13]    [,14]</span>
-<span class="co">#&gt; [1,] 0.3664959 -0.5491658 1.224428 1.06912 -0.3614411 -1.040879 1.078121</span>
-<span class="co">#&gt;          [,15]    [,16]     [,17]     [,18]      [,19]       [,20]</span>
-<span class="co">#&gt; [1,] -1.035576 1.323204 0.7745092 0.8839917 -0.1306653 -0.03010773</span></code></pre></div>
+<span class="co">#&gt;          [,1]     [,2]       [,3]      [,4]     [,5]      [,6]     [,7]</span>
+<span class="co">#&gt; [1,] 2.616121 -1.56256 -0.3815052 -1.772671 0.170382 0.1105864 1.148542</span>
+<span class="co">#&gt;            [,8]      [,9]      [,10]     [,11]     [,12]      [,13]    [,14]</span>
+<span class="co">#&gt; [1,] -0.3860351 0.4945424 -0.9192242 0.5272379 0.6895726 -0.5766874 0.671534</span>
+<span class="co">#&gt;         [,15]    [,16]     [,17]    [,18]      [,19]     [,20]</span>
+<span class="co">#&gt; [1,] 0.122104 1.907702 0.9681746 1.262717 -0.3591102 -1.461786</span></code></pre></div>
 <p>Suppose that we wanted to reorder these particles so that they were in decreasing order:</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">index</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span><span class="op">(</span><span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
 <span class="va">index</span>
-<span class="co">#&gt;  [1]  3  1  5 13 15  7  9 12 19 20  6  8 17 18  2 11 14 10 16  4</span></code></pre></div>
+<span class="co">#&gt;  [1]  4  2 20 10 13  8  3 19  6 15  5  9 11 14 12 17  7 18 16  1</span></code></pre></div>
 <p>We then pass this <code>index</code> to the reorder method:</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">reorder</span><span class="op">(</span><span class="va">index</span><span class="op">)</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt;           [,1]      [,2]      [,3]      [,4]      [,5]       [,6]       [,7]</span>
-<span class="co">#&gt; [1,] -1.424931 -1.401443 -1.076961 -1.040879 -1.035576 -0.9559334 -0.5491658</span>
-<span class="co">#&gt;            [,8]       [,9]       [,10]     [,11]     [,12]     [,13]     [,14]</span>
-<span class="co">#&gt; [1,] -0.3614411 -0.1306653 -0.03010773 0.2809532 0.3664959 0.7745092 0.8839917</span>
-<span class="co">#&gt;          [,15]   [,16]    [,17]    [,18]    [,19]    [,20]</span>
-<span class="co">#&gt; [1,] 0.9266538 1.06912 1.078121 1.224428 1.323204 1.746484</span></code></pre></div>
+<span class="co">#&gt;           [,1]     [,2]      [,3]       [,4]       [,5]       [,6]       [,7]</span>
+<span class="co">#&gt; [1,] -1.772671 -1.56256 -1.461786 -0.9192242 -0.5766874 -0.3860351 -0.3815052</span>
+<span class="co">#&gt;            [,8]      [,9]    [,10]    [,11]     [,12]     [,13]    [,14]</span>
+<span class="co">#&gt; [1,] -0.3591102 0.1105864 0.122104 0.170382 0.4945424 0.5272379 0.671534</span>
+<span class="co">#&gt;          [,15]     [,16]    [,17]    [,18]    [,19]    [,20]</span>
+<span class="co">#&gt; [1,] 0.6895726 0.9681746 1.148542 1.262717 1.907702 2.616121</span></code></pre></div>
 <p>We can then continue our random walk. There is no need to sample every particle and particles can appear multiple times in the sample, but the total number must be conserved. Suppose that we want to to sample particles based on how close they are to 0:</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">dnorm</a></span><span class="op">(</span><span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
 <span class="va">index</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">TRUE</span> , prob <span class="op">=</span> <span class="va">p</span><span class="op">)</span>
 <span class="va">index</span>
-<span class="co">#&gt;  [1] 10 11  6 17  5  5  8 19  4 12  7 11  6  9 18 16 14 18 11  8</span></code></pre></div>
+<span class="co">#&gt;  [1] 13 11 15 13  4  4 17 18 10 11 13 13  6  6  7 10 16  9 16  3</span></code></pre></div>
 <p>We can then apply this sampling:</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">reorder</span><span class="op">(</span><span class="va">index</span><span class="op">)</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt;             [,1]      [,2]       [,3]     [,4]      [,5]      [,6]       [,7]</span>
-<span class="co">#&gt; [1,] -0.03010773 0.2809532 -0.9559334 1.078121 -1.035576 -1.035576 -0.3614411</span>
-<span class="co">#&gt;          [,8]      [,9]     [,10]      [,11]     [,12]      [,13]      [,14]</span>
-<span class="co">#&gt; [1,] 1.323204 -1.040879 0.3664959 -0.5491658 0.2809532 -0.9559334 -0.1306653</span>
-<span class="co">#&gt;         [,15]   [,16]     [,17]    [,18]     [,19]      [,20]</span>
-<span class="co">#&gt; [1,] 1.224428 1.06912 0.8839917 1.224428 0.2809532 -0.3614411</span></code></pre></div>
+<span class="co">#&gt;           [,1]     [,2]      [,3]      [,4]       [,5]       [,6]     [,7]</span>
+<span class="co">#&gt; [1,] 0.5272379 0.170382 0.6895726 0.5272379 -0.9192242 -0.9192242 1.148542</span>
+<span class="co">#&gt;          [,8]     [,9]    [,10]     [,11]     [,12]      [,13]      [,14]</span>
+<span class="co">#&gt; [1,] 1.262717 0.122104 0.170382 0.5272379 0.5272379 -0.3860351 -0.3860351</span>
+<span class="co">#&gt;           [,15]    [,16]     [,17]     [,18]     [,19]     [,20]</span>
+<span class="co">#&gt; [1,] -0.3815052 0.122104 0.9681746 0.1105864 0.9681746 -1.461786</span></code></pre></div>
 <p>This is not terribly useful on its own but is a key part of a particle filter.</p>
 </div>
 <div id="set-initial-state" class="section level3">
@@ -712,25 +712,25 @@
 <code class="sourceCode R"><span class="va">step0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">30</span>, <span class="fl">20</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="va">model</span> <span class="op">&lt;-</span> <span class="va">sir</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">20</span><span class="op">)</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">set_state</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="fl">10</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, <span class="va">step0</span><span class="op">)</span></code></pre></div>
-<p>After initialisation, our model is now at 28, the last step referenced in <code>step0</code></p>
+<p>After initialisation, our model is now at 30, the last step referenced in <code>step0</code></p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">step</span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; [1] 28</span></code></pre></div>
+<span class="co">#&gt; [1] 30</span></code></pre></div>
 <p>and the initial states are a mix of states, despite having been seeded with the same 10 infected individuals, as different particles have run for different numbers of steps to reach this common time point:</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]</span>
-<span class="co">#&gt; [1,]  990  993  984 1000  990  994  990  975  992   985   996   996   998   997</span>
-<span class="co">#&gt; [2,]   14   15   20   10   15   16   16   27   12    17    14    13    10     7</span>
-<span class="co">#&gt; [3,]    6    2    6    0    5    0    4    8    6     8     0     1     2     6</span>
-<span class="co">#&gt; [4,]   10    7   16    0   10    6   10   25    8    15     4     4     2     3</span>
-<span class="co">#&gt; [5,]    4    3    7    0    6    3    3    8    1     2     3     4     2     1</span>
+<span class="co">#&gt; [1,]  976  999  985  993  999  988 1000  988  990   977   983   990  1000   998</span>
+<span class="co">#&gt; [2,]   26    9   20    9   11   14   10   18   11    26    18    17     9     9</span>
+<span class="co">#&gt; [3,]    8    2    5    8    0    8    0    4    9     7     9     3     1     3</span>
+<span class="co">#&gt; [4,]   24    1   15    7    1   12    0   12   10    23    17    10     0     2</span>
+<span class="co">#&gt; [5,]    6    1    2    0    1    1    0    2    0     4     1     1     0     0</span>
 <span class="co">#&gt;      [,15] [,16] [,17] [,18] [,19] [,20]</span>
-<span class="co">#&gt; [1,]   999   997   994   996  1000   983</span>
-<span class="co">#&gt; [2,]     9    10    14     7    10    21</span>
-<span class="co">#&gt; [3,]     2     3     2     7     0     6</span>
-<span class="co">#&gt; [4,]     1     3     6     4     0    17</span>
-<span class="co">#&gt; [5,]     1     1     6     1     0     4</span></code></pre></div>
+<span class="co">#&gt; [1,]   996   999   985  1000   988   982</span>
+<span class="co">#&gt; [2,]    11     9    21    10    17    16</span>
+<span class="co">#&gt; [3,]     3     2     4     0     5    12</span>
+<span class="co">#&gt; [4,]     4     1    15     0    12    18</span>
+<span class="co">#&gt; [5,]     0     1     4     0     1     0</span></code></pre></div>
 <p>From this point we can continue to run the simulation as before:</p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">steps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="va">step0</span><span class="op">)</span>, <span class="fl">600</span>, by <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>
@@ -748,14 +748,14 @@
 <span class="co">#&gt; [1] 0</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]</span>
-<span class="co">#&gt; [1,] 1000 1000 1001 1000 1000 1003 1003  999 1002  1001  1003   999  1003  1002</span>
-<span class="co">#&gt; [2,]   10   10    9   10   10    7    7   11    8     9     7    11     7     8</span>
+<span class="co">#&gt; [1,]  995 1003 1002 1004 1004 1000  999 1002  997  1002  1000   999  1003   998</span>
+<span class="co">#&gt; [2,]   15    7    8    6    6   10   11    8   13     8    10    11     7    12</span>
 <span class="co">#&gt; [3,]    0    0    0    0    0    0    0    0    0     0     0     0     0     0</span>
 <span class="co">#&gt; [4,]    0    0    0    0    0    0    0    0    0     0     0     0     0     0</span>
 <span class="co">#&gt; [5,]    0    0    0    0    0    0    0    0    0     0     0     0     0     0</span>
 <span class="co">#&gt;      [,15] [,16] [,17] [,18] [,19] [,20]</span>
-<span class="co">#&gt; [1,]  1003   998  1000  1000  1002  1002</span>
-<span class="co">#&gt; [2,]     7    12    10    10     8     8</span>
+<span class="co">#&gt; [1,]  1001  1004   999  1003  1001  1001</span>
+<span class="co">#&gt; [2,]     9     6    11     7     9     9</span>
 <span class="co">#&gt; [3,]     0     0     0     0     0     0</span>
 <span class="co">#&gt; [4,]     0     0     0     0     0     0</span>
 <span class="co">#&gt; [5,]     0     0     0     0     0     0</span></code></pre></div>
@@ -763,20 +763,20 @@
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">model</span><span class="op">$</span><span class="fu">set_state</span><span class="op">(</span><span class="va">state0</span>, <span class="va">step0</span><span class="op">)</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">step</span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; [1] 28</span>
+<span class="co">#&gt; [1] 30</span>
 <span class="va">model</span><span class="op">$</span><span class="fu">state</span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]</span>
-<span class="co">#&gt; [1,]  994  999  985 1000  990 1002  998  970 1000   995   999   996  1001   996</span>
-<span class="co">#&gt; [2,]   12    9   19    9   16    7   11   24    3    13    11    14     8    13</span>
-<span class="co">#&gt; [3,]    4    2    6    1    4    1    1   16    7     2     0     0     1     1</span>
-<span class="co">#&gt; [4,]    6    1   16    0   10    1    5   29    2     6     4     3     2     6</span>
-<span class="co">#&gt; [5,]    1    1    5    0    3    0    1    6    1     1     2     3     2     2</span>
+<span class="co">#&gt; [1,]  951 1003  996  999 1003  988  999  997  969   982   985   992  1003   993</span>
+<span class="co">#&gt; [2,]   43    5    8   10    6   19   11    9   26    20    14    14     7    15</span>
+<span class="co">#&gt; [3,]   16    2    6    1    1    3    0    4   15     8    11     4     0     2</span>
+<span class="co">#&gt; [4,]   44    0    6    5    1   12    0    5   28    20    15     7     0     5</span>
+<span class="co">#&gt; [5,]    4    0    0    1    1    0    0    0    4     3     0     1     0     2</span>
 <span class="co">#&gt;      [,15] [,16] [,17] [,18] [,19] [,20]</span>
-<span class="co">#&gt; [1,]  1003   993   997   993  1002   998</span>
-<span class="co">#&gt; [2,]     6    16    11    13     8    10</span>
-<span class="co">#&gt; [3,]     1     1     2     4     0     2</span>
-<span class="co">#&gt; [4,]     0     5     3     7     0     4</span>
-<span class="co">#&gt; [5,]     0     4     3     1     0     1</span></code></pre></div>
+<span class="co">#&gt; [1,]   998  1003   986  1002   995   990</span>
+<span class="co">#&gt; [2,]    12     7    17     8     9    10</span>
+<span class="co">#&gt; [3,]     0     0     7     0     6    10</span>
+<span class="co">#&gt; [4,]     3     1    13     1     6    11</span>
+<span class="co">#&gt; [5,]     1     1     3     0     0     1</span></code></pre></div>
 </div>
 <div id="reset-the-model" class="section level3">
 <h3 class="hasAnchor">
@@ -883,7 +883,7 @@ License: CC0</code></pre>
 #&gt;     ├── cpp11.cpp
 #&gt;     └── walk.cpp</code></pre>
 <p>The file <code>src/walk.cpp</code> are generated by dust and should not be edited. They include your model, but also a bit of helper code:</p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode cc"><code class="sourceCode cpp"><span id="cb48-1"><a href="#cb48-1"></a><span class="co">// Generated by dust (version 0.8.15) - do not edit</span></span>
+<div class="sourceCode" id="cb48"><pre class="sourceCode cc"><code class="sourceCode cpp"><span id="cb48-1"><a href="#cb48-1"></a><span class="co">// Generated by dust (version 0.8.16) - do not edit</span></span>
 <span id="cb48-2"><a href="#cb48-2"></a><span class="pp">#include </span><span class="im">&lt;cpp11.hpp&gt;</span></span>
 <span id="cb48-3"><a href="#cb48-3"></a>[[<span class="at">cpp11</span>::<span class="at">register</span>]]</span>
 <span id="cb48-4"><a href="#cb48-4"></a>SEXP dust_walk_alloc(cpp11::list r_pars, <span class="dt">bool</span> pars_multi, <span class="dt">size_t</span> step,</span>
@@ -1083,7 +1083,7 @@ License: CC0</code></pre>
 <span id="cb48-198"><a href="#cb48-198"></a>}</span></code></pre></div>
 <p>The file <code>R/dust.R</code> contains the R interface generated by dust with the constructor objects (all models’ constructors will be collected into this file, which also should not be edited).</p>
 <div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">## Generated by dust (version 0.8.15) - do not edit</span>
+<code class="sourceCode R"><span class="co">## Generated by dust (version 0.8.16) - do not edit</span>
 <span class="va">walk</span> <span class="op">&lt;-</span> <span class="fu">R6</span><span class="fu">::</span><span class="kw"><a href="https://r6.r-lib.org/reference/R6Class.html">R6Class</a></span><span class="op">(</span>
   <span class="st">"dust"</span>,
   cloneable <span class="op">=</span> <span class="cn">FALSE</span>,
