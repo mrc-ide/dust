@@ -26,28 +26,28 @@ public:
       } else {
         xoshiro_jump(s);
       }
-      _state.push_back(s);
+      state_.push_back(s);
     }
   }
 
   size_t size() const {
-    return _state.size();
+    return state_.size();
   }
 
   void jump() {
-    for (size_t i = 0; i < _state.size(); ++i) {
-      xoshiro_jump(_state[i]);
+    for (size_t i = 0; i < state_.size(); ++i) {
+      xoshiro_jump(state_[i]);
     }
   }
 
   void long_jump() {
-    for (size_t i = 0; i < _state.size(); ++i) {
-      xoshiro_long_jump(_state[i]);
+    for (size_t i = 0; i < state_.size(); ++i) {
+      xoshiro_long_jump(state_[i]);
     }
   }
 
   rng_state_t<T>& state(size_t i) {
-    return _state[i];
+    return state_[i];
   }
 
   std::vector<uint64_t> export_state() {
@@ -61,7 +61,7 @@ public:
     state.resize(size() * n);
     for (size_t i = 0, k = 0; i < size(); ++i) {
       for (size_t j = 0; j < n; ++j, ++k) {
-        state[k] = _state[i][j];
+        state[k] = state_[i][j];
       }
     }
   }
@@ -71,14 +71,14 @@ public:
     const size_t n = rng_state_t<T>::size();
     for (size_t i = 0; i < size(); ++i) {
       for (size_t j = 0; j < n; ++j) {
-        _state[i][j] = *it;
+        state_[i][j] = *it;
         ++it;
       }
     }
   }
 
 private:
-  std::vector<rng_state_t<T>> _state;
+  std::vector<rng_state_t<T>> state_;
 };
 
 template <typename T>

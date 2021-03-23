@@ -11,78 +11,78 @@ public:
   typedef typename T::data_t data_t;
 
   Particle(pars_t pars, size_t step) :
-    _model(pars),
-    _step(step),
-    _y(_model.initial(_step)),
-    _y_swap(_model.size()) {
+    model_(pars),
+    step_(step),
+    y_(model_.initial(step_)),
+    y_swap_(model_.size()) {
   }
 
   void run(const size_t step_end, rng_state_t<real_t>& rng_state) {
-    while (_step < step_end) {
-      _model.update(_step, _y.data(), rng_state, _y_swap.data());
-      _step++;
-      std::swap(_y, _y_swap);
+    while (step_ < step_end) {
+      model_.update(step_, y_.data(), rng_state, y_swap_.data());
+      step_++;
+      std::swap(y_, y_swap_);
     }
   }
 
   void state(const std::vector<size_t>& index,
              typename std::vector<real_t>::iterator end_state) const {
     for (size_t i = 0; i < index.size(); ++i) {
-      *(end_state + i) = _y[index[i]];
+      *(end_state + i) = y_[index[i]];
     }
   }
 
   void state_full(typename std::vector<real_t>::iterator end_state) const {
-    for (size_t i = 0; i < _y.size(); ++i) {
-      *(end_state + i) = _y[i];
+    for (size_t i = 0; i < y_.size(); ++i) {
+      *(end_state + i) = y_[i];
     }
   }
 
   size_t size() const {
-    return _y.size();
+    return y_.size();
   }
 
   size_t step() const {
-    return _step;
+    return step_;
   }
 
   void swap() {
-    std::swap(_y, _y_swap);
+    std::swap(y_, y_swap_);
   }
 
   void set_step(const size_t step) {
-    _step = step;
+    step_ = step;
   }
 
   void set_state(const Particle<T>& other) {
-    _y_swap = other._y;
+    y_swap_ = other.y_;
   }
 
   void set_pars(const Particle<T>& other, bool set_state) {
-    _model = other._model;
-    _step = other._step;
+    model_ = other.model_;
+    step_ = other.step_;
     if (set_state) {
-      _y = _model.initial(_step);
+      y_ = model_.initial(step_);
     }
   }
 
   void set_state(typename std::vector<real_t>::const_iterator state) {
-    for (size_t i = 0; i < _y.size(); ++i, ++state) {
-      _y[i] = *state;
+    for (size_t i = 0; i < y_.size(); ++i, ++state) {
+      y_[i] = *state;
     }
   }
 
   real_t compare_data(const data_t& data,
                       rng_state_t<real_t>& rng_state) {
-    return _model.compare_data(_y.data(), data, rng_state);
+    return model_.compare_data(y_.data(), data, rng_state);
   }
 
 private:
-  T _model;
-  size_t _step;
+  T model_;
+  size_t step_;
 
-  std::vector<real_t> _y;
-  std::vector<real_t> _y_swap;
+  std::vector<real_t> y_;
+  std::vector<real_t> y_swap_;
 };
 
 }
