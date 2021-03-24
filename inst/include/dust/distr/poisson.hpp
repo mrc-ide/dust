@@ -7,8 +7,8 @@ namespace dust {
 namespace distr {
 
 template <typename real_t>
-int rpois(rng_state_t<real_t>& rng_state,
-          typename rng_state_t<real_t>::real_t lambda) {
+HOSTDEVICE int rpois(rng_state_t<real_t>& rng_state,
+                     typename rng_state_t<real_t>::real_t lambda) {
   int x = 0;
   if (lambda == 0) {
     // do nothing, but leave this branch in to help the GPU
