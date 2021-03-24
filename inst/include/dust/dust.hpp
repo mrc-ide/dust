@@ -181,10 +181,10 @@ public:
     size_t blockSize = 128;
     size_t blockCount;
     bool use_shared_L1 = true;
-    size_t n_shared_int_effective = device_data_.n_shared_int +
-      dust::utils::align_padding(device_data_.n_shared_int * sizeof(int), sizeof(real_t)) / sizeof(int);
+    size_t n_shared_int_effective = device_state_.n_shared_int +
+      dust::utils::align_padding(device_state_.n_shared_int * sizeof(int), sizeof(real_t)) / sizeof(int);
     size_t shared_size_bytes = n_shared_int_effective * sizeof(int) +
-      device_data_.n_shared_real * sizeof(real_t);
+      device_state_.n_shared_real * sizeof(real_t);
     if (n_particles_each_ < warp_size || shared_size_bytes > shared_size_) {
       // If not enough particles per pars to make a whole block use
       // shared, or if shared_t too big for L1, turn it off, and run
@@ -205,27 +205,27 @@ public:
     dust::run_particles<T><<<blockCount, blockSize, shared_size_bytes>>>(
                      step_start, step_end, particles_.size(),
                      n_pars_effective(),
-                     device_data_.y.data(), device_data_.y_next.data(),
-                     device_data_.internal_int.data(),
-                     device_data_.internal_real.data(),
-                     device_data_.n_shared_int,
-                     device_data_.n_shared_real,
-                     device_data_.shared_int.data(),
-                     device_data_.shared_real.data(),
-                     device_data_.rng.data(),
+                     device_state_.y.data(), device_state_.y_next.data(),
+                     device_state_.internal_int.data(),
+                     device_state_.internal_real.data(),
+                     device_state_.n_shared_int,
+                     device_state_.n_shared_real,
+                     device_state_.shared_int.data(),
+                     device_state_.shared_real.data(),
+                     device_state_.rng.data(),
                      use_shared_L1);
     CUDA_CALL(cudaDeviceSynchronize());
 #else
     dust::run_particles<T>(step_start, step_end, particles_.size(),
                      n_pars_effective(),
-                     device_data_.y.data(), device_data_.y_next.data(),
-                     device_data_.internal_int.data(),
-                     device_data_.internal_real.data(),
-                     device_data_.n_shared_int,
-                     device_data_.n_shared_real,
-                     device_data_.shared_int.data(),
-                     device_data_.shared_real.data(),
-                     device_data_.rng.data(),
+                     device_state_.y.data(), device_state_.y_next.data(),
+                     device_state_.internal_int.data(),
+                     device_state_.internal_real.data(),
+                     device_state_.n_shared_int,
+                     device_state_.n_shared_real,
+                     device_state_.shared_int.data(),
+                     device_state_.shared_real.data(),
+                     device_state_.rng.data(),
                      false);
 #endif
 
@@ -236,7 +236,7 @@ public:
     // original place, but an on odd number of steps the passed
     // variables need to be swapped.
     if ((step_end - step_start) % 2 == 1) {
-      device_data_.swap();
+      device_state_.swap();
    }
 
     stale_host_ = true;
@@ -270,21 +270,21 @@ public:
 
   // TODO: tidy this up with some templates
   void state(typename std::vector<real_t>::iterator end_state) {
-      size_t np = particles_.size();
-      size_t index_size = index_.size();
+    size_t np = particles_.size();
+    size_t index_size = index_.size();
     if (stale_host_) {
 #ifdef __NVCC__
-      size_t size_select_tmp = device_data_.select_tmp.size();
+      size_t size_select_tmp = device_state_.select_tmp.size();
       // Run the selection and copy items back
-      cub::DeviceSelect::Flagged(device_data_.select_tmp.data(),
+      cub::DeviceSelect::Flagged(device_state_.select_tmp.data(),
                                  size_select_tmp,
-                                 device_data_.y.data(),
-                                 device_data_.index.data(),
-                                 device_data_.y_selected.data(),
-                                 device_data_.n_selected.data(),
-                                 device_data_.y.size());
+                                 device_state_.y.data(),
+                                 device_state_.index.data(),
+                                 device_state_.y_selected.data(),
+                                 device_state_.n_selected.data(),
+                                 device_state_.y.size());
       std::vector<real_t> y_selected(np * index_size);
-      device_data_.y_selected.get_array(y_selected);
+      device_state_.y_selected.get_array(y_selected);
 
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
@@ -353,27 +353,27 @@ public:
     if (stale_host_) {
       size_t n_particles = particles_.size();
       size_t n_state = n_state_full();
-      device_data_.scatter_index.set_array(index);
+      device_state_.scatter_index.set_array(index);
 #ifdef __NVCC__
       const size_t blockSize = 128;
       const size_t blockCount =
         (n_state * n_particles + blockSize - 1) / blockSize;
       dust::scatter_device<real_t><<<blockCount, blockSize>>>(
-        device_data_.scatter_index.data(),
-        device_data_.y.data(),
-        device_data_.y_next.data(),
+        device_state_.scatter_index.data(),
+        device_state_.y.data(),
+        device_state_.y_next.data(),
         n_state,
         n_particles);
       CUDA_CALL(cudaDeviceSynchronize());
 #else
       dust::scatter_device<real_t>(
-        device_data_.scatter_index.data(),
-        device_data_.y.data(),
-        device_data_.y_next.data(),
+        device_state_.scatter_index.data(),
+        device_state_.y.data(),
+        device_state_.y_next.data(),
         n_state,
         n_particles);
 #endif
-      device_data_.swap();
+      device_state_.swap();
     } else {
       stale_device_ = true;
 #ifdef _OPENMP
@@ -500,6 +500,7 @@ public:
 
   void set_data(std::map<size_t, std::vector<data_t>> data) {
     data_ = data;
+    initialise_device_data();
   }
 
   std::vector<real_t> compare_data() {
@@ -540,7 +541,9 @@ private:
   std::vector<dust::shared_ptr<T>> shared_;
 
   // New things for device support
-  dust::device_state<real_t> device_data_;
+  dust::device_state<real_t> device_state_;
+  dust::device_array<data_t> device_data_;
+  std::map<size_t, size_t> device_data_offsets_;
 
   bool stale_host_;
   bool stale_device_;
@@ -601,7 +604,7 @@ private:
         particles_.push_back(p);
       }
       shared_ = {pars.shared};
-      initialise_device_data();
+      initialise_device_state();
     }
     reset_errors();
     update_device_shared();
@@ -643,7 +646,7 @@ private:
         }
         shared_.push_back(pars[i].shared);
       }
-      initialise_device_data();
+      initialise_device_state();
     }
     reset_errors();
     update_device_shared();
@@ -653,7 +656,7 @@ private:
 
   // This only gets called on construction; the size of these never
   // changes.
-  void initialise_device_data() {
+  void initialise_device_state() {
     if (device_id_ < 0) {
       return;
     }
@@ -662,9 +665,26 @@ private:
     const size_t n_internal_real = dust::device_internal_real_size<T>(s);
     const size_t n_shared_int = dust::device_shared_int_size<T>(s);
     const size_t n_shared_real = dust::device_shared_real_size<T>(s);
-    device_data_.initialise(particles_.size(), n_state_full(), shared_.size(),
+    device_state_.initialise(particles_.size(), n_state_full(), shared_.size(),
                             n_internal_int, n_internal_real,
                             n_shared_int, n_shared_real);
+  }
+
+  void initialise_device_data() {
+    if (device_id_ < 0) {
+      return;
+    }
+    std::vector<data_t> flattened_data;
+    std::vector<size_t> data_offsets(n_data());
+    size_t i = 0;
+    for (auto & d_step : data()) {
+      for (auto & d : d_step.second ) {
+        flattened_data.push_back(d);
+      }
+      device_data_offsets_[d.step.first] = i++;
+    }
+    device_data_ = dust::device_array<data_t>(flattened_data.size());
+    device_data_.set_array(flattened_data);
   }
 
   template <typename U = T>
@@ -678,8 +698,8 @@ private:
     if (device_id_ < 0) {
       return;
     }
-    const size_t n_shared_int = device_data_.n_shared_int;
-    const size_t n_shared_real = device_data_.n_shared_real;
+    const size_t n_shared_int = device_state_.n_shared_int;
+    const size_t n_shared_real = device_state_.n_shared_real;
     std::vector<int> shared_int(n_shared_int * n_pars_effective());
     std::vector<real_t> shared_real(n_shared_real * n_pars_effective());
     for (size_t i = 0; i < shared_.size(); ++i) {
@@ -687,8 +707,8 @@ private:
       real_t * dest_real = shared_real.data() + n_shared_real * i;
       dust::device_shared_copy<T>(shared_[i], dest_int, dest_real);
     }
-    device_data_.shared_int.set_array(shared_int);
-    device_data_.shared_real.set_array(shared_real);
+    device_state_.shared_int.set_array(shared_int);
+    device_state_.shared_real.set_array(shared_real);
   }
 
   void initialise_index() {
@@ -723,8 +743,8 @@ private:
     for (auto idx_pos = index_.cbegin(); idx_pos != index_.cend(); idx_pos++) {
       std::fill_n(bool_idx.begin() + (*idx_pos * n_particles), n_particles, 1);
     }
-    device_data_.index.set_array(bool_idx);
-    device_data_.set_cub_tmp();
+    device_state_.index.set_array(bool_idx);
+    device_state_.set_cub_tmp();
   }
 
   // Default noop refresh methods
@@ -770,8 +790,8 @@ private:
         }
       }
       // H -> D copies
-      device_data_.y.set_array(y);
-      device_data_.rng.set_array(rng);
+      device_state_.y.set_array(y);
+      device_state_.rng.set_array(rng);
       stale_device_ = false;
     }
   }
@@ -787,8 +807,8 @@ private:
       std::vector<uint64_t> rngi(np * rng_len); // Interleaved RNG state
       std::vector<uint64_t> rng(np * rng_len); //  Deinterleaved RNG state
       // D -> H copies
-      device_data_.y.get_array(y);
-      device_data_.rng.get_array(rngi);
+      device_state_.y.get_array(y);
+      device_state_.rng.get_array(rngi);
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
