@@ -274,15 +274,8 @@ public:
     size_t index_size = index_.size();
     if (stale_host_) {
 #ifdef __NVCC__
-      size_t size_select_tmp = device_state_.select_tmp.size();
       // Run the selection and copy items back
-      cub::DeviceSelect::Flagged(device_state_.select_tmp.data(),
-                                 size_select_tmp,
-                                 device_state_.y.data(),
-                                 device_state_.index.data(),
-                                 device_state_.y_selected.data(),
-                                 device_state_.n_selected.data(),
-                                 device_state_.y.size());
+      run_device_select();
       std::vector<real_t> y_selected(np * index_size);
       device_state_.y_selected.get_array(y_selected);
 
@@ -306,6 +299,14 @@ public:
         particles_[i].state(index_, end_state + i * index_size);
       }
     }
+  }
+
+  // Used for copy of state into another block of memory on the device (used
+  // for history saving)
+  void state(dust::device_array<real_t>& device_state, size_t dst_offset) {
+    run_device_select();
+    device_state.set_array(device_state_.y_selected.data(),
+                           0, dst_offset);
   }
 
   // TODO: this does not use device_select. But if index is being provided
@@ -457,6 +458,10 @@ public:
     return data_;
   }
 
+  const std::map<size_t, size_t>& data_offsets() const {
+    return device_data_offsets_;
+  }
+
   size_t step() const {
     return particles_.front().step();
   }
@@ -522,6 +527,61 @@ public:
     for (size_t i = 0; i < particles_.size(); ++i) {
       res[i] = particles_[i].compare_data(data[i / np], rng_.state(i));
     }
+  }
+
+  void compare_data_device(dust::device_array<real_t>& res,
+                           const size_t data_offset) {
+    refresh_device();
+#ifdef __NVCC__
+    const int warp_size = dust::cuda::warp_size;
+    // Set up blocks and shared memory preferences
+    size_t blockSize = 32;
+    size_t blockCount;
+    bool use_shared_L1 = true;
+    size_t shared_size_bytes = n_pars_effective() * sizeof(data_t);
+    if (n_particles_each_ < warp_size || shared_size_bytes > shared_size_) {
+      // If not enough particles per pars to make a whole block use
+      // shared, or if shared_t too big for L1, turn it off, and run
+      // in 'classic' mode where each particle is totally independent
+      use_shared_L1 = false;
+      shared_size_bytes = 0;
+      blockCount = n_particles() * (n_particles() + blockSize - 1) / blockSize;
+    } else {
+      // If it's possible to make blocks with shared_t in L1 cache,
+      // each block runs a pars set. Each pars set has enough blocks
+      // to run all of its particles, the final block may have some
+      // threads that don't do anything (hang off the end)
+      blockSize = warp_size * (n_particles_each_ + warp_size - 1) / warp_size;
+      blockSize = std::min(static_cast<size_t>(128), blockSize);
+      blockCount = n_pars_effective() * (n_particles_each_ + blockSize - 1) /
+        blockSize;
+    }
+    dust::compare_particles<T><<<blockCount, blockSize, shared_size_bytes>>>(
+                     step_start, step_end, particles_.size(),
+                     n_pars_effective(),
+                     device_state_.y.data(), device_state_.y_next.data(),
+                     device_state_.internal_int.data(),
+                     device_state_.internal_real.data(),
+                     device_state_.n_shared_int,
+                     device_state_.n_shared_real,
+                     device_state_.shared_int.data(),
+                     device_state_.shared_real.data(),
+                     device_state_.rng.data(),
+                     use_shared_L1);
+    CUDA_CALL(cudaDeviceSynchronize());
+#else
+    dust::compare_particles<T>(step_start, step_end, particles_.size(),
+                     n_pars_effective(),
+                     device_state_.y.data(), device_state_.y_next.data(),
+                     device_state_.internal_int.data(),
+                     device_state_.internal_real.data(),
+                     device_state_.n_shared_int,
+                     device_state_.n_shared_real,
+                     device_state_.shared_int.data(),
+                     device_state_.shared_real.data(),
+                     device_state_.rng.data(),
+                     false);
+#endif
   }
 
 private:
@@ -670,6 +730,13 @@ private:
                             n_shared_int, n_shared_real);
   }
 
+  template <typename U = T>
+  typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
+  initialise_device_data() {
+  }
+
+  template <typename U = T>
+  typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   void initialise_device_data() {
     if (device_id_ < 0) {
       return;
@@ -824,6 +891,30 @@ private:
       rng_.import_state(rng);
       stale_host_ = false;
     }
+  }
+
+  template <typename U = T>
+  typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
+  run_device_select() {
+  }
+
+  template <typename U = T>
+  typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
+  run_device_select() {
+    if (stale_device_) {
+      return;
+    }
+    // TODO: noop if this has been run and device_state_.y hasn't changed
+#ifdef __NVCC__
+    size_t size_select_tmp = device_state_.select_tmp.size();
+    cub::DeviceSelect::Flagged(device_state_.select_tmp.data(),
+                                size_select_tmp,
+                                device_state_.y.data(),
+                                device_state_.index.data(),
+                                device_state_.y_selected.data(),
+                                device_state_.n_selected.data(),
+                                device_state_.y.size());
+#endif
   }
 };
 

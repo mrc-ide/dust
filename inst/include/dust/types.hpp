@@ -149,6 +149,15 @@ T* shared_copy(T* dest, const T src) {
   return dest + 1;
 }
 
+template <typename T>
+struct device_ptrs {
+  int * shared_int;
+  typename T::real_t * shared_real;
+  typename T::data_t * data;
+  int i;
+  int max_i;
+};
+
 class openmp_errors {
 public:
   openmp_errors() : openmp_errors(0) {

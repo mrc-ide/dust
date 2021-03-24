@@ -114,16 +114,19 @@ public:
     history_order = dust::device_array<size_t>(n_particles_ * (n_data_ + 1));
     std::vector<size_t> index_init(n_particles_);
     std::iota(index_init.begin(), index_init.end(), 0);
-    CUDA_CALL(cudaMemcpyAsync(history_order.data(), index_init.data(),
-                              n_particles_ * sizeof(size_t), cudaMemcpyDefault))
+    history_order.set_array(index_init);
   }
 
-  typename std::vector<real_t>::iterator value_iterator() {
-    return history_value.data() + offset_ * n_state_ * n_particles_;
+  size_t value_offset() {
+    return offset_ * n_state_ * n_particles_;
   }
 
-  typename std::vector<size_t>::iterator order_iterator() {
-    return history_order.data() + offset_ * n_particles_;
+  size_t order_offset() {
+    return offset_ * n_particles_;
+  }
+
+  dust::device_array<real_t> values() {
+    return history_value;
   }
 
   std::vector<real_t> history() const {

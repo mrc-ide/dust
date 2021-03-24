@@ -109,14 +109,14 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
 
   if (save_trajectories) {
     state.trajectories.resize(obj->n_state(), n_particles, n_data);
-    obj->state(state.trajectories.value_iterator());
+    obj->state(state.trajectories.values, state.trajectories.value_offset());
     state.trajectories.advance();
   }
 
   state.snapshots.resize(obj->n_state_full(), n_particles, step_snapshot);
 
-  for (auto & d : obj->data()) {
-    obj->run(d.first);
+  for (auto & d : obj->data_offsets()) {
+    obj->run_device(d.first);
     obj->compare_data(weights, d.second);
 
     // TODO: we should cope better with the case where all weights

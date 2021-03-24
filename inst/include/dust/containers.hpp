@@ -122,6 +122,16 @@ public:
 #endif
   }
 
+  void set_array(const std::vector<T>& src, size_t src_offset, size_t dst_offset) {
+    cpy_size = src.size() - src_offset;
+#ifdef __NVCC__
+    CUDA_CALL(cudaMemcpy(data_ + dst_offset, src.data() + src_offset,
+                         cpy_size * sizeof(T), cudaMemcpyDefault));
+#else
+    std::memcpy(data_ + offset, src.data(), size_ * sizeof(T));
+#endif
+  }
+
   T* data() {
     return data_;
   }
