@@ -64,6 +64,37 @@ HOSTDEVICE T epsilon() {
 #endif
 }
 
+__nv_exec_check_disable__
+inline int integer_max() {
+#ifdef __CUDA_ARCH__
+  return INT_MAX;
+#else
+  return std::numeric_limits<int>::max();
+#endif
+}
+
+template <typename T>
+T lgamma(T x);
+
+// We need this for the lgamma in rpois to work
+#ifdef __CUDA_ARCH__
+template <>
+inline DEVICE float lgamma<float>(float x) {
+  return ::lgammaf(x);
+}
+
+template <>
+inline DEVICE double lgamma<double>(double x) {
+  return ::lgamma(x);
+}
+
+#else
+template <typename T>
+T lgamma(T x) {
+  return std::lgamma(x);
+}
+#endif
+
 }
 }
 

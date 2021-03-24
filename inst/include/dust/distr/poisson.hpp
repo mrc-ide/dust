@@ -2,10 +2,12 @@
 #define DUST_DISTR_POISSON_HPP
 
 #include <cmath>
+#include <dust/utils.hpp>
 
 namespace dust {
 namespace distr {
 
+__nv_exec_check_disable__
 template <typename real_t>
 HOSTDEVICE int rpois(rng_state_t<real_t>& rng_state,
                      typename rng_state_t<real_t>::real_t lambda) {
@@ -30,8 +32,7 @@ HOSTDEVICE int rpois(rng_state_t<real_t>& rng_state,
     while (true) {
       real_t u = dust::unif_rand<real_t>(rng_state);
       prod = prod * u;
-      if (prod <= exp_neg_rate &&
-          x <= std::numeric_limits<int>::max()) {
+      if (prod <= exp_neg_rate && x <= dust::utils::integer_max()) {
         break;
       }
       x++;
@@ -80,7 +81,7 @@ HOSTDEVICE int rpois(rng_state_t<real_t>& rng_state,
       real_t u_shifted = 0.5 - std::fabs(u);
       int k = floor((2 * a / u_shifted + b) * u + lambda + 0.43);
 
-      if (k > std::numeric_limits<int>::max()) {
+      if (k > dust::utils::integer_max()) {
         // retry in case of overflow.
         continue; // # nocov
       }
@@ -102,7 +103,7 @@ HOSTDEVICE int rpois(rng_state_t<real_t>& rng_state,
       // The expression below is equivalent to the computation of step 2)
       // in transformed rejection (v <= alpha * F'(G(u)) * G'(u)).
       real_t s = std::log(v * inv_alpha / (a / (u_shifted * u_shifted) + b));
-      real_t t = -lambda + k * log_rate - std::lgamma(k + 1);
+      real_t t = -lambda + k * log_rate - dust::utils::lgamma<real_t>(k + 1);
       if (s <= t) {
         x = k;
         break;
