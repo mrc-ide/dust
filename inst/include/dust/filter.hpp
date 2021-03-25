@@ -205,13 +205,11 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
     );
 #endif
 
-    // We could move this below if wanted but we'd have to rewrite
-    // the re-sort algorithm; that would be worth doing I think
-    // https://github.com/mrc-ide/dust/issues/202
     if (save_trajectories) {
       obj->state(state.trajectories.values, state.trajectories.value_offset());
     }
 
+    // TODO
     obj->resample(weights, kappa);
 
     if (save_trajectories) {
@@ -220,6 +218,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
       state.trajectories.advance();
     }
 
+    // TODO
     if (state.snapshots.is_snapshot_step(d.first)) {
       obj->state_full(state.snapshots.value_iterator());
       state.snapshots.advance();

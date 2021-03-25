@@ -129,6 +129,10 @@ public:
     return history_value;
   }
 
+  dust::device_array<real_t> order() {
+    return history_order;
+  }
+
   std::vector<real_t> history() const {
     std::vector<real_t> ret(size());
     history(ret.begin());
