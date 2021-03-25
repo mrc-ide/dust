@@ -64,6 +64,39 @@ HOSTDEVICE T epsilon() {
 #endif
 }
 
+inline HOSTDEVICE int integer_max() {
+#ifdef __CUDA_ARCH__
+  return INT_MAX;
+#else
+  return std::numeric_limits<int>::max();
+#endif
+}
+
+// We need this for the lgamma in rpois to work
+#ifdef __NVCC__
+template <typename real_t>
+real_t lgamma_nvcc(real_t x);
+
+template <>
+inline DEVICE float lgamma_nvcc(float x) {
+  return ::lgammaf(x);
+}
+
+template <>
+inline DEVICE double lgamma_nvcc(double x) {
+  return ::lgamma(x);
+}
+#endif
+
+template <typename real_t>
+HOSTDEVICE real_t lgamma(real_t x) {
+#ifdef __CUDA_ARCH__
+  return lgamma_nvcc(x);
+#else
+  return std::lgamma(x);
+#endif
+}
+
 }
 }
 
