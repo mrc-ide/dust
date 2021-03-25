@@ -103,7 +103,8 @@ HOSTDEVICE int rpois(rng_state_t<real_t>& rng_state,
       // The expression below is equivalent to the computation of step 2)
       // in transformed rejection (v <= alpha * F'(G(u)) * G'(u)).
       real_t s = std::log(v * inv_alpha / (a / (u_shifted * u_shifted) + b));
-      real_t t = -lambda + k * log_rate - dust::utils::lgamma<real_t>(k + 1);
+      real_t t = -lambda + k * log_rate -
+        dust::utils::lgamma(static_cast<real_t>(k + 1));
       if (s <= t) {
         x = k;
         break;

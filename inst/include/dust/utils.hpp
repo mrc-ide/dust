@@ -72,27 +72,30 @@ inline HOSTDEVICE int integer_max() {
 #endif
 }
 
-template <typename T>
-T lgamma(T x);
-
 // We need this for the lgamma in rpois to work
-#ifdef __CUDA_ARCH__
+#ifdef __NVCC__
+template <typename real_t>
+real_t lgamma_nvcc(real_t x);
+
 template <>
-inline DEVICE float lgamma<float>(float x) {
+inline DEVICE float lgamma_nvcc(float x) {
   return ::lgammaf(x);
 }
 
 template <>
-inline DEVICE double lgamma<double>(double x) {
+inline DEVICE double lgamma_nvcc(double x) {
   return ::lgamma(x);
 }
-
-#else
-template <typename T>
-T lgamma(T x) {
-  return std::lgamma(x);
-}
 #endif
+
+template <typename real_t>
+HOSTDEVICE real_t lgamma(real_t x) {
+#ifdef __CUDA_ARCH__
+  return lgamma_nvcc(x);
+#else
+  return std::lgamma(x);
+#endif
+}
 
 }
 }
