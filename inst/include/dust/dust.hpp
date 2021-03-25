@@ -337,6 +337,12 @@ public:
     }
   }
 
+  void state_full(dust::device_array<real_t>& device_state, size_t dst_offset) {
+    refresh_device();
+    device_state.set_array(device_state_.y.data(),
+                           0, dst_offset);
+  }
+
   // There are two obvious ways of reordering; we can construct a
   // completely new set of particles, like
   //

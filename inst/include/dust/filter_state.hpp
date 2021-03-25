@@ -264,8 +264,8 @@ public:
     return offset_ < n_steps_ && steps_[offset_] == step;
   }
 
-  typename std::vector<real_t>::iterator value_iterator() {
-    return state_.data() + offset_ * n_state_ * n_particles_;
+  typename size_t value_offset() {
+    return offset_ * n_state_ * n_particles_;
   }
 
   void advance() {
@@ -288,7 +288,7 @@ private:
   size_t n_particles_;
   size_t n_steps_;
   size_t offset_;
-  dust::device_array<size_t> steps_;
+  std::vector<size_t> steps_;
   dust::device_array<real_t> state_;
 };
 

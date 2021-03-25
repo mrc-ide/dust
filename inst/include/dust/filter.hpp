@@ -185,7 +185,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
                                   n_pars,
                                   pars_offsets.data(),
                                   pars_offsets.data() + 1);
-// log and add max
+    // Finally log and add max
 #ifdef __NVCC__
     weight_log_likelihood<real_t><<<weight_blockCount, weight_blockSize>>>(
       n_pars,
@@ -218,9 +218,8 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
       state.trajectories.advance();
     }
 
-    // TODO
     if (state.snapshots.is_snapshot_step(d.first)) {
-      obj->state_full(state.snapshots.value_iterator());
+      obj->state_full(state.snapshots.state(), state.snapshots.value_offset());
       state.snapshots.advance();
     }
   }
