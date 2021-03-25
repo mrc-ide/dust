@@ -264,6 +264,10 @@ public:
     return offset_ < n_steps_ && steps_[offset_] == step;
   }
 
+  dust::device_array<real_t> state() {
+    return state_;
+  }
+
   typename size_t value_offset() {
     return offset_ * n_state_ * n_particles_;
   }
