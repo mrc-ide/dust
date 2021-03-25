@@ -432,6 +432,46 @@ public:
     stale_device_ = true;
   }
 
+  void resample_device(const dust::device_array<real_t>& cum_weights) {
+    std::vector<real_t> shuffle_draws(n_pars_effective());
+    for (size_t i = 0; i < n_pars_effective(); ++i) {
+      shuffle_draws[i] = dust::unif_rand(rng_.state(0));
+    }
+    // TODO: eliminate this H->D?
+    device_state.resample_u.set_array(shuffle_draws);
+
+    // Generate the scatter indices
+    const size_t blockSize = 128;
+    const size_t interval_blockCount =
+        (n_particles + blockSize - 1) / blockSize;
+    dust::find_intervals<real_t><<<blockSize, interval_blockCount>>>(
+      cum_weights.data(),
+      n_particles(),
+      n_pars_effective(),
+      device_state_.scatter_index.data(),
+      device_state_.resample_u.data()
+    );
+    CUDA_CALL(cudaDeviceSynchronize());
+
+    // Shuffle the particles
+    const size_t scatter_blockCount =
+        (n_particles * n_state + blockSize - 1) / blockSize;
+    dust::scatter_device<real_t><<<blockSize, scatter_blockCount>>>(
+        device_state_.scatter_index.data(),
+        device_state_.y.data(),
+        device_state_.y_next.data(),
+        n_state,
+        n_particles);
+    CUDA_CALL(cudaDeviceSynchronize());
+
+    stale_device_ = true;
+  }
+
+  // Used in the filter
+  dust::device_array<size_t> kappa() const {
+    return device_state_.scatter_index;
+  }
+
   size_t n_particles() const {
     return particles_.size();
   }
@@ -533,6 +573,7 @@ public:
     for (size_t i = 0; i < particles_.size(); ++i) {
       res[i] = particles_[i].compare_data(data[i / np], rng_.state(i));
     }
+    _stale_device = true; // RNG use
   }
 
   void compare_data_device(dust::device_array<real_t>& res,
@@ -599,6 +640,7 @@ public:
                      device_state_.rng.data(),
                      false);
 #endif
+    _stale_host = true; // RNG use
   }
 
 private:
@@ -742,7 +784,8 @@ private:
     const size_t n_internal_real = dust::device_internal_real_size<T>(s);
     const size_t n_shared_int = dust::device_shared_int_size<T>(s);
     const size_t n_shared_real = dust::device_shared_real_size<T>(s);
-    device_state_.initialise(particles_.size(), n_state_full(), shared_.size(),
+    device_state_.initialise(particles_.size(), n_state_full(), n_pars_effective(),
+                            shared_.size(),
                             n_internal_int, n_internal_real,
                             n_shared_int, n_shared_real);
   }

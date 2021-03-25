@@ -47,7 +47,8 @@ struct pars_t {
 
 template <typename real_t>
 struct device_state {
-  void initialise(size_t n_particles, size_t n_state, size_t n_shared_len_,
+  void initialise(size_t n_particles, size_t n_state, size_t n_pars,
+                  size_t n_shared_len_,
                   size_t n_internal_int, size_t n_internal_real,
                   size_t n_shared_int_, size_t n_shared_real_) {
     n_shared_len = n_shared_len_;
@@ -65,6 +66,7 @@ struct device_state {
     index = dust::device_array<char>(n_state * n_particles);
     n_selected = dust::device_array<int>(1);
     scatter_index = dust::device_array<size_t>(n_particles);
+    resample_u = dust::device_array<real_t>(n_pars);
     set_cub_tmp();
   }
   void swap() {
@@ -102,6 +104,7 @@ struct device_state {
   dust::device_array<int> n_selected;
   dust::device_array<void> select_tmp;
   dust::device_array<size_t> scatter_index;
+  dust::device_array<real_t> resample_u;
 };
 
 // We need to compute the size of space required for integers and

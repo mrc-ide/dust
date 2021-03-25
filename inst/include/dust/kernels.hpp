@@ -204,10 +204,10 @@ KERNEL void compare_particles(size_t n_particles,
 }
 
 template <typename real_t>
-KERNEL void exp_weights(size_t n_particles,
-                        size_t n_pars,
+KERNEL void exp_weights(const size_t n_particles,
+                        const size_t n_pars,
                         real_t * weights,
-                        real_t * max_weights) {
+                        const real_t * max_weights) {
   const size_t n_particles_each = n_particles / n_pars;
 #ifdef __NVCC__
   for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n_particles;
@@ -221,11 +221,11 @@ KERNEL void exp_weights(size_t n_particles,
 }
 
 template <typename real_t>
-KERNEL void weight_log_likelihood(size_t n_pars,
-                                  size_t n_particles,
+KERNEL void weight_log_likelihood(const size_t n_pars,
+                                  const size_t n_particles,
                                   real_t * ll,
                                   real_t * ll_step,
-                                  real_t * max_weights) {
+                                  const real_t * max_weights) {
 #ifdef __NVCC__
   for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n_pars;
        i += blockDim.x * gridDim.x) {
@@ -235,6 +235,47 @@ KERNEL void weight_log_likelihood(size_t n_pars,
     real_t ll_scaled = std::log(ll_step[i] / n_particles) + max_weights[i];
     ll_step[i] = ll_scaled;
     ll[i] += ll_scaled;
+  }
+}
+
+// Likely not particularly CUDA friendly, but will do for now
+// (better alternative would be merge, as both lists sorted)
+template <typename T>
+DEVICE size_t binary_interval_search(const T * array,
+                            const size_t array_len,
+                            const T search) {
+  size_t l_pivot = 0;
+  size_t r_pivot = array_len;
+  while l_pivot < r_pivot {
+    m = floor((l_pivot + r_pivot) / 2);
+    if array[m] < search {
+      l_pivot = m + 1;
+    } else {
+      r_pivot = m;
+    }
+  }
+  __syncwarp();
+  return l_pivot;
+}
+
+// index = findInterval(u, cum_weights)
+template <typename real_t>
+KERNEL void find_intervals(const real_t * cum_weights,
+                           const size_t n_particles, const size_t n_pars,
+                           size_t * index, real_t * u) {
+  const size_t n_particles_each = n_particles / n_pars;
+#ifdef __NVCC__
+  for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n_particles;
+       i += blockDim.x * gridDim.x) {
+#else
+  for (int i = 0; i < n_particles; ++i) {
+#endif
+    const int par_idx = i / n_particles_each;
+    real_t u_particle = 1 / static_cast<real_t>(n_particles_each) *
+                        (u[par_idx] + i % n_particles_each);
+    index[i] = binary_interval_search(
+      cum_weights + par_idx * n_particles_each,
+      n_particles_each, u_particle) + i % n_particles_each;
   }
 }
 

@@ -3,6 +3,7 @@
 
 #include <dust/filter_state.hpp>
 #include <dust/filter_tools.hpp>
+#include <dust/prefix_scan.cuh>
 
 namespace dust {
 namespace filter {
@@ -86,10 +87,10 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
   const size_t n_particles_each = n_particles / n_pars;
   dust::device_array<real_t> log_likelihood(n_pars);
   dust::device_array<real_t> log_likelihood_step(n_pars);
-  dust::device_array<size_t> kappa(n_particles);
 
-  // Set up storage for max reduction
+  // Set up storage
   dust::device_array<real_t> weights(n_particles);
+  dust::device_array<real_t> cum_weights(n_particles);
   dust::device_array<real_t> weights_max(n_pars);
   dust::device_array<int> pars_offsets(n_pars + 1);
   dust::device_array<void> max_tmp, sum_tmp;
@@ -121,6 +122,8 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
   const size_t exp_blockCount = (n_particles + blockSize - 1) / blockSize;
   const size_t weight_blockSize = 32;
   const size_t weight_blockCount = (n_pars + blockSize - 1) / blockSize;
+  const size_t normalise_blockSize = 128;
+  const size_t normalise_blockCount = (n_particles + blockSize - 1) / blockSize;
 
   // NOTES
   // 1) state.trajectories: this is a device_array which copies state (y_selected)
@@ -162,7 +165,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
                                   pars_offsets.data() + 1);
     // Then exp
 #ifdef __NVCC__
-    exp_weights<real_t><<<exp_blockCount, exp_blockSize>>>(
+    dust::exp_weights<real_t><<<exp_blockCount, exp_blockSize>>>(
       n_particles,
       n_pars,
       weights.data();
@@ -170,7 +173,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
     );
     CUDA_CALL(cudaDeviceSynchronize());
 #else
-    exp_weights<real_t>(
+    dust::exp_weights<real_t>(
       n_particles,
       n_pars,
       weights.data();
@@ -187,7 +190,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
                                   pars_offsets.data() + 1);
     // Finally log and add max
 #ifdef __NVCC__
-    weight_log_likelihood<real_t><<<weight_blockCount, weight_blockSize>>>(
+    dust::weight_log_likelihood<real_t><<<weight_blockCount, weight_blockSize>>>(
       n_pars,
       n_particles_each,
       log_likelihood.data(),
@@ -196,7 +199,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
     );
     CUDA_CALL(cudaDeviceSynchronize());
 #else
-    weight_log_likelihood<real_t>(
+    dust::weight_log_likelihood<real_t>(
       n_pars,
       n_particles_each,
       log_likelihood.data(),
@@ -209,11 +212,29 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
       obj->state(state.trajectories.values, state.trajectories.value_offset());
     }
 
-    // TODO
-    obj->resample(weights, kappa);
+    // Normalise the weights and calculate cumulative sum for resample
+    dust::normalise_scan<real_t><<<normalise_blockSize, normalise_blockCount>>>(
+      log_likelihood_step.data(),
+      weights.data(),
+      cum_weights.data(),
+      n_particles, n_pars
+    );
+    CUDA_CALL(cudaDeviceSynchronize());
+    // Cumulative sum
+    using BlockReduceInt = cub::BlockReduce<real_t, scan_block_size>;
+    using BlockReduceIntStorage = typename BlockReduceInt::TempStorage;
+    size_t shared_size = sizeof(BlockReduceIntStorage);
+    dust::prefix_scan<real_t><<<scan_block_size, n_pars, shared_size>>>(
+      cum_weights.data(),
+      n_particles,
+      n_pars
+    );
+    CUDA_CALL(cudaDeviceSynchronize());
+
+    obj->resample(cum_weights);
 
     if (save_trajectories) {
-      state.trajectories.order().set_array(kappa.data(), 0,
+      state.trajectories.order().set_array(obj->kappa().data(), 0,
         state.trajectories.order_iterator());
       state.trajectories.advance();
     }
@@ -224,7 +245,10 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
     }
   }
 
-  return log_likelihood;
+  // Copy likelihoods back to host
+  std::vector<real_t> ll_host(n_pars);
+  log_likelihood.get_array(ll_host);
+  return ll_host;
 }
 
 }
