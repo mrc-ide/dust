@@ -119,12 +119,6 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
     obj->run_device(d.first);
     obj->compare_data_device(weights, d.second);
 
-    // TODO: we should cope better with the case where all weights
-    // are 0; I think that is the behaviour in the model (or rather
-    // the case where there is no data and so we do not resample)
-    //
-    // TODO: we should cope better with the case where one filter
-    // has become impossible but others continue, but that's hard!
     auto wi = weights.begin();
     for (size_t i = 0; i < n_pars; ++i) {
       log_likelihood_step[i] = scale_log_weights<real_t>(wi, n_particles_each);

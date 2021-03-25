@@ -5,6 +5,8 @@
 #include <dust/cuda.cuh>
 #include <dust/types.hpp>
 
+namespace dust {
+
 template <typename T>
 DEVICE dust::device_ptrs<T>
 load_shared_state(int pars_idx
@@ -66,4 +68,6 @@ load_shared_state(int pars_idx
   dust::cuda::shared_mem_wait(block);
 
   return(ptrs);
+}
+
 }

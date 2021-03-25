@@ -78,7 +78,7 @@ KERNEL void run_particles(size_t step_start,
 #ifdef __CUDA_ARCH__
   const int block_per_pars = (n_particles_each + blockDim.x - 1) / blockDim.x;
   const int j = blockIdx.x / block_per_pars;
-  dust::device_ptrs<T> shared_state = load_shared_state(j
+  dust::device_ptrs<T> shared_state = dust::load_shared_state(j
                                                   n_shared_int,
                                                   n_shared_real,
                                                   shared_int,
@@ -154,7 +154,7 @@ KERNEL void compare_particles(size_t n_particles,
 #ifdef __CUDA_ARCH__
   const int block_per_pars = (n_particles_each + blockDim.x - 1) / blockDim.x;
   const int j = blockIdx.x / block_per_pars;
-  dust::device_ptrs<T> shared_state = load_shared_state(j
+  dust::device_ptrs<T> shared_state = dust::load_shared_state(j
                                                   n_shared_int,
                                                   n_shared_real,
                                                   shared_int,
@@ -186,8 +186,8 @@ KERNEL void compare_particles(size_t n_particles,
     dust::interleaved<int> p_internal_int(internal_int, i, n_particles);
     dust::interleaved<real_t> p_internal_real(internal_real, i, n_particles);
     dust::interleaved<uint64_t> p_rng(rng_state, i, n_particles);
-
     dust::rng_state_t<real_t> rng_block = dust::get_rng_state<real_t>(p_rng);
+
     weights[i] = compare_device<T>(p_state,
                                    shared_state.data,
                                    p_internal_int,
