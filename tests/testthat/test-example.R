@@ -681,6 +681,19 @@ test_that("Truncate errors past certain point", {
 })
 
 
+test_that("more binomial errors", {
+  res <- dust_example("sir")
+  set.seed(1)
+  gamma <- runif(100, max = 0.1)
+  gamma[c(10, 20, 30)] <- -gamma[c(10, 20, 30)]
+  par <- apply(cbind(beta = 0.15, gamma = gamma), 1, as.list)
+  mod <- res$new(par, 0, NULL, seed = 1L, pars_multi = TRUE)
+  err <- expect_error(mod$run(10),
+                      "3 particles reported errors")
+  expect_match(err$message, "10: Invalid call to rbinom")
+})
+
+
 test_that("steps must not be negative", {
   res <- dust_example("sir")
   y0 <- matrix(1, 1, 5)

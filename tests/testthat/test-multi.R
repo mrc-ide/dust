@@ -680,3 +680,18 @@ test_that("Can set state into a multiparameter model, unshared + structured", {
   expect_error(mod$set_state(y[, 1, , drop = FALSE]),
                "Expected dimension 2 of 'state' to be 3 but given 1")
 })
+
+
+test_that("Reorder across particles", {
+  res <- dust_example("variable")
+  p <- lapply(runif(6), function(x) list(len = 5, sd = x))
+  mod <- res$new(p, 0, NULL, pars_multi = TRUE)
+
+  s <- mod$state()
+  y <- array(as.numeric(seq_along(s)), dim(s))
+  mod$set_state(y)
+
+  i <- sample.int(length(p), replace = TRUE)
+  mod$reorder(i)
+  expect_equal(mod$state(), y[, i])
+})
