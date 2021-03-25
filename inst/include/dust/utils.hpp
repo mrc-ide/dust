@@ -64,8 +64,7 @@ HOSTDEVICE T epsilon() {
 #endif
 }
 
-__nv_exec_check_disable__
-inline int integer_max() {
+inline HOSTDEVICE int integer_max() {
 #ifdef __CUDA_ARCH__
   return INT_MAX;
 #else
