@@ -86,8 +86,41 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
   const size_t n_particles_each = n_particles / n_pars;
   dust::device_array<real_t> log_likelihood(n_pars);
   dust::device_array<real_t> log_likelihood_step(n_pars);
-  dust::device_array<real_t> weights(n_particles);
   dust::device_array<size_t> kappa(n_particles);
+
+  // Set up storage for max reduction
+  dust::device_array<real_t> weights(n_particles);
+  dust::device_array<real_t> weights_max(n_pars);
+  dust::device_array<int> pars_offsets(n_pars + 1);
+  dust::device_array<void> max_tmp, sum_tmp;
+  std::vector<int> offsets(n_pars + 1);
+  for (int i = 0; i < n_pars + 1; ++i) {
+    pars_offsets[i] = i * n_particles_each;
+  }
+  pars_offsets.set_array(offsets);
+  size_t max_tmp_bytes = 0;
+  cub::DeviceSegmentedReduce::Max(max_tmp.data(),
+                                  max_tmp_bytes,
+                                  weights.data(),
+                                  weights_max.data(),
+                                  n_pars,
+                                  pars_offsets.data(),
+                                  pars_offsets.data() + 1);
+  sum_tmp.set_size(sum_tmp_bytes);
+  size_t sum_tmp_bytes = 0;
+  cub::DeviceSegmentedReduce::Max(sum_tmp.data(),
+                                  sum_tmp_bytes,
+                                  weights.data(),
+                                  weights_max.data(),
+                                  n_pars,
+                                  pars_offsets.data(),
+                                  pars_offsets.data() + 1);
+  sum_tmp.set_size(max_tmp_bytes);
+
+  const size_t exp_blockSize = 32;
+  const size_t exp_blockCount = (n_particles + blockSize - 1) / blockSize;
+  const size_t weight_blockSize = 32;
+  const size_t weight_blockCount = (n_pars + blockSize - 1) / blockSize;
 
   // NOTES
   // 1) state.trajectories: this is a device_array which copies state (y_selected)
@@ -119,12 +152,58 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
     obj->run_device(d.first);
     obj->compare_data_device(weights, d.second);
 
-    auto wi = weights.begin();
-    for (size_t i = 0; i < n_pars; ++i) {
-      log_likelihood_step[i] = scale_log_weights<real_t>(wi, n_particles_each);
-      log_likelihood[i] += log_likelihood_step[i];
-      wi += n_particles_each;
-    }
+    // Scale log-weights. First calculate the max
+    cub::DeviceSegmentedReduce::Max(max_tmp.data(),
+                                  max_tmp_bytes,
+                                  weights.data(),
+                                  log_likelihood_step.data(),
+                                  n_pars,
+                                  pars_offsets.data(),
+                                  pars_offsets.data() + 1);
+    // Then exp
+#ifdef __NVCC__
+    exp_weights<real_t><<<exp_blockCount, exp_blockSize>>>(
+      n_particles,
+      n_pars,
+      weights.data();
+      weights_max.data();
+    );
+    CUDA_CALL(cudaDeviceSynchronize());
+#else
+    exp_weights<real_t>(
+      n_particles,
+      n_pars,
+      weights.data();
+      weights_max.data();
+    );
+#endif
+    // Then sum
+    cub::DeviceSegmentedReduce::Sum(sum_tmp.data(),
+                                  sum_tmp_bytes,
+                                  weights.data(),
+                                  log_likelihood_step.data(),
+                                  n_pars,
+                                  pars_offsets.data(),
+                                  pars_offsets.data() + 1);
+// log and add max
+#ifdef __NVCC__
+    weight_log_likelihood<real_t><<<weight_blockCount, weight_blockSize>>>(
+      n_pars,
+      n_particles_each,
+      log_likelihood.data(),
+      log_likelihood_step.data();
+      weights_max.data();
+    );
+    CUDA_CALL(cudaDeviceSynchronize());
+#else
+    weight_log_likelihood<real_t>(
+      n_pars,
+      n_particles_each,
+      log_likelihood.data(),
+      log_likelihood_step.data();
+      weights_max.data();
+    );
+#endif
 
     // We could move this below if wanted but we'd have to rewrite
     // the re-sort algorithm; that would be worth doing I think

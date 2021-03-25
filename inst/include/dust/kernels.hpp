@@ -203,4 +203,39 @@ KERNEL void compare_particles(size_t n_particles,
   }
 }
 
+template <typename real_t>
+KERNEL void exp_weights(size_t n_particles,
+                        size_t n_pars,
+                        real_t * weights,
+                        real_t * max_weights) {
+  const size_t n_particles_each = n_particles / n_pars;
+#ifdef __NVCC__
+  for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n_particles;
+       i += blockDim.x * gridDim.x) {
+#else
+  for (int i = 0; i < n_particles; ++i) {
+#endif
+    const size_t pars_idx = i / n_particles_each;
+    weights[i] = std::exp(weights[i] - max_weights[pars_idx]);
+  }
+}
+
+template <typename real_t>
+KERNEL void weight_log_likelihood(size_t n_pars,
+                                  size_t n_particles,
+                                  real_t * ll,
+                                  real_t * ll_step,
+                                  real_t * max_weights) {
+#ifdef __NVCC__
+  for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n_pars;
+       i += blockDim.x * gridDim.x) {
+#else
+  for (int i = 0; i < n_pars; ++i) {
+#endif
+    real_t ll_scaled = std::log(ll_step[i] / n_particles) + max_weights[i];
+    ll_step[i] = ll_scaled;
+    ll[i] += ll_scaled;
+  }
+}
+
 #endif
