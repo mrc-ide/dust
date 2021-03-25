@@ -209,14 +209,14 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
     // the re-sort algorithm; that would be worth doing I think
     // https://github.com/mrc-ide/dust/issues/202
     if (save_trajectories) {
-      obj->state(state.trajectories.value_iterator());
+      obj->state(state.trajectories.values, state.trajectories.value_offset());
     }
 
     obj->resample(weights, kappa);
 
     if (save_trajectories) {
-      std::copy(kappa.begin(), kappa.end(),
-                state.trajectories.order_iterator());
+      state.trajectories.order().set_array(kappa.data(), 0,
+        state.trajectories.order_iterator());
       state.trajectories.advance();
     }
 
