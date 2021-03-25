@@ -6,9 +6,8 @@
 #include <dust/types.hpp>
 
 template <typename T>
-DEVICE dust::device_ptrs<typename T::real_t, typename T::data_t>
-load_shared_state(size_t n_particles,
-                  size_t n_pars,
+DEVICE dust::device_ptrs<T>
+load_shared_state(int pars_idx
                   size_t n_shared_int, size_t n_shared_real,
                   const int * shared_int,
                   const typename T::real_t * shared_real,
@@ -16,17 +15,16 @@ load_shared_state(size_t n_particles,
                   bool use_shared_L1) {
   typedef typename T::real_t real_t;
   typedef typename T::data_t data_t;
-  const size_t n_particles_each = n_particles / n_pars;
+
 #ifdef __NVCC__
   // Particle index i, and max index to process in the block
   dust::device_ptrs<T> ptrs;
 
   // Get pars index j, and start address in shared space
-  const int block_per_pars = (n_particles_each + blockDim.x - 1) / blockDim.x;
-  const int j = blockIdx.x / block_per_pars;
-  ptrs.shared_int = shared_int + j * n_shared_int;
-  ptrs.shared_real = shared_real + j * n_shared_real;
-  ptrs.shared_data = shared_data + j;
+
+  ptrs.shared_int = shared_int + pars_idx * n_shared_int;
+  ptrs.shared_real = shared_real + pars_idx * n_shared_real;
+  ptrs.shared_data = shared_data + pars_idx;
 
   // If we're using it, use the first warp in the block to load the shared pars
   // into __shared__ L1

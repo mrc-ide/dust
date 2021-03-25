@@ -538,7 +538,13 @@ public:
     size_t blockSize = 32;
     size_t blockCount;
     bool use_shared_L1 = true;
-    size_t shared_size_bytes = n_pars_effective() * sizeof(data_t);
+    size_t n_shared_int_effective = device_state_.n_shared_int +
+      dust::utils::align_padding(device_state_.n_shared_int * sizeof(int), sizeof(real_t)) / sizeof(int);
+    size_t n_shared_real_effective = device_state_.n_shared_real +
+      dust::utils::align_padding(device_state_.n_shared_real * sizeof(real_t), 16) / sizeof(real_t);
+    size_t shared_size_bytes = n_shared_int_effective * sizeof(int) +
+      n_shared_real_effective * sizeof(real_t) +
+      sizeof(data_t);
     if (n_particles_each_ < warp_size || shared_size_bytes > shared_size_) {
       // If not enough particles per pars to make a whole block use
       // shared, or if shared_t too big for L1, turn it off, and run
@@ -557,28 +563,33 @@ public:
         blockSize;
     }
     dust::compare_particles<T><<<blockCount, blockSize, shared_size_bytes>>>(
-                     step_start, step_end, particles_.size(),
+                     particles_.size(),
                      n_pars_effective(),
-                     device_state_.y.data(), device_state_.y_next.data(),
+                     device_state_.y.data(),
+                     res.data(),
                      device_state_.internal_int.data(),
                      device_state_.internal_real.data(),
                      device_state_.n_shared_int,
                      device_state_.n_shared_real,
                      device_state_.shared_int.data(),
                      device_state_.shared_real.data(),
+                     device_data_.data() + data_offset,
                      device_state_.rng.data(),
                      use_shared_L1);
     CUDA_CALL(cudaDeviceSynchronize());
 #else
-    dust::compare_particles<T>(step_start, step_end, particles_.size(),
+    dust::compare_particles<T>(
+                     particles_.size(),
                      n_pars_effective(),
-                     device_state_.y.data(), device_state_.y_next.data(),
+                     device_state_.y.data(),
+                     res.data(),
                      device_state_.internal_int.data(),
                      device_state_.internal_real.data(),
                      device_state_.n_shared_int,
                      device_state_.n_shared_real,
                      device_state_.shared_int.data(),
                      device_state_.shared_real.data(),
+                     device_data_.data() + data_offset,
                      device_state_.rng.data(),
                      false);
 #endif

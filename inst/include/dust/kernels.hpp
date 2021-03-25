@@ -20,6 +20,16 @@ DEVICE void update_device(size_t step,
                    dust::rng_state_t<typename T::real_t>& rng_state,
                    dust::interleaved<typename T::real_t> state_next);
 
+template <typename T>
+DEVICE void compare_device(
+                   const dust::interleaved<typename T::real_t> state,
+                   const typename T::data_t * data,
+                   dust::interleaved<int> internal_int,
+                   dust::interleaved<typename T::real_t> internal_real,
+                   const int * shared_int,
+                   const typename T::real_t * shared_real,
+                   dust::rng_state_t<typename T::real_t>& rng_state);
+
 // __global__ for shuffling particles
 template<typename real_t>
 KERNEL void scatter_device(const size_t* index,
@@ -66,8 +76,9 @@ KERNEL void run_particles(size_t step_start,
   const size_t n_particles_each = n_particles / n_pars;
 
 #ifdef __CUDA_ARCH__
-  device_ptrs<T> shared_state = load_shared_state(n_particles,
-                                                  n_pars,
+  const int block_per_pars = (n_particles_each + blockDim.x - 1) / blockDim.x;
+  const int j = blockIdx.x / block_per_pars;
+  dust::device_ptrs<T> shared_state = load_shared_state(j
                                                   n_shared_int,
                                                   n_shared_real,
                                                   shared_int,
@@ -119,39 +130,77 @@ KERNEL void run_particles(size_t step_start,
       p_state_next = tmp;
     }
     dust::put_rng_state(rng_block, p_rng);
-#ifdef __CUDA_ARCH__
-    block.sync();
-#endif
   }
 }
 
 template <typename T>
-KERNEL void compare_particles(
-                          size_t n_particles,
-                          size_t n_pars,
-                          typename T::real_t * state,
-                          typename T::real_t * state_next,
-                          int * internal_int,
-                          typename T::real_t * internal_real,
-                          size_t n_shared_int, size_t n_shared_real,
-                          const int * shared_int,
-                          const typename T::real_t * shared_real,
-                          uint64_t * rng_state,
-                          bool use_shared_L1) {
-  const size_t np = particles_.size() / n_pars_effective();
+KERNEL void compare_particles(size_t n_particles,
+                              size_t n_pars,
+                              typename T::real_t * state,
+                              typename T::real_t * weights,
+                              int * internal_int,
+                              typename T::real_t * internal_real,
+                              size_t n_shared_int,
+                              size_t n_shared_real,
+                              const int * shared_int,
+                              const typename T::real_t * shared_real,
+                              const typename T::data_t * data,
+                              uint64_t * rng_state,
+                              bool use_shared_L1) {
+  // This setup is mostly shared with run_particles
   typedef typename T::real_t real_t;
   const size_t n_particles_each = n_particles / n_pars;
-#ifdef __NVCC__
-#else
-#ifdef _OPENMP
-  #pragma omp parallel for schedule(static) num_threads(n_threads_)
-#endif
-  for (size_t i = 0; i < particles_.size(); ++i) {
-#endif
-    compare_device()
-    res[i] = particles_[i].compare_data(data[i / np], rng_.state(i));
+
+#ifdef __CUDA_ARCH__
+  const int block_per_pars = (n_particles_each + blockDim.x - 1) / blockDim.x;
+  const int j = blockIdx.x / block_per_pars;
+  dust::device_ptrs<T> shared_state = load_shared_state(j
+                                                  n_shared_int,
+                                                  n_shared_real,
+                                                  shared_int,
+                                                  shared_real,
+                                                  data,
+                                                  use_shared_L1);
+
+  int i, max_i;
+  if (use_shared_L1) {
+    // Pick particle index based on block, don't process if off the end
+    i = j * n_particles_each + (blockIdx.x % block_per_pars) * blockDim.x +
+      threadIdx.x;
+    max_i = n_particles_each * (j + 1);
+  } else {
+    // Otherwise CUDA thread number = particle
+    i = blockIdx.x * blockDim.x + threadIdx.x;
+    max_i = n_particles;
   }
 
+  if (i < max_i) {
+#else
+  // omp here
+  for (size_t i = 0; i < n_particles; ++i) {
+    const int j = i / n_particles_each;
+    const int * p_shared_int = shared_int + j * n_shared_int;
+    const real_t * p_shared_real = shared_real + j * n_shared_real;
+#endif
+    dust::interleaved<real_t> p_state(state, i, n_particles);
+    dust::interleaved<int> p_internal_int(internal_int, i, n_particles);
+    dust::interleaved<real_t> p_internal_real(internal_real, i, n_particles);
+    dust::interleaved<uint64_t> p_rng(rng_state, i, n_particles);
+
+    dust::rng_state_t<real_t> rng_block = dust::get_rng_state<real_t>(p_rng);
+    weights[i] = compare_device<T>(p_state,
+                                   shared_state.data,
+                                   p_internal_int,
+                                   p_internal_real,
+                                   shared_state.shared_int,
+                                   shared_state.shared_real,
+                                   rng_block);
+#ifdef __CUDA_ARCH__
+    // Branching unlikely in compare_device, but just in case
+    __syncwarp();
+#endif
+    dust::put_rng_state(rng_block, p_rng);
+  }
 }
 
 #endif

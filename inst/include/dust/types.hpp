@@ -154,8 +154,6 @@ struct device_ptrs {
   int * shared_int;
   typename T::real_t * shared_real;
   typename T::data_t * data;
-  int i;
-  int max_i;
 };
 
 class openmp_errors {

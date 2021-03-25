@@ -117,7 +117,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
 
   for (auto & d : obj->data_offsets()) {
     obj->run_device(d.first);
-    obj->compare_data(weights, d.second);
+    obj->compare_data_device(weights, d.second);
 
     // TODO: we should cope better with the case where all weights
     // are 0; I think that is the behaviour in the model (or rather
