@@ -38,7 +38,7 @@ public:
     n_threads_(n_threads),
     device_id_(device_id),
     rng_(n_particles_total_, seed),
-    errors_(n_particles),
+    errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true) {
 #ifdef __NVCC__
@@ -60,7 +60,7 @@ public:
     n_threads_(n_threads),
     device_id_(device_id),
     rng_(n_particles_total_, seed),
-    errors_(n_particles),
+    errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true) {
 #ifdef __NVCC__
