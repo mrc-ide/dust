@@ -1,6 +1,8 @@
 #ifndef DUST_UTILS_HPP
 #define DUST_UTILS_HPP
 
+#include <vector>
+
 namespace dust {
 namespace utils {
 
