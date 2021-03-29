@@ -7,6 +7,7 @@
 
 namespace dust {
 
+#ifdef __NVCC__
 template <typename T>
 DEVICE dust::device_ptrs<T>
 load_shared_state(int pars_idx
@@ -18,7 +19,6 @@ load_shared_state(int pars_idx
   typedef typename T::real_t real_t;
   typedef typename T::data_t data_t;
 
-#ifdef __NVCC__
   // Particle index i, and max index to process in the block
   dust::device_ptrs<T> ptrs;
 
@@ -67,7 +67,12 @@ load_shared_state(int pars_idx
   // Required to sync loads into L1 cache
   dust::cuda::shared_mem_wait(block);
 
+
   return(ptrs);
 }
 
+#endif
+
 }
+
+#endif

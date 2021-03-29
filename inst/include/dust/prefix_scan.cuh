@@ -3,6 +3,7 @@
 #define DUST_PREFIX_SCAN_CUH
 
 // See https://nvlabs.github.io/cub/classcub_1_1_block_scan.html
+#ifdef __NVCC__
 
 #include <cub/block/block_scan.cuh>
 
@@ -69,5 +70,7 @@ KERNEL void prefix_scan(real_t * cum_weights,
     cum_weights[block_offset] = thread_data;
   }
 }
+
+#endif
 
 #endif

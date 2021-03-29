@@ -1,8 +1,11 @@
 class sirs {
 public:
   typedef double real_t;
-  typedef dust::no_data data_t;
   typedef dust::no_internal internal_t;
+
+  struct data_t {
+    real_t incidence;
+  };
 
   struct shared_t {
     real_t S0;
@@ -12,13 +15,15 @@ public:
     real_t beta;
     real_t gamma;
     real_t dt;
+    size_t freq;
+    real_t exp_noise;
   };
 
   sirs(const dust::pars_t<sirs>& pars): shared(pars.shared) {
   }
 
   size_t size() {
-    return 3;
+    return 4;
   }
 
   std::vector<real_t> initial(size_t step) {
@@ -26,6 +31,7 @@ public:
     state[0] = shared->S0;
     state[1] = shared->I0;
     state[2] = shared->R0;
+    state[3] = 0;
     return state;
   }
 
@@ -48,6 +54,16 @@ public:
     state_next[0] = S - n_SI + n_RS;
     state_next[1] = I + n_SI - n_IR;
     state_next[2] = R + n_IR - n_RS;
+    state_next[3] = (step % shared->freq == 0) ? n_SI : state[3] + n_SI;
+  }
+
+  real_t compare_data(const real_t * state, const data_t& data,
+                      dust::rng_state_t<real_t>& rng_state) {
+    const real_t incidence_modelled = state[4];
+    const real_t incidence_observed = data.incidence;
+    const real_t lambda = incidence_modelled +
+      dust::distr::rexp(rng_state, shared->exp_noise);
+    return dust::dpois(incidence_observed, lambda, true);
   }
 
 private:
@@ -68,7 +84,10 @@ dust::pars_t<sirs> dust_pars<sirs>(cpp11::list pars) {
   sirs::real_t gamma = 0.1;
 
   // Time scaling
-  sirs::real_t dt = 1.0;
+  size_t freq = 1;
+  sirs::real_t dt = 1 / static_cast<real_t>(freq);
+
+  sirs::real_t exp_noise = 1e6;
 
   // Accept beta and gamma as optional elements
   // [[dust::param(beta, required = FALSE, default = 0.2)]]
@@ -82,7 +101,7 @@ dust::pars_t<sirs> dust_pars<sirs>(cpp11::list pars) {
     gamma = cpp11::as_cpp<sirs::real_t>(r_gamma);
   }
 
-  sirs::shared_t shared{S0, I0, R0, alpha, beta, gamma, dt};
+  sirs::shared_t shared{S0, I0, R0, alpha, beta, gamma, dt, freq, exp_noise};
   return dust::pars_t<sirs>(shared);
 }
 

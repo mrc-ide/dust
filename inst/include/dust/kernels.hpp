@@ -248,7 +248,7 @@ DEVICE size_t binary_interval_search(const T * array,
   size_t r_pivot = array_len;
   while (l_pivot < r_pivot) {
     m = std::floor((l_pivot + r_pivot) / 2);
-    if array[m] < search {
+    if (array[m] < search) {
       l_pivot = m + 1;
     } else {
       r_pivot = m;
@@ -276,7 +276,11 @@ KERNEL void find_intervals(const real_t * cum_weights,
     index[i] = binary_interval_search(
       cum_weights + par_idx * n_particles_each,
       n_particles_each, u_particle) + i % n_particles_each;
+#ifdef __NVCC__
   }
+#else
+  }
+#endif
 }
 
 #endif
