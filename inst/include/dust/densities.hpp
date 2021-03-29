@@ -50,7 +50,7 @@ HOSTDEVICE T dbinom(int x, int size, T prob, bool log) {
 
 template <typename T>
 HOSTDEVICE T ddelta(T x, bool log) {
-  constexpr T inf = dust::utils::infinity<T>();
+  const T inf = dust::utils::infinity<T>();
   return maybe_log(x == 0 ? inf : -inf, log);
 }
 
