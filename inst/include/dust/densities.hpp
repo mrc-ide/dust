@@ -50,7 +50,7 @@ HOSTDEVICE T dbinom(int x, int size, T prob, bool log) {
 
 template <typename T>
 HOSTDEVICE T ddelta(T x, bool log) {
-  constexpr T inf = std::numeric_limits<T>::infinity();
+  constexpr T inf = dust::utils::infinity<T>();
   return maybe_log(x == 0 ? inf : -inf, log);
 }
 
@@ -80,10 +80,10 @@ HOSTDEVICE T dnbinom(int x, T size, T mu, bool log) {
     return maybe_log(0, log);
   }
   if (x < 0 || size == 0) {
-    return maybe_log(-std::numeric_limits<T>::infinity(), log);
+    return maybe_log(-dust::utils::infinity<T>();, log);
   }
   if (mu == 0) {
-    return maybe_log(x == 0 ? 0 : -std::numeric_limits<T>::infinity(), log);
+    return maybe_log(x == 0 ? 0 : -dust::utils::infinity<T>();), log);
   }
   const T ret = dust::utils::lgamma(static_cast<T>(x + size)) -
     dust::utils::lgamma(static_cast<T>(size)) -

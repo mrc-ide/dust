@@ -72,6 +72,30 @@ inline HOSTDEVICE int integer_max() {
 #endif
 }
 
+#ifdef __NVCC__
+template <typename real_t>
+real_t infinity_nvcc();
+
+template <>
+inline DEVICE float infinity_nvcc() {
+  return HUGE_VALF;
+}
+
+template <>
+inline DEVICE double infinity_nvcc() {
+  return HUGE_VAL;
+}
+#endif
+
+template <typename real_t>
+HOSTDEVICE real_t infinity() {
+#ifdef __CUDA_ARCH__
+  return infinity_nvcc<real_t>();
+#else
+  return std::numeric_limits<real_t>::infinity();
+#endif
+}
+
 // We need this for the lgamma in rpois to work
 #ifdef __NVCC__
 template <typename real_t>
