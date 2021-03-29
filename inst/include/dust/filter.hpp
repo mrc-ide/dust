@@ -107,7 +107,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
                                   n_pars,
                                   pars_offsets.data(),
                                   pars_offsets.data() + 1);
-  sum_tmp.set_size(sum_tmp_bytes);
+  max_tmp.set_size(max_tmp_bytes);
   size_t sum_tmp_bytes = 0;
   cub::DeviceSegmentedReduce::Max(sum_tmp.data(),
                                   sum_tmp_bytes,
@@ -231,7 +231,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
     );
     CUDA_CALL(cudaDeviceSynchronize());
 
-    obj->resample(cum_weights);
+    obj->resample_device(cum_weights);
 
     if (save_trajectories) {
       state.trajectories.order().set_array(obj->kappa().data(), 0,

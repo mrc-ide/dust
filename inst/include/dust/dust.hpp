@@ -433,6 +433,7 @@ public:
   }
 
   void resample_device(const dust::device_array<real_t>& cum_weights) {
+    refresh_device();
     std::vector<real_t> shuffle_draws(n_pars_effective());
     for (size_t i = 0; i < n_pars_effective(); ++i) {
       shuffle_draws[i] = dust::unif_rand(rng_.state(0));

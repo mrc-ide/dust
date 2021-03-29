@@ -222,7 +222,7 @@ KERNEL void exp_weights(const size_t n_particles,
 
 template <typename real_t>
 KERNEL void weight_log_likelihood(const size_t n_pars,
-                                  const size_t n_particles,
+                                  const size_t n_particles_each,
                                   real_t * ll,
                                   real_t * ll_step,
                                   const real_t * max_weights) {
@@ -232,7 +232,7 @@ KERNEL void weight_log_likelihood(const size_t n_pars,
 #else
   for (int i = 0; i < n_pars; ++i) {
 #endif
-    real_t ll_scaled = std::log(ll_step[i] / n_particles) + max_weights[i];
+    real_t ll_scaled = std::log(ll_step[i] / n_particles_each) + max_weights[i];
     ll_step[i] = ll_scaled;
     ll[i] += ll_scaled;
   }
@@ -246,8 +246,8 @@ DEVICE size_t binary_interval_search(const T * array,
                             const T search) {
   size_t l_pivot = 0;
   size_t r_pivot = array_len;
-  while l_pivot < r_pivot {
-    m = floor((l_pivot + r_pivot) / 2);
+  while (l_pivot < r_pivot) {
+    m = std::floor((l_pivot + r_pivot) / 2);
     if array[m] < search {
       l_pivot = m + 1;
     } else {

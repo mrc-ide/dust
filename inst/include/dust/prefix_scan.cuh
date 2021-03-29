@@ -62,7 +62,7 @@ KERNEL void prefix_scan(real_t * cum_weights,
     // Load a segment of consecutive items that are blocked across threads
     int thread_data = cum_weights[block_offset];
     // Collectively compute the block-wide exclusive prefix sum
-    BlockScan(temp_storage).ExclusiveSum(
+    BlockScan(temp_storage).InclusiveSum(
         thread_data, thread_data, prefix_op);
     CTA_SYNC();
     // Store scanned items to output segment
