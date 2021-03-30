@@ -393,7 +393,8 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
-                        cpp11::sexp r_step_snapshot) {
+                        cpp11::sexp r_step_snapshot,
+                        bool device) {
   typedef typename T::real_t real_t;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
@@ -402,13 +403,22 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
     cpp11::stop("Data has not been set for this object");
   }
 
-  dust::filter::filter_state<real_t> filter_state;
-
   std::vector<size_t> step_snapshot =
-    dust::interface::check_step_snapshot(r_step_snapshot, obj->data());
-  cpp11::writable::doubles
-    log_likelihood(dust::filter::filter(obj, filter_state,
-                                        save_trajectories, step_snapshot));
+      dust::interface::check_step_snapshot(r_step_snapshot, obj->data());
+
+  // TODO: this would be neater if we combined these classes
+  dust::filter::filter_state<real_t> filter_state;
+  dust::filter::filter_state_device<real_t> filter_state_device;
+
+  if (device) {
+    cpp11::writable::doubles
+      log_likelihood(dust::filter::filter_device(obj, filter_state_device,
+                                          save_trajectories, step_snapshot));
+  } else {
+    cpp11::writable::doubles
+      log_likelihood(dust::filter::filter(obj, filter_state,
+                                          save_trajectories, step_snapshot));
+  }
 
   cpp11::sexp r_trajectories, r_snapshots;
 
