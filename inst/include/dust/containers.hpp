@@ -45,10 +45,12 @@ public:
 
   // Copy
   device_array(const device_array& other) : size_(other.size_) {
-#ifdef __NVC__
+#ifdef __NVCC__
+    CUDA_CALL(cudaMalloc((void**)&data_, size_ * sizeof(T)));
     CUDA_CALL(cudaMemcpy(data_, other.data_, size_ * sizeof(T),
                          cudaMemcpyDefault));
 #else
+    data_ = new T[size_];
     std::memcpy(data_, other.data_, size_ * sizeof(T));
 #endif
   }
@@ -122,14 +124,12 @@ public:
 #endif
   }
 
-  void set_array(const std::vector<T>& src, size_t src_offset,
-                 size_t dst_offset) {
-    size_t cpy_size = src.size() - src_offset;
+  void set_array(const T* src, const size_t src_size, const size_t dst_offset) {
 #ifdef __NVCC__
-    CUDA_CALL(cudaMemcpy(data_ + dst_offset, src.data() + src_offset,
-                         cpy_size * sizeof(T), cudaMemcpyDefault));
+    CUDA_CALL(cudaMemcpy(data_ + dst_offset, src,
+                         src_size * sizeof(T), cudaMemcpyDefault));
 #else
-    std::memcpy(data_ + dst_offset, src.data(), size_ * sizeof(T));
+    std::memcpy(data_ + dst_offset, src, src_size * sizeof(T));
 #endif
   }
 

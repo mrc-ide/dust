@@ -71,8 +71,9 @@ SEXP dust_{{name}}_compare_data(SEXP ptr) {
 }
 
 SEXP dust_{{name}}_filter(SEXP ptr, bool save_trajectories,
-                          cpp11::sexp step_snapshot) {
-  return dust::r::dust_filter<{{class}}>(ptr, save_trajectories, step_snapshot);
+                          cpp11::sexp step_snapshot,
+                          bool device) {
+  return dust::r::dust_filter<{{class}}>(ptr, save_trajectories, step_snapshot, device);
 }
 
 cpp11::sexp dust_{{name}}_capabilities() {

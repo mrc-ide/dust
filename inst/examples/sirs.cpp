@@ -105,6 +105,16 @@ dust::pars_t<sirs> dust_pars<sirs>(cpp11::list pars) {
   return dust::pars_t<sirs>(shared);
 }
 
+// The way that this is going to work is we will process a list
+// *outside* of the C that will take (say) a df and convert it
+// row-wise into a list with elements `step` and `data`, we will pass
+// that in here. Then this function will be called once per data
+// element to create the struct that will be used for future work.
+template <>
+sirs::data_t dust_data<sirs>(cpp11::list data) {
+  return sirs::data_t{cpp11::as_cpp<double>(data["incidence"])};
+}
+
 template <>
 struct has_gpu_support<sirs> : std::true_type {};
 

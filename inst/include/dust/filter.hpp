@@ -95,7 +95,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
   dust::device_array<int> pars_offsets(n_pars + 1);
   dust::device_array<void> max_tmp, sum_tmp;
   std::vector<int> offsets(n_pars + 1);
-  for (int i = 0; i < n_pars + 1; ++i) {
+  for (size_t i = 0; i < n_pars + 1; ++i) {
     offsets[i] = i * n_particles_each;
   }
   pars_offsets.set_array(offsets);
@@ -131,7 +131,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
 
   if (save_trajectories) {
     state.trajectories.resize(obj->n_state(), n_particles, n_data);
-    obj->state(state.trajectories.values, state.trajectories.value_offset());
+    obj->state(state.trajectories.values(), state.trajectories.value_offset());
     state.trajectories.advance();
   }
 
@@ -183,8 +183,8 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
     std::vector<real_t> max_w(n_pars, -dust::utils::infinity<real_t>());
     std::vector<real_t> host_w(n_particles);
     weights.get_array(host_w);
-    for (int i = 0; i < n_pars; ++i) {
-      for (int j = 0; j < n_particles_each; j++) {
+    for (size_t i = 0; i < n_pars; ++i) {
+      for (size_t j = 0; j < n_particles_each; j++) {
         max_w[i] = std::max(host_w[i * n_particles_each + j], max_w[i]);
       }
     }
@@ -206,7 +206,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
 
     // SAVE HISTORY
     if (save_trajectories) {
-      obj->state(state.trajectories.values, state.trajectories.value_offset());
+      obj->state(state.trajectories.values(), state.trajectories.value_offset());
     }
 
     // RESAMPLE
@@ -238,7 +238,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
     );
     weights.get_array(host_w);
     std::vector<real_t> host_cum_weights(n_particles);
-    for (int i = 0; i < n_particles; ++i) {
+    for (size_t i = 0; i < n_particles; ++i) {
       real_t prev_weight;
       if (i % n_particles_each == 0) {
         prev_weight = 0;
@@ -253,8 +253,8 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
 
     // SAVE HISTORY ORDER
     if (save_trajectories) {
-      state.trajectories.order().set_array(obj->kappa().data(), 0,
-        state.trajectories.order_iterator());
+      state.trajectories.order().set_array(obj->kappa().data(), n_particles,
+        state.trajectories.order_offset());
       state.trajectories.advance();
     }
 

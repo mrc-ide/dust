@@ -306,7 +306,7 @@ public:
   void state(dust::device_array<real_t>& device_state, size_t dst_offset) {
     run_device_select();
     device_state.set_array(device_state_.y_selected.data(),
-                           0, dst_offset);
+                           device_state_.y_selected.size(), dst_offset);
   }
 
   // TODO: this does not use device_select. But if index is being provided
@@ -340,7 +340,7 @@ public:
   void state_full(dust::device_array<real_t>& device_state, size_t dst_offset) {
     refresh_device();
     device_state.set_array(device_state_.y.data(),
-                           0, dst_offset);
+                           device_state_.y.size(), dst_offset);
   }
 
   // There are two obvious ways of reordering; we can construct a
@@ -432,7 +432,7 @@ public:
     stale_device_ = true;
   }
 
-  void resample_device(const dust::device_array<real_t>& cum_weights) {
+  void resample_device(dust::device_array<real_t>& cum_weights) {
     refresh_device();
     std::vector<real_t> shuffle_draws(n_pars_effective());
     for (size_t i = 0; i < n_pars_effective(); ++i) {
@@ -462,8 +462,8 @@ public:
         device_state_.scatter_index.data(),
         device_state_.y.data(),
         device_state_.y_next.data(),
-        n_state,
-        n_particles);
+        n_state(),
+        n_particles());
     CUDA_CALL(cudaDeviceSynchronize());
 #else
     dust::find_intervals<real_t>(
@@ -477,8 +477,8 @@ public:
         device_state_.scatter_index.data(),
         device_state_.y.data(),
         device_state_.y_next.data(),
-        n_state,
-        n_particles);
+        n_state(),
+        n_particles());
 #endif
 
     stale_device_ = true;

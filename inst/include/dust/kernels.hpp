@@ -223,7 +223,7 @@ KERNEL void exp_weights(const size_t n_particles,
   for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n_particles;
        i += blockDim.x * gridDim.x) {
 #else
-  for (int i = 0; i < n_particles; ++i) {
+  for (size_t i = 0; i < n_particles; ++i) {
 #endif
     const size_t pars_idx = i / n_particles_each;
     weights[i] = std::exp(weights[i] - max_weights[pars_idx]);
@@ -240,7 +240,7 @@ KERNEL void weight_log_likelihood(const size_t n_pars,
   for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n_pars;
        i += blockDim.x * gridDim.x) {
 #else
-  for (int i = 0; i < n_pars; ++i) {
+  for (size_t i = 0; i < n_pars; ++i) {
 #endif
     real_t ll_scaled = std::log(ll_step[i] / n_particles_each) + max_weights[i];
     ll_step[i] = ll_scaled;
@@ -274,13 +274,13 @@ DEVICE size_t binary_interval_search(const T * array,
 template <typename real_t>
 KERNEL void find_intervals(const real_t * cum_weights,
                            const size_t n_particles, const size_t n_pars,
-                           size_t * index, real_t * u) {
+                           size_t * index, const real_t * u) {
   const size_t n_particles_each = n_particles / n_pars;
 #ifdef __NVCC__
   for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n_particles;
        i += blockDim.x * gridDim.x) {
 #else
-  for (int i = 0; i < n_particles; ++i) {
+  for (size_t i = 0; i < n_particles; ++i) {
 #endif
     const int par_idx = i / n_particles_each;
     real_t u_particle = 1 / static_cast<real_t>(n_particles_each) *
@@ -305,7 +305,7 @@ KERNEL void normalise_scan(const real_t * weight_sum, const real_t * weights,
   for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n_particles;
        i += blockDim.x * gridDim.x) {
 #else
-  for (int i = 0; i < n_particles; ++i) {
+  for (size_t i = 0; i < n_particles; ++i) {
 #endif
     cum_weights[i] = weights[i] / weight_sum[i / n_particles_each];
   }

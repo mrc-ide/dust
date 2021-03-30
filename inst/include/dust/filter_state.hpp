@@ -127,11 +127,11 @@ public:
     return offset_ * n_particles_;
   }
 
-  dust::device_array<real_t> values() {
+  dust::device_array<real_t> &values() {
     return history_value;
   }
 
-  dust::device_array<real_t> order() {
+  dust::device_array<size_t> &order() {
     return history_order;
   }
 
@@ -250,7 +250,7 @@ public:
     return offset_ < n_steps_ && steps_[offset_] == step;
   }
 
-  dust::device_array<real_t> state() {
+  dust::device_array<real_t> &state() {
     return state_;
   }
 

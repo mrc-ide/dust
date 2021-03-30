@@ -410,14 +410,13 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
   dust::filter::filter_state<real_t> filter_state;
   dust::filter::filter_state_device<real_t> filter_state_device;
 
+  cpp11::writable::doubles log_likelihood;
   if (device) {
-    cpp11::writable::doubles
-      log_likelihood(dust::filter::filter_device(obj, filter_state_device,
-                                          save_trajectories, step_snapshot));
+    log_likelihood = dust::filter::filter_device(obj, filter_state_device,
+                                                 save_trajectories, step_snapshot);
   } else {
-    cpp11::writable::doubles
-      log_likelihood(dust::filter::filter(obj, filter_state,
-                                          save_trajectories, step_snapshot));
+    log_likelihood = dust::filter::filter(obj, filter_state,
+                                          save_trajectories, step_snapshot);
   }
 
   cpp11::sexp r_trajectories, r_snapshots;
@@ -469,7 +468,7 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
 
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
-                        cpp11::sexp step_snapshot) {
+                        cpp11::sexp step_snapshot, bool device) {
   disable_method("filter");
   return R_NilValue; // #nocov never gets here
 }
