@@ -27,22 +27,6 @@ struct BlockPrefixCallbackOp
     }
 };
 
-// cum_weights = weights / sum(weights)
-template <typename real_t>
-KERNEL void normalise_scan(const real_t * weight_sum, const real_t * weights,
-                           real_t * cum_weights,
-                           const size_t n_particles, const size_t n_pars) {
-  const size_t n_particles_each = n_particles / n_pars;
-#ifdef __NVCC__
-  for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n_particles;
-       i += blockDim.x * gridDim.x) {
-#else
-  for (int i = 0; i < n_particles; ++i) {
-#endif
-    cum_weights[i] = weights[i] / weight_sum[i / n_particles_each];
-  }
-}
-
 // cum_weights = cumsum(cum_weights)
 template <typename real_t>
 KERNEL void prefix_scan(real_t * cum_weights,

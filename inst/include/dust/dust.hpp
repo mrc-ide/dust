@@ -441,6 +441,7 @@ public:
     // TODO: eliminate this H->D?
     device_state.resample_u.set_array(shuffle_draws);
 
+#ifdef __NVCC__
     // Generate the scatter indices
     const size_t blockSize = 128;
     const size_t interval_blockCount =
@@ -464,6 +465,21 @@ public:
         n_state,
         n_particles);
     CUDA_CALL(cudaDeviceSynchronize());
+#else
+    dust::find_intervals<real_t>(
+      cum_weights.data(),
+      n_particles(),
+      n_pars_effective(),
+      device_state_.scatter_index.data(),
+      device_state_.resample_u.data()
+    );
+    dust::scatter_device<real_t>(
+        device_state_.scatter_index.data(),
+        device_state_.y.data(),
+        device_state_.y_next.data(),
+        n_state,
+        n_particles);
+#endif
 
     stale_device_ = true;
   }

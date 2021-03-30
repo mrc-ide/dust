@@ -7,26 +7,25 @@
 
 namespace dust {
 
-#ifdef __NVCC__
 template <typename T>
 DEVICE dust::device_ptrs<T>
-load_shared_state(int pars_idx
+load_shared_state(int pars_idx,
                   size_t n_shared_int, size_t n_shared_real,
                   const int * shared_int,
                   const typename T::real_t * shared_real,
-                  const typename T::data_t * data
+                  const typename T::data_t * data,
                   bool use_shared_L1) {
-  typedef typename T::real_t real_t;
-  typedef typename T::data_t data_t;
-
   // Particle index i, and max index to process in the block
   dust::device_ptrs<T> ptrs;
 
-  // Get pars index j, and start address in shared space
-
+  // Get start address in shared space
   ptrs.shared_int = shared_int + pars_idx * n_shared_int;
   ptrs.shared_real = shared_real + pars_idx * n_shared_real;
-  ptrs.shared_data = shared_data + pars_idx;
+  ptrs.shared_data = data + pars_idx;
+
+#ifdef __NVCC__
+  typedef typename T::real_t real_t;
+  typedef typename T::data_t data_t;
 
   // If we're using it, use the first warp in the block to load the shared pars
   // into __shared__ L1
@@ -66,12 +65,10 @@ load_shared_state(int pars_idx
 
   // Required to sync loads into L1 cache
   dust::cuda::shared_mem_wait(block);
-
+#endif
 
   return(ptrs);
 }
-
-#endif
 
 }
 
