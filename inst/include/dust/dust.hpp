@@ -439,7 +439,7 @@ public:
       shuffle_draws[i] = dust::unif_rand(rng_.state(0));
     }
     // TODO: eliminate this H->D?
-    device_state.resample_u.set_array(shuffle_draws);
+    device_state_.resample_u.set_array(shuffle_draws);
 
 #ifdef __NVCC__
     // Generate the scatter indices
@@ -590,7 +590,7 @@ public:
     for (size_t i = 0; i < particles_.size(); ++i) {
       res[i] = particles_[i].compare_data(data[i / np], rng_.state(i));
     }
-    _stale_device = true; // RNG use
+    stale_device_ = true; // RNG use
   }
 
   void compare_data_device(dust::device_array<real_t>& res,
@@ -657,7 +657,7 @@ public:
                      device_state_.rng.data(),
                      false);
 #endif
-    _stale_host = true; // RNG use
+    stale_host_ = true; // RNG use
   }
 
 private:
@@ -814,7 +814,7 @@ private:
 
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
-  void initialise_device_data() {
+  initialise_device_data() {
     if (device_id_ < 0) {
       return;
     }
@@ -825,7 +825,7 @@ private:
       for (auto & d : d_step.second ) {
         flattened_data.push_back(d);
       }
-      device_data_offsets_[d.step.first] = i++;
+      device_data_offsets_[d_step.first] = i++;
     }
     device_data_ = dust::device_array<data_t>(flattened_data.size());
     device_data_.set_array(flattened_data);

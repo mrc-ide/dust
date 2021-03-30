@@ -154,9 +154,9 @@ T* shared_copy(T* dest, const T src) {
 
 template <typename T>
 struct device_ptrs {
-  int * shared_int;
-  typename T::real_t * shared_real;
-  typename T::data_t * data;
+  const int * shared_int;
+  const typename T::real_t * shared_real;
+  const typename T::data_t * data;
 };
 
 class openmp_errors {

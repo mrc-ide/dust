@@ -76,7 +76,7 @@ std::vector<typename T::real_t> filter(Dust<T> * obj,
 
 template <typename T>
 std::vector<typename T::real_t> filter_device(Dust<T> * obj,
-                                       filter_state_device<typename T::real_t>& state
+                                       filter_state_device<typename T::real_t>& state,
                                        bool save_trajectories,
                                        std::vector<size_t> step_snapshot) {
   typedef typename T::real_t real_t;
@@ -96,7 +96,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
   dust::device_array<void> max_tmp, sum_tmp;
   std::vector<int> offsets(n_pars + 1);
   for (int i = 0; i < n_pars + 1; ++i) {
-    pars_offsets[i] = i * n_particles_each;
+    offsets[i] = i * n_particles_each;
   }
   pars_offsets.set_array(offsets);
 

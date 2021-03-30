@@ -9,8 +9,9 @@ namespace dust {
 
 template <typename T>
 DEVICE dust::device_ptrs<T>
-load_shared_state(int pars_idx,
-                  size_t n_shared_int, size_t n_shared_real,
+load_shared_state(const int pars_idx,
+                  const size_t n_shared_int,
+                  const size_t n_shared_real,
                   const int * shared_int,
                   const typename T::real_t * shared_real,
                   const typename T::data_t * data,
@@ -21,7 +22,7 @@ load_shared_state(int pars_idx,
   // Get start address in shared space
   ptrs.shared_int = shared_int + pars_idx * n_shared_int;
   ptrs.shared_real = shared_real + pars_idx * n_shared_real;
-  ptrs.shared_data = data + pars_idx;
+  ptrs.data = data + pars_idx;
 
 #ifdef __NVCC__
   typedef typename T::real_t real_t;

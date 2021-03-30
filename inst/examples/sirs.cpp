@@ -85,7 +85,7 @@ dust::pars_t<sirs> dust_pars<sirs>(cpp11::list pars) {
 
   // Time scaling
   size_t freq = 1;
-  sirs::real_t dt = 1 / static_cast<real_t>(freq);
+  sirs::real_t dt = 1 / static_cast<sirs::real_t>(freq);
 
   sirs::real_t exp_noise = 1e6;
 
@@ -128,7 +128,7 @@ void device_shared_copy<sirs>(dust::shared_ptr<sirs> shared,
   shared_real = dust::shared_copy<real_t>(shared_real, shared->gamma);
   shared_real = dust::shared_copy<real_t>(shared_real, shared->dt);
   shared_real = dust::shared_copy<real_t>(shared_real, shared->exp_noise);
-  shared_real = dust::shared_copy<int>(shared_int, shared->freq);
+  shared_int = dust::shared_copy<int>(shared_int, shared->freq);
 }
 
 template <>
@@ -161,13 +161,13 @@ DEVICE void update_device<sirs>(size_t step,
 }
 
 template <>
-DEVICE void compare_device(const dust::interleaved<typename T::real_t> state,
-                           const typename T::data_t * data,
+DEVICE typename sirs::real_t compare_device<sirs>(const dust::interleaved<typename sirs::real_t> state,
+                           const typename sirs::data_t * data,
                            dust::interleaved<int> internal_int,
-                           dust::interleaved<typename T::real_t> internal_real,
+                           dust::interleaved<typename sirs::real_t> internal_real,
                            const int * shared_int,
-                           const typename T::real_t * shared_real,
-                           dust::rng_state_t<typename T::real_t>& rng_state) {
+                           const typename sirs::real_t * shared_real,
+                           dust::rng_state_t<typename sirs::real_t>& rng_state) {
     typedef sirs::real_t real_t;
     const real_t exp_noise = shared_real[4];
     const real_t incidence_modelled = state[4];

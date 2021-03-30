@@ -1,6 +1,8 @@
 #ifndef DUST_FILTER_STATE_HPP
 #define DUST_FILTER_STATE_HPP
 
+#include <cstddef>
+
 namespace dust {
 namespace filter {
 
@@ -164,23 +166,7 @@ public:
   // TODO: may be best to write this as a kernel instead
   template <typename Iterator>
   void history(Iterator ret) const {
-    std::vector<size_t> index_particle(n_particles_);
-    for (size_t i = 0; i < n_particles_; ++i) {
-      index_particle[i] = i;
-    }
-    for (size_t k = 0; k < n_data_ + 1; ++k) {
-      size_t i = n_data_ - k;
-      auto const it_order = history_order.begin() + i * n_particles_;
-      auto const it_value = history_value.begin() + i * n_state_ * n_particles_;
-      auto it_ret = ret + i * n_state_ * n_particles_;
-      for (size_t j = 0; j < n_particles_; ++j) {
-        const size_t idx = *(it_order + index_particle[j]);
-        index_particle[j] = idx;
-        std::copy_n(it_value + idx * n_state_, n_state_,
-                    it_ret + j * n_state_);
-      }
-    }
-  }
+    throw std::runtime_error("GPU support not yet implemented for history");  }
 
   size_t size() const {
     return history_value.size();
@@ -233,7 +219,7 @@ public:
 
   template <typename Iterator>
   void history(Iterator dest) const {
-    std::copy(state_.begin(), state_.end(), dest);
+    throw std::runtime_error("GPU support not yet implemented for snapshots");
   }
 
 private:
@@ -268,7 +254,7 @@ public:
     return state_;
   }
 
-  typename size_t value_offset() {
+  size_t value_offset() {
     return offset_ * n_state_ * n_particles_;
   }
 

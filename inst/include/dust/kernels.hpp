@@ -21,7 +21,7 @@ DEVICE void update_device(size_t step,
                    dust::interleaved<typename T::real_t> state_next);
 
 template <typename T>
-DEVICE void compare_device(
+DEVICE typename T::real_t compare_device(
                    const dust::interleaved<typename T::real_t> state,
                    const typename T::data_t * data,
                    dust::interleaved<int> internal_int,
@@ -78,7 +78,7 @@ KERNEL void run_particles(size_t step_start,
 #ifdef __CUDA_ARCH__
   const int block_per_pars = (n_particles_each + blockDim.x - 1) / blockDim.x;
   const int j = blockIdx.x / block_per_pars;
-  dust::device_ptrs<T> shared_state = dust::load_shared_state(j,
+  dust::device_ptrs<T> shared_state = dust::load_shared_state<T>(j,
                                                   n_shared_int,
                                                   n_shared_real,
                                                   shared_int,
@@ -103,7 +103,7 @@ KERNEL void run_particles(size_t step_start,
   // omp here
   for (size_t i = 0; i < n_particles; ++i) {
     const int j = i / n_particles_each;
-    dust::device_ptrs<T> shared_state = dust::load_shared_state(j,
+    dust::device_ptrs<T> shared_state = dust::load_shared_state<T>(j,
                                                   n_shared_int,
                                                   n_shared_real,
                                                   shared_int,
@@ -159,7 +159,7 @@ KERNEL void compare_particles(size_t n_particles,
 #ifdef __CUDA_ARCH__
   const int block_per_pars = (n_particles_each + blockDim.x - 1) / blockDim.x;
   const int j = blockIdx.x / block_per_pars;
-  dust::device_ptrs<T> shared_state = dust::load_shared_state(j,
+  dust::device_ptrs<T> shared_state = dust::load_shared_state<T>(j,
                                                   n_shared_int,
                                                   n_shared_real,
                                                   shared_int,
@@ -184,7 +184,7 @@ KERNEL void compare_particles(size_t n_particles,
   // omp here
   for (size_t i = 0; i < n_particles; ++i) {
     const int j = i / n_particles_each;
-    dust::device_ptrs<T> shared_state = dust::load_shared_state(j,
+    dust::device_ptrs<T> shared_state = dust::load_shared_state<T>(j,
                                                   n_shared_int,
                                                   n_shared_real,
                                                   shared_int,
@@ -309,6 +309,8 @@ KERNEL void normalise_scan(const real_t * weight_sum, const real_t * weights,
 #endif
     cum_weights[i] = weights[i] / weight_sum[i / n_particles_each];
   }
+}
+
 }
 
 #endif
