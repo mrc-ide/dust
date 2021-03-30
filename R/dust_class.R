@@ -381,7 +381,16 @@ dust_class <- R6::R6Class(
     ##' match steps given in the `data` object. The return value with be
     ##' a multidimensional array (`state x <shape> x step_snapshot`)
     ##' containing full state values at the requested steps.
-    filter = function(save_trajectories = FALSE, step_snapshot = NULL) {
+    ##'
+    ##' @param device **Experimental!**: This argument may allow running on
+    ##' a GPU once support is finished, if the model supports it, and if
+    ##' the model is compiled appropriately (and assuming you have a
+    ##' suitable GPU). At present it exists for testing and will run
+    ##' slower than running with `device = FALSE`. The interpretation of
+    ##' this argument will likely change to allow selecting the GPU on
+    ##' systems with more than one. In short, please leave this argument
+    ##' alone unless you're developing dust.
+    filter = function(save_trajectories = FALSE, step_snapshot = NULL, device = FALSE) {
     },
 
     ##' @description
