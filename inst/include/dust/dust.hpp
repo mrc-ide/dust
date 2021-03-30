@@ -191,7 +191,7 @@ public:
       // in 'classic' mode where each particle is totally independent
       use_shared_L1 = false;
       shared_size_bytes = 0;
-      blockCount = n_particles() * (n_particles() + blockSize - 1) / blockSize;
+      blockCount = (n_particles() + blockSize - 1) / blockSize;
     } else {
       // If it's possible to make blocks with shared_t in L1 cache,
       // each block runs a pars set. Each pars set has enough blocks
@@ -615,7 +615,7 @@ public:
       // in 'classic' mode where each particle is totally independent
       use_shared_L1 = false;
       shared_size_bytes = 0;
-      blockCount = n_particles() * (n_particles() + blockSize - 1) / blockSize;
+      blockCount = (n_particles() + blockSize - 1) / blockSize;
     } else {
       // If it's possible to make blocks with shared_t in L1 cache,
       // each block runs a pars set. Each pars set has enough blocks
