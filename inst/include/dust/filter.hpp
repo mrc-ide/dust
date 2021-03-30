@@ -150,7 +150,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
     cub::DeviceSegmentedReduce::Max(max_tmp.data(),
                                   max_tmp_bytes,
                                   weights.data(),
-                                  log_likelihood_step.data(),
+                                  weights_max.data(),
                                   n_pars,
                                   pars_offsets.data(),
                                   pars_offsets.data() + 1);
