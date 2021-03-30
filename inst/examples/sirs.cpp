@@ -27,7 +27,7 @@ public:
   }
 
   std::vector<real_t> initial(size_t step) {
-    std::vector<real_t> state(3);
+    std::vector<real_t> state(4);
     state[0] = shared->S0;
     state[1] = shared->I0;
     state[2] = shared->R0;
