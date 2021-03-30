@@ -257,7 +257,7 @@ DEVICE size_t binary_interval_search(const T * array,
   size_t l_pivot = 0;
   size_t r_pivot = array_len;
   while (l_pivot < r_pivot) {
-    const size_t m = std::floor((l_pivot + r_pivot) / 2);
+    const size_t m = std::floor((l_pivot + r_pivot) / static_cast<T>(2.0));
     if (array[m] < search) {
       l_pivot = m + 1;
     } else {

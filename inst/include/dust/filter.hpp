@@ -122,11 +122,11 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
   sum_tmp.set_size(max_tmp_bytes);
 
   const size_t exp_blockSize = 32;
-  const size_t exp_blockCount = (n_particles + blockSize - 1) / blockSize;
+  const size_t exp_blockCount = (n_particles + blockexp_blockSizeSize - 1) / exp_blockSize;
   const size_t weight_blockSize = 32;
-  const size_t weight_blockCount = (n_pars + blockSize - 1) / blockSize;
+  const size_t weight_blockCount = (n_pars + weight_blockSize - 1) / weight_blockSize;
   const size_t normalise_blockSize = 128;
-  const size_t normalise_blockCount = (n_particles + blockSize - 1) / blockSize;
+  const size_t normalise_blockCount = (n_particles + normalise_blockSize - 1) / normalise_blockSize;
 #endif
 
   if (save_trajectories) {

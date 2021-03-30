@@ -11,6 +11,8 @@ const int scan_block_size = 128;
 
 // A stateful callback functor that maintains a running prefix to be applied
 // during consecutive scan operations.
+namespace dust {
+
 struct BlockPrefixCallbackOp
 {
     // Running prefix
@@ -55,6 +57,7 @@ KERNEL void prefix_scan(real_t * cum_weights,
   }
 }
 
+}
 #endif
 
 #endif

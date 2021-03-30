@@ -19,6 +19,7 @@ CONSTANT double const_m_ln_sqrt_2pi = 0.918938533204672741780329736406;
 
 namespace dust {
 
+__nv_exec_check_disable__
 template <typename T>
 HOSTDEVICE T maybe_log(T x, bool log) {
   return log ? x : std::exp(x);

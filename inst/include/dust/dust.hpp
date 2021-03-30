@@ -445,7 +445,7 @@ public:
     // Generate the scatter indices
     const size_t blockSize = 128;
     const size_t interval_blockCount =
-        (n_particles + blockSize - 1) / blockSize;
+        (n_particles() + blockSize - 1) / blockSize;
     dust::find_intervals<real_t><<<blockSize, interval_blockCount>>>(
       cum_weights.data(),
       n_particles(),
@@ -457,7 +457,7 @@ public:
 
     // Shuffle the particles
     const size_t scatter_blockCount =
-        (n_particles * n_state + blockSize - 1) / blockSize;
+        (n_particles() * n_state() + blockSize - 1) / blockSize;
     dust::scatter_device<real_t><<<blockSize, scatter_blockCount>>>(
         device_state_.scatter_index.data(),
         device_state_.y.data(),

@@ -25,7 +25,7 @@
 #endif
 
 // cub functions (included with CUDA>=11)
-#include <cub/device/device_select.cuh>
+#include <cub/cub.cuh>
 
 namespace dust {
 namespace cuda {
