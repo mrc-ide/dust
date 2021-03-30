@@ -51,7 +51,7 @@ KERNEL void prefix_scan(real_t * cum_weights,
     // Collectively compute the block-wide exclusive prefix sum
     BlockScan(temp_storage).InclusiveSum(
         thread_data, thread_data, prefix_op);
-    CTA_SYNC();
+    cub::CTA_SYNC();
     // Store scanned items to output segment
     cum_weights[block_offset] = thread_data;
   }
