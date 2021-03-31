@@ -440,7 +440,7 @@ public:
     using BlockReduceInt = cub::BlockReduce<real_t, scan_block_size>;
     using BlockReduceIntStorage = typename BlockReduceInt::TempStorage;
     size_t shared_size = sizeof(BlockReduceIntStorage);
-    dust::prefix_scan<real_t><<<scan_block_size, n_pars, shared_size>>>(
+    dust::prefix_scan<real_t><<<scan_block_size, n_pars(), shared_size>>>(
       weights.data(),
       n_particles(),
       n_pars_effective()
