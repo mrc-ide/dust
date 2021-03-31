@@ -292,7 +292,7 @@ KERNEL void find_intervals(const real_t * cum_weights,
                         (u[par_idx] + i % n_particles_each);
     index[i] = binary_interval_search(
       cum_weights + par_idx * n_particles_each,
-      n_particles_each, u_particle) + i % n_particles_each;
+      n_particles_each, u_particle) + par_idx * n_particles_each;
 #ifdef __NVCC__
   }
 #else
