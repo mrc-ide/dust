@@ -100,7 +100,8 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
   pars_offsets.set_array(offsets);
 
   // Allocate memory for cub
-  dust::device_scan_state<real_t> scan(n_particles, weights);
+  dust::device_scan_state<real_t> scan;
+  scan.initialise(n_particles, weights);
 #ifdef __NVCC__
   size_t max_tmp_bytes;
   if (n_pars > 1) {
