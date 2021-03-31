@@ -111,12 +111,12 @@ template <typename real_t>
 struct device_scan_state {
 
   void initialise(const size_t n_particles,
-                  const dust::device_array<real_t>& weights) {
+                  dust::device_array<real_t>& weights) {
     cum_weights = dust::device_array<real_t>(n_particles);
     set_cub_tmp(weights);
   }
 
-  void set_cub_tmp(const dust::device_array<real_t>& weights) {
+  void set_cub_tmp(dust::device_array<real_t>& weights) {
 #ifdef __NVCC__
     tmp_bytes = 0;
     select_tmp.set_size(tmp_bytes);
