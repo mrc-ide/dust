@@ -99,8 +99,9 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
   }
   pars_offsets.set_array(offsets);
 
-#ifdef __NVCC__
   // Allocate memory for cub
+  dust::device_scan_state<real_t> scan(n_particles, weights);
+#ifdef __NVCC__
   size_t max_tmp_bytes;
   if (n_pars > 1) {
     cub::DeviceSegmentedReduce::Max(max_tmp.data(),
@@ -176,6 +177,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
                               weights_max.data(),
                               n_particles);
     }
+    CUDA_CALL(cudaDeviceSynchronize());
     // Then exp
     dust::exp_weights<real_t><<<exp_blockCount, exp_blockSize>>>(
       n_particles,
@@ -200,6 +202,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
                               log_likelihood_step.data(),
                               n_particles);
     }
+    CUDA_CALL(cudaDeviceSynchronize());
     // Finally log and add max
     dust::weight_log_likelihood<real_t><<<weight_blockCount, weight_blockSize>>>(
       n_pars,
@@ -241,7 +244,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
 
     // RESAMPLE
     // Normalise the weights and calculate cumulative sum for resample
-    obj->resample_device(weights);
+    obj->resample_device(weights, scan);
 
     // SAVE HISTORY ORDER
     if (save_trajectories) {

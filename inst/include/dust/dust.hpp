@@ -18,7 +18,6 @@
 #include <dust/utils.hpp>
 #include <dust/particle.hpp>
 #include <dust/kernels.hpp>
-#include <dust/prefix_scan.cuh>
 
 namespace dust {
 
@@ -433,18 +432,18 @@ public:
     stale_device_ = true;
   }
 
-  void resample_device(dust::device_array<real_t>& weights) {
+  void resample_device(dust::device_array<real_t>& weights,
+                       dust::device_scan_state<real_t>& scan) {
     refresh_device();
 #ifdef __NVCC__
     // Cumulative sum
-    using BlockReduceInt = cub::BlockReduce<real_t, scan_block_size>;
-    using BlockReduceIntStorage = typename BlockReduceInt::TempStorage;
-    size_t shared_size = sizeof(BlockReduceIntStorage);
-    dust::prefix_scan<real_t><<<n_pars_effective(), scan_block_size, shared_size>>>(
-      weights.data(),
-      n_particles(),
-      n_pars_effective()
-    );
+    // Note this is over all parameters, this is fixed with a
+    // subtraction in the interval kernel
+    cub::DeviceScan::InclusiveSum(scan.scan_tmp.data(),
+                                  scan.tmp_bytes,
+                                  weights.data(),
+                                  scan.cum_weights.data(),
+                                  scan.cum_weights.size());
     // Don't sync here
 #else
     std::vector<real_t> host_w(weights.size());
@@ -459,7 +458,7 @@ public:
       }
       host_cum_weights[i] = prev_weight + host_w[i];
     }
-    cum_weights.set_array(host_w);
+    scan.cum_weights.set_array(host_cum_weights);
 #endif
 
     // Generate random numbers for each parameter set
@@ -476,7 +475,7 @@ public:
     const size_t interval_blockCount =
         (n_particles() + interval_blockSize - 1) / interval_blockSize;
     dust::find_intervals<real_t><<<interval_blockCount, interval_blockSize>>>(
-      weights.data(),
+      scan.cum_weights.data(),
       n_particles(),
       n_pars_effective(),
       device_state_.scatter_index.data(),
@@ -485,7 +484,7 @@ public:
     CUDA_CALL(cudaDeviceSynchronize());
 #else
     dust::find_intervals<real_t>(
-      weights.data(),
+      scan.cum_weights.data(),
       n_particles(),
       n_pars_effective(),
       device_state_.scatter_index.data(),

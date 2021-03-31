@@ -107,6 +107,33 @@ struct device_state {
   dust::device_array<real_t> resample_u;
 };
 
+template <typename real_t>
+struct device_scan_state {
+
+  void initialise(const size_t n_particles,
+                  const dust::device_array<real_t>& weights) {
+    cum_weights = dust::device_array<real_t>(n_particles);
+    set_cub_tmp(weights);
+  }
+
+  void set_cub_tmp(const dust::device_array<real_t>& weights) {
+#ifdef __NVCC__
+    tmp_bytes = 0;
+    select_tmp.set_size(tmp_bytes);
+    cub::DeviceScan::InclusiveSum(scan_tmp.data(),
+                                  tmp_bytes,
+                                  weights.data(),
+                                  cum_weights.data(),
+                                  cum_weights.size());
+    select_tmp.set_size(tmp_bytes);
+#endif
+  }
+
+  size_t tmp_bytes;
+  dust::device_array<real_t> cum_weights;
+  dust::device_array<void> scan_tmp;
+};
+
 // We need to compute the size of space required for integers and
 // reals on the device, per particle. Because we work on the
 // requirement that every particle has the same dimension we pass an

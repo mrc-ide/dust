@@ -285,8 +285,9 @@ KERNEL void find_intervals(const real_t * cum_weights,
   for (size_t i = 0; i < n_particles; ++i) {
 #endif
     const int par_idx = i / n_particles_each;
-    real_t normalising_constant = cum_weights[par_idx * n_particles_each - 1];
-    real_t u_particle = normalising_constant /
+    real_t normalising_constant = cum_weights[(par_idx + 1) * n_particles_each - 1];
+    real_t start_val = par_idx > 0 ? cum_weights[par_idx * n_particles_each - 1] : 0;
+    real_t u_particle = start_val + normalising_constant /
                         static_cast<real_t>(n_particles_each) *
                         (u[par_idx] + i % n_particles_each);
     index[i] = binary_interval_search(
