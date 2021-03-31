@@ -37,7 +37,7 @@ KERNEL void prefix_scan(real_t * cum_weights,
   const size_t n_particles_each = n_particles / n_pars;
   const int par_idx = blockIdx.x;
   // Specialize BlockScan for a 1D block of 128 threads
-  typedef cub::BlockScan<real_t, scan_block_size> BlockScan;
+  typedef cub::BlockScan<real_t, scan_block_size, cub::BLOCK_SCAN_WARP_SCANS> BlockScan;
   // Allocate shared memory for BlockScan
   __shared__ typename BlockScan::TempStorage temp_storage;
   // Initialize running total
