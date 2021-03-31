@@ -442,8 +442,8 @@ public:
     size_t shared_size = sizeof(BlockReduceIntStorage);
     dust::prefix_scan<real_t><<<scan_block_size, n_pars, shared_size>>>(
       weights.data(),
-      n_particles,
-      n_pars
+      n_particles(),
+      n_pars_effective()
     );
     // Don't sync here
 #else
