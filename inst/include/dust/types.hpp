@@ -119,13 +119,13 @@ struct device_scan_state {
   void set_cub_tmp(dust::device_array<real_t>& weights) {
 #ifdef __NVCC__
     tmp_bytes = 0;
-    select_tmp.set_size(tmp_bytes);
+    scan_tmp.set_size(tmp_bytes);
     cub::DeviceScan::InclusiveSum(scan_tmp.data(),
                                   tmp_bytes,
                                   weights.data(),
                                   cum_weights.data(),
                                   cum_weights.size());
-    select_tmp.set_size(tmp_bytes);
+    scan_tmp.set_size(tmp_bytes);
 #endif
   }
 
