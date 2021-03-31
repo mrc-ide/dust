@@ -440,7 +440,7 @@ public:
     using BlockReduceInt = cub::BlockReduce<real_t, scan_block_size>;
     using BlockReduceIntStorage = typename BlockReduceInt::TempStorage;
     size_t shared_size = sizeof(BlockReduceIntStorage);
-    dust::prefix_scan<real_t><<<scan_block_size, n_pars_effective(), shared_size>>>(
+    dust::prefix_scan<real_t><<<n_pars_effective(), scan_block_size, shared_size>>>(
       weights.data(),
       n_particles(),
       n_pars_effective()
@@ -475,7 +475,7 @@ public:
     const size_t interval_blockSize = 32;
     const size_t interval_blockCount =
         (n_particles() + interval_blockSize - 1) / interval_blockSize;
-    dust::find_intervals<real_t><<<interval_blockSize, interval_blockCount>>>(
+    dust::find_intervals<real_t><<<interval_blockCount, interval_blockSize>>>(
       weights.data(),
       n_particles(),
       n_pars_effective(),
@@ -498,7 +498,7 @@ public:
     const size_t scatter_blockSize = 32;
     const size_t scatter_blockCount =
         (n_particles() * n_state() + scatter_blockSize - 1) / scatter_blockSize;
-    dust::scatter_device<real_t><<<scatter_blockSize, scatter_blockCount>>>(
+    dust::scatter_device<real_t><<<scatter_blockCount, scatter_blockSize>>>(
         device_state_.scatter_index.data(),
         device_state_.y.data(),
         device_state_.y_next.data(),

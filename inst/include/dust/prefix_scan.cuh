@@ -41,7 +41,7 @@ KERNEL void prefix_scan(real_t * cum_weights,
   // Allocate shared memory for BlockScan
   __shared__ typename BlockScan::TempStorage temp_storage;
   // Initialize running total
-  BlockPrefixCallbackOp prefix_op<real_t>(0);
+  BlockPrefixCallbackOp<real_t> prefix_op(0);
 
   // Have the block iterate over segments of items
   for (int block_offset = par_idx * n_particles_each;
