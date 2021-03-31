@@ -270,7 +270,9 @@ DEVICE size_t binary_interval_search(const T * array,
   return l_pivot;
 }
 
-// index = findInterval(u, cum_weights)
+// index = findInterval(u, cumsum(weights / sum(weights)))
+// same as
+// index = findInterval(u * cumsum(weights)[n], cumsum(weights))
 template <typename real_t>
 KERNEL void find_intervals(const real_t * cum_weights,
                            const size_t n_particles, const size_t n_pars,
@@ -283,7 +285,9 @@ KERNEL void find_intervals(const real_t * cum_weights,
   for (size_t i = 0; i < n_particles; ++i) {
 #endif
     const int par_idx = i / n_particles_each;
-    real_t u_particle = 1 / static_cast<real_t>(n_particles_each) *
+    real_t normalising_constant = cum_weights[par_idx * n_particles_each - 1];
+    real_t u_particle = normalising_constant /
+                        static_cast<real_t>(n_particles_each) *
                         (u[par_idx] + i % n_particles_each);
     index[i] = binary_interval_search(
       cum_weights + par_idx * n_particles_each,
@@ -293,22 +297,6 @@ KERNEL void find_intervals(const real_t * cum_weights,
 #else
   }
 #endif
-}
-
-// cum_weights = weights / sum(weights)
-template <typename real_t>
-KERNEL void normalise_scan(const real_t * weight_sum, const real_t * weights,
-                           real_t * cum_weights,
-                           const size_t n_particles, const size_t n_pars) {
-  const size_t n_particles_each = n_particles / n_pars;
-#ifdef __NVCC__
-  for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n_particles;
-       i += blockDim.x * gridDim.x) {
-#else
-  for (size_t i = 0; i < n_particles; ++i) {
-#endif
-    cum_weights[i] = weights[i] / weight_sum[i / n_particles_each];
-  }
 }
 
 }

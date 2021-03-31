@@ -18,6 +18,7 @@
 #include <dust/utils.hpp>
 #include <dust/particle.hpp>
 #include <dust/kernels.hpp>
+#include <dust/prefix_scan.cuh>
 
 namespace dust {
 
@@ -432,33 +433,72 @@ public:
     stale_device_ = true;
   }
 
-  void resample_device(dust::device_array<real_t>& cum_weights) {
+  void resample_device(dust::device_array<real_t>& weights) {
     refresh_device();
+#ifdef __NVCC__
+    // Cumulative sum
+    using BlockReduceInt = cub::BlockReduce<real_t, scan_block_size>;
+    using BlockReduceIntStorage = typename BlockReduceInt::TempStorage;
+    size_t shared_size = sizeof(BlockReduceIntStorage);
+    dust::prefix_scan<real_t><<<scan_block_size, n_pars, shared_size>>>(
+      weights.data(),
+      n_particles,
+      n_pars
+    );
+    // Don't sync here
+#else
+    std::vector<real_t> host_w(weights.size());
+    std::vector<real_t> host_cum_weights(weights.size());
+    weights.get_array(host_w);
+    for (size_t i = 0; i < n_particles; ++i) {
+      real_t prev_weight;
+      if (i % n_particles_each == 0) {
+        prev_weight = 0;
+      } else {
+        prev_weight = host_cum_weights[i - 1];
+      }
+      host_cum_weights[i] = prev_weight + host_w[i];
+    }
+    cum_weights.set_array(host_w);
+#endif
+
+    // Generate random numbers for each parameter set
     std::vector<real_t> shuffle_draws(n_pars_effective());
     for (size_t i = 0; i < n_pars_effective(); ++i) {
       shuffle_draws[i] = dust::unif_rand(rng_.state(0));
     }
-    // TODO: eliminate this H->D?
+    // Copying this also syncs the prefix scan
     device_state_.resample_u.set_array(shuffle_draws);
 
-#ifdef __NVCC__
     // Generate the scatter indices
-    const size_t blockSize = 128;
+#ifdef __NVCC__
+    const size_t interval_blockSize = 32;
     const size_t interval_blockCount =
-        (n_particles() + blockSize - 1) / blockSize;
-    dust::find_intervals<real_t><<<blockSize, interval_blockCount>>>(
-      cum_weights.data(),
+        (n_particles() + interval_blockSize - 1) / interval_blockSize;
+    dust::find_intervals<real_t><<<interval_blockSize, interval_blockCount>>>(
+      weights.data(),
       n_particles(),
       n_pars_effective(),
       device_state_.scatter_index.data(),
       device_state_.resample_u.data()
     );
     CUDA_CALL(cudaDeviceSynchronize());
+#else
+    dust::find_intervals<real_t>(
+      weights.data(),
+      n_particles(),
+      n_pars_effective(),
+      device_state_.scatter_index.data(),
+      device_state_.resample_u.data()
+    );
+#endif
 
     // Shuffle the particles
+#ifdef __NVCC__
+    const size_t scatter_blockSize = 32;
     const size_t scatter_blockCount =
-        (n_particles() * n_state() + blockSize - 1) / blockSize;
-    dust::scatter_device<real_t><<<blockSize, scatter_blockCount>>>(
+        (n_particles() * n_state() + scatter_blockSize - 1) / scatter_blockSize;
+    dust::scatter_device<real_t><<<scatter_blockSize, scatter_blockCount>>>(
         device_state_.scatter_index.data(),
         device_state_.y.data(),
         device_state_.y_next.data(),
@@ -466,13 +506,6 @@ public:
         n_particles());
     CUDA_CALL(cudaDeviceSynchronize());
 #else
-    dust::find_intervals<real_t>(
-      cum_weights.data(),
-      n_particles(),
-      n_pars_effective(),
-      device_state_.scatter_index.data(),
-      device_state_.resample_u.data()
-    );
     dust::scatter_device<real_t>(
         device_state_.scatter_index.data(),
         device_state_.y.data(),
@@ -480,8 +513,6 @@ public:
         n_state(),
         n_particles());
 #endif
-
-    stale_device_ = true;
   }
 
   // Used in the filter

@@ -3,7 +3,6 @@
 
 #include <dust/filter_state.hpp>
 #include <dust/filter_tools.hpp>
-#include <dust/prefix_scan.cuh>
 
 namespace dust {
 namespace filter {
@@ -142,8 +141,6 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
   const size_t exp_blockCount = (n_particles + exp_blockSize - 1) / exp_blockSize;
   const size_t weight_blockSize = 32;
   const size_t weight_blockCount = (n_pars + weight_blockSize - 1) / weight_blockSize;
-  const size_t normalise_blockSize = 128;
-  const size_t normalise_blockCount = (n_particles + normalise_blockSize - 1) / normalise_blockSize;
 #endif
 
   if (save_trajectories) {
@@ -244,45 +241,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
 
     // RESAMPLE
     // Normalise the weights and calculate cumulative sum for resample
-#ifdef __NVCC__
-    dust::normalise_scan<real_t><<<normalise_blockSize, normalise_blockCount>>>(
-      log_likelihood_step.data(),
-      weights.data(),
-      cum_weights.data(),
-      n_particles, n_pars
-    );
-    CUDA_CALL(cudaDeviceSynchronize());
-    // Cumulative sum
-    using BlockReduceInt = cub::BlockReduce<real_t, scan_block_size>;
-    using BlockReduceIntStorage = typename BlockReduceInt::TempStorage;
-    size_t shared_size = sizeof(BlockReduceIntStorage);
-    dust::prefix_scan<real_t><<<scan_block_size, n_pars, shared_size>>>(
-      cum_weights.data(),
-      n_particles,
-      n_pars
-    );
-    CUDA_CALL(cudaDeviceSynchronize());
-#else
-    dust::normalise_scan<real_t>(
-      log_likelihood_step.data(),
-      weights.data(),
-      cum_weights.data(),
-      n_particles, n_pars
-    );
-    weights.get_array(host_w);
-    std::vector<real_t> host_cum_weights(n_particles);
-    for (size_t i = 0; i < n_particles; ++i) {
-      real_t prev_weight;
-      if (i % n_particles_each == 0) {
-        prev_weight = 0;
-      } else {
-        prev_weight = host_cum_weights[i - 1];
-      }
-      host_cum_weights[i] = prev_weight + host_w[i];
-    }
-    cum_weights.set_array(host_w);
-#endif
-    obj->resample_device(cum_weights);
+    obj->resample_device(weights);
 
     // SAVE HISTORY ORDER
     if (save_trajectories) {
