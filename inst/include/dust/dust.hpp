@@ -276,6 +276,7 @@ public:
 #ifdef __NVCC__
       // Run the selection and copy items back
       run_device_select();
+      CUDA_CALL(cudaDeviceSynchronize());
       std::vector<real_t> y_selected(np * index_size);
       device_state_.y_selected.get_array(y_selected);
 
@@ -303,10 +304,12 @@ public:
 
   // Used for copy of state into another block of memory on the device (used
   // for history saving)
-  void state(dust::device_array<real_t>& device_state, size_t dst_offset) {
+  void state(dust::device_array<real_t>& device_state, const size_t dst_offset,
+             const bool async = false) {
     run_device_select();
+    CUDA_CALL(cudaDeviceSynchronize());
     device_state.set_array(device_state_.y_selected.data(),
-                           device_state_.y_selected.size(), dst_offset);
+                           device_state_.y_selected.size(), dst_offset, async);
   }
 
   // TODO: this does not use device_select. But if index is being provided
