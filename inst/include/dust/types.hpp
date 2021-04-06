@@ -134,6 +134,168 @@ struct device_scan_state {
   dust::device_array<void> scan_tmp;
 };
 
+template <typename real_t>
+class device_weights {
+public:
+  device_weights(const size_t n_particles, const size_t n_pars)
+    : n_particles_(n_particles), n_pars_(n_pars),
+      n_particles_each_(n_particles_ / n_pars_);
+      exp_blockSize(32),
+      exp_blockCount((n_particles_ + exp_blockSize - 1) / exp_blockSize),
+      weight_blockSize(32),
+      weight_blockCount((n_pars + weight_blockSize - 1) / weight_blockSize) {
+    // Set up storage
+  weights_ = dust::device_array<real_t>(n_particles_);
+  cum_weights_ = dust::device_array<real_t>(n_particles_);
+  weights_max_ = dust::device_array<real_t>(n_pars_);
+  log_likelihood_step_ = dust::device_array<real_t>(n_pars_);
+  dust::device_array<int> pars_offsets(n_pars_ + 1);
+
+  std::vector<int> offsets(n_pars + 1);
+  for (size_t i = 0; i < n_pars + 1; ++i) {
+    offsets[i] = i * n_particles_each;
+  }
+  pars_offsets_.set_array(offsets);
+
+  // Allocate memory for cub
+#ifdef __NVCC__
+  if (n_pars_ > 1) {
+    cub::DeviceSegmentedReduce::Max(max_tmp_.data(),
+                                    max_tmp_bytes,
+                                    weights_.data(),
+                                    weights_max_.data(),
+                                    n_pars_,
+                                    pars_offsets_.data(),
+                                    pars_offsets_.data() + 1);
+  } else {
+    cub::DeviceReduce::Max(max_tmp_.data(),
+                            max_tmp_bytes,
+                            weights_.data(),
+                            weights_max_.data(),
+                            n_particles_);
+  }
+  max_tmp_.set_size(max_tmp_bytes);
+
+  if (n_pars_ > 1) {
+    cub::DeviceSegmentedReduce::Sum(sum_tmp_.data(),
+                                    sum_tmp_bytes,
+                                    weights_.data(),
+                                    log_likelihood_step_.data(),
+                                    n_pars_,
+                                    pars_offsets_.data(),
+                                    pars_offsets_.data() + 1);
+  } else {
+    cub::DeviceReduce::Sum(sum_tmp_.data(),
+                            sum_tmp_bytes,
+                            weights_.data(),
+                            log_likelihood_step_.data(),
+                            n_particles_);
+  }
+  sum_tmp_.set_size(sum_tmp_bytes);
+#endif
+  }
+
+  void scale_log_weights(dust::device_array<real_t>& log_likelihood) {
+    #ifdef __NVCC__
+    // Scale log-weights. First calculate the max
+    if (n_pars_ > 1) {
+      cub::DeviceSegmentedReduce::Max(max_tmp_.data(),
+                                      max_tmp_bytes,
+                                      weights_.data(),
+                                      weights_max.data(),
+                                      n_pars_,
+                                      pars_offsets_.data(),
+                                      pars_offsets_.data() + 1);
+    } else {
+      cub::DeviceReduce::Max(max_tmp_.data(),
+                              max_tmp_bytes,
+                              weights_.data(),
+                              weights_max_.data(),
+                              n_particles_);
+    }
+    CUDA_CALL(cudaDeviceSynchronize());
+    // Then exp
+    dust::exp_weights<real_t><<<exp_blockCount, exp_blockSize>>>(
+      n_particles_,
+      n_pars_,
+      weights_.data(),
+      weights_max_.data()
+    );
+    CUDA_CALL(cudaDeviceSynchronize());
+    // Then sum
+    if (n_pars_ > 1) {
+      cub::DeviceSegmentedReduce::Sum(sum_tmp_.data(),
+                                    sum_tmp_bytes,
+                                    weights_.data(),
+                                    log_likelihood_step_.data(),
+                                    n_pars,
+                                    pars_offsets_.data(),
+                                    pars_offsets_.data() + 1);
+    } else {
+      cub::DeviceReduce::Sum(sum_tmp_.data(),
+                              sum_tmp_bytes,
+                              weights_.data(),
+                              log_likelihood_step_.data(),
+                              n_particles);
+    }
+    CUDA_CALL(cudaDeviceSynchronize());
+    // Finally log and add max
+    dust::weight_log_likelihood<real_t><<<weight_blockCount, weight_blockSize>>>(
+      n_pars_,
+      n_particles_each_,
+      log_likelihood.data(),
+      log_likelihood_step_.data(),
+      weights_max_.data()
+    );
+    CUDA_CALL(cudaDeviceSynchronize());
+#else
+    std::vector<real_t> max_w(n_pars_, -dust::utils::infinity<real_t>());
+    std::vector<real_t> host_w(n_particles_);
+    weights_.get_array(host_w);
+    for (size_t i = 0; i < n_pars_; ++i) {
+      for (size_t j = 0; j < n_particles_each_; j++) {
+        max_w[i] = std::max(host_w[i * n_particles_each_ + j], max_w[i]);
+      }
+    }
+    weights_max_.set_array(max_w);
+    dust::exp_weights<real_t>(
+      n_particles_,
+      n_pars_,
+      weights_.data(),
+      weights_max_.data()
+    );
+    dust::weight_log_likelihood<real_t>(
+      n_pars_,
+      n_particles_each_,
+      log_likelihood.data(),
+      log_likelihood_step_.data(),
+      weights_max_.data()
+    );
+#endif
+  }
+
+  dust::device_array<real_t> weights {
+    return weights_;
+  }
+
+private:
+  size_t n_particles_;
+  size_t n_pars_;
+  size_t n_particles_each;
+
+  const size_t exp_blockSize, exp_blockCount;
+  const size_t weight_blockSize, weight_blockCount;
+
+  size_t max_tmp_bytes, sum_tmp_bytes;
+  dust::device_array<real_t> weights_;
+  dust::device_array<real_t> cum_weights_;
+  dust::device_array<real_t> weights_max_;
+  dust::device_array<real_t> log_likelihood_step_;
+  dust::device_array<int> pars_offsets_;
+  dust::device_array<void> max_tmp_:
+  dust::device_array<void> sum_tmp_:
+}
+
 // We need to compute the size of space required for integers and
 // reals on the device, per particle. Because we work on the
 // requirement that every particle has the same dimension we pass an

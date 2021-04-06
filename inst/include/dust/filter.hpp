@@ -85,65 +85,9 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
   const size_t n_pars = obj->n_pars_effective();
   const size_t n_particles_each = n_particles / n_pars;
   dust::device_array<real_t> log_likelihood(n_pars);
-  dust::device_array<real_t> log_likelihood_step(n_pars);
-
-  // Set up storage
-  dust::device_array<real_t> weights(n_particles);
-  dust::device_array<real_t> cum_weights(n_particles);
-  dust::device_array<real_t> weights_max(n_pars);
-  dust::device_array<int> pars_offsets(n_pars + 1);
-  dust::device_array<void> max_tmp, sum_tmp;
-  std::vector<int> offsets(n_pars + 1);
-  for (size_t i = 0; i < n_pars + 1; ++i) {
-    offsets[i] = i * n_particles_each;
-  }
-  pars_offsets.set_array(offsets);
-
-  // Allocate memory for cub
+  dust::device_weights<real_t> weights(n_particles, n_pars);
   dust::device_scan_state<real_t> scan;
   scan.initialise(n_particles, weights);
-#ifdef __NVCC__
-  size_t max_tmp_bytes;
-  if (n_pars > 1) {
-    cub::DeviceSegmentedReduce::Max(max_tmp.data(),
-                                    max_tmp_bytes,
-                                    weights.data(),
-                                    weights_max.data(),
-                                    n_pars,
-                                    pars_offsets.data(),
-                                    pars_offsets.data() + 1);
-  } else {
-    cub::DeviceReduce::Max(max_tmp.data(),
-                            max_tmp_bytes,
-                            weights.data(),
-                            weights_max.data(),
-                            n_particles);
-  }
-  max_tmp.set_size(max_tmp_bytes);
-
-  size_t sum_tmp_bytes;
-  if (n_pars > 1) {
-    cub::DeviceSegmentedReduce::Sum(sum_tmp.data(),
-                                    sum_tmp_bytes,
-                                    weights.data(),
-                                    log_likelihood_step.data(),
-                                    n_pars,
-                                    pars_offsets.data(),
-                                    pars_offsets.data() + 1);
-  } else {
-    cub::DeviceReduce::Sum(sum_tmp.data(),
-                            sum_tmp_bytes,
-                            weights.data(),
-                            log_likelihood_step.data(),
-                            n_particles);
-  }
-  sum_tmp.set_size(sum_tmp_bytes);
-
-  const size_t exp_blockSize = 32;
-  const size_t exp_blockCount = (n_particles + exp_blockSize - 1) / exp_blockSize;
-  const size_t weight_blockSize = 32;
-  const size_t weight_blockCount = (n_pars + weight_blockSize - 1) / weight_blockSize;
-#endif
 
   if (save_trajectories) {
     state.trajectories.resize(obj->n_state(), n_particles, n_data);
@@ -157,95 +101,22 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
     // MODEL UPDATE
     obj->run_device(d.first);
 
+    // SAVE HISTORY (async)
+    if (save_trajectories) {
+      obj->state(state.trajectories.values(),
+                 state.trajectories.value_offset(),
+                 true);
+    }
+
     // COMPARISON FUNCTION
     obj->compare_data_device(weights, d.second);
 
     // SCALE WEIGHTS
-#ifdef __NVCC__
-    // Scale log-weights. First calculate the max
-    if (n_pars > 1) {
-      cub::DeviceSegmentedReduce::Max(max_tmp.data(),
-                                      max_tmp_bytes,
-                                      weights.data(),
-                                      weights_max.data(),
-                                      n_pars,
-                                      pars_offsets.data(),
-                                      pars_offsets.data() + 1);
-    } else {
-      cub::DeviceReduce::Max(max_tmp.data(),
-                              max_tmp_bytes,
-                              weights.data(),
-                              weights_max.data(),
-                              n_particles);
-    }
-    CUDA_CALL(cudaDeviceSynchronize());
-    // Then exp
-    dust::exp_weights<real_t><<<exp_blockCount, exp_blockSize>>>(
-      n_particles,
-      n_pars,
-      weights.data(),
-      weights_max.data()
-    );
-    CUDA_CALL(cudaDeviceSynchronize());
-    // Then sum
-    if (n_pars > 1) {
-      cub::DeviceSegmentedReduce::Sum(sum_tmp.data(),
-                                    sum_tmp_bytes,
-                                    weights.data(),
-                                    log_likelihood_step.data(),
-                                    n_pars,
-                                    pars_offsets.data(),
-                                    pars_offsets.data() + 1);
-    } else {
-      cub::DeviceReduce::Sum(sum_tmp.data(),
-                              sum_tmp_bytes,
-                              weights.data(),
-                              log_likelihood_step.data(),
-                              n_particles);
-    }
-    CUDA_CALL(cudaDeviceSynchronize());
-    // Finally log and add max
-    dust::weight_log_likelihood<real_t><<<weight_blockCount, weight_blockSize>>>(
-      n_pars,
-      n_particles_each,
-      log_likelihood.data(),
-      log_likelihood_step.data(),
-      weights_max.data()
-    );
-    CUDA_CALL(cudaDeviceSynchronize());
-#else
-    std::vector<real_t> max_w(n_pars, -dust::utils::infinity<real_t>());
-    std::vector<real_t> host_w(n_particles);
-    weights.get_array(host_w);
-    for (size_t i = 0; i < n_pars; ++i) {
-      for (size_t j = 0; j < n_particles_each; j++) {
-        max_w[i] = std::max(host_w[i * n_particles_each + j], max_w[i]);
-      }
-    }
-    weights_max.set_array(max_w);
-    dust::exp_weights<real_t>(
-      n_particles,
-      n_pars,
-      weights.data(),
-      weights_max.data()
-    );
-    dust::weight_log_likelihood<real_t>(
-      n_pars,
-      n_particles_each,
-      log_likelihood.data(),
-      log_likelihood_step.data(),
-      weights_max.data()
-    );
-#endif
-
-    // SAVE HISTORY
-    if (save_trajectories) {
-      obj->state(state.trajectories.values(), state.trajectories.value_offset());
-    }
+    weights.scale_weights(log_likelihood);
 
     // RESAMPLE
     // Normalise the weights and calculate cumulative sum for resample
-    obj->resample_device(weights, scan);
+    obj->resample_device(weights.weights(), scan);
 
     // SAVE HISTORY ORDER
     if (save_trajectories) {

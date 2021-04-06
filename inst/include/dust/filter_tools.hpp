@@ -58,6 +58,8 @@ real_t scale_log_weights(typename std::vector<real_t>::iterator w, size_t n) {
   return std::log(tot / n) + max_w;
 }
 
+
+
 }
 }
 
