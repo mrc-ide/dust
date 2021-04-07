@@ -195,6 +195,7 @@ public:
 #endif
   }
 
+  // CUDA version of log-sum-exp trick
   void scale_log_weights(dust::device_array<real_t>& log_likelihood) {
     #ifdef __NVCC__
     // Scale log-weights. First calculate the max
@@ -281,7 +282,7 @@ public:
 private:
   size_t n_particles_;
   size_t n_pars_;
-  size_t n_particles_each;
+  size_t n_particles_each_;
 
   const size_t exp_blockSize, exp_blockCount;
   const size_t weight_blockSize, weight_blockCount;
