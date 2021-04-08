@@ -37,7 +37,7 @@ public:
     pars_are_shared_(true),
     n_threads_(n_threads),
     device_id_(device_id),
-    rng_(n_particles_total_, seed),
+    rng_(n_particles_total_ + 1, seed),
     errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true) {
@@ -59,7 +59,7 @@ public:
     pars_are_shared_(n_particles != 0),
     n_threads_(n_threads),
     device_id_(device_id),
-    rng_(n_particles_total_, seed),
+    rng_(n_particles_total_ + 1, seed),
     errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true) {
@@ -415,19 +415,22 @@ public:
     if (n_pars_ == 0) {
       // One parameter set; shuffle among all particles
       const size_t np = particles_.size();
-      real_t u = dust::unif_rand(rng_.state(0));
+      real_t u = dust::unif_rand(rng_.state(n_particles_));
       dust::filter::resample_weight(it_weights, np, u, 0, it_index);
     } else {
       // Multiple parameter set; shuffle within each group
       // independently (and therefore in parallel)
       const size_t np = particles_.size() / n_pars_;
+      std::vector<real_t> u;
+      for (size_t i = 0; i < n_pars_; ++i) {
+        u.push_back(dust::unif_rand(rng_.state(n_particles_)));
+      }
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
       for (size_t i = 0; i < n_pars_; ++i) {
         const size_t j = i * np;
-        real_t u = dust::unif_rand(rng_.state(j));
-        dust::filter::resample_weight(it_weights + j, np, u, j, it_index + j);
+        dust::filter::resample_weight(it_weights + j, np, u[i], j, it_index + j);
       }
     }
 
@@ -462,7 +465,7 @@ public:
     // Generate random numbers for each parameter set
     std::vector<real_t> shuffle_draws(n_pars_effective());
     for (size_t i = 0; i < n_pars_effective(); ++i) {
-      shuffle_draws[i] = dust::unif_rand(rng_.state(0));
+      shuffle_draws[i] = dust::unif_rand(rng_.state(n_particles_));
     }
     // Copying this also syncs the prefix scan
     device_state_.resample_u.set_array(shuffle_draws);
@@ -999,7 +1002,7 @@ private:
           rng[i * rng_len + j] = rngi[i + j * np];
         }
       }
-      rng_.import_state(rng);
+      rng_.import_state(rng, np);
       stale_host_ = false;
     }
   }
