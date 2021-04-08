@@ -638,7 +638,7 @@ public:
     size_t n_shared_int_effective = device_state_.n_shared_int +
       dust::utils::align_padding(device_state_.n_shared_int * sizeof(int), sizeof(real_t)) / sizeof(int);
     size_t n_shared_real_effective = device_state_.n_shared_real +
-      dust::utils::align_padding(n_shared_int_effective * sizeof(int),
+      dust::utils::align_padding(n_shared_int_effective * sizeof(int) +
                                  device_state_.n_shared_real * sizeof(real_t),
                                  16) / sizeof(real_t);
     size_t shared_size_bytes = n_shared_int_effective * sizeof(int) +
