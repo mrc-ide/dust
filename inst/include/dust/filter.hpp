@@ -17,6 +17,7 @@ std::vector<typename T::real_t> filter(Dust<T> * obj,
   const size_t n_particles = obj->n_particles();
   const size_t n_data = obj->n_data();
   const size_t n_pars = obj->n_pars_effective();
+  const size_t n_particles_each = n_particles / n_pars;
   std::vector<real_t> log_likelihood(n_pars);
   std::vector<real_t> log_likelihood_step(n_pars);
   std::vector<real_t> weights(n_particles);
@@ -82,11 +83,10 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
   const size_t n_particles = obj->n_particles();
   const size_t n_data = obj->n_data();
   const size_t n_pars = obj->n_pars_effective();
-  const size_t n_particles_each = n_particles / n_pars;
   dust::device_array<real_t> log_likelihood(n_pars);
   dust::device_weights<real_t> weights(n_particles, n_pars);
   dust::device_scan_state<real_t> scan;
-  scan.initialise(n_particles, weights);
+  scan.initialise(n_particles, weights.weights());
 
   if (save_trajectories) {
     state.trajectories.resize(obj->n_state(), n_particles, n_data);
@@ -108,10 +108,10 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
     }
 
     // COMPARISON FUNCTION
-    obj->compare_data_device(weights, d.second);
+    obj->compare_data_device(weights.weights(), d.second);
 
     // SCALE WEIGHTS
-    weights.scale_weights(log_likelihood);
+    weights.scale_log_weights(log_likelihood);
 
     // RESAMPLE
     // Normalise the weights and calculate cumulative sum for resample

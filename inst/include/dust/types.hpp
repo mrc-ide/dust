@@ -275,7 +275,7 @@ public:
 #endif
   }
 
-  dust::device_array<real_t> weights() {
+  dust::device_array<real_t>& weights() {
     return weights_;
   }
 
