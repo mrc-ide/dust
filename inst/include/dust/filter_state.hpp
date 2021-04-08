@@ -46,10 +46,10 @@ public:
   //
   // Note that we treat history_order and history_value as read-only
   // though this process so one could safely call this multiple times.
-  template <typename Iterator, typename VecIt = Iterator>
-  void particle_ancestry(Iterator ret,
-                         const VecIt value_begin,
-                         const VecIt order_begin) {
+  template <typename OutIt, typename RealIt, typename IntIt>
+  void particle_ancestry(OutIt ret,
+                         const RealIt value_begin,
+                         const IntIt order_begin) {
     std::vector<size_t> index_particle(n_particles_);
     for (size_t i = 0; i < n_particles_; ++i) {
       index_particle[i] = i;
@@ -169,7 +169,7 @@ private:
   dust::device_array<real_t> history_value;
   dust::device_array<size_t> history_order;
 
-  std::vector<real_t> destride_history() {
+  std::vector<real_t> destride_history() const {
     // Copy H->D
     std::vector<real_t> history_host(size());
     std::vector<real_t> destride_history(size());
