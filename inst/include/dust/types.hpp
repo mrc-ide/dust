@@ -142,9 +142,9 @@ public:
   device_weights(const size_t n_particles, const size_t n_pars)
     : n_particles_(n_particles), n_pars_(n_pars),
       n_particles_each_(n_particles_ / n_pars_),
-      exp_blockSize(32),
+      exp_blockSize(128),
       exp_blockCount((n_particles_ + exp_blockSize - 1) / exp_blockSize),
-      weight_blockSize(32),
+      weight_blockSize(64),
       weight_blockCount((n_pars + weight_blockSize - 1) / weight_blockSize) {
   // Set up storage
   weights_ = dust::device_array<real_t>(n_particles_);

@@ -452,14 +452,9 @@ public:
     std::vector<real_t> host_w(weights.size());
     std::vector<real_t> host_cum_weights(weights.size());
     weights.get_array(host_w);
-    for (size_t i = 0; i < n_particles; ++i) {
-      real_t prev_weight;
-      if (i % n_particles_each == 0) {
-        prev_weight = 0;
-      } else {
-        prev_weight = host_cum_weights[i - 1];
-      }
-      host_cum_weights[i] = prev_weight + host_w[i];
+    host_cum_weights[0] = host_w[0];
+    for (size_t i = 1; i < n_particles; ++i) {
+      host_cum_weights[i] = host_cum_weights[i - 1] + host_w[i];
     }
     scan.cum_weights.set_array(host_cum_weights);
 #endif
@@ -474,7 +469,7 @@ public:
 
     // Generate the scatter indices
 #ifdef __NVCC__
-    const size_t interval_blockSize = 32;
+    const size_t interval_blockSize = 128;
     const size_t interval_blockCount =
         (n_particles() + interval_blockSize - 1) / interval_blockSize;
     dust::find_intervals<real_t><<<interval_blockCount, interval_blockSize>>>(
@@ -497,7 +492,7 @@ public:
 
     // Shuffle the particles
 #ifdef __NVCC__
-    const size_t scatter_blockSize = 32;
+    const size_t scatter_blockSize = 64;
     const size_t scatter_blockCount =
         (n_particles() * n_state() + scatter_blockSize - 1) / scatter_blockSize;
     dust::scatter_device<real_t><<<scatter_blockCount, scatter_blockSize>>>(
@@ -520,6 +515,10 @@ public:
   // Used in the filter
   dust::device_array<size_t> kappa() const {
     return device_state_.scatter_index;
+  }
+
+  size_t n_threads() const {
+    return n_threads_;
   }
 
   size_t n_particles() const {
@@ -632,7 +631,7 @@ public:
 #ifdef __NVCC__
     const int warp_size = dust::cuda::warp_size;
     // Set up blocks and shared memory preferences
-    size_t blockSize = 32;
+    size_t blockSize = 128;
     size_t blockCount;
     bool use_shared_L1 = true;
     size_t n_shared_int_effective = device_state_.n_shared_int +
