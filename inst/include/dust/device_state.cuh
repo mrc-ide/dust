@@ -55,7 +55,9 @@ load_shared_state(const int pars_idx,
     // Copy data in
     if (data != nullptr && sizeof(data_t) > 0) {
       size_t data_ptr_start = n_shared_real +
-        dust::utils::align_padding((real_ptr_start + n_shared_real) * sizeof(real_t), 16) / sizeof(real_t);
+        dust::utils::align_padding(real_ptr_start * sizeof(int) +
+                                   n_shared_real * sizeof(real_t),
+                                   16) / sizeof(real_t);
       data_t * shared_block_data = (data_t*)&shared_block_real[data_ptr_start];
       dust::cuda::shared_mem_cpy(block, shared_block_data, ptrs.data, 1);
       ptrs.data = shared_block_data;
