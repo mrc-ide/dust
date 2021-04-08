@@ -139,7 +139,7 @@ class device_weights {
 public:
   device_weights(const size_t n_particles, const size_t n_pars)
     : n_particles_(n_particles), n_pars_(n_pars),
-      n_particles_each_(n_particles_ / n_pars_);
+      n_particles_each_(n_particles_ / n_pars_),
       exp_blockSize(32),
       exp_blockCount((n_particles_ + exp_blockSize - 1) / exp_blockSize),
       weight_blockSize(32),
@@ -295,7 +295,7 @@ private:
   dust::device_array<int> pars_offsets_;
   dust::device_array<void> max_tmp_:
   dust::device_array<void> sum_tmp_:
-}
+};
 
 // We need to compute the size of space required for integers and
 // reals on the device, per particle. Because we work on the
