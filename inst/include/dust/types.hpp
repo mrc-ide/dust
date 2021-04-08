@@ -146,14 +146,14 @@ public:
       exp_blockCount((n_particles_ + exp_blockSize - 1) / exp_blockSize),
       weight_blockSize(32),
       weight_blockCount((n_pars + weight_blockSize - 1) / weight_blockSize) {
-    // Set up storage
+  // Set up storage
   weights_ = dust::device_array<real_t>(n_particles_);
   cum_weights_ = dust::device_array<real_t>(n_particles_);
   weights_max_ = dust::device_array<real_t>(n_pars_);
   log_likelihood_step_ = dust::device_array<real_t>(n_pars_);
-  dust::device_array<int> pars_offsets(n_pars_ + 1);
 
-  std::vector<int> offsets(n_pars + 1);
+  pars_offsets_ = dust::device_array<int>(n_pars_ + 1);
+  std::vector<int> offsets(n_pars_ + 1);
   for (size_t i = 0; i < n_pars + 1; ++i) {
     offsets[i] = i * n_particles_each_;
   }
