@@ -411,7 +411,7 @@ cpp11::sexp save_snapshots(const filter_state& snapshots, const Dust<T> *obj,
     dust::interface::state_array_dim(obj->n_state_full(), obj->shape(),
                                      step_snapshot.size());
   cpp11::sexp r_snapshots = snapshots_data;
-  return(r_trajectories);
+  return(r_snapshots);
 }
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>

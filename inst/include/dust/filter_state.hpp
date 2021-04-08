@@ -80,7 +80,7 @@ protected:
 // "trajectories". The other all state at a few times - these are
 // "snapshots"
 template <typename real_t>
-class filter_trajectories_host : private filter_trajectories {
+class filter_trajectories_host : private filter_trajectories<real_t> {
 public:
   filter_trajectories_host() {
   }
@@ -116,7 +116,7 @@ private:
 };
 
 template <typename real_t>
-class filter_trajectories_device : private filter_trajectories {
+class filter_trajectories_device : private filter_trajectories<real_t> {
 public:
   filter_trajectories_device() {
   }
@@ -210,7 +210,7 @@ protected:
 };
 
 template <typename real_t>
-class filter_snapshots_host : private filter_snapshots {
+class filter_snapshots_host : private filter_snapshots<real_t> {
 public:
   filter_snapshots_host() {
   }
@@ -238,7 +238,7 @@ private:
 };
 
 template <typename real_t>
-class filter_snapshots_device : private filter_snapshots {
+class filter_snapshots_device : private filter_snapshots<real_t> {
 public:
   filter_snapshots_device() {
   }
