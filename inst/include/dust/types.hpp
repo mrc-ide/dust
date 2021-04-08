@@ -5,6 +5,8 @@
 #include <sstream>
 #include <vector>
 
+#include <dust/kernels.hpp>
+
 namespace dust {
 
 struct nothing {};
@@ -203,16 +205,16 @@ public:
       cub::DeviceSegmentedReduce::Max(max_tmp_.data(),
                                       max_tmp_bytes,
                                       weights_.data(),
-                                      weights_max.data(),
+                                      weights_max_.data(),
                                       n_pars_,
                                       pars_offsets_.data(),
                                       pars_offsets_.data() + 1);
     } else {
       cub::DeviceReduce::Max(max_tmp_.data(),
-                              max_tmp_bytes,
-                              weights_.data(),
-                              weights_max_.data(),
-                              n_particles_);
+                             max_tmp_bytes,
+                             weights_.data(),
+                             weights_max_.data(),
+                             n_particles_);
     }
     CUDA_CALL(cudaDeviceSynchronize());
     // Then exp
@@ -226,18 +228,18 @@ public:
     // Then sum
     if (n_pars_ > 1) {
       cub::DeviceSegmentedReduce::Sum(sum_tmp_.data(),
-                                    sum_tmp_bytes,
-                                    weights_.data(),
-                                    log_likelihood_step_.data(),
-                                    n_pars,
-                                    pars_offsets_.data(),
-                                    pars_offsets_.data() + 1);
+                                      sum_tmp_bytes,
+                                      weights_.data(),
+                                      log_likelihood_step_.data(),
+                                      n_pars_,
+                                      pars_offsets_.data(),
+                                      pars_offsets_.data() + 1);
     } else {
       cub::DeviceReduce::Sum(sum_tmp_.data(),
-                              sum_tmp_bytes,
-                              weights_.data(),
-                              log_likelihood_step_.data(),
-                              n_particles);
+                             sum_tmp_bytes,
+                             weights_.data(),
+                             log_likelihood_step_.data(),
+                             n_particles_);
     }
     CUDA_CALL(cudaDeviceSynchronize());
     // Finally log and add max
