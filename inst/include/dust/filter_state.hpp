@@ -111,7 +111,7 @@ public:
 
   template <typename Iterator>
   void history(Iterator ret) const {
-    particle_ancestry(ret, history_value.cbegin(), history_order.cbegin());
+    this->particle_ancestry(ret, history_value.cbegin(), history_order.cbegin());
   }
 
 private:
@@ -162,7 +162,7 @@ public:
     std::vector<real_t> host_history = destride_history();
     std::vector<size_t> host_order(this->n_particles_ * (this->n_data_ + 1));
     history_order.get_array(host_order);
-    particle_ancestry(ret, host_history.cbegin(), host_order.cbegin());
+    this->particle_ancestry(ret, host_history.cbegin(), host_order.cbegin());
   }
 
 private:
