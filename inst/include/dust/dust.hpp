@@ -415,7 +415,7 @@ public:
     if (n_pars_ == 0) {
       // One parameter set; shuffle among all particles
       const size_t np = particles_.size();
-      real_t u = dust::unif_rand(rng_.state(n_particles_));
+      real_t u = dust::unif_rand(rng_.state(n_particles_total_));
       dust::filter::resample_weight(it_weights, np, u, 0, it_index);
     } else {
       // Multiple parameter set; shuffle within each group
@@ -423,7 +423,7 @@ public:
       const size_t np = particles_.size() / n_pars_;
       std::vector<real_t> u;
       for (size_t i = 0; i < n_pars_; ++i) {
-        u.push_back(dust::unif_rand(rng_.state(n_particles_)));
+        u.push_back(dust::unif_rand(rng_.state(n_particles_total_)));
       }
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
@@ -456,7 +456,7 @@ public:
     std::vector<real_t> host_cum_weights(weights.size());
     weights.get_array(host_w);
     host_cum_weights[0] = host_w[0];
-    for (size_t i = 1; i < n_particles; ++i) {
+    for (size_t i = 1; i < n_particles_total_; ++i) {
       host_cum_weights[i] = host_cum_weights[i - 1] + host_w[i];
     }
     scan.cum_weights.set_array(host_cum_weights);
@@ -465,7 +465,7 @@ public:
     // Generate random numbers for each parameter set
     std::vector<real_t> shuffle_draws(n_pars_effective());
     for (size_t i = 0; i < n_pars_effective(); ++i) {
-      shuffle_draws[i] = dust::unif_rand(rng_.state(n_particles_));
+      shuffle_draws[i] = dust::unif_rand(rng_.state(n_particles_total_));
     }
     // Copying this also syncs the prefix scan
     device_state_.resample_u.set_array(shuffle_draws);
