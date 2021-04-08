@@ -391,6 +391,29 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
   return ret_r;
 }
 
+template <typename filter_state, typename T>
+cpp11::sexp save_trajectories(filter_state& trajectories, Dust<T> *obj) {
+  cpp11::writable::doubles trajectories_data(trajectories.size());
+  trajectories.history(REAL(trajectories_data));
+  trajectories_data.attr("dim") =
+    dust::interface::state_array_dim(obj->n_state(), obj->shape(),
+                                      obj->n_data() + 1);
+  cpp11::sexp r_trajectories = trajectories_data;
+  return(r_trajectories);
+}
+
+template <typename filter_state, typename T>
+cpp11::sexp save_snapshots(const filter_state& snapshots, const Dust<T> *obj,
+                           const std::vector<size_t>& step_snapshot) {
+  cpp11::writable::doubles snapshots_data(snapshots.size());
+  snapshots.history(REAL(snapshots_data));
+  snapshots_data.attr("dim") =
+    dust::interface::state_array_dim(obj->n_state_full(), obj->shape(),
+                                     step_snapshot.size());
+  cpp11::sexp r_snapshots = snapshots_data;
+  return(r_trajectories);
+}
+
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
                         cpp11::sexp r_step_snapshot,
@@ -406,39 +429,28 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
   std::vector<size_t> step_snapshot =
       dust::interface::check_step_snapshot(r_step_snapshot, obj->data());
 
-  // TODO: this would be neater if we combined these classes
-  dust::filter::filter_state<real_t> filter_state;
-  dust::filter::filter_state_device<real_t> filter_state_device;
-
   cpp11::writable::doubles log_likelihood;
+  cpp11::sexp r_trajectories, r_snapshots;
   if (device) {
-    log_likelihood = dust::filter::filter_device(obj, filter_state_device,
+    dust::filter::filter_state_host<real_t> filter_state;
+    log_likelihood = dust::filter::filter_device(obj, filter_state,
                                                  save_trajectories, step_snapshot);
+    if (save_trajectories) {
+      r_trajectories = save_trajectories(filter_state.trajectories, obj);
+    }
+    if (r_step_snapshot != R_NilValue) {
+      r_snapshots = save_snapshots(filter_state.snapshots, obj, step_snapshot);
+    }
   } else {
+    dust::filter::filter_state_device<real_t> filter_state;
     log_likelihood = dust::filter::filter(obj, filter_state,
                                           save_trajectories, step_snapshot);
-  }
-
-  cpp11::sexp r_trajectories, r_snapshots;
-
-  if (save_trajectories) {
-    const auto& trajectories = filter_state.trajectories;
-    cpp11::writable::doubles trajectories_data(trajectories.size());
-    trajectories.history(REAL(trajectories_data));
-    trajectories_data.attr("dim") =
-      dust::interface::state_array_dim(obj->n_state(), obj->shape(),
-                                       obj->n_data() + 1);
-    r_trajectories = trajectories_data;
-  }
-
-  if (r_step_snapshot != R_NilValue) {
-    const auto& snapshots = filter_state.snapshots;
-    cpp11::writable::doubles snapshots_data(snapshots.size());
-    snapshots.history(REAL(snapshots_data));
-    snapshots_data.attr("dim") =
-      dust::interface::state_array_dim(obj->n_state_full(), obj->shape(),
-                                       step_snapshot.size());
-    r_snapshots = snapshots_data;
+    if (save_trajectories) {
+      r_trajectories = save_trajectories(filter_state.trajectories, obj);
+    }
+    if (r_step_snapshot != R_NilValue) {
+      r_snapshots = save_snapshots(filter_state.snapshots, obj, step_snapshot);
+    }
   }
 
   using namespace cpp11::literals;

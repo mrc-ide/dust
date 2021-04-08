@@ -9,7 +9,7 @@ namespace filter {
 
 template <typename T>
 std::vector<typename T::real_t> filter(Dust<T> * obj,
-                                       filter_state<typename T::real_t>& state,
+                                       filter_state_host<typename T::real_t>& state,
                                        bool save_trajectories,
                                        std::vector<size_t> step_snapshot) {
   typedef typename T::real_t real_t;
