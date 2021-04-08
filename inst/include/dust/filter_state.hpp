@@ -49,7 +49,7 @@ public:
   template <typename OutIt, typename RealIt, typename IntIt>
   void particle_ancestry(OutIt ret,
                          const RealIt value_begin,
-                         const IntIt order_begin) {
+                         const IntIt order_begin) const {
     std::vector<size_t> index_particle(n_particles_);
     for (size_t i = 0; i < n_particles_; ++i) {
       index_particle[i] = i;
