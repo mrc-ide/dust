@@ -44,8 +44,8 @@ public:
   // though this process so one could safely call this multiple times.
   template <typename Iterator, typename VecIt = Iterator>
   void particle_ancestry(Iterator ret,
-                        const VecIt value_begin,
-                        const VecIt order_begin) {
+                         const VecIt value_begin,
+                         const VecIt order_begin) {
     std::vector<size_t> index_particle(n_particles_);
     for (size_t i = 0; i < n_particles_; ++i) {
       index_particle[i] = i;
@@ -82,13 +82,13 @@ public:
   }
 
   void resize(size_t n_state, size_t n_particles, size_t n_data) {
-    n_state_ = n_state;
-    n_particles_ = n_particles;
-    n_data_ = n_data;
-    offset_ = 0;
-    history_value.resize(n_state_ * n_particles_ * (n_data_ + 1));
-    history_order.resize(n_particles_ * (n_data_ + 1));
-    for (size_t i = 0; i < n_particles_; ++i) {
+    this->n_state_ = n_state;
+    this->n_particles_ = n_particles;
+    this->n_data_ = n_data;
+    this->offset_ = 0;
+    history_value.resize(this->n_state_ * this->n_particles_ * (this->n_data_ + 1));
+    history_order.resize(this->n_particles_ * (this->n_data_ + 1));
+    for (size_t i = 0; i < this->n_particles_; ++i) {
       history_order[i] = i;
     }
   }
@@ -98,11 +98,11 @@ public:
   }
 
   typename std::vector<real_t>::iterator value_iterator() {
-    return history_value.begin() + offset_ * n_state_ * n_particles_;
+    return history_value.begin() + this->offset_ * this->n_state_ * this->n_particles_;
   }
 
   typename std::vector<size_t>::iterator order_iterator() {
-    return history_order.begin() + offset_ * n_particles_;
+    return history_order.begin() + this->offset_ * this->n_particles_;
   }
 
   template <typename Iterator>
@@ -122,13 +122,13 @@ public:
   }
 
   void resize(size_t n_state, size_t n_particles, size_t n_data) {
-    n_state_ = n_state;
-    n_particles_ = n_particles;
-    n_data_ = n_data;
-    offset_ = 0;
-    history_value = dust::device_array<real_t>(n_state_ * n_particles_ * (n_data_ + 1));
-    history_order = dust::device_array<size_t>(n_particles_ * (n_data_ + 1));
-    std::vector<size_t> index_init(n_particles_);
+    this->n_state_ = n_state;
+    this->n_particles_ = n_particles;
+    this->n_data_ = n_data;
+    this->offset_ = 0;
+    history_value = dust::device_array<real_t>(this->n_state_ * this->n_particles_ * (this->n_data_ + 1));
+    history_order = dust::device_array<size_t>(this->n_particles_ * (this->n_data_ + 1));
+    std::vector<size_t> index_init(this->n_particles_);
     std::iota(index_init.begin(), index_init.end(), 0);
     history_order.set_array(index_init);
   }
@@ -138,11 +138,11 @@ public:
   }
 
   size_t value_offset() {
-    return offset_ * n_state_ * n_particles_;
+    return this->offset_ * this->n_state_ * this->n_particles_;
   }
 
   size_t order_offset() {
-    return offset_ * n_particles_;
+    return this->offset_ * this->n_particles_;
   }
 
   dust::device_array<real_t> &values() {
@@ -156,7 +156,7 @@ public:
   template <typename Iterator>
   void history(Iterator ret) const {
     std::vector<real_t> host_history = destride_history();
-    std::vector<real_t> host_order(n_particles_ * (n_data_ + 1));
+    std::vector<real_t> host_order(this->n_particles_ * (this->n_data_ + 1));
     history_order.get_array(host_order);
     particle_ancestry(ret, host_history.begin(), host_order.begin());
   }
@@ -172,14 +172,14 @@ private:
     history_value.get_array(history_host);
     // Destride and copy into iterator
     // TODO openmp here?
-    for (size_t i = 0; i < n_data_ + 1; ++i) {
-      for (size_t j = 0; j < n_particles_; ++j) {
-        for (size_t k = 0; k < n_state_; ++k) {
-          destride_history[i * (n_particles_ * n_state_) +
-                           j * n_state_ +
-                           k] = history_host[i * (n_particles_ * n_state_) +
+    for (size_t i = 0; i < this->n_data_ + 1; ++i) {
+      for (size_t j = 0; j < this->n_particles_; ++j) {
+        for (size_t k = 0; k < this->n_state_; ++k) {
+          destride_history[i * (this->n_particles_ * this->n_state_) +
+                           j * this->n_state_ +
+                           k] = history_host[i * (this->n_particles_ * this->n_state_) +
                                              j +
-                                             k * (n_particles_)];
+                                             k * (this->n_particles_)];
         }
       }
     }
@@ -216,12 +216,12 @@ public:
   }
 
   void resize(size_t n_state, size_t n_particles, std::vector<size_t> steps) {
-    n_state_ = n_state;
-    n_particles_ = n_particles;
-    n_steps_ = steps.size();
-    offset_ = 0;
-    steps_ = steps;
-    state_.resize(n_state_ * n_particles_ * n_steps_);
+    this->n_state_ = n_state;
+    this->n_particles_ = n_particles;
+    this->n_steps_ = steps.size();
+    this->offset_ = 0;
+    this->steps_ = steps;
+    state_.resize(this->n_state_ * this->n_particles_ * this->n_steps_);
   }
 
   size_t size() const {
@@ -229,7 +229,7 @@ public:
   }
 
   typename std::vector<real_t>::iterator value_iterator() {
-    return state_.begin() + offset_ * n_state_ * n_particles_;
+    return state_.begin() + this->offset_ * this->n_state_ * this->n_particles_;
   }
 
   template <typename Iterator>
@@ -248,12 +248,12 @@ public:
   }
 
   void resize(size_t n_state, size_t n_particles, std::vector<size_t> steps) {
-    n_state_ = n_state;
-    n_particles_ = n_particles;
-    n_steps_ = steps.size();
-    offset_ = 0;
-    steps_ = steps;
-    state_ = dust::device_array<real_t>(n_state_ * n_particles_ * n_steps_);
+    this->n_state_ = n_state;
+    this->n_particles_ = n_particles;
+    this->n_steps_ = steps.size();
+    this->offset_ = 0;
+    this->steps_ = steps;
+    state_ = dust::device_array<real_t>(this->n_state_ * this->n_particles_ * this->n_steps_);
   }
 
   size_t size() const {
@@ -265,7 +265,7 @@ public:
   }
 
   size_t value_offset() {
-    return offset_ * n_state_ * n_particles_;
+    return this->offset_ * this->n_state_ * this->n_particles_;
   }
 
   template <typename Iterator>
@@ -275,15 +275,15 @@ public:
     state_.get_array(state_host);
     // Destride and copy into iterator
     // TODO: openmp here? collapse(2)
-    for (size_t i = 0; i < n_steps_; ++i) {
-      for (size_t j = 0; j < n_particles_; ++j) {
-        for (size_t k = 0; k < n_state_; ++k) {
+    for (size_t i = 0; i < this->n_steps_; ++i) {
+      for (size_t j = 0; j < this->n_particles_; ++j) {
+        for (size_t k = 0; k < this->n_state_; ++k) {
           *(dest +
-            i * (n_particles_ * n_state_) +
-            j * n_state_ +
-            k) = state_host[i * (n_particles_ * n_state_) +
+            i * (this->n_particles_ * this->n_state_) +
+            j * this->n_state_ +
+            k) = state_host[i * (this->n_particles_ * this->n_state_) +
                             j +
-                            k * (n_particles_)];
+                            k * (this->n_particles_)];
         }
       }
     }
