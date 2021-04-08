@@ -153,7 +153,7 @@ public:
 
   std::vector<int> offsets(n_pars + 1);
   for (size_t i = 0; i < n_pars + 1; ++i) {
-    offsets[i] = i * n_particles_each;
+    offsets[i] = i * n_particles_each_;
   }
   pars_offsets_.set_array(offsets);
 
@@ -275,7 +275,7 @@ public:
 #endif
   }
 
-  dust::device_array<real_t> weights {
+  dust::device_array<real_t> weights() {
     return weights_;
   }
 
@@ -293,8 +293,8 @@ private:
   dust::device_array<real_t> weights_max_;
   dust::device_array<real_t> log_likelihood_step_;
   dust::device_array<int> pars_offsets_;
-  dust::device_array<void> max_tmp_:
-  dust::device_array<void> sum_tmp_:
+  dust::device_array<void> max_tmp_;
+  dust::device_array<void> sum_tmp_;
 };
 
 // We need to compute the size of space required for integers and
