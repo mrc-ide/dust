@@ -392,7 +392,7 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
 }
 
 template <typename filter_state, typename T>
-cpp11::sexp save_trajectories(filter_state& trajectories, Dust<T> *obj) {
+cpp11::sexp save_trajectories(const filter_state& trajectories, const Dust<T> *obj) {
   cpp11::writable::doubles trajectories_data(trajectories.size());
   trajectories.history(REAL(trajectories_data));
   trajectories_data.attr("dim") =
@@ -432,7 +432,7 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
   cpp11::writable::doubles log_likelihood;
   cpp11::sexp r_trajectories, r_snapshots;
   if (device) {
-    dust::filter::filter_state_host<real_t> filter_state;
+    dust::filter::filter_state_device<real_t> filter_state;
     log_likelihood = dust::filter::filter_device(obj, filter_state,
                                                  save_trajectories, step_snapshot);
     if (save_trajectories) {
@@ -442,7 +442,7 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
       r_snapshots = save_snapshots(filter_state.snapshots, obj, step_snapshot);
     }
   } else {
-    dust::filter::filter_state_device<real_t> filter_state;
+    dust::filter::filter_state_host<real_t> filter_state;
     log_likelihood = dust::filter::filter(obj, filter_state,
                                           save_trajectories, step_snapshot);
     if (save_trajectories) {

@@ -12,10 +12,6 @@ public:
   filter_trajectories() {
   }
 
-  size_t size() const {
-    return history_value.size();
-  }
-
   void advance() {
     offset_++;
   }
@@ -80,7 +76,7 @@ protected:
 // "trajectories". The other all state at a few times - these are
 // "snapshots"
 template <typename real_t>
-class filter_trajectories_host : private filter_trajectories<real_t> {
+class filter_trajectories_host : public filter_trajectories<real_t> {
 public:
   filter_trajectories_host() {
   }
@@ -95,6 +91,10 @@ public:
     for (size_t i = 0; i < n_particles_; ++i) {
       history_order[i] = i;
     }
+  }
+
+  size_t size() const {
+    return history_value.size();
   }
 
   typename std::vector<real_t>::iterator value_iterator() {
@@ -116,7 +116,7 @@ private:
 };
 
 template <typename real_t>
-class filter_trajectories_device : private filter_trajectories<real_t> {
+class filter_trajectories_device : public filter_trajectories<real_t> {
 public:
   filter_trajectories_device() {
   }
@@ -131,6 +131,10 @@ public:
     std::vector<size_t> index_init(n_particles_);
     std::iota(index_init.begin(), index_init.end(), 0);
     history_order.set_array(index_init);
+  }
+
+  size_t size() const {
+    return history_value.size();
   }
 
   size_t value_offset() {
@@ -197,10 +201,6 @@ public:
     offset_++;
   }
 
-  size_t size() const {
-    return state_.size();
-  }
-
 protected:
   size_t n_state_;
   size_t n_particles_;
@@ -210,7 +210,7 @@ protected:
 };
 
 template <typename real_t>
-class filter_snapshots_host : private filter_snapshots<real_t> {
+class filter_snapshots_host : public filter_snapshots<real_t> {
 public:
   filter_snapshots_host() {
   }
@@ -222,6 +222,10 @@ public:
     offset_ = 0;
     steps_ = steps;
     state_.resize(n_state_ * n_particles_ * n_steps_);
+  }
+
+  size_t size() const {
+    return state_.size();
   }
 
   typename std::vector<real_t>::iterator value_iterator() {
@@ -238,7 +242,7 @@ private:
 };
 
 template <typename real_t>
-class filter_snapshots_device : private filter_snapshots<real_t> {
+class filter_snapshots_device : public filter_snapshots<real_t> {
 public:
   filter_snapshots_device() {
   }
@@ -250,6 +254,10 @@ public:
     offset_ = 0;
     steps_ = steps;
     state_ = dust::device_array<real_t>(n_state_ * n_particles_ * n_steps_);
+  }
+
+  size_t size() const {
+    return state_.size();
   }
 
   dust::device_array<real_t> &state() {
