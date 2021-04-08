@@ -12,6 +12,10 @@ public:
   filter_trajectories() {
   }
 
+  size_t size() const {
+    return n_state_ * n_particles_ * (n_data_ + 1);
+  }
+
   void advance() {
     offset_++;
   }
