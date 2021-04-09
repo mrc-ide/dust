@@ -131,7 +131,7 @@ test_that("get rng state", {
   obj <- res$new(list(sd = 1), 0L, np, seed = seed)
   s <- dust_rng$new(seed, np + 1)$state()
   expect_identical(obj$rng_state(), s)
-  expect_identical(obj$rng_state(TRUE), s[1:32])
+  expect_identical(obj$rng_state(TRUE), s[(np * 32 + 1):((np + 1) * 32)])
 })
 
 
