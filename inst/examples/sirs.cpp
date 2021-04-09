@@ -178,13 +178,13 @@ DEVICE typename sirs::real_t compare_device<sirs>(const dust::interleaved<typena
                            const int * shared_int,
                            const typename sirs::real_t * shared_real,
                            dust::rng_state_t<typename sirs::real_t>& rng_state) {
-    typedef sirs::real_t real_t;
-    const real_t exp_noise = shared_real[4];
-    const real_t incidence_modelled = state[4];
-    const real_t incidence_observed = data->incidence;
-    const real_t lambda = incidence_modelled +
-      dust::distr::rexp(rng_state, exp_noise);
-    return dust::dpois(incidence_observed, lambda, true);
-  }
+  typedef sirs::real_t real_t;
+  const real_t exp_noise = shared_real[4];
+  const real_t incidence_modelled = state[4];
+  const real_t incidence_observed = data->incidence;
+  const real_t lambda = incidence_modelled +
+    dust::distr::rexp(rng_state, exp_noise);
+  return dust::dpois(incidence_observed, lambda, true);
+}
 
 }

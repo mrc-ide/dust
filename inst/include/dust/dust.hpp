@@ -639,7 +639,16 @@ public:
     stale_device_ = true; // RNG use
   }
 
-  void compare_data_device(dust::device_array<real_t>& res,
+  template <typename U = T>
+  typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
+  compare_data_device(dust::device_array<real_t>& res,
+                      const size_t data_offset) {
+    throw std::invalid_argument("GPU support not enabled for this object");
+  }
+
+  template <typename U = T>
+  typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
+  compare_data_device(dust::device_array<real_t>& res,
                            const size_t data_offset) {
     refresh_device();
 #ifdef __NVCC__
@@ -1060,9 +1069,9 @@ private:
 #else
     size_t selected_idx = 0;
     for (size_t i = 0; i <= device_state_.y.size(); i++) {
-      if (device_state_.index.data() + i == 1) {
-        device_state_.y_selected.data() + selected_idx =
-          device_state_.y.data() + 1;
+      if (device_state_.index.data()[i] == 1) {
+        device_state_.y_selected.data()[selected_idx] =
+          device_state_.y.data()[i];
         selected_idx++;
       }
     }
