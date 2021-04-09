@@ -134,6 +134,9 @@ public:
 
   void set_step(const size_t step) {
     const size_t n_particles = particles_.size();
+#ifdef _OPENMP
+    #pragma omp parallel for schedule(static) num_threads(n_threads_)
+#endif
     for (size_t i = 0; i < n_particles; ++i) {
       particles_[i].set_step(step);
     }
@@ -523,7 +526,7 @@ public:
   }
 
   // Used in the filter
-  dust::device_array<size_t> kappa() const {
+  dust::device_array<size_t>& kappa() const {
     return device_state_.scatter_index;
   }
 
