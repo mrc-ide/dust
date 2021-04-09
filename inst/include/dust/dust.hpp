@@ -526,7 +526,7 @@ public:
   }
 
   // Used in the filter
-  dust::device_array<size_t>& kappa() const {
+  dust::device_array<size_t>& kappa() {
     return device_state_.scatter_index;
   }
 
