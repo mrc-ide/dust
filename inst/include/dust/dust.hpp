@@ -310,7 +310,9 @@ public:
   void state(dust::device_array<real_t>& device_state, const size_t dst_offset,
              const bool async = false) {
     run_device_select();
+#ifdef __NVCC__
     CUDA_CALL(cudaDeviceSynchronize());
+#endif
     device_state.set_array(device_state_.y_selected.data(),
                            device_state_.y_selected.size(), dst_offset, async);
   }
