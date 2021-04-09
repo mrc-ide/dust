@@ -36,7 +36,7 @@ SEXP dust_volatility_resample(SEXP ptr, cpp11::doubles r_weights);
 SEXP dust_volatility_set_pars(SEXP ptr, cpp11::list r_pars);
 
 [[cpp11::register]]
-SEXP dust_volatility_rng_state(SEXP ptr, bool first_only);
+SEXP dust_volatility_rng_state(SEXP ptr, bool last_only);
 
 [[cpp11::register]]
 SEXP dust_volatility_set_rng_state(SEXP ptr, cpp11::raws rng_state);
@@ -189,8 +189,8 @@ SEXP dust_volatility_set_pars(SEXP ptr, cpp11::list r_pars) {
   return dust::r::dust_set_pars<volatility>(ptr, r_pars);
 }
 
-SEXP dust_volatility_rng_state(SEXP ptr, bool first_only) {
-  return dust::r::dust_rng_state<volatility>(ptr, first_only);
+SEXP dust_volatility_rng_state(SEXP ptr, bool last_only) {
+  return dust::r::dust_rng_state<volatility>(ptr, last_only);
 }
 
 SEXP dust_volatility_set_rng_state(SEXP ptr, cpp11::raws rng_state) {

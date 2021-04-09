@@ -204,10 +204,10 @@ extern "C" SEXP _dust_dust_sir_set_pars(SEXP ptr, SEXP r_pars) {
   END_CPP11
 }
 // sir.cpp
-SEXP dust_sir_rng_state(SEXP ptr, bool first_only);
-extern "C" SEXP _dust_dust_sir_rng_state(SEXP ptr, SEXP first_only) {
+SEXP dust_sir_rng_state(SEXP ptr, bool last_only);
+extern "C" SEXP _dust_dust_sir_rng_state(SEXP ptr, SEXP last_only) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_sir_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(first_only)));
+    return cpp11::as_sexp(dust_sir_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(last_only)));
   END_CPP11
 }
 // sir.cpp
@@ -353,10 +353,10 @@ extern "C" SEXP _dust_dust_variable_set_pars(SEXP ptr, SEXP r_pars) {
   END_CPP11
 }
 // variable.cpp
-SEXP dust_variable_rng_state(SEXP ptr, bool first_only);
-extern "C" SEXP _dust_dust_variable_rng_state(SEXP ptr, SEXP first_only) {
+SEXP dust_variable_rng_state(SEXP ptr, bool last_only);
+extern "C" SEXP _dust_dust_variable_rng_state(SEXP ptr, SEXP last_only) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_variable_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(first_only)));
+    return cpp11::as_sexp(dust_variable_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(last_only)));
   END_CPP11
 }
 // variable.cpp
@@ -495,10 +495,10 @@ extern "C" SEXP _dust_dust_volatility_set_pars(SEXP ptr, SEXP r_pars) {
   END_CPP11
 }
 // volatility.cpp
-SEXP dust_volatility_rng_state(SEXP ptr, bool first_only);
-extern "C" SEXP _dust_dust_volatility_rng_state(SEXP ptr, SEXP first_only) {
+SEXP dust_volatility_rng_state(SEXP ptr, bool last_only);
+extern "C" SEXP _dust_dust_volatility_rng_state(SEXP ptr, SEXP last_only) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_volatility_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(first_only)));
+    return cpp11::as_sexp(dust_volatility_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(last_only)));
   END_CPP11
 }
 // volatility.cpp
@@ -637,10 +637,10 @@ extern "C" SEXP _dust_dust_walk_set_pars(SEXP ptr, SEXP r_pars) {
   END_CPP11
 }
 // walk.cpp
-SEXP dust_walk_rng_state(SEXP ptr, bool first_only);
-extern "C" SEXP _dust_dust_walk_rng_state(SEXP ptr, SEXP first_only) {
+SEXP dust_walk_rng_state(SEXP ptr, bool last_only);
+extern "C" SEXP _dust_dust_walk_rng_state(SEXP ptr, SEXP last_only) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_walk_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(first_only)));
+    return cpp11::as_sexp(dust_walk_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(last_only)));
   END_CPP11
 }
 // walk.cpp

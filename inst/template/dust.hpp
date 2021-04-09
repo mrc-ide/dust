@@ -35,7 +35,7 @@ SEXP dust_{{name}}_resample(SEXP ptr, cpp11::doubles r_weights);
 SEXP dust_{{name}}_set_pars(SEXP ptr, cpp11::list r_pars);
 
 [[cpp11::register]]
-SEXP dust_{{name}}_rng_state(SEXP ptr, bool first_only);
+SEXP dust_{{name}}_rng_state(SEXP ptr, bool last_only);
 
 [[cpp11::register]]
 SEXP dust_{{name}}_set_rng_state(SEXP ptr, cpp11::raws rng_state);

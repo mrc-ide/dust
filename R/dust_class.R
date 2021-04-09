@@ -271,14 +271,15 @@ dust_class <- R6::R6Class(
     ##' raw vector of length 32 * n_particles. This can be useful for
     ##' debugging or for initialising other dust objects.
     ##'
-    ##' @param first_only Logical, indicating if we should return only the
-    ##' *first* particle's random number state. If `FALSE` (the default)
+    ##' @param last_only Logical, indicating if we should return only the
+    ##' *last* random number state, which does not belong to a particle.
+    ##' If `FALSE` (the default)
     ##' all particles states are returned, being 32 bytes per particle.
-    ##' If `TRUE` then we take just the first particle's state, which
+    ##' If `TRUE` then we take just the final state, which
     ##' will be a total of 32 bytes. Both forms are suitable for seeding
     ##' a new [`dust`] object as the shorter version will be used for
     ##' the first particle, followed by jumps for each subsequent particle.
-    rng_state = function(first_only = FALSE) {
+    rng_state = function(last_only = FALSE) {
     },
 
     ##' @description Set the random number state for this model. This
