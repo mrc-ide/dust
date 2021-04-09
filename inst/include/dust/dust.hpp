@@ -179,7 +179,7 @@ public:
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   run_device(const size_t step_end) {
     refresh_device();
-    const size_t step_start = step();
+    const size_t step_start = device_step_;
 #ifdef __NVCC__
     const int warp_size = dust::cuda::warp_size;
     // Set up blocks and shared memory preferences
@@ -246,7 +246,7 @@ public:
 
     stale_host_ = true;
     select_needed_ = true;
-    set_step(step_end);
+    device_step_ = step_end;
   }
 
   std::vector<real_t> simulate(const std::vector<size_t>& step_end) {
@@ -733,6 +733,7 @@ private:
   bool stale_device_;
   bool select_needed_;
   size_t shared_size_;
+  size_t device_step_;
 
 #ifdef DUST_ENABLE_CUDA_PROFILER
   // destructor is defined in this case
@@ -800,6 +801,8 @@ private:
     }
     reset_errors();
     update_device_shared();
+
+    device_step_ = step;
     stale_host_ = false;
     stale_device_ = true;
     select_needed_ = true;
@@ -843,6 +846,8 @@ private:
     }
     reset_errors();
     update_device_shared();
+
+    device_step_ = step;
     stale_host_ = false;
     stale_device_ = true;
     select_needed_ = true;
@@ -997,6 +1002,7 @@ private:
       device_state_.rng.set_array(rng);
       stale_device_ = false;
       select_needed_ = true;
+      device_step_ = step();
     }
   }
 
@@ -1027,6 +1033,7 @@ private:
       }
       rng_.import_state(rng, np);
       stale_host_ = false;
+      set_step(device_step_);
     }
   }
 
