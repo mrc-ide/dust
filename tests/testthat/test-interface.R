@@ -129,7 +129,7 @@ test_that("get rng state", {
   seed <- 1
   np <- 10
   obj <- res$new(list(sd = 1), 0L, np, seed = seed)
-  s <- dust_rng$new(seed, np)$state()
+  s <- dust_rng$new(seed, np + 1)$state()
   expect_identical(obj$rng_state(), s)
   expect_identical(obj$rng_state(TRUE), s[1:32])
 })
@@ -157,15 +157,15 @@ test_that("set rng state", {
   expect_error(obj$set_rng_state(1)) # cpp11 error, don't test the message
   expect_error(
     obj$set_rng_state(as.raw(1)),
-    "'rng_state' must be a raw vector of length 320 (but was 1)",
+    "'rng_state' must be a raw vector of length 352 (but was 1)",
     fixed = TRUE)
   expect_error(
     obj$set_rng_state(as.raw(0:255)),
-    "'rng_state' must be a raw vector of length 320 (but was 256)",
+    "'rng_state' must be a raw vector of length 352 (but was 256)",
     fixed = TRUE)
   expect_error(
     obj$set_rng_state(raw(1000)),
-    "'rng_state' must be a raw vector of length 320 (but was 1000)",
+    "'rng_state' must be a raw vector of length 352 (but was 1000)",
     fixed = TRUE)
 })
 
