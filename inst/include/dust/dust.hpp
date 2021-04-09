@@ -1033,7 +1033,7 @@ private:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   run_device_select() {
-    if (stale_device_ || !selected_needed_) {
+    if (stale_device_ || !select_needed_) {
       return;
     }
 #ifdef __NVCC__
