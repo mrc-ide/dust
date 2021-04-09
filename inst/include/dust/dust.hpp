@@ -40,7 +40,8 @@ public:
     rng_(n_particles_total_ + 1, seed),
     errors_(n_particles_total_),
     stale_host_(false),
-    stale_device_(true) {
+    stale_device_(true),
+    select_needed_(true) {
 #ifdef __NVCC__
     initialise_device(device_id);
 #endif
@@ -62,7 +63,8 @@ public:
     rng_(n_particles_total_ + 1, seed),
     errors_(n_particles_total_),
     stale_host_(false),
-    stale_device_(true) {
+    stale_device_(true),
+    select_needed_(true) {
 #ifdef __NVCC__
     initialise_device(device_id);
 #endif
@@ -240,6 +242,7 @@ public:
    }
 
     stale_host_ = true;
+    select_needed_ = true;
     set_step(step_end);
   }
 
@@ -384,6 +387,7 @@ public:
         n_particles);
 #endif
       device_state_.swap();
+      select_needed_ = true;
     } else {
       stale_device_ = true;
 #ifdef _OPENMP
@@ -513,6 +517,7 @@ public:
         n_state(),
         n_particles());
 #endif
+    select_needed_ = true;
   }
 
   // Used in the filter
@@ -614,6 +619,7 @@ public:
       res.resize(particles_.size());
       compare_data(res, d->second);
     }
+    stale_device_ = true; // RNG use
     return res;
   }
 
@@ -713,14 +719,22 @@ private:
   std::vector<dust::Particle<T>> particles_;
   std::vector<dust::shared_ptr<T>> shared_;
 
-  // New things for device support
+  // Device support
   dust::device_state<real_t> device_state_;
   dust::device_array<data_t> device_data_;
   std::map<size_t, size_t> device_data_offsets_;
 
   bool stale_host_;
   bool stale_device_;
+  bool select_needed_;
   size_t shared_size_;
+
+#ifdef DUST_ENABLE_CUDA_PROFILER
+  // destructor is defined in this case
+  // delete move and copy to avoid accidentally using them
+  Dust ( const Dust & ) = delete;
+  Dust ( Dust && ) = delete;
+#endif
 
   // Sets device
   template <typename U = T>
@@ -783,6 +797,7 @@ private:
     update_device_shared();
     stale_host_ = false;
     stale_device_ = true;
+    select_needed_ = true;
   }
 
   void initialise(const std::vector<pars_t>& pars, const size_t step,
@@ -825,6 +840,7 @@ private:
     update_device_shared();
     stale_host_ = false;
     stale_device_ = true;
+    select_needed_ = true;
   }
 
   // This only gets called on construction; the size of these never
@@ -926,6 +942,7 @@ private:
     }
     device_state_.index.set_array(bool_idx);
     device_state_.set_cub_tmp();
+    select_needed_ = true;
   }
 
   // Default noop refresh methods
@@ -974,6 +991,7 @@ private:
       device_state_.y.set_array(y);
       device_state_.rng.set_array(rng);
       stale_device_ = false;
+      select_needed_ = true;
     }
   }
 
@@ -1015,10 +1033,9 @@ private:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   run_device_select() {
-    if (stale_device_) {
+    if (stale_device_ || !selected_needed_) {
       return;
     }
-    // TODO: noop if this has been run and device_state_.y hasn't changed
 #ifdef __NVCC__
     size_t size_select_tmp = device_state_.select_tmp.size();
     cub::DeviceSelect::Flagged(device_state_.select_tmp.data(),
@@ -1038,6 +1055,7 @@ private:
       }
     }
 #endif
+    select_needed_ = false;
   }
 };
 
