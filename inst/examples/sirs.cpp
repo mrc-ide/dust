@@ -155,6 +155,7 @@ DEVICE void update_device<sirs>(size_t step,
   const real_t beta = shared_real[1];
   const real_t gamma = shared_real[2];
   const real_t dt = shared_real[3];
+  const int freq = shared_int[0];
   const real_t S = state[0];
   const real_t I = state[1];
   const real_t R = state[2];
@@ -168,6 +169,7 @@ DEVICE void update_device<sirs>(size_t step,
   state_next[0] = S - n_SI + n_RS;
   state_next[1] = I + n_SI - n_IR;
   state_next[2] = R + n_IR - n_RS;
+  state_next[3] = (step % freq == 0) ? n_SI : state[3] + n_SI;
 }
 
 template <>
