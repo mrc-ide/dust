@@ -479,7 +479,8 @@ test_that("Can run multiple particle filters on the GPU", {
   ans_h <- mod_h$filter(save_trajectories = TRUE,
                         step_snapshot = c(4, 16))
 
-  mod_d <- dat$model$new(pars, 0, np, seed = 10L, device_id = 0L)
+  mod_d <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE,
+                         device_id = 0L)
   mod_d$set_data(dust_data(dat$dat, multi = 2))
   ans_d <- mod_d$filter(device = TRUE,
                         save_trajectories = TRUE,
