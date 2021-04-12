@@ -59,7 +59,7 @@ public:
 
   real_t compare_data(const real_t * state, const data_t& data,
                       dust::rng_state_t<real_t>& rng_state) {
-    const real_t incidence_modelled = state[4];
+    const real_t incidence_modelled = state[3];
     const real_t incidence_observed = data.incidence;
     const real_t lambda = incidence_modelled +
       dust::distr::rexp(rng_state, shared->exp_noise);
@@ -182,7 +182,7 @@ DEVICE typename sirs::real_t compare_device<sirs>(const dust::interleaved<typena
                            dust::rng_state_t<typename sirs::real_t>& rng_state) {
   typedef sirs::real_t real_t;
   const real_t exp_noise = shared_real[4];
-  const real_t incidence_modelled = state[4];
+  const real_t incidence_modelled = state[3];
   const real_t incidence_observed = data->incidence;
   const real_t lambda = incidence_modelled +
     dust::distr::rexp(rng_state, exp_noise);
