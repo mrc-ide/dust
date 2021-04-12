@@ -9,6 +9,16 @@ example_filter <- function() {
   list(model = model, dat = dat, dat_dust = dat_dust)
 }
 
+example_sirs <- function() {
+  model <- dust(dust_file("examples/sirs.cpp"), quiet = TRUE)
+  np <- 10
+  end <- 150 * 4
+  steps <- seq(0, end, by = 4)
+  ans <- model$new(list(), 0, np, seed = 1L)$simulate(steps)
+  dat <- data.frame(step = steps[-1], incidence = ans[4, 1, -1])
+  dat_dust <- dust_data(dat)
+  list(model = model, dat = dat, dat_dust = dat_dust)
+}
 
 ## Functions that derive from mcstate, and which act as tests against
 ## fiddly C++ implementations.

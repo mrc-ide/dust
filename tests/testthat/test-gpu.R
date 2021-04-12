@@ -446,3 +446,28 @@ test_that("Can use sirs gpu model", {
     mod1$run(13),
     mod2$run(13, TRUE))
 })
+
+test_that("Can run a single particle filter on the GPU", {
+  dat <- example_sirs()
+
+  np <- 10
+
+  mod_h <- dat$model$new(list(), 0, np, seed = 10L)
+  mod_h$set_data(dat$dat_dust)
+  ans_h <- mod_h$filter(save_trajectories = TRUE,
+                        step_snapshot = c(3, 6, 9))
+
+  mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_id = 0L)
+  mod_d$set_data(dat$dat_dust)
+  ans_d <- mod_d$filter(device = TRUE,
+                        save_trajectories = TRUE,
+                        step_snapshot = c(3, 6, 9))
+
+  expect_equal(ans_h$log_likelihood, ans_d$log_likelihood)
+  expect_identical(ans_h$trajectories, ans_d$trajectories)
+  expect_identical(ans_h$snapshots, ans_d$snapshots)
+})
+
+test_that("Can run a multiple particle filters on the GPU", {
+
+})
