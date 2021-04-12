@@ -1,10 +1,10 @@
 class sirs {
 public:
-  typedef double real_t;
+  typedef float real_t;
   typedef dust::no_internal internal_t;
 
   struct ALIGN(16) data_t {
-    real_t incidence;
+    double incidence;
   };
 
   struct shared_t {
