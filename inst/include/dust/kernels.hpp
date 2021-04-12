@@ -230,7 +230,7 @@ KERNEL void compare_particles(size_t n_particles,
 template <typename T>
 DEVICE size_t binary_interval_search(const T * array,
                             const size_t array_len,
-                            const T search
+                            const T search,
                             const T offset) {
   size_t l_pivot = 0;
   size_t r_pivot = array_len;
