@@ -77,7 +77,12 @@ KERNEL void run_particles(size_t step_start,
 
 #ifdef __CUDA_ARCH__
   const int block_per_pars = (n_particles_each + blockDim.x - 1) / blockDim.x;
-  const int j = blockIdx.x / block_per_pars;
+  int j;
+  if (use_shared_L1) {
+    j = blockIdx.x / block_per_pars;
+  } else {
+    j = (blockIdx.x * blockDim.x + threadIdx.x) / n_particles_each;
+  }
   dust::device_ptrs<T> shared_state = dust::load_shared_state<T>(j,
                                                   n_shared_int,
                                                   n_shared_real,
@@ -103,13 +108,14 @@ KERNEL void run_particles(size_t step_start,
   // omp here
   for (size_t i = 0; i < n_particles; ++i) {
     const int j = i / n_particles_each;
-    dust::device_ptrs<T> shared_state = dust::load_shared_state<T>(j,
-                                                  n_shared_int,
-                                                  n_shared_real,
-                                                  shared_int,
-                                                  shared_real,
-                                                  nullptr,
-                                                  false);
+    dust::device_ptrs<T> shared_state =
+      dust::load_shared_state<T>(j,
+                                 n_shared_int,
+                                 n_shared_real,
+                                 shared_int,
+                                 shared_real,
+                                 nullptr,
+                                 false);
 #endif
     dust::interleaved<real_t> p_state(state, i, n_particles);
     dust::interleaved<real_t> p_state_next(state_next, i, n_particles);
@@ -158,14 +164,20 @@ KERNEL void compare_particles(size_t n_particles,
 
 #ifdef __CUDA_ARCH__
   const int block_per_pars = (n_particles_each + blockDim.x - 1) / blockDim.x;
-  const int j = blockIdx.x / block_per_pars;
-  dust::device_ptrs<T> shared_state = dust::load_shared_state<T>(j,
-                                                  n_shared_int,
-                                                  n_shared_real,
-                                                  shared_int,
-                                                  shared_real,
-                                                  data,
-                                                  use_shared_L1);
+  int j;
+  if (use_shared_L1) {
+    j = blockIdx.x / block_per_pars;
+  } else {
+    j = (blockIdx.x * blockDim.x + threadIdx.x) / n_particles_each;
+  }
+  dust::device_ptrs<T> shared_state =
+    dust::load_shared_state<T>(j,
+                               n_shared_int,
+                               n_shared_real,
+                               shared_int,
+                               shared_real,
+                               data,
+                               use_shared_L1);
 
   int i, max_i;
   if (use_shared_L1) {
@@ -218,12 +230,13 @@ KERNEL void compare_particles(size_t n_particles,
 template <typename T>
 DEVICE size_t binary_interval_search(const T * array,
                             const size_t array_len,
-                            const T search) {
+                            const T search
+                            const T offset) {
   size_t l_pivot = 0;
   size_t r_pivot = array_len;
   while (l_pivot < r_pivot) {
     const size_t m = std::floor((l_pivot + r_pivot) / static_cast<T>(2.0));
-    if (array[m] < search) {
+    if ((array[m] - offset) < search) {
       l_pivot = m + 1;
     } else {
       r_pivot = m;
@@ -250,14 +263,15 @@ KERNEL void find_intervals(const real_t * cum_weights,
   for (size_t i = 0; i < n_particles; ++i) {
 #endif
     const int par_idx = i / n_particles_each;
-    real_t normalising_constant = cum_weights[(par_idx + 1) * n_particles_each - 1];
     real_t start_val = par_idx > 0 ? cum_weights[par_idx * n_particles_each - 1] : 0;
-    real_t u_particle = start_val + normalising_constant /
+    real_t normalising_constant =
+      cum_weights[(par_idx + 1) * n_particles_each - 1] - start_val;
+    real_t u_particle = normalising_constant /
                         static_cast<real_t>(n_particles_each) *
                         (u[par_idx] + i % n_particles_each);
     index[i] = binary_interval_search(
       cum_weights + par_idx * n_particles_each,
-      n_particles_each, u_particle) + par_idx * n_particles_each;
+      n_particles_each, u_particle, start_val) + par_idx * n_particles_each;
 #ifdef __NVCC__
   }
 #else

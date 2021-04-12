@@ -469,5 +469,23 @@ test_that("Can run a single particle filter on the GPU", {
 })
 
 test_that("Can run multiple particle filters on the GPU", {
-  skip("TODO")
+  dat <- example_sirs()
+
+  np <- 10
+  pars <- list(list(beta = 0.2), list(beta = 0.1))
+
+  mod_h <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE)
+  mod_h$set_data(dust_data(dat$dat, multi = 2))
+  ans_h <- mod_h$filter(save_trajectories = TRUE,
+                        step_snapshot = c(4, 16))
+
+  mod_d <- dat$model$new(pars, 0, np, seed = 10L, device_id = 0L)
+  mod_d$set_data(dust_data(dat$dat, multi = 2))
+  ans_d <- mod_d$filter(device = TRUE,
+                        save_trajectories = TRUE,
+                        step_snapshot = c(4, 16))
+
+  expect_equal(ans_h$log_likelihood, ans_d$log_likelihood)
+  expect_identical(ans_h$trajectories, ans_d$trajectories)
+  expect_identical(ans_h$snapshots, ans_d$snapshots)
 })
