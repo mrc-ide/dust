@@ -83,7 +83,9 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
   const size_t n_particles = obj->n_particles();
   const size_t n_data = obj->n_data();
   const size_t n_pars = obj->n_pars_effective();
-  dust::device_array<real_t> log_likelihood(n_pars);
+
+  std::vector<real_t> ll_host(n_pars, 0);
+  dust::device_array<real_t> log_likelihood(ll_host);
   dust::device_weights<real_t> weights(n_particles, n_pars);
   dust::device_scan_state<real_t> scan;
   scan.initialise(n_particles, weights.weights());
@@ -132,7 +134,6 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
   }
 
   // Copy likelihoods back to host
-  std::vector<real_t> ll_host(n_pars);
   log_likelihood.get_array(ll_host);
   return ll_host;
 }

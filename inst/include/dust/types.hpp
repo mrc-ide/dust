@@ -198,7 +198,7 @@ public:
 
   // CUDA version of log-sum-exp trick
   void scale_log_weights(dust::device_array<real_t>& log_likelihood) {
-    #ifdef __NVCC__
+#ifdef __NVCC__
     // Scale log-weights. First calculate the max
     if (n_pars_ > 1) {
       cub::DeviceSegmentedReduce::Max(max_tmp_.data(),
@@ -266,6 +266,14 @@ public:
       weights_.data(),
       weights_max_.data()
     );
+    std::vector<real_t> sum_w(n_pars_, 0);
+    weights_.get_array(host_w);
+    for (size_t i = 0; i < n_pars_; ++i) {
+      for (size_t j = 0; j < n_particles_each_; j++) {
+        sum_w[i] += host_w[i * n_particles_each_ + j];
+      }
+    }
+    log_likelihood_step_.set_array(sum_w);
     dust::weight_log_likelihood<real_t>(
       n_pars_,
       n_particles_each_,
