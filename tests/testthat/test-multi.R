@@ -249,14 +249,17 @@ test_that("Can change pars", {
 
   obj <- res$new(p1, 0, 10L, pars_multi = TRUE)
   seed <- obj$rng_state()
+  filter_seed <- obj$rng_state(TRUE)
   y1 <- obj$run(1)
 
-  a <- res$new(p1[[1]], 0, 10L, seed = seed[1:320])
-  b <- res$new(p1[[2]], 0, 10L, seed = seed[321:640])
+  a <- res$new(p1[[1]], 0, 10L, seed = c(seed[1:320], filter_seed))
+  b <- res$new(p1[[2]], 0, 10L, seed = c(seed[321:640], filter_seed))
   expect_equal(drop(a$run(1)), y1[, , 1])
   expect_equal(drop(b$run(1)), y1[, , 2])
 
-  expect_identical(obj$rng_state(), c(a$rng_state(), b$rng_state()))
+  expect_identical(obj$rng_state()[1:640], c(a$rng_state()[1:320], b$rng_state()[1:320]))
+  expect_identical(obj$rng_state(TRUE), a$rng_state(TRUE))
+  expect_identical(obj$rng_state(TRUE), b$rng_state(TRUE))
 
   obj$set_pars(p2)
   expect_equal(obj$state(), y1)
@@ -269,7 +272,7 @@ test_that("Can change pars", {
   expect_equal(drop(a$run(2)), y2[, , 1])
   expect_equal(drop(b$run(2)), y2[, , 2])
 
-  expect_identical(obj$rng_state(), c(a$rng_state(), b$rng_state()))
+  expect_identical(obj$rng_state()[1:640], c(a$rng_state()[1:320], b$rng_state()[1:320]))
 })
 
 
@@ -445,7 +448,7 @@ test_that("resample multi", {
   m[] <- seq_along(m)
   obj$set_state(m)
 
-  rng <- dust_rng$new(obj$rng_state(), 14)
+  rng <- dust_rng$new(obj$rng_state(), 15)
   expect_identical(rng$state(), obj$rng_state())
 
   w <- cbind(runif(7), runif(7))
@@ -459,7 +462,7 @@ test_that("resample multi", {
   expect_equal(s[, , 2], m[, idx[, 2], 2])
 
   ## Index is expected:
-  u <- rng$unif_rand(14)[c(1, 8)]
+  u <- rng$unif_rand(30)[c(15, 30)]
   expect_equal(
     idx,
     cbind(resample_index(w[, 1], u[1]), resample_index(w[, 2], u[2])))
@@ -474,7 +477,7 @@ test_that("resample multi validates inputs", {
   m[] <- seq_along(m)
   obj$set_state(m)
 
-  rng <- dust_rng$new(obj$rng_state(), 14)
+  rng <- dust_rng$new(obj$rng_state(), 15)
   expect_identical(rng$state(), obj$rng_state())
 
   w <- cbind(runif(7), runif(7))
