@@ -257,7 +257,8 @@ test_that("Can change pars", {
   expect_equal(drop(a$run(1)), y1[, , 1])
   expect_equal(drop(b$run(1)), y1[, , 2])
 
-  expect_identical(obj$rng_state()[1:640], c(a$rng_state()[1:320], b$rng_state()[1:320]))
+  expect_identical(obj$rng_state()[1:640],
+                   c(a$rng_state()[1:320], b$rng_state()[1:320]))
   expect_identical(obj$rng_state(TRUE), a$rng_state(TRUE))
   expect_identical(obj$rng_state(TRUE), b$rng_state(TRUE))
 
@@ -272,7 +273,8 @@ test_that("Can change pars", {
   expect_equal(drop(a$run(2)), y2[, , 1])
   expect_equal(drop(b$run(2)), y2[, , 2])
 
-  expect_identical(obj$rng_state()[1:640], c(a$rng_state()[1:320], b$rng_state()[1:320]))
+  expect_identical(obj$rng_state()[1:640],
+                   c(a$rng_state()[1:320], b$rng_state()[1:320]))
 })
 
 

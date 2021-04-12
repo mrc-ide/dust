@@ -111,7 +111,6 @@ struct device_state {
 
 template <typename real_t>
 struct device_scan_state {
-
   void initialise(const size_t n_particles,
                   dust::device_array<real_t>& weights) {
     cum_weights = dust::device_array<real_t>(n_particles);

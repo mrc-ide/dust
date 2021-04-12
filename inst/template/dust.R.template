@@ -442,8 +442,10 @@
     ##' this argument will likely change to allow selecting the GPU on
     ##' systems with more than one. In short, please leave this argument
     ##' alone unless you're developing dust.
-    filter = function(save_trajectories = FALSE, step_snapshot = NULL, device = FALSE) {
-      dust_{{name}}_filter(private$ptr_, save_trajectories, step_snapshot, device)
+    filter = function(save_trajectories = FALSE, step_snapshot = NULL,
+                      device = FALSE) {
+      dust_{{name}}_filter(private$ptr_, save_trajectories,
+                           step_snapshot, device)
     },
 
     ##' @description
