@@ -391,7 +391,8 @@ dust_class <- R6::R6Class(
     ##' this argument will likely change to allow selecting the GPU on
     ##' systems with more than one. In short, please leave this argument
     ##' alone unless you're developing dust.
-    filter = function(save_trajectories = FALSE, step_snapshot = NULL, device = FALSE) {
+    filter = function(save_trajectories = FALSE, step_snapshot = NULL,
+                      device = FALSE) {
     },
 
     ##' @description
