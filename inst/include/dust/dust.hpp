@@ -312,6 +312,7 @@ public:
   // for history saving)
   void state(dust::device_array<real_t>& device_state, const size_t dst_offset,
              const bool async = false) {
+    refresh_device();
     run_device_select();
 #ifdef __NVCC__
     CUDA_CALL(cudaDeviceSynchronize());
@@ -522,6 +523,7 @@ public:
         n_state(),
         n_particles());
 #endif
+    device_state_.swap();
     select_needed_ = true;
   }
 

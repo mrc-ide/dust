@@ -75,9 +75,9 @@ std::vector<typename T::real_t> filter(Dust<T> * obj,
 
 template <typename T>
 std::vector<typename T::real_t> filter_device(Dust<T> * obj,
-                                       filter_state_device<typename T::real_t>& state,
-                                       bool save_trajectories,
-                                       std::vector<size_t> step_snapshot) {
+                                              filter_state_device<typename T::real_t>& state,
+                                              bool save_trajectories,
+                                              std::vector<size_t> step_snapshot) {
   typedef typename T::real_t real_t;
 
   const size_t n_particles = obj->n_particles();
