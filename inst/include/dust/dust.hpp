@@ -284,15 +284,20 @@ public:
 
   // Used for copy of state into another block of memory on the device (used
   // for history saving)
-  void state(dust::device_array<real_t>& device_state, const size_t dst_offset,
+  void state(dust::filter_trajectories_device<real_t>& device_state,
              const bool async = false) {
     refresh_device();
     run_device_select();
 #ifdef __NVCC__
-    CUDA_CALL(cudaDeviceSynchronize());
+    kernel_stream_.sync();
 #endif
-    device_state.set_array(device_state_.y_selected.data(),
-                           device_state_.y_selected.size(), dst_offset, async);
+    device_state.value_swap.set_array(device_state_.y_selected.data(),
+                                      device_state_.y_selected.size(),
+                                      async);
+    device_state.values_to_host(memory_stream_.stream());
+    if (!async) {
+      memory_stream_.sync();
+    }
   }
 
   // TODO: this does not use device_select. But if index is being provided
@@ -430,8 +435,15 @@ public:
   }
 
   // Used in the filter
-  dust::device_array<size_t>& kappa() {
-    return device_state_.scatter_index;
+  void kappa_copy(dust::filter_trajectories_device<real_t>& device_state,
+                  const bool async = false) {
+    device_state.order_swap.set_array(device_state_.scatter_index.data(),
+                                      device_state_.scatter_index.size(),
+                                      async);
+    device_state.order_to_host(memory_stream_.stream());
+    if (!async) {
+      memory_stream_.sync();
+    }
   }
 
   size_t n_threads() const {
@@ -635,6 +647,11 @@ private:
   bool select_needed_;
   size_t shared_size_;
   size_t device_step_;
+
+#ifdef __NVCC__
+  dust::cuda::cuda_stream kernel_stream_;
+  dust::cuda::cuda_stream memory_stream_;
+#endif
 
   // delete move and copy to avoid accidentally using them
   Dust ( const Dust & ) = delete;

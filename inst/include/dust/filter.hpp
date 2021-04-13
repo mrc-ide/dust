@@ -103,7 +103,7 @@ filter(Dust<T> * obj,
 
   if (save_trajectories) {
     state.trajectories.resize(obj->n_state(), n_particles, n_data);
-    obj->state(state.trajectories.values(), state.trajectories.value_offset());
+    obj->state(state.trajectories);
     state.trajectories.advance();
   }
 
@@ -115,9 +115,7 @@ filter(Dust<T> * obj,
 
     // SAVE HISTORY (async)
     if (save_trajectories) {
-      obj->state(state.trajectories.values(),
-                 state.trajectories.value_offset(),
-                 true);
+      obj->state(state.trajectories, true);
     }
 
     // COMPARISON FUNCTION
@@ -132,8 +130,7 @@ filter(Dust<T> * obj,
 
     // SAVE HISTORY ORDER
     if (save_trajectories) {
-      state.trajectories.order().set_array(obj->kappa().data(), n_particles,
-        state.trajectories.order_offset());
+      obj->kappa_copy(state.trajectories, true);
       state.trajectories.advance();
     }
 
