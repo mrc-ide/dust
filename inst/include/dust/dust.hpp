@@ -651,7 +651,7 @@ public:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   compare_data_device(dust::device_array<real_t>& res,
-                           const size_t data_offset) {
+                      const size_t data_offset) {
     refresh_device();
 #ifdef __NVCC__
     const int warp_size = dust::cuda::warp_size;
@@ -896,10 +896,11 @@ private:
     std::vector<size_t> data_offsets(n_data());
     size_t i = 0;
     for (auto & d_step : data()) {
+      device_data_offsets_[d_step.first] = i;
       for (auto & d : d_step.second ) {
         flattened_data.push_back(d);
+        i++;
       }
-      device_data_offsets_[d_step.first] = i++;
     }
     device_data_ = dust::device_array<data_t>(flattened_data.size());
     device_data_.set_array(flattened_data);
