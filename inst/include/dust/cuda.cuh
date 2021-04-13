@@ -79,6 +79,42 @@ DEVICE void shared_mem_wait(cooperative_groups::thread_block& block) {
 }
 #endif
 
+class cuda_stream {
+public:
+  cuda_stream() {
+    CUDA_CALL(cudaStreamCreate(&stream_));
+  }
+
+  ~cuda_stream() {
+    CUDA_CALL_NOTHROW(cudaStreamCreate(stream_));
+  }
+
+  cudaStream_t& stream() {
+    return stream_;
+  }
+
+  void sync() {
+    CUDA_CALL(cudaStreamSynchronize(stream_));
+  }
+
+  bool query() const {
+    bool ready;
+    if (cudaStreamQuery(stream_) == cudaSuccess) {
+      ready = true;
+    } else {
+      ready = false;
+    }
+    return ready;
+  }
+
+private:
+  // Delete copy and move
+  cuda_stream ( const cuda_stream & ) = delete;
+  cuda_stream ( cuda_stream && ) = delete;
+
+  cudaStream_t stream_;
+}
+
 }
 }
 
