@@ -262,23 +262,28 @@ public:
                                       weights_max_.data(),
                                       n_pars_,
                                       pars_offsets_.data(),
-                                      pars_offsets_.data() + 1);
+                                      pars_offsets_.data() + 1,
+                                      kernel_stream_.stream());
     } else {
       cub::DeviceReduce::Max(max_tmp_.data(),
                              max_tmp_bytes,
                              weights_.data(),
                              weights_max_.data(),
-                             n_particles_);
+                             n_particles_,
+                             kernel_stream_.stream());
     }
-    CUDA_CALL(cudaDeviceSynchronize());
+    kernel_stream_.sync();
     // Then exp
-    dust::exp_weights<real_t><<<exp_blockCount, exp_blockSize>>>(
+    dust::exp_weights<real_t><<<exp_blockCount,
+                                exp_blockSize,
+                                0,
+                                kernel_stream_.stream()>>>(
       n_particles_,
       n_pars_,
       weights_.data(),
       weights_max_.data()
     );
-    CUDA_CALL(cudaDeviceSynchronize());
+    kernel_stream_.sync();
     // Then sum
     if (n_pars_ > 1) {
       cub::DeviceSegmentedReduce::Sum(sum_tmp_.data(),
@@ -287,24 +292,29 @@ public:
                                       log_likelihood_step_.data(),
                                       n_pars_,
                                       pars_offsets_.data(),
-                                      pars_offsets_.data() + 1);
+                                      pars_offsets_.data() + 1,
+                                      kernel_stream_.stream());
     } else {
       cub::DeviceReduce::Sum(sum_tmp_.data(),
                              sum_tmp_bytes,
                              weights_.data(),
                              log_likelihood_step_.data(),
-                             n_particles_);
+                             n_particles_,
+                             kernel_stream_.stream());
     }
-    CUDA_CALL(cudaDeviceSynchronize());
+    kernel_stream_.sync();
     // Finally log and add max
-    dust::weight_log_likelihood<real_t><<<weight_blockCount, weight_blockSize>>>(
+    dust::weight_log_likelihood<real_t><<<weight_blockCount,
+                                          weight_blockSize,
+                                          0,
+                                          kernel_stream_.stream()>>>(
       n_pars_,
       n_particles_each_,
       log_likelihood.data(),
       log_likelihood_step_.data(),
       weights_max_.data()
     );
-    CUDA_CALL(cudaDeviceSynchronize());
+    kernel_stream_.sync();
 #else
     std::vector<real_t> max_w(n_pars_, -dust::utils::infinity<real_t>());
     std::vector<real_t> host_w(n_particles_);
@@ -359,6 +369,10 @@ private:
   dust::device_array<int> pars_offsets_;
   dust::device_array<void> max_tmp_;
   dust::device_array<void> sum_tmp_;
+
+#ifdef __NVCC__
+  dust::cuda::cuda_stream kernel_stream_;
+#endif
 };
 
 // We need to compute the size of space required for integers and

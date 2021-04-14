@@ -107,8 +107,6 @@ template <typename real_t>
 class filter_trajectories_device : public filter_trajectories_host<real_t> {
 public:
   filter_trajectories_device() {
-    history_value_swap = dust::device_array<real_t>(this->n_state_ * this->n_particles_);
-    history_order_swap = dust::device_array<size_t>(this->n_particles_);
   }
 
 #ifdef __NVCC__
@@ -130,6 +128,9 @@ public:
     }
 
 #ifdef __NVCC__
+    history_value_swap = dust::device_array<real_t>(this->n_state_ * this->n_particles_);
+    history_order_swap = dust::device_array<size_t>(this->n_particles_);
+
     // Page lock memory on host
     CUDA_CALL(cudaHostRegister(this->history_value.data(),
                                this->history_value.size() * sizeof(real_t),
@@ -137,32 +138,49 @@ public:
     CUDA_CALL(cudaHostRegister(this->history_order.data(),
                                this->history_order.size() * sizeof(real_t),
                                cudaHostRegisterDefault));
+#else
+    history_value_swap = std::vector<real_t>(this->n_state_ * this->n_particles_);
+    history_order_swap = std::vector<size_t>(this->n_particles_);
 #endif
 
   }
 
-  dust::device_array<real_t> &value_swap() {
-    return history_value;
+  size_t value_offset() {
+    return this->offset_ * this->n_state_ * this->n_particles_;
   }
 
-  dust::device_array<size_t> &order_swap() {
-    return history_order;
+  size_t order_offset() {
+    return this->offset_ * this->n_particles_;
   }
 
-  real_t * value_ptr() {
-    return this->history_value.data() + this->offset_ * this->n_state_ * this->n_particles_;
+  void store_values(dust::device_array<real_t>& state) {
+#ifdef __NVCC__
+    host_memory_stream_.sync();
+    state.get_array_async(history_value_swap.data(), device_memory_stream_);
+    device_memory_stream_.sync();
+    history_value_swap.get_array_async(this->history_value.data() + value_offset(),
+                                       host_memory_stream_);
+#else
+    state.get_array(history_value_swap);
+    std::copy(history_value_swap.begin(),
+              history_value_swap.end(),
+              this->history_value.begin() + value_offset());
+#endif
   }
 
-  size_t * order_ptr() {
-    return this->history_order.data() + this->offset_ * this->n_particles_;
-  }
-
-  void values_to_host(cuda_stream& stream) {
-    history_value_swap.get_array(value_ptr(), stream, true);
-  }
-
-  void order_to_host(cuda_stream& stream) {
-    history_order_swap.get_array(order_ptr(), stream, true);
+  void store_order(dust::device_array<size_t>& kappa) {
+#ifdef __NVCC__
+    host_memory_stream_.sync();
+    kappa.get_array_async(history_order_swap.data(), device_memory_stream_);
+    device_memory_stream_.sync();
+    history_order_swap.get_array_async(this->history_order.data() + order_offset(),
+                                       host_memory_stream_);
+#else
+    kappa.get_array(history_order_swap);
+    std::copy(history_order_swap.begin(),
+              history_order_swap.end(),
+              this->history_order.begin() + order_offset());
+#endif
   }
 
   template <typename Iterator>
@@ -172,12 +190,18 @@ public:
   }
 
 private:
-  dust::device_array<real_t> history_value_swap;
-  dust::device_array<size_t> history_order_swap;
-
 #ifdef __NVCC__
   filter_trajectories_device ( const filter_trajectories_device & ) = delete;
   filter_trajectories_device ( filter_trajectories_device && ) = delete;
+
+  dust::device_array<real_t> history_value_swap;
+  dust::device_array<size_t> history_order_swap;
+
+  dust::cuda::cuda_stream device_memory_stream_;
+  dust::cuda::cuda_stream host_memory_stream_;
+#else
+  std::vector<real_t> history_value_swap;
+  std::vector<size_t> history_order_swap;
 #endif
 
   std::vector<real_t> destride_history() const {
@@ -208,9 +232,18 @@ private:
 };
 
 template <typename real_t>
-class filter_snapshots {
+class filter_snapshots_host {
 public:
-  filter_snapshots() {
+  filter_snapshots_host() {
+  }
+
+  void resize(size_t n_state, size_t n_particles, std::vector<size_t> steps) {
+    n_state_ = n_state;
+    n_particles_ = n_particles;
+    n_steps_ = steps.size();
+    offset_ = 0;
+    steps_ = steps;
+    state_.resize(n_state_ * n_particles_ * n_steps_);
   }
 
   bool is_snapshot_step(size_t step) {
@@ -221,35 +254,12 @@ public:
     offset_++;
   }
 
-protected:
-  size_t n_state_;
-  size_t n_particles_;
-  size_t n_steps_;
-  size_t offset_;
-  std::vector<size_t> steps_;
-};
-
-template <typename real_t>
-class filter_snapshots_host : public filter_snapshots<real_t> {
-public:
-  filter_snapshots_host() {
-  }
-
-  void resize(size_t n_state, size_t n_particles, std::vector<size_t> steps) {
-    this->n_state_ = n_state;
-    this->n_particles_ = n_particles;
-    this->n_steps_ = steps.size();
-    this->offset_ = 0;
-    this->steps_ = steps;
-    state_.resize(this->n_state_ * this->n_particles_ * this->n_steps_);
-  }
-
   size_t size() const {
     return state_.size();
   }
 
   typename std::vector<real_t>::iterator value_iterator() {
-    return state_.begin() + this->offset_ * this->n_state_ * this->n_particles_;
+    return state_.begin() + offset_ * n_state_ * n_particles_;
   }
 
   template <typename Iterator>
@@ -257,35 +267,59 @@ public:
     std::copy(state_.begin(), state_.end(), dest);
   }
 
-private:
+protected:
+  size_t n_state_;
+  size_t n_particles_;
+  size_t n_steps_;
+  size_t offset_;
+  std::vector<size_t> steps_;
   std::vector<real_t> state_;
 };
 
 template <typename real_t>
-class filter_snapshots_device : public filter_snapshots<real_t> {
+class filter_snapshots_device : public filter_snapshots_host<real_t> {
 public:
   filter_snapshots_device() {
   }
 
   void resize(size_t n_state, size_t n_particles, std::vector<size_t> steps) {
+    pageable();
     this->n_state_ = n_state;
     this->n_particles_ = n_particles;
     this->n_steps_ = steps.size();
     this->offset_ = 0;
     this->steps_ = steps;
-    state_ = dust::device_array<real_t>(this->n_state_ * this->n_particles_ * this->n_steps_);
-  }
+    this->state_.resize(this->n_state_ * this->n_particles_ * this->n_steps_);
 
-  size_t size() const {
-    return state_.size();
-  }
+#ifdef __NVCC__
+    state_swap = dust::device_array<real_t>(this->n_state_ * this->n_particles_);
 
-  dust::device_array<real_t> &state() {
-    return state_;
+    // Page lock memory on host
+    CUDA_CALL(cudaHostRegister(this->state_.data(),
+                               this->state_.size() * sizeof(real_t),
+                               cudaHostRegisterDefault));
+#else
+    state_swap = std::vector<real_t>(this->n_state_ * this->n_particles_);
+#endif
   }
 
   size_t value_offset() {
     return this->offset_ * this->n_state_ * this->n_particles_;
+  }
+
+  void store(dust::device_array<real_t>& state) {
+#ifdef __NVCC__
+    host_memory_stream_.sync();
+    state.get_array_async(state_swap.data(), device_memory_stream_);
+    device_memory_stream_.sync();
+    state_swap.get_array_async(this->state_.data() + value_offset(),
+                               host_memory_stream_);
+#else
+    state.get_array(state_swap);
+    std::copy(state_swap.begin(),
+              state_swap.end(),
+              this->state_..begin() + value_offset());
+#endif
   }
 
   template <typename Iterator>
@@ -310,7 +344,25 @@ public:
   }
 
 private:
-  dust::device_array<real_t> state_;
+#ifdef __NVCC__
+  filter_snapshots_device ( const filter_snapshots_device & ) = delete;
+  filter_snapshots_device ( filter_snapshots_device && ) = delete;
+
+  dust::device_array<real_t> state_swap;
+
+  dust::cuda::cuda_stream device_memory_stream_;
+  dust::cuda::cuda_stream host_memory_stream_;
+#else
+  std::vector<real_t> state_swap;
+#endif
+
+  void pageable() {
+#ifdef __NVCC__
+    // Make memory pageable again
+    CUDA_CALL_NOTHROW(cudaHostUnregister(this->state_.data()));
+#endif
+  }
+
 };
 
 template <typename real_t>
