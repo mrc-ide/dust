@@ -1,3 +1,7 @@
+# dust 0.9.0
+
+* Added CUDA version of the particle filter, run with `model$filter(device = TRUE)` (#224)
+
 # dust 0.8.15
 
 * Removed functions `dust::dust_simulate` and `dust::dust_iterate`, which were deprecated in 0.7.9 (#215)
