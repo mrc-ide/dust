@@ -148,6 +148,86 @@ dust_sir_device_info <- function() {
   .Call(`_dust_dust_sir_device_info`)
 }
 
+dust_sirs_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_id) {
+  .Call(`_dust_dust_sirs_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_id)
+}
+
+dust_sirs_run <- function(ptr, step_end, device) {
+  .Call(`_dust_dust_sirs_run`, ptr, step_end, device)
+}
+
+dust_sirs_simulate <- function(ptr, step_end) {
+  .Call(`_dust_dust_sirs_simulate`, ptr, step_end)
+}
+
+dust_sirs_set_index <- function(ptr, r_index) {
+  .Call(`_dust_dust_sirs_set_index`, ptr, r_index)
+}
+
+dust_sirs_set_state <- function(ptr, r_state, r_step) {
+  .Call(`_dust_dust_sirs_set_state`, ptr, r_state, r_step)
+}
+
+dust_sirs_reset <- function(ptr, r_pars, step) {
+  .Call(`_dust_dust_sirs_reset`, ptr, r_pars, step)
+}
+
+dust_sirs_state <- function(ptr, r_index) {
+  .Call(`_dust_dust_sirs_state`, ptr, r_index)
+}
+
+dust_sirs_step <- function(ptr) {
+  .Call(`_dust_dust_sirs_step`, ptr)
+}
+
+dust_sirs_reorder <- function(ptr, r_index) {
+  invisible(.Call(`_dust_dust_sirs_reorder`, ptr, r_index))
+}
+
+dust_sirs_resample <- function(ptr, r_weights) {
+  .Call(`_dust_dust_sirs_resample`, ptr, r_weights)
+}
+
+dust_sirs_set_pars <- function(ptr, r_pars) {
+  .Call(`_dust_dust_sirs_set_pars`, ptr, r_pars)
+}
+
+dust_sirs_rng_state <- function(ptr, last_only) {
+  .Call(`_dust_dust_sirs_rng_state`, ptr, last_only)
+}
+
+dust_sirs_set_rng_state <- function(ptr, rng_state) {
+  .Call(`_dust_dust_sirs_set_rng_state`, ptr, rng_state)
+}
+
+dust_sirs_set_data <- function(ptr, data) {
+  .Call(`_dust_dust_sirs_set_data`, ptr, data)
+}
+
+dust_sirs_compare_data <- function(ptr) {
+  .Call(`_dust_dust_sirs_compare_data`, ptr)
+}
+
+dust_sirs_filter <- function(ptr, save_trajectories, step_snapshot, device) {
+  .Call(`_dust_dust_sirs_filter`, ptr, save_trajectories, step_snapshot, device)
+}
+
+dust_sirs_capabilities <- function() {
+  .Call(`_dust_dust_sirs_capabilities`)
+}
+
+dust_sirs_set_n_threads <- function(ptr, n_threads) {
+  invisible(.Call(`_dust_dust_sirs_set_n_threads`, ptr, n_threads))
+}
+
+dust_sirs_n_state <- function(ptr) {
+  .Call(`_dust_dust_sirs_n_state`, ptr)
+}
+
+dust_sirs_device_info <- function() {
+  .Call(`_dust_dust_sirs_device_info`)
+}
+
 cpp_scale_log_weights <- function(w) {
   .Call(`_dust_cpp_scale_log_weights`, w)
 }
