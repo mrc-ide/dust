@@ -1,6 +1,6 @@
 class sirs {
 public:
-  typedef float real_t;
+  typedef double real_t;
   typedef dust::no_internal internal_t;
 
   struct ALIGN(16) data_t {
