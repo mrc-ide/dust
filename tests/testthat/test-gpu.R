@@ -447,8 +447,8 @@ test_that("Can use sirs gpu model", {
     mod2$run(13, TRUE))
 
   # Test that device_select run is cached
-  mod1$set_index(0L)
-  mod2$set_index(0L)
+  mod1$set_index(1L)
+  mod2$set_index(1L)
   expect_identical(
     mod1$run(15),
     mod2$run(15, TRUE))
@@ -457,16 +457,20 @@ test_that("Can use sirs gpu model", {
     mod2$run(15, TRUE))
 })
 
-test_that("Comparison function can be run on the GPU", {
-  dat <- example_sirs()
-
+test_that("Missing GPU comparison function errors", {
+  dat <- example_volatility()
   gen <- dust_example("volatility")
   mod <- gen$new(list(sd = 1), 0, 100, seed = 1L)
-  mod <- mod$set_data(dat$dat_dust)
+  mod$set_data(dust_data(dat$data))
+  mod$run(10)
   expect_error(
     mod$compare_data(TRUE),
-    "GPU support not enabled for this object")
+    "GPU support not enabled for this object"
   )
+})
+
+test_that("Comparison function can be run on the GPU", {
+  dat <- example_sirs()
 
   np <- 10
 
@@ -480,7 +484,7 @@ test_that("Comparison function can be run on the GPU", {
   mod_d$run(10)
   weights_d <- mod_h$compare_data(TRUE)
 
-  expect_indentical(weights_h, weights_d)
+  expect_identical(weights_h, weights_d)
 })
 
 test_that("Can run a single particle filter on the GPU", {

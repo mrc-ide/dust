@@ -381,9 +381,9 @@ cpp11::sexp dust_compare_data(SEXP ptr, bool device) {
 
   std::vector<typename T::real_t> ret;
   if (device) {
-    ret = obj->compare_data();
-  } else {
     ret = obj->compare_data_device();
+  } else {
+    ret = obj->compare_data();
   }
 
   if (ret.size() == 0) {
