@@ -479,7 +479,7 @@ test_that("Comparison function can be run on the GPU", {
   mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_id = 0L)
   mod_d$set_data(dat$dat_dust)
   mod_d$run(10)
-  weights_d <- mod_h$compare_data(TRUE)
+  weights_d <- mod_d$compare_data(TRUE)
 
   expect_identical(weights_h, weights_d)
 })

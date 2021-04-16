@@ -661,7 +661,7 @@ public:
   */
   template <typename U = T>
   typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
-  compare_data_device(dust::device_array<real_t>& res,
+  compare_data_device(dust::device_array<real_t>& res,                      // #nocov
                       const size_t data_offset) {
     throw std::invalid_argument("GPU support not enabled for this object"); // #nocov
   }
