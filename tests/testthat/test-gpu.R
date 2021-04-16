@@ -85,11 +85,6 @@ test_that("Can reorder on the device", {
     mod1$run(13),
     mod2$run(13, TRUE))
 
-  # Check does not run select again
-  expect_identical(
-    mod1$run(13),
-    mod2$run(13, TRUE))
-
   expect_identical(mod1$state(), mod2$state())
 })
 
@@ -450,6 +445,16 @@ test_that("Can use sirs gpu model", {
   expect_identical(
     mod1$run(13),
     mod2$run(13, TRUE))
+
+  # Test that device_select run is cached
+  mod1$set_index(0L)
+  mod2$set_index(0L)
+  expect_identical(
+    mod1$run(15),
+    mod2$run(15, TRUE))
+  expect_identical(
+    mod1$run(15),
+    mod2$run(15, TRUE))
 })
 
 test_that("Can run a single particle filter on the GPU", {

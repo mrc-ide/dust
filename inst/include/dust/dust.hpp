@@ -179,74 +179,76 @@ public:
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   run_device(const size_t step_end) {
     refresh_device();
-    const size_t step_start = device_step_;
+    if (step_end > device_step_) {
+      const size_t step_start = device_step_;
 #ifdef __NVCC__
-    const int warp_size = dust::cuda::warp_size;
-    // Set up blocks and shared memory preferences
-    size_t blockSize = 128;
-    size_t blockCount;
-    bool use_shared_L1 = true;
-    size_t n_shared_int_effective = device_state_.n_shared_int +
-      dust::utils::align_padding(device_state_.n_shared_int * sizeof(int), sizeof(real_t)) / sizeof(int);
-    size_t shared_size_bytes = n_shared_int_effective * sizeof(int) +
-      device_state_.n_shared_real * sizeof(real_t);
-    if (n_particles_each_ < warp_size || shared_size_bytes > shared_size_) {
-      // If not enough particles per pars to make a whole block use
-      // shared, or if shared_t too big for L1, turn it off, and run
-      // in 'classic' mode where each particle is totally independent
-      use_shared_L1 = false;
-      shared_size_bytes = 0;
-      blockCount = (n_particles() + blockSize - 1) / blockSize;
-    } else {
-      // If it's possible to make blocks with shared_t in L1 cache,
-      // each block runs a pars set. Each pars set has enough blocks
-      // to run all of its particles, the final block may have some
-      // threads that don't do anything (hang off the end)
-      blockSize = warp_size * (n_particles_each_ + warp_size - 1) / warp_size;
-      blockSize = std::min(static_cast<size_t>(128), blockSize);
-      blockCount = n_pars_effective() * (n_particles_each_ + blockSize - 1) /
-        blockSize;
-    }
-    dust::run_particles<T><<<blockCount, blockSize, shared_size_bytes>>>(
-                     step_start, step_end, particles_.size(),
-                     n_pars_effective(),
-                     device_state_.y.data(), device_state_.y_next.data(),
-                     device_state_.internal_int.data(),
-                     device_state_.internal_real.data(),
-                     device_state_.n_shared_int,
-                     device_state_.n_shared_real,
-                     device_state_.shared_int.data(),
-                     device_state_.shared_real.data(),
-                     device_state_.rng.data(),
-                     use_shared_L1);
-    CUDA_CALL(cudaDeviceSynchronize());
+      const int warp_size = dust::cuda::warp_size;
+      // Set up blocks and shared memory preferences
+      size_t blockSize = 128;
+      size_t blockCount;
+      bool use_shared_L1 = true;
+      size_t n_shared_int_effective = device_state_.n_shared_int +
+        dust::utils::align_padding(device_state_.n_shared_int * sizeof(int), sizeof(real_t)) / sizeof(int);
+      size_t shared_size_bytes = n_shared_int_effective * sizeof(int) +
+        device_state_.n_shared_real * sizeof(real_t);
+      if (n_particles_each_ < warp_size || shared_size_bytes > shared_size_) {
+        // If not enough particles per pars to make a whole block use
+        // shared, or if shared_t too big for L1, turn it off, and run
+        // in 'classic' mode where each particle is totally independent
+        use_shared_L1 = false;
+        shared_size_bytes = 0;
+        blockCount = (n_particles() + blockSize - 1) / blockSize;
+      } else {
+        // If it's possible to make blocks with shared_t in L1 cache,
+        // each block runs a pars set. Each pars set has enough blocks
+        // to run all of its particles, the final block may have some
+        // threads that don't do anything (hang off the end)
+        blockSize = warp_size * (n_particles_each_ + warp_size - 1) / warp_size;
+        blockSize = std::min(static_cast<size_t>(128), blockSize);
+        blockCount = n_pars_effective() * (n_particles_each_ + blockSize - 1) /
+          blockSize;
+      }
+      dust::run_particles<T><<<blockCount, blockSize, shared_size_bytes>>>(
+                      step_start, step_end, particles_.size(),
+                      n_pars_effective(),
+                      device_state_.y.data(), device_state_.y_next.data(),
+                      device_state_.internal_int.data(),
+                      device_state_.internal_real.data(),
+                      device_state_.n_shared_int,
+                      device_state_.n_shared_real,
+                      device_state_.shared_int.data(),
+                      device_state_.shared_real.data(),
+                      device_state_.rng.data(),
+                      use_shared_L1);
+      CUDA_CALL(cudaDeviceSynchronize());
 #else
-    dust::run_particles<T>(step_start, step_end, particles_.size(),
-                     n_pars_effective(),
-                     device_state_.y.data(), device_state_.y_next.data(),
-                     device_state_.internal_int.data(),
-                     device_state_.internal_real.data(),
-                     device_state_.n_shared_int,
-                     device_state_.n_shared_real,
-                     device_state_.shared_int.data(),
-                     device_state_.shared_real.data(),
-                     device_state_.rng.data(),
-                     false);
+      dust::run_particles<T>(step_start, step_end, particles_.size(),
+                      n_pars_effective(),
+                      device_state_.y.data(), device_state_.y_next.data(),
+                      device_state_.internal_int.data(),
+                      device_state_.internal_real.data(),
+                      device_state_.n_shared_int,
+                      device_state_.n_shared_real,
+                      device_state_.shared_int.data(),
+                      device_state_.shared_real.data(),
+                      device_state_.rng.data(),
+                      false);
 #endif
 
-    // In the inner loop, the swap will keep the locally scoped
-    // interleaved variables updated, but the interleaved variables
-    // passed in have not yet been updated.  If an even number of
-    // steps have been run state will have been swapped back into the
-    // original place, but an on odd number of steps the passed
-    // variables need to be swapped.
-    if ((step_end - step_start) % 2 == 1) {
-      device_state_.swap();
-   }
+      // In the inner loop, the swap will keep the locally scoped
+      // interleaved variables updated, but the interleaved variables
+      // passed in have not yet been updated.  If an even number of
+      // steps have been run state will have been swapped back into the
+      // original place, but an on odd number of steps the passed
+      // variables need to be swapped.
+      if ((step_end - step_start) % 2 == 1) {
+        device_state_.swap();
+      }
 
-    stale_host_ = true;
-    select_needed_ = true;
-    device_step_ = step_end;
+      stale_host_ = true;
+      select_needed_ = true;
+      device_step_ = step_end;
+    }
   }
 
   std::vector<real_t> simulate(const std::vector<size_t>& step_end) {
