@@ -411,8 +411,17 @@
     ##' the same length as the number of particles is returned. If model's
     ##' underlying `compare_data` function is stochastic, then each call to
     ##' this function may be result in a different answer.
-    compare_data = function() {
-      dust_{{name}}_compare_data(private$ptr_)
+    ##'
+    ##' @param device **Experimental!**: This argument may allow running on
+    ##' a GPU once support is finished, if the model supports it, and if
+    ##' the model is compiled appropriately (and assuming you have a
+    ##' suitable GPU). At present it exists for testing and will run
+    ##' slower than running with `device = FALSE`. The interpretation of
+    ##' this argument will likely change to allow selecting the GPU on
+    ##' systems with more than one. In short, please leave this argument
+    ##' alone unless you're developing dust.
+    compare_data = function(device = FALSE) {
+      dust_{{name}}_compare_data(private$ptr_, device)
     },
 
     ##' @description

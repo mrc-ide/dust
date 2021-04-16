@@ -66,8 +66,8 @@ SEXP dust_{{name}}_set_data(SEXP ptr, cpp11::list data) {
   return R_NilValue;
 }
 
-SEXP dust_{{name}}_compare_data(SEXP ptr) {
-  return dust::r::dust_compare_data<{{class}}>(ptr);
+SEXP dust_{{name}}_compare_data(SEXP ptr, bool device) {
+  return dust::r::dust_compare_data<{{class}}>(ptr, device);
 }
 
 SEXP dust_{{name}}_filter(SEXP ptr, bool save_trajectories,

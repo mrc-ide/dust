@@ -44,7 +44,7 @@ SEXP dust_{{name}}_set_rng_state(SEXP ptr, cpp11::raws rng_state);
 SEXP dust_{{name}}_set_data(SEXP ptr, cpp11::list data);
 
 [[cpp11::register]]
-SEXP dust_{{name}}_compare_data(SEXP ptr);
+SEXP dust_{{name}}_compare_data(SEXP ptr, bool device);
 
 [[cpp11::register]]
 SEXP dust_{{name}}_filter(SEXP ptr, bool save_trajectories,

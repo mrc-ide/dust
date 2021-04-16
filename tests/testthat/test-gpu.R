@@ -457,6 +457,32 @@ test_that("Can use sirs gpu model", {
     mod2$run(15, TRUE))
 })
 
+test_that("Comparison function can be run on the GPU", {
+  dat <- example_sirs()
+
+  gen <- dust_example("volatility")
+  mod <- gen$new(list(sd = 1), 0, 100, seed = 1L)
+  mod <- mod$set_data(dat$dat_dust)
+  expect_error(
+    mod$compare_data(TRUE),
+    "GPU support not enabled for this object")
+  )
+
+  np <- 10
+
+  mod_h <- dat$model$new(list(), 0, np, seed = 10L)
+  mod_h$set_data(dat$dat_dust)
+  mod_h$run(10)
+  weights_h <- mod_h$compare_data()
+
+  mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_id = 0L)
+  mod_d$set_data(dat$dat_dust)
+  mod_d$run(10)
+  weights_d <- mod_h$compare_data(TRUE)
+
+  expect_indentical(weights_h, weights_d)
+})
+
 test_that("Can run a single particle filter on the GPU", {
   dat <- example_sirs()
 

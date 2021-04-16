@@ -68,6 +68,7 @@ struct device_state {
     index = dust::device_array<char>(n_state * n_particles);
     n_selected = dust::device_array<int>(1);
     scatter_index = dust::device_array<size_t>(n_particles);
+    compare_res = dust::device_array<real_t>(n_particles);
     resample_u = dust::device_array<real_t>(n_pars);
     set_cub_tmp();
   }
@@ -106,6 +107,7 @@ struct device_state {
   dust::device_array<int> n_selected;
   dust::device_array<void> select_tmp;
   dust::device_array<size_t> scatter_index;
+  dust::device_array<real_t> compare_res;
   dust::device_array<real_t> resample_u;
 };
 

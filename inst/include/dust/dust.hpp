@@ -643,6 +643,18 @@ public:
     stale_device_ = true; // RNG use
   }
 
+  std::vector<real_t> compare_data_device() {
+    std::vector<real_t> res;
+    auto d = device_data_offsets_.find(step());
+    if (d != device_data_offsets_.end()) {
+      res.resize(particles_.size());
+      compare_data_device(device_state_.compare_res, d->second);
+      device_state_.compare_res.get_array(res);
+    }
+    stale_host_ = true; // RNG use
+    return res;
+  }
+
   template <typename U = T>
   typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
   compare_data_device(dust::device_array<real_t>& res,

@@ -375,10 +375,17 @@ void dust_set_data(SEXP ptr, cpp11::list r_data) {
 }
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
-cpp11::sexp dust_compare_data(SEXP ptr) {
+cpp11::sexp dust_compare_data(SEXP ptr, bool device) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
-  std::vector<typename T::real_t> ret = obj->compare_data();
+
+  std::vector<typename T::real_t> ret;
+  if (device) {
+    ret = obj->compare_data();
+  } else {
+    ret = obj->compare_data_device();
+  }
+
   if (ret.size() == 0) {
     return R_NilValue;
   }
@@ -475,7 +482,7 @@ void dust_set_data(SEXP ptr, cpp11::list r_data) {
 }
 
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
-cpp11::sexp dust_compare_data(SEXP ptr) {
+cpp11::sexp dust_compare_data(SEXP ptr, bool device) {
   disable_method("compare_data");
   return R_NilValue; // #nocov never gets here
 }

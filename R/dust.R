@@ -170,8 +170,8 @@ sir <- R6::R6Class(
       dust_sir_set_data(private$ptr_, data)
     },
 
-    compare_data = function() {
-      dust_sir_compare_data(private$ptr_)
+    compare_data = function(device = FALSE) {
+      dust_sir_compare_data(private$ptr_, device)
     },
 
     filter = function(save_trajectories = FALSE, step_snapshot = NULL,
@@ -358,8 +358,8 @@ sirs <- R6::R6Class(
       dust_sirs_set_data(private$ptr_, data)
     },
 
-    compare_data = function() {
-      dust_sirs_compare_data(private$ptr_)
+    compare_data = function(device = FALSE) {
+      dust_sirs_compare_data(private$ptr_, device)
     },
 
     filter = function(save_trajectories = FALSE, step_snapshot = NULL,
@@ -545,8 +545,8 @@ variable <- R6::R6Class(
       dust_variable_set_data(private$ptr_, data)
     },
 
-    compare_data = function() {
-      dust_variable_compare_data(private$ptr_)
+    compare_data = function(device = FALSE) {
+      dust_variable_compare_data(private$ptr_, device)
     },
 
     filter = function(save_trajectories = FALSE, step_snapshot = NULL,
@@ -732,8 +732,8 @@ volatility <- R6::R6Class(
       dust_volatility_set_data(private$ptr_, data)
     },
 
-    compare_data = function() {
-      dust_volatility_compare_data(private$ptr_)
+    compare_data = function(device = FALSE) {
+      dust_volatility_compare_data(private$ptr_, device)
     },
 
     filter = function(save_trajectories = FALSE, step_snapshot = NULL,
@@ -919,8 +919,8 @@ walk <- R6::R6Class(
       dust_walk_set_data(private$ptr_, data)
     },
 
-    compare_data = function() {
-      dust_walk_compare_data(private$ptr_)
+    compare_data = function(device = FALSE) {
+      dust_walk_compare_data(private$ptr_, device)
     },
 
     filter = function(save_trajectories = FALSE, step_snapshot = NULL,

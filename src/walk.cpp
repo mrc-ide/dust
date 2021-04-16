@@ -45,7 +45,7 @@ SEXP dust_walk_set_rng_state(SEXP ptr, cpp11::raws rng_state);
 SEXP dust_walk_set_data(SEXP ptr, cpp11::list data);
 
 [[cpp11::register]]
-SEXP dust_walk_compare_data(SEXP ptr);
+SEXP dust_walk_compare_data(SEXP ptr, bool device);
 
 [[cpp11::register]]
 SEXP dust_walk_filter(SEXP ptr, bool save_trajectories,
@@ -173,8 +173,8 @@ SEXP dust_walk_set_data(SEXP ptr, cpp11::list data) {
   return R_NilValue;
 }
 
-SEXP dust_walk_compare_data(SEXP ptr) {
-  return dust::r::dust_compare_data<walk>(ptr);
+SEXP dust_walk_compare_data(SEXP ptr, bool device) {
+  return dust::r::dust_compare_data<walk>(ptr, device);
 }
 
 SEXP dust_walk_filter(SEXP ptr, bool save_trajectories,
