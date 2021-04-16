@@ -641,16 +641,7 @@ public:
     stale_device_ = true; // RNG use
   }
 
-  template <typename U = T>
-  typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
-  compare_data_device(dust::device_array<real_t>& res,
-                      const size_t data_offset) {
-    throw std::invalid_argument("GPU support not enabled for this object");
-  }
-
-  template <typename U = T>
-  typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
-  compare_data_device(dust::device_array<real_t>& res,
+  void compare_data_device(dust::device_array<real_t>& res,
                       const size_t data_offset) {
     refresh_device();
 #ifdef __NVCC__
@@ -940,14 +931,7 @@ private:
     update_device_index();
   }
 
-  template <typename U = T>
-  typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
-  update_device_index() {
-  }
-
-  template <typename U = T>
-  typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
-  update_device_index() {
+  void update_device_index() {
     if (device_id_ < 0) {
       return;
     }
@@ -1049,14 +1033,7 @@ private:
     }
   }
 
-  template <typename U = T>
-  typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
-  run_device_select() {
-  }
-
-  template <typename U = T>
-  typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
-  run_device_select() {
+  void run_device_select() {
     if (stale_device_ || !select_needed_) {
       return;
     }
