@@ -85,6 +85,11 @@ test_that("Can reorder on the device", {
     mod1$run(13),
     mod2$run(13, TRUE))
 
+  # Check does not run select again
+  expect_identical(
+    mod1$run(13),
+    mod2$run(13, TRUE))
+
   expect_identical(mod1$state(), mod2$state())
 })
 
