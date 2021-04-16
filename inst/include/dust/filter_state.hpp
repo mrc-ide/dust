@@ -12,9 +12,7 @@ public:
   filter_trajectories() {
   }
 
-  virtual size_t size() const {
-    return n_state_ * n_particles_ * (n_data_ + 1);
-  }
+  virtual size_t size() const = 0; // Pure virtual
 
   void advance() {
     offset_++;
