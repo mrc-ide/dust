@@ -651,15 +651,19 @@ public:
       compare_data_device(device_state_.compare_res, d->second);
       device_state_.compare_res.get_array(res);
     }
-    stale_host_ = true; // RNG use
     return res;
   }
 
+  /*
+    This is exlcuded from test coverage, because initialise_device_data() will
+    be a noop in this case. This makes the find() above miss, and return NULL
+    to R without calling this
+  */
   template <typename U = T>
   typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
   compare_data_device(dust::device_array<real_t>& res,
                       const size_t data_offset) {
-    throw std::invalid_argument("GPU support not enabled for this object");
+    throw std::invalid_argument("GPU support not enabled for this object"); // #nocov
   }
 
   template <typename U = T>
