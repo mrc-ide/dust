@@ -8,14 +8,13 @@
 namespace dust {
 
 template <typename T>
-DEVICE dust::device_ptrs<T>
-load_shared_state(const int pars_idx,
-                  const size_t n_shared_int,
-                  const size_t n_shared_real,
-                  const int * shared_int,
-                  const typename T::real_t * shared_real,
-                  const typename T::data_t * data,
-                  bool use_shared_L1) {
+DEVICE dust::device_ptrs<T> load_shared_state(const int pars_idx,
+                                              const size_t n_shared_int,
+                                              const size_t n_shared_real,
+                                              const int * shared_int,
+                                              const typename T::real_t * shared_real,
+                                              const typename T::data_t * data,
+                                              bool use_shared_L1) {
   // Particle index i, and max index to process in the block
   dust::device_ptrs<T> ptrs;
 
