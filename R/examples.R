@@ -7,6 +7,9 @@
 ##'   epidemiological model.  Draws from the binomial distribution to
 ##'   update the population between each step.
 ##'
+##' * `sirs`: an SIRS model, the SIR model with an added R->S transition.
+##'  This has a non-zero steady state, so can be run indefinitely for testing.
+##'
 ##' * `volatility`: A volatility model that might be applied to
 ##'   currency fluctuations etc.
 ##'
@@ -16,7 +19,8 @@
 ##' @title Access dust's built-in examples
 ##'
 ##' @param name The name of the example to use. There are four
-##'   examples: `sir`, `variable`, `volatility` and `walk` (see Details).
+##'   examples: `sir`, `sirs`, `variable`, `volatility` and `walk`
+##'   (see Details).
 ##'
 ##' @return A [`dust`](dust_class) object that can be used to create a
 ##'   model.  See examples for usage.
