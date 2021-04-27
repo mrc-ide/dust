@@ -7,6 +7,19 @@
 
 namespace dust {
 
+// This function loads the shared state (shared_int and shared_real) for a
+// single set of parameters into __shared__ memory. If data is set, provided
+// it will also be loaded.
+// Returns a struct of pointers to the start of shared_int, shared_real and
+// data in shared memory.
+
+// Each parameter set must be run in a single CUDA block for this to work
+// correctly. If this is not possible (due to being larger than the size of
+// L1 cache, or fewer than blockSize particles per parameter) set
+// use_shared_L1 = false, which will not load, and simply return pointers
+// to the correct start of the shared state in global memory.
+// This is also the default behaviour for non-NVCC compiled code through
+// this function (which does not have __shared__ memory).
 template <typename T>
 DEVICE dust::device_ptrs<T> load_shared_state(const int pars_idx,
                                               const size_t n_shared_int,
