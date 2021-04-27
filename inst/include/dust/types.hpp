@@ -5,6 +5,7 @@
 #include <sstream>
 #include <vector>
 
+#include <dust/containers.hpp>
 #include <dust/filter_kernels.hpp>
 
 namespace dust {
