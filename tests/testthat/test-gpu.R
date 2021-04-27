@@ -432,7 +432,7 @@ test_that("Can provide device id to non-gpu model with no effect", {
 
 
 test_that("Can use sirs gpu model", {
-  gen <- dust(dust_file("examples/sirs.cpp"), quiet = TRUE)
+  gen <- dust_example("sirs")
   np <- 100
   len <- 20
 
