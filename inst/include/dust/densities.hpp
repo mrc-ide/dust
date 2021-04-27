@@ -15,12 +15,12 @@ template <typename real_t>
 HOSTDEVICE real_t norm_integral();
 
 template<>
-HOSTDEVICE double norm_integral() {
+HOSTDEVICE inline double norm_integral() {
   return m_ln_sqrt_2pi_dbl;
 }
 
 template<>
-HOSTDEVICE float norm_integral() {
+HOSTDEVICE inline float norm_integral() {
   return m_ln_sqrt_2pi_flt;
 }
 
