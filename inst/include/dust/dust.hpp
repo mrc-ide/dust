@@ -204,7 +204,7 @@ public:
         // each block runs a pars set. Each pars set has enough blocks
         // to run all of its particles, the final block may have some
         // threads that don't do anything (hang off the end)
-        warp_blockSize = warp_size * (n_particles_each_ + warp_size - 1) / warp_size;
+        size_t warp_blockSize = warp_size * (n_particles_each_ + warp_size - 1) / warp_size;
         run_blockSize = std::min(run_blockSize, warp_blockSize);
         run_blockCount = n_pars_effective() * (n_particles_each_ + run_blockSize - 1) /
           run_blockSize;
@@ -630,7 +630,7 @@ public:
       // each block runs a pars set. Each pars set has enough blocks
       // to run all of its particles, the final block may have some
       // threads that don't do anything (hang off the end)
-      warp_blockSize = warp_size * (n_particles_each_ + warp_size - 1) / warp_size;
+      size_t warp_blockSize = warp_size * (n_particles_each_ + warp_size - 1) / warp_size;
       compare_blockSize = std::min(compare_blockSize, warp_blockSize);
       compare_blockCount = n_pars_effective() * (n_particles_each_ + compare_blockSize - 1) /
         compare_blockSize;
