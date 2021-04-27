@@ -47,7 +47,7 @@ HOSTDEVICE T lbeta(T x, T y) {
 template <typename T>
 HOSTDEVICE T dbinom(int x, int size, T prob, bool log) {
 #ifndef __CUDA_ARCH__
-  static_assert(!std::is_floating_point<T>::value,
+  static_assert(std::is_floating_point<T>::value,
                 "dbinom should only be used with real types");
 #endif
   if (x == 0 && size == 0) {
@@ -78,7 +78,7 @@ HOSTDEVICE T dnorm(T x, T mu, T sd, bool log) {
 template <typename T>
 HOSTDEVICE T dnbinom(int x, T size, T mu, bool log) {
 #ifndef __CUDA_ARCH__
-  static_assert(!std::is_floating_point<T>::value,
+  static_assert(std::is_floating_point<T>::value,
                 "dnbinom should only be used with real types");
 #endif
   const T prob = size / (size + mu);
@@ -107,7 +107,7 @@ HOSTDEVICE T dnbinom(int x, T size, T mu, bool log) {
 template <typename T>
 HOSTDEVICE T dbetabinom(int x, int size, T prob, T rho, bool log) {
 #ifndef __CUDA_ARCH__
-  static_assert(!std::is_floating_point<T>::value,
+  static_assert(std::is_floating_point<T>::value,
                 "dbetabinom should only be used with real types");
 #endif
   if (x == 0 && size == 0) {
@@ -122,7 +122,7 @@ HOSTDEVICE T dbetabinom(int x, int size, T prob, T rho, bool log) {
 template <typename T>
 HOSTDEVICE T dpois(int x, T lambda, bool log) {
 #ifndef __CUDA_ARCH__
-  static_assert(!std::is_floating_point<T>::value,
+  static_assert(std::is_floating_point<T>::value,
                 "dpois should only be used with real types");
 #endif
   if (x == 0 && lambda == 0) {
