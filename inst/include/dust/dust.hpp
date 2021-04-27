@@ -277,15 +277,15 @@ public:
     return state(end_state.begin());
   }
 
-  // TODO: tidy this up with some templates
   void state(typename std::vector<real_t>::iterator end_state) {
     size_t np = particles_.size();
     size_t index_size = index_.size();
     if (stale_host_) {
-#ifdef __NVCC__
       // Run the selection and copy items back
       run_device_select();
+#ifdef __NVCC__
       CUDA_CALL(cudaDeviceSynchronize());
+#endif
       std::vector<real_t> y_selected(np * index_size);
       device_state_.y_selected.get_array(y_selected);
 
@@ -296,12 +296,7 @@ public:
         dust::utils::destride_copy(end_state + i * index_size, y_selected, i,
                                    np);
       }
-#else
-      refresh_host();
-#endif
-    }
-    // This would be better as an else, but the ifdefs are clearer this way
-    if (!stale_host_) {
+    } else {
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
