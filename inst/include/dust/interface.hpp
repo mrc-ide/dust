@@ -429,14 +429,14 @@ cpp11::writable::doubles run_filter(Dust<T> * obj,
                                     cpp11::sexp& r_snapshots,
                                     std::vector<size_t>& step_snapshot,
                                     bool save_trajectories) {
-  state_t state;
+  state_t filter_state;
   cpp11::writable::doubles log_likelihood =
     dust::filter::filter_device(obj, filter_state,
                                 save_trajectories, step_snapshot);
   if (save_trajectories) {
     r_trajectories = dust::r::save_trajectories(filter_state.trajectories, obj);
   }
-  if (r_step_snapshot != R_NilValue) {
+  if (!step_snapshot.empty()) {
     r_snapshots = dust::r::save_snapshots(filter_state.snapshots, obj, step_snapshot);
   }
   return log_likelihood;

@@ -4,6 +4,9 @@
 #include <algorithm>
 #include <numeric>
 
+#include <dust/types.hpp>
+#include <dust/kernels.hpp>
+
 namespace dust {
 namespace filter {
 
@@ -31,6 +34,7 @@ template <typename real_t>
 void run_device_resample(const size_t n_particles,
                          const size_t n_pars,
                          const size_t n_state,
+                         rng_state_t<real_t>& resample_rng,
                          dust::device_state<real_t>& device_state,
                          dust::device_array<real_t>& weights,
                          dust::device_scan_state<real_t>& scan) {
@@ -59,7 +63,7 @@ void run_device_resample(const size_t n_particles,
     // Generate random numbers for each parameter set
     std::vector<real_t> shuffle_draws(n_pars);
     for (size_t i = 0; i < n_pars; ++i) {
-      shuffle_draws[i] = dust::unif_rand(rng_.state(n_particles));
+      shuffle_draws[i] = dust::unif_rand(resample_rng);
     }
     // Copying this also syncs the prefix scan
     device_state.resample_u.set_array(shuffle_draws);
