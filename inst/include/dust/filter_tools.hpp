@@ -111,7 +111,7 @@ void run_device_resample(const size_t n_particles,
         n_state,
         n_particles);
 #endif
-    device_state_.swap();
+    device_state.swap();
 }
 
 // Given some vector of log probabilities 'w' we want to compute a
