@@ -3,6 +3,8 @@ public:
   typedef double real_t;
   typedef dust::no_internal internal_t;
 
+  // ALIGN(16) is required before the data_t definition when using NVCC
+  // This is so when loaded into shared memory it is aligned correctly
   struct ALIGN(16) data_t {
     double incidence;
   };

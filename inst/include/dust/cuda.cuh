@@ -2,23 +2,12 @@
 #ifndef DUST_CUDA_CUH
 #define DUST_CUDA_CUH
 
-// Align structs
-// https://stackoverflow.com/a/12779757
-#if defined(__CUDACC__) // NVCC
-#define ALIGN(n) __align__(n)
-#elif defined(__GNUC__) // GCC
-#define ALIGN(n) __attribute__((aligned(n)))
-#elif defined(_MSC_VER) // MSVC
-#define ALIGN(n) __declspec(align(n))
-#else
-#error "Please provide a definition for MY_ALIGN macro for your host compiler!"
-#endif
-
 #ifdef __NVCC__
 #define DEVICE __device__
 #define HOST __host__
 #define HOSTDEVICE __host__ __device__
 #define KERNEL __global__
+#define ALIGN(n) __align__(n)
 
 // This is necessary due to templates which are __host__ __device__;
 // whenever a HOSTDEVICE function is called from another HOSTDEVICE
@@ -81,6 +70,7 @@ DEVICE void shared_mem_wait(cooperative_groups::thread_block& block) {
 #define KERNEL
 #undef DUST_CUDA_ENABLE_PROFILER
 #define __nv_exec_check_disable__
+#define ALIGN(n)
 #endif
 
 #endif
