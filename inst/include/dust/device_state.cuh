@@ -15,7 +15,6 @@ DEVICE dust::device_ptrs<T> load_shared_state(const int pars_idx,
                                               const typename T::real_t * shared_real,
                                               const typename T::data_t * data,
                                               bool use_shared_L1) {
-  // Particle index i, and max index to process in the block
   dust::device_ptrs<T> ptrs;
 
   // Get start address in shared space

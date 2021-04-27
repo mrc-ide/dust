@@ -179,6 +179,7 @@ KERNEL void compare_particles(size_t n_particles,
                                data,
                                use_shared_L1);
 
+  // Particle index i, and max index to process in the block
   int i, max_i;
   if (use_shared_L1) {
     // Pick particle index based on block, don't process if off the end
