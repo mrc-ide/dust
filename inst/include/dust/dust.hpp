@@ -18,6 +18,7 @@
 #include <dust/utils.hpp>
 #include <dust/particle.hpp>
 #include <dust/kernels.hpp>
+#include <dust/device_resample.hpp>
 
 namespace dust {
 
