@@ -462,7 +462,8 @@ public:
                                   weights.data(),
                                   scan.cum_weights.data(),
                                   scan.cum_weights.size());
-    // Don't sync here
+    // Don't sync yet, as this can run while the u draws are made and copied
+    // to the device
 #else
     std::vector<real_t> host_w(weights.size());
     std::vector<real_t> host_cum_weights(weights.size());
