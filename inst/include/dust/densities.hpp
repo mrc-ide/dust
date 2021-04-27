@@ -47,8 +47,8 @@ HOSTDEVICE T lbeta(T x, T y) {
 template <typename T>
 HOSTDEVICE T dbinom(int x, int size, T prob, bool log) {
 #ifndef __CUDA_ARCH__
-  // static_assert(!std::is_floating_point<T>::value,
-  //               "dbinom should only be used with real types");
+  static_assert(!std::is_floating_point<T>::value,
+                "dbinom should only be used with real types");
 #endif
   if (x == 0 && size == 0) {
     return maybe_log(0, log);
@@ -70,21 +70,16 @@ HOSTDEVICE T dnorm(T x, T mu, T sd, bool log) {
   if (sd == 0) {
     return ddelta(x - mu, log);
   }
-#ifdef __CUDA_ARCH__
-  const T m_ln_sqrt_2pi = static_cast<T>(const_m_ln_sqrt_2pi);
-#else
-  constexpr T m_ln_sqrt_2pi = 0.918938533204672741780329736406;
-#endif
   const T dx = x - mu;
-  const T ret = - dx * dx / (2 * sd * sd) - norm_integral<real_t>() - std::log(sd);
+  const T ret = - dx * dx / (2 * sd * sd) - norm_integral<T>() - std::log(sd);
   return maybe_log(ret, log);
 }
 
 template <typename T>
 HOSTDEVICE T dnbinom(int x, T size, T mu, bool log) {
 #ifndef __CUDA_ARCH__
-  // static_assert(!std::is_floating_point<T>::value,
-  //               "dnbinom should only be used with real types");
+  static_assert(!std::is_floating_point<T>::value,
+                "dnbinom should only be used with real types");
 #endif
   const T prob = size / (size + mu);
   if (x == 0 && size == 0) {
@@ -112,8 +107,8 @@ HOSTDEVICE T dnbinom(int x, T size, T mu, bool log) {
 template <typename T>
 HOSTDEVICE T dbetabinom(int x, int size, T prob, T rho, bool log) {
 #ifndef __CUDA_ARCH__
-  // static_assert(!std::is_floating_point<T>::value,
-  //               "dbetabinom should only be used with real types");
+  static_assert(!std::is_floating_point<T>::value,
+                "dbetabinom should only be used with real types");
 #endif
   if (x == 0 && size == 0) {
     return maybe_log(0, log);
@@ -127,8 +122,8 @@ HOSTDEVICE T dbetabinom(int x, int size, T prob, T rho, bool log) {
 template <typename T>
 HOSTDEVICE T dpois(int x, T lambda, bool log) {
 #ifndef __CUDA_ARCH__
-  // static_assert(!std::is_floating_point<T>::value,
-  //               "dpois should only be used with real types");
+  static_assert(!std::is_floating_point<T>::value,
+                "dpois should only be used with real types");
 #endif
   if (x == 0 && lambda == 0) {
     return maybe_log(0, log);
