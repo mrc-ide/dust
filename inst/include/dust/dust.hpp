@@ -37,7 +37,7 @@ public:
     pars_are_shared_(true),
     n_threads_(n_threads),
     device_id_(device_id),
-    rng_(n_particles_total_ + 1, seed),
+    rng_(n_particles_total_ + 1, seed),  // +1 for the filter's rng state
     errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true),
@@ -60,7 +60,7 @@ public:
     pars_are_shared_(n_particles != 0),
     n_threads_(n_threads),
     device_id_(device_id),
-    rng_(n_particles_total_ + 1, seed),
+    rng_(n_particles_total_ + 1, seed),  // +1 for the filter's rng state
     errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true),
