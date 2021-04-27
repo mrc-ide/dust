@@ -117,7 +117,7 @@ std::vector<typename T::real_t> filter_device(Dust<T> * obj,
 
     // RESAMPLE
     // Normalise the weights and calculate cumulative sum for resample
-    obj->resample_device(weights.weights(), scan);
+    obj->resample(weights.weights(), scan);
 
     // SAVE HISTORY ORDER
     if (save_trajectories) {

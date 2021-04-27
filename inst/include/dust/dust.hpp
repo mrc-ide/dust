@@ -184,8 +184,8 @@ public:
 #ifdef __NVCC__
       const int warp_size = dust::cuda::warp_size;
       // Set up blocks and shared memory preferences
-      size_t blockSize = 128;
-      size_t blockCount;
+      size_t run_blockSize = 128;
+      size_t run_blockCount;
       bool use_shared_L1 = true;
       size_t n_shared_int_effective = device_state_.n_shared_int +
         dust::utils::align_padding(device_state_.n_shared_int * sizeof(int), sizeof(real_t)) / sizeof(int);
@@ -197,18 +197,18 @@ public:
         // in 'classic' mode where each particle is totally independent
         use_shared_L1 = false;
         shared_size_bytes = 0;
-        blockCount = (n_particles() + blockSize - 1) / blockSize;
+        run_blockCount = (n_particles() + run_blockSize - 1) / run_blockSize;
       } else {
         // If it's possible to make blocks with shared_t in L1 cache,
         // each block runs a pars set. Each pars set has enough blocks
         // to run all of its particles, the final block may have some
         // threads that don't do anything (hang off the end)
-        blockSize = warp_size * (n_particles_each_ + warp_size - 1) / warp_size;
-        blockSize = std::min(static_cast<size_t>(128), blockSize);
-        blockCount = n_pars_effective() * (n_particles_each_ + blockSize - 1) /
-          blockSize;
+        warp_blockSize = warp_size * (n_particles_each_ + warp_size - 1) / warp_size;
+        run_blockSize = std::min(run_blockSize, warp_blockSize);
+        run_blockCount = n_pars_effective() * (n_particles_each_ + run_blockSize - 1) /
+          run_blockSize;
       }
-      dust::run_particles<T><<<blockCount, blockSize, shared_size_bytes>>>(
+      dust::run_particles<T><<<run_blockCount, run_blockSize, shared_size_bytes>>>(
                       step_start, step_end, particles_.size(),
                       n_pars_effective(),
                       device_state_.y.data(), device_state_.y_next.data(),
@@ -376,10 +376,10 @@ public:
       size_t n_state = n_state_full();
       device_state_.scatter_index.set_array(index);
 #ifdef __NVCC__
-      const size_t blockSize = 128;
-      const size_t blockCount =
-        (n_state * n_particles + blockSize - 1) / blockSize;
-      dust::scatter_device<real_t><<<blockCount, blockSize>>>(
+      const size_t reorder_blockSize = 128;
+      const size_t reorder_blockCount =
+        (n_state * n_particles + reorder_blockSize - 1) / reorder_blockSize;
+      dust::scatter_device<real_t><<<reorder_blockCount, reorder_blockSize>>>(
         device_state_.scatter_index.data(),
         device_state_.y.data(),
         device_state_.y_next.data(),
@@ -450,83 +450,12 @@ public:
     stale_device_ = true;
   }
 
-  void resample_device(dust::device_array<real_t>& weights,
-                       dust::device_scan_state<real_t>& scan) {
+  // device resample
+  void resample(dust::device_array<real_t>& weights,
+                dust::device_scan_state<real_t>& scan) {
     refresh_device();
-#ifdef __NVCC__
-    // Cumulative sum
-    // Note this is over all parameters, this is fixed with a
-    // subtraction in the interval kernel
-    cub::DeviceScan::InclusiveSum(scan.scan_tmp.data(),
-                                  scan.tmp_bytes,
-                                  weights.data(),
-                                  scan.cum_weights.data(),
-                                  scan.cum_weights.size());
-    // Don't sync yet, as this can run while the u draws are made and copied
-    // to the device
-#else
-    std::vector<real_t> host_w(weights.size());
-    std::vector<real_t> host_cum_weights(weights.size());
-    weights.get_array(host_w);
-    host_cum_weights[0] = host_w[0];
-    for (size_t i = 1; i < n_particles_total_; ++i) {
-      host_cum_weights[i] = host_cum_weights[i - 1] + host_w[i];
-    }
-    scan.cum_weights.set_array(host_cum_weights);
-#endif
-
-    // Generate random numbers for each parameter set
-    std::vector<real_t> shuffle_draws(n_pars_effective());
-    for (size_t i = 0; i < n_pars_effective(); ++i) {
-      shuffle_draws[i] = dust::unif_rand(rng_.state(n_particles_total_));
-    }
-    // Copying this also syncs the prefix scan
-    device_state_.resample_u.set_array(shuffle_draws);
-
-    // Generate the scatter indices
-#ifdef __NVCC__
-    const size_t interval_blockSize = 128;
-    const size_t interval_blockCount =
-        (n_particles() + interval_blockSize - 1) / interval_blockSize;
-    dust::find_intervals<real_t><<<interval_blockCount, interval_blockSize>>>(
-      scan.cum_weights.data(),
-      n_particles(),
-      n_pars_effective(),
-      device_state_.scatter_index.data(),
-      device_state_.resample_u.data()
-    );
-    CUDA_CALL(cudaDeviceSynchronize());
-#else
-    dust::find_intervals<real_t>(
-      scan.cum_weights.data(),
-      n_particles(),
-      n_pars_effective(),
-      device_state_.scatter_index.data(),
-      device_state_.resample_u.data()
-    );
-#endif
-
-    // Shuffle the particles
-#ifdef __NVCC__
-    const size_t scatter_blockSize = 64;
-    const size_t scatter_blockCount =
-        (n_particles() * n_state() + scatter_blockSize - 1) / scatter_blockSize;
-    dust::scatter_device<real_t><<<scatter_blockCount, scatter_blockSize>>>(
-        device_state_.scatter_index.data(),
-        device_state_.y.data(),
-        device_state_.y_next.data(),
-        n_state(),
-        n_particles());
-    CUDA_CALL(cudaDeviceSynchronize());
-#else
-    dust::scatter_device<real_t>(
-        device_state_.scatter_index.data(),
-        device_state_.y.data(),
-        device_state_.y_next.data(),
-        n_state(),
-        n_particles());
-#endif
-    device_state_.swap();
+    dust::filter::run_device_resample(n_particles(), n_pars_effective(), n_state(),
+                                      device_state_, weights, scan);
     select_needed_ = true;
   }
 
@@ -675,8 +604,8 @@ public:
 #ifdef __NVCC__
     const int warp_size = dust::cuda::warp_size;
     // Set up blocks and shared memory preferences
-    size_t blockSize = 128;
-    size_t blockCount;
+    size_t compare_blockSize = 128;
+    size_t compare_blockCount;
     bool use_shared_L1 = true;
     size_t n_shared_int_effective = device_state_.n_shared_int +
       dust::utils::align_padding(device_state_.n_shared_int * sizeof(int), sizeof(real_t)) / sizeof(int);
@@ -693,18 +622,18 @@ public:
       // in 'classic' mode where each particle is totally independent
       use_shared_L1 = false;
       shared_size_bytes = 0;
-      blockCount = (n_particles() + blockSize - 1) / blockSize;
+      compare_blockCount = (n_particles() + compare_blockSize - 1) / compare_blockSize;
     } else {
       // If it's possible to make blocks with shared_t in L1 cache,
       // each block runs a pars set. Each pars set has enough blocks
       // to run all of its particles, the final block may have some
       // threads that don't do anything (hang off the end)
-      blockSize = warp_size * (n_particles_each_ + warp_size - 1) / warp_size;
-      blockSize = std::min(static_cast<size_t>(128), blockSize);
-      blockCount = n_pars_effective() * (n_particles_each_ + blockSize - 1) /
-        blockSize;
+      warp_blockSize = warp_size * (n_particles_each_ + warp_size - 1) / warp_size;
+      compare_blockSize = std::min(compare_blockSize, warp_blockSize);
+      compare_blockCount = n_pars_effective() * (n_particles_each_ + compare_blockSize - 1) /
+        compare_blockSize;
     }
-    dust::compare_particles<T><<<blockCount, blockSize, shared_size_bytes>>>(
+    dust::compare_particles<T><<<compare_blockCount, compare_blockSize, shared_size_bytes>>>(
                      particles_.size(),
                      n_pars_effective(),
                      device_state_.y.data(),
