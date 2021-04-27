@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <numeric>
 
+#include <dust/cuda.cuh>
 #include <dust/types.hpp>
 #include <dust/kernels.hpp>
 
