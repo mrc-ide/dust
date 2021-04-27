@@ -63,7 +63,7 @@ DEVICE dust::device_ptrs<T> load_shared_state(const int pars_idx,
                                n_shared_real);
     ptrs.shared_real = shared_block_real;
 
-    // Copy data in
+    // Copy data in, which is aligned to 16-bytes
     if (data != nullptr && sizeof(data_t) > 0) {
       size_t data_ptr_start = n_shared_real +
         dust::utils::align_padding(real_ptr_start * sizeof(int) +
