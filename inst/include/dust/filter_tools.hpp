@@ -4,9 +4,6 @@
 #include <algorithm>
 #include <numeric>
 
-#include <dust/types.hpp>
-#include <dust/kernels.hpp>
-
 namespace dust {
 namespace filter {
 
