@@ -423,6 +423,25 @@ cpp11::sexp save_snapshots(const filter_state& snapshots, const Dust<T> *obj,
   return(r_snapshots);
 }
 
+template <typename T, typename state_t>
+cpp11::writable::doubles run_filter(Dust<T> * obj,
+                                    cpp11::sexp& r_trajectories,
+                                    cpp11::sexp& r_snapshots,
+                                    std::vector<size_t>& step_snapshot,
+                                    bool save_trajectories) {
+  state_t state;
+  cpp11::writable::doubles log_likelihood =
+    dust::filter::filter_device(obj, filter_state,
+                                save_trajectories, step_snapshot);
+  if (save_trajectories) {
+    r_trajectories = dust::r::save_trajectories(filter_state.trajectories, obj);
+  }
+  if (r_step_snapshot != R_NilValue) {
+    r_snapshots = dust::r::save_snapshots(filter_state.snapshots, obj, step_snapshot);
+  }
+  return log_likelihood;
+}
+
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
                         cpp11::sexp r_step_snapshot,
@@ -441,25 +460,11 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
   cpp11::writable::doubles log_likelihood;
   cpp11::sexp r_trajectories, r_snapshots;
   if (device) {
-    dust::filter::filter_state_device<real_t> filter_state;
-    log_likelihood = dust::filter::filter_device(obj, filter_state,
-                                                 save_trajectories, step_snapshot);
-    if (save_trajectories) {
-      r_trajectories = dust::r::save_trajectories(filter_state.trajectories, obj);
-    }
-    if (r_step_snapshot != R_NilValue) {
-      r_snapshots = dust::r::save_snapshots(filter_state.snapshots, obj, step_snapshot);
-    }
+    log_likelihood = run_filter<T, dust::filter::filter_state_device<real_t>>
+                      (obj, r_trajectories, r_snapshots, step_snapshot, save_trajectories);
   } else {
-    dust::filter::filter_state_host<real_t> filter_state;
-    log_likelihood = dust::filter::filter(obj, filter_state,
-                                          save_trajectories, step_snapshot);
-    if (save_trajectories) {
-      r_trajectories = dust::r::save_trajectories(filter_state.trajectories, obj);
-    }
-    if (r_step_snapshot != R_NilValue) {
-      r_snapshots = dust::r::save_snapshots(filter_state.snapshots, obj, step_snapshot);
-    }
+    log_likelihood = run_filter<T, dust::filter::filter_state_host<real_t>>
+                      (obj, r_trajectories, r_snapshots, step_snapshot, save_trajectories);
   }
 
   using namespace cpp11::literals;
