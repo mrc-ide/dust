@@ -119,21 +119,8 @@ public:
 #endif
   }
 
-  void set_array(const std::vector<T>& src, const bool async = false) {
-    size_ = src.size();
-#ifdef __NVCC__
-    if (async) {
-      CUDA_CALL(cudaMemcpyAsync(data_, src.data(), size_ * sizeof(T),
-                          cudaMemcpyDefault));
-    } else {
-      CUDA_CALL(cudaMemcpy(data_, src.data(), size_ * sizeof(T),
-                          cudaMemcpyDefault));
-    }
-#else
-    std::memcpy(data_, src.data(), size_ * sizeof(T));
-#endif
-  }
-
+  // General method to set the device array, allowing src to be written
+  // into the device data_ array starting at dst_offset
   void set_array(const T* src, const size_t src_size,
                  const size_t dst_offset, const bool async = false) {
 #ifdef __NVCC__
@@ -146,6 +133,23 @@ public:
     }
 #else
     std::memcpy(data_ + dst_offset, src, src_size * sizeof(T));
+#endif
+  }
+
+  // Specialised form to set the device array, writing all of src into
+  // the device data_
+  void set_array(const std::vector<T>& src, const bool async = false) {
+    size_ = src.size();
+#ifdef __NVCC__
+    if (async) {
+      CUDA_CALL(cudaMemcpyAsync(data_, src.data(), size_ * sizeof(T),
+                          cudaMemcpyDefault));
+    } else {
+      CUDA_CALL(cudaMemcpy(data_, src.data(), size_ * sizeof(T),
+                          cudaMemcpyDefault));
+    }
+#else
+    std::memcpy(data_, src.data(), size_ * sizeof(T));
 #endif
   }
 
