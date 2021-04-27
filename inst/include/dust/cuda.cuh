@@ -8,6 +8,7 @@
 #define HOSTDEVICE __host__ __device__
 #define KERNEL __global__
 #define ALIGN(n) __align__(n)
+#define CONSTANT __constant__
 
 // This is necessary due to templates which are __host__ __device__;
 // whenever a HOSTDEVICE function is called from another HOSTDEVICE
@@ -71,6 +72,7 @@ DEVICE void shared_mem_wait(cooperative_groups::thread_block& block) {
 #undef DUST_CUDA_ENABLE_PROFILER
 #define __nv_exec_check_disable__
 #define ALIGN(n)
+#define CONSTANT const
 #endif
 
 #endif

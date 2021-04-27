@@ -7,15 +7,22 @@
 #include <dust/cuda.cuh>
 #include <dust/utils.hpp>
 
-// TODO: copied from gamma_table.hpp
-// put in one place
-#ifdef __CUDA_ARCH__
-#define CONSTANT __constant__
-#else
-#define CONSTANT const
-#endif
+CONSTANT double m_ln_sqrt_2pi_dbl = 0.918938533204672741780329736406;
+CONSTANT float m_ln_sqrt_2pi_flt = 0.918938533204672741780329736406f;
 
-CONSTANT double const_m_ln_sqrt_2pi = 0.918938533204672741780329736406;
+// Returns m_ln_sqrt_2pi
+template <typename real_t>
+HOSTDEVICE real_t norm_integral();
+
+template<>
+HOSTDEVICE double norm_integral() {
+  return m_ln_sqrt_2pi_dbl;
+}
+
+template<>
+HOSTDEVICE float norm_integral() {
+  return m_ln_sqrt_2pi_flt;
+}
 
 namespace dust {
 
@@ -69,7 +76,7 @@ HOSTDEVICE T dnorm(T x, T mu, T sd, bool log) {
   constexpr T m_ln_sqrt_2pi = 0.918938533204672741780329736406;
 #endif
   const T dx = x - mu;
-  const T ret = - dx * dx / (2 * sd * sd) - m_ln_sqrt_2pi - std::log(sd);
+  const T ret = - dx * dx / (2 * sd * sd) - norm_integral<real_t>() - std::log(sd);
   return maybe_log(ret, log);
 }
 
