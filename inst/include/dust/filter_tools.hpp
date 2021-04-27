@@ -86,8 +86,8 @@ void run_device_resample(const size_t n_particles,
       scan.cum_weights.data(),
       n_particles,
       n_pars,
-      device_state_.scatter_index.data(),
-      device_state_.resample_u.data()
+      device_state.scatter_index.data(),
+      device_state.resample_u.data()
     );
 #endif
 
@@ -109,7 +109,7 @@ void run_device_resample(const size_t n_particles,
         device_state.y.data(),
         device_state.y_next.data(),
         n_state,
-        n_particles;
+        n_particles);
 #endif
     device_state_.swap();
 }

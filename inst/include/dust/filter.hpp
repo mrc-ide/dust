@@ -7,6 +7,7 @@
 namespace dust {
 namespace filter {
 
+// Host version
 template <typename T>
 std::vector<typename T::real_t> filter(Dust<T> * obj,
                                        filter_state_host<typename T::real_t>& state,
@@ -72,12 +73,12 @@ std::vector<typename T::real_t> filter(Dust<T> * obj,
   return log_likelihood;
 }
 
-
+// Device version
 template <typename T>
-std::vector<typename T::real_t> filter_device(Dust<T> * obj,
-                                              filter_state_device<typename T::real_t>& state,
-                                              bool save_trajectories,
-                                              std::vector<size_t> step_snapshot) {
+std::vector<typename T::real_t> filter(Dust<T> * obj,
+                                       filter_state_device<typename T::real_t>& state,
+                                       bool save_trajectories,
+                                       std::vector<size_t> step_snapshot) {
   typedef typename T::real_t real_t;
 
   const size_t n_particles = obj->n_particles();

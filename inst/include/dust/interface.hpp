@@ -431,8 +431,8 @@ cpp11::writable::doubles run_filter(Dust<T> * obj,
                                     bool save_trajectories) {
   state_t filter_state;
   cpp11::writable::doubles log_likelihood =
-    dust::filter::filter_device(obj, filter_state,
-                                save_trajectories, step_snapshot);
+    dust::filter::filter(obj, filter_state,
+                         save_trajectories, step_snapshot);
   if (save_trajectories) {
     r_trajectories = dust::r::save_trajectories(filter_state.trajectories, obj);
   }
