@@ -106,7 +106,7 @@ protected:
 template <typename real_t>
 class filter_trajectories_device : public filter_trajectories_host<real_t> {
 public:
-  filter_trajectories_device() {
+  filter_trajectories_device() : page_locked(false) {
   }
 
 #ifdef __NVCC__
@@ -138,6 +138,7 @@ public:
     CUDA_CALL(cudaHostRegister(this->history_order.data(),
                                this->history_order.size() * sizeof(real_t),
                                cudaHostRegisterDefault));
+    page_locked = true;
 #endif
   }
 
@@ -181,6 +182,8 @@ private:
   dust::cuda::cuda_stream device_memory_stream_;
   dust::cuda::cuda_stream host_memory_stream_;
 
+  bool page_locked;
+
   std::vector<real_t> destride_history() const {
     std::vector<real_t> blocked_history(this->size());
     // Destride and copy into iterator
@@ -202,8 +205,11 @@ private:
   void pageable() {
 #ifdef __NVCC__
     // Make memory pageable again
-    CUDA_CALL_NOTHROW(cudaHostUnregister(this->history_value.data()));
-    CUDA_CALL_NOTHROW(cudaHostUnregister(this->history_order.data()));
+    if (page_locked) {
+      CUDA_CALL_NOTHROW(cudaHostUnregister(this->history_value.data()));
+      CUDA_CALL_NOTHROW(cudaHostUnregister(this->history_order.data()));
+    }
+    page_locked = false;
 #endif
   }
 };
@@ -256,8 +262,14 @@ protected:
 template <typename real_t>
 class filter_snapshots_device : public filter_snapshots_host<real_t> {
 public:
-  filter_snapshots_device() {
+  filter_snapshots_device() : page_locked(false) {
   }
+
+#ifdef __NVCC__
+  ~filter_snapshots_device() {
+    pageable();
+  }
+#endif
 
   void resize(size_t n_state, size_t n_particles, std::vector<size_t> steps) {
     pageable();
@@ -275,6 +287,7 @@ public:
     CUDA_CALL(cudaHostRegister(this->state_.data(),
                                this->state_.size() * sizeof(real_t),
                                cudaHostRegisterDefault));
+    page_locked = true;
 #endif
   }
 
@@ -317,10 +330,15 @@ private:
   dust::cuda::cuda_stream device_memory_stream_;
   dust::cuda::cuda_stream host_memory_stream_;
 
+  bool page_locked;
+
   void pageable() {
 #ifdef __NVCC__
     // Make memory pageable again
-    CUDA_CALL_NOTHROW(cudaHostUnregister(this->state_.data()));
+    if (page_locked) {
+      CUDA_CALL_NOTHROW(cudaHostUnregister(this->state_.data()));
+    }
+    page_locked = false;
 #endif
   }
 
