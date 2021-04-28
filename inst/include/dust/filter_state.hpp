@@ -182,7 +182,7 @@ private:
   dust::cuda::cuda_stream host_memory_stream_;
 
   std::vector<real_t> destride_history() const {
-    std::vector<real_t> blocked_history(size());
+    std::vector<real_t> blocked_history(this->size());
     // Destride and copy into iterator
     // TODO openmp here?
     for (size_t i = 0; i < this->n_data_ + 1; ++i) {
@@ -275,7 +275,7 @@ public:
     CUDA_CALL(cudaHostRegister(this->state_.data(),
                                this->state_.size() * sizeof(real_t),
                                cudaHostRegisterDefault));
-#else
+#endif
   }
 
   size_t value_offset() {
@@ -293,8 +293,8 @@ public:
   template <typename Iterator>
   void history(Iterator dest) const {
     // Copy from D->H
-    std::vector<real_t> state_host(size());
-    state_.get_array(state_host);
+    std::vector<real_t> state_host(this->size());
+    this->state_.get_array(state_host);
     // Destride and copy into iterator
     // TODO: openmp here? collapse(2)
     for (size_t i = 0; i < this->n_steps_; ++i) {
