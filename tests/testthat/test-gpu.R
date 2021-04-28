@@ -47,7 +47,7 @@ test_that("Raise suitable errors if models do not support GPU", {
     "GPU support not enabled for this object")
 
   dat <- example_filter()
-  mod <- dat$model$new(list(), 0, np, seed = 10L)
+  mod <- dat$model$new(list(), 0, 100, seed = 10L)
   mod$set_data(dat$dat_dust)
   expect_error(
     mod$filter(device = TRUE),
