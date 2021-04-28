@@ -975,14 +975,14 @@ private:
     cuda_pars_.run_L1 = true;
     size_t n_shared_int_effective = device_state_.n_shared_int +
       dust::utils::align_padding(device_state_.n_shared_int * sizeof(int), sizeof(real_t)) / sizeof(int);
-    cuda_pars.run_shared_size_bytes = n_shared_int_effective * sizeof(int) +
+    cuda_pars_.run_shared_size_bytes = n_shared_int_effective * sizeof(int) +
       device_state_.n_shared_real * sizeof(real_t);
-    if (n_particles_each_ < warp_size || cuda_pars.run_shared_size_bytes > shared_size_) {
+    if (n_particles_each_ < warp_size || cuda_pars_.run_shared_size_bytes > shared_size_) {
       // If not enough particles per pars to make a whole block use
       // shared, or if shared_t too big for L1, turn it off, and run
       // in 'classic' mode where each particle is totally independent
       cuda_pars_.run_L1 = false;
-      cuda_pars.run_shared_size_bytes = 0;
+      cuda_pars_.run_shared_size_bytes = 0;
       cuda_pars_.run_blockCount = (n_particles() + cuda_pars_.run_blockSize - 1) / cuda_pars_.run_blockSize;
     } else {
       // If it's possible to make blocks with shared_t in L1 cache,

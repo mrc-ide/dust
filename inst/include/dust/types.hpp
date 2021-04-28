@@ -67,7 +67,7 @@ struct cuda_launch {
 
   size_t interval_blockSize;
   size_t interval_blockCount;
-}
+};
 
 template <typename real_t>
 struct device_state {
