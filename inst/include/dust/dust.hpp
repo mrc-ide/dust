@@ -413,7 +413,8 @@ public:
                 dust::device_scan_state<real_t>& scan) {
     refresh_device();
     dust::filter::run_device_resample(n_particles(), n_pars_effective(), n_state_full(),
-                                      cuda_pars_, rng_.state(n_particles()),
+                                      cuda_pars_, kernel_stream_, resample_stream_,
+                                      rng_.state(n_particles()),
                                       device_state_, weights, scan);
     select_needed_ = true;
   }
