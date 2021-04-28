@@ -292,9 +292,6 @@ public:
 
   template <typename Iterator>
   void history(Iterator dest) const {
-    // Copy from D->H
-    std::vector<real_t> state_host(this->size());
-    this->state_.get_array(state_host);
     // Destride and copy into iterator
     // TODO: openmp here? collapse(2)
     for (size_t i = 0; i < this->n_steps_; ++i) {
@@ -303,9 +300,9 @@ public:
           *(dest +
             i * (this->n_particles_ * this->n_state_) +
             j * this->n_state_ +
-            k) = state_host[i * (this->n_particles_ * this->n_state_) +
-                            j +
-                            k * (this->n_particles_)];
+            k) = this->state_[i * (this->n_particles_ * this->n_state_) +
+                              j +
+                              k * (this->n_particles_)];
         }
       }
     }
