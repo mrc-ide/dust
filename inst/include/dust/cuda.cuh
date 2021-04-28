@@ -91,7 +91,7 @@ public:
 
 #ifdef __NVCC__
   ~cuda_stream() {
-    CUDA_CALL_NOTHROW(cudaStreamCreate(stream_));
+    CUDA_CALL_NOTHROW(cudaStreamDestroy(stream_));
   }
 
   cudaStream_t& stream() {
