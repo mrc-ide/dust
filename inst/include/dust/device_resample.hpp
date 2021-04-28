@@ -44,7 +44,7 @@ void run_device_resample(const size_t n_particles,
     for (size_t i = 0; i < n_pars; ++i) {
       shuffle_draws[i] = dust::unif_rand(resample_rng);
     }
-    device_state.resample_u.set_array_async(shuffle_draws, resample_stream);
+    device_state.resample_u.set_array(shuffle_draws, resample_stream, true);
 
     // Now sync the streams
     kernel_stream.sync();
