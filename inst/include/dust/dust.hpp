@@ -432,18 +432,14 @@ public:
 
   dust::device_array<size_t>& device_state_full() {
     refresh_device();
-#ifdef __NVCC__
     kernel_stream_.sync();
-#endif
     return device_state_.y;
   }
 
   dust::device_array<size_t>& device_state_selected() {
     refresh_device();
     run_device_select();
-#ifdef __NVCC__
     kernel_stream_.sync();
-#endif
     return device_state_.y_selected;
   }
 
@@ -619,6 +615,10 @@ public:
   }
 
 private:
+  // delete move and copy to avoid accidentally using them
+  Dust ( const Dust & ) = delete;
+  Dust ( Dust && ) = delete;
+
   const size_t n_pars_; // 0 in the "single" case, >=1 otherwise
   const size_t n_particles_each_; // Particles per parameter set
   const size_t n_particles_total_; // Total number of particles
@@ -639,6 +639,8 @@ private:
   dust::device_state<real_t> device_state_;
   dust::device_array<data_t> device_data_;
   std::map<size_t, size_t> device_data_offsets_;
+  dust::cuda::cuda_stream kernel_stream_;
+  dust::cuda::cuda_stream resample_stream_;
 
   bool stale_host_;
   bool stale_device_;
@@ -646,15 +648,6 @@ private:
   bool select_scatter_;
   size_t shared_size_;
   size_t device_step_;
-
-#ifdef __NVCC__
-  dust::cuda::cuda_stream kernel_stream_;
-  dust::cuda::cuda_stream resample_stream_;
-#endif
-
-  // delete move and copy to avoid accidentally using them
-  Dust ( const Dust & ) = delete;
-  Dust ( Dust && ) = delete;
 
   // Sets device
   template <typename U = T>

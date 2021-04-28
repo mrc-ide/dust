@@ -127,10 +127,10 @@ public:
       this->history_order[i] = i;
     }
 
-#ifdef __NVCC__
     history_value_swap = dust::device_array<real_t>(this->n_state_ * this->n_particles_);
     history_order_swap = dust::device_array<size_t>(this->n_particles_);
 
+#ifdef __NVCC__
     // Page lock memory on host
     CUDA_CALL(cudaHostRegister(this->history_value.data(),
                                this->history_value.size() * sizeof(real_t),
@@ -138,11 +138,7 @@ public:
     CUDA_CALL(cudaHostRegister(this->history_order.data(),
                                this->history_order.size() * sizeof(real_t),
                                cudaHostRegisterDefault));
-#else
-    history_value_swap = std::vector<real_t>(this->n_state_ * this->n_particles_);
-    history_order_swap = std::vector<size_t>(this->n_particles_);
 #endif
-
   }
 
   size_t value_offset() {
@@ -154,33 +150,19 @@ public:
   }
 
   void store_values(dust::device_array<real_t>& state) {
-#ifdef __NVCC__
     host_memory_stream_.sync();
     state.get_array_async(history_value_swap.data(), device_memory_stream_);
     device_memory_stream_.sync();
     history_value_swap.get_array_async(this->history_value.data() + value_offset(),
                                        host_memory_stream_);
-#else
-    state.get_array(history_value_swap);
-    std::copy(history_value_swap.begin(),
-              history_value_swap.end(),
-              this->history_value.begin() + value_offset());
-#endif
   }
 
   void store_order(dust::device_array<size_t>& kappa) {
-#ifdef __NVCC__
     host_memory_stream_.sync();
     kappa.get_array_async(history_order_swap.data(), device_memory_stream_);
     device_memory_stream_.sync();
     history_order_swap.get_array_async(this->history_order.data() + order_offset(),
                                        host_memory_stream_);
-#else
-    kappa.get_array(history_order_swap);
-    std::copy(history_order_swap.begin(),
-              history_order_swap.end(),
-              this->history_order.begin() + order_offset());
-#endif
   }
 
   template <typename Iterator>
@@ -190,7 +172,6 @@ public:
   }
 
 private:
-#ifdef __NVCC__
   filter_trajectories_device ( const filter_trajectories_device & ) = delete;
   filter_trajectories_device ( filter_trajectories_device && ) = delete;
 
@@ -199,10 +180,6 @@ private:
 
   dust::cuda::cuda_stream device_memory_stream_;
   dust::cuda::cuda_stream host_memory_stream_;
-#else
-  std::vector<real_t> history_value_swap;
-  std::vector<size_t> history_order_swap;
-#endif
 
   std::vector<real_t> destride_history() const {
     std::vector<real_t> blocked_history(size());
@@ -291,16 +268,14 @@ public:
     this->steps_ = steps;
     this->state_.resize(this->n_state_ * this->n_particles_ * this->n_steps_);
 
-#ifdef __NVCC__
     state_swap = dust::device_array<real_t>(this->n_state_ * this->n_particles_);
 
+#ifdef __NVCC__
     // Page lock memory on host
     CUDA_CALL(cudaHostRegister(this->state_.data(),
                                this->state_.size() * sizeof(real_t),
                                cudaHostRegisterDefault));
 #else
-    state_swap = std::vector<real_t>(this->n_state_ * this->n_particles_);
-#endif
   }
 
   size_t value_offset() {
@@ -308,18 +283,11 @@ public:
   }
 
   void store(dust::device_array<real_t>& state) {
-#ifdef __NVCC__
     host_memory_stream_.sync();
     state.get_array_async(state_swap.data(), device_memory_stream_);
     device_memory_stream_.sync();
     state_swap.get_array_async(this->state_.data() + value_offset(),
                                host_memory_stream_);
-#else
-    state.get_array(state_swap);
-    std::copy(state_swap.begin(),
-              state_swap.end(),
-              this->state_..begin() + value_offset());
-#endif
   }
 
   template <typename Iterator>
@@ -344,7 +312,6 @@ public:
   }
 
 private:
-#ifdef __NVCC__
   filter_snapshots_device ( const filter_snapshots_device & ) = delete;
   filter_snapshots_device ( filter_snapshots_device && ) = delete;
 
@@ -352,9 +319,6 @@ private:
 
   dust::cuda::cuda_stream device_memory_stream_;
   dust::cuda::cuda_stream host_memory_stream_;
-#else
-  std::vector<real_t> state_swap;
-#endif
 
   void pageable() {
 #ifdef __NVCC__

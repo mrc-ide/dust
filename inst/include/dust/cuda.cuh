@@ -79,12 +79,17 @@ DEVICE void shared_mem_wait(cooperative_groups::thread_block& block) {
 }
 #endif
 
+// Having more ifdefs here makes code elsewhere clearer, as this can be included
+// as type in function arguments
 class cuda_stream {
 public:
   cuda_stream() {
+#ifdef __NVCC__
     CUDA_CALL(cudaStreamCreate(&stream_));
+#endif
   }
 
+#ifdef __NVCC__
   ~cuda_stream() {
     CUDA_CALL_NOTHROW(cudaStreamCreate(stream_));
   }
@@ -92,18 +97,21 @@ public:
   cudaStream_t& stream() {
     return stream_;
   }
+#endif
 
   void sync() {
+#ifdef __NVCC__
     CUDA_CALL(cudaStreamSynchronize(stream_));
+#endif
   }
 
   bool query() const {
-    bool ready;
-    if (cudaStreamQuery(stream_) == cudaSuccess) {
-      ready = true;
-    } else {
+    bool ready = true;
+#ifdef __NVCC__
+    if (cudaStreamQuery(stream_) != cudaSuccess) {
       ready = false;
     }
+#endif
     return ready;
   }
 
@@ -112,7 +120,9 @@ private:
   cuda_stream ( const cuda_stream & ) = delete;
   cuda_stream ( cuda_stream && ) = delete;
 
+#ifdef __NVCC__
   cudaStream_t stream_;
+#endif
 }
 
 }

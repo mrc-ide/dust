@@ -10,8 +10,8 @@ void run_device_resample(const size_t n_particles,
                          const size_t n_pars,
                          const size_t n_state,
                          const cuda_launch& cuda_pars,
-                         cuda_stream& kernel_stream,
-                         cuda_stream& resample_stream,
+                         dust::cuda::cuda_stream& kernel_stream,
+                         dust::cuda::cuda_stream& resample_stream,
                          rng_state_t<real_t>& resample_rng,
                          dust::device_state<real_t>& device_state,
                          dust::device_array<real_t>& weights,
@@ -44,15 +44,11 @@ void run_device_resample(const size_t n_particles,
     for (size_t i = 0; i < n_pars; ++i) {
       shuffle_draws[i] = dust::unif_rand(resample_rng);
     }
-#ifdef __NVCC__
     device_state.resample_u.set_array_async(shuffle_draws, resample_stream);
 
     // Now sync the streams
     kernel_stream.sync();
     resample_stream.sync();
-#else
-    device_state.resample_u.set_array(shuffle_draws);
-#endif
 
     // Generate the scatter indices
 #ifdef __NVCC__
@@ -89,7 +85,7 @@ void run_device_resample(const size_t n_particles,
         n_state,
         n_particles,
         false);
-    CUDA_CALL(cudaDeviceSynchronize());
+    kernel_stream.sync();
 #else
     dust::scatter_device<real_t>(
         device_state.scatter_index.data(),
