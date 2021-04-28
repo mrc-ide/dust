@@ -851,6 +851,7 @@ private:
       std::fill_n(bool_idx.begin() + (*idx_pos * n_particles), n_particles, 1);
     }
     device_state_.index.set_array(bool_idx);
+    device_state_.y_selected = dust::device_array<real_t>(n_state() * n_particles);
     device_state_.set_cub_tmp();
     select_needed_ = true;
   }
