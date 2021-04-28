@@ -73,9 +73,8 @@ std::vector<typename T::real_t> filter(Dust<T> * obj,
   return log_likelihood;
 }
 
-// Device version
 template <typename T>
-typename std::enable_if<!dust::has_gpu_support<U>::value, std::vector<typename T::real_t>>::type
+typename std::enable_if<!dust::has_gpu_support<T>::value, std::vector<typename T::real_t>>::type
 filter(Dust<T> * obj,
        filter_state_device<typename T::real_t>& state,
        bool save_trajectories,
@@ -83,8 +82,9 @@ filter(Dust<T> * obj,
   throw std::invalid_argument("GPU support not enabled for this object");
 }
 
+// Device version
 template <typename T>
-typename std::enable_if<dust::has_gpu_support<U>::value, std::vector<typename T::real_t>>::type
+typename std::enable_if<dust::has_gpu_support<T>::value, std::vector<typename T::real_t>>::type
 filter(Dust<T> * obj,
        filter_state_device<typename T::real_t>& state,
        bool save_trajectories,
