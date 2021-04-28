@@ -415,6 +415,7 @@ public:
     dust::filter::run_device_resample(n_particles(), n_pars_effective(), n_state(),
                                       cuda_pars_, kernel_stream_, resample_stream_,
                                       rng_.state(n_particles()),
+                                      device_state_, weights, scan);
     select_needed_ = true;
   }
 
