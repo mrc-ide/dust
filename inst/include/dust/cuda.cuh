@@ -123,7 +123,7 @@ private:
 #ifdef __NVCC__
   cudaStream_t stream_;
 #endif
-}
+};
 
 }
 }
