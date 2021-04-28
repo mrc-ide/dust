@@ -430,13 +430,13 @@ public:
     return device_state_.scatter_index;
   }
 
-  dust::device_array<size_t>& device_state_full() {
+  dust::device_array<real_t>& device_state_full() {
     refresh_device();
     kernel_stream_.sync();
     return device_state_.y;
   }
 
-  dust::device_array<size_t>& device_state_selected() {
+  dust::device_array<real_t>& device_state_selected() {
     refresh_device();
     run_device_select();
     kernel_stream_.sync();
