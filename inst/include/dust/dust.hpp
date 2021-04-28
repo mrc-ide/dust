@@ -343,7 +343,7 @@ public:
         device_state_.y_next.data(),
         n_state,
         n_particles);
-      kernel_stream.sync();
+      kernel_stream_.sync();
 #else
       dust::scatter_device<real_t>(
         device_state_.scatter_index.data(),
