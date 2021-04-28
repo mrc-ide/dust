@@ -39,11 +39,18 @@ test_that("Can use both device and cpu run functions", {
 })
 
 
-test_that("Raise suitable error if model does not support GPU", {
+test_that("Raise suitable errors if models do not support GPU", {
   gen <- dust_example("walk")
   mod <- gen$new(list(sd = 1), 0, 100, seed = 1L)
   expect_error(
     mod$run(10, TRUE),
+    "GPU support not enabled for this object")
+
+  dat <- example_filter()
+  mod <- dat$model$new(list(), 0, np, seed = 10L)
+  mod$set_data(dat$dat_dust)
+  expect_error(
+    mod$filter(device = TRUE),
     "GPU support not enabled for this object")
 })
 

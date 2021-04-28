@@ -850,10 +850,11 @@ private:
   }
 
   // Default noop refresh methods
+  // We do not yet run a coverage check here, see issue #229
   template <typename U = T>
   typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
-  refresh_device() {
-    stale_device_ = false;
+  refresh_device() {        // #nocov
+    stale_device_ = false;  // #nocov
   }
 
   template <typename U = T>
