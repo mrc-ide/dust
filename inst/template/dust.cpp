@@ -52,8 +52,8 @@ SEXP dust_{{name}}_set_pars(SEXP ptr, cpp11::list r_pars) {
   return dust::r::dust_set_pars<{{class}}>(ptr, r_pars);
 }
 
-SEXP dust_{{name}}_rng_state(SEXP ptr, bool last_only) {
-  return dust::r::dust_rng_state<{{class}}>(ptr, last_only);
+SEXP dust_{{name}}_rng_state(SEXP ptr, bool first_only, bool last_only) {
+  return dust::r::dust_rng_state<{{class}}>(ptr, first_only, last_only);
 }
 
 SEXP dust_{{name}}_set_rng_state(SEXP ptr, cpp11::raws rng_state) {

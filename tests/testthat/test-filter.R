@@ -54,7 +54,7 @@ test_that("Can run multiple filters at once", {
   pars <- list(list(beta = 0.2), list(beta = 0.1))
   mod <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE)
   seed <- mod$rng_state()
-  filter_seed <- mod$rng_state(TRUE)
+  filter_seed <- mod$rng_state(last_only = TRUE)
 
   expect_error(mod$filter(), "Data has not been set for this object")
   mod$set_data(dust_data(dat$dat, multi = 2))
@@ -73,7 +73,8 @@ test_that("Can run multiple filters at once", {
 
   # Results not directly comparable as pars_multi has a shared RNG
   # for the filter, but can compare this RNG state
-  expect_equal(cmp[[1]]$rng_state(TRUE), cmp[[2]]$rng_state(TRUE))
+  expect_equal(cmp[[1]]$rng_state(last_only = TRUE),
+               cmp[[2]]$rng_state(last_only = TRUE))
 })
 
 

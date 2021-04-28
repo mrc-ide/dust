@@ -36,7 +36,7 @@ SEXP dust_variable_resample(SEXP ptr, cpp11::doubles r_weights);
 SEXP dust_variable_set_pars(SEXP ptr, cpp11::list r_pars);
 
 [[cpp11::register]]
-SEXP dust_variable_rng_state(SEXP ptr, bool last_only);
+SEXP dust_variable_rng_state(SEXP ptr, bool first_only, bool last_only);
 
 [[cpp11::register]]
 SEXP dust_variable_set_rng_state(SEXP ptr, cpp11::raws rng_state);
@@ -221,8 +221,8 @@ SEXP dust_variable_set_pars(SEXP ptr, cpp11::list r_pars) {
   return dust::r::dust_set_pars<variable>(ptr, r_pars);
 }
 
-SEXP dust_variable_rng_state(SEXP ptr, bool last_only) {
-  return dust::r::dust_rng_state<variable>(ptr, last_only);
+SEXP dust_variable_rng_state(SEXP ptr, bool first_only, bool last_only) {
+  return dust::r::dust_rng_state<variable>(ptr, first_only, last_only);
 }
 
 SEXP dust_variable_set_rng_state(SEXP ptr, cpp11::raws rng_state) {

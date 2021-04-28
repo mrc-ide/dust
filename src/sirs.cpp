@@ -36,7 +36,7 @@ SEXP dust_sirs_resample(SEXP ptr, cpp11::doubles r_weights);
 SEXP dust_sirs_set_pars(SEXP ptr, cpp11::list r_pars);
 
 [[cpp11::register]]
-SEXP dust_sirs_rng_state(SEXP ptr, bool last_only);
+SEXP dust_sirs_rng_state(SEXP ptr, bool first_only, bool last_only);
 
 [[cpp11::register]]
 SEXP dust_sirs_set_rng_state(SEXP ptr, cpp11::raws rng_state);
@@ -72,6 +72,8 @@ public:
   typedef double real_t;
   typedef dust::no_internal internal_t;
 
+  // ALIGN(16) is required before the data_t definition when using NVCC
+  // This is so when loaded into shared memory it is aligned correctly
   struct ALIGN(16) data_t {
     double incidence;
   };
@@ -174,11 +176,6 @@ dust::pars_t<sirs> dust_pars<sirs>(cpp11::list pars) {
   return dust::pars_t<sirs>(shared);
 }
 
-// The way that this is going to work is we will process a list
-// *outside* of the C that will take (say) a df and convert it
-// row-wise into a list with elements `step` and `data`, we will pass
-// that in here. Then this function will be called once per data
-// element to create the struct that will be used for future work.
 template <>
 sirs::data_t dust_data<sirs>(cpp11::list data) {
   return sirs::data_t{cpp11::as_cpp<double>(data["incidence"])};
@@ -309,8 +306,8 @@ SEXP dust_sirs_set_pars(SEXP ptr, cpp11::list r_pars) {
   return dust::r::dust_set_pars<sirs>(ptr, r_pars);
 }
 
-SEXP dust_sirs_rng_state(SEXP ptr, bool last_only) {
-  return dust::r::dust_rng_state<sirs>(ptr, last_only);
+SEXP dust_sirs_rng_state(SEXP ptr, bool first_only, bool last_only) {
+  return dust::r::dust_rng_state<sirs>(ptr, first_only, last_only);
 }
 
 SEXP dust_sirs_set_rng_state(SEXP ptr, cpp11::raws rng_state) {

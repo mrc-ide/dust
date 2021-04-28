@@ -134,8 +134,8 @@ sir <- R6::R6Class(
       private$pars_
     },
 
-    rng_state = function(last_only = FALSE) {
-      dust_sir_rng_state(private$ptr_, last_only)
+    rng_state = function(first_only = FALSE, last_only = FALSE) {
+      dust_sir_rng_state(private$ptr_, first_only, last_only)
     },
 
     set_rng_state = function(rng_state) {
@@ -322,8 +322,8 @@ sirs <- R6::R6Class(
       private$pars_
     },
 
-    rng_state = function(last_only = FALSE) {
-      dust_sirs_rng_state(private$ptr_, last_only)
+    rng_state = function(first_only = FALSE, last_only = FALSE) {
+      dust_sirs_rng_state(private$ptr_, first_only, last_only)
     },
 
     set_rng_state = function(rng_state) {
@@ -509,8 +509,8 @@ variable <- R6::R6Class(
       private$pars_
     },
 
-    rng_state = function(last_only = FALSE) {
-      dust_variable_rng_state(private$ptr_, last_only)
+    rng_state = function(first_only = FALSE, last_only = FALSE) {
+      dust_variable_rng_state(private$ptr_, first_only, last_only)
     },
 
     set_rng_state = function(rng_state) {
@@ -696,8 +696,8 @@ volatility <- R6::R6Class(
       private$pars_
     },
 
-    rng_state = function(last_only = FALSE) {
-      dust_volatility_rng_state(private$ptr_, last_only)
+    rng_state = function(first_only = FALSE, last_only = FALSE) {
+      dust_volatility_rng_state(private$ptr_, first_only, last_only)
     },
 
     set_rng_state = function(rng_state) {
@@ -883,8 +883,8 @@ walk <- R6::R6Class(
       private$pars_
     },
 
-    rng_state = function(last_only = FALSE) {
-      dust_walk_rng_state(private$ptr_, last_only)
+    rng_state = function(first_only = FALSE, last_only = FALSE) {
+      dust_walk_rng_state(private$ptr_, first_only, last_only)
     },
 
     set_rng_state = function(rng_state) {

@@ -112,8 +112,8 @@ dust_sir_set_pars <- function(ptr, r_pars) {
   .Call(`_dust_dust_sir_set_pars`, ptr, r_pars)
 }
 
-dust_sir_rng_state <- function(ptr, last_only) {
-  .Call(`_dust_dust_sir_rng_state`, ptr, last_only)
+dust_sir_rng_state <- function(ptr, first_only, last_only) {
+  .Call(`_dust_dust_sir_rng_state`, ptr, first_only, last_only)
 }
 
 dust_sir_set_rng_state <- function(ptr, rng_state) {
@@ -192,8 +192,8 @@ dust_sirs_set_pars <- function(ptr, r_pars) {
   .Call(`_dust_dust_sirs_set_pars`, ptr, r_pars)
 }
 
-dust_sirs_rng_state <- function(ptr, last_only) {
-  .Call(`_dust_dust_sirs_rng_state`, ptr, last_only)
+dust_sirs_rng_state <- function(ptr, first_only, last_only) {
+  .Call(`_dust_dust_sirs_rng_state`, ptr, first_only, last_only)
 }
 
 dust_sirs_set_rng_state <- function(ptr, rng_state) {
@@ -276,8 +276,8 @@ dust_variable_set_pars <- function(ptr, r_pars) {
   .Call(`_dust_dust_variable_set_pars`, ptr, r_pars)
 }
 
-dust_variable_rng_state <- function(ptr, last_only) {
-  .Call(`_dust_dust_variable_rng_state`, ptr, last_only)
+dust_variable_rng_state <- function(ptr, first_only, last_only) {
+  .Call(`_dust_dust_variable_rng_state`, ptr, first_only, last_only)
 }
 
 dust_variable_set_rng_state <- function(ptr, rng_state) {
@@ -356,8 +356,8 @@ dust_volatility_set_pars <- function(ptr, r_pars) {
   .Call(`_dust_dust_volatility_set_pars`, ptr, r_pars)
 }
 
-dust_volatility_rng_state <- function(ptr, last_only) {
-  .Call(`_dust_dust_volatility_rng_state`, ptr, last_only)
+dust_volatility_rng_state <- function(ptr, first_only, last_only) {
+  .Call(`_dust_dust_volatility_rng_state`, ptr, first_only, last_only)
 }
 
 dust_volatility_set_rng_state <- function(ptr, rng_state) {
@@ -436,8 +436,8 @@ dust_walk_set_pars <- function(ptr, r_pars) {
   .Call(`_dust_dust_walk_set_pars`, ptr, r_pars)
 }
 
-dust_walk_rng_state <- function(ptr, last_only) {
-  .Call(`_dust_dust_walk_rng_state`, ptr, last_only)
+dust_walk_rng_state <- function(ptr, first_only, last_only) {
+  .Call(`_dust_dust_walk_rng_state`, ptr, first_only, last_only)
 }
 
 dust_walk_set_rng_state <- function(ptr, rng_state) {
