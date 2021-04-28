@@ -75,10 +75,20 @@ std::vector<typename T::real_t> filter(Dust<T> * obj,
 
 // Device version
 template <typename T>
-std::vector<typename T::real_t> filter(Dust<T> * obj,
-                                       filter_state_device<typename T::real_t>& state,
-                                       bool save_trajectories,
-                                       std::vector<size_t> step_snapshot) {
+typename std::enable_if<!dust::has_gpu_support<U>::value, std::vector<typename T::real_t>>::type
+filter(Dust<T> * obj,
+       filter_state_device<typename T::real_t>& state,
+       bool save_trajectories,
+       std::vector<size_t> step_snapshot) {
+  throw std::invalid_argument("GPU support not enabled for this object");
+}
+
+template <typename T>
+typename std::enable_if<dust::has_gpu_support<U>::value, std::vector<typename T::real_t>>::type
+filter(Dust<T> * obj,
+       filter_state_device<typename T::real_t>& state,
+       bool save_trajectories,
+       std::vector<size_t> step_snapshot) {
   typedef typename T::real_t real_t;
 
   const size_t n_particles = obj->n_particles();
