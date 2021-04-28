@@ -94,7 +94,7 @@ public:
     CUDA_CALL_NOTHROW(cudaStreamDestroy(stream_));
   }
 
-  cudaStream_t& stream() {
+  cudaStream_t stream() {
     return stream_;
   }
 #endif
