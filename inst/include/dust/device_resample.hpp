@@ -9,6 +9,7 @@ template <typename real_t>
 void run_device_resample(const size_t n_particles,
                          const size_t n_pars,
                          const size_t n_state,
+                         const cuda_launch& cuda_pars,
                          rng_state_t<real_t>& resample_rng,
                          dust::device_state<real_t>& device_state,
                          dust::device_array<real_t>& weights,
@@ -45,10 +46,7 @@ void run_device_resample(const size_t n_particles,
 
     // Generate the scatter indices
 #ifdef __NVCC__
-    const size_t interval_blockSize = 128;
-    const size_t interval_blockCount =
-        (n_particles + interval_blockSize - 1) / interval_blockSize;
-    dust::find_intervals<real_t><<<interval_blockCount, interval_blockSize>>>(
+    dust::find_intervals<real_t><<<cuda_pars.interval_blockCount, cuda_pars.interval_blockSize>>>(
       scan.cum_weights.data(),
       n_particles,
       n_pars,
@@ -68,10 +66,7 @@ void run_device_resample(const size_t n_particles,
 
     // Shuffle the particles
 #ifdef __NVCC__
-    const size_t scatter_blockSize = 64;
-    const size_t scatter_blockCount =
-        (n_particles * n_state + scatter_blockSize - 1) / scatter_blockSize;
-    dust::scatter_device<real_t><<<scatter_blockCount, scatter_blockSize>>>(
+    dust::scatter_device<real_t><<<cuda_pars.scatter_blockCount, cuda_pars.scatter_blockSize>>>(
         device_state.scatter_index.data(),
         device_state.y.data(),
         device_state.y_next.data(),
