@@ -1026,17 +1026,17 @@ private:
     // Reorder kernel
     cuda_pars_.reorder_blockSize = 128;
     cuda_pars_.reorder_blockCount =
-        (n_state * n_particles + cuda_pars_.reorder_blockSize - 1) / cuda_pars_.reorder_blockSize;
+        (n_state() * n_particles() + cuda_pars_.reorder_blockSize - 1) / cuda_pars_.reorder_blockSize;
 
     // Scatter kernel
     cuda_pars_.scatter_blockSize = 64;
     cuda_pars_.scatter_blockCount =
-        (n_particles * n_state + cuda_pars_.scatter_blockSize - 1) / cuda_pars_.scatter_blockSize;
+        (n_particles() * n_state() + cuda_pars_.scatter_blockSize - 1) / cuda_pars_.scatter_blockSize;
 
     // Interval kernel
     cuda_pars_.interval_blockSize = 128;
     cuda_pars_.interval_blockCount =
-        (n_particles + cuda_pars_.interval_blockSize - 1) / cuda_pars_.interval_blockSize;
+        (n_particles() + cuda_pars_.interval_blockSize - 1) / cuda_pars_.interval_blockSize;
   }
 };
 
