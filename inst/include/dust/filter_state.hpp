@@ -151,18 +151,18 @@ public:
 
   void store_values(dust::device_array<real_t>& state) {
     host_memory_stream_.sync();
-    state.get_array_async(history_value_swap.data(), device_memory_stream_);
+    state.get_array(history_value_swap.data(), device_memory_stream_, true);
     device_memory_stream_.sync();
-    history_value_swap.get_array_async(this->history_value.data() + value_offset(),
-                                       host_memory_stream_);
+    history_value_swap.get_array(this->history_value.data() + value_offset(),
+                                 host_memory_stream_, true);
   }
 
   void store_order(dust::device_array<size_t>& kappa) {
     host_memory_stream_.sync();
-    kappa.get_array_async(history_order_swap.data(), device_memory_stream_);
+    kappa.get_array(history_order_swap.data(), device_memory_stream_, true);
     device_memory_stream_.sync();
-    history_order_swap.get_array_async(this->history_order.data() + order_offset(),
-                                       host_memory_stream_);
+    history_order_swap.get_array(this->history_order.data() + order_offset(),
+                                 host_memory_stream_, true);
   }
 
   template <typename Iterator>
@@ -284,10 +284,10 @@ public:
 
   void store(dust::device_array<real_t>& state) {
     host_memory_stream_.sync();
-    state.get_array_async(state_swap.data(), device_memory_stream_);
+    state.get_array(state_swap.data(), device_memory_stream_, true);
     device_memory_stream_.sync();
-    state_swap.get_array_async(this->state_.data() + value_offset(),
-                               host_memory_stream_);
+    state_swap.get_array(this->state_.data() + value_offset(),
+                         host_memory_stream_, true);
   }
 
   template <typename Iterator>

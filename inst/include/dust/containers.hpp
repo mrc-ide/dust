@@ -119,7 +119,7 @@ public:
 #endif
   }
 
-  void get_array(T * dst, cuda_stream& stream, const bool async = false) const {
+  void get_array(T * dst, dust::cuda::cuda_stream& stream, const bool async = false) const {
 #ifdef __NVCC__
     if (async) {
       CUDA_CALL(cudaMemcpyAsync(dst, data_, dst.size() * sizeof(T),
@@ -167,20 +167,15 @@ public:
 #endif
   }
 
-  // Async memory operations on non-default stream
-  void get_array_async(T * dst, dust::cuda::cuda_stream& stream) const {
+  void set_array(T * dst, dust::cuda::cuda_stream& stream, const bool async = false) const {
 #ifdef __NVCC__
-    CUDA_CALL(cudaMemcpyAsync(dst, data_, size() * sizeof(T),
-                              cudaMemcpyDefault, stream.stream()));
-#else
-    std::memcpy(dst, data_, size() * sizeof(T));
-#endif
-  }
-
-  void set_array_async(T * dst, dust::cuda::cuda_stream& stream) const {
-#ifdef __NVCC__
-    CUDA_CALL(cudaMemcpyAsync(data_, dst, size() * sizeof(T),
-                              cudaMemcpyDefault, stream.stream()));
+    if (async) {
+      CUDA_CALL(cudaMemcpyAsync(data_, dst, size() * sizeof(T),
+                                cudaMemcpyDefault, stream.stream()));
+    } else {
+      CUDA_CALL(cudaMemcpy(data_, dst, size() * sizeof(T),
+                           cudaMemcpyDefault));
+    }
 #else
     std::memcpy(data_, dst, size() * sizeof(T));
 #endif
