@@ -260,22 +260,18 @@ public:
   typename std::enable_if<dust::has_gpu_support<U>::value, std::vector<real_t>>::type
   simulate_device(const std::vector<size_t>& step_end) {
     const size_t n_time = step_end.size();
-    std::vector<real_t> ret(n_particles() * n_state() * n_time);
-#ifdef _OPENMP
-    #pragma omp parallel for schedule(static) num_threads(n_threads_)
-#endif
-    for (size_t i = 0; i < particles_.size(); ++i) {
-      try {
-        for (size_t t = 0; t < n_time; ++t) {
-          particles_[i].run(step_end[t], rng_.state(i));
-          size_t offset = t * n_state() * n_particles() + i * n_state();
-          particles_[i].state(index_, ret.begin() + offset);
-        }
-      } catch (std::exception const& e) {
-        errors_.capture(e, i);
-      }
+    // The filter snapshot class can be used to store the indexed state
+    // (implements async copy, swap space, and deinterleaving)
+    // Filter trajctories not used as we don't need order here
+    dust::filter::filter_snapshots_device<real_t> state_store;
+    state_store.resize(n_state(), n_particles(), n_time);
+    for (size_t t = 0; t < n_time; ++t) {
+      run_device(step_end[t]);
+      state_store.store(device_state_selected());
+      state_store.advance();
     }
-    errors_.report();
+    std::vector<real_t> ret(n_state(), n_particles(), n_time);
+    state_store.history(ret.data());
     return ret;
   }
 
