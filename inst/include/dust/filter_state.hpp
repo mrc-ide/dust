@@ -138,8 +138,8 @@ public:
     CUDA_CALL(cudaHostRegister(this->history_order.data(),
                                this->history_order.size() * sizeof(real_t),
                                cudaHostRegisterDefault));
-    page_locked = true;
 #endif
+    page_locked = true;
   }
 
   size_t value_offset() {
@@ -209,8 +209,8 @@ private:
       CUDA_CALL_NOTHROW(cudaHostUnregister(this->history_value.data()));
       CUDA_CALL_NOTHROW(cudaHostUnregister(this->history_order.data()));
     }
-    page_locked = false;
 #endif
+    page_locked = false;
   }
 };
 
@@ -287,8 +287,8 @@ public:
     CUDA_CALL(cudaHostRegister(this->state_.data(),
                                this->state_.size() * sizeof(real_t),
                                cudaHostRegisterDefault));
-    page_locked = true;
 #endif
+    page_locked = true;
   }
 
   size_t value_offset() {
@@ -338,10 +338,9 @@ private:
     if (page_locked) {
       CUDA_CALL_NOTHROW(cudaHostUnregister(this->state_.data()));
     }
-    page_locked = false;
 #endif
+    page_locked = false;
   }
-
 };
 
 template <typename real_t>

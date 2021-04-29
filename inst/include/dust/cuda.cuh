@@ -85,13 +85,23 @@ class cuda_stream {
 public:
   cuda_stream() {
 #ifdef __NVCC__
-    CUDA_CALL(cudaStreamCreate(&stream_));
+    // Handle error manually, as this may be called when nvcc has been used
+    // to compile, but no device is present on the executing system
+    cudaStreamCreate(&stream_);
+    cudaError_t status = cudaGetLastError();
+    if (status == cudaErrorNoDevice) {
+      &stream_ = nullptr;
+    } else if (status != cudaSuccess) {
+      dust::cuda::throw_cuda_error(__FILE__, __LINE__, status);
+    }
 #endif
   }
 
 #ifdef __NVCC__
   ~cuda_stream() {
-    CUDA_CALL_NOTHROW(cudaStreamDestroy(stream_));
+    if (&stream_ != nullptr) {
+      CUDA_CALL_NOTHROW(cudaStreamDestroy(stream_));
+    }
   }
 
   cudaStream_t stream() {
