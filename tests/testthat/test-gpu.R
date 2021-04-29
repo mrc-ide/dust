@@ -45,6 +45,9 @@ test_that("Raise suitable errors if models do not support GPU", {
   expect_error(
     mod$run(10, TRUE),
     "GPU support not enabled for this object")
+  expect_error(
+    mod$simulate(10, TRUE),
+    "GPU support not enabled for this object")
 
   dat <- example_filter()
   mod <- dat$model$new(list(), 0, 100, seed = 10L)
@@ -463,6 +466,20 @@ test_that("Can use sirs gpu model", {
     mod1$run(15),
     mod2$run(15, TRUE))
 })
+
+test_that("Can simulate sirs gpu model", {
+  res <- dust_example("sirs")
+
+  steps <- seq(0, 100, by = 10)
+  np <- 20
+  mod_d <- res$new(list(), 0, np, seed = 1L, device_id = 0L)
+  mod_d$set_index(c(1, 5))
+  y <- mod_d$simulate(steps, TRUE)
+  expect_equal(dim(y), c(2, np, length(steps)))
+
+  mod_h <- res$new(list(), 0, np, seed = 1L)
+  expect_identical(mod_h$simulate(steps), y[c(1, 5), , , drop = FALSE])
+}
 
 test_that("Missing GPU comparison function errors", {
   dat <- example_volatility()
