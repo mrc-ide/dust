@@ -479,7 +479,7 @@ test_that("Can simulate sirs gpu model", {
 
   mod_h <- res$new(list(), 0, np, seed = 1L)
   expect_identical(mod_h$simulate(steps), y[c(1, 5), , , drop = FALSE])
-}
+})
 
 test_that("Missing GPU comparison function errors", {
   dat <- example_volatility()
