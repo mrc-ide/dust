@@ -13,6 +13,7 @@
 
 #include <dust/rng.hpp>
 #include <dust/densities.hpp>
+#include <dust/filter_state.hpp>
 #include <dust/filter_tools.hpp>
 #include <dust/types.hpp>
 #include <dust/utils.hpp>
