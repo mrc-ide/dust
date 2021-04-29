@@ -8,7 +8,7 @@ SEXP dust_{{name}}_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
 SEXP dust_{{name}}_run(SEXP ptr, size_t step_end, bool device);
 
 [[cpp11::register]]
-SEXP dust_{{name}}_simulate(SEXP ptr, cpp11::sexp step_end);
+SEXP dust_{{name}}_simulate(SEXP ptr, cpp11::sexp step_end, bool device);
 
 [[cpp11::register]]
 SEXP dust_{{name}}_set_index(SEXP ptr, cpp11::sexp r_index);

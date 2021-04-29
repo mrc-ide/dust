@@ -250,6 +250,35 @@ public:
     return ret;
   }
 
+  template <typename U = T>
+  typename std::enable_if<!dust::has_gpu_support<U>::value, std::vector<real_t>>::type
+  simulate_device(const std::vector<size_t>& step_end) {
+    throw std::invalid_argument("GPU support not enabled for this object");
+  }
+
+  template <typename U = T>
+  typename std::enable_if<dust::has_gpu_support<U>::value, std::vector<real_t>>::type
+  simulate_device(const std::vector<size_t>& step_end) {
+    const size_t n_time = step_end.size();
+    std::vector<real_t> ret(n_particles() * n_state() * n_time);
+#ifdef _OPENMP
+    #pragma omp parallel for schedule(static) num_threads(n_threads_)
+#endif
+    for (size_t i = 0; i < particles_.size(); ++i) {
+      try {
+        for (size_t t = 0; t < n_time; ++t) {
+          particles_[i].run(step_end[t], rng_.state(i));
+          size_t offset = t * n_state() * n_particles() + i * n_state();
+          particles_[i].state(index_, ret.begin() + offset);
+        }
+      } catch (std::exception const& e) {
+        errors_.capture(e, i);
+      }
+    }
+    errors_.report();
+    return ret;
+  }
+
   void state(std::vector<real_t>& end_state) {
     return state(end_state.begin());
   }

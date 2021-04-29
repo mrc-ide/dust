@@ -76,8 +76,8 @@ dust_sir_run <- function(ptr, step_end, device) {
   .Call(`_dust_dust_sir_run`, ptr, step_end, device)
 }
 
-dust_sir_simulate <- function(ptr, step_end) {
-  .Call(`_dust_dust_sir_simulate`, ptr, step_end)
+dust_sir_simulate <- function(ptr, step_end, device) {
+  .Call(`_dust_dust_sir_simulate`, ptr, step_end, device)
 }
 
 dust_sir_set_index <- function(ptr, r_index) {
@@ -156,8 +156,8 @@ dust_sirs_run <- function(ptr, step_end, device) {
   .Call(`_dust_dust_sirs_run`, ptr, step_end, device)
 }
 
-dust_sirs_simulate <- function(ptr, step_end) {
-  .Call(`_dust_dust_sirs_simulate`, ptr, step_end)
+dust_sirs_simulate <- function(ptr, step_end, device) {
+  .Call(`_dust_dust_sirs_simulate`, ptr, step_end, device)
 }
 
 dust_sirs_set_index <- function(ptr, r_index) {
@@ -240,8 +240,8 @@ dust_variable_run <- function(ptr, step_end, device) {
   .Call(`_dust_dust_variable_run`, ptr, step_end, device)
 }
 
-dust_variable_simulate <- function(ptr, step_end) {
-  .Call(`_dust_dust_variable_simulate`, ptr, step_end)
+dust_variable_simulate <- function(ptr, step_end, device) {
+  .Call(`_dust_dust_variable_simulate`, ptr, step_end, device)
 }
 
 dust_variable_set_index <- function(ptr, r_index) {
@@ -320,8 +320,8 @@ dust_volatility_run <- function(ptr, step_end, device) {
   .Call(`_dust_dust_volatility_run`, ptr, step_end, device)
 }
 
-dust_volatility_simulate <- function(ptr, step_end) {
-  .Call(`_dust_dust_volatility_simulate`, ptr, step_end)
+dust_volatility_simulate <- function(ptr, step_end, device) {
+  .Call(`_dust_dust_volatility_simulate`, ptr, step_end, device)
 }
 
 dust_volatility_set_index <- function(ptr, r_index) {
@@ -400,8 +400,8 @@ dust_walk_run <- function(ptr, step_end, device) {
   .Call(`_dust_dust_walk_run`, ptr, step_end, device)
 }
 
-dust_walk_simulate <- function(ptr, step_end) {
-  .Call(`_dust_dust_walk_simulate`, ptr, step_end)
+dust_walk_simulate <- function(ptr, step_end, device) {
+  .Call(`_dust_dust_walk_simulate`, ptr, step_end, device)
 }
 
 dust_walk_set_index <- function(ptr, r_index) {

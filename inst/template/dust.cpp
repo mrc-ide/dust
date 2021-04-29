@@ -14,8 +14,8 @@ SEXP dust_{{name}}_run(SEXP ptr, size_t step_end, bool device) {
   return dust::r::dust_run<{{class}}>(ptr, step_end, device);
 }
 
-SEXP dust_{{name}}_simulate(SEXP ptr, cpp11::sexp step_end) {
-  return dust::r::dust_simulate<{{class}}>(ptr, step_end);
+SEXP dust_{{name}}_simulate(SEXP ptr, cpp11::sexp step_end, bool device) {
+  return dust::r::dust_simulate<{{class}}>(ptr, step_end, device);
 }
 
 SEXP dust_{{name}}_set_index(SEXP ptr, cpp11::sexp r_index) {

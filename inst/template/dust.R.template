@@ -149,8 +149,17 @@
     ##'   as the current time, and every subsequent time must be equal or
     ##'   greater than those before it (ties are allowed though probably
     ##'   not wanted).
-    simulate = function(step_end) {
-      m <- dust_{{name}}_simulate(private$ptr_, step_end)
+    ##'
+    ##' @param device **Experimental!**: This argument may allow running on
+    ##' a GPU once support is finished, if the model supports it, and if
+    ##' the model is compiled appropriately (and assuming you have a
+    ##' suitable GPU). At present it exists for testing and will run
+    ##' slower than running with `device = TRUE`. The interpretation of
+    ##' this argument will likely change to allow selecting the GPU on
+    ##' systems with more than one. In short, please leave this argument
+    ##' alone unless you're developing dust.
+    simulate = function(step_end, device = FALSE) {
+      m <- dust_{{name}}_simulate(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
     },
