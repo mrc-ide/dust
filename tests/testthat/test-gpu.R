@@ -473,12 +473,12 @@ test_that("Can simulate sirs gpu model", {
   steps <- seq(0, 100, by = 10)
   np <- 20
   mod_d <- res$new(list(), 0, np, seed = 1L, device_id = 0L)
-  mod_d$set_index(c(1, 5))
+  mod_d$set_index(c(1, 3))
   y <- mod_d$simulate(steps, TRUE)
   expect_equal(dim(y), c(2, np, length(steps)))
 
   mod_h <- res$new(list(), 0, np, seed = 1L)
-  expect_identical(mod_h$simulate(steps), y[c(1, 5), , , drop = FALSE])
+  expect_identical(mod_h$simulate(steps)[c(1, 3), , , drop = FALSE], y)
 })
 
 test_that("Missing GPU comparison function errors", {
