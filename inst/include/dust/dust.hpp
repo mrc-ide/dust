@@ -265,13 +265,13 @@ public:
     // (implements async copy, swap space, and deinterleaving)
     // Filter trajctories not used as we don't need order here
     dust::filter::filter_snapshots_device<real_t> state_store;
-    state_store.resize(n_state(), n_particles(), n_time);
+    state_store.resize(n_state(), n_particles(), step_end);
     for (size_t t = 0; t < n_time; ++t) {
       run_device(step_end[t]);
       state_store.store(device_state_selected());
       state_store.advance();
     }
-    std::vector<real_t> ret(n_state(), n_particles(), n_time);
+    std::vector<real_t> ret(n_state() * n_particles() * n_time);
     state_store.history(ret.data());
     return ret;
   }
