@@ -23,7 +23,7 @@ DEVICE void update_device(size_t step,
 template <typename T>
 DEVICE typename T::real_t compare_device(
                    const dust::interleaved<typename T::real_t> state,
-                   const typename T::data_t * data,
+                   const typename T::data_t& data,
                    dust::interleaved<int> internal_int,
                    dust::interleaved<typename T::real_t> internal_real,
                    const int * shared_int,
@@ -212,7 +212,7 @@ KERNEL void compare_particles(size_t n_particles,
     dust::rng_state_t<real_t> rng_block = dust::get_rng_state<real_t>(p_rng);
 
     weights[i] = compare_device<T>(p_state,
-                                   shared_state.data,
+                                   *shared_state.data,
                                    p_internal_int,
                                    p_internal_real,
                                    shared_state.shared_int,

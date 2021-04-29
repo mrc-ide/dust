@@ -240,7 +240,7 @@ DEVICE void update_device<sirs>(size_t step,
 
 template <>
 DEVICE typename sirs::real_t compare_device<sirs>(const dust::interleaved<typename sirs::real_t> state,
-                           const typename sirs::data_t * data,
+                           const typename sirs::data_t& data,
                            dust::interleaved<int> internal_int,
                            dust::interleaved<typename sirs::real_t> internal_real,
                            const int * shared_int,
@@ -249,7 +249,7 @@ DEVICE typename sirs::real_t compare_device<sirs>(const dust::interleaved<typena
   typedef sirs::real_t real_t;
   const real_t exp_noise = shared_real[4];
   const real_t incidence_modelled = state[3];
-  const real_t incidence_observed = data->incidence;
+  const real_t incidence_observed = data.incidence;
   const real_t lambda = incidence_modelled +
     dust::distr::rexp(rng_state, exp_noise);
   return dust::dpois(incidence_observed, lambda, true);
