@@ -87,10 +87,9 @@ public:
 #ifdef __NVCC__
     // Handle error manually, as this may be called when nvcc has been used
     // to compile, but no device is present on the executing system
-    cudaStreamCreate(&stream_);
-    cudaError_t status = cudaGetLastError();
+    cudaError_t status = cudaStreamCreate(&stream_);
     if (status == cudaErrorNoDevice) {
-      &stream_ = nullptr;
+      stream_ = nullptr;
     } else if (status != cudaSuccess) {
       dust::cuda::throw_cuda_error(__FILE__, __LINE__, status);
     }
@@ -99,7 +98,7 @@ public:
 
 #ifdef __NVCC__
   ~cuda_stream() {
-    if (&stream_ != nullptr) {
+    if (stream_ != nullptr) {
       CUDA_CALL_NOTHROW(cudaStreamDestroy(stream_));
     }
   }
