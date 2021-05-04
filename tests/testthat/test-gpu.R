@@ -470,7 +470,9 @@ test_that("Missing GPU comparison function errors", {
   mod <- gen$new(list(sd = 1), 0, 100, seed = 1L)
   mod$set_data(dust_data(dat$data))
   mod$run(10)
-  expect_null(mod$compare_data(TRUE))
+  expect_error(
+    mod$compare_data(TRUE),
+    "GPU support not enabled for this object")
 })
 
 test_that("Comparison function can be run on the GPU", {

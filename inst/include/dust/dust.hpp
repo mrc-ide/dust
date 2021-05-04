@@ -544,6 +544,7 @@ public:
   }
 
   std::vector<real_t> compare_data_device() {
+    refresh_device();
     std::vector<real_t> res;
     auto d = device_data_offsets_.find(step());
     if (d != device_data_offsets_.end()) {
