@@ -170,13 +170,13 @@ DEVICE void update_device<sirs>(size_t step,
 }
 
 template <>
-DEVICE typename sirs::real_t compare_device<sirs>(const dust::interleaved<typename sirs::real_t> state,
-                           const typename sirs::data_t& data,
+DEVICE sirs::real_t compare_device<sirs>(const dust::interleaved<sirs::real_t> state,
+                           const sirs::data_t& data,
                            dust::interleaved<int> internal_int,
-                           dust::interleaved<typename sirs::real_t> internal_real,
+                           dust::interleaved<sirs::real_t> internal_real,
                            const int * shared_int,
-                           const typename sirs::real_t * shared_real,
-                           dust::rng_state_t<typename sirs::real_t>& rng_state) {
+                           const sirs::real_t * shared_real,
+                           dust::rng_state_t<sirs::real_t>& rng_state) {
   typedef sirs::real_t real_t;
   const real_t exp_noise = shared_real[4];
   const real_t incidence_modelled = state[3];
