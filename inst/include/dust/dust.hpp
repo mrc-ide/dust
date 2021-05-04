@@ -543,7 +543,15 @@ public:
     stale_device_ = true; // RNG use
   }
 
-  std::vector<real_t> compare_data_device() {
+  template <typename U = T>
+  typename std::enable_if<!dust::has_gpu_support<U>::value, std::vector<real_t>>::type
+  compare_data_device() {
+    throw std::invalid_argument("GPU support not enabled for this object");
+  }
+
+  template <typename U = T>
+  typename std::enable_if<dust::has_gpu_support<U>::value, std::vector<real_t>>::type
+  compare_data_device() {
     refresh_device();
     std::vector<real_t> res;
     auto d = device_data_offsets_.find(step());
@@ -553,18 +561,6 @@ public:
       device_state_.compare_res.get_array(res);
     }
     return res;
-  }
-
-  /*
-    This is exlcuded from test coverage, because initialise_device_data() will
-    be a noop in this case. This makes the find() above miss, and return NULL
-    to R without calling this
-  */
-  template <typename U = T>
-  typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
-  compare_data_device(dust::device_array<real_t>& res,                      // #nocov
-                      const size_t data_offset) {
-    throw std::invalid_argument("GPU support not enabled for this object"); // #nocov
   }
 
   template <typename U = T>
