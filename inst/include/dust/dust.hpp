@@ -42,7 +42,8 @@ public:
     errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true),
-    select_needed_(true) {
+    select_needed_(true),
+    shared_size_(0) {
 #ifdef __NVCC__
     initialise_device(device_id);
 #endif
@@ -65,7 +66,8 @@ public:
     errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true),
-    select_needed_(true) {
+    select_needed_(true),
+    shared_size_(0) {
 #ifdef __NVCC__
     initialise_device(device_id);
 #endif
