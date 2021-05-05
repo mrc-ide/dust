@@ -536,3 +536,24 @@ test_that("Can run multiple particle filters on the GPU", {
   expect_identical(ans_h$trajectories, ans_d$trajectories)
   expect_identical(ans_h$snapshots, ans_d$snapshots)
 })
+
+
+test_that("can run with nontrivial index", {
+  np <- 100
+  len <- 20
+  gen <- dust_example("variable")
+  mod1 <- gen$new(list(len = len), 0, np, seed = 1L)
+  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_id = 0L)
+
+  index <- c(4:7, 16:19, 10:12)
+
+  mod1$set_index(index)
+  mod2$set_index(index)
+
+  expect_identical(
+    mod1$run(10),
+    mod2$run(10, TRUE))
+  expect_identical(
+    mod1$run(13),
+    mod2$run(13, TRUE))
+})
