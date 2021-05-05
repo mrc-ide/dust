@@ -38,7 +38,6 @@ KERNEL void scatter_device(const size_t* index,
                            const size_t n_state,
                            const size_t n_particles,
                            bool selected) {
-
   int state_size = n_state * n_particles;
 #ifdef __NVCC__
   // https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/
