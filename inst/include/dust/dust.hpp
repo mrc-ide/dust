@@ -43,7 +43,9 @@ public:
     stale_host_(false),
     stale_device_(true),
     select_needed_(true) {
+#ifdef __NVCC__
     initialise_device(device_id);
+#endif
     initialise(pars, step, n_particles, true);
     initialise_index();
     shape_ = {n_particles};
@@ -64,7 +66,9 @@ public:
     stale_host_(false),
     stale_device_(true),
     select_needed_(true) {
+#ifdef __NVCC__
     initialise_device(device_id);
+#endif
     initialise(pars, step, n_particles_each_, true);
     initialise_index();
     // constructing the shape here is harder than above.
@@ -660,8 +664,6 @@ private:
 #ifdef DUST_ENABLE_CUDA_PROFILER
     CUDA_CALL(cudaProfilerStart());
 #endif
-#else
-    shared_size_ = 0;
 #endif
   }
 
