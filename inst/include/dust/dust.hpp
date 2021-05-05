@@ -982,6 +982,9 @@ private:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   set_cuda_launch() {
+    if (device_id_ < 0) {
+      return;
+    }
     const int warp_size = dust::cuda::warp_size;
     size_t warp_blockSize = warp_size * (n_particles_each_ + warp_size - 1) / warp_size;
 
