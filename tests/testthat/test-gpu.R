@@ -545,7 +545,7 @@ test_that("can run with nontrivial index", {
   mod1 <- gen$new(list(len = len), 0, np, seed = 1L)
   mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_id = 0L)
 
-  index <- c(4:7, 16:19, 10:12)
+  index <- c(4:7, 19:16, 10:12)
 
   mod1$set_index(index)
   mod2$set_index(index)
