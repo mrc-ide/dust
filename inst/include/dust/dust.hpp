@@ -952,7 +952,7 @@ private:
     }
 #else
     size_t selected_idx = 0;
-    for (size_t i = 0; i <= device_state_.y.size(); i++) {
+    for (size_t i = 0; i < device_state_.y.size(); i++) {
       if (device_state_.index.data()[i] == 1) {
         device_state_.y_selected.data()[selected_idx] =
           device_state_.y.data()[i];
