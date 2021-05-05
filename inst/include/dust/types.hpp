@@ -120,11 +120,9 @@ struct device_state {
   void set_device_index(const std::vector<size_t>& host_index,
                         const size_t n_particles,
                         const size_t n_state_full) {
-    size_t n_state = index.size();
+    const size_t n_state = host_index.size();
     y_selected = dust::device_array<real_t>(n_state * n_particles);
     y_selected_swap = dust::device_array<real_t>(n_state * n_particles);
-    index_state_scatter = dust::device_array<size_t>(n_state);
-    index_state_scatter.set_array(host_index);
 
     // e.g. 4 particles with 3 states ABC stored on device as
     // [1_A, 2_A, 3_A, 4_A, 1_B, 2_B, 3_B, 4_B, 1_C, 2_C, 3_C, 4_C]
@@ -137,6 +135,11 @@ struct device_state {
       std::fill_n(bool_idx.begin() + (*idx_pos * n_particles), n_particles, 1);
     }
     index.set_array(bool_idx);
+
+    std::vector<size_t> index_scatter = dust::utils::sort_indexes(host_index);
+    index_state_scatter = dust::device_array<size_t>(n_state);
+    index_state_scatter.set_array(index_scatter);
+
     set_cub_tmp();
   }
 
