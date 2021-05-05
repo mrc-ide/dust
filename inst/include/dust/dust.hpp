@@ -353,7 +353,8 @@ public:
         device_state_.y.data(),
         device_state_.y_next.data(),
         n_state,
-        n_particles);
+        n_particles,
+        false);
       CUDA_CALL(cudaDeviceSynchronize());
 #else
       dust::scatter_device<real_t>(
@@ -361,7 +362,8 @@ public:
         device_state_.y.data(),
         device_state_.y_next.data(),
         n_state,
-        n_particles);
+        n_particles,
+        false);
 #endif
       device_state_.swap();
       select_needed_ = true;
@@ -629,6 +631,7 @@ private:
   bool stale_host_;
   bool stale_device_;
   bool select_needed_;
+  bool select_scatter_;
   size_t shared_size_;
   size_t device_step_;
 
@@ -829,20 +832,14 @@ private:
     if (device_id_ < 0) {
       return;
     }
-    size_t n_particles = particles_.size();
-    std::vector<char> bool_idx(n_state_full() * n_particles, 0);
-    // e.g. 4 particles with 3 states ABC stored on device as
-    // [1_A, 2_A, 3_A, 4_A, 1_B, 2_B, 3_B, 4_B, 1_C, 2_C, 3_C, 4_C]
-    // e.g. index [1, 3] would be
-    // [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1] bool index on interleaved state
-    // i.e. initialise to zero and copy 1 np times, at each offset given in
-    // index
-    for (auto idx_pos = index_.cbegin(); idx_pos != index_.cend(); idx_pos++) {
-      std::fill_n(bool_idx.begin() + (*idx_pos * n_particles), n_particles, 1);
-    }
-    device_state_.index.set_array(bool_idx);
-    device_state_.set_cub_tmp();
+    device_state_.set_device_index(index_, particles_.size(), n_state_full());
+
     select_needed_ = true;
+    if (!std::is_sorted(index_.cbegin(), index_.cend())) {
+      select_scatter_ = true;
+    } else {
+      select_scatter_ = false;
+    }
   }
 
   // Default noop refresh methods
@@ -941,6 +938,18 @@ private:
                                 device_state_.y_selected.data(),
                                 device_state_.n_selected.data(),
                                 device_state_.y.size());
+    if (select_scatter_) {
+      dust::scatter_device<real_t><<<cuda_pars_.index_scatter_blockCount,
+                                     cuda_pars_.index_scatter_blockSize>>>(
+        device_state_.index_state_scatter.data(),
+        device_state_.y_selected.data(),
+        device_state_.y_selected_swap.data(),
+        n_state(),
+        n_particles(),
+        true);
+      CUDA_CALL(cudaDeviceSynchronize());
+      device_state_.swap_selected();
+    }
 #else
     size_t selected_idx = 0;
     for (size_t i = 0; i <= device_state_.y.size(); i++) {
@@ -949,6 +958,16 @@ private:
           device_state_.y.data()[i];
         selected_idx++;
       }
+    }
+    if (select_scatter_) {
+      dust::scatter_device<real_t>(
+        device_state_.index_state_scatter.data(),
+        device_state_.y_selected.data(),
+        device_state_.y_selected_swap.data(),
+        n_state(),
+        n_particles(),
+        true);
+      device_state_.swap_selected();
     }
 #endif
     select_needed_ = false;
@@ -1024,10 +1043,14 @@ private:
     cuda_pars_.reorder_blockCount =
         (n_particles() * n_state_full() + cuda_pars_.reorder_blockSize - 1) / cuda_pars_.reorder_blockSize;
 
-    // Scatter kernel
+    // Scatter kernels
     cuda_pars_.scatter_blockSize = 64;
     cuda_pars_.scatter_blockCount =
         (n_particles() * n_state_full() + cuda_pars_.scatter_blockSize - 1) / cuda_pars_.scatter_blockSize;
+
+    cuda_pars_.index_scatter_blockSize = 64;
+    cuda_pars_.index_scatter_blockCount =
+        (n_particles() * n_state() + cuda_pars_.index_scatter_blockSize - 1) / cuda_pars_.index_scatter_blockSize;
 
     // Interval kernel
     cuda_pars_.interval_blockSize = 128;

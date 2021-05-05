@@ -65,6 +65,9 @@ struct cuda_launch {
   size_t scatter_blockSize;
   size_t scatter_blockCount;
 
+  size_t index_scatter_blockSize;
+  size_t index_scatter_blockCount;
+
   size_t interval_blockSize;
   size_t interval_blockCount;
 };
@@ -81,7 +84,6 @@ struct device_state {
     const size_t n_rng = dust::rng_state_t<real_t>::size();
     y = dust::device_array<real_t>(n_state * n_particles);
     y_next = dust::device_array<real_t>(n_state * n_particles);
-    y_selected = dust::device_array<real_t>(n_state * n_particles);
     internal_int = dust::device_array<int>(n_internal_int * n_particles);
     internal_real = dust::device_array<real_t>(n_internal_real * n_particles);
     shared_int = dust::device_array<int>(n_shared_int * n_shared_len);
@@ -97,7 +99,9 @@ struct device_state {
   void swap() {
     std::swap(y, y_next);
   }
-  // TODO - use GPU templates
+  void swap_selected() {
+    std::swap(y_selected, y_selected_swap);
+  }
   void set_cub_tmp() {
 #ifdef __NVCC__
     // Free the array before running cub function below
@@ -113,6 +117,28 @@ struct device_state {
     select_tmp.set_size(tmp_bytes);
 #endif
   }
+  void set_device_index(const std::vector<size_t>& host_index,
+                        const size_t n_particles,
+                        const size_t n_state_full) {
+    size_t n_state = index.size();
+    y_selected = dust::device_array<real_t>(n_state * n_particles);
+    y_selected_swap = dust::device_array<real_t>(n_state * n_particles);
+    index_state_scatter = dust::device_array<size_t>(n_state);
+    index_state_scatter.set_array(host_index);
+
+    // e.g. 4 particles with 3 states ABC stored on device as
+    // [1_A, 2_A, 3_A, 4_A, 1_B, 2_B, 3_B, 4_B, 1_C, 2_C, 3_C, 4_C]
+    // e.g. index [1, 3] would be
+    // [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1] bool index on interleaved state
+    // i.e. initialise to zero and copy 1 np times, at each offset given in
+    // index
+    std::vector<char> bool_idx(n_state_full * n_particles, 0);
+    for (auto idx_pos = host_index.cbegin(); idx_pos != host_index.cend(); idx_pos++) {
+      std::fill_n(bool_idx.begin() + (*idx_pos * n_particles), n_particles, 1);
+    }
+    index.set_array(bool_idx);
+    set_cub_tmp();
+  }
 
   size_t n_shared_len;
   size_t n_shared_int;
@@ -120,12 +146,14 @@ struct device_state {
   dust::device_array<real_t> y;
   dust::device_array<real_t> y_next;
   dust::device_array<real_t> y_selected;
+  dust::device_array<real_t> y_selected_swap;
   dust::device_array<int> internal_int;
   dust::device_array<real_t> internal_real;
   dust::device_array<int> shared_int;
   dust::device_array<real_t> shared_real;
   dust::device_array<uint64_t> rng;
   dust::device_array<char> index;
+  dust::device_array<size_t> index_state_scatter;
   dust::device_array<int> n_selected;
   dust::device_array<void> select_tmp;
   dust::device_array<size_t> scatter_index;

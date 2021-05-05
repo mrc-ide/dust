@@ -71,7 +71,8 @@ void run_device_resample(const size_t n_particles,
         device_state.y.data(),
         device_state.y_next.data(),
         n_state,
-        n_particles);
+        n_particles,
+        false);
     CUDA_CALL(cudaDeviceSynchronize());
 #else
     dust::scatter_device<real_t>(
@@ -79,7 +80,8 @@ void run_device_resample(const size_t n_particles,
         device_state.y.data(),
         device_state.y_next.data(),
         n_state,
-        n_particles);
+        n_particles,
+        false);
 #endif
     device_state.swap();
 }
