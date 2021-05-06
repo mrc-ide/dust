@@ -264,7 +264,6 @@ public:
     if (stale_host_) {
       // Run the selection and copy items back
       run_device_select();
-      kernel_stream_.sync();
       std::vector<real_t> y_selected(np * index_size);
       device_state_.y_selected.get_array(y_selected);
 
@@ -439,7 +438,6 @@ public:
   dust::device_array<real_t>& device_state_selected() {
     refresh_device();
     run_device_select();
-    kernel_stream_.sync();
     return device_state_.y_selected;
   }
 
