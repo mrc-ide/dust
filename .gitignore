@@ -16,3 +16,5 @@ inst/doc
 pkgdown
 inst/include/cub
 *.gcov
+
+.vscode/

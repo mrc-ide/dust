@@ -103,7 +103,7 @@ filter(Dust<T> * obj,
 
   if (save_trajectories) {
     state.trajectories.resize(obj->n_state(), n_particles, n_data);
-    obj->state(state.trajectories.values(), state.trajectories.value_offset());
+    state.trajectories.store_values(obj->device_state_selected());
     state.trajectories.advance();
   }
 
@@ -115,9 +115,7 @@ filter(Dust<T> * obj,
 
     // SAVE HISTORY (async)
     if (save_trajectories) {
-      obj->state(state.trajectories.values(),
-                 state.trajectories.value_offset(),
-                 true);
+      state.trajectories.store_values(obj->device_state_selected());
     }
 
     // COMPARISON FUNCTION
@@ -132,19 +130,18 @@ filter(Dust<T> * obj,
 
     // SAVE HISTORY ORDER
     if (save_trajectories) {
-      state.trajectories.order().set_array(obj->kappa().data(), n_particles,
-        state.trajectories.order_offset());
+      state.trajectories.store_order(obj->kappa());
       state.trajectories.advance();
     }
 
     // SAVE SNAPSHOT
     if (state.snapshots.is_snapshot_step(d.first)) {
-      obj->state_full(state.snapshots.state(), state.snapshots.value_offset());
+      state.snapshots.store(obj->device_state_full());
       state.snapshots.advance();
     }
   }
 
-  // Copy likelihoods back to host
+  // Copy likelihoods back to host (this will sync everything)
   log_likelihood.get_array(ll_host);
   return ll_host;
 }

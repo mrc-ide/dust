@@ -119,6 +119,20 @@ public:
 #endif
   }
 
+  void get_array(T * dst, dust::cuda::cuda_stream& stream, const bool async = false) const {
+#ifdef __NVCC__
+    if (async) {
+      CUDA_CALL(cudaMemcpyAsync(dst, data_, size() * sizeof(T),
+                          cudaMemcpyDefault, stream.stream()));
+    } else {
+      CUDA_CALL(cudaMemcpy(dst, data_, size() * sizeof(T),
+                          cudaMemcpyDefault));
+    }
+#else
+    std::memcpy(dst, data_, size() * sizeof(T));
+#endif
+  }
+
   // General method to set the device array, allowing src to be written
   // into the device data_ array starting at dst_offset
   void set_array(const T* src, const size_t src_size,
@@ -150,6 +164,20 @@ public:
     }
 #else
     std::memcpy(data_, src.data(), size_ * sizeof(T));
+#endif
+  }
+
+  void set_array(T * dst, dust::cuda::cuda_stream& stream, const bool async = false) const {
+#ifdef __NVCC__
+    if (async) {
+      CUDA_CALL(cudaMemcpyAsync(data_, dst, size() * sizeof(T),
+                                cudaMemcpyDefault, stream.stream()));
+    } else {
+      CUDA_CALL(cudaMemcpy(data_, dst, size() * sizeof(T),
+                           cudaMemcpyDefault));
+    }
+#else
+    std::memcpy(data_, dst, size() * sizeof(T));
 #endif
   }
 

@@ -10,6 +10,8 @@ void run_device_resample(const size_t n_particles,
                          const size_t n_pars,
                          const size_t n_state,
                          const cuda_launch& cuda_pars,
+                         dust::cuda::cuda_stream& kernel_stream,
+                         dust::cuda::cuda_stream& resample_stream,
                          rng_state_t<real_t>& resample_rng,
                          dust::device_state<real_t>& device_state,
                          dust::device_array<real_t>& weights,
@@ -22,7 +24,8 @@ void run_device_resample(const size_t n_particles,
                                   scan.tmp_bytes,
                                   weights.data(),
                                   scan.cum_weights.data(),
-                                  scan.cum_weights.size());
+                                  scan.cum_weights.size(),
+                                  kernel_stream.stream());
     // Don't sync yet, as this can run while the u draws are made and copied
     // to the device
 #else
@@ -41,19 +44,26 @@ void run_device_resample(const size_t n_particles,
     for (size_t i = 0; i < n_pars; ++i) {
       shuffle_draws[i] = dust::unif_rand(resample_rng);
     }
-    // Copying this also syncs the prefix scan
-    device_state.resample_u.set_array(shuffle_draws);
+    device_state.resample_u.set_array(shuffle_draws.data(),
+                                      resample_stream, true);
+
+    // Now sync the streams
+    kernel_stream.sync();
+    resample_stream.sync();
 
     // Generate the scatter indices
 #ifdef __NVCC__
-    dust::find_intervals<real_t><<<cuda_pars.interval_blockCount, cuda_pars.interval_blockSize>>>(
+    dust::find_intervals<real_t><<<cuda_pars.interval_blockCount,
+                                   cuda_pars.interval_blockSize,
+                                   0,
+                                   kernel_stream.stream()>>>(
       scan.cum_weights.data(),
       n_particles,
       n_pars,
       device_state.scatter_index.data(),
       device_state.resample_u.data()
     );
-    CUDA_CALL(cudaDeviceSynchronize());
+    kernel_stream.sync();
 #else
     dust::find_intervals<real_t>(
       scan.cum_weights.data(),
@@ -66,14 +76,17 @@ void run_device_resample(const size_t n_particles,
 
     // Shuffle the particles
 #ifdef __NVCC__
-    dust::scatter_device<real_t><<<cuda_pars.scatter_blockCount, cuda_pars.scatter_blockSize>>>(
+    dust::scatter_device<real_t><<<cuda_pars.scatter_blockCount,
+                                   cuda_pars.scatter_blockSize,
+                                   0,
+                                   kernel_stream.stream()>>>(
         device_state.scatter_index.data(),
         device_state.y.data(),
         device_state.y_next.data(),
         n_state,
         n_particles,
         false);
-    CUDA_CALL(cudaDeviceSynchronize());
+    kernel_stream.sync();
 #else
     dust::scatter_device<real_t>(
         device_state.scatter_index.data(),

@@ -189,7 +189,8 @@ public:
 #ifdef __NVCC__
       dust::run_particles<T><<<cuda_pars_.run_blockCount,
                                cuda_pars_.run_blockSize,
-                               cuda_pars_.run_shared_size_bytes>>>(
+                               cuda_pars_.run_shared_size_bytes,
+                               kernel_stream_.stream()>>>(
                       step_start, step_end, particles_.size(),
                       n_pars_effective(),
                       device_state_.y.data(), device_state_.y_next.data(),
@@ -201,7 +202,7 @@ public:
                       device_state_.shared_real.data(),
                       device_state_.rng.data(),
                       cuda_pars_.run_L1);
-      CUDA_CALL(cudaDeviceSynchronize());
+      kernel_stream_.sync();
 #else
       dust::run_particles<T>(step_start, step_end, particles_.size(),
                       n_pars_effective(),
@@ -263,9 +264,6 @@ public:
     if (stale_host_) {
       // Run the selection and copy items back
       run_device_select();
-#ifdef __NVCC__
-      CUDA_CALL(cudaDeviceSynchronize());
-#endif
       std::vector<real_t> y_selected(np * index_size);
       device_state_.y_selected.get_array(y_selected);
 
@@ -284,19 +282,6 @@ public:
         particles_[i].state(index_, end_state + i * index_size);
       }
     }
-  }
-
-  // Used for copy of state into another block of memory on the device (used
-  // for history saving)
-  void state(dust::device_array<real_t>& device_state, const size_t dst_offset,
-             const bool async = false) {
-    refresh_device();
-    run_device_select();
-#ifdef __NVCC__
-    CUDA_CALL(cudaDeviceSynchronize());
-#endif
-    device_state.set_array(device_state_.y_selected.data(),
-                           device_state_.y_selected.size(), dst_offset, async);
   }
 
   // TODO: this does not use device_select. But if index is being provided
@@ -352,14 +337,17 @@ public:
       size_t n_state = n_state_full();
       device_state_.scatter_index.set_array(index);
 #ifdef __NVCC__
-      dust::scatter_device<real_t><<<cuda_pars_.reorder_blockCount, cuda_pars_.reorder_blockSize>>>(
+      dust::scatter_device<real_t><<<cuda_pars_.reorder_blockCount,
+                                     cuda_pars_.reorder_blockSize,
+                                     0,
+                                     kernel_stream_.stream()>>>(
         device_state_.scatter_index.data(),
         device_state_.y.data(),
         device_state_.y_next.data(),
         n_state,
         n_particles,
         false);
-      CUDA_CALL(cudaDeviceSynchronize());
+      kernel_stream_.sync();
 #else
       dust::scatter_device<real_t>(
         device_state_.scatter_index.data(),
@@ -430,14 +418,27 @@ public:
                 dust::device_scan_state<real_t>& scan) {
     refresh_device();
     dust::filter::run_device_resample(n_particles(), n_pars_effective(), n_state_full(),
-                                      cuda_pars_, rng_.state(n_particles()),
+                                      cuda_pars_, kernel_stream_, resample_stream_,
+                                      rng_.state(n_particles()),
                                       device_state_, weights, scan);
     select_needed_ = true;
   }
 
-  // Used in the filter
+  // Functions used in the device filter
   dust::device_array<size_t>& kappa() {
     return device_state_.scatter_index;
+  }
+
+  dust::device_array<real_t>& device_state_full() {
+    refresh_device();
+    kernel_stream_.sync();
+    return device_state_.y;
+  }
+
+  dust::device_array<real_t>& device_state_selected() {
+    refresh_device();
+    run_device_select();
+    return device_state_.y_selected;
   }
 
   size_t n_threads() const {
@@ -576,7 +577,8 @@ public:
 #ifdef __NVCC__
     dust::compare_particles<T><<<cuda_pars_.compare_blockCount,
                                  cuda_pars_.compare_blockSize,
-                                 cuda_pars_.compare_shared_size_bytes>>>(
+                                 cuda_pars_.compare_shared_size_bytes,
+                                 kernel_stream_.stream()>>>(
                      particles_.size(),
                      n_pars_effective(),
                      device_state_.y.data(),
@@ -590,7 +592,7 @@ public:
                      device_data_.data() + data_offset,
                      device_state_.rng.data(),
                      cuda_pars_.compare_L1);
-    CUDA_CALL(cudaDeviceSynchronize());
+    kernel_stream_.sync();
 #else
     dust::compare_particles<T>(
                      particles_.size(),
@@ -611,6 +613,10 @@ public:
   }
 
 private:
+  // delete move and copy to avoid accidentally using them
+  Dust ( const Dust & ) = delete;
+  Dust ( Dust && ) = delete;
+
   const size_t n_pars_; // 0 in the "single" case, >=1 otherwise
   const size_t n_particles_each_; // Particles per parameter set
   const size_t n_particles_total_; // Total number of particles
@@ -631,6 +637,8 @@ private:
   dust::device_state<real_t> device_state_;
   dust::device_array<data_t> device_data_;
   std::map<size_t, size_t> device_data_offsets_;
+  dust::cuda::cuda_stream kernel_stream_;
+  dust::cuda::cuda_stream resample_stream_;
 
   bool stale_host_;
   bool stale_device_;
@@ -638,10 +646,6 @@ private:
   bool select_scatter_;
   size_t shared_size_;
   size_t device_step_;
-
-  // delete move and copy to avoid accidentally using them
-  Dust ( const Dust & ) = delete;
-  Dust ( Dust && ) = delete;
 
   // Sets device
   template <typename U = T>
@@ -941,17 +945,21 @@ private:
                                 device_state_.index.data(),
                                 device_state_.y_selected.data(),
                                 device_state_.n_selected.data(),
-                                device_state_.y.size());
+                                device_state_.y.size(),
+                                kernel_stream_.stream());
+    kernel_stream_.sync();
     if (select_scatter_) {
       dust::scatter_device<real_t><<<cuda_pars_.index_scatter_blockCount,
-                                     cuda_pars_.index_scatter_blockSize>>>(
+                                     cuda_pars_.index_scatter_blockSize,
+                                     0,
+                                     kernel_stream_.stream()>>>(
         device_state_.index_state_scatter.data(),
         device_state_.y_selected.data(),
         device_state_.y_selected_swap.data(),
         n_state(),
         n_particles(),
         true);
-      CUDA_CALL(cudaDeviceSynchronize());
+      kernel_stream_.sync();
       device_state_.swap_selected();
     }
 #else

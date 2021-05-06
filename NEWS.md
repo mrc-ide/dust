@@ -1,3 +1,7 @@
+# dust 0.9.1
+
+* Move history and snapshot saving out of VRAM, and make it asynchronous.
+
 # dust 0.9.0
 
 * Added CUDA version of the particle filter, run with `model$filter(device = TRUE)` (#224)

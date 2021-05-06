@@ -79,6 +79,61 @@ DEVICE void shared_mem_wait(cooperative_groups::thread_block& block) {
 }
 #endif
 
+// Having more ifdefs here makes code elsewhere clearer, as this can be included
+// as type in function arguments
+class cuda_stream {
+public:
+  cuda_stream() {
+#ifdef __NVCC__
+    // Handle error manually, as this may be called when nvcc has been used
+    // to compile, but no device is present on the executing system
+    cudaError_t status = cudaStreamCreate(&stream_);
+    if (status == cudaErrorNoDevice) {
+      stream_ = nullptr;
+    } else if (status != cudaSuccess) {
+      dust::cuda::throw_cuda_error(__FILE__, __LINE__, status);
+    }
+#endif
+  }
+
+#ifdef __NVCC__
+  ~cuda_stream() {
+    if (stream_ != nullptr) {
+      CUDA_CALL_NOTHROW(cudaStreamDestroy(stream_));
+    }
+  }
+
+  cudaStream_t stream() {
+    return stream_;
+  }
+#endif
+
+  void sync() {
+#ifdef __NVCC__
+    CUDA_CALL(cudaStreamSynchronize(stream_));
+#endif
+  }
+
+  bool query() const {
+    bool ready = true;
+#ifdef __NVCC__
+    if (cudaStreamQuery(stream_) != cudaSuccess) {
+      ready = false;
+    }
+#endif
+    return ready;
+  }
+
+private:
+  // Delete copy and move
+  cuda_stream ( const cuda_stream & ) = delete;
+  cuda_stream ( cuda_stream && ) = delete;
+
+#ifdef __NVCC__
+  cudaStream_t stream_;
+#endif
+};
+
 }
 }
 
