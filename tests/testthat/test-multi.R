@@ -249,7 +249,7 @@ test_that("Can change pars", {
 
   obj <- res$new(p1, 0, 10L, pars_multi = TRUE)
   seed <- obj$rng_state()
-  filter_seed <- obj$rng_state(TRUE)
+  filter_seed <- obj$rng_state(last_only = TRUE)
   y1 <- obj$run(1)
 
   a <- res$new(p1[[1]], 0, 10L, seed = c(seed[1:320], filter_seed))
@@ -259,8 +259,10 @@ test_that("Can change pars", {
 
   expect_identical(obj$rng_state()[1:640],
                    c(a$rng_state()[1:320], b$rng_state()[1:320]))
-  expect_identical(obj$rng_state(TRUE), a$rng_state(TRUE))
-  expect_identical(obj$rng_state(TRUE), b$rng_state(TRUE))
+  expect_identical(obj$rng_state(last_only = TRUE),
+                   a$rng_state(last_only = TRUE))
+  expect_identical(obj$rng_state(last_only = TRUE),
+                   b$rng_state(last_only = TRUE))
 
   obj$set_pars(p2)
   expect_equal(obj$state(), y1)

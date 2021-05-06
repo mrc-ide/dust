@@ -23,7 +23,7 @@ DEVICE void update_device(size_t step,
 template <typename T>
 DEVICE typename T::real_t compare_device(
                    const dust::interleaved<typename T::real_t> state,
-                   const typename T::data_t * data,
+                   const typename T::data_t& data,
                    dust::interleaved<int> internal_int,
                    dust::interleaved<typename T::real_t> internal_real,
                    const int * shared_int,
@@ -31,20 +31,13 @@ DEVICE typename T::real_t compare_device(
                    dust::rng_state_t<typename T::real_t>& rng_state);
 
 // __global__ for shuffling particles
-template<typename real_t>
+template <typename real_t>
 KERNEL void scatter_device(const size_t* index,
                            real_t* state,
                            real_t* scatter_state,
                            const size_t n_state,
-                           const size_t n_particles) {
-  // e.g. 4 particles with 3 states ABC stored on device as
-  // [1_A, 2_A, 3_A, 4_A, 1_B, 2_B, 3_B, 4_B, 1_C, 2_C, 3_C, 4_C]
-  // e.g. index [3, 1, 3, 2] with would be
-  // [3_A, 1_A, 3_A, 2_A, 3_B, 1_B, 3_B, 2_B, 3_C, 1_C, 3_C, 2_C]
-  // interleaved, i.e. input repeated n_state_full times, plus a strided
-  // offset
-  // [3, 1, 3, 2, 3 + 4, 1 + 4, 3 + 4, 2 + 4, 3 + 8, 1 + 8, 3 + 8, 2 + 8]
-  // [3, 1, 3, 2, 7, 5, 7, 6, 11, 9, 11, 10]
+                           const size_t n_particles,
+                           bool selected) {
   int state_size = n_state * n_particles;
 #ifdef __NVCC__
   // https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/
@@ -53,7 +46,24 @@ KERNEL void scatter_device(const size_t* index,
 #else
   for (int i = 0; i < state_size; ++i) {
 #endif
-    const int scatter_index = index[i % n_particles] + (i / n_particles) * n_particles;
+    int scatter_index;
+    if (selected) {
+      // Scattering n_state with index
+      // e.g. 3, 2, 4
+      // 2*np, 2*np + 1, ..., 2*np + (np - 1), 1*np,
+      scatter_index = index[i / n_particles] * n_particles + (i % n_particles);
+    } else {
+      // Scattering n_state_full with index
+      // e.g. 4 particles with 3 states ABC stored on device as
+      // [1_A, 2_A, 3_A, 4_A, 1_B, 2_B, 3_B, 4_B, 1_C, 2_C, 3_C, 4_C]
+      // e.g. index [3, 1, 3, 2] with would be
+      // [3_A, 1_A, 3_A, 2_A, 3_B, 1_B, 3_B, 2_B, 3_C, 1_C, 3_C, 2_C]
+      // interleaved, i.e. input repeated n_state_full times, plus a strided
+      // offset
+      // [3, 1, 3, 2, 3 + 4, 1 + 4, 3 + 4, 2 + 4, 3 + 8, 1 + 8, 3 + 8, 2 + 8]
+      // [3, 1, 3, 2, 7, 5, 7, 6, 11, 9, 11, 10]
+      scatter_index = index[i % n_particles] + (i / n_particles) * n_particles;
+    }
     scatter_state[i] = state[scatter_index];
   }
 }
@@ -212,7 +222,7 @@ KERNEL void compare_particles(size_t n_particles,
     dust::rng_state_t<real_t> rng_block = dust::get_rng_state<real_t>(p_rng);
 
     weights[i] = compare_device<T>(p_state,
-                                   shared_state.data,
+                                   *shared_state.data,
                                    p_internal_int,
                                    p_internal_real,
                                    shared_state.shared_int,

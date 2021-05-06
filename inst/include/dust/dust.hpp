@@ -43,7 +43,9 @@ public:
     errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true),
-    select_needed_(true) {
+    select_needed_(true),
+    select_scatter_(false),
+    shared_size_(0) {
 #ifdef __NVCC__
     initialise_device(device_id);
 #endif
@@ -66,7 +68,9 @@ public:
     errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true),
-    select_needed_(true) {
+    select_needed_(true),
+    select_scatter_(false),
+    shared_size_(0) {
 #ifdef __NVCC__
     initialise_device(device_id);
 #endif
@@ -286,7 +290,6 @@ public:
     if (stale_host_) {
       // Run the selection and copy items back
       run_device_select();
-      kernel_stream_.sync();
       std::vector<real_t> y_selected(np * index_size);
       device_state_.y_selected.get_array(y_selected);
 
@@ -368,7 +371,8 @@ public:
         device_state_.y.data(),
         device_state_.y_next.data(),
         n_state,
-        n_particles);
+        n_particles,
+        false);
       kernel_stream_.sync();
 #else
       dust::scatter_device<real_t>(
@@ -376,7 +380,8 @@ public:
         device_state_.y.data(),
         device_state_.y_next.data(),
         n_state,
-        n_particles);
+        n_particles,
+        false);
 #endif
       device_state_.swap();
       select_needed_ = true;
@@ -459,7 +464,6 @@ public:
   dust::device_array<real_t>& device_state_selected() {
     refresh_device();
     run_device_select();
-    kernel_stream_.sync();
     return device_state_.y_selected;
   }
 
@@ -572,7 +576,15 @@ public:
     stale_device_ = true; // RNG use
   }
 
-  std::vector<real_t> compare_data_device() {
+  template <typename U = T>
+  typename std::enable_if<!dust::has_gpu_support<U>::value, std::vector<real_t>>::type
+  compare_data_device() {
+    throw std::invalid_argument("GPU support not enabled for this object");
+  }
+
+  template <typename U = T>
+  typename std::enable_if<dust::has_gpu_support<U>::value, std::vector<real_t>>::type
+  compare_data_device() {
     std::vector<real_t> res;
     auto d = device_data_offsets_.find(step());
     if (d != device_data_offsets_.end()) {
@@ -581,18 +593,6 @@ public:
       device_state_.compare_res.get_array(res);
     }
     return res;
-  }
-
-  /*
-    This is exlcuded from test coverage, because initialise_device_data() will
-    be a noop in this case. This makes the find() above miss, and return NULL
-    to R without calling this
-  */
-  template <typename U = T>
-  typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
-  compare_data_device(dust::device_array<real_t>& res,                      // #nocov
-                      const size_t data_offset) {
-    throw std::invalid_argument("GPU support not enabled for this object"); // #nocov
   }
 
   template <typename U = T>
@@ -669,6 +669,7 @@ private:
   bool stale_host_;
   bool stale_device_;
   bool select_needed_;
+  bool select_scatter_;
   size_t shared_size_;
   size_t device_step_;
 
@@ -865,23 +866,14 @@ private:
     if (device_id_ < 0) {
       return;
     }
-    size_t n_particles = particles_.size();
-    std::vector<char> bool_idx(n_state_full() * n_particles, 0);
-    // e.g. 4 particles with 3 states ABC stored on device as
-    // [1_A, 2_A, 3_A, 4_A, 1_B, 2_B, 3_B, 4_B, 1_C, 2_C, 3_C, 4_C]
-    // e.g. index [1, 3] would be
-    // [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1] bool index on interleaved state
-    // i.e. initialise to zero and copy 1 np times, at each offset given in
-    // index
-    for (auto idx_pos = index_.cbegin(); idx_pos != index_.cend(); idx_pos++) {
-      std::fill_n(bool_idx.begin() + (*idx_pos * n_particles), n_particles, 1);
-    }
-    device_state_.index.set_array(bool_idx);
-    if (device_state_.y_selected.size() != (n_state() * n_particles)) {
-      device_state_.y_selected = dust::device_array<real_t>(n_state() * n_particles);
-    }
-    device_state_.set_cub_tmp();
+    device_state_.set_device_index(index_, particles_.size(), n_state_full());
+
     select_needed_ = true;
+    if (!std::is_sorted(index_.cbegin(), index_.cend())) {
+      select_scatter_ = true;
+    } else {
+      select_scatter_ = false;
+    }
   }
 
   // Default noop refresh methods
@@ -981,14 +973,39 @@ private:
                                 device_state_.n_selected.data(),
                                 device_state_.y.size(),
                                 kernel_stream_.stream());
+    kernel_stream_.sync();
+    if (select_scatter_) {
+      dust::scatter_device<real_t><<<cuda_pars_.index_scatter_blockCount,
+                                     cuda_pars_.index_scatter_blockSize,
+                                     0,
+                                     kernel_stream_.stream()>>>(
+        device_state_.index_state_scatter.data(),
+        device_state_.y_selected.data(),
+        device_state_.y_selected_swap.data(),
+        n_state(),
+        n_particles(),
+        true);
+      kernel_stream_.sync();
+      device_state_.swap_selected();
+    }
 #else
     size_t selected_idx = 0;
-    for (size_t i = 0; i <= device_state_.y.size(); i++) {
+    for (size_t i = 0; i < device_state_.y.size(); i++) {
       if (device_state_.index.data()[i] == 1) {
         device_state_.y_selected.data()[selected_idx] =
           device_state_.y.data()[i];
         selected_idx++;
       }
+    }
+    if (select_scatter_) {
+      dust::scatter_device<real_t>(
+        device_state_.index_state_scatter.data(),
+        device_state_.y_selected.data(),
+        device_state_.y_selected_swap.data(),
+        n_state(),
+        n_particles(),
+        true);
+      device_state_.swap_selected();
     }
 #endif
     select_needed_ = false;
@@ -1003,6 +1020,9 @@ private:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   set_cuda_launch() {
+    if (device_id_ < 0) {
+      return;
+    }
     const int warp_size = dust::cuda::warp_size;
     size_t warp_blockSize = warp_size * (n_particles_each_ + warp_size - 1) / warp_size;
 
@@ -1025,9 +1045,13 @@ private:
       // each block runs a pars set. Each pars set has enough blocks
       // to run all of its particles, the final block may have some
       // threads that don't do anything (hang off the end)
-      cuda_pars_.run_blockSize = std::min(cuda_pars_.run_blockSize, warp_blockSize);
-      cuda_pars_.run_blockCount = n_pars_effective() * (n_particles_each_ + cuda_pars_.run_blockSize - 1) /
-        cuda_pars_.run_blockSize;
+      // This is nocov as it requires __shared__ to exist (so shared_size > 0)
+      cuda_pars_.run_blockSize =                              // #nocov start
+        std::min(cuda_pars_.run_blockSize, warp_blockSize);
+      cuda_pars_.run_blockCount =
+        n_pars_effective() *
+        (n_particles_each_ + cuda_pars_.run_blockSize - 1) /
+        cuda_pars_.run_blockSize;                             // #nocov end
     }
 
     // Compare kernel
@@ -1054,9 +1078,13 @@ private:
       // each block runs a pars set. Each pars set has enough blocks
       // to run all of its particles, the final block may have some
       // threads that don't do anything (hang off the end)
-      cuda_pars_.compare_blockSize = std::min(cuda_pars_.compare_blockSize, warp_blockSize);
-      cuda_pars_.compare_blockCount = n_pars_effective() * (n_particles_each_ + cuda_pars_.compare_blockSize - 1) /
-        cuda_pars_.compare_blockSize;
+      // This is nocov as it requires __shared__ to exist (so shared_size > 0)
+      cuda_pars_.compare_blockSize =                              // #nocov start
+        std::min(cuda_pars_.compare_blockSize, warp_blockSize);
+      cuda_pars_.compare_blockCount =
+        n_pars_effective() *
+        (n_particles_each_ + cuda_pars_.compare_blockSize - 1) /
+        cuda_pars_.compare_blockSize;                             // #nocov end
     }
 
     // Reorder kernel
@@ -1064,10 +1092,14 @@ private:
     cuda_pars_.reorder_blockCount =
         (n_particles() * n_state_full() + cuda_pars_.reorder_blockSize - 1) / cuda_pars_.reorder_blockSize;
 
-    // Scatter kernel
+    // Scatter kernels
     cuda_pars_.scatter_blockSize = 64;
     cuda_pars_.scatter_blockCount =
         (n_particles() * n_state_full() + cuda_pars_.scatter_blockSize - 1) / cuda_pars_.scatter_blockSize;
+
+    cuda_pars_.index_scatter_blockSize = 64;
+    cuda_pars_.index_scatter_blockCount =
+        (n_particles() * n_state() + cuda_pars_.index_scatter_blockSize - 1) / cuda_pars_.index_scatter_blockSize;
 
     // Interval kernel
     cuda_pars_.interval_blockSize = 128;

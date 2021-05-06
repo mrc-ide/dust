@@ -487,7 +487,9 @@ test_that("Missing GPU comparison function errors", {
   mod <- gen$new(list(sd = 1), 0, 100, seed = 1L)
   mod$set_data(dust_data(dat$data))
   mod$run(10)
-  expect_null(mod$compare_data(TRUE))
+  expect_error(
+    mod$compare_data(TRUE),
+    "GPU support not enabled for this object")
 })
 
 test_that("Comparison function can be run on the GPU", {
@@ -529,6 +531,28 @@ test_that("Can run a single particle filter on the GPU", {
   expect_identical(ans_h$snapshots, ans_d$snapshots)
 })
 
+test_that("Can run GPU kernels using shared memory", {
+  dat <- example_sirs()
+
+  # Larger particle size makes multiple blocks be used
+  np <- 256
+
+  mod_h <- dat$model$new(list(), 0, np, seed = 10L)
+  mod_h$set_data(dat$dat_dust)
+  ans_h <- mod_h$filter(save_trajectories = TRUE,
+                        step_snapshot = c(4, 16))
+
+  mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_id = 0L)
+  mod_d$set_data(dat$dat_dust)
+  ans_d <- mod_d$filter(device = TRUE,
+                        save_trajectories = TRUE,
+                        step_snapshot = c(4, 16))
+
+  expect_equal(ans_h$log_likelihood, ans_d$log_likelihood)
+  expect_identical(ans_h$trajectories, ans_d$trajectories)
+  expect_identical(ans_h$snapshots, ans_d$snapshots)
+})
+
 test_that("Can run multiple particle filters on the GPU", {
   dat <- example_sirs()
 
@@ -550,4 +574,25 @@ test_that("Can run multiple particle filters on the GPU", {
   expect_equal(ans_h$log_likelihood, ans_d$log_likelihood)
   expect_identical(ans_h$trajectories, ans_d$trajectories)
   expect_identical(ans_h$snapshots, ans_d$snapshots)
+})
+
+
+test_that("can run with nontrivial index", {
+  np <- 100
+  len <- 20
+  gen <- dust_example("variable")
+  mod1 <- gen$new(list(len = len), 0, np, seed = 1L)
+  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_id = 0L)
+
+  index <- c(4:7, 19:16, 10:12)
+
+  mod1$set_index(index)
+  mod2$set_index(index)
+
+  expect_identical(
+    mod1$run(10),
+    mod2$run(10, TRUE))
+  expect_identical(
+    mod1$run(13),
+    mod2$run(13, TRUE))
 })
