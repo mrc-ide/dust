@@ -43,6 +43,7 @@ public:
     stale_host_(false),
     stale_device_(true),
     select_needed_(true),
+    select_scatter_(false),
     shared_size_(0) {
 #ifdef __NVCC__
     initialise_device(device_id);
@@ -67,6 +68,7 @@ public:
     stale_host_(false),
     stale_device_(true),
     select_needed_(true),
+    select_scatter_(false),
     shared_size_(0) {
 #ifdef __NVCC__
     initialise_device(device_id);
@@ -1009,8 +1011,12 @@ private:
       // each block runs a pars set. Each pars set has enough blocks
       // to run all of its particles, the final block may have some
       // threads that don't do anything (hang off the end)
-      cuda_pars_.run_blockSize = std::min(cuda_pars_.run_blockSize, warp_blockSize);
-      cuda_pars_.run_blockCount = n_pars_effective() * (n_particles_each_ + cuda_pars_.run_blockSize - 1) /
+      // This is nocov as it requires __shared__ to exist (so shared_size > 0)
+      cuda_pars_.run_blockSize =                              // #nocov
+        std::min(cuda_pars_.run_blockSize, warp_blockSize);
+      cuda_pars_.run_blockCount =                             // #nocov
+        n_pars_effective() *
+        (n_particles_each_ + cuda_pars_.run_blockSize - 1) /
         cuda_pars_.run_blockSize;
     }
 
@@ -1038,8 +1044,12 @@ private:
       // each block runs a pars set. Each pars set has enough blocks
       // to run all of its particles, the final block may have some
       // threads that don't do anything (hang off the end)
-      cuda_pars_.compare_blockSize = std::min(cuda_pars_.compare_blockSize, warp_blockSize);
-      cuda_pars_.compare_blockCount = n_pars_effective() * (n_particles_each_ + cuda_pars_.compare_blockSize - 1) /
+      // This is nocov as it requires __shared__ to exist (so shared_size > 0)
+      cuda_pars_.compare_blockSize =                             // #nocov
+        std::min(cuda_pars_.compare_blockSize, warp_blockSize);
+      cuda_pars_.compare_blockCount =
+        n_pars_effective() *                                     // #nocov
+        (n_particles_each_ + cuda_pars_.compare_blockSize - 1) /
         cuda_pars_.compare_blockSize;
     }
 
