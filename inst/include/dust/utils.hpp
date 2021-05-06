@@ -22,7 +22,7 @@ std::vector<size_t> sort_indexes(const T &v) {
   std::stable_sort(
     idx.begin(), idx.end(),
     [&v](size_t i1, size_t i2) { return v[i1] < v[i2]; });
-  // Now sort these idx, as we want to these indices in the origianl order
+  // Now sort these idx, as we want to these indices in the original order
   // in the example this gives 1 2 3 5 4 0
   std::stable_sort(
     idx_offset.begin(), idx_offset.end(),
