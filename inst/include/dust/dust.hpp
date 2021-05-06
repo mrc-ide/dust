@@ -1013,11 +1013,11 @@ private:
       // threads that don't do anything (hang off the end)
       // This is nocov as it requires __shared__ to exist (so shared_size > 0)
       cuda_pars_.run_blockSize =                              // #nocov
-        std::min(cuda_pars_.run_blockSize, warp_blockSize);
+        std::min(cuda_pars_.run_blockSize, warp_blockSize);   // #nocov
       cuda_pars_.run_blockCount =                             // #nocov
-        n_pars_effective() *
-        (n_particles_each_ + cuda_pars_.run_blockSize - 1) /
-        cuda_pars_.run_blockSize;
+        n_pars_effective() *                                  // #nocov
+        (n_particles_each_ + cuda_pars_.run_blockSize - 1) /  // #nocov
+        cuda_pars_.run_blockSize;                             // #nocov
     }
 
     // Compare kernel
@@ -1045,12 +1045,12 @@ private:
       // to run all of its particles, the final block may have some
       // threads that don't do anything (hang off the end)
       // This is nocov as it requires __shared__ to exist (so shared_size > 0)
-      cuda_pars_.compare_blockSize =                             // #nocov
-        std::min(cuda_pars_.compare_blockSize, warp_blockSize);
-      cuda_pars_.compare_blockCount =
-        n_pars_effective() *                                     // #nocov
-        (n_particles_each_ + cuda_pars_.compare_blockSize - 1) /
-        cuda_pars_.compare_blockSize;
+      cuda_pars_.compare_blockSize =                              // #nocov
+        std::min(cuda_pars_.compare_blockSize, warp_blockSize);   // #nocov
+      cuda_pars_.compare_blockCount =                             // #nocov
+        n_pars_effective() *                                      // #nocov
+        (n_particles_each_ + cuda_pars_.compare_blockSize - 1) /  // #nocov
+        cuda_pars_.compare_blockSize;                             // #nocov
     }
 
     // Reorder kernel
