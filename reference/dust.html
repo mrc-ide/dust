@@ -83,7 +83,7 @@ and dust_class)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.19</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.0</span>
       </span>
     </div>
 
@@ -407,7 +407,7 @@ objects, and <code><a href='dust_example.html'>dust_example()</a></code> for som
 #&gt;     resample: function (weights) 
 #&gt;     info: function () 
 #&gt;     pars: function () 
-#&gt;     rng_state: function (first_only = FALSE) 
+#&gt;     rng_state: function (first_only = FALSE, last_only = FALSE) 
 #&gt;     set_rng_state: function (rng_state) 
 #&gt;     has_openmp: function () 
 #&gt;     has_cuda: function () 
@@ -415,8 +415,8 @@ objects, and <code><a href='dust_example.html'>dust_example()</a></code> for som
 #&gt;     set_n_threads: function (n_threads) 
 #&gt;     has_compare: function () 
 #&gt;     set_data: function (data) 
-#&gt;     compare_data: function () 
-#&gt;     filter: function (save_trajectories = FALSE, step_snapshot = NULL) 
+#&gt;     compare_data: function (device = FALSE) 
+#&gt;     filter: function (save_trajectories = FALSE, step_snapshot = NULL, device = FALSE) 
 #&gt;     device_info: function () 
 #&gt;   Private:
 #&gt;     pars_: NULL
@@ -440,9 +440,9 @@ objects, and <code><a href='dust_example.html'>dust_example()</a></code> for som
 <span class='va'>obj</span>
 </div><div class='output co'>#&gt; &lt;dust&gt;
 #&gt;   Public:
-#&gt;     compare_data: function () 
+#&gt;     compare_data: function (device = FALSE) 
 #&gt;     device_info: function () 
-#&gt;     filter: function (save_trajectories = FALSE, step_snapshot = NULL) 
+#&gt;     filter: function (save_trajectories = FALSE, step_snapshot = NULL, device = FALSE) 
 #&gt;     has_compare: function () 
 #&gt;     has_cuda: function () 
 #&gt;     has_openmp: function () 
@@ -460,7 +460,7 @@ objects, and <code><a href='dust_example.html'>dust_example()</a></code> for som
 #&gt;     reorder: function (index) 
 #&gt;     resample: function (weights) 
 #&gt;     reset: function (pars, step) 
-#&gt;     rng_state: function (first_only = FALSE) 
+#&gt;     rng_state: function (first_only = FALSE, last_only = FALSE) 
 #&gt;     run: function (step_end, device = FALSE) 
 #&gt;     set_data: function (data) 
 #&gt;     set_index: function (index) 
