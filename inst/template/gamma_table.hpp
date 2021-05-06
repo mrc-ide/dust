@@ -2,11 +2,6 @@
 #ifndef DUST_DISTR_GAMMA_TABLE_HPP
 #define DUST_DISTR_GAMMA_TABLE_HPP
 
-#ifdef __CUDA_ARCH__
-#define CONSTANT __constant__
-#else
-#define CONSTANT const
-#endif
 
 namespace dust {
 namespace distr {

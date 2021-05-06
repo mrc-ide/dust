@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-path <- system.file("examples/variable.cpp", package = "dust", mustWork = TRUE)
+path <- system.file("examples/sirs.cpp", package = "dust", mustWork = TRUE)
 message("Checking CUDA configuration")
 dust::dust_cuda_configuration(quiet = FALSE)
 message("Compiling...")

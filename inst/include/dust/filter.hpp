@@ -7,9 +7,10 @@
 namespace dust {
 namespace filter {
 
+// Host version
 template <typename T>
 std::vector<typename T::real_t> filter(Dust<T> * obj,
-                                       filter_state<typename T::real_t>& state,
+                                       filter_state_host<typename T::real_t>& state,
                                        bool save_trajectories,
                                        std::vector<size_t> step_snapshot) {
   typedef typename T::real_t real_t;
@@ -70,6 +71,82 @@ std::vector<typename T::real_t> filter(Dust<T> * obj,
   }
 
   return log_likelihood;
+}
+
+template <typename T>
+typename std::enable_if<!dust::has_gpu_support<T>::value, std::vector<typename T::real_t>>::type
+filter(Dust<T> * obj,
+       filter_state_device<typename T::real_t>& state,
+       bool save_trajectories,
+       std::vector<size_t> step_snapshot) {
+  throw std::invalid_argument("GPU support not enabled for this object");
+}
+
+// Device version
+template <typename T>
+typename std::enable_if<dust::has_gpu_support<T>::value, std::vector<typename T::real_t>>::type
+filter(Dust<T> * obj,
+       filter_state_device<typename T::real_t>& state,
+       bool save_trajectories,
+       std::vector<size_t> step_snapshot) {
+  typedef typename T::real_t real_t;
+
+  const size_t n_particles = obj->n_particles();
+  const size_t n_data = obj->n_data();
+  const size_t n_pars = obj->n_pars_effective();
+
+  std::vector<real_t> ll_host(n_pars, 0);
+  dust::device_array<real_t> log_likelihood(ll_host);
+  dust::device_weights<real_t> weights(n_particles, n_pars);
+  dust::device_scan_state<real_t> scan;
+  scan.initialise(n_particles, weights.weights());
+
+  if (save_trajectories) {
+    state.trajectories.resize(obj->n_state(), n_particles, n_data);
+    obj->state(state.trajectories.values(), state.trajectories.value_offset());
+    state.trajectories.advance();
+  }
+
+  state.snapshots.resize(obj->n_state_full(), n_particles, step_snapshot);
+
+  for (auto & d : obj->data_offsets()) {
+    // MODEL UPDATE
+    obj->run_device(d.first);
+
+    // SAVE HISTORY (async)
+    if (save_trajectories) {
+      obj->state(state.trajectories.values(),
+                 state.trajectories.value_offset(),
+                 true);
+    }
+
+    // COMPARISON FUNCTION
+    obj->compare_data_device(weights.weights(), d.second);
+
+    // SCALE WEIGHTS
+    weights.scale_log_weights(log_likelihood);
+
+    // RESAMPLE
+    // Normalise the weights and calculate cumulative sum for resample
+    obj->resample(weights.weights(), scan);
+
+    // SAVE HISTORY ORDER
+    if (save_trajectories) {
+      state.trajectories.order().set_array(obj->kappa().data(), n_particles,
+        state.trajectories.order_offset());
+      state.trajectories.advance();
+    }
+
+    // SAVE SNAPSHOT
+    if (state.snapshots.is_snapshot_step(d.first)) {
+      obj->state_full(state.snapshots.state(), state.snapshots.value_offset());
+      state.snapshots.advance();
+    }
+  }
+
+  // Copy likelihoods back to host
+  log_likelihood.get_array(ll_host);
+  return ll_host;
 }
 
 }

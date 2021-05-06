@@ -7,6 +7,7 @@
 #define HOST __host__
 #define HOSTDEVICE __host__ __device__
 #define KERNEL __global__
+#define ALIGN(n) __align__(n)
 
 // This is necessary due to templates which are __host__ __device__;
 // whenever a HOSTDEVICE function is called from another HOSTDEVICE
@@ -25,13 +26,31 @@
 #endif
 
 // cub functions (included with CUDA>=11)
-#include <cub/device/device_select.cuh>
+#include <cub/cub.cuh>
+
+#else
+#define DEVICE
+#define HOST
+#define HOSTDEVICE
+#define KERNEL
+#undef DUST_CUDA_ENABLE_PROFILER
+#define __nv_exec_check_disable__
+#define ALIGN(n)
+#endif
+
+// const definition depends on __host__/__device__
+#ifdef __CUDA_ARCH__
+#define CONSTANT __constant__
+#else
+#define CONSTANT const
+#endif
 
 namespace dust {
 namespace cuda {
 
 const int warp_size = 32;
 
+#ifdef __NVCC__
 template <typename T>
 DEVICE void shared_mem_cpy(cooperative_groups::thread_block& block,
                            T* shared_ptr,
@@ -58,17 +77,10 @@ DEVICE void shared_mem_wait(cooperative_groups::thread_block& block) {
   __syncthreads();
 #endif
 }
-
-}
-}
-
-#else
-#define DEVICE
-#define HOST
-#define HOSTDEVICE
-#define KERNEL
-#undef DUST_CUDA_ENABLE_PROFILER
-#define __nv_exec_check_disable__
 #endif
+
+}
+}
+
 
 #endif

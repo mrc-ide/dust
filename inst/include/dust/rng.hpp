@@ -66,15 +66,19 @@ public:
     }
   }
 
-  void import_state(const std::vector<uint64_t>& state) {
+  void import_state(const std::vector<uint64_t>& state, const size_t len) {
     auto it = state.begin();
     const size_t n = rng_state_t<T>::size();
-    for (size_t i = 0; i < size(); ++i) {
+    for (size_t i = 0; i < len; ++i) {
       for (size_t j = 0; j < n; ++j) {
         state_[i][j] = *it;
         ++it;
       }
     }
+  }
+
+  void import_state(const std::vector<uint64_t>& state) {
+    import_state(state, size());
   }
 
 private:

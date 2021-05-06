@@ -35,7 +35,7 @@ SEXP dust_{{name}}_resample(SEXP ptr, cpp11::doubles r_weights);
 SEXP dust_{{name}}_set_pars(SEXP ptr, cpp11::list r_pars);
 
 [[cpp11::register]]
-SEXP dust_{{name}}_rng_state(SEXP ptr, bool first_only);
+SEXP dust_{{name}}_rng_state(SEXP ptr, bool first_only, bool last_only);
 
 [[cpp11::register]]
 SEXP dust_{{name}}_set_rng_state(SEXP ptr, cpp11::raws rng_state);
@@ -44,11 +44,12 @@ SEXP dust_{{name}}_set_rng_state(SEXP ptr, cpp11::raws rng_state);
 SEXP dust_{{name}}_set_data(SEXP ptr, cpp11::list data);
 
 [[cpp11::register]]
-SEXP dust_{{name}}_compare_data(SEXP ptr);
+SEXP dust_{{name}}_compare_data(SEXP ptr, bool device);
 
 [[cpp11::register]]
 SEXP dust_{{name}}_filter(SEXP ptr, bool save_trajectories,
-                          cpp11::sexp step_snapshot);
+                          cpp11::sexp step_snapshot,
+                          bool device);
 
 [[cpp11::register]]
 cpp11::sexp dust_{{name}}_capabilities();

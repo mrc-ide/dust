@@ -39,11 +39,18 @@ test_that("Can use both device and cpu run functions", {
 })
 
 
-test_that("Raise suitable error if model does not support GPU", {
+test_that("Raise suitable errors if models do not support GPU", {
   gen <- dust_example("walk")
   mod <- gen$new(list(sd = 1), 0, 100, seed = 1L)
   expect_error(
     mod$run(10, TRUE),
+    "GPU support not enabled for this object")
+
+  dat <- example_filter()
+  mod <- dat$model$new(list(), 0, 100, seed = 10L)
+  mod$set_data(dat$dat_dust)
+  expect_error(
+    mod$filter(device = TRUE),
     "GPU support not enabled for this object")
 })
 
@@ -432,12 +439,138 @@ test_that("Can provide device id to non-gpu model with no effect", {
 
 
 test_that("Can use sirs gpu model", {
-  gen <- dust(dust_file("examples/sirs.cpp"), quiet = TRUE)
+  gen <- dust_example("sirs")
   np <- 100
   len <- 20
 
   mod1 <- gen$new(list(), 0, np, seed = 1L)
   mod2 <- gen$new(list(), 0, np, seed = 1L, device_id = 0L)
+
+  expect_identical(
+    mod1$run(10),
+    mod2$run(10, TRUE))
+  expect_identical(
+    mod1$run(13),
+    mod2$run(13, TRUE))
+
+  # Test that device_select run is cached
+  mod1$set_index(1L)
+  mod2$set_index(1L)
+  expect_identical(
+    mod1$run(15),
+    mod2$run(15, TRUE))
+  expect_identical(
+    mod1$run(15),
+    mod2$run(15, TRUE))
+})
+
+test_that("Missing GPU comparison function errors", {
+  dat <- example_volatility()
+  gen <- dust_example("volatility")
+  mod <- gen$new(list(sd = 1), 0, 100, seed = 1L)
+  mod$set_data(dust_data(dat$data))
+  mod$run(10)
+  expect_error(
+    mod$compare_data(TRUE),
+    "GPU support not enabled for this object")
+})
+
+test_that("Comparison function can be run on the GPU", {
+  dat <- example_sirs()
+
+  np <- 10
+
+  mod_h <- dat$model$new(list(), 0, np, seed = 10L)
+  mod_h$set_data(dat$dat_dust)
+  mod_h$run(4)
+  weights_h <- mod_h$compare_data()
+
+  mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_id = 0L)
+  mod_d$set_data(dat$dat_dust)
+  mod_d$run(4)
+  weights_d <- mod_d$compare_data(TRUE)
+
+  expect_identical(weights_h, weights_d)
+})
+
+test_that("Can run a single particle filter on the GPU", {
+  dat <- example_sirs()
+
+  np <- 10
+
+  mod_h <- dat$model$new(list(), 0, np, seed = 10L)
+  mod_h$set_data(dat$dat_dust)
+  ans_h <- mod_h$filter(save_trajectories = TRUE,
+                        step_snapshot = c(4, 16))
+
+  mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_id = 0L)
+  mod_d$set_data(dat$dat_dust)
+  ans_d <- mod_d$filter(device = TRUE,
+                        save_trajectories = TRUE,
+                        step_snapshot = c(4, 16))
+
+  expect_equal(ans_h$log_likelihood, ans_d$log_likelihood)
+  expect_identical(ans_h$trajectories, ans_d$trajectories)
+  expect_identical(ans_h$snapshots, ans_d$snapshots)
+})
+
+test_that("Can run GPU kernels using shared memory", {
+  dat <- example_sirs()
+
+  # Larger particle size makes multiple blocks be used
+  np <- 256
+
+  mod_h <- dat$model$new(list(), 0, np, seed = 10L)
+  mod_h$set_data(dat$dat_dust)
+  ans_h <- mod_h$filter(save_trajectories = TRUE,
+                        step_snapshot = c(4, 16))
+
+  mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_id = 0L)
+  mod_d$set_data(dat$dat_dust)
+  ans_d <- mod_d$filter(device = TRUE,
+                        save_trajectories = TRUE,
+                        step_snapshot = c(4, 16))
+
+  expect_equal(ans_h$log_likelihood, ans_d$log_likelihood)
+  expect_identical(ans_h$trajectories, ans_d$trajectories)
+  expect_identical(ans_h$snapshots, ans_d$snapshots)
+})
+
+test_that("Can run multiple particle filters on the GPU", {
+  dat <- example_sirs()
+
+  np <- 10
+  pars <- list(list(beta = 0.2), list(beta = 0.1))
+
+  mod_h <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE)
+  mod_h$set_data(dust_data(dat$dat, multi = 2))
+  ans_h <- mod_h$filter(save_trajectories = TRUE,
+                        step_snapshot = c(4, 16))
+
+  mod_d <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE,
+                         device_id = 0L)
+  mod_d$set_data(dust_data(dat$dat, multi = 2))
+  ans_d <- mod_d$filter(device = TRUE,
+                        save_trajectories = TRUE,
+                        step_snapshot = c(4, 16))
+
+  expect_equal(ans_h$log_likelihood, ans_d$log_likelihood)
+  expect_identical(ans_h$trajectories, ans_d$trajectories)
+  expect_identical(ans_h$snapshots, ans_d$snapshots)
+})
+
+
+test_that("can run with nontrivial index", {
+  np <- 100
+  len <- 20
+  gen <- dust_example("variable")
+  mod1 <- gen$new(list(len = len), 0, np, seed = 1L)
+  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_id = 0L)
+
+  index <- c(4:7, 19:16, 10:12)
+
+  mod1$set_index(index)
+  mod2$set_index(index)
 
   expect_identical(
     mod1$run(10),

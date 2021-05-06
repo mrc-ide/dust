@@ -204,10 +204,10 @@ extern "C" SEXP _dust_dust_sir_set_pars(SEXP ptr, SEXP r_pars) {
   END_CPP11
 }
 // sir.cpp
-SEXP dust_sir_rng_state(SEXP ptr, bool first_only);
-extern "C" SEXP _dust_dust_sir_rng_state(SEXP ptr, SEXP first_only) {
+SEXP dust_sir_rng_state(SEXP ptr, bool first_only, bool last_only);
+extern "C" SEXP _dust_dust_sir_rng_state(SEXP ptr, SEXP first_only, SEXP last_only) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_sir_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(first_only)));
+    return cpp11::as_sexp(dust_sir_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(first_only), cpp11::as_cpp<cpp11::decay_t<bool>>(last_only)));
   END_CPP11
 }
 // sir.cpp
@@ -225,17 +225,17 @@ extern "C" SEXP _dust_dust_sir_set_data(SEXP ptr, SEXP data) {
   END_CPP11
 }
 // sir.cpp
-SEXP dust_sir_compare_data(SEXP ptr);
-extern "C" SEXP _dust_dust_sir_compare_data(SEXP ptr) {
+SEXP dust_sir_compare_data(SEXP ptr, bool device);
+extern "C" SEXP _dust_dust_sir_compare_data(SEXP ptr, SEXP device) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_sir_compare_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
+    return cpp11::as_sexp(dust_sir_compare_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(device)));
   END_CPP11
 }
 // sir.cpp
-SEXP dust_sir_filter(SEXP ptr, bool save_trajectories, cpp11::sexp step_snapshot);
-extern "C" SEXP _dust_dust_sir_filter(SEXP ptr, SEXP save_trajectories, SEXP step_snapshot) {
+SEXP dust_sir_filter(SEXP ptr, bool save_trajectories, cpp11::sexp step_snapshot, bool device);
+extern "C" SEXP _dust_dust_sir_filter(SEXP ptr, SEXP save_trajectories, SEXP step_snapshot, SEXP device) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_sir_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot)));
+    return cpp11::as_sexp(dust_sir_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot), cpp11::as_cpp<cpp11::decay_t<bool>>(device)));
   END_CPP11
 }
 // sir.cpp
@@ -265,6 +265,148 @@ cpp11::sexp dust_sir_device_info();
 extern "C" SEXP _dust_dust_sir_device_info() {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_sir_device_info());
+  END_CPP11
+}
+// sirs.cpp
+SEXP dust_sirs_alloc(cpp11::list r_pars, bool pars_multi, size_t step, cpp11::sexp r_n_particles, size_t n_threads, cpp11::sexp r_seed, cpp11::sexp device_id);
+extern "C" SEXP _dust_dust_sirs_alloc(SEXP r_pars, SEXP pars_multi, SEXP step, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP device_id) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sirs_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(step), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(device_id)));
+  END_CPP11
+}
+// sirs.cpp
+SEXP dust_sirs_run(SEXP ptr, size_t step_end, bool device);
+extern "C" SEXP _dust_dust_sirs_run(SEXP ptr, SEXP step_end, SEXP device) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sirs_run(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<size_t>>(step_end), cpp11::as_cpp<cpp11::decay_t<bool>>(device)));
+  END_CPP11
+}
+// sirs.cpp
+SEXP dust_sirs_simulate(SEXP ptr, cpp11::sexp step_end);
+extern "C" SEXP _dust_dust_sirs_simulate(SEXP ptr, SEXP step_end) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sirs_simulate(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_end)));
+  END_CPP11
+}
+// sirs.cpp
+SEXP dust_sirs_set_index(SEXP ptr, cpp11::sexp r_index);
+extern "C" SEXP _dust_dust_sirs_set_index(SEXP ptr, SEXP r_index) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sirs_set_index(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_index)));
+  END_CPP11
+}
+// sirs.cpp
+SEXP dust_sirs_set_state(SEXP ptr, SEXP r_state, SEXP r_step);
+extern "C" SEXP _dust_dust_sirs_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sirs_set_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step)));
+  END_CPP11
+}
+// sirs.cpp
+SEXP dust_sirs_reset(SEXP ptr, cpp11::list r_pars, size_t step);
+extern "C" SEXP _dust_dust_sirs_reset(SEXP ptr, SEXP r_pars, SEXP step) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sirs_reset(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<size_t>>(step)));
+  END_CPP11
+}
+// sirs.cpp
+SEXP dust_sirs_state(SEXP ptr, SEXP r_index);
+extern "C" SEXP _dust_dust_sirs_state(SEXP ptr, SEXP r_index) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sirs_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_index)));
+  END_CPP11
+}
+// sirs.cpp
+size_t dust_sirs_step(SEXP ptr);
+extern "C" SEXP _dust_dust_sirs_step(SEXP ptr) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sirs_step(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
+  END_CPP11
+}
+// sirs.cpp
+void dust_sirs_reorder(SEXP ptr, cpp11::sexp r_index);
+extern "C" SEXP _dust_dust_sirs_reorder(SEXP ptr, SEXP r_index) {
+  BEGIN_CPP11
+    dust_sirs_reorder(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_index));
+    return R_NilValue;
+  END_CPP11
+}
+// sirs.cpp
+SEXP dust_sirs_resample(SEXP ptr, cpp11::doubles r_weights);
+extern "C" SEXP _dust_dust_sirs_resample(SEXP ptr, SEXP r_weights) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sirs_resample(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_weights)));
+  END_CPP11
+}
+// sirs.cpp
+SEXP dust_sirs_set_pars(SEXP ptr, cpp11::list r_pars);
+extern "C" SEXP _dust_dust_sirs_set_pars(SEXP ptr, SEXP r_pars) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sirs_set_pars(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars)));
+  END_CPP11
+}
+// sirs.cpp
+SEXP dust_sirs_rng_state(SEXP ptr, bool first_only, bool last_only);
+extern "C" SEXP _dust_dust_sirs_rng_state(SEXP ptr, SEXP first_only, SEXP last_only) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sirs_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(first_only), cpp11::as_cpp<cpp11::decay_t<bool>>(last_only)));
+  END_CPP11
+}
+// sirs.cpp
+SEXP dust_sirs_set_rng_state(SEXP ptr, cpp11::raws rng_state);
+extern "C" SEXP _dust_dust_sirs_set_rng_state(SEXP ptr, SEXP rng_state) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sirs_set_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::raws>>(rng_state)));
+  END_CPP11
+}
+// sirs.cpp
+SEXP dust_sirs_set_data(SEXP ptr, cpp11::list data);
+extern "C" SEXP _dust_dust_sirs_set_data(SEXP ptr, SEXP data) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sirs_set_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data)));
+  END_CPP11
+}
+// sirs.cpp
+SEXP dust_sirs_compare_data(SEXP ptr, bool device);
+extern "C" SEXP _dust_dust_sirs_compare_data(SEXP ptr, SEXP device) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sirs_compare_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(device)));
+  END_CPP11
+}
+// sirs.cpp
+SEXP dust_sirs_filter(SEXP ptr, bool save_trajectories, cpp11::sexp step_snapshot, bool device);
+extern "C" SEXP _dust_dust_sirs_filter(SEXP ptr, SEXP save_trajectories, SEXP step_snapshot, SEXP device) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sirs_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot), cpp11::as_cpp<cpp11::decay_t<bool>>(device)));
+  END_CPP11
+}
+// sirs.cpp
+cpp11::sexp dust_sirs_capabilities();
+extern "C" SEXP _dust_dust_sirs_capabilities() {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sirs_capabilities());
+  END_CPP11
+}
+// sirs.cpp
+void dust_sirs_set_n_threads(SEXP ptr, int n_threads);
+extern "C" SEXP _dust_dust_sirs_set_n_threads(SEXP ptr, SEXP n_threads) {
+  BEGIN_CPP11
+    dust_sirs_set_n_threads(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads));
+    return R_NilValue;
+  END_CPP11
+}
+// sirs.cpp
+int dust_sirs_n_state(SEXP ptr);
+extern "C" SEXP _dust_dust_sirs_n_state(SEXP ptr) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sirs_n_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
+  END_CPP11
+}
+// sirs.cpp
+cpp11::sexp dust_sirs_device_info();
+extern "C" SEXP _dust_dust_sirs_device_info() {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_sirs_device_info());
   END_CPP11
 }
 // tools.cpp
@@ -353,10 +495,10 @@ extern "C" SEXP _dust_dust_variable_set_pars(SEXP ptr, SEXP r_pars) {
   END_CPP11
 }
 // variable.cpp
-SEXP dust_variable_rng_state(SEXP ptr, bool first_only);
-extern "C" SEXP _dust_dust_variable_rng_state(SEXP ptr, SEXP first_only) {
+SEXP dust_variable_rng_state(SEXP ptr, bool first_only, bool last_only);
+extern "C" SEXP _dust_dust_variable_rng_state(SEXP ptr, SEXP first_only, SEXP last_only) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_variable_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(first_only)));
+    return cpp11::as_sexp(dust_variable_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(first_only), cpp11::as_cpp<cpp11::decay_t<bool>>(last_only)));
   END_CPP11
 }
 // variable.cpp
@@ -374,17 +516,17 @@ extern "C" SEXP _dust_dust_variable_set_data(SEXP ptr, SEXP data) {
   END_CPP11
 }
 // variable.cpp
-SEXP dust_variable_compare_data(SEXP ptr);
-extern "C" SEXP _dust_dust_variable_compare_data(SEXP ptr) {
+SEXP dust_variable_compare_data(SEXP ptr, bool device);
+extern "C" SEXP _dust_dust_variable_compare_data(SEXP ptr, SEXP device) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_variable_compare_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
+    return cpp11::as_sexp(dust_variable_compare_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(device)));
   END_CPP11
 }
 // variable.cpp
-SEXP dust_variable_filter(SEXP ptr, bool save_trajectories, cpp11::sexp step_snapshot);
-extern "C" SEXP _dust_dust_variable_filter(SEXP ptr, SEXP save_trajectories, SEXP step_snapshot) {
+SEXP dust_variable_filter(SEXP ptr, bool save_trajectories, cpp11::sexp step_snapshot, bool device);
+extern "C" SEXP _dust_dust_variable_filter(SEXP ptr, SEXP save_trajectories, SEXP step_snapshot, SEXP device) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_variable_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot)));
+    return cpp11::as_sexp(dust_variable_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot), cpp11::as_cpp<cpp11::decay_t<bool>>(device)));
   END_CPP11
 }
 // variable.cpp
@@ -495,10 +637,10 @@ extern "C" SEXP _dust_dust_volatility_set_pars(SEXP ptr, SEXP r_pars) {
   END_CPP11
 }
 // volatility.cpp
-SEXP dust_volatility_rng_state(SEXP ptr, bool first_only);
-extern "C" SEXP _dust_dust_volatility_rng_state(SEXP ptr, SEXP first_only) {
+SEXP dust_volatility_rng_state(SEXP ptr, bool first_only, bool last_only);
+extern "C" SEXP _dust_dust_volatility_rng_state(SEXP ptr, SEXP first_only, SEXP last_only) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_volatility_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(first_only)));
+    return cpp11::as_sexp(dust_volatility_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(first_only), cpp11::as_cpp<cpp11::decay_t<bool>>(last_only)));
   END_CPP11
 }
 // volatility.cpp
@@ -516,17 +658,17 @@ extern "C" SEXP _dust_dust_volatility_set_data(SEXP ptr, SEXP data) {
   END_CPP11
 }
 // volatility.cpp
-SEXP dust_volatility_compare_data(SEXP ptr);
-extern "C" SEXP _dust_dust_volatility_compare_data(SEXP ptr) {
+SEXP dust_volatility_compare_data(SEXP ptr, bool device);
+extern "C" SEXP _dust_dust_volatility_compare_data(SEXP ptr, SEXP device) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_volatility_compare_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
+    return cpp11::as_sexp(dust_volatility_compare_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(device)));
   END_CPP11
 }
 // volatility.cpp
-SEXP dust_volatility_filter(SEXP ptr, bool save_trajectories, cpp11::sexp step_snapshot);
-extern "C" SEXP _dust_dust_volatility_filter(SEXP ptr, SEXP save_trajectories, SEXP step_snapshot) {
+SEXP dust_volatility_filter(SEXP ptr, bool save_trajectories, cpp11::sexp step_snapshot, bool device);
+extern "C" SEXP _dust_dust_volatility_filter(SEXP ptr, SEXP save_trajectories, SEXP step_snapshot, SEXP device) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_volatility_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot)));
+    return cpp11::as_sexp(dust_volatility_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot), cpp11::as_cpp<cpp11::decay_t<bool>>(device)));
   END_CPP11
 }
 // volatility.cpp
@@ -637,10 +779,10 @@ extern "C" SEXP _dust_dust_walk_set_pars(SEXP ptr, SEXP r_pars) {
   END_CPP11
 }
 // walk.cpp
-SEXP dust_walk_rng_state(SEXP ptr, bool first_only);
-extern "C" SEXP _dust_dust_walk_rng_state(SEXP ptr, SEXP first_only) {
+SEXP dust_walk_rng_state(SEXP ptr, bool first_only, bool last_only);
+extern "C" SEXP _dust_dust_walk_rng_state(SEXP ptr, SEXP first_only, SEXP last_only) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_walk_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(first_only)));
+    return cpp11::as_sexp(dust_walk_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(first_only), cpp11::as_cpp<cpp11::decay_t<bool>>(last_only)));
   END_CPP11
 }
 // walk.cpp
@@ -658,17 +800,17 @@ extern "C" SEXP _dust_dust_walk_set_data(SEXP ptr, SEXP data) {
   END_CPP11
 }
 // walk.cpp
-SEXP dust_walk_compare_data(SEXP ptr);
-extern "C" SEXP _dust_dust_walk_compare_data(SEXP ptr) {
+SEXP dust_walk_compare_data(SEXP ptr, bool device);
+extern "C" SEXP _dust_dust_walk_compare_data(SEXP ptr, SEXP device) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_walk_compare_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
+    return cpp11::as_sexp(dust_walk_compare_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(device)));
   END_CPP11
 }
 // walk.cpp
-SEXP dust_walk_filter(SEXP ptr, bool save_trajectories, cpp11::sexp step_snapshot);
-extern "C" SEXP _dust_dust_walk_filter(SEXP ptr, SEXP save_trajectories, SEXP step_snapshot) {
+SEXP dust_walk_filter(SEXP ptr, bool save_trajectories, cpp11::sexp step_snapshot, bool device);
+extern "C" SEXP _dust_dust_walk_filter(SEXP ptr, SEXP save_trajectories, SEXP step_snapshot, SEXP device) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_walk_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot)));
+    return cpp11::as_sexp(dust_walk_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot), cpp11::as_cpp<cpp11::decay_t<bool>>(device)));
   END_CPP11
 }
 // walk.cpp
@@ -723,14 +865,14 @@ extern SEXP _dust_dust_rng_state(SEXP, SEXP);
 extern SEXP _dust_dust_rng_unif_rand(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_sir_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_sir_capabilities();
-extern SEXP _dust_dust_sir_compare_data(SEXP);
+extern SEXP _dust_dust_sir_compare_data(SEXP, SEXP);
 extern SEXP _dust_dust_sir_device_info();
-extern SEXP _dust_dust_sir_filter(SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_sir_filter(SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_sir_n_state(SEXP);
 extern SEXP _dust_dust_sir_reorder(SEXP, SEXP);
 extern SEXP _dust_dust_sir_resample(SEXP, SEXP);
 extern SEXP _dust_dust_sir_reset(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_sir_rng_state(SEXP, SEXP);
+extern SEXP _dust_dust_sir_rng_state(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_sir_run(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_sir_set_data(SEXP, SEXP);
 extern SEXP _dust_dust_sir_set_index(SEXP, SEXP);
@@ -741,16 +883,36 @@ extern SEXP _dust_dust_sir_set_state(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_sir_simulate(SEXP, SEXP);
 extern SEXP _dust_dust_sir_state(SEXP, SEXP);
 extern SEXP _dust_dust_sir_step(SEXP);
+extern SEXP _dust_dust_sirs_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_sirs_capabilities();
+extern SEXP _dust_dust_sirs_compare_data(SEXP, SEXP);
+extern SEXP _dust_dust_sirs_device_info();
+extern SEXP _dust_dust_sirs_filter(SEXP, SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_sirs_n_state(SEXP);
+extern SEXP _dust_dust_sirs_reorder(SEXP, SEXP);
+extern SEXP _dust_dust_sirs_resample(SEXP, SEXP);
+extern SEXP _dust_dust_sirs_reset(SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_sirs_rng_state(SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_sirs_run(SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_sirs_set_data(SEXP, SEXP);
+extern SEXP _dust_dust_sirs_set_index(SEXP, SEXP);
+extern SEXP _dust_dust_sirs_set_n_threads(SEXP, SEXP);
+extern SEXP _dust_dust_sirs_set_pars(SEXP, SEXP);
+extern SEXP _dust_dust_sirs_set_rng_state(SEXP, SEXP);
+extern SEXP _dust_dust_sirs_set_state(SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_sirs_simulate(SEXP, SEXP);
+extern SEXP _dust_dust_sirs_state(SEXP, SEXP);
+extern SEXP _dust_dust_sirs_step(SEXP);
 extern SEXP _dust_dust_variable_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_variable_capabilities();
-extern SEXP _dust_dust_variable_compare_data(SEXP);
+extern SEXP _dust_dust_variable_compare_data(SEXP, SEXP);
 extern SEXP _dust_dust_variable_device_info();
-extern SEXP _dust_dust_variable_filter(SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_variable_filter(SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_variable_n_state(SEXP);
 extern SEXP _dust_dust_variable_reorder(SEXP, SEXP);
 extern SEXP _dust_dust_variable_resample(SEXP, SEXP);
 extern SEXP _dust_dust_variable_reset(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_variable_rng_state(SEXP, SEXP);
+extern SEXP _dust_dust_variable_rng_state(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_variable_run(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_variable_set_data(SEXP, SEXP);
 extern SEXP _dust_dust_variable_set_index(SEXP, SEXP);
@@ -763,14 +925,14 @@ extern SEXP _dust_dust_variable_state(SEXP, SEXP);
 extern SEXP _dust_dust_variable_step(SEXP);
 extern SEXP _dust_dust_volatility_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_volatility_capabilities();
-extern SEXP _dust_dust_volatility_compare_data(SEXP);
+extern SEXP _dust_dust_volatility_compare_data(SEXP, SEXP);
 extern SEXP _dust_dust_volatility_device_info();
-extern SEXP _dust_dust_volatility_filter(SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_volatility_filter(SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_volatility_n_state(SEXP);
 extern SEXP _dust_dust_volatility_reorder(SEXP, SEXP);
 extern SEXP _dust_dust_volatility_resample(SEXP, SEXP);
 extern SEXP _dust_dust_volatility_reset(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_volatility_rng_state(SEXP, SEXP);
+extern SEXP _dust_dust_volatility_rng_state(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_volatility_run(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_volatility_set_data(SEXP, SEXP);
 extern SEXP _dust_dust_volatility_set_index(SEXP, SEXP);
@@ -783,14 +945,14 @@ extern SEXP _dust_dust_volatility_state(SEXP, SEXP);
 extern SEXP _dust_dust_volatility_step(SEXP);
 extern SEXP _dust_dust_walk_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_walk_capabilities();
-extern SEXP _dust_dust_walk_compare_data(SEXP);
+extern SEXP _dust_dust_walk_compare_data(SEXP, SEXP);
 extern SEXP _dust_dust_walk_device_info();
-extern SEXP _dust_dust_walk_filter(SEXP, SEXP, SEXP);
+extern SEXP _dust_dust_walk_filter(SEXP, SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_walk_n_state(SEXP);
 extern SEXP _dust_dust_walk_reorder(SEXP, SEXP);
 extern SEXP _dust_dust_walk_resample(SEXP, SEXP);
 extern SEXP _dust_dust_walk_reset(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_walk_rng_state(SEXP, SEXP);
+extern SEXP _dust_dust_walk_rng_state(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_walk_run(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_walk_set_data(SEXP, SEXP);
 extern SEXP _dust_dust_walk_set_index(SEXP, SEXP);
@@ -823,14 +985,14 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_rng_unif_rand",            (DL_FUNC) &_dust_dust_rng_unif_rand,            3},
     {"_dust_dust_sir_alloc",                (DL_FUNC) &_dust_dust_sir_alloc,                7},
     {"_dust_dust_sir_capabilities",         (DL_FUNC) &_dust_dust_sir_capabilities,         0},
-    {"_dust_dust_sir_compare_data",         (DL_FUNC) &_dust_dust_sir_compare_data,         1},
+    {"_dust_dust_sir_compare_data",         (DL_FUNC) &_dust_dust_sir_compare_data,         2},
     {"_dust_dust_sir_device_info",          (DL_FUNC) &_dust_dust_sir_device_info,          0},
-    {"_dust_dust_sir_filter",               (DL_FUNC) &_dust_dust_sir_filter,               3},
+    {"_dust_dust_sir_filter",               (DL_FUNC) &_dust_dust_sir_filter,               4},
     {"_dust_dust_sir_n_state",              (DL_FUNC) &_dust_dust_sir_n_state,              1},
     {"_dust_dust_sir_reorder",              (DL_FUNC) &_dust_dust_sir_reorder,              2},
     {"_dust_dust_sir_resample",             (DL_FUNC) &_dust_dust_sir_resample,             2},
     {"_dust_dust_sir_reset",                (DL_FUNC) &_dust_dust_sir_reset,                3},
-    {"_dust_dust_sir_rng_state",            (DL_FUNC) &_dust_dust_sir_rng_state,            2},
+    {"_dust_dust_sir_rng_state",            (DL_FUNC) &_dust_dust_sir_rng_state,            3},
     {"_dust_dust_sir_run",                  (DL_FUNC) &_dust_dust_sir_run,                  3},
     {"_dust_dust_sir_set_data",             (DL_FUNC) &_dust_dust_sir_set_data,             2},
     {"_dust_dust_sir_set_index",            (DL_FUNC) &_dust_dust_sir_set_index,            2},
@@ -841,16 +1003,36 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_sir_simulate",             (DL_FUNC) &_dust_dust_sir_simulate,             2},
     {"_dust_dust_sir_state",                (DL_FUNC) &_dust_dust_sir_state,                2},
     {"_dust_dust_sir_step",                 (DL_FUNC) &_dust_dust_sir_step,                 1},
+    {"_dust_dust_sirs_alloc",               (DL_FUNC) &_dust_dust_sirs_alloc,               7},
+    {"_dust_dust_sirs_capabilities",        (DL_FUNC) &_dust_dust_sirs_capabilities,        0},
+    {"_dust_dust_sirs_compare_data",        (DL_FUNC) &_dust_dust_sirs_compare_data,        2},
+    {"_dust_dust_sirs_device_info",         (DL_FUNC) &_dust_dust_sirs_device_info,         0},
+    {"_dust_dust_sirs_filter",              (DL_FUNC) &_dust_dust_sirs_filter,              4},
+    {"_dust_dust_sirs_n_state",             (DL_FUNC) &_dust_dust_sirs_n_state,             1},
+    {"_dust_dust_sirs_reorder",             (DL_FUNC) &_dust_dust_sirs_reorder,             2},
+    {"_dust_dust_sirs_resample",            (DL_FUNC) &_dust_dust_sirs_resample,            2},
+    {"_dust_dust_sirs_reset",               (DL_FUNC) &_dust_dust_sirs_reset,               3},
+    {"_dust_dust_sirs_rng_state",           (DL_FUNC) &_dust_dust_sirs_rng_state,           3},
+    {"_dust_dust_sirs_run",                 (DL_FUNC) &_dust_dust_sirs_run,                 3},
+    {"_dust_dust_sirs_set_data",            (DL_FUNC) &_dust_dust_sirs_set_data,            2},
+    {"_dust_dust_sirs_set_index",           (DL_FUNC) &_dust_dust_sirs_set_index,           2},
+    {"_dust_dust_sirs_set_n_threads",       (DL_FUNC) &_dust_dust_sirs_set_n_threads,       2},
+    {"_dust_dust_sirs_set_pars",            (DL_FUNC) &_dust_dust_sirs_set_pars,            2},
+    {"_dust_dust_sirs_set_rng_state",       (DL_FUNC) &_dust_dust_sirs_set_rng_state,       2},
+    {"_dust_dust_sirs_set_state",           (DL_FUNC) &_dust_dust_sirs_set_state,           3},
+    {"_dust_dust_sirs_simulate",            (DL_FUNC) &_dust_dust_sirs_simulate,            2},
+    {"_dust_dust_sirs_state",               (DL_FUNC) &_dust_dust_sirs_state,               2},
+    {"_dust_dust_sirs_step",                (DL_FUNC) &_dust_dust_sirs_step,                1},
     {"_dust_dust_variable_alloc",           (DL_FUNC) &_dust_dust_variable_alloc,           7},
     {"_dust_dust_variable_capabilities",    (DL_FUNC) &_dust_dust_variable_capabilities,    0},
-    {"_dust_dust_variable_compare_data",    (DL_FUNC) &_dust_dust_variable_compare_data,    1},
+    {"_dust_dust_variable_compare_data",    (DL_FUNC) &_dust_dust_variable_compare_data,    2},
     {"_dust_dust_variable_device_info",     (DL_FUNC) &_dust_dust_variable_device_info,     0},
-    {"_dust_dust_variable_filter",          (DL_FUNC) &_dust_dust_variable_filter,          3},
+    {"_dust_dust_variable_filter",          (DL_FUNC) &_dust_dust_variable_filter,          4},
     {"_dust_dust_variable_n_state",         (DL_FUNC) &_dust_dust_variable_n_state,         1},
     {"_dust_dust_variable_reorder",         (DL_FUNC) &_dust_dust_variable_reorder,         2},
     {"_dust_dust_variable_resample",        (DL_FUNC) &_dust_dust_variable_resample,        2},
     {"_dust_dust_variable_reset",           (DL_FUNC) &_dust_dust_variable_reset,           3},
-    {"_dust_dust_variable_rng_state",       (DL_FUNC) &_dust_dust_variable_rng_state,       2},
+    {"_dust_dust_variable_rng_state",       (DL_FUNC) &_dust_dust_variable_rng_state,       3},
     {"_dust_dust_variable_run",             (DL_FUNC) &_dust_dust_variable_run,             3},
     {"_dust_dust_variable_set_data",        (DL_FUNC) &_dust_dust_variable_set_data,        2},
     {"_dust_dust_variable_set_index",       (DL_FUNC) &_dust_dust_variable_set_index,       2},
@@ -863,14 +1045,14 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_variable_step",            (DL_FUNC) &_dust_dust_variable_step,            1},
     {"_dust_dust_volatility_alloc",         (DL_FUNC) &_dust_dust_volatility_alloc,         7},
     {"_dust_dust_volatility_capabilities",  (DL_FUNC) &_dust_dust_volatility_capabilities,  0},
-    {"_dust_dust_volatility_compare_data",  (DL_FUNC) &_dust_dust_volatility_compare_data,  1},
+    {"_dust_dust_volatility_compare_data",  (DL_FUNC) &_dust_dust_volatility_compare_data,  2},
     {"_dust_dust_volatility_device_info",   (DL_FUNC) &_dust_dust_volatility_device_info,   0},
-    {"_dust_dust_volatility_filter",        (DL_FUNC) &_dust_dust_volatility_filter,        3},
+    {"_dust_dust_volatility_filter",        (DL_FUNC) &_dust_dust_volatility_filter,        4},
     {"_dust_dust_volatility_n_state",       (DL_FUNC) &_dust_dust_volatility_n_state,       1},
     {"_dust_dust_volatility_reorder",       (DL_FUNC) &_dust_dust_volatility_reorder,       2},
     {"_dust_dust_volatility_resample",      (DL_FUNC) &_dust_dust_volatility_resample,      2},
     {"_dust_dust_volatility_reset",         (DL_FUNC) &_dust_dust_volatility_reset,         3},
-    {"_dust_dust_volatility_rng_state",     (DL_FUNC) &_dust_dust_volatility_rng_state,     2},
+    {"_dust_dust_volatility_rng_state",     (DL_FUNC) &_dust_dust_volatility_rng_state,     3},
     {"_dust_dust_volatility_run",           (DL_FUNC) &_dust_dust_volatility_run,           3},
     {"_dust_dust_volatility_set_data",      (DL_FUNC) &_dust_dust_volatility_set_data,      2},
     {"_dust_dust_volatility_set_index",     (DL_FUNC) &_dust_dust_volatility_set_index,     2},
@@ -883,14 +1065,14 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_volatility_step",          (DL_FUNC) &_dust_dust_volatility_step,          1},
     {"_dust_dust_walk_alloc",               (DL_FUNC) &_dust_dust_walk_alloc,               7},
     {"_dust_dust_walk_capabilities",        (DL_FUNC) &_dust_dust_walk_capabilities,        0},
-    {"_dust_dust_walk_compare_data",        (DL_FUNC) &_dust_dust_walk_compare_data,        1},
+    {"_dust_dust_walk_compare_data",        (DL_FUNC) &_dust_dust_walk_compare_data,        2},
     {"_dust_dust_walk_device_info",         (DL_FUNC) &_dust_dust_walk_device_info,         0},
-    {"_dust_dust_walk_filter",              (DL_FUNC) &_dust_dust_walk_filter,              3},
+    {"_dust_dust_walk_filter",              (DL_FUNC) &_dust_dust_walk_filter,              4},
     {"_dust_dust_walk_n_state",             (DL_FUNC) &_dust_dust_walk_n_state,             1},
     {"_dust_dust_walk_reorder",             (DL_FUNC) &_dust_dust_walk_reorder,             2},
     {"_dust_dust_walk_resample",            (DL_FUNC) &_dust_dust_walk_resample,            2},
     {"_dust_dust_walk_reset",               (DL_FUNC) &_dust_dust_walk_reset,               3},
-    {"_dust_dust_walk_rng_state",           (DL_FUNC) &_dust_dust_walk_rng_state,           2},
+    {"_dust_dust_walk_rng_state",           (DL_FUNC) &_dust_dust_walk_rng_state,           3},
     {"_dust_dust_walk_run",                 (DL_FUNC) &_dust_dust_walk_run,                 3},
     {"_dust_dust_walk_set_data",            (DL_FUNC) &_dust_dust_walk_set_data,            2},
     {"_dust_dust_walk_set_index",           (DL_FUNC) &_dust_dust_walk_set_index,           2},

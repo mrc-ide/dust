@@ -52,8 +52,8 @@ SEXP dust_{{name}}_set_pars(SEXP ptr, cpp11::list r_pars) {
   return dust::r::dust_set_pars<{{class}}>(ptr, r_pars);
 }
 
-SEXP dust_{{name}}_rng_state(SEXP ptr, bool first_only) {
-  return dust::r::dust_rng_state<{{class}}>(ptr, first_only);
+SEXP dust_{{name}}_rng_state(SEXP ptr, bool first_only, bool last_only) {
+  return dust::r::dust_rng_state<{{class}}>(ptr, first_only, last_only);
 }
 
 SEXP dust_{{name}}_set_rng_state(SEXP ptr, cpp11::raws rng_state) {
@@ -66,13 +66,14 @@ SEXP dust_{{name}}_set_data(SEXP ptr, cpp11::list data) {
   return R_NilValue;
 }
 
-SEXP dust_{{name}}_compare_data(SEXP ptr) {
-  return dust::r::dust_compare_data<{{class}}>(ptr);
+SEXP dust_{{name}}_compare_data(SEXP ptr, bool device) {
+  return dust::r::dust_compare_data<{{class}}>(ptr, device);
 }
 
 SEXP dust_{{name}}_filter(SEXP ptr, bool save_trajectories,
-                          cpp11::sexp step_snapshot) {
-  return dust::r::dust_filter<{{class}}>(ptr, save_trajectories, step_snapshot);
+                          cpp11::sexp step_snapshot,
+                          bool device) {
+  return dust::r::dust_filter<{{class}}>(ptr, save_trajectories, step_snapshot, device);
 }
 
 cpp11::sexp dust_{{name}}_capabilities() {

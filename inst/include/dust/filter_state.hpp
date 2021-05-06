@@ -1,37 +1,21 @@
 #ifndef DUST_FILTER_STATE_HPP
 #define DUST_FILTER_STATE_HPP
 
+#include <cstddef>
+
 namespace dust {
 namespace filter {
 
-// The first issue is that we need real names for these things. One is
-// the indexed state that we store over all time - these are
-// "trajectories". The other all state at a few times - these are
-// "snapshots"
 template <typename real_t>
 class filter_trajectories {
 public:
   filter_trajectories() {
   }
 
-  void resize(size_t n_state, size_t n_particles, size_t n_data) {
-    n_state_ = n_state;
-    n_particles_ = n_particles;
-    n_data_ = n_data;
-    offset_ = 0;
-    history_value.resize(n_state_ * n_particles_ * (n_data_ + 1));
-    history_order.resize(n_particles_ * (n_data_ + 1));
-    for (size_t i = 0; i < n_particles_; ++i) {
-      history_order[i] = i;
-    }
-  }
+  virtual size_t size() const = 0; // Pure virtual
 
-  typename std::vector<real_t>::iterator value_iterator() {
-    return history_value.begin() + offset_ * n_state_ * n_particles_;
-  }
-
-  typename std::vector<size_t>::iterator order_iterator() {
-    return history_order.begin() + offset_ * n_particles_;
+  void advance() {
+    offset_++;
   }
 
   std::vector<real_t> history() const {
@@ -60,16 +44,18 @@ public:
   //
   // Note that we treat history_order and history_value as read-only
   // though this process so one could safely call this multiple times.
-  template <typename Iterator>
-  void history(Iterator ret) const {
+  template <typename OutIt, typename RealIt, typename IntIt>
+  void particle_ancestry(OutIt ret,
+                         const RealIt value_begin,
+                         const IntIt order_begin) const {
     std::vector<size_t> index_particle(n_particles_);
     for (size_t i = 0; i < n_particles_; ++i) {
       index_particle[i] = i;
     }
     for (size_t k = 0; k < n_data_ + 1; ++k) {
       size_t i = n_data_ - k;
-      auto const it_order = history_order.begin() + i * n_particles_;
-      auto const it_value = history_value.begin() + i * n_state_ * n_particles_;
+      auto const it_order = order_begin + i * n_particles_;
+      auto const it_value = value_begin + i * n_state_ * n_particles_;
       auto it_ret = ret + i * n_state_ * n_particles_;
       for (size_t j = 0; j < n_particles_; ++j) {
         const size_t idx = *(it_order + index_particle[j]);
@@ -80,23 +66,127 @@ public:
     }
   }
 
-  size_t size() const {
-    return history_value.size();
-  }
-
-  void advance() {
-    offset_++;
-  }
-
-private:
+protected:
   size_t n_state_;
   size_t n_particles_;
   size_t n_data_;
   size_t offset_;
-  size_t len_;
+};
+
+// The first issue is that we need real names for these things. One is
+// the indexed state that we store over all time - these are
+// "trajectories". The other all state at a few times - these are
+// "snapshots"
+template <typename real_t>
+class filter_trajectories_host : public filter_trajectories<real_t> {
+public:
+  filter_trajectories_host() {
+  }
+
+  void resize(size_t n_state, size_t n_particles, size_t n_data) {
+    this->n_state_ = n_state;
+    this->n_particles_ = n_particles;
+    this->n_data_ = n_data;
+    this->offset_ = 0;
+    history_value.resize(this->n_state_ * this->n_particles_ * (this->n_data_ + 1));
+    history_order.resize(this->n_particles_ * (this->n_data_ + 1));
+    for (size_t i = 0; i < this->n_particles_; ++i) {
+      history_order[i] = i;
+    }
+  }
+
+  size_t size() const {
+    return history_value.size();
+  }
+
+  typename std::vector<real_t>::iterator value_iterator() {
+    return history_value.begin() + this->offset_ * this->n_state_ * this->n_particles_;
+  }
+
+  typename std::vector<size_t>::iterator order_iterator() {
+    return history_order.begin() + this->offset_ * this->n_particles_;
+  }
+
+  template <typename Iterator>
+  void history(Iterator ret) const {
+    this->particle_ancestry(ret, history_value.cbegin(), history_order.cbegin());
+  }
+
+private:
   std::vector<real_t> history_value;
   std::vector<size_t> history_order;
-  std::vector<real_t> state_value;
+};
+
+template <typename real_t>
+class filter_trajectories_device : public filter_trajectories<real_t> {
+public:
+  filter_trajectories_device() {
+  }
+
+  void resize(size_t n_state, size_t n_particles, size_t n_data) {
+    this->n_state_ = n_state;
+    this->n_particles_ = n_particles;
+    this->n_data_ = n_data;
+    this->offset_ = 0;
+    history_value = dust::device_array<real_t>(this->n_state_ * this->n_particles_ * (this->n_data_ + 1));
+    history_order = dust::device_array<size_t>(this->n_particles_ * (this->n_data_ + 1));
+    std::vector<size_t> index_init(this->n_particles_);
+    std::iota(index_init.begin(), index_init.end(), 0);
+    history_order.set_array(index_init);
+  }
+
+  size_t size() const {
+    return history_value.size();
+  }
+
+  size_t value_offset() {
+    return this->offset_ * this->n_state_ * this->n_particles_;
+  }
+
+  size_t order_offset() {
+    return this->offset_ * this->n_particles_;
+  }
+
+  dust::device_array<real_t> &values() {
+    return history_value;
+  }
+
+  dust::device_array<size_t> &order() {
+    return history_order;
+  }
+
+  template <typename Iterator>
+  void history(Iterator ret) const {
+    std::vector<real_t> host_history = destride_history();
+    std::vector<size_t> host_order(this->n_particles_ * (this->n_data_ + 1));
+    history_order.get_array(host_order);
+    this->particle_ancestry(ret, host_history.cbegin(), host_order.cbegin());
+  }
+
+private:
+  dust::device_array<real_t> history_value;
+  dust::device_array<size_t> history_order;
+
+  std::vector<real_t> destride_history() const {
+    // Copy H->D
+    std::vector<real_t> history_host(size());
+    std::vector<real_t> destride_history(size());
+    history_value.get_array(history_host);
+    // Destride and copy into iterator
+    // TODO openmp here?
+    for (size_t i = 0; i < this->n_data_ + 1; ++i) {
+      for (size_t j = 0; j < this->n_particles_; ++j) {
+        for (size_t k = 0; k < this->n_state_; ++k) {
+          destride_history[i * (this->n_particles_ * this->n_state_) +
+                           j * this->n_state_ +
+                           k] = history_host[i * (this->n_particles_ * this->n_state_) +
+                                             j +
+                                             k * (this->n_particles_)];
+        }
+      }
+    }
+    return destride_history;
+  }
 };
 
 template <typename real_t>
@@ -105,29 +195,43 @@ public:
   filter_snapshots() {
   }
 
-  void resize(size_t n_state, size_t n_particles, std::vector<size_t> steps) {
-    n_state_ = n_state;
-    n_particles_ = n_particles;
-    n_steps_ = steps.size();
-    offset_ = 0;
-    steps_ = steps;
-    state_.resize(n_state_ * n_particles_ * n_steps_);
-  }
-
   bool is_snapshot_step(size_t step) {
     return offset_ < n_steps_ && steps_[offset_] == step;
-  }
-
-  typename std::vector<real_t>::iterator value_iterator() {
-    return state_.begin() + offset_ * n_state_ * n_particles_;
   }
 
   void advance() {
     offset_++;
   }
 
+protected:
+  size_t n_state_;
+  size_t n_particles_;
+  size_t n_steps_;
+  size_t offset_;
+  std::vector<size_t> steps_;
+};
+
+template <typename real_t>
+class filter_snapshots_host : public filter_snapshots<real_t> {
+public:
+  filter_snapshots_host() {
+  }
+
+  void resize(size_t n_state, size_t n_particles, std::vector<size_t> steps) {
+    this->n_state_ = n_state;
+    this->n_particles_ = n_particles;
+    this->n_steps_ = steps.size();
+    this->offset_ = 0;
+    this->steps_ = steps;
+    state_.resize(this->n_state_ * this->n_particles_ * this->n_steps_);
+  }
+
   size_t size() const {
     return state_.size();
+  }
+
+  typename std::vector<real_t>::iterator value_iterator() {
+    return state_.begin() + this->offset_ * this->n_state_ * this->n_particles_;
   }
 
   template <typename Iterator>
@@ -136,18 +240,71 @@ public:
   }
 
 private:
-  size_t n_state_;
-  size_t n_particles_;
-  size_t n_steps_;
-  size_t offset_;
-  std::vector<size_t> steps_;
   std::vector<real_t> state_;
 };
 
 template <typename real_t>
-struct filter_state {
-  filter_trajectories<real_t> trajectories;
-  filter_snapshots<real_t> snapshots;
+class filter_snapshots_device : public filter_snapshots<real_t> {
+public:
+  filter_snapshots_device() {
+  }
+
+  void resize(size_t n_state, size_t n_particles, std::vector<size_t> steps) {
+    this->n_state_ = n_state;
+    this->n_particles_ = n_particles;
+    this->n_steps_ = steps.size();
+    this->offset_ = 0;
+    this->steps_ = steps;
+    state_ = dust::device_array<real_t>(this->n_state_ * this->n_particles_ * this->n_steps_);
+  }
+
+  size_t size() const {
+    return state_.size();
+  }
+
+  dust::device_array<real_t> &state() {
+    return state_;
+  }
+
+  size_t value_offset() {
+    return this->offset_ * this->n_state_ * this->n_particles_;
+  }
+
+  template <typename Iterator>
+  void history(Iterator dest) const {
+    // Copy from D->H
+    std::vector<real_t> state_host(size());
+    state_.get_array(state_host);
+    // Destride and copy into iterator
+    // TODO: openmp here? collapse(2)
+    for (size_t i = 0; i < this->n_steps_; ++i) {
+      for (size_t j = 0; j < this->n_particles_; ++j) {
+        for (size_t k = 0; k < this->n_state_; ++k) {
+          *(dest +
+            i * (this->n_particles_ * this->n_state_) +
+            j * this->n_state_ +
+            k) = state_host[i * (this->n_particles_ * this->n_state_) +
+                            j +
+                            k * (this->n_particles_)];
+        }
+      }
+    }
+  }
+
+private:
+  dust::device_array<real_t> state_;
+};
+
+template <typename real_t>
+struct filter_state_host {
+  filter_trajectories_host<real_t> trajectories;
+  filter_snapshots_host<real_t> snapshots;
+};
+
+template <typename real_t>
+struct filter_state_device {
+  filter_trajectories_device<real_t> trajectories;
+  filter_snapshots_device<real_t> snapshots;
 };
 
 }

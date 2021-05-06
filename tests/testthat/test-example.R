@@ -517,7 +517,7 @@ test_that("resample", {
   obj <- res$new(list(len = 5), 0, 7, seed = 1L)
   m <- matrix(as.numeric(1:35), 5, 7)
   obj$set_state(m)
-  rng <- dust_rng$new(obj$rng_state(TRUE))
+  rng <- dust_rng$new(obj$rng_state(last_only = TRUE))
   u <- rng$unif_rand(1)
   w <- runif(obj$n_particles())
 
@@ -532,7 +532,7 @@ test_that("resample error cases", {
   obj <- res$new(list(len = 5), 0, 7, seed = 1L)
   m <- matrix(as.numeric(1:35), 5, 7)
   obj$set_state(m)
-  rng <- dust_rng$new(obj$rng_state(TRUE))
+  rng <- dust_rng$new(obj$rng_state(last_only = TRUE))
   u <- rng$unif_rand(1)
   w <- runif(obj$n_particles())
 

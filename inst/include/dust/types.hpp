@@ -5,6 +5,8 @@
 #include <sstream>
 #include <vector>
 
+#include <dust/filter_kernels.hpp>
+
 namespace dust {
 
 struct nothing {};
@@ -45,9 +47,35 @@ struct pars_t {
   }
 };
 
+// Parameters for CUDA kernel launches
+struct cuda_launch {
+  size_t run_blockSize;
+  size_t run_blockCount;
+  size_t run_shared_size_bytes;
+  bool run_L1;
+
+  size_t compare_blockSize;
+  size_t compare_blockCount;
+  size_t compare_shared_size_bytes;
+  bool compare_L1;
+
+  size_t reorder_blockSize;
+  size_t reorder_blockCount;
+
+  size_t scatter_blockSize;
+  size_t scatter_blockCount;
+
+  size_t index_scatter_blockSize;
+  size_t index_scatter_blockCount;
+
+  size_t interval_blockSize;
+  size_t interval_blockCount;
+};
+
 template <typename real_t>
 struct device_state {
-  void initialise(size_t n_particles, size_t n_state, size_t n_shared_len_,
+  void initialise(size_t n_particles, size_t n_state, size_t n_pars,
+                  size_t n_shared_len_,
                   size_t n_internal_int, size_t n_internal_real,
                   size_t n_shared_int_, size_t n_shared_real_) {
     n_shared_len = n_shared_len_;
@@ -56,7 +84,6 @@ struct device_state {
     const size_t n_rng = dust::rng_state_t<real_t>::size();
     y = dust::device_array<real_t>(n_state * n_particles);
     y_next = dust::device_array<real_t>(n_state * n_particles);
-    y_selected = dust::device_array<real_t>(n_state * n_particles);
     internal_int = dust::device_array<int>(n_internal_int * n_particles);
     internal_real = dust::device_array<real_t>(n_internal_real * n_particles);
     shared_int = dust::device_array<int>(n_shared_int * n_shared_len);
@@ -65,12 +92,16 @@ struct device_state {
     index = dust::device_array<char>(n_state * n_particles);
     n_selected = dust::device_array<int>(1);
     scatter_index = dust::device_array<size_t>(n_particles);
+    compare_res = dust::device_array<real_t>(n_particles);
+    resample_u = dust::device_array<real_t>(n_pars);
     set_cub_tmp();
   }
   void swap() {
     std::swap(y, y_next);
   }
-  // TODO - use GPU templates
+  void swap_selected() {
+    std::swap(y_selected, y_selected_swap);
+  }
   void set_cub_tmp() {
 #ifdef __NVCC__
     // Free the array before running cub function below
@@ -86,6 +117,31 @@ struct device_state {
     select_tmp.set_size(tmp_bytes);
 #endif
   }
+  void set_device_index(const std::vector<size_t>& host_index,
+                        const size_t n_particles,
+                        const size_t n_state_full) {
+    const size_t n_state = host_index.size();
+    y_selected = dust::device_array<real_t>(n_state * n_particles);
+    y_selected_swap = dust::device_array<real_t>(n_state * n_particles);
+
+    // e.g. 4 particles with 3 states ABC stored on device as
+    // [1_A, 2_A, 3_A, 4_A, 1_B, 2_B, 3_B, 4_B, 1_C, 2_C, 3_C, 4_C]
+    // e.g. index [1, 3] would be
+    // [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1] bool index on interleaved state
+    // i.e. initialise to zero and copy 1 np times, at each offset given in
+    // index
+    std::vector<char> bool_idx(n_state_full * n_particles, 0);
+    for (auto idx_pos = host_index.cbegin(); idx_pos != host_index.cend(); idx_pos++) {
+      std::fill_n(bool_idx.begin() + (*idx_pos * n_particles), n_particles, 1);
+    }
+    index.set_array(bool_idx);
+
+    std::vector<size_t> index_scatter = dust::utils::sort_indexes(host_index);
+    index_state_scatter = dust::device_array<size_t>(n_state);
+    index_state_scatter.set_array(index_scatter);
+
+    set_cub_tmp();
+  }
 
   size_t n_shared_len;
   size_t n_shared_int;
@@ -93,15 +149,216 @@ struct device_state {
   dust::device_array<real_t> y;
   dust::device_array<real_t> y_next;
   dust::device_array<real_t> y_selected;
+  dust::device_array<real_t> y_selected_swap;
   dust::device_array<int> internal_int;
   dust::device_array<real_t> internal_real;
   dust::device_array<int> shared_int;
   dust::device_array<real_t> shared_real;
   dust::device_array<uint64_t> rng;
   dust::device_array<char> index;
+  dust::device_array<size_t> index_state_scatter;
   dust::device_array<int> n_selected;
   dust::device_array<void> select_tmp;
   dust::device_array<size_t> scatter_index;
+  dust::device_array<real_t> compare_res;
+  dust::device_array<real_t> resample_u;
+};
+
+template <typename real_t>
+struct device_scan_state {
+  void initialise(const size_t n_particles,
+                  dust::device_array<real_t>& weights) {
+    cum_weights = dust::device_array<real_t>(n_particles);
+    set_cub_tmp(weights);
+  }
+
+  void set_cub_tmp(dust::device_array<real_t>& weights) {
+#ifdef __NVCC__
+    tmp_bytes = 0;
+    scan_tmp.set_size(tmp_bytes);
+    cub::DeviceScan::InclusiveSum(scan_tmp.data(),
+                                  tmp_bytes,
+                                  weights.data(),
+                                  cum_weights.data(),
+                                  cum_weights.size());
+    scan_tmp.set_size(tmp_bytes);
+#endif
+  }
+
+  size_t tmp_bytes;
+  dust::device_array<real_t> cum_weights;
+  dust::device_array<void> scan_tmp;
+};
+
+template <typename real_t>
+class device_weights {
+public:
+  device_weights(const size_t n_particles, const size_t n_pars)
+    : n_particles_(n_particles), n_pars_(n_pars),
+      n_particles_each_(n_particles_ / n_pars_),
+      exp_blockSize(128),
+      exp_blockCount((n_particles_ + exp_blockSize - 1) / exp_blockSize),
+      weight_blockSize(64),
+      weight_blockCount((n_pars + weight_blockSize - 1) / weight_blockSize) {
+  // Set up storage
+  weights_ = dust::device_array<real_t>(n_particles_);
+  cum_weights_ = dust::device_array<real_t>(n_particles_);
+  weights_max_ = dust::device_array<real_t>(n_pars_);
+  log_likelihood_step_ = dust::device_array<real_t>(n_pars_);
+
+  pars_offsets_ = dust::device_array<int>(n_pars_ + 1);
+  std::vector<int> offsets(n_pars_ + 1);
+  for (size_t i = 0; i < n_pars + 1; ++i) {
+    offsets[i] = i * n_particles_each_;
+  }
+  pars_offsets_.set_array(offsets);
+
+  // Allocate memory for cub
+#ifdef __NVCC__
+  if (n_pars_ > 1) {
+    cub::DeviceSegmentedReduce::Max(max_tmp_.data(),
+                                    max_tmp_bytes,
+                                    weights_.data(),
+                                    weights_max_.data(),
+                                    n_pars_,
+                                    pars_offsets_.data(),
+                                    pars_offsets_.data() + 1);
+  } else {
+    cub::DeviceReduce::Max(max_tmp_.data(),
+                            max_tmp_bytes,
+                            weights_.data(),
+                            weights_max_.data(),
+                            n_particles_);
+  }
+  max_tmp_.set_size(max_tmp_bytes);
+
+  if (n_pars_ > 1) {
+    cub::DeviceSegmentedReduce::Sum(sum_tmp_.data(),
+                                    sum_tmp_bytes,
+                                    weights_.data(),
+                                    log_likelihood_step_.data(),
+                                    n_pars_,
+                                    pars_offsets_.data(),
+                                    pars_offsets_.data() + 1);
+  } else {
+    cub::DeviceReduce::Sum(sum_tmp_.data(),
+                            sum_tmp_bytes,
+                            weights_.data(),
+                            log_likelihood_step_.data(),
+                            n_particles_);
+  }
+  sum_tmp_.set_size(sum_tmp_bytes);
+#endif
+  }
+
+  // CUDA version of log-sum-exp trick
+  void scale_log_weights(dust::device_array<real_t>& log_likelihood) {
+#ifdef __NVCC__
+    // Scale log-weights. First calculate the max
+    if (n_pars_ > 1) {
+      cub::DeviceSegmentedReduce::Max(max_tmp_.data(),
+                                      max_tmp_bytes,
+                                      weights_.data(),
+                                      weights_max_.data(),
+                                      n_pars_,
+                                      pars_offsets_.data(),
+                                      pars_offsets_.data() + 1);
+    } else {
+      cub::DeviceReduce::Max(max_tmp_.data(),
+                             max_tmp_bytes,
+                             weights_.data(),
+                             weights_max_.data(),
+                             n_particles_);
+    }
+    CUDA_CALL(cudaDeviceSynchronize());
+    // Then exp
+    dust::exp_weights<real_t><<<exp_blockCount, exp_blockSize>>>(
+      n_particles_,
+      n_pars_,
+      weights_.data(),
+      weights_max_.data()
+    );
+    CUDA_CALL(cudaDeviceSynchronize());
+    // Then sum
+    if (n_pars_ > 1) {
+      cub::DeviceSegmentedReduce::Sum(sum_tmp_.data(),
+                                      sum_tmp_bytes,
+                                      weights_.data(),
+                                      log_likelihood_step_.data(),
+                                      n_pars_,
+                                      pars_offsets_.data(),
+                                      pars_offsets_.data() + 1);
+    } else {
+      cub::DeviceReduce::Sum(sum_tmp_.data(),
+                             sum_tmp_bytes,
+                             weights_.data(),
+                             log_likelihood_step_.data(),
+                             n_particles_);
+    }
+    CUDA_CALL(cudaDeviceSynchronize());
+    // Finally log and add max
+    dust::weight_log_likelihood<real_t><<<weight_blockCount, weight_blockSize>>>(
+      n_pars_,
+      n_particles_each_,
+      log_likelihood.data(),
+      log_likelihood_step_.data(),
+      weights_max_.data()
+    );
+    CUDA_CALL(cudaDeviceSynchronize());
+#else
+    std::vector<real_t> max_w(n_pars_, -dust::utils::infinity<real_t>());
+    std::vector<real_t> host_w(n_particles_);
+    weights_.get_array(host_w);
+    for (size_t i = 0; i < n_pars_; ++i) {
+      for (size_t j = 0; j < n_particles_each_; j++) {
+        max_w[i] = std::max(host_w[i * n_particles_each_ + j], max_w[i]);
+      }
+    }
+    weights_max_.set_array(max_w);
+    dust::exp_weights<real_t>(
+      n_particles_,
+      n_pars_,
+      weights_.data(),
+      weights_max_.data()
+    );
+    std::vector<real_t> sum_w(n_pars_, 0);
+    weights_.get_array(host_w);
+    for (size_t i = 0; i < n_pars_; ++i) {
+      for (size_t j = 0; j < n_particles_each_; j++) {
+        sum_w[i] += host_w[i * n_particles_each_ + j];
+      }
+    }
+    log_likelihood_step_.set_array(sum_w);
+    dust::weight_log_likelihood<real_t>(
+      n_pars_,
+      n_particles_each_,
+      log_likelihood.data(),
+      log_likelihood_step_.data(),
+      weights_max_.data()
+    );
+#endif
+  }
+
+  dust::device_array<real_t>& weights() {
+    return weights_;
+  }
+
+private:
+  size_t n_particles_;
+  size_t n_pars_;
+  size_t n_particles_each_;
+
+  const size_t exp_blockSize, exp_blockCount;
+  const size_t weight_blockSize, weight_blockCount;
+
+  size_t max_tmp_bytes, sum_tmp_bytes;
+  dust::device_array<real_t> weights_;
+  dust::device_array<real_t> cum_weights_;
+  dust::device_array<real_t> weights_max_;
+  dust::device_array<real_t> log_likelihood_step_;
+  dust::device_array<int> pars_offsets_;
+  dust::device_array<void> max_tmp_;
+  dust::device_array<void> sum_tmp_;
 };
 
 // We need to compute the size of space required for integers and
@@ -148,6 +405,13 @@ T* shared_copy(T* dest, const T src) {
   *dest = src;
   return dest + 1;
 }
+
+template <typename T>
+struct device_ptrs {
+  const int * shared_int;
+  const typename T::real_t * shared_real;
+  const typename T::data_t * data;
+};
 
 class openmp_errors {
 public:

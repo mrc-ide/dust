@@ -269,16 +269,18 @@ dust_class <- R6::R6Class(
     ##' @description
     ##' Returns the state of the random number generator. This returns a
     ##' raw vector of length 32 * n_particles. This can be useful for
-    ##' debugging or for initialising other dust objects.
+    ##' debugging or for initialising other dust objects. The arguments
+    ##' `first_only` and `last_only` are mutally exclusive. If neither is
+    ##' given then all all particles states are returned, being 32 bytes
+    ##' per particle. The full returned state or `first_only` are most
+    ##' suitable for reseeding a new dust object.
     ##'
     ##' @param first_only Logical, indicating if we should return only the
-    ##' *first* particle's random number state. If `FALSE` (the default)
-    ##' all particles states are returned, being 32 bytes per particle.
-    ##' If `TRUE` then we take just the first particle's state, which
-    ##' will be a total of 32 bytes. Both forms are suitable for seeding
-    ##' a new [`dust`] object as the shorter version will be used for
-    ##' the first particle, followed by jumps for each subsequent particle.
-    rng_state = function(first_only = FALSE) {
+    ##'   first random number state
+    ##'
+    ##' @param last_only Logical, indicating if we should return only the
+    ##' *last* random number state, which does not belong to a particle.
+    rng_state = function(first_only = FALSE, last_only = FALSE) {
     },
 
     ##' @description Set the random number state for this model. This
@@ -360,7 +362,16 @@ dust_class <- R6::R6Class(
     ##' the same length as the number of particles is returned. If model's
     ##' underlying `compare_data` function is stochastic, then each call to
     ##' this function may be result in a different answer.
-    compare_data = function() {
+    ##'
+    ##' @param device **Experimental!**: This argument may allow running on
+    ##' a GPU once support is finished, if the model supports it, and if
+    ##' the model is compiled appropriately (and assuming you have a
+    ##' suitable GPU). At present it exists for testing and will run
+    ##' slower than running with `device = FALSE`. The interpretation of
+    ##' this argument will likely change to allow selecting the GPU on
+    ##' systems with more than one. In short, please leave this argument
+    ##' alone unless you're developing dust.
+    compare_data = function(device = FALSE) {
     },
 
     ##' @description
@@ -381,7 +392,17 @@ dust_class <- R6::R6Class(
     ##' match steps given in the `data` object. The return value with be
     ##' a multidimensional array (`state x <shape> x step_snapshot`)
     ##' containing full state values at the requested steps.
-    filter = function(save_trajectories = FALSE, step_snapshot = NULL) {
+    ##'
+    ##' @param device **Experimental!**: This argument may allow running on
+    ##' a GPU once support is finished, if the model supports it, and if
+    ##' the model is compiled appropriately (and assuming you have a
+    ##' suitable GPU). At present it exists for testing and will run
+    ##' slower than running with `device = FALSE`. The interpretation of
+    ##' this argument will likely change to allow selecting the GPU on
+    ##' systems with more than one. In short, please leave this argument
+    ##' alone unless you're developing dust.
+    filter = function(save_trajectories = FALSE, step_snapshot = NULL,
+                      device = FALSE) {
     },
 
     ##' @description

@@ -45,10 +45,12 @@ public:
 
   // Copy
   device_array(const device_array& other) : size_(other.size_) {
-#ifdef __NVC__
+#ifdef __NVCC__
+    CUDA_CALL(cudaMalloc((void**)&data_, size_ * sizeof(T)));
     CUDA_CALL(cudaMemcpy(data_, other.data_, size_ * sizeof(T),
                          cudaMemcpyDefault));
 #else
+    data_ = new T[size_];
     std::memcpy(data_, other.data_, size_ * sizeof(T));
 #endif
   }
@@ -103,20 +105,49 @@ public:
 #endif
   }
 
-  void get_array(std::vector<T>& dst) const {
+  void get_array(std::vector<T>& dst, const bool async = false) const {
 #ifdef __NVCC__
-    CUDA_CALL(cudaMemcpy(dst.data(), data_, dst.size() * sizeof(T),
-                         cudaMemcpyDefault));
+    if (async) {
+      CUDA_CALL(cudaMemcpyAsync(dst.data(), data_, dst.size() * sizeof(T),
+                          cudaMemcpyDefault));
+    } else {
+      CUDA_CALL(cudaMemcpy(dst.data(), data_, dst.size() * sizeof(T),
+                          cudaMemcpyDefault));
+    }
 #else
     std::memcpy(dst.data(), data_, dst.size() * sizeof(T));
 #endif
   }
 
-  void set_array(const std::vector<T>& src) {
+  // General method to set the device array, allowing src to be written
+  // into the device data_ array starting at dst_offset
+  void set_array(const T* src, const size_t src_size,
+                 const size_t dst_offset, const bool async = false) {
+#ifdef __NVCC__
+    if (async) {
+      CUDA_CALL(cudaMemcpyAsync(data_ + dst_offset, src,
+                          src_size * sizeof(T), cudaMemcpyDefault));
+    } else {
+      CUDA_CALL(cudaMemcpy(data_ + dst_offset, src,
+                          src_size * sizeof(T), cudaMemcpyDefault));
+    }
+#else
+    std::memcpy(data_ + dst_offset, src, src_size * sizeof(T));
+#endif
+  }
+
+  // Specialised form to set the device array, writing all of src into
+  // the device data_
+  void set_array(const std::vector<T>& src, const bool async = false) {
     size_ = src.size();
 #ifdef __NVCC__
-    CUDA_CALL(cudaMemcpy(data_, src.data(), size_ * sizeof(T),
-                         cudaMemcpyDefault));
+    if (async) {
+      CUDA_CALL(cudaMemcpyAsync(data_, src.data(), size_ * sizeof(T),
+                          cudaMemcpyDefault));
+    } else {
+      CUDA_CALL(cudaMemcpy(data_, src.data(), size_ * sizeof(T),
+                          cudaMemcpyDefault));
+    }
 #else
     std::memcpy(data_, src.data(), size_ * sizeof(T));
 #endif

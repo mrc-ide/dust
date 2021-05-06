@@ -316,13 +316,18 @@ SEXP dust_resample(SEXP ptr, cpp11::doubles r_weights) {
 }
 
 template <typename T>
-SEXP dust_rng_state(SEXP ptr, bool first_only) {
+SEXP dust_rng_state(SEXP ptr, bool first_only, bool last_only) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   auto state = obj->rng_state();
-  size_t n = first_only ? dust::rng_state_t<double>::size() : state.size();
+  if (first_only && last_only) {
+    cpp11::stop("Only one of 'first_only' or 'last_only' may be TRUE");
+  }
+  size_t n = (first_only || last_only) ?
+    dust::rng_state_t<double>::size() : state.size();
+  size_t rng_offset = last_only ? obj->n_particles() * n : 0;
   size_t len = sizeof(uint64_t) * n;
   cpp11::writable::raws ret(len);
-  std::memcpy(RAW(ret), state.data(), len);
+  std::memcpy(RAW(ret), state.data() + rng_offset, len);
   return ret;
 }
 
@@ -374,10 +379,17 @@ void dust_set_data(SEXP ptr, cpp11::list r_data) {
 }
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
-cpp11::sexp dust_compare_data(SEXP ptr) {
+cpp11::sexp dust_compare_data(SEXP ptr, bool device) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
-  std::vector<typename T::real_t> ret = obj->compare_data();
+
+  std::vector<typename T::real_t> ret;
+  if (device) {
+    ret = obj->compare_data_device();
+  } else {
+    ret = obj->compare_data();
+  }
+
   if (ret.size() == 0) {
     return R_NilValue;
   }
@@ -391,9 +403,53 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
   return ret_r;
 }
 
+template <typename filter_state, typename T>
+cpp11::sexp save_trajectories(const filter_state& trajectories,
+                              const Dust<T> *obj) {
+  cpp11::writable::doubles trajectories_data(trajectories.size());
+  trajectories.history(REAL(trajectories_data));
+  trajectories_data.attr("dim") =
+    dust::interface::state_array_dim(obj->n_state(), obj->shape(),
+                                      obj->n_data() + 1);
+  cpp11::sexp r_trajectories = trajectories_data;
+  return(r_trajectories);
+}
+
+template <typename filter_state, typename T>
+cpp11::sexp save_snapshots(const filter_state& snapshots, const Dust<T> *obj,
+                           const std::vector<size_t>& step_snapshot) {
+  cpp11::writable::doubles snapshots_data(snapshots.size());
+  snapshots.history(REAL(snapshots_data));
+  snapshots_data.attr("dim") =
+    dust::interface::state_array_dim(obj->n_state_full(), obj->shape(),
+                                     step_snapshot.size());
+  cpp11::sexp r_snapshots = snapshots_data;
+  return(r_snapshots);
+}
+
+template <typename T, typename state_t>
+cpp11::writable::doubles run_filter(Dust<T> * obj,
+                                    cpp11::sexp& r_trajectories,
+                                    cpp11::sexp& r_snapshots,
+                                    std::vector<size_t>& step_snapshot,
+                                    bool save_trajectories) {
+  state_t filter_state;
+  cpp11::writable::doubles log_likelihood =
+    dust::filter::filter(obj, filter_state,
+                         save_trajectories, step_snapshot);
+  if (save_trajectories) {
+    r_trajectories = dust::r::save_trajectories(filter_state.trajectories, obj);
+  }
+  if (!step_snapshot.empty()) {
+    r_snapshots = dust::r::save_snapshots(filter_state.snapshots, obj, step_snapshot);
+  }
+  return log_likelihood;
+}
+
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
-                        cpp11::sexp r_step_snapshot) {
+                        cpp11::sexp r_step_snapshot,
+                        bool device) {
   typedef typename T::real_t real_t;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
@@ -402,34 +458,17 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
     cpp11::stop("Data has not been set for this object");
   }
 
-  dust::filter::filter_state<real_t> filter_state;
-
   std::vector<size_t> step_snapshot =
-    dust::interface::check_step_snapshot(r_step_snapshot, obj->data());
-  cpp11::writable::doubles
-    log_likelihood(dust::filter::filter(obj, filter_state,
-                                        save_trajectories, step_snapshot));
+      dust::interface::check_step_snapshot(r_step_snapshot, obj->data());
 
+  cpp11::writable::doubles log_likelihood;
   cpp11::sexp r_trajectories, r_snapshots;
-
-  if (save_trajectories) {
-    const auto& trajectories = filter_state.trajectories;
-    cpp11::writable::doubles trajectories_data(trajectories.size());
-    trajectories.history(REAL(trajectories_data));
-    trajectories_data.attr("dim") =
-      dust::interface::state_array_dim(obj->n_state(), obj->shape(),
-                                       obj->n_data() + 1);
-    r_trajectories = trajectories_data;
-  }
-
-  if (r_step_snapshot != R_NilValue) {
-    const auto& snapshots = filter_state.snapshots;
-    cpp11::writable::doubles snapshots_data(snapshots.size());
-    snapshots.history(REAL(snapshots_data));
-    snapshots_data.attr("dim") =
-      dust::interface::state_array_dim(obj->n_state_full(), obj->shape(),
-                                       step_snapshot.size());
-    r_snapshots = snapshots_data;
+  if (device) {
+    log_likelihood = run_filter<T, dust::filter::filter_state_device<real_t>>
+                      (obj, r_trajectories, r_snapshots, step_snapshot, save_trajectories);
+  } else {
+    log_likelihood = run_filter<T, dust::filter::filter_state_host<real_t>>
+                      (obj, r_trajectories, r_snapshots, step_snapshot, save_trajectories);
   }
 
   using namespace cpp11::literals;
@@ -452,14 +491,14 @@ void dust_set_data(SEXP ptr, cpp11::list r_data) {
 }
 
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
-cpp11::sexp dust_compare_data(SEXP ptr) {
+cpp11::sexp dust_compare_data(SEXP ptr, bool device) {
   disable_method("compare_data");
   return R_NilValue; // #nocov never gets here
 }
 
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
 cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
-                        cpp11::sexp step_snapshot) {
+                        cpp11::sexp step_snapshot, bool device) {
   disable_method("filter");
   return R_NilValue; // #nocov never gets here
 }
