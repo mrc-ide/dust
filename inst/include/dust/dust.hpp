@@ -13,6 +13,7 @@
 
 #include <dust/rng.hpp>
 #include <dust/densities.hpp>
+#include <dust/filter_state.hpp>
 #include <dust/filter_tools.hpp>
 #include <dust/types.hpp>
 #include <dust/utils.hpp>
@@ -251,6 +252,31 @@ public:
       }
     }
     errors_.report();
+    return ret;
+  }
+
+  template <typename U = T>
+  typename std::enable_if<!dust::has_gpu_support<U>::value, std::vector<real_t>>::type
+  simulate_device(const std::vector<size_t>& step_end) {
+    throw std::invalid_argument("GPU support not enabled for this object");
+  }
+
+  template <typename U = T>
+  typename std::enable_if<dust::has_gpu_support<U>::value, std::vector<real_t>>::type
+  simulate_device(const std::vector<size_t>& step_end) {
+    const size_t n_time = step_end.size();
+    // The filter snapshot class can be used to store the indexed state
+    // (implements async copy, swap space, and deinterleaving)
+    // Filter trajctories not used as we don't need order here
+    dust::filter::filter_snapshots_device<real_t> state_store;
+    state_store.resize(n_state(), n_particles(), step_end);
+    for (size_t t = 0; t < n_time; ++t) {
+      run_device(step_end[t]);
+      state_store.store(device_state_selected());
+      state_store.advance();
+    }
+    std::vector<real_t> ret(n_state() * n_particles() * n_time);
+    state_store.history(ret.data());
     return ret;
   }
 

@@ -45,6 +45,9 @@ test_that("Raise suitable errors if models do not support GPU", {
   expect_error(
     mod$run(10, TRUE),
     "GPU support not enabled for this object")
+  expect_error(
+    mod$simulate(10, TRUE),
+    "GPU support not enabled for this object")
 
   dat <- example_filter()
   mod <- dat$model$new(list(), 0, 100, seed = 10L)
@@ -464,6 +467,20 @@ test_that("Can use sirs gpu model", {
     mod2$run(15, TRUE))
 })
 
+test_that("Can simulate sirs gpu model", {
+  res <- dust_example("sirs")
+
+  steps <- seq(0, 100, by = 10)
+  np <- 20
+  mod_d <- res$new(list(), 0, np, seed = 1L, device_id = 0L)
+  mod_d$set_index(c(1, 3))
+  y <- mod_d$simulate(steps, TRUE)
+  expect_equal(dim(y), c(2, np, length(steps)))
+
+  mod_h <- res$new(list(), 0, np, seed = 1L)
+  expect_identical(mod_h$simulate(steps)[c(1, 3), , , drop = FALSE], y)
+})
+
 test_that("Missing GPU comparison function errors", {
   dat <- example_volatility()
   gen <- dust_example("volatility")
@@ -560,10 +577,12 @@ test_that("Can run multiple particle filters on the GPU", {
 })
 
 
-test_that("can run with nontrivial index", {
+test_that("Can run and simulate with nontrivial index", {
   np <- 100
   len <- 20
   gen <- dust_example("variable")
+
+  # Test run
   mod1 <- gen$new(list(len = len), 0, np, seed = 1L)
   mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_id = 0L)
 
@@ -578,4 +597,18 @@ test_that("can run with nontrivial index", {
   expect_identical(
     mod1$run(13),
     mod2$run(13, TRUE))
+
+  # Test simulate
+  steps <- seq(0, 100, by = 10)
+
+  mod3 <- gen$new(list(len = len), 0, np, seed = 1L)
+  mod4 <- gen$new(list(len = len), 0, np, seed = 1L, device_id = 0L)
+  mod3$set_index(index)
+  mod4$set_index(index)
+
+  y3 <- mod3$simulate(steps)
+  y4 <- mod4$simulate(steps, TRUE)
+
+  expect_equal(dim(y3), c(length(index), np, length(steps)))
+  expect_identical(y3, y4)
 })

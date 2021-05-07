@@ -1,3 +1,7 @@
+# dust 0.9.2
+
+* Add a CUDA version of the `simulate` method.
+
 # dust 0.9.1
 
 * Move history and snapshot saving out of VRAM, and make it asynchronous.

@@ -140,10 +140,10 @@ extern "C" SEXP _dust_dust_sir_run(SEXP ptr, SEXP step_end, SEXP device) {
   END_CPP11
 }
 // sir.cpp
-SEXP dust_sir_simulate(SEXP ptr, cpp11::sexp step_end);
-extern "C" SEXP _dust_dust_sir_simulate(SEXP ptr, SEXP step_end) {
+SEXP dust_sir_simulate(SEXP ptr, cpp11::sexp step_end, bool device);
+extern "C" SEXP _dust_dust_sir_simulate(SEXP ptr, SEXP step_end, SEXP device) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_sir_simulate(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_end)));
+    return cpp11::as_sexp(dust_sir_simulate(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_end), cpp11::as_cpp<cpp11::decay_t<bool>>(device)));
   END_CPP11
 }
 // sir.cpp
@@ -282,10 +282,10 @@ extern "C" SEXP _dust_dust_sirs_run(SEXP ptr, SEXP step_end, SEXP device) {
   END_CPP11
 }
 // sirs.cpp
-SEXP dust_sirs_simulate(SEXP ptr, cpp11::sexp step_end);
-extern "C" SEXP _dust_dust_sirs_simulate(SEXP ptr, SEXP step_end) {
+SEXP dust_sirs_simulate(SEXP ptr, cpp11::sexp step_end, bool device);
+extern "C" SEXP _dust_dust_sirs_simulate(SEXP ptr, SEXP step_end, SEXP device) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_sirs_simulate(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_end)));
+    return cpp11::as_sexp(dust_sirs_simulate(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_end), cpp11::as_cpp<cpp11::decay_t<bool>>(device)));
   END_CPP11
 }
 // sirs.cpp
@@ -431,10 +431,10 @@ extern "C" SEXP _dust_dust_variable_run(SEXP ptr, SEXP step_end, SEXP device) {
   END_CPP11
 }
 // variable.cpp
-SEXP dust_variable_simulate(SEXP ptr, cpp11::sexp step_end);
-extern "C" SEXP _dust_dust_variable_simulate(SEXP ptr, SEXP step_end) {
+SEXP dust_variable_simulate(SEXP ptr, cpp11::sexp step_end, bool device);
+extern "C" SEXP _dust_dust_variable_simulate(SEXP ptr, SEXP step_end, SEXP device) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_variable_simulate(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_end)));
+    return cpp11::as_sexp(dust_variable_simulate(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_end), cpp11::as_cpp<cpp11::decay_t<bool>>(device)));
   END_CPP11
 }
 // variable.cpp
@@ -573,10 +573,10 @@ extern "C" SEXP _dust_dust_volatility_run(SEXP ptr, SEXP step_end, SEXP device) 
   END_CPP11
 }
 // volatility.cpp
-SEXP dust_volatility_simulate(SEXP ptr, cpp11::sexp step_end);
-extern "C" SEXP _dust_dust_volatility_simulate(SEXP ptr, SEXP step_end) {
+SEXP dust_volatility_simulate(SEXP ptr, cpp11::sexp step_end, bool device);
+extern "C" SEXP _dust_dust_volatility_simulate(SEXP ptr, SEXP step_end, SEXP device) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_volatility_simulate(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_end)));
+    return cpp11::as_sexp(dust_volatility_simulate(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_end), cpp11::as_cpp<cpp11::decay_t<bool>>(device)));
   END_CPP11
 }
 // volatility.cpp
@@ -715,10 +715,10 @@ extern "C" SEXP _dust_dust_walk_run(SEXP ptr, SEXP step_end, SEXP device) {
   END_CPP11
 }
 // walk.cpp
-SEXP dust_walk_simulate(SEXP ptr, cpp11::sexp step_end);
-extern "C" SEXP _dust_dust_walk_simulate(SEXP ptr, SEXP step_end) {
+SEXP dust_walk_simulate(SEXP ptr, cpp11::sexp step_end, bool device);
+extern "C" SEXP _dust_dust_walk_simulate(SEXP ptr, SEXP step_end, SEXP device) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_walk_simulate(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_end)));
+    return cpp11::as_sexp(dust_walk_simulate(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_end), cpp11::as_cpp<cpp11::decay_t<bool>>(device)));
   END_CPP11
 }
 // walk.cpp
@@ -880,7 +880,7 @@ extern SEXP _dust_dust_sir_set_n_threads(SEXP, SEXP);
 extern SEXP _dust_dust_sir_set_pars(SEXP, SEXP);
 extern SEXP _dust_dust_sir_set_rng_state(SEXP, SEXP);
 extern SEXP _dust_dust_sir_set_state(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_sir_simulate(SEXP, SEXP);
+extern SEXP _dust_dust_sir_simulate(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_sir_state(SEXP, SEXP);
 extern SEXP _dust_dust_sir_step(SEXP);
 extern SEXP _dust_dust_sirs_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
@@ -900,7 +900,7 @@ extern SEXP _dust_dust_sirs_set_n_threads(SEXP, SEXP);
 extern SEXP _dust_dust_sirs_set_pars(SEXP, SEXP);
 extern SEXP _dust_dust_sirs_set_rng_state(SEXP, SEXP);
 extern SEXP _dust_dust_sirs_set_state(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_sirs_simulate(SEXP, SEXP);
+extern SEXP _dust_dust_sirs_simulate(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_sirs_state(SEXP, SEXP);
 extern SEXP _dust_dust_sirs_step(SEXP);
 extern SEXP _dust_dust_variable_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
@@ -920,7 +920,7 @@ extern SEXP _dust_dust_variable_set_n_threads(SEXP, SEXP);
 extern SEXP _dust_dust_variable_set_pars(SEXP, SEXP);
 extern SEXP _dust_dust_variable_set_rng_state(SEXP, SEXP);
 extern SEXP _dust_dust_variable_set_state(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_variable_simulate(SEXP, SEXP);
+extern SEXP _dust_dust_variable_simulate(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_variable_state(SEXP, SEXP);
 extern SEXP _dust_dust_variable_step(SEXP);
 extern SEXP _dust_dust_volatility_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
@@ -940,7 +940,7 @@ extern SEXP _dust_dust_volatility_set_n_threads(SEXP, SEXP);
 extern SEXP _dust_dust_volatility_set_pars(SEXP, SEXP);
 extern SEXP _dust_dust_volatility_set_rng_state(SEXP, SEXP);
 extern SEXP _dust_dust_volatility_set_state(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_volatility_simulate(SEXP, SEXP);
+extern SEXP _dust_dust_volatility_simulate(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_volatility_state(SEXP, SEXP);
 extern SEXP _dust_dust_volatility_step(SEXP);
 extern SEXP _dust_dust_walk_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
@@ -960,7 +960,7 @@ extern SEXP _dust_dust_walk_set_n_threads(SEXP, SEXP);
 extern SEXP _dust_dust_walk_set_pars(SEXP, SEXP);
 extern SEXP _dust_dust_walk_set_rng_state(SEXP, SEXP);
 extern SEXP _dust_dust_walk_set_state(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_walk_simulate(SEXP, SEXP);
+extern SEXP _dust_dust_walk_simulate(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_walk_state(SEXP, SEXP);
 extern SEXP _dust_dust_walk_step(SEXP);
 
@@ -1000,7 +1000,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_sir_set_pars",             (DL_FUNC) &_dust_dust_sir_set_pars,             2},
     {"_dust_dust_sir_set_rng_state",        (DL_FUNC) &_dust_dust_sir_set_rng_state,        2},
     {"_dust_dust_sir_set_state",            (DL_FUNC) &_dust_dust_sir_set_state,            3},
-    {"_dust_dust_sir_simulate",             (DL_FUNC) &_dust_dust_sir_simulate,             2},
+    {"_dust_dust_sir_simulate",             (DL_FUNC) &_dust_dust_sir_simulate,             3},
     {"_dust_dust_sir_state",                (DL_FUNC) &_dust_dust_sir_state,                2},
     {"_dust_dust_sir_step",                 (DL_FUNC) &_dust_dust_sir_step,                 1},
     {"_dust_dust_sirs_alloc",               (DL_FUNC) &_dust_dust_sirs_alloc,               7},
@@ -1020,7 +1020,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_sirs_set_pars",            (DL_FUNC) &_dust_dust_sirs_set_pars,            2},
     {"_dust_dust_sirs_set_rng_state",       (DL_FUNC) &_dust_dust_sirs_set_rng_state,       2},
     {"_dust_dust_sirs_set_state",           (DL_FUNC) &_dust_dust_sirs_set_state,           3},
-    {"_dust_dust_sirs_simulate",            (DL_FUNC) &_dust_dust_sirs_simulate,            2},
+    {"_dust_dust_sirs_simulate",            (DL_FUNC) &_dust_dust_sirs_simulate,            3},
     {"_dust_dust_sirs_state",               (DL_FUNC) &_dust_dust_sirs_state,               2},
     {"_dust_dust_sirs_step",                (DL_FUNC) &_dust_dust_sirs_step,                1},
     {"_dust_dust_variable_alloc",           (DL_FUNC) &_dust_dust_variable_alloc,           7},
@@ -1040,7 +1040,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_variable_set_pars",        (DL_FUNC) &_dust_dust_variable_set_pars,        2},
     {"_dust_dust_variable_set_rng_state",   (DL_FUNC) &_dust_dust_variable_set_rng_state,   2},
     {"_dust_dust_variable_set_state",       (DL_FUNC) &_dust_dust_variable_set_state,       3},
-    {"_dust_dust_variable_simulate",        (DL_FUNC) &_dust_dust_variable_simulate,        2},
+    {"_dust_dust_variable_simulate",        (DL_FUNC) &_dust_dust_variable_simulate,        3},
     {"_dust_dust_variable_state",           (DL_FUNC) &_dust_dust_variable_state,           2},
     {"_dust_dust_variable_step",            (DL_FUNC) &_dust_dust_variable_step,            1},
     {"_dust_dust_volatility_alloc",         (DL_FUNC) &_dust_dust_volatility_alloc,         7},
@@ -1060,7 +1060,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_volatility_set_pars",      (DL_FUNC) &_dust_dust_volatility_set_pars,      2},
     {"_dust_dust_volatility_set_rng_state", (DL_FUNC) &_dust_dust_volatility_set_rng_state, 2},
     {"_dust_dust_volatility_set_state",     (DL_FUNC) &_dust_dust_volatility_set_state,     3},
-    {"_dust_dust_volatility_simulate",      (DL_FUNC) &_dust_dust_volatility_simulate,      2},
+    {"_dust_dust_volatility_simulate",      (DL_FUNC) &_dust_dust_volatility_simulate,      3},
     {"_dust_dust_volatility_state",         (DL_FUNC) &_dust_dust_volatility_state,         2},
     {"_dust_dust_volatility_step",          (DL_FUNC) &_dust_dust_volatility_step,          1},
     {"_dust_dust_walk_alloc",               (DL_FUNC) &_dust_dust_walk_alloc,               7},
@@ -1080,7 +1080,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_walk_set_pars",            (DL_FUNC) &_dust_dust_walk_set_pars,            2},
     {"_dust_dust_walk_set_rng_state",       (DL_FUNC) &_dust_dust_walk_set_rng_state,       2},
     {"_dust_dust_walk_set_state",           (DL_FUNC) &_dust_dust_walk_set_state,           3},
-    {"_dust_dust_walk_simulate",            (DL_FUNC) &_dust_dust_walk_simulate,            2},
+    {"_dust_dust_walk_simulate",            (DL_FUNC) &_dust_dust_walk_simulate,            3},
     {"_dust_dust_walk_state",               (DL_FUNC) &_dust_dust_walk_state,               2},
     {"_dust_dust_walk_step",                (DL_FUNC) &_dust_dust_walk_step,                1},
     {NULL, NULL, 0}

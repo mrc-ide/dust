@@ -168,7 +168,7 @@ cpp11::sexp dust_run(SEXP ptr, int step_end, bool device) {
 }
 
 template <typename T>
-cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end) {
+cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end, bool device) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
   const std::vector<size_t> step_end =
@@ -187,7 +187,12 @@ cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end) {
     }
   }
 
-  std::vector<typename T::real_t> dat = obj->simulate(step_end);
+  std::vector<typename T::real_t> dat;
+  if (device) {
+     dat = obj->simulate_device(step_end);
+  } else {
+     dat = obj->simulate(step_end);
+  }
   return dust::interface::state_array(dat, obj->n_state(), obj->shape(),
                                       n_time);
 }
