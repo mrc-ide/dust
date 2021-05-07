@@ -609,6 +609,6 @@ test_that("Can run and simulate with nontrivial index", {
   y3 <- mod3$simulate(steps)
   y4 <- mod4$simulate(steps, TRUE)
 
-  expect_equal(dim(y), c(length(index), np, length(steps)))
+  expect_equal(dim(y3), c(length(index), np, length(steps)))
   expect_identical(y3, y4)
 })
