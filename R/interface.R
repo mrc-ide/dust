@@ -168,6 +168,16 @@
 ##'   use of the `__syncwarp()` primitive this may require a GPU with
 ##'   compute version 70 or higher.
 ##'
+##' @param real_t Optionally, a string indicating a substitute type to
+##'   swap in for your model's `real_t` declaration. If given, then we
+##'   replace the string `typedef (double|float) real_t` with the
+##'   given type. This is primarily intended to be used as `gpu =
+##'   TRUE, real_t = "float"` in order to create model for the GPU
+##'   that will use 32 bit `floats` (rather than 64 bit doubles, which
+##'   are much slower). For CPU models decreasing precision of your
+##'   real type will typically just decrease precision for no
+##'   additional performance.
+##'
 ##' @seealso [dust_class] for a description of the class of created
 ##'   objects, and [dust::dust_example()] for some pre-built examples.
 ##'
@@ -208,8 +218,12 @@
 ##'
 ##' # See the state again
 ##' obj$state()
-dust <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE) {
+dust <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
+                 real_t = NULL) {
   assert_file_exists(filename)
+  if (!is.null(real_t)) {
+    filename <- dust_rewrite_real(filename, real_t)
+  }
   compile_and_load(filename, quiet, workdir, cuda_check(gpu))
 }
 
@@ -239,6 +253,20 @@ dust_workdir <- function(path) {
     }
   }
   path
+}
+
+
+dust_rewrite_real <- function(filename, real_t) {
+  dest <- tempfile(fileext = ".cpp")
+  re <- "^(\\s*typedef\\s+)([_a-zA-Z0-9]+)(\\s+real_t.*)"
+  code <- readLines(filename)
+  i <- grep(re, code)
+  if (length(i) == 0) {
+    stop(sprintf("did not find real_t declaration in '%s'", filename))
+  }
+  code[i] <- sub(re, sprintf("\\1%s\\3", real_t), code[i])
+  writeLines(code, dest)
+  dest
 }
 
 

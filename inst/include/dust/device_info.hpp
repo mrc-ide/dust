@@ -2,6 +2,7 @@
 #define DUST_DEVICE_INFO_HPP
 
 #include <vector>
+#include <climits>
 
 #include <cpp11/integers.hpp>
 #include <cpp11/doubles.hpp>
@@ -22,6 +23,16 @@ inline int devices_count() {
   }
 #endif
   return device_count;
+}
+
+template <typename T>
+constexpr size_t sizeof_real_t() {
+  return sizeof(typename T::real_t);
+}
+
+template <>
+constexpr inline size_t sizeof_real_t<void>() {
+  return 0;
 }
 
 template <typename T>
@@ -67,9 +78,13 @@ cpp11::sexp device_info() {
     "version"_nm = version
     });
 
+  cpp11::writable::integers real_bits =
+    cpp11::as_sexp(sizeof_real_t<T>() * CHAR_BIT);
+
   return cpp11::writable::list({"has_cuda"_nm = has_cuda,
                                 "cuda_version"_nm = cuda_version,
-                                "devices"_nm = devices});
+                                "devices"_nm = devices,
+                                "real_bits"_nm = real_bits});
 }
 
 }

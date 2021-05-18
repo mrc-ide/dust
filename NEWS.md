@@ -1,3 +1,7 @@
+# dust 0.9.3
+
+* Change `real_t` at compilation, and return information about the size of `real_t` from model objects (#233)
+
 # dust 0.9.2
 
 * Add a CUDA version of the `simulate` method.

@@ -183,7 +183,7 @@ the returned array is one less. For a scalar \code{step_end} you would
 ordinarily want to use \verb{$run()} but the resulting numbers would
 be identical.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$simulate(step_end)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$simulate(step_end, device = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -194,6 +194,15 @@ report output at. This the first time must be at least the same
 as the current time, and every subsequent time must be equal or
 greater than those before it (ties are allowed though probably
 not wanted).}
+
+\item{\code{device}}{\strong{Experimental!}: This argument may allow running on
+a GPU once support is finished, if the model supports it, and if
+the model is compiled appropriately (and assuming you have a
+suitable GPU). At present it exists for testing and will run
+slower than running with \code{device = TRUE}. The interpretation of
+this argument will likely change to allow selecting the GPU on
+systems with more than one. In short, please leave this argument
+alone unless you're developing dust.}
 }
 \if{html}{\out{</div>}}
 }
@@ -445,21 +454,23 @@ Returns the \code{pars} object that your model was constructed with.
 \subsection{Method \code{rng_state()}}{
 Returns the state of the random number generator. This returns a
 raw vector of length 32 * n_particles. This can be useful for
-debugging or for initialising other dust objects.
+debugging or for initialising other dust objects. The arguments
+\code{first_only} and \code{last_only} are mutally exclusive. If neither is
+given then all all particles states are returned, being 32 bytes
+per particle. The full returned state or \code{first_only} are most
+suitable for reseeding a new dust object.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$rng_state(first_only = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$rng_state(first_only = FALSE, last_only = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{first_only}}{Logical, indicating if we should return only the
-\emph{first} particle's random number state. If \code{FALSE} (the default)
-all particles states are returned, being 32 bytes per particle.
-If \code{TRUE} then we take just the first particle's state, which
-will be a total of 32 bytes. Both forms are suitable for seeding
-a new \code{\link{dust}} object as the shorter version will be used for
-the first particle, followed by jumps for each subsequent particle.}
+first random number state}
+
+\item{\code{last_only}}{Logical, indicating if we should return only the
+\emph{last} random number state, which does not belong to a particle.}
 }
 \if{html}{\out{</div>}}
 }
@@ -598,9 +609,23 @@ the same length as the number of particles is returned. If model's
 underlying \code{compare_data} function is stochastic, then each call to
 this function may be result in a different answer.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$compare_data()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$compare_data(device = FALSE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{device}}{\strong{Experimental!}: This argument may allow running on
+a GPU once support is finished, if the model supports it, and if
+the model is compiled appropriately (and assuming you have a
+suitable GPU). At present it exists for testing and will run
+slower than running with \code{device = FALSE}. The interpretation of
+this argument will likely change to allow selecting the GPU on
+systems with more than one. In short, please leave this argument
+alone unless you're developing dust.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-filter"></a>}}
@@ -611,7 +636,11 @@ next few versions. You \emph{must} \verb{$reset()} the filter before using
 this method to get sensible values. We will tinker with this in
 future versions to allow things like partial runs.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$filter(save_trajectories = FALSE, step_snapshot = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$filter(
+  save_trajectories = FALSE,
+  step_snapshot = NULL,
+  device = FALSE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -629,6 +658,15 @@ If given it must be strictly increasing vector whose elements
 match steps given in the \code{data} object. The return value with be
 a multidimensional array (\verb{state x <shape> x step_snapshot})
 containing full state values at the requested steps.}
+
+\item{\code{device}}{\strong{Experimental!}: This argument may allow running on
+a GPU once support is finished, if the model supports it, and if
+the model is compiled appropriately (and assuming you have a
+suitable GPU). At present it exists for testing and will run
+slower than running with \code{device = FALSE}. The interpretation of
+this argument will likely change to allow selecting the GPU on
+systems with more than one. In short, please leave this argument
+alone unless you're developing dust.}
 }
 \if{html}{\out{</div>}}
 }

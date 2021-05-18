@@ -119,7 +119,7 @@ cpp11::sexp dust_info<sir>(const dust::pars_t<sir>& pars) {
 // element to create the struct that will be used for future work.
 template <>
 sir::data_t dust_data<sir>(cpp11::list data) {
-  return sir::data_t{cpp11::as_cpp<double>(data["incidence"])};
+  return sir::data_t{cpp11::as_cpp<sir::real_t>(data["incidence"])};
 }
 
 }
