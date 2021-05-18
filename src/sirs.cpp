@@ -141,6 +141,11 @@ private:
   dust::shared_ptr<sirs> shared;
 };
 
+// Helper function for accepting values with defaults
+inline double with_default(double default_value, cpp11::sexp value) {
+  return value == R_NilValue ? default_value : cpp11::as_cpp<double>(value);
+}
+
 namespace dust {
 template <>
 dust::pars_t<sirs> dust_pars<sirs>(cpp11::list pars) {
@@ -149,28 +154,21 @@ dust::pars_t<sirs> dust_pars<sirs>(cpp11::list pars) {
   sirs::real_t S0 = 1000.0;
   sirs::real_t R0 = 0.0;
 
-  // Default rates
-  sirs::real_t alpha = 0.1;
-  sirs::real_t beta = 0.2;
-  sirs::real_t gamma = 0.1;
-
   // Time scaling
-  size_t freq = 1;
+  // [[dust::param(freq, required = FALSE, default = 1)]]
+  size_t freq = std::max(1.0, with_default(1.0, pars["freq"]));
   sirs::real_t dt = 1 / static_cast<sirs::real_t>(freq);
 
   sirs::real_t exp_noise = 1e6;
 
-  // Accept beta and gamma as optional elements
+  // [[dust::param(alpha, required = FALSE, default = 0.1)]]
+  sirs::real_t alpha = with_default(0.1, pars["alpha"]);
+
   // [[dust::param(beta, required = FALSE, default = 0.2)]]
-  SEXP r_beta = pars["beta"];
-  if (r_beta != R_NilValue) {
-    beta = cpp11::as_cpp<sirs::real_t>(r_beta);
-  }
+  sirs::real_t beta = with_default(0.2, pars["beta"]);
+
   // [[dust::param(gamma, required = FALSE, default = 0.1)]]
-  SEXP r_gamma = pars["gamma"];
-  if (r_gamma != R_NilValue) {
-    gamma = cpp11::as_cpp<sirs::real_t>(r_gamma);
-  }
+  sirs::real_t gamma = with_default(0.1, pars["gamma"]);
 
   sirs::shared_t shared{S0, I0, R0, alpha, beta, gamma, dt, freq, exp_noise};
   return dust::pars_t<sirs>(shared);

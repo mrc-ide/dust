@@ -204,7 +204,9 @@ sirs <- R6::R6Class(
     shape_ = NULL,
     ptr_ = NULL,
     device_id_ = NULL,
-    param_ = list(beta = list(required = FALSE, default = 0.2),
+    param_ = list(freq = list(required = FALSE, default = 1),
+     alpha = list(required = FALSE, default = 0.1),
+     beta = list(required = FALSE, default = 0.2),
      gamma = list(required = FALSE, default = 0.1))
   ),
 
