@@ -252,8 +252,8 @@ test_that("run in float mode", {
   obj_d <- res_d$new(list(sd = 10), 0, n, seed = 1L)
   obj_f <- res_f$new(list(sd = 10), 0, n, seed = 1L)
 
-  expect_equal(obj_d$device_info()$real_t_size, 8)
-  expect_equal(obj_f$device_info()$real_t_size, 4)
+  expect_equal(obj_d$device_info()$real_bits, 64)
+  expect_equal(obj_f$device_info()$real_bits, 32)
 
   y_d <- obj_d$run(10)
   y_f <- obj_f$run(10)
@@ -622,7 +622,7 @@ test_that("no device info by default", {
                                        memory = numeric(0),
                                        version = integer(0),
                                        stringsAsFactors = FALSE),
-                  real_t_size = 8L)
+                  real_bits = 64L)
   res <- dust_example("sir")
   expect_false(res$public_methods$has_cuda())
   expect_equal(res$public_methods$device_info(), no_cuda)

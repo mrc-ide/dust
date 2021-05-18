@@ -4,7 +4,7 @@ example_cuda_config <- function() {
        devices = data.frame(
          id = 0L, name = "GeForce RTX 2080 Ti", memory = 11016.3125,
          version = 75L, stringsAsFactors = FALSE),
-       real_t_size = 4L)
+       real_bits = 32L)
 }
 
 mock_create_test_package <- function(...) {
