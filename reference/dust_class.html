@@ -83,7 +83,7 @@ ones see dust_example()" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3</span>
       </span>
     </div>
 
@@ -306,7 +306,7 @@ this method is very similar to <code>$run()</code> except that the rank of
 the returned array is one less. For a scalar <code>step_end</code> you would
 ordinarily want to use <code>$run()</code> but the resulting numbers would
 be identical.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>simulate</span><span class='op'>(</span><span class='va'>step_end</span><span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>simulate</span><span class='op'>(</span><span class='va'>step_end</span>, device <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
@@ -315,6 +315,15 @@ report output at. This the first time must be at least the same
 as the current time, and every subsequent time must be equal or
 greater than those before it (ties are allowed though probably
 not wanted).</p></dd>
+
+<dt><code>device</code></dt><dd><p><strong>Experimental!</strong>: This argument may allow running on
+a GPU once support is finished, if the model supports it, and if
+the model is compiled appropriately (and assuming you have a
+suitable GPU). At present it exists for testing and will run
+slower than running with <code>device = TRUE</code>. The interpretation of
+this argument will likely change to allow selecting the GPU on
+systems with more than one. In short, please leave this argument
+alone unless you're developing dust.</p></dd>
 
 </dl><p></div></p>
 <p><hr>
@@ -468,18 +477,20 @@ specialisation.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='
 <a id="method-rng_state"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>rng_state()</code></h3>
 <p>Returns the state of the random number generator. This returns a
 raw vector of length 32 * n_particles. This can be useful for
-debugging or for initialising other dust objects.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>rng_state</span><span class='op'>(</span>first_only <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre><p></div></p>
+debugging or for initialising other dust objects. The arguments
+<code>first_only</code> and <code>last_only</code> are mutally exclusive. If neither is
+given then all all particles states are returned, being 32 bytes
+per particle. The full returned state or <code>first_only</code> are most
+suitable for reseeding a new dust object.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>rng_state</span><span class='op'>(</span>first_only <span class='op'>=</span> <span class='cn'>FALSE</span>, last_only <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
 <dt><code>first_only</code></dt><dd><p>Logical, indicating if we should return only the
-<em>first</em> particle's random number state. If <code>FALSE</code> (the default)
-all particles states are returned, being 32 bytes per particle.
-If <code>TRUE</code> then we take just the first particle's state, which
-will be a total of 32 bytes. Both forms are suitable for seeding
-a new <code><a href='dust.html'>dust</a></code> object as the shorter version will be used for
-the first particle, followed by jumps for each subsequent particle.</p></dd>
+first random number state</p></dd>
+
+<dt><code>last_only</code></dt><dd><p>Logical, indicating if we should return only the
+<em>last</em> random number state, which does not belong to a particle.</p></dd>
 
 </dl><p></div></p>
 <p><hr>
@@ -572,15 +583,31 @@ the current time then <code>NULL</code> is returned. Otherwise a numeric vector
 the same length as the number of particles is returned. If model's
 underlying <code>compare_data</code> function is stochastic, then each call to
 this function may be result in a different answer.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>compare_data</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>compare_data</span><span class='op'>(</span>device <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre><p></div></p>
 
+<h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
+<p><div class="arguments"></p><dl>
+<dt><code>device</code></dt><dd><p><strong>Experimental!</strong>: This argument may allow running on
+a GPU once support is finished, if the model supports it, and if
+the model is compiled appropriately (and assuming you have a
+suitable GPU). At present it exists for testing and will run
+slower than running with <code>device = FALSE</code>. The interpretation of
+this argument will likely change to allow selecting the GPU on
+systems with more than one. In short, please leave this argument
+alone unless you're developing dust.</p></dd>
+
+</dl><p></div></p>
 <p><hr>
 <a id="method-filter"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code><a href='https://rdrr.io/r/stats/filter.html'>filter()</a></code></h3>
 <p>Run a particle filter. The interface here will change a lot over the
 next few versions. You <em>must</em> <code>$reset()</code> the filter before using
 this method to get sensible values. We will tinker with this in
 future versions to allow things like partial runs.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
-<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>filter</span><span class='op'>(</span>save_trajectories <span class='op'>=</span> <span class='cn'>FALSE</span>, step_snapshot <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre><p></div></p>
+<p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>filter</span><span class='op'>(</span>
+  save_trajectories <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  step_snapshot <span class='op'>=</span> <span class='cn'>NULL</span>,
+  device <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
 <p><div class="arguments"></p><dl>
@@ -596,6 +623,15 @@ If given it must be strictly increasing vector whose elements
 match steps given in the <code>data</code> object. The return value with be
 a multidimensional array (<code>state x &lt;shape&gt; x step_snapshot</code>)
 containing full state values at the requested steps.</p></dd>
+
+<dt><code>device</code></dt><dd><p><strong>Experimental!</strong>: This argument may allow running on
+a GPU once support is finished, if the model supports it, and if
+the model is compiled appropriately (and assuming you have a
+suitable GPU). At present it exists for testing and will run
+slower than running with <code>device = FALSE</code>. The interpretation of
+this argument will likely change to allow selecting the GPU on
+systems with more than one. In short, please leave this argument
+alone unless you're developing dust.</p></dd>
 
 </dl><p></div></p>
 <p><hr>

@@ -83,7 +83,7 @@ and dust_class)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3</span>
       </span>
     </div>
 
@@ -155,7 +155,7 @@ that can be used to work with the model (see the Details below,
 and <a href='dust_class.html'>dust_class</a>).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>dust</span><span class='op'>(</span><span class='va'>filename</span>, quiet <span class='op'>=</span> <span class='cn'>FALSE</span>, workdir <span class='op'>=</span> <span class='cn'>NULL</span>, gpu <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>dust</span><span class='op'>(</span><span class='va'>filename</span>, quiet <span class='op'>=</span> <span class='cn'>FALSE</span>, workdir <span class='op'>=</span> <span class='cn'>NULL</span>, gpu <span class='op'>=</span> <span class='cn'>FALSE</span>, real_t <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -186,6 +186,17 @@ CUDA-compatible GPU. If <code>TRUE</code>, then we call
 that function and pass the value here (e.g, <code>gpu = dust::dust_cuda_options(debug = TRUE)</code>). Note that due to the
 use of the <code>__syncwarp()</code> primitive this may require a GPU with
 compute version 70 or higher.</p></td>
+    </tr>
+    <tr>
+      <th>real_t</th>
+      <td><p>Optionally, a string indicating a substitute type to
+swap in for your model's <code>real_t</code> declaration. If given, then we
+replace the string <code>typedef (double|float) real_t</code> with the
+given type. This is primarily intended to be used as <code>gpu = TRUE, real_t = "float"</code> in order to create model for the GPU
+that will use 32 bit <code>floats</code> (rather than 64 bit doubles, which
+are much slower). For CPU models decreasing precision of your
+real type will typically just decrease precision for no
+additional performance.</p></td>
     </tr>
     </table>
 

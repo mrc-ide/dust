@@ -83,7 +83,7 @@ all &quot;toy&quot; examples, being small and fast to run." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3</span>
       </span>
     </div>
 
@@ -163,7 +163,8 @@ all "toy" examples, being small and fast to run.</p>
     <tr>
       <th>name</th>
       <td><p>The name of the example to use. There are four
-examples: <code>sir</code>, <code>variable</code>, <code>volatility</code> and <code>walk</code> (see Details).</p></td>
+examples: <code>sir</code>, <code>sirs</code>, <code>variable</code>, <code>volatility</code> and <code>walk</code>
+(see Details).</p></td>
     </tr>
     </table>
 
@@ -178,6 +179,8 @@ model.  See examples for usage.</p>
 <li><p><code>sir</code>: a basic SIR (Susceptible, Infected, Resistant)
 epidemiological model.  Draws from the binomial distribution to
 update the population between each step.</p></li>
+<li><p><code>sirs</code>: an SIRS model, the SIR model with an added R-&gt;S transition.
+This has a non-zero steady state, so can be run indefinitely for testing.</p></li>
 <li><p><code>volatility</code>: A volatility model that might be applied to
 currency fluctuations etc.</p></li>
 <li><p><code>walk</code>: A 1D random walk, following a Gaussian distribution each
