@@ -27,7 +27,7 @@ inline int devices_count() {
 
 template <typename T>
 constexpr size_t sizeof_real_t() {
-  return sizeof(typename T::real_t) * 8;
+  return sizeof(typename T::real_t);
 }
 
 template <>
