@@ -246,17 +246,14 @@ test_that("validate reorder vector is in correct range", {
 
 test_that("run in float mode", {
   res_d <- dust_example("walk")
-
-  path <- tempfile(fileext = ".cpp")
-  code <- readLines(dust_file("examples/walk.cpp"))
-  pat <- "typedef double real_t"
-  stopifnot(sum(grepl(pat, code)) == 1)
-  writeLines(sub(pat, "typedef float real_t", code), path)
-  res_f <- dust(path, quiet = TRUE)
+  res_f <- dust(dust_file("examples/walk.cpp"), real_t = "float", quiet = TRUE)
 
   n <- 1000
   obj_d <- res_d$new(list(sd = 10), 0, n, seed = 1L)
   obj_f <- res_f$new(list(sd = 10), 0, n, seed = 1L)
+
+  expect_equal(obj_d$device_info()$real_t_size, 8)
+  expect_equal(obj_f$device_info()$real_t_size, 4)
 
   y_d <- obj_d$run(10)
   y_f <- obj_f$run(10)
@@ -624,7 +621,8 @@ test_that("no device info by default", {
                                        name = character(0),
                                        memory = numeric(0),
                                        version = integer(0),
-                                       stringsAsFactors = FALSE))
+                                       stringsAsFactors = FALSE),
+                  real_t_size = 8L)
   res <- dust_example("sir")
   expect_false(res$public_methods$has_cuda())
   expect_equal(res$public_methods$device_info(), no_cuda)

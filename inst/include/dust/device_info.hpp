@@ -34,6 +34,8 @@ cpp11::sexp device_info() {
   cpp11::writable::doubles memory(device_count);
   cpp11::writable::strings names(device_count);
   cpp11::writable::integers version(device_count);
+  cpp11::writable::integers real_t_size =
+    cpp11::as_sexp(sizeof(typename T::real_t));
 
 #ifdef __NVCC__
   if (device_count > 0) {
@@ -69,7 +71,8 @@ cpp11::sexp device_info() {
 
   return cpp11::writable::list({"has_cuda"_nm = has_cuda,
                                 "cuda_version"_nm = cuda_version,
-                                "devices"_nm = devices});
+                                "devices"_nm = devices,
+                                "real_t_size"_nm = real_t_size});
 }
 
 }

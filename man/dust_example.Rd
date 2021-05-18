@@ -8,7 +8,8 @@ dust_example(name)
 }
 \arguments{
 \item{name}{The name of the example to use. There are four
-examples: \code{sir}, \code{variable}, \code{volatility} and \code{walk} (see Details).}
+examples: \code{sir}, \code{sirs}, \code{variable}, \code{volatility} and \code{walk}
+(see Details).}
 }
 \value{
 A \href{dust_class}{\code{dust}} object that can be used to create a
@@ -25,6 +26,8 @@ all "toy" examples, being small and fast to run.
 \item \code{sir}: a basic SIR (Susceptible, Infected, Resistant)
 epidemiological model.  Draws from the binomial distribution to
 update the population between each step.
+\item \code{sirs}: an SIRS model, the SIR model with an added R->S transition.
+This has a non-zero steady state, so can be run indefinitely for testing.
 \item \code{volatility}: A volatility model that might be applied to
 currency fluctuations etc.
 \item \code{walk}: A 1D random walk, following a Gaussian distribution each

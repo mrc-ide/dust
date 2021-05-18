@@ -338,3 +338,19 @@ test_that("Validate changing pars leaves particles in sensible state", {
     y2,
     res$new(list(len = 5, mean = 0, sd = 1), 0, 10, seed = 1L)$run(2))
 })
+
+
+test_that("rewrite types", {
+  res <- dust_rewrite_real(dust_file("examples/sir.cpp"), "float")
+  expect_equal(tools::file_ext(res), "cpp")
+  expect_length(grep("^  typedef float real_t;$", readLines(res)), 1)
+})
+
+
+test_that("informative error message if expected string not found", {
+  ## This will break the regular expression
+  tmp <- dust_rewrite_real(dust_file("examples/sir.cpp"), "++float++")
+  expect_error(
+    dust_rewrite_real(tmp, "float"),
+    "did not find real_t declaration in '.+\\.cpp'")
+})
