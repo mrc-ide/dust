@@ -107,7 +107,9 @@ filter(Dust<T> * obj,
     state.trajectories.advance();
   }
 
-  state.snapshots.resize(obj->n_state_full(), n_particles, step_snapshot);
+  if (step_snapshot.size() > 0) {
+    state.snapshots.resize(obj->n_state_full(), n_particles, step_snapshot);
+  }
 
   for (auto & d : obj->data_offsets()) {
     // MODEL UPDATE

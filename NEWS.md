@@ -1,3 +1,8 @@
+# dust 0.9.4
+
+* Fix a bug when running the CUDA version of the particle filter without
+history/trajectories.
+
 # dust 0.9.3
 
 * Change `real_t` at compilation, and return information about the size of `real_t` from model objects (#233)

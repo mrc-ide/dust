@@ -17,6 +17,10 @@ public:
     n_particles_ = n_particles;
     n_data_ = n_data;
     offset_ = 0;
+
+    if (n_state_ == 0 || n_particles_ == 0) {
+      throw std::runtime_error("Invalid size (zero) for filter history");
+    }
     history_value.resize(n_state_ * n_particles_ * (n_data_ + 1));
     history_order.resize(n_particles_ * (n_data_ + 1));
     for (size_t i = 0; i < n_particles_; ++i) {
@@ -121,6 +125,10 @@ public:
     this->n_particles_ = n_particles;
     this->n_data_ = n_data;
     this->offset_ = 0;
+
+    if (this->n_state_ == 0 || this->n_particles_ == 0) {
+      throw std::runtime_error("Invalid size (zero) for filter history");
+    }
     this->history_value.resize(this->n_state_ * this->n_particles_ * (this->n_data_ + 1));
     this->history_order.resize(this->n_particles_ * (this->n_data_ + 1));
     for (size_t i = 0; i < this->n_particles_; ++i) {
@@ -226,6 +234,9 @@ public:
     n_steps_ = steps.size();
     offset_ = 0;
     steps_ = steps;
+    if (n_state_ == 0 || n_particles_ == 0 || n_steps_ == 0) {
+      throw std::runtime_error("Invalid size (zero) for filter snapshots");
+    }
     state_.resize(n_state_ * n_particles_ * n_steps_);
   }
 
@@ -278,6 +289,10 @@ public:
     this->n_steps_ = steps.size();
     this->offset_ = 0;
     this->steps_ = steps;
+
+    if (this->n_state_ == 0 || this->n_particles_ == 0 || this->n_steps_ == 0) {
+      throw std::runtime_error("Invalid size (zero) for filter snapshots");
+    }
     this->state_.resize(this->n_state_ * this->n_particles_ * this->n_steps_);
 
     state_swap = dust::device_array<real_t>(this->n_state_ * this->n_particles_);
