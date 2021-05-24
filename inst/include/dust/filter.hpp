@@ -30,7 +30,9 @@ std::vector<typename T::real_t> filter(Dust<T> * obj,
     state.trajectories.advance();
   }
 
-  state.snapshots.resize(obj->n_state_full(), n_particles, step_snapshot);
+  if (step_snapshot.size() > 0) {
+    state.snapshots.resize(obj->n_state_full(), n_particles, step_snapshot);
+  }
 
   for (auto & d : obj->data()) {
     obj->run(d.first);
