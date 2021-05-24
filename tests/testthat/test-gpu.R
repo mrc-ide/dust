@@ -538,7 +538,7 @@ test_that("Can run particle filter without collecting state on GPU", {
 
   mod_h <- dat$model$new(list(), 0, np, seed = 10L)
   mod_h$set_data(dat$dat_dust)
-  ans_h <- mod_h$filter())
+  ans_h <- mod_h$filter()
 
   mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_id = 0L)
   mod_d$set_data(dat$dat_dust)
