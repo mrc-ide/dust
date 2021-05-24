@@ -242,13 +242,7 @@ public:
   }
 
   bool is_snapshot_step(size_t step) {
-    bool is_snapshot = false;
-    if (n_steps_ > 0 && offset_ < n_steps_) {
-      if (steps_[offset_] == step) {
-        is_snapshot = true;
-      }
-    }
-    return is_snapshot;
+    return offset_ < n_steps_ && steps_[offset_] == step;
   }
 
   void advance() {
