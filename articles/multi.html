@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.4</span>
       </span>
     </div>
 
@@ -206,10 +206,10 @@
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">pars</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">2</span><span class="op">)</span>
 <span class="va">pars</span>
 <span class="co">#&gt;      [,1]   [,2]  </span>
-<span class="co">#&gt; [1,] List,1 List,1</span>
-<span class="co">#&gt; [2,] List,1 List,1</span>
-<span class="co">#&gt; [3,] List,1 List,1</span>
-<span class="co">#&gt; [4,] List,1 List,1</span></code></pre></div>
+<span class="co">#&gt; [1,] list,1 list,1</span>
+<span class="co">#&gt; [2,] list,1 list,1</span>
+<span class="co">#&gt; [3,] list,1 list,1</span>
+<span class="co">#&gt; [4,] list,1 list,1</span></code></pre></div>
 <p>Then, when creating the object these dimensions will be applied to the data</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va">sir</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">pars</span>, <span class="fl">0</span>, <span class="cn">NULL</span>, pars_multi <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
