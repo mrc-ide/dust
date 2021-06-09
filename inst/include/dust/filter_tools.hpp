@@ -17,7 +17,7 @@ void resample_weight(typename std::vector<real_t>::const_iterator w,
   for (size_t i = 0; i < n; ++i) {
     // We could accumulate uu by adding du at each iteration but that
     // suffers roundoff error here with floats.
-    const real_t uu = uu0 * i * du;
+    const real_t uu = uu0 + i * du;
     // The second clause should never be hit but prevents any invalid
     // read if we have pathalogical 'u' that is within floating point
     // eps of 1
