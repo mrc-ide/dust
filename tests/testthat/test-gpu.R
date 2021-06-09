@@ -531,6 +531,22 @@ test_that("Can run a single particle filter on the GPU", {
   expect_identical(ans_h$snapshots, ans_d$snapshots)
 })
 
+test_that("Can run particle filter without collecting state on GPU", {
+  dat <- example_sirs()
+
+  np <- 10
+
+  mod_h <- dat$model$new(list(), 0, np, seed = 10L)
+  mod_h$set_data(dat$dat_dust)
+  ans_h <- mod_h$filter()
+
+  mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_id = 0L)
+  mod_d$set_data(dat$dat_dust)
+  ans_d <- mod_d$filter(device = TRUE)
+
+  expect_equal(ans_h$log_likelihood, ans_d$log_likelihood)
+})
+
 test_that("Can run GPU kernels using shared memory", {
   dat <- example_sirs()
 

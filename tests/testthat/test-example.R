@@ -352,7 +352,7 @@ test_that("set model state and time, varying time", {
 test_that("setting model state and step requires correct length step", {
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 5, seed = 1L)
-  m <- matrix(rep(as.numeric(1:2), each = 10), 10, 5)
+  m <- matrix(rep(as.numeric(1:5), each = 10), 10, 5)
   expect_error(
     mod$set_state(m, 0:3),
     "Expected 'step' to be scalar or length 5")

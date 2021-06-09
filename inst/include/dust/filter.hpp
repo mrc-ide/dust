@@ -30,7 +30,11 @@ std::vector<typename T::real_t> filter(Dust<T> * obj,
     state.trajectories.advance();
   }
 
-  state.snapshots.resize(obj->n_state_full(), n_particles, step_snapshot);
+  bool save_snapshots = false;
+  if (step_snapshot.size() > 0) {
+    save_snapshots = true;
+    state.snapshots.resize(obj->n_state_full(), n_particles, step_snapshot);
+  }
 
   for (auto & d : obj->data()) {
     obj->run(d.first);
@@ -64,7 +68,7 @@ std::vector<typename T::real_t> filter(Dust<T> * obj,
       state.trajectories.advance();
     }
 
-    if (state.snapshots.is_snapshot_step(d.first)) {
+    if (save_snapshots && state.snapshots.is_snapshot_step(d.first)) {
       obj->state_full(state.snapshots.value_iterator());
       state.snapshots.advance();
     }
@@ -107,7 +111,11 @@ filter(Dust<T> * obj,
     state.trajectories.advance();
   }
 
-  state.snapshots.resize(obj->n_state_full(), n_particles, step_snapshot);
+  bool save_snapshots = false;
+  if (step_snapshot.size() > 0) {
+    save_snapshots = true;
+    state.snapshots.resize(obj->n_state_full(), n_particles, step_snapshot);
+  }
 
   for (auto & d : obj->data_offsets()) {
     // MODEL UPDATE
@@ -135,7 +143,7 @@ filter(Dust<T> * obj,
     }
 
     // SAVE SNAPSHOT
-    if (state.snapshots.is_snapshot_step(d.first)) {
+    if (save_snapshots && state.snapshots.is_snapshot_step(d.first)) {
       state.snapshots.store(obj->device_state_full());
       state.snapshots.advance();
     }

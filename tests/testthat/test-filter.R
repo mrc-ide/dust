@@ -39,7 +39,7 @@ test_that("Can run the filter", {
 
   mod <- dat$model$new(list(), 0, np, seed = 10L)
   mod$set_data(dat$dat_dust)
-  ans <- mod$filter(TRUE)
+  ans <- mod$filter(save_trajectories = TRUE)
   expect_equal(ans,
                list(log_likelihood = cmp_log_likelihood,
                     trajectories = cmp_trajectories,
@@ -58,7 +58,7 @@ test_that("Can run multiple filters at once", {
 
   expect_error(mod$filter(), "Data has not been set for this object")
   mod$set_data(dust_data(dat$dat, multi = 2))
-  ans <- mod$filter(TRUE)
+  ans <- mod$filter(save_trajectories = TRUE)
 
   cmp <- list(
     dat$model$new(pars[[1]], 0, np, seed = c(seed[1:320], filter_seed)),
@@ -66,7 +66,7 @@ test_that("Can run multiple filters at once", {
   for (i in seq_along(cmp)) {
     cmp[[i]]$set_data(dat$dat_dust)
   }
-  cmp_res <- lapply(cmp, function(el) el$filter(TRUE))
+  cmp_res <- lapply(cmp, function(el) el$filter(save_trajectories = TRUE))
 
   expect_length(ans$log_likelihood, 2)
   expect_equal(dim(ans$trajectories), c(5, 10, 2, 151))
@@ -87,11 +87,11 @@ test_that("can filter trajectories using index", {
   mod1 <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE)
   mod1$set_index(c(1L, 5L))
   mod1$set_data(dust_data(dat$dat, multi = 2))
-  ans1 <- mod1$filter(TRUE)
+  ans1 <- mod1$filter(save_trajectories = TRUE)
 
   mod2 <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE)
   mod2$set_data(dust_data(dat$dat, multi = 2))
-  ans2 <- mod2$filter(TRUE)
+  ans2 <- mod2$filter(save_trajectories = TRUE)
 
   expect_equal(ans1$log_likelihood, ans2$log_likelihood)
   expect_equal(ans1$trajectories, ans2$trajectories[c(1, 5), , , ])
