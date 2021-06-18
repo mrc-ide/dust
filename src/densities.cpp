@@ -42,7 +42,6 @@ SEXP dust_dnbinom(cpp11::integers x, cpp11::doubles size, cpp11::doubles mu,
   return is_float ?
     dust_dnbinom_<float>(x, size, mu, log) :
     dust_dnbinom_<double>(x, size, mu, log);
-
 }
 
 [[cpp11::register]]
