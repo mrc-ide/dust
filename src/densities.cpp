@@ -24,15 +24,25 @@ SEXP dust_dnorm(cpp11::doubles x, cpp11::doubles mu, cpp11::doubles sd,
   return ret;
 }
 
-[[cpp11::register]]
-SEXP dust_dnbinom(cpp11::integers x, cpp11::doubles size, cpp11::doubles mu,
-                  bool log) {
+template <typename T>
+SEXP dust_dnbinom_(cpp11::integers x, cpp11::doubles size, cpp11::doubles mu,
+                   bool log) {
   const size_t n = x.size();
   cpp11::writable::doubles ret(x.size());
   for (size_t i = 0; i < n; ++i) {
-    ret[i] = dust::dnbinom<double>(x[i], size[i], mu[i], log);
+    ret[i] = dust::dnbinom<T>(x[i], size[i], mu[i], log);
   }
   return ret;
+}
+
+
+[[cpp11::register]]
+SEXP dust_dnbinom(cpp11::integers x, cpp11::doubles size, cpp11::doubles mu,
+                  bool log, bool is_float) {
+  return is_float ?
+    dust_dnbinom_<float>(x, size, mu, log) :
+    dust_dnbinom_<double>(x, size, mu, log);
+
 }
 
 [[cpp11::register]]
