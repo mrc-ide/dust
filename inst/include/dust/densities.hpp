@@ -81,7 +81,6 @@ HOSTDEVICE T dnbinom(int x, T size, T mu, bool log) {
   static_assert(std::is_floating_point<T>::value,
                 "dnbinom should only be used with real types");
 #endif
-  const T prob = size / (size + mu);
   if (x == 0 && size == 0) {
     return maybe_log(0, log);
   }
@@ -91,11 +90,24 @@ HOSTDEVICE T dnbinom(int x, T size, T mu, bool log) {
   if (mu == 0) {
     return maybe_log(x == 0 ? 0 : -dust::utils::infinity<T>(), log);
   }
-  const T ret = dust::utils::lgamma(static_cast<T>(x + size)) -
-    dust::utils::lgamma(static_cast<T>(size)) -
-    dust::utils::lgamma(static_cast<T>(x + 1)) +
-    size * std::log(prob) + x * std::log(1 - prob);
-  return maybe_log(ret, log);
+
+  // Avoid size / (size + mu) when size is close to zero, and this would cause prob to be
+  // equal to zero. Somewhat arbitrarily, taking 100 * floating point eps as
+  // the change over.
+  const T ratio = dust::utils::epsilon<T>() * 100;
+  if (mu < ratio * size) {
+    const T log_prob = std::log(mu / (1 + mu / size));
+    const T ret = x * log_prob - mu - lgamma(x + 1) +
+      std::log1p(x * (x - 1) / (2 * size));
+    return maybe_log(ret, log);
+  } else {
+    const T prob = size / (size + mu);
+    const T ret = dust::utils::lgamma(static_cast<T>(x + size)) -
+      dust::utils::lgamma(static_cast<T>(size)) -
+      dust::utils::lgamma(static_cast<T>(x + 1)) +
+      size * std::log(prob) + x * std::log(1 - prob);
+    return maybe_log(ret, log);
+  }
 }
 
 // A note on this parametrisation:
