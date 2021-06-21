@@ -59,9 +59,7 @@ HOSTDEVICE T dbinom(int x, int size, T prob, bool log) {
       (size - x) * std::log(1 - prob);
   }
 
-#ifdef __CUDA_ARCH__
-  __syncwarp();
-#endif
+  SYNCWARP
   return maybe_log(ret, log);
 }
 
@@ -82,9 +80,7 @@ HOSTDEVICE T dnorm(T x, T mu, T sd, bool log) {
     ret = maybe_log(ret, log);
   }
 
-#ifdef __CUDA_ARCH__
-  __syncwarp();
-#endif
+  SYNCWARP
   return ret;
 }
 
@@ -121,9 +117,7 @@ HOSTDEVICE T dnbinom(int x, T size, T mu, bool log) {
     }
   }
 
-#ifdef __CUDA_ARCH__
-  __syncwarp();
-#endif
+  SYNCWARP
   return maybe_log(ret, log);
 }
 
@@ -148,9 +142,7 @@ HOSTDEVICE T dbetabinom(int x, int size, T prob, T rho, bool log) {
     ret = lchoose<T>(size, x) + lbeta(x + a, size - x + b) - lbeta(a, b);
   }
 
-#ifdef __CUDA_ARCH__
-  __syncwarp();
-#endif
+  SYNCWARP
   return maybe_log(ret, log);
 }
 
@@ -168,9 +160,7 @@ HOSTDEVICE T dpois(int x, T lambda, bool log) {
       dust::utils::lgamma(static_cast<T>(x + 1));
   }
 
-#ifdef __CUDA_ARCH__
-  __syncwarp();
-#endif
+  SYNCWARP
   return maybe_log(ret, log);
 }
 

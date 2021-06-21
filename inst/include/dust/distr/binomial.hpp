@@ -205,10 +205,7 @@ HOSTDEVICE int rbinom(rng_state_t<real_t>& rng_state, int n,
     }
   }
 
-#ifdef __CUDA_ARCH__
-  __syncwarp();
-#endif
-
+  SYNCWARP
   return draw;
 }
 

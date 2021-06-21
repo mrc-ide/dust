@@ -143,9 +143,8 @@ KERNEL void run_particles(size_t step_start,
                        shared_state.shared_real,
                        rng_block,
                        p_state_next);
-#ifdef __CUDA_ARCH__
-      __syncwarp();
-#endif
+      SYNCWARP
+
       dust::interleaved<real_t> tmp = p_state;
       p_state = p_state_next;
       p_state_next = tmp;
@@ -228,9 +227,7 @@ KERNEL void compare_particles(size_t n_particles,
                                    shared_state.shared_int,
                                    shared_state.shared_real,
                                    rng_block);
-#ifdef __CUDA_ARCH__
-    __syncwarp();
-#endif
+    SYNCWARP
     dust::put_rng_state(rng_block, p_rng);
   }
 }
@@ -252,9 +249,7 @@ DEVICE size_t binary_interval_search(const T * array,
       r_pivot = m;
     }
   }
-#ifdef __CUDA_ARCH__
-  __syncwarp();
-#endif
+  SYNCWARP
   return l_pivot;
 }
 

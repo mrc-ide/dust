@@ -112,9 +112,7 @@ HOSTDEVICE int rpois(rng_state_t<real_t>& rng_state,
     }
   }
 
-#ifdef __CUDA_ARCH__
-  __syncwarp();
-#endif
+  SYNCWARP
   return x;
 }
 
