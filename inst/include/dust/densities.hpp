@@ -75,16 +75,17 @@ template <typename T>
 HOSTDEVICE T dnorm(T x, T mu, T sd, bool log) {
   T ret;
   if (sd == 0) {
-    ret = ddelta(x - mu, log);
+    ret = ddelta(x - mu, log); // This does maybe_log
   } else {
     const T dx = x - mu;
     ret = - dx * dx / (2 * sd * sd) - norm_integral<T>() - std::log(sd);
+    ret = maybe_log(ret, log);
   }
 
 #ifdef __CUDA_ARCH__
   __syncwarp();
 #endif
-  return maybe_log(ret, log);
+  return ret;
 }
 
 template <typename T>
