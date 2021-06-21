@@ -438,6 +438,20 @@ test_that("binomial random numbers from floats have correct distribution", {
 })
 
 
+test_that("special case", {
+  ## This has been fairly carefully selected; with this set of
+  ## parameters we get one infinite loop in dust 0.9.7
+  m <- 1000000
+  n <- 6
+  p <- 0.449999988
+  yf <- dust_rng$new(1, 1, "float")$rbinom(m, n, p)
+  yd <- dust_rng$new(1, 1, "double")$rbinom(m, n, p)
+
+  expect_equal(mean(yf), mean(yd), tolerance = 1e-5)
+  expect_equal(var(yf), var(yd), tolerance = 1e-4)
+})
+
+
 test_that("binomial random numbers from floats have correct distribution", {
   m <- 100000
   n <- 100L
