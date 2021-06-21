@@ -91,8 +91,8 @@ HOSTDEVICE T dnbinom(int x, T size, T mu, bool log) {
     return maybe_log(x == 0 ? 0 : -dust::utils::infinity<T>(), log);
   }
 
-  // Avoid size / (size + mu) where this would cause prob to be
-  // equal. Somewhat arbitrarily, taking 100 * floating point eps as
+  // Avoid size / (size + mu) when size is close to zero, and this would cause prob to be
+  // equal to zero. Somewhat arbitrarily, taking 100 * floating point eps as
   // the change over.
   const T ratio = dust::utils::epsilon<T>() * 100;
   if (mu < ratio * size) {
