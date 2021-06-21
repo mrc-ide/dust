@@ -109,7 +109,7 @@ HOSTDEVICE T dnbinom(int x, T size, T mu, bool log) {
     const T ratio = dust::utils::epsilon<T>() * 100;
     if (mu < ratio * size) {
       const T log_prob = std::log(mu / (1 + mu / size));
-      ret = x * log_prob - mu - std::utils::lgamma(x + 1) +
+      ret = x * log_prob - mu - dust::utils::lgamma(x + 1) +
         std::log1p(x * (x - 1) / (2 * size));
     } else {
       const T prob = size / (size + mu);
