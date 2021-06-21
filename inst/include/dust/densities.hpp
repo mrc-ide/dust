@@ -96,8 +96,8 @@ HOSTDEVICE T dnbinom(int x, T size, T mu, bool log) {
   // the change over.
   const T ratio = dust::utils::epsilon<T>() * 100;
   if (mu < ratio * size) {
-    const T p = std::log(mu / (1 + mu / size));
-    const T ret = x * p - mu - lgamma(x + 1) +
+    const T log_prob = std::log(mu / (1 + mu / size));
+    const T ret = x * log_prob - mu - lgamma(x + 1) +
       std::log1p(x * (x - 1) / (2 * size));
     return maybe_log(ret, log);
   } else {
