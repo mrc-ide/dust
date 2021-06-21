@@ -229,7 +229,6 @@ KERNEL void compare_particles(size_t n_particles,
                                    shared_state.shared_real,
                                    rng_block);
 #ifdef __CUDA_ARCH__
-    // Branching unlikely in compare_device, but just in case
     __syncwarp();
 #endif
     dust::put_rng_state(rng_block, p_rng);

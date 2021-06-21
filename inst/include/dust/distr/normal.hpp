@@ -22,6 +22,9 @@ HOSTDEVICE inline real_t box_muller(rng_state_t<real_t>& rng_state) {
     u2 = dust::unif_rand(rng_state);
   } while (u1 <= epsilon);
 
+#ifdef __CUDA_ARCH__
+  __syncwarp();
+#endif
   return std::sqrt(-2 * std::log(u1)) * std::cos(two_pi * u2);
 }
 

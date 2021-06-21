@@ -50,12 +50,18 @@ HOSTDEVICE T dbinom(int x, int size, T prob, bool log) {
   static_assert(std::is_floating_point<T>::value,
                 "dbinom should only be used with real types");
 #endif
+  T ret;
   if (x == 0 && size == 0) {
-    return maybe_log(0, log);
+    ret = 0;
+  } else {
+    const T ret = lchoose<T>(size, x) +
+      x * std::log(prob) +
+      (size - x) * std::log(1 - prob);
   }
-  const T ret = lchoose<T>(size, x) +
-    x * std::log(prob) +
-    (size - x) * std::log(1 - prob);
+
+#ifdef __CUDA_ARCH__
+  __syncwarp();
+#endif
   return maybe_log(ret, log);
 }
 
@@ -67,11 +73,17 @@ HOSTDEVICE T ddelta(T x, bool log) {
 
 template <typename T>
 HOSTDEVICE T dnorm(T x, T mu, T sd, bool log) {
+  T ret;
   if (sd == 0) {
-    return ddelta(x - mu, log);
+    ret = ddelta(x - mu, log);
+  } else {
+    const T dx = x - mu;
+    ret = - dx * dx / (2 * sd * sd) - norm_integral<T>() - std::log(sd);
   }
-  const T dx = x - mu;
-  const T ret = - dx * dx / (2 * sd * sd) - norm_integral<T>() - std::log(sd);
+
+#ifdef __CUDA_ARCH__
+  __syncwarp();
+#endif
   return maybe_log(ret, log);
 }
 
@@ -81,33 +93,37 @@ HOSTDEVICE T dnbinom(int x, T size, T mu, bool log) {
   static_assert(std::is_floating_point<T>::value,
                 "dnbinom should only be used with real types");
 #endif
+  T ret;
   if (x == 0 && size == 0) {
-    return maybe_log(0, log);
+    ret = 0;
   }
-  if (x < 0 || size == 0) {
-    return maybe_log(-dust::utils::infinity<T>(), log);
+  else if (x < 0 || size == 0) {
+    ret = -dust::utils::infinity<T>();
   }
-  if (mu == 0) {
-    return maybe_log(x == 0 ? 0 : -dust::utils::infinity<T>(), log);
+  else if (mu == 0) {
+    ret = x == 0 ? 0 : -dust::utils::infinity<T>();
+  } else {
+    // Avoid size / (size + mu) when size is close to zero, and this would cause prob to be
+    // equal to zero. Somewhat arbitrarily, taking 100 * floating point eps as
+    // the change over.
+    const T ratio = dust::utils::epsilon<T>() * 100;
+    if (mu < ratio * size) {
+      const T log_prob = std::log(mu / (1 + mu / size));
+      ret = x * log_prob - mu - std::utils::lgamma(x + 1) +
+        std::log1p(x * (x - 1) / (2 * size));
+    } else {
+      const T prob = size / (size + mu);
+      ret = dust::utils::lgamma(static_cast<T>(x + size)) -
+        dust::utils::lgamma(static_cast<T>(size)) -
+        dust::utils::lgamma(static_cast<T>(x + 1)) +
+        size * std::log(prob) + x * std::log(1 - prob);
+    }
   }
 
-  // Avoid size / (size + mu) when size is close to zero, and this would cause prob to be
-  // equal to zero. Somewhat arbitrarily, taking 100 * floating point eps as
-  // the change over.
-  const T ratio = dust::utils::epsilon<T>() * 100;
-  if (mu < ratio * size) {
-    const T log_prob = std::log(mu / (1 + mu / size));
-    const T ret = x * log_prob - mu - lgamma(x + 1) +
-      std::log1p(x * (x - 1) / (2 * size));
-    return maybe_log(ret, log);
-  } else {
-    const T prob = size / (size + mu);
-    const T ret = dust::utils::lgamma(static_cast<T>(x + size)) -
-      dust::utils::lgamma(static_cast<T>(size)) -
-      dust::utils::lgamma(static_cast<T>(x + 1)) +
-      size * std::log(prob) + x * std::log(1 - prob);
-    return maybe_log(ret, log);
-  }
+#ifdef __CUDA_ARCH__
+  __syncwarp();
+#endif
+  return maybe_log(ret, log);
 }
 
 // A note on this parametrisation:
@@ -122,12 +138,18 @@ HOSTDEVICE T dbetabinom(int x, int size, T prob, T rho, bool log) {
   static_assert(std::is_floating_point<T>::value,
                 "dbetabinom should only be used with real types");
 #endif
+  T ret;
   if (x == 0 && size == 0) {
-    return maybe_log(0, log);
+    ret = 0;
+  } else {
+    const T a = prob * (1 / rho - 1);
+    const T b = (1 - prob) * (1 / rho - 1);
+    ret = lchoose<T>(size, x) + lbeta(x + a, size - x + b) - lbeta(a, b);
   }
-  const T a = prob * (1 / rho - 1);
-  const T b = (1 - prob) * (1 / rho - 1);
-  const T ret = lchoose<T>(size, x) + lbeta(x + a, size - x + b) - lbeta(a, b);
+
+#ifdef __CUDA_ARCH__
+  __syncwarp();
+#endif
   return maybe_log(ret, log);
 }
 
@@ -137,11 +159,17 @@ HOSTDEVICE T dpois(int x, T lambda, bool log) {
   static_assert(std::is_floating_point<T>::value,
                 "dpois should only be used with real types");
 #endif
+  T ret;
   if (x == 0 && lambda == 0) {
-    return maybe_log(0, log);
+    ret = 0;
+  } else {
+    const T ret = x * std::log(lambda) - lambda -
+      dust::utils::lgamma(static_cast<T>(x + 1));
   }
-  const T ret = x * std::log(lambda) - lambda -
-    dust::utils::lgamma(static_cast<T>(x + 1));
+
+#ifdef __CUDA_ARCH__
+  __syncwarp();
+#endif
   return maybe_log(ret, log);
 }
 
