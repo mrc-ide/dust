@@ -1,3 +1,7 @@
+# dust 0.9.8
+
+* Fix infinite loop with rbinom using floats
+
 # dust 0.9.7
 
 * Synchronise possible divergences in the density functions (CUDA only) (#243)
