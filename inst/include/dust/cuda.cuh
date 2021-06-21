@@ -8,7 +8,6 @@
 #define HOSTDEVICE __host__ __device__
 #define KERNEL __global__
 #define ALIGN(n) __align__(n)
-#define SYNCWARP __syncwarp();
 
 // This is necessary due to templates which are __host__ __device__;
 // whenever a HOSTDEVICE function is called from another HOSTDEVICE
@@ -37,14 +36,15 @@
 #undef DUST_CUDA_ENABLE_PROFILER
 #define __nv_exec_check_disable__
 #define ALIGN(n)
-#define SYNCWARP
 #endif
 
 // const definition depends on __host__/__device__
 #ifdef __CUDA_ARCH__
 #define CONSTANT __constant__
+#define SYNCWARP __syncwarp();
 #else
 #define CONSTANT const
+#define SYNCWARP
 #endif
 
 namespace dust {
