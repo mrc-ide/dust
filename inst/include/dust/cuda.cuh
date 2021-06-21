@@ -41,8 +41,10 @@
 // const definition depends on __host__/__device__
 #ifdef __CUDA_ARCH__
 #define CONSTANT __constant__
+#define SYNCWARP __syncwarp();
 #else
 #define CONSTANT const
+#define SYNCWARP
 #endif
 
 namespace dust {

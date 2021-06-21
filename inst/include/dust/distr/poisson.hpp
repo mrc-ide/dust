@@ -111,6 +111,8 @@ HOSTDEVICE int rpois(rng_state_t<real_t>& rng_state,
       }
     }
   }
+
+  SYNCWARP
   return x;
 }
 

@@ -143,6 +143,8 @@ HOSTDEVICE real_t lgamma(real_t x) {
 #ifdef __CUDA_ARCH__
   return lgamma_nvcc(x);
 #else
+  static_assert(std::is_floating_point<real_t>::value,
+                "lgamma should only be used with real types");
   return std::lgamma(x);
 #endif
 }
