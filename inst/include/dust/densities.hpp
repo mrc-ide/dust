@@ -54,7 +54,7 @@ HOSTDEVICE T dbinom(int x, int size, T prob, bool log) {
   if (x == 0 && size == 0) {
     ret = 0;
   } else {
-    const T ret = lchoose<T>(size, x) +
+    ret = lchoose<T>(size, x) +
       x * std::log(prob) +
       (size - x) * std::log(1 - prob);
   }
@@ -163,7 +163,7 @@ HOSTDEVICE T dpois(int x, T lambda, bool log) {
   if (x == 0 && lambda == 0) {
     ret = 0;
   } else {
-    const T ret = x * std::log(lambda) - lambda -
+    ret = x * std::log(lambda) - lambda -
       dust::utils::lgamma(static_cast<T>(x + 1));
   }
 

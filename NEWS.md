@@ -1,6 +1,6 @@
 # dust 0.9.7
 
-* Synchronise possible divergences in the density functions (CUDA only) (#242)
+* Synchronise possible divergences in the density functions (CUDA only) (#243)
 
 # dust 0.9.6
 
@@ -10,6 +10,7 @@
 
 * Fix a bug when running the systematic resample in the particle filter
 in float mode (#238)
+
 # dust 0.9.4
 
 * Fix a bug when running the CUDA version of the particle filter without
