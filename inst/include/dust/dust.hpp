@@ -202,7 +202,7 @@ public:
                       device_state_.shared_int.data(),
                       device_state_.shared_real.data(),
                       device_state_.rng.data(),
-                      cuda_pars_.run_L1);
+                      cuda_pars_.run_L1_int);
       kernel_stream_.sync();
 #else
       dust::run_particles<T>(step_start, step_end, particles_.size(),
@@ -617,7 +617,7 @@ public:
                      device_state_.shared_real.data(),
                      device_data_.data() + data_offset,
                      device_state_.rng.data(),
-                     cuda_pars_.compare_L1);
+                     cuda_pars_.compare_L1_int);
     kernel_stream_.sync();
 #else
     dust::compare_particles<T>(
@@ -1028,7 +1028,7 @@ private:
 
     // Run kernel
     cuda_pars_.run_blockSize = 128;
-    cuda_pars_.run_L1 = true;
+    cuda_pars_.run_L1_int = true;
     size_t n_shared_int_effective = device_state_.n_shared_int +
       dust::utils::align_padding(device_state_.n_shared_int * sizeof(int), sizeof(real_t)) / sizeof(int);
     cuda_pars_.run_shared_size_bytes = n_shared_int_effective * sizeof(int) +
@@ -1037,7 +1037,7 @@ private:
       // If not enough particles per pars to make a whole block use
       // shared, or if shared_t too big for L1, turn it off, and run
       // in 'classic' mode where each particle is totally independent
-      cuda_pars_.run_L1 = false;
+      cuda_pars_.run_L1_int = false;
       cuda_pars_.run_shared_size_bytes = 0;
       cuda_pars_.run_blockCount = (n_particles() + cuda_pars_.run_blockSize - 1) / cuda_pars_.run_blockSize;
     } else {
@@ -1056,7 +1056,7 @@ private:
 
     // Compare kernel
     cuda_pars_.compare_blockSize = 128;
-    cuda_pars_.compare_L1 = true;
+    cuda_pars_.compare_L1_int = true;
     // Compare uses data_t too, with real aligned to 16-bytes, so has a larger
     // shared memory requirement
     size_t n_shared_real_effective = device_state_.n_shared_real +
@@ -1070,7 +1070,7 @@ private:
       // If not enough particles per pars to make a whole block use
       // shared, or if shared_t too big for L1, turn it off, and run
       // in 'classic' mode where each particle is totally independent
-      cuda_pars_.compare_L1 = false;
+      cuda_pars_.compare_L1_int = false;
       cuda_pars_.compare_shared_size_bytes = 0;
       cuda_pars_.compare_blockCount = (n_particles() + cuda_pars_.compare_blockSize - 1) / cuda_pars_.compare_blockSize;
     } else {

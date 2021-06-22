@@ -52,12 +52,14 @@ struct cuda_launch {
   size_t run_blockSize;
   size_t run_blockCount;
   size_t run_shared_size_bytes;
-  bool run_L1;
+  bool run_L1_int;
+  bool run_L1_real;
 
   size_t compare_blockSize;
   size_t compare_blockCount;
   size_t compare_shared_size_bytes;
-  bool compare_L1;
+  bool compare_L1_int;
+  bool compare_L1_real;
 
   size_t reorder_blockSize;
   size_t reorder_blockCount;
