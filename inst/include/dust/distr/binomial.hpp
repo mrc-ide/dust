@@ -43,7 +43,7 @@ real_t HOSTDEVICE binomial_inversion_calc(real_t u, int n, real_t p) {
     u -= f;
     k++;
     f *= (g / k - r);
-    if (f == f_prev) {
+    if (f == f_prev || k > n) {
       // This catches an issue seen running with floats where we end
       // up unable to decrease 'f' because we've run out of
       // precision. In this case we'll try again with a better u
