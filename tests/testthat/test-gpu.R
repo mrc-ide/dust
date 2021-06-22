@@ -662,11 +662,26 @@ test_that("Can fit a small model into shared", {
 })
 
 
-test_that("Will spill a large model out of shared", {
+test_that("Will spill a large model out of shared, but keep ints", {
   n_state_full <- n_state <- 100
   res <- test_cuda_pars(0, 2000, 2000,
                         n_state, n_state_full,
                         200, 50000, 0,
+                        40000)
+  expect_true(res$run_L1_int)
+  expect_false(res$run_L1_real)
+  expect_false(res$compare_L1_int)
+  expect_false(res$compare_L1_real)
+  expect_equal(res$run_shared_size_bytes, 800) # 200 * 4
+  expect_equal(res$compare_shared_size_bytes, 0)
+})
+
+
+test_that("Will spill a really large model out of shared", {
+  n_state_full <- n_state <- 100
+  res <- test_cuda_pars(0, 2000, 2000,
+                        n_state, n_state_full,
+                        20000, 10000, 0,
                         40000)
   expect_false(res$run_L1_int)
   expect_false(res$run_L1_real)
