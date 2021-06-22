@@ -4,8 +4,11 @@ OBJECTS = cpp11.o dust.o
 PKG_LIBS = {{cuda$lib_flags}} -lcudart $(SHLIB_OPENMP_CXXFLAGS)
 PKG_CXXFLAGS=-I{{path_dust_include}} -DHAVE_INLINE $(SHLIB_OPENMP_CXXFLAGS)
 
+# NOTE: using -Xcompiler -fopenmp here to pass this to the underlying
+# compiler, but this is not as portable as using
+# $(SHLIB_OPENMP_CXXFLAGS)
 NVCC = nvcc
-NVCC_FLAGS = -std=c++14 {{cuda$nvcc_flags}} -I. -I$(R_INCLUDE_DIR) -I{{path_dust_include}} {{cuda$cub_include}} $(CLINK_CPPFLAGS) {{cuda$gencode}} -Xcompiler -fPIC -x cu
+NVCC_FLAGS = -std=c++14 {{cuda$nvcc_flags}} -I. -I$(R_INCLUDE_DIR) -I{{path_dust_include}} {{cuda$cub_include}} $(CLINK_CPPFLAGS) {{cuda$gencode}} -Xcompiler -fPIC -Xcompiler -fopenmp -x cu
 
 %.o: %.cu
 	$(NVCC) $(NVCC_FLAGS) -c $< -o $@
