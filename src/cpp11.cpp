@@ -409,6 +409,13 @@ extern "C" SEXP _dust_dust_sirs_device_info() {
     return cpp11::as_sexp(dust_sirs_device_info());
   END_CPP11
 }
+// test_cuda_pars.cpp
+SEXP test_cuda_pars(int device_id, int n_particles, int n_particles_each, int n_state, int n_state_full, int n_shared_int, int n_shared_real, int data_size, int shared_size);
+extern "C" SEXP _dust_test_cuda_pars(SEXP device_id, SEXP n_particles, SEXP n_particles_each, SEXP n_state, SEXP n_state_full, SEXP n_shared_int, SEXP n_shared_real, SEXP data_size, SEXP shared_size) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(test_cuda_pars(cpp11::as_cpp<cpp11::decay_t<int>>(device_id), cpp11::as_cpp<cpp11::decay_t<int>>(n_particles), cpp11::as_cpp<cpp11::decay_t<int>>(n_particles_each), cpp11::as_cpp<cpp11::decay_t<int>>(n_state), cpp11::as_cpp<cpp11::decay_t<int>>(n_state_full), cpp11::as_cpp<cpp11::decay_t<int>>(n_shared_int), cpp11::as_cpp<cpp11::decay_t<int>>(n_shared_real), cpp11::as_cpp<cpp11::decay_t<int>>(data_size), cpp11::as_cpp<cpp11::decay_t<int>>(shared_size)));
+  END_CPP11
+}
 // tools.cpp
 cpp11::list cpp_scale_log_weights(std::vector<double> w);
 extern "C" SEXP _dust_cpp_scale_log_weights(SEXP w) {
@@ -963,6 +970,7 @@ extern SEXP _dust_dust_walk_set_state(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_walk_simulate(SEXP, SEXP, SEXP);
 extern SEXP _dust_dust_walk_state(SEXP, SEXP);
 extern SEXP _dust_dust_walk_step(SEXP);
+extern SEXP _dust_test_cuda_pars(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"_dust_cpp_openmp_info",               (DL_FUNC) &_dust_cpp_openmp_info,               0},
@@ -1083,6 +1091,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_walk_simulate",            (DL_FUNC) &_dust_dust_walk_simulate,            3},
     {"_dust_dust_walk_state",               (DL_FUNC) &_dust_dust_walk_state,               2},
     {"_dust_dust_walk_step",                (DL_FUNC) &_dust_dust_walk_step,                1},
+    {"_dust_test_cuda_pars",                (DL_FUNC) &_dust_test_cuda_pars,                9},
     {NULL, NULL, 0}
 };
 }

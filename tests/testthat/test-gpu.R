@@ -628,3 +628,44 @@ test_that("Can run and simulate with nontrivial index", {
   expect_equal(dim(y3), c(length(index), np, length(steps)))
   expect_identical(y3, y4)
 })
+
+
+test_that("shared, with no device, is default initialised", {
+  res <- test_cuda_pars(-1, 2000, 2000, 100, 200, 0, 20, 30, 40000)
+  expected <- list(run_blockSize = 0,
+                   run_blockCount = 0,
+                   run_shared_size_bytes = 0,
+                   run_L1 = FALSE,
+                   compare_blockSize = 0,
+                   compare_blockCount = 0,
+                   compare_shared_size_bytes = 0,
+                   compare_L1 = FALSE)
+  expect_equal(res, expected)
+})
+
+
+test_that("Can fit a small model into shared", {
+  n_state_full <- n_state <- 100
+  res <- test_cuda_pars(0, 2000, 2000,
+                        n_state, n_state_full,
+                        20, 30, 0,
+                        40000)
+  expect_true(res$run_L1)
+  expect_true(res$compare_L1)
+  expect_equal(res$run_shared_size_bytes, 200) # 20 * 4 + 30 * 4
+  ## TODO: I think that this is a bug in the alignment
+  expect_equal(res$run_shared_size_bytes, 208) # 20 * 4 + 30 * 4 + 0
+})
+
+
+test_that("Will spill a large model out of shared", {
+  n_state_full <- n_state <- 100
+  res <- test_cuda_pars(0, 2000, 2000,
+                        n_state, n_state_full,
+                        200, 50000, 0,
+                        40000)
+  expect_false(res$run_L1)
+  expect_false(res$compare_L1)
+  expect_equal(res$run_shared_size_bytes, 0)
+  expect_equal(res$compare_shared_size_bytes, 0)
+})
