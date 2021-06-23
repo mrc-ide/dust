@@ -32,9 +32,13 @@ cuda_launch_control cuda_pars_run(size_t n_particles, size_t n_particles_each,
   } else {
     ret.shared_int = shared_size_int_bytes <= shared_size;
     ret.shared_real = shared_size_both_bytes <= shared_size;
-    ret.shared_size_bytes =
-      ret.shared_int * n_shared_int_effective * sizeof(int) +
-      ret.shared_real * n_shared_real * sizeof(real_t);
+    if (ret.shared_real) {
+      ret.shared_size_bytes = shared_size_both_bytes;
+    } else if (ret.shared_int) {
+      ret.shared_size_bytes = shared_size_int_bytes;
+    } else {
+      ret.shared_size_bytes = 0;
+    }
   }
 
   ret.block_size = 128;
@@ -52,8 +56,7 @@ cuda_launch_control cuda_pars_run(size_t n_particles, size_t n_particles_each,
     // shared, or if shared_t too big for L1, turn it off, and run
     // in 'classic' mode where each particle is totally independent
     // ret.block_size = 128;
-    ret.block_count = (n_particles + ret.block_size - 1) /
-      ret.block_size;
+    ret.block_count = (n_particles + ret.block_size - 1) / ret.block_size;
   }
 
   return ret;
@@ -75,45 +78,57 @@ cuda_launch_control cuda_pars_compare(size_t n_particles,
 
   const size_t n_pars_effective = n_particles / n_particles_each;
   const int warp_size = dust::cuda::warp_size;
-
   size_t warp_block_size =
     warp_size * (n_particles_each + warp_size - 1) / warp_size;
-
   size_t n_shared_int_effective = n_shared_int +
     dust::utils::align_padding(n_shared_int * sizeof(int),
                                sizeof(real_t)) / sizeof(int);
+  size_t shared_size_int_bytes = n_shared_int_effective * sizeof(int);
 
-  ret.block_size = 128;
-  ret.shared_int = true;
-  ret.shared_real = true;
-  // Compare uses data_t too, with real aligned to 16-bytes, so has a larger
-  // shared memory requirement
   size_t n_shared_real_effective = n_shared_real +
-    dust::utils::align_padding(n_shared_int_effective * sizeof(int) +
+    dust::utils::align_padding(shared_size_int_bytes +
                                n_shared_real * sizeof(real_t),
                                16) / sizeof(real_t);
-  ret.shared_size_bytes = n_shared_int_effective * sizeof(int) +
+
+  size_t shared_size_both_bytes =
+    shared_size_int_bytes +
     n_shared_real_effective * sizeof(real_t) +
     data_size;
-  if (n_particles_each < warp_size || ret.shared_size_bytes > shared_size) {
-    // If not enough particles per pars to make a whole block use
-    // shared, or if shared_t too big for L1, turn it off, and run
-    // in 'classic' mode where each particle is totally independent
+
+  if (n_particles_each < warp_size) {
     ret.shared_int = false;
     ret.shared_real = false;
     ret.shared_size_bytes = 0;
-    ret.block_count = (n_particles + ret.block_size - 1) / ret.block_size;
   } else {
-    // If it's possible to make blocks with shared_t in L1 cache,
-    // each block runs a pars set. Each pars set has enough blocks
-    // to run all of its particles, the final block may have some
-    // threads that don't do anything (hang off the end)
+    ret.shared_int = shared_size_int_bytes <= shared_size;
+    ret.shared_real = shared_size_both_bytes <= shared_size;
+    if (ret.shared_real) {
+      ret.shared_size_bytes = shared_size_both_bytes;
+    } else if (ret.shared_int) {
+      ret.shared_size_bytes = shared_size_int_bytes;
+    } else {
+      ret.shared_size_bytes = 0;
+    }
+  }
+
+  ret.block_size = 128;
+  if (ret.shared_int || ret.shared_real) {
+    // Either (or both) int and real will fit into shared (L1
+    // cache), each block runs a pars set. Each pars set has enough
+    // blocks to run all of its particles, the final block may have
+    // some threads that don't do anything (hang off the end)
     ret.block_size = std::min(ret.block_size, warp_block_size);
     ret.block_count =
-      n_pars_effective *
-      (n_particles_each + ret.block_size - 1) /
+      n_pars_effective * (n_particles_each + ret.block_size - 1) /
       ret.block_size;
+  } else {
+    // If not enough particles per pars to make a whole block use
+    // shared, or if shared_t too big for L1, turn it off, and run
+    // in 'classic' mode where each particle is totally independent
+    // ret.block_size = 128;
+    ret.block_count = (n_particles + ret.block_size - 1) / ret.block_size;
   }
+
   return ret;
 }
 

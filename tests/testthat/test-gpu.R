@@ -659,23 +659,39 @@ test_that("Can fit a small model into shared", {
   expect_true(res$compare$shared_int)
   expect_true(res$compare$shared_real)
   expect_equal(res$run$shared_size_bytes, 200) # 20 * 4 + 30 * 4
-  ## TODO: I think that this is a bug in the alignment
   expect_equal(res$compare$shared_size_bytes, 208) # 20 * 4 + 30 * 4 + 0
 })
+
+
+test_that("Can fit a small model into shared, with data", {
+  n_state_full <- n_state <- 100
+  res <- test_cuda_pars(0, 2000, 2000,
+                        n_state, n_state_full,
+                        20, 30, 32,
+                        40000)
+  expect_true(res$run$shared_int)
+  expect_true(res$run$shared_real)
+  expect_true(res$compare$shared_int)
+  expect_true(res$compare$shared_real)
+  expect_equal(res$run$shared_size_bytes, 200) # 20 * 4 + 30 * 4
+  ## The +8 here is for the alignment
+  expect_equal(res$compare$shared_size_bytes, 240) # 20 * 4 + 30 * 4 + 8 + 32
+})
+
 
 
 test_that("Will spill a large model out of shared, but keep ints", {
   n_state_full <- n_state <- 100
   res <- test_cuda_pars(0, 2000, 2000,
                         n_state, n_state_full,
-                        200, 50000, 0,
+                        200, 50000, 32,
                         40000)
   expect_true(res$run$shared_int)
   expect_false(res$run$shared_real)
-  expect_false(res$compare$shared_int)
+  expect_true(res$compare$shared_int)
   expect_false(res$compare$shared_real)
   expect_equal(res$run$shared_size_bytes, 800) # 200 * 4
-  expect_equal(res$compare$shared_size_bytes, 0)
+  expect_equal(res$compare$shared_size_bytes, 800) # 200 * 4
 })
 
 
