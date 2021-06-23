@@ -20,3 +20,9 @@ mock_create_test_package <- function(...) {
   writeLines(code, file.path(path, "R", "code.R"))
   list(path = path, name = base)
 }
+
+
+create_launch_control <- function(block_size, block_count) {
+  list(block_size = block_size, block_count = block_count,
+       shared_size_bytes = 0, shared_int = FALSE, shared_real = FALSE)
+}

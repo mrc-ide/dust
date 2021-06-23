@@ -79,6 +79,19 @@ inline cuda_launch_control launch_control_model(size_t n_particles,
 }
 
 
+inline cuda_launch_control launch_control_simple(size_t n, size_t block_size) {
+  const size_t block_count = (n + block_size - 1) / block_size;
+  return cuda_launch_control{block_size, block_count, 0, false, false};
+}
+
+
+inline void set_block_size(cuda_launch_control &ctrl,
+                           size_t n, size_t block_size) {
+  ctrl.block_size = block_size;
+  ctrl.block_count = (n + block_size - 1) / block_size;
+}
+
+
 // TODO: rename!
 inline cuda_launch_dust set_cuda_pars(int device_id,
                                       size_t n_particles,
@@ -94,7 +107,7 @@ inline cuda_launch_dust set_cuda_pars(int device_id,
     return cuda_launch_dust{};
   }
 
-  cuda_launch_dust cuda_pars;
+  cuda_launch_dust cuda_pars{};
 
   cuda_pars.run = launch_control_model(n_particles, n_particles_each,
                                        n_shared_int, n_shared_real,
@@ -104,23 +117,27 @@ inline cuda_launch_dust set_cuda_pars(int device_id,
                                            real_size, data_size, shared_size);
 
   // Reorder kernel
+  // cuda_pars.reorder = launch_control_simple(n_particles * n_state_full, 128);
   cuda_pars.reorder.block_size = 128;
   cuda_pars.reorder.block_count =
     (n_particles * n_state_full + cuda_pars.reorder.block_size - 1) /
     cuda_pars.reorder.block_size;
 
   // Scatter kernels
+  // cuda_pars.scatter = launch_control_simple(n_particles * n_state_full, 64);
   cuda_pars.scatter.block_size = 64;
   cuda_pars.scatter.block_count =
     (n_particles * n_state_full + cuda_pars.scatter.block_size - 1) /
     cuda_pars.scatter.block_size;
 
+  // cuda_pars.index_scatter = launch_control_simple(n_particles * n_state, 64);
   cuda_pars.index_scatter.block_size = 64;
   cuda_pars.index_scatter.block_count =
     (n_particles * n_state + cuda_pars.index_scatter.block_size - 1) /
     cuda_pars.index_scatter.block_size;
 
   // Interval kernel
+  // cuda_pars.interval = launch_control_simple(n_particles, 128);
   cuda_pars.interval.block_size = 128;
   cuda_pars.interval.block_count =
     (n_particles + cuda_pars.interval.block_size - 1) /

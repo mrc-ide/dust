@@ -632,24 +632,20 @@ test_that("Can run and simulate with nontrivial index", {
 
 test_that("shared, with no device, is default initialised", {
   res <- test_cuda_pars(-1, 2000, 2000, 100, 200, 0, 20, 30, 40000)
-  expected <- list(run = list(
-                     block_size = 0,
-                     block_count = 0,
-                     shared_size_bytes = 0,
-                     shared_int = FALSE,
-                     shared_real = FALSE),
-                   compare = list(
-                     block_size = 0,
-                     block_count = 0,
-                     shared_size_bytes = 0,
-                     shared_int = FALSE,
-                     shared_real = FALSE))
+  empty <- create_launch_control(0, 0)
+  expected <- list(run = empty,
+                   compare = empty,
+                   reorder = empty,
+                   scatter = empty,
+                   index_scatter = empty,
+                   interval = empty)
   expect_equal(res, expected)
 })
 
 
 test_that("Can fit a small model into shared", {
-  n_state_full <- n_state <- 100
+  n_state <- 100
+  n_state_full <- 202
   res <- test_cuda_pars(0, 2000, 2000,
                         n_state, n_state_full,
                         20, 30, 0,
@@ -660,6 +656,16 @@ test_that("Can fit a small model into shared", {
   expect_true(res$compare$shared_real)
   expect_equal(res$run$shared_size_bytes, 200) # 20 * 4 + 30 * 4
   expect_equal(res$compare$shared_size_bytes, 200) # 20 * 4 + 30 * 4 + 0
+
+  expect_equal(res$run$block_size, 128)
+  expect_equal(res$run$block_count, 16)
+  expect_equal(res$compare$block_size, 128)
+  expect_equal(res$compare$block_count, 16)
+
+  expect_equal(res$reorder, create_launch_control(128, 3157))
+  expect_equal(res$scatter, create_launch_control(64, 6313))
+  expect_equal(res$index_scatter, create_launch_control(64, 3125))
+  expect_equal(res$interval, create_launch_control(128, 3157))
 })
 
 

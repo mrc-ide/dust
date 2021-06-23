@@ -27,5 +27,10 @@ SEXP test_cuda_pars(int device_id, int n_particles, int n_particles_each,
 
   using namespace cpp11::literals;
   return cpp11::writable::list({"run"_nm = launch_r_list(pars.run),
-                                "compare"_nm = launch_r_list(pars.compare)});
+                                "compare"_nm = launch_r_list(pars.compare),
+                                "reorder"_nm = launch_r_list(pars.reorder),
+                                "scatter"_nm = launch_r_list(pars.scatter),
+                                "index_scatter"_nm = launch_r_list(pars.index_scatter),
+                                "interval"_nm = launch_r_list(pars.reorder)
+    });
 }
