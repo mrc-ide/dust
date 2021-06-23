@@ -654,8 +654,9 @@ test_that("Can fit a small model into shared", {
   expect_true(res$run$shared_real)
   expect_true(res$compare$shared_int)
   expect_true(res$compare$shared_real)
-  expect_equal(res$run$shared_size_bytes, 200) # 20 * 4 + 30 * 4
-  expect_equal(res$compare$shared_size_bytes, 200) # 20 * 4 + 30 * 4 + 0
+  ## 200 is 20 * 4 + 30 * 4
+  expect_equal(res$run$shared_size_bytes, 200)
+  expect_equal(res$compare$shared_size_bytes, 200)
 
   expect_equal(res$run$block_size, 128)
   expect_equal(res$run$block_count, 16)
@@ -679,9 +680,10 @@ test_that("Can fit a small model into shared, with data", {
   expect_true(res$run$shared_real)
   expect_true(res$compare$shared_int)
   expect_true(res$compare$shared_real)
-  expect_equal(res$run$shared_size_bytes, 200) # 20 * 4 + 30 * 4
-  ## The +8 here is for the alignment
-  expect_equal(res$compare$shared_size_bytes, 240) # 20 * 4 + 30 * 4 + 8 + 32
+  ## 300 is 20 * 4 + 30 * 4
+  expect_equal(res$run$shared_size_bytes, 200) #
+  ## 240 is 20 * 4 + 30 * 4 + 8 + 32; the +8 here is for the alignment
+  expect_equal(res$compare$shared_size_bytes, 240)
 })
 
 
@@ -696,8 +698,8 @@ test_that("Will spill a large model out of shared, but keep ints", {
   expect_false(res$run$shared_real)
   expect_true(res$compare$shared_int)
   expect_false(res$compare$shared_real)
-  expect_equal(res$run$shared_size_bytes, 800) # 200 * 4
-  expect_equal(res$compare$shared_size_bytes, 800) # 200 * 4
+  expect_equal(res$run$shared_size_bytes, 800) # i.e., 200 * 4
+  expect_equal(res$compare$shared_size_bytes, 800) # i.e., 200 * 4
 })
 
 
