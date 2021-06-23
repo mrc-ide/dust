@@ -23,6 +23,7 @@ public:
                       size_t n_shared_int, size_t n_shared_real,
                       size_t real_size, size_t data_size,
                       size_t shared_size);
+  launch_control_dust();
   launch_control run;
   launch_control compare;
   launch_control reorder;
@@ -112,6 +113,16 @@ inline launch_control launch_control_simple(size_t block_size, size_t n) {
 }
 
 
+inline launch_control_dust::launch_control_dust() {
+  run = launch_control{};
+  compare = launch_control{};
+  reorder = launch_control{};
+  scatter = launch_control{};
+  index_scatter = launch_control{};
+  interval = launch_control{};
+}
+
+
 inline launch_control_dust::launch_control_dust(int device_id,
                                                 size_t n_particles,
                                                 size_t n_particles_each,
@@ -123,12 +134,7 @@ inline launch_control_dust::launch_control_dust(int device_id,
                                                 size_t data_size,
                                                 size_t shared_size) {
   if (device_id < 0) {
-    run = launch_control{};
-    compare = launch_control{};
-    reorder = launch_control{};
-    scatter = launch_control{};
-    index_scatter = launch_control{};
-    interval = launch_control{};
+    launch_control_dust();
   } else {
     run = launch_control_model(n_particles, n_particles_each,
                                    n_shared_int, n_shared_real,

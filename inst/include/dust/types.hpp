@@ -47,33 +47,6 @@ struct pars_t {
   }
 };
 
-// Parameters for CUDA kernel launches
-struct cuda_launch {
-  size_t run_blockSize;
-  size_t run_blockCount;
-  size_t run_shared_size_bytes;
-  bool run_L1_int;
-  bool run_L1_real;
-
-  size_t compare_blockSize;
-  size_t compare_blockCount;
-  size_t compare_shared_size_bytes;
-  bool compare_L1_int;
-  bool compare_L1_real;
-
-  size_t reorder_blockSize;
-  size_t reorder_blockCount;
-
-  size_t scatter_blockSize;
-  size_t scatter_blockCount;
-
-  size_t index_scatter_blockSize;
-  size_t index_scatter_blockCount;
-
-  size_t interval_blockSize;
-  size_t interval_blockCount;
-};
-
 template <typename real_t>
 struct device_state {
   void initialise(size_t n_particles, size_t n_state, size_t n_pars,
