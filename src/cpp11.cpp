@@ -409,7 +409,7 @@ extern "C" SEXP _dust_dust_sirs_device_info() {
     return cpp11::as_sexp(dust_sirs_device_info());
   END_CPP11
 }
-// test_cuda_pars.cpp
+// test_cuda_launch_control.cpp
 SEXP test_cuda_pars(int device_id, int n_particles, int n_particles_each, int n_state, int n_state_full, int n_shared_int, int n_shared_real, int data_size, int shared_size);
 extern "C" SEXP _dust_test_cuda_pars(SEXP device_id, SEXP n_particles, SEXP n_particles_each, SEXP n_state, SEXP n_state_full, SEXP n_shared_int, SEXP n_shared_real, SEXP data_size, SEXP shared_size) {
   BEGIN_CPP11
