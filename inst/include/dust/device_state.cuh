@@ -27,7 +27,8 @@ DEVICE dust::device_ptrs<T> load_shared_state(const int pars_idx,
                                               const int * shared_int,
                                               const typename T::real_t * shared_real,
                                               const typename T::data_t * data,
-                                              bool use_shared_L1) {
+                                              bool use_shared_int,
+                                              bool use_shared_real) {
   dust::device_ptrs<T> ptrs;
 
   // Get start address in shared space
@@ -45,12 +46,14 @@ DEVICE dust::device_ptrs<T> load_shared_state(const int pars_idx,
   auto block = cooperative_groups::this_thread_block();
   static_assert(sizeof(real_t) >= sizeof(int),
                 "real_t and int shared memory not alignable");
-  if (use_shared_L1) {
+  if (use_shared_int) {
     int * shared_block_int = shared_block;
     dust::cuda::shared_mem_cpy(block, shared_block_int, ptrs.shared_int,
                                n_shared_int);
     ptrs.shared_int = shared_block_int;
+  }
 
+  if (use_shared_real) {
     // Must only have a single __shared__ definition, cast to use different
     // types within it
     // Furthermore, writing must be aligned to the word length (may be an issue
@@ -81,7 +84,7 @@ DEVICE dust::device_ptrs<T> load_shared_state(const int pars_idx,
   dust::cuda::shared_mem_wait(block);
 #endif
 
-  return(ptrs);
+  return ptrs;
 }
 
 }

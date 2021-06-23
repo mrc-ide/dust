@@ -81,28 +81,31 @@ KERNEL void run_particles(size_t step_start,
                           const int * shared_int,
                           const typename T::real_t * shared_real,
                           uint64_t * rng_state,
-                          bool use_shared_L1) {
+                          bool use_shared_int,
+                          bool use_shared_real) {
   typedef typename T::real_t real_t;
   const size_t n_particles_each = n_particles / n_pars;
 
 #ifdef __CUDA_ARCH__
   const int block_per_pars = (n_particles_each + blockDim.x - 1) / blockDim.x;
   int j;
-  if (use_shared_L1) {
+  if (use_shared_int || use_shared_real) {
     j = blockIdx.x / block_per_pars;
   } else {
     j = (blockIdx.x * blockDim.x + threadIdx.x) / n_particles_each;
   }
-  dust::device_ptrs<T> shared_state = dust::load_shared_state<T>(j,
-                                                  n_shared_int,
-                                                  n_shared_real,
-                                                  shared_int,
-                                                  shared_real,
-                                                  nullptr,
-                                                  use_shared_L1);
+  dust::device_ptrs<T> shared_state =
+    dust::load_shared_state<T>(j,
+                               n_shared_int,
+                               n_shared_real,
+                               shared_int,
+                               shared_real,
+                               nullptr,
+                               use_shared_int,
+                               use_shared_real);
 
   int i, max_i;
-  if (use_shared_L1) {
+  if (use_shared_int || use_shared_real) {
     // Pick particle index based on block, don't process if off the end
     i = j * n_particles_each + (blockIdx.x % block_per_pars) * blockDim.x +
       threadIdx.x;
@@ -125,6 +128,7 @@ KERNEL void run_particles(size_t step_start,
                                  shared_int,
                                  shared_real,
                                  nullptr,
+                                 false,
                                  false);
 #endif
     dust::interleaved<real_t> p_state(state, i, n_particles);
@@ -166,7 +170,8 @@ KERNEL void compare_particles(size_t n_particles,
                               const typename T::real_t * shared_real,
                               const typename T::data_t * data,
                               uint64_t * rng_state,
-                              bool use_shared_L1) {
+                              bool use_shared_int,
+                              bool use_shared_real) {
   // This setup is mostly shared with run_particles
   typedef typename T::real_t real_t;
   const size_t n_particles_each = n_particles / n_pars;
@@ -174,7 +179,7 @@ KERNEL void compare_particles(size_t n_particles,
 #ifdef __CUDA_ARCH__
   const int block_per_pars = (n_particles_each + blockDim.x - 1) / blockDim.x;
   int j;
-  if (use_shared_L1) {
+  if (use_shared_int || use_shared_real) {
     j = blockIdx.x / block_per_pars;
   } else {
     j = (blockIdx.x * blockDim.x + threadIdx.x) / n_particles_each;
@@ -186,11 +191,12 @@ KERNEL void compare_particles(size_t n_particles,
                                shared_int,
                                shared_real,
                                data,
-                               use_shared_L1);
+                               use_shared_int,
+                               use_shared_real);
 
   // Particle index i, and max index to process in the block
   int i, max_i;
-  if (use_shared_L1) {
+  if (use_shared_int || use_shared_real) {
     // Pick particle index based on block, don't process if off the end
     i = j * n_particles_each + (blockIdx.x % block_per_pars) * blockDim.x +
       threadIdx.x;
@@ -206,13 +212,15 @@ KERNEL void compare_particles(size_t n_particles,
   // omp here
   for (size_t i = 0; i < n_particles; ++i) {
     const int j = i / n_particles_each;
-    dust::device_ptrs<T> shared_state = dust::load_shared_state<T>(j,
-                                                  n_shared_int,
-                                                  n_shared_real,
-                                                  shared_int,
-                                                  shared_real,
-                                                  data,
-                                                  use_shared_L1);
+    dust::device_ptrs<T> shared_state =
+      dust::load_shared_state<T>(j,
+                                 n_shared_int,
+                                 n_shared_real,
+                                 shared_int,
+                                 shared_real,
+                                 data,
+                                 use_shared_int,
+                                 use_shared_real);
 #endif
     dust::interleaved<real_t> p_state(state, i, n_particles);
     dust::interleaved<int> p_internal_int(internal_int, i, n_particles);

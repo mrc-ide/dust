@@ -203,6 +203,7 @@ public:
                       device_state_.shared_int.data(),
                       device_state_.shared_real.data(),
                       device_state_.rng.data(),
+                      cuda_pars_.run.shared_int,
                       cuda_pars_.run.shared_real);
       kernel_stream_.sync();
 #else
@@ -216,6 +217,7 @@ public:
                       device_state_.shared_int.data(),
                       device_state_.shared_real.data(),
                       device_state_.rng.data(),
+                      false,
                       false);
 #endif
 
@@ -618,6 +620,7 @@ public:
                      device_state_.shared_real.data(),
                      device_data_.data() + data_offset,
                      device_state_.rng.data(),
+                     cuda_pars_.compare.shared_int,
                      cuda_pars_.compare.shared_real);
     kernel_stream_.sync();
 #else
@@ -634,6 +637,7 @@ public:
                      device_state_.shared_real.data(),
                      device_data_.data() + data_offset,
                      device_state_.rng.data(),
+                     false,
                      false);
 #endif
     stale_host_ = true; // RNG use
