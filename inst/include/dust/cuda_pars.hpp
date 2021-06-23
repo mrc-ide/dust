@@ -85,10 +85,11 @@ cuda_launch_control cuda_pars_compare(size_t n_particles,
                                sizeof(real_t)) / sizeof(int);
   size_t shared_size_int_bytes = n_shared_int_effective * sizeof(int);
 
+  size_t real_align = data_size == 0 ? sizeof(real_t) : 16;
   size_t n_shared_real_effective = n_shared_real +
     dust::utils::align_padding(shared_size_int_bytes +
                                n_shared_real * sizeof(real_t),
-                               16) / sizeof(real_t);
+                               real_align) / sizeof(real_t);
 
   size_t shared_size_both_bytes =
     shared_size_int_bytes +

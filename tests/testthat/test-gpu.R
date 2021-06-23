@@ -659,7 +659,7 @@ test_that("Can fit a small model into shared", {
   expect_true(res$compare$shared_int)
   expect_true(res$compare$shared_real)
   expect_equal(res$run$shared_size_bytes, 200) # 20 * 4 + 30 * 4
-  expect_equal(res$compare$shared_size_bytes, 208) # 20 * 4 + 30 * 4 + 0
+  expect_equal(res$compare$shared_size_bytes, 200) # 20 * 4 + 30 * 4 + 0
 })
 
 
