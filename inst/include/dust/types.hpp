@@ -47,6 +47,23 @@ struct pars_t {
   }
 };
 
+struct cuda_launch_control {
+  size_t block_size;
+  size_t block_count;
+  size_t shared_size_bytes;
+  bool shared_int;
+  bool shared_real;
+};
+
+struct cuda_launch_dust {
+  cuda_launch_control run;
+  cuda_launch_control compare;
+  cuda_launch_control reorder;
+  cuda_launch_control scatter;
+  cuda_launch_control index_scatter;
+  cuda_launch_control interval;
+};
+
 // Parameters for CUDA kernel launches
 struct cuda_launch {
   size_t run_blockSize;

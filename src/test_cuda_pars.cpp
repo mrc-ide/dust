@@ -2,6 +2,15 @@
 #include <dust/dust.hpp>
 #include <dust/cuda_pars.hpp>
 
+cpp11::list launch_r_list(const dust::cuda_launch_control& p) {
+  using namespace cpp11::literals;
+  return cpp11::writable::list({"block_size"_nm = p.block_size,
+                                "block_count"_nm = p.block_count,
+                                "shared_size_bytes"_nm = p.shared_size_bytes,
+                                "shared_int"_nm = p.shared_int,
+                                "shared_real"_nm = p.shared_real});
+}
+
 [[cpp11::register]]
 SEXP test_cuda_pars(int device_id, int n_particles, int n_particles_each,
                     int n_state, int n_state_full,
@@ -16,16 +25,6 @@ SEXP test_cuda_pars(int device_id, int n_particles, int n_particles_each,
                                          shared_size);
 
   using namespace cpp11::literals;
-  return cpp11::writable::list({"run_blockSize"_nm = pars.run_blockSize,
-                                "run_blockCount"_nm = pars.run_blockCount,
-                                "run_shared_size_bytes"_nm = pars.run_shared_size_bytes,
-                                "run_L1_int"_nm = pars.run_L1_int,
-                                "run_L1_real"_nm = pars.run_L1_real,
-
-                                "compare_blockSize"_nm = pars.compare_blockSize,
-                                "compare_blockCount"_nm = pars.compare_blockCount,
-                                "compare_shared_size_bytes"_nm = pars.compare_shared_size_bytes,
-                                "compare_L1_int"_nm = pars.compare_L1_int,
-                                "compare_L1_real"_nm = pars.compare_L1_real,
-    });
+  return cpp11::writable::list({"run"_nm = launch_r_list(pars.run),
+                                "compare"_nm = launch_r_list(pars.compare)});
 }
