@@ -2,10 +2,11 @@
 
 namespace dust {
 
-// Simplify below with something like this?
-// inline size_t block_count(size_t n_particles, size_t len, size_t block_size) {
-//   return (n_particles * len + block_size - 1) / block_size;
-// }
+inline void set_block_size(cuda_launch_control &ctrl,
+                           size_t n, size_t block_size) {
+  ctrl.block_size = block_size;
+  ctrl.block_count = (n + block_size - 1) / block_size;
+}
 
 // Run / Compare kernel
 //
@@ -57,13 +58,15 @@ inline cuda_launch_control launch_control_model(size_t n_particles,
     }
   }
 
-  ret.block_size = 128;
   if (ret.shared_int || ret.shared_real) {
     // Either (or both) int and real will fit into shared (L1
     // cache), each block runs a pars set. Each pars set has enough
     // blocks to run all of its particles, the final block may have
     // some threads that don't do anything (hang off the end)
-    ret.block_size = std::min(ret.block_size, warp_block_size);
+    //
+    // TODO: This is the only bit of block size calculation that is
+    // different to set_block_size, John can you expand why?
+    ret.block_size = std::min(static_cast<size_t>(128), warp_block_size);
     ret.block_count =
       n_pars_effective * (n_particles_each + ret.block_size - 1) /
       ret.block_size;
@@ -72,23 +75,10 @@ inline cuda_launch_control launch_control_model(size_t n_particles,
     // shared, or if shared_t too big for L1, turn it off, and run
     // in 'classic' mode where each particle is totally independent
     // ret.block_size = 128;
-    ret.block_count = (n_particles + ret.block_size - 1) / ret.block_size;
+    set_block_size(ret, n_particles, 128);
   }
 
   return ret;
-}
-
-
-inline cuda_launch_control launch_control_simple(size_t n, size_t block_size) {
-  const size_t block_count = (n + block_size - 1) / block_size;
-  return cuda_launch_control{block_size, block_count, 0, false, false};
-}
-
-
-inline void set_block_size(cuda_launch_control &ctrl,
-                           size_t n, size_t block_size) {
-  ctrl.block_size = block_size;
-  ctrl.block_count = (n + block_size - 1) / block_size;
 }
 
 
@@ -103,11 +93,11 @@ inline cuda_launch_dust set_cuda_pars(int device_id,
                                       size_t real_size,
                                       size_t data_size,
                                       size_t shared_size) {
-  if (device_id < 0) {
-    return cuda_launch_dust{};
-  }
-
   cuda_launch_dust cuda_pars{};
+
+  if (device_id < 0) {
+    return cuda_pars;
+  }
 
   cuda_pars.run = launch_control_model(n_particles, n_particles_each,
                                        n_shared_int, n_shared_real,
@@ -116,32 +106,10 @@ inline cuda_launch_dust set_cuda_pars(int device_id,
                                            n_shared_int, n_shared_real,
                                            real_size, data_size, shared_size);
 
-  // Reorder kernel
-  // cuda_pars.reorder = launch_control_simple(n_particles * n_state_full, 128);
-  cuda_pars.reorder.block_size = 128;
-  cuda_pars.reorder.block_count =
-    (n_particles * n_state_full + cuda_pars.reorder.block_size - 1) /
-    cuda_pars.reorder.block_size;
-
-  // Scatter kernels
-  // cuda_pars.scatter = launch_control_simple(n_particles * n_state_full, 64);
-  cuda_pars.scatter.block_size = 64;
-  cuda_pars.scatter.block_count =
-    (n_particles * n_state_full + cuda_pars.scatter.block_size - 1) /
-    cuda_pars.scatter.block_size;
-
-  // cuda_pars.index_scatter = launch_control_simple(n_particles * n_state, 64);
-  cuda_pars.index_scatter.block_size = 64;
-  cuda_pars.index_scatter.block_count =
-    (n_particles * n_state + cuda_pars.index_scatter.block_size - 1) /
-    cuda_pars.index_scatter.block_size;
-
-  // Interval kernel
-  // cuda_pars.interval = launch_control_simple(n_particles, 128);
-  cuda_pars.interval.block_size = 128;
-  cuda_pars.interval.block_count =
-    (n_particles + cuda_pars.interval.block_size - 1) /
-    cuda_pars.interval.block_size;
+  set_block_size(cuda_pars.reorder, n_particles * n_state_full, 128);
+  set_block_size(cuda_pars.scatter, n_particles * n_state_full, 64);
+  set_block_size(cuda_pars.index_scatter, n_particles * n_state, 64);
+  set_block_size(cuda_pars.interval, n_particles, 128);
 
   return cuda_pars;
 }
