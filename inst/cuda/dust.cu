@@ -3,5 +3,5 @@
 #include <dust/device_info.hpp>
 
 cpp11::sexp dust_device_info() {
-  return dust::cuda::device_info<void>();
+  return dust::cuda::device_info<float>();
 }
