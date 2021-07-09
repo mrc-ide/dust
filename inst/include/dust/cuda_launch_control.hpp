@@ -145,8 +145,8 @@ inline launch_control_dust::launch_control_dust(int device_id,
                                    n_shared_int, n_shared_real,
                                    real_size, 0, shared_size);
     compare = launch_control_model(n_particles, n_particles_each,
-                                       n_shared_int, n_shared_real,
-                                       real_size, data_size, shared_size);
+                                   n_shared_int, n_shared_real,
+                                   real_size, data_size, shared_size);
 
     reorder       = launch_control_simple(128, n_particles * n_state_full);
     scatter       = launch_control_simple( 64, n_particles * n_state_full);

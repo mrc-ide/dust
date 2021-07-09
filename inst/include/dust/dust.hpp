@@ -871,7 +871,8 @@ private:
     if (device_id_ < 0) {
       return;
     }
-    device_state_.set_device_index(index_, particles_.size(), n_state_full());
+    const size_t n_particles = particles_.size();
+    device_state_.set_device_index(index_, n_particles, n_state_full());
 
     select_needed_ = true;
     if (!std::is_sorted(index_.cbegin(), index_.cend())) {
@@ -879,6 +880,10 @@ private:
     } else {
       select_scatter_ = false;
     }
+
+    // TODO: get this 64 from the original configuration, if possible.
+    cuda_pars_.index_scatter =
+      dust::cuda::launch_control_simple(64, n_particles * n_state());
   }
 
   // Default noop refresh methods
