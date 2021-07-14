@@ -41,8 +41,6 @@ public:
     if (device_id_ >= 0) {
       CUDA_CALL(cudaSetDevice(device_id_));
       CUDA_CALL(cudaDeviceSetCacheConfig(cudaFuncCachePreferL1));
-      // TODO: this is not fab, as we stop this from the Dust
-      // destructor
 #ifdef DUST_ENABLE_CUDA_PROFILER
       CUDA_CALL(cudaProfilerStart());
 #endif
@@ -139,8 +137,22 @@ inline launch_control launch_control_model(size_t n_particles,
     // blocks to run all of its particles, the final block may have
     // some threads that don't do anything (hang off the end)
     //
-    // TODO: This is the only bit of block size calculation that is
-    // different to set_block_size, John can you expand why?
+    // This is the only bit of block size calculation that is
+    // different to set_block_size, reasoning from John (see #246):
+    //
+    // > Each block runs a single set of parameters in multi_pars (as
+    // > they have pars loaded into shared memory, which is shared
+    // > amongst the block). We may have n_threads % n_pars = 0, in
+    // > which case no problem, just run enough blocks to handle all
+    // > the threads (as normal). If there is a remainder, some of
+    // > last block to will have some idle threads (though these are
+    // > used for the shared mem copy, but don't run a particle).
+    // >
+    // > Here, I found good performance with a block size up to 128,
+    // > dropping off above that. But if you have a relatively large
+    // > number of multi_pars and n_particles_each < 128 it's wasteful
+    // > to leave some many threads idle, so use the nearest multiple
+    // > of 32 up to a max of 128
     ret.block_size = std::min(static_cast<size_t>(block_size), warp_block_size);
     ret.block_count =
       n_pars_effective * (n_particles_each + ret.block_size - 1) /
