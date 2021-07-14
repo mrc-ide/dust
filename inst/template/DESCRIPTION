@@ -1,3 +1,4 @@
 Package: {{base}}
 LinkingTo: cpp11
 Version: 0.0.1
+SystemRequirements: C++11
