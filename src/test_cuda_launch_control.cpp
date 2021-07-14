@@ -15,14 +15,17 @@ cpp11::list launch_r_list(const dust::cuda::launch_control& p) {
 SEXP test_cuda_pars(int device_id, int n_particles, int n_particles_each,
                     int n_state, int n_state_full,
                     int n_shared_int, int n_shared_real, int data_size,
-                    int shared_size) {
+                    int shared_size, int run_block_size) {
   size_t real_size = sizeof(float);
-  auto pars = dust::cuda::launch_control_dust(device_id,
+
+  dust::cuda::device_config config(device_id, run_block_size);
+  config.shared_size_ = shared_size; // this will be zero, add our own size!
+
+  auto pars = dust::cuda::launch_control_dust(config,
                                               n_particles, n_particles_each,
                                               n_state, n_state_full,
                                               n_shared_int, n_shared_real,
-                                              real_size, data_size,
-                                              shared_size);
+                                              real_size, data_size);
 
   using namespace cpp11::literals;
   return cpp11::writable::list

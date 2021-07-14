@@ -5,7 +5,7 @@ test_that("Can run device version of model on cpu", {
   len <- 20
   gen <- dust_example("variable")
   mod1 <- gen$new(list(len = len), 0, np, seed = 1L)
-  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_id = 0L)
+  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
 
   expect_identical(
     mod1$run(10),
@@ -20,8 +20,8 @@ test_that("Can use both device and cpu run functions", {
   np <- 100
   len <- 20
   gen <- dust_example("variable")
-  mod1 <- gen$new(list(len = len), 0, np, seed = 1L, device_id = 0L)
-  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_id = 0L)
+  mod1 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
+  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
   mod3 <- gen$new(list(len = len), 0, np, seed = 1L)
 
   expect_identical(
@@ -62,7 +62,7 @@ test_that("Can run multiple parameter sets", {
   res <- dust_example("variable")
   p <- list(list(len = 10, sd = 1), list(len = 10, sd = 10))
   mod1 <- res$new(p, 0, 10, seed = 1L, pars_multi = TRUE)
-  mod2 <- res$new(p, 0, 10, seed = 1L, pars_multi = TRUE, device_id = 0L)
+  mod2 <- res$new(p, 0, 10, seed = 1L, pars_multi = TRUE, device_config = 0L)
   expect_identical(
     mod1$run(10),
     mod2$run(10, TRUE))
@@ -78,7 +78,7 @@ test_that("Can reorder on the device", {
 
   np <- 13
   mod1 <- res$new(p, 0, np, seed = 1L, pars_multi = TRUE)
-  mod2 <- res$new(p, 0, np, seed = 1L, pars_multi = TRUE, device_id = 0L)
+  mod2 <- res$new(p, 0, np, seed = 1L, pars_multi = TRUE, device_config = 0L)
   mod1$set_index(integer(0))
   mod2$set_index(integer(0))
 
@@ -404,14 +404,14 @@ test_that("Can provide device id", {
   len <- 20
   gen <- dust_example("variable")
   expect_error(
-    gen$new(list(len = len), 0, np, device_id = 2),
+    gen$new(list(len = len), 0, np, device_config = 2),
     "Invalid 'device_id' 2, must be at most 0")
-  mod <- gen$new(list(len = len), 0, np, device_id = -10)
-  expect_equal(r6_private(mod)$device_id_, -10)
-  mod <- gen$new(list(len = len), 0, np, device_id = NULL)
-  expect_equal(r6_private(mod)$device_id_, -1)
-  mod <- gen$new(list(len = len), 0, np, device_id = 0L)
-  expect_equal(r6_private(mod)$device_id_, 0)
+  mod <- gen$new(list(len = len), 0, np, device_config = -10)
+  expect_equal(r6_private(mod)$device_config_$device_id, -10)
+  mod <- gen$new(list(len = len), 0, np, device_config = NULL)
+  expect_equal(r6_private(mod)$device_config_$device_id, -1)
+  mod <- gen$new(list(len = len), 0, np, device_config = 0L)
+  expect_equal(r6_private(mod)$device_config_$device_id, 0)
 })
 
 
@@ -419,7 +419,7 @@ test_that("Error if using gpu features without device", {
   np <- 100
   len <- 20
   gen <- dust_example("variable")
-  mod <- gen$new(list(len = len), 0, np, seed = 1L, device_id = -1L)
+  mod <- gen$new(list(len = len), 0, np, seed = 1L, device_config = -1L)
   expect_error(
     mod$run(10, TRUE),
     "Can't refresh a non-existent device")
@@ -430,14 +430,14 @@ test_that("Can provide device id to non-gpu model with no effect", {
   np <- 10
   gen <- dust_example("sir")
   expect_error(
-    gen$new(list(), 0, np, device_id = 2),
+    gen$new(list(), 0, np, device_config = 2),
     "Invalid 'device_id' 2, must be at most 0")
-  mod <- gen$new(list(), 0, np, device_id = -10)
-  expect_equal(r6_private(mod)$device_id_, -10)
-  mod <- gen$new(list(), 0, np, device_id = NULL)
-  expect_equal(r6_private(mod)$device_id_, -1)
-  mod <- gen$new(list(), 0, np, device_id = 0L)
-  expect_equal(r6_private(mod)$device_id_, 0)
+  mod <- gen$new(list(), 0, np, device_config = -10)
+  expect_equal(r6_private(mod)$device_config_$device_id, -10)
+  mod <- gen$new(list(), 0, np, device_config = NULL)
+  expect_equal(r6_private(mod)$device_config_$device_id, -1)
+  mod <- gen$new(list(), 0, np, device_config = 0L)
+  expect_equal(r6_private(mod)$device_config_$device_id, 0)
 })
 
 
@@ -447,7 +447,7 @@ test_that("Can use sirs gpu model", {
   len <- 20
 
   mod1 <- gen$new(list(), 0, np, seed = 1L)
-  mod2 <- gen$new(list(), 0, np, seed = 1L, device_id = 0L)
+  mod2 <- gen$new(list(), 0, np, seed = 1L, device_config = 0L)
 
   expect_identical(
     mod1$run(10),
@@ -472,7 +472,7 @@ test_that("Can simulate sirs gpu model", {
 
   steps <- seq(0, 100, by = 10)
   np <- 20
-  mod_d <- res$new(list(), 0, np, seed = 1L, device_id = 0L)
+  mod_d <- res$new(list(), 0, np, seed = 1L, device_config = 0L)
   mod_d$set_index(c(1, 3))
   y <- mod_d$simulate(steps, TRUE)
   expect_equal(dim(y), c(2, np, length(steps)))
@@ -502,7 +502,7 @@ test_that("Comparison function can be run on the GPU", {
   mod_h$run(4)
   weights_h <- mod_h$compare_data()
 
-  mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_id = 0L)
+  mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_config = 0L)
   mod_d$set_data(dat$dat_dust)
   mod_d$run(4)
   weights_d <- mod_d$compare_data(TRUE)
@@ -520,7 +520,7 @@ test_that("Can run a single particle filter on the GPU", {
   ans_h <- mod_h$filter(save_trajectories = TRUE,
                         step_snapshot = c(4, 16))
 
-  mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_id = 0L)
+  mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_config = 0L)
   mod_d$set_data(dat$dat_dust)
   ans_d <- mod_d$filter(device = TRUE,
                         save_trajectories = TRUE,
@@ -540,7 +540,7 @@ test_that("Can run particle filter without collecting state on GPU", {
   mod_h$set_data(dat$dat_dust)
   ans_h <- mod_h$filter()
 
-  mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_id = 0L)
+  mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_config = 0L)
   mod_d$set_data(dat$dat_dust)
   ans_d <- mod_d$filter(device = TRUE)
 
@@ -558,7 +558,7 @@ test_that("Can run GPU kernels using shared memory", {
   ans_h <- mod_h$filter(save_trajectories = TRUE,
                         step_snapshot = c(4, 16))
 
-  mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_id = 0L)
+  mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_config = 0L)
   mod_d$set_data(dat$dat_dust)
   ans_d <- mod_d$filter(device = TRUE,
                         save_trajectories = TRUE,
@@ -581,7 +581,7 @@ test_that("Can run multiple particle filters on the GPU", {
                         step_snapshot = c(4, 16))
 
   mod_d <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE,
-                         device_id = 0L)
+                         device_config = 0L)
   mod_d$set_data(dust_data(dat$dat, multi = 2))
   ans_d <- mod_d$filter(device = TRUE,
                         save_trajectories = TRUE,
@@ -600,7 +600,7 @@ test_that("Can run and simulate with nontrivial index", {
 
   # Test run
   mod1 <- gen$new(list(len = len), 0, np, seed = 1L)
-  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_id = 0L)
+  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
 
   index <- c(4:7, 19:16, 10:12)
 
@@ -618,7 +618,7 @@ test_that("Can run and simulate with nontrivial index", {
   steps <- seq(0, 100, by = 10)
 
   mod3 <- gen$new(list(len = len), 0, np, seed = 1L)
-  mod4 <- gen$new(list(len = len), 0, np, seed = 1L, device_id = 0L)
+  mod4 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
   mod3$set_index(index)
   mod4$set_index(index)
 
@@ -631,7 +631,7 @@ test_that("Can run and simulate with nontrivial index", {
 
 
 test_that("shared, with no device, is default initialised", {
-  res <- test_cuda_pars(-1, 2000, 2000, 100, 200, 0, 20, 30, 40000)
+  res <- test_cuda_pars(-1, 2000, 2000, 100, 200, 0, 20, 30, 40000, 128)
   empty <- create_launch_control(0, 0)
   expected <- list(run = empty,
                    compare = empty,
@@ -649,7 +649,7 @@ test_that("Can fit a small model into shared", {
   res <- test_cuda_pars(0, 2000, 2000,
                         n_state, n_state_full,
                         20, 30, 0,
-                        40000)
+                        40000, 128)
   expect_true(res$run$shared_int)
   expect_true(res$run$shared_real)
   expect_true(res$compare$shared_int)
@@ -675,7 +675,7 @@ test_that("Can fit a small model into shared, with data", {
   res <- test_cuda_pars(0, 2000, 2000,
                         n_state, n_state_full,
                         20, 30, 32,
-                        40000)
+                        40000, 128)
   expect_true(res$run$shared_int)
   expect_true(res$run$shared_real)
   expect_true(res$compare$shared_int)
@@ -693,7 +693,7 @@ test_that("Will spill a large model out of shared, but keep ints", {
   res <- test_cuda_pars(0, 2000, 2000,
                         n_state, n_state_full,
                         200, 50000, 32,
-                        40000)
+                        40000, 128)
   expect_true(res$run$shared_int)
   expect_false(res$run$shared_real)
   expect_true(res$compare$shared_int)
@@ -708,11 +708,38 @@ test_that("Will spill a really large model out of shared", {
   res <- test_cuda_pars(0, 2000, 2000,
                         n_state, n_state_full,
                         20000, 10000, 0,
-                        40000)
+                        40000, 128)
   expect_false(res$run$shared_int)
   expect_false(res$run$shared_real)
   expect_false(res$compare$shared_int)
   expect_false(res$compare$shared_real)
   expect_equal(res$run$shared_size_bytes, 0)
   expect_equal(res$compare$shared_size_bytes, 0)
+})
+
+
+test_that("Can tune block size", {
+  n_state <- 100
+  n_state_full <- 202
+  res <- test_cuda_pars(0, 2000, 2000,
+                        n_state, n_state_full,
+                        20, 30, 0,
+                        40000, 512)
+  expect_true(res$run$shared_int)
+  expect_true(res$run$shared_real)
+  expect_true(res$compare$shared_int)
+  expect_true(res$compare$shared_real)
+  ## 200 is 20 * 4 + 30 * 4
+  expect_equal(res$run$shared_size_bytes, 200)
+  expect_equal(res$compare$shared_size_bytes, 200)
+
+  expect_equal(res$run$block_size, 128)
+  expect_equal(res$run$block_count, 16)
+  expect_equal(res$compare$block_size, 128)
+  expect_equal(res$compare$block_count, 16)
+
+  expect_equal(res$reorder, create_launch_control(128, 3157))
+  expect_equal(res$scatter, create_launch_control(64, 6313))
+  expect_equal(res$index_scatter, create_launch_control(64, 3125))
+  expect_equal(res$interval, create_launch_control(128, 3157))
 })

@@ -15,14 +15,63 @@ struct launch_control {
   bool shared_real;
 };
 
+
+inline size_t device_shared_size(int device_id) {
+  int size = 0;
+#ifdef __NVCC__
+  if (device_id >= 0) {
+    CUDA_CALL(cudaDeviceGetAttribute(&size,
+                                     cudaDevAttrMaxSharedMemoryPerBlock,
+                                     device_id));
+  }
+#endif
+  return static_cast<size_t>(size);
+}
+
+
+// Tunable bits exposed to the front end
+class device_config {
+public:
+  device_config(int device_id, int run_block_size) :
+    device_id_(device_id),
+    run_block_size_(run_block_size),
+    shared_size_(device_shared_size(device_id_)),
+    enabled_(device_id_ >= 0) {
+#ifdef __NVCC__
+    if (device_id_ >= 0) {
+      CUDA_CALL(cudaSetDevice(device_id_));
+      CUDA_CALL(cudaDeviceSetCacheConfig(cudaFuncCachePreferL1));
+      // TODO: this is not fab, as we stop this from the Dust
+      // destructor
+#ifdef DUST_ENABLE_CUDA_PROFILER
+      CUDA_CALL(cudaProfilerStart());
+#endif
+    }
+#endif
+  }
+
+  // We only need a destructor when running with cuda profiling; don't
+  // include ond otherwise because we don't actually follow the rule
+  // of 3/5/0
+#ifdef DUST_ENABLE_CUDA_PROFILER
+  ~device_config() {
+    CUDA_CALL_NOTHROW(cudaProfilerStop());
+  }
+#endif
+
+  const int device_id_;
+  const size_t run_block_size_;
+  size_t shared_size_;
+  const bool enabled_;
+};
+
 class launch_control_dust {
 public:
-  launch_control_dust(int device_id,
+  launch_control_dust(const device_config& config,
                       size_t n_particles, size_t n_particles_each,
                       size_t n_state, size_t n_state_full,
                       size_t n_shared_int, size_t n_shared_real,
-                      size_t real_size, size_t data_size,
-                      size_t shared_size);
+                      size_t real_size, size_t data_size);
   launch_control_dust();
   launch_control run;
   launch_control compare;
@@ -43,7 +92,8 @@ inline launch_control launch_control_model(size_t n_particles,
                                            size_t n_shared_real,
                                            size_t real_size,
                                            size_t data_size,
-                                           size_t shared_size) {
+                                           size_t shared_size,
+                                           size_t block_size) {
   const size_t int_size = sizeof(int);
 
   const size_t n_pars_effective = n_particles / n_particles_each;
@@ -91,7 +141,7 @@ inline launch_control launch_control_model(size_t n_particles,
     //
     // TODO: This is the only bit of block size calculation that is
     // different to set_block_size, John can you expand why?
-    ret.block_size = std::min(static_cast<size_t>(128), warp_block_size);
+    ret.block_size = std::min(static_cast<size_t>(block_size), warp_block_size);
     ret.block_count =
       n_pars_effective * (n_particles_each + ret.block_size - 1) /
       ret.block_size;
@@ -99,7 +149,7 @@ inline launch_control launch_control_model(size_t n_particles,
     // If not enough particles per pars to make a whole block use
     // shared, or if shared_t too big for L1, turn it off, and run
     // in 'classic' mode where each particle is totally independent
-    set_block_size(ret, 128, n_particles);
+    set_block_size(ret, block_size, n_particles);
   }
 
   return ret;
@@ -123,7 +173,7 @@ inline launch_control_dust::launch_control_dust() {
 }
 
 
-inline launch_control_dust::launch_control_dust(int device_id,
+inline launch_control_dust::launch_control_dust(const device_config& config,
                                                 size_t n_particles,
                                                 size_t n_particles_each,
                                                 size_t n_state,
@@ -131,27 +181,28 @@ inline launch_control_dust::launch_control_dust(int device_id,
                                                 size_t n_shared_int,
                                                 size_t n_shared_real,
                                                 size_t real_size,
-                                                size_t data_size,
-                                                size_t shared_size) {
-  if (device_id < 0) {
+                                                size_t data_size) {
+  if (config.enabled_) {
+    const size_t shared_size = config.shared_size_;
+    const size_t run_block_size = config.run_block_size_;
+    run = launch_control_model(n_particles, n_particles_each,
+                               n_shared_int, n_shared_real,
+                               real_size, 0, shared_size, run_block_size);
+    compare = launch_control_model(n_particles, n_particles_each,
+                                   n_shared_int, n_shared_real,
+                                   real_size, data_size, shared_size, 128);
+
+    reorder       = launch_control_simple(128, n_particles * n_state_full);
+    scatter       = launch_control_simple( 64, n_particles * n_state_full);
+    index_scatter = launch_control_simple( 64, n_particles * n_state);
+    interval      = launch_control_simple(128, n_particles);
+  } else {
     run = launch_control{};
     compare = launch_control{};
     reorder = launch_control{};
     scatter = launch_control{};
     index_scatter = launch_control{};
     interval = launch_control{};
-  } else {
-    run = launch_control_model(n_particles, n_particles_each,
-                                   n_shared_int, n_shared_real,
-                                   real_size, 0, shared_size);
-    compare = launch_control_model(n_particles, n_particles_each,
-                                   n_shared_int, n_shared_real,
-                                   real_size, data_size, shared_size);
-
-    reorder       = launch_control_simple(128, n_particles * n_state_full);
-    scatter       = launch_control_simple( 64, n_particles * n_state_full);
-    index_scatter = launch_control_simple( 64, n_particles * n_state);
-    interval      = launch_control_simple(128, n_particles);
   }
 }
 

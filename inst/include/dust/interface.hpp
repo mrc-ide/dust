@@ -15,6 +15,7 @@
 #include <dust/interface_helpers.hpp>
 #include <dust/device_info.hpp>
 #include <dust/filter.hpp>
+#include <dust/cuda_launch_control.hpp>
 
 namespace dust {
 
@@ -34,13 +35,14 @@ namespace r {
 template <typename T>
 cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
                        cpp11::sexp r_n_particles, int n_threads,
-                       cpp11::sexp r_seed, cpp11::sexp r_device_id) {
+                       cpp11::sexp r_seed, cpp11::sexp r_device_config) {
   dust::interface::validate_size(step, "step");
   dust::interface::validate_positive(n_threads, "n_threads");
   std::vector<uint64_t> seed =
     dust::interface::as_rng_seed<typename T::real_t>(r_seed);
 
-  const int device_id = dust::interface::check_device_id(r_device_id);
+  const dust::cuda::device_config device_config =
+    dust::interface::device_config(r_device_config);
 
   Dust<T> *d = nullptr;
   cpp11::sexp info;
@@ -68,12 +70,13 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
       n_particles = cpp11::as_cpp<int>(r_n_particles);
       dust::interface::validate_size(n_particles, "n_particles");
     }
-    d = new Dust<T>(pars, step, n_particles, n_threads, seed, device_id, shape);
+    d = new Dust<T>(pars, step, n_particles, n_threads, seed, device_config,
+                    shape);
   } else {
     size_t n_particles = cpp11::as_cpp<int>(r_n_particles);
     dust::interface::validate_positive(n_particles, "n_particles");
     dust::pars_t<T> pars = dust_pars<T>(r_pars);
-    d = new Dust<T>(pars, step, n_particles, n_threads, seed, device_id);
+    d = new Dust<T>(pars, step, n_particles, n_threads, seed, device_config);
     info = dust_info<T>(pars);
   }
   cpp11::external_pointer<Dust<T>> ptr(d, true, false);
@@ -81,7 +84,10 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
   cpp11::writable::integers r_shape =
     dust::interface::vector_size_to_int(d->shape());
 
-  return cpp11::writable::list({ptr, info, r_shape, cpp11::as_sexp(device_id)});
+  cpp11::sexp ret_r_device_config =
+    dust::interface::device_config_as_sexp(device_config);
+
+  return cpp11::writable::list({ptr, info, r_shape, ret_r_device_config});
 }
 
 template <typename T>

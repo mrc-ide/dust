@@ -33,23 +33,19 @@ public:
 
   Dust(const pars_t& pars, const size_t step, const size_t n_particles,
        const size_t n_threads, const std::vector<uint64_t>& seed,
-       size_t device_id) :
+       cuda::device_config device_config) :
     n_pars_(0),
     n_particles_each_(n_particles),
     n_particles_total_(n_particles),
     pars_are_shared_(true),
     n_threads_(n_threads),
-    device_id_(device_id),
+    device_config_(device_config),
     rng_(n_particles_total_ + 1, seed),  // +1 for the filter's rng state
     errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true),
     select_needed_(true),
-    select_scatter_(false),
-    shared_size_(0) {
-#ifdef __NVCC__
-    initialise_device(device_id);
-#endif
+    select_scatter_(false) {
     initialise(pars, step, n_particles, true);
     initialise_index();
     shape_ = {n_particles};
@@ -57,24 +53,20 @@ public:
 
   Dust(const std::vector<pars_t>& pars, const size_t step,
        const size_t n_particles, const size_t n_threads,
-       const std::vector<uint64_t>& seed, size_t device_id,
+       const std::vector<uint64_t>& seed, cuda::device_config device_config,
        std::vector<size_t> shape) :
     n_pars_(pars.size()),
     n_particles_each_(n_particles == 0 ? 1 : n_particles),
     n_particles_total_(n_particles_each_ * pars.size()),
     pars_are_shared_(n_particles != 0),
     n_threads_(n_threads),
-    device_id_(device_id),
+    device_config_(device_config),
     rng_(n_particles_total_ + 1, seed),  // +1 for the filter's rng state
     errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true),
     select_needed_(true),
-    select_scatter_(false),
-    shared_size_(0) {
-#ifdef __NVCC__
-    initialise_device(device_id);
-#endif
+    select_scatter_(false) {
     initialise(pars, step, n_particles_each_, true);
     initialise_index();
     // constructing the shape here is harder than above.
@@ -85,15 +77,6 @@ public:
       shape_.push_back(i);
     }
   }
-
-  // We only need a destructor when running with cuda profiling; don't
-  // include ond otherwise because we don't actually follow the rule
-  // of 3/5/0
-#ifdef DUST_ENABLE_CUDA_PROFILER
-  ~Dust() {
-    CUDA_CALL_NOTHROW(cudaProfilerStop());
-  }
-#endif
 
   void reset(const pars_t& pars, const size_t step) {
     const size_t n_particles = particles_.size();
@@ -654,7 +637,7 @@ private:
   const bool pars_are_shared_; // Does the n_particles dimension exist in shape?
   std::vector<size_t> shape_; // shape of output
   size_t n_threads_;
-  int device_id_;
+  cuda::device_config device_config_;
   dust::pRNG<real_t> rng_;
   std::map<size_t, std::vector<data_t>> data_;
   dust::openmp_errors errors_;
@@ -675,36 +658,7 @@ private:
   bool stale_device_;
   bool select_needed_;
   bool select_scatter_;
-  size_t shared_size_;
   size_t device_step_;
-
-  // Sets device
-  template <typename U = T>
-  typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
-  initialise_device(const int device_id) {
-    throw std::invalid_argument("GPU support not enabled for this object");
-  }
-
-  template <typename U = T>
-  typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
-  initialise_device(const int device_id) {
-    if (device_id < 0) {
-      return;
-    }
-#ifdef __NVCC__
-    CUDA_CALL(cudaSetDevice(device_id));
-    CUDA_CALL(cudaDeviceSetCacheConfig(cudaFuncCachePreferL1));
-
-    int shared_size = 0;
-    CUDA_CALL(cudaDeviceGetAttribute(&shared_size,
-                                     cudaDevAttrMaxSharedMemoryPerBlock,
-                                     device_id));
-    shared_size_ = static_cast<size_t>(shared_size);
-#ifdef DUST_ENABLE_CUDA_PROFILER
-    CUDA_CALL(cudaProfilerStart());
-#endif
-#endif
-  }
 
   void initialise(const pars_t& pars, const size_t step,
                   const size_t n_particles, bool set_state) {
@@ -794,7 +748,7 @@ private:
   // This only gets called on construction; the size of these never
   // changes.
   void initialise_device_state() {
-    if (device_id_ < 0) {
+    if (!device_config_.enabled_) {
       return;
     }
     const auto s = shared_[0];
@@ -816,7 +770,7 @@ private:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   initialise_device_data() {
-    if (device_id_ < 0) {
+    if (!device_config_.enabled_) {
       return;
     }
     std::vector<data_t> flattened_data;
@@ -841,7 +795,7 @@ private:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   update_device_shared() {
-    if (device_id_ < 0) {
+    if (!device_config_.enabled_) {
       return;
     }
     const size_t n_shared_int = device_state_.n_shared_int;
@@ -868,7 +822,7 @@ private:
   }
 
   void update_device_index() {
-    if (device_id_ < 0) {
+    if (!device_config_.enabled_) {
       return;
     }
     const size_t n_particles = particles_.size();
@@ -904,7 +858,7 @@ private:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   refresh_device() {
-    if (device_id_ < 0) {
+    if (!device_config_.enabled_) {
       throw std::runtime_error("Can't refresh a non-existent device");
     }
     if (stale_device_) {
@@ -1030,7 +984,7 @@ private:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   set_cuda_launch() {
-    cuda_pars_ = dust::cuda::launch_control_dust(device_id_,
+    cuda_pars_ = dust::cuda::launch_control_dust(device_config_,
                                                  n_particles(),
                                                  n_particles_each_,
                                                  n_state(),
@@ -1038,8 +992,7 @@ private:
                                                  device_state_.n_shared_int,
                                                  device_state_.n_shared_real,
                                                  sizeof(real_t),
-                                                 sizeof(data_t),
-                                                 shared_size_);
+                                                 sizeof(data_t));
   }
 };
 
