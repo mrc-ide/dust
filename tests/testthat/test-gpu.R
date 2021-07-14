@@ -415,6 +415,20 @@ test_that("Can provide device id", {
 })
 
 
+test_that("Can control device run block size", {
+  np <- 100
+  len <- 20
+  gen <- dust_example("variable")
+  mod <- gen$new(list(len = len), 0, np,
+                 device_config = list(device_id = -10, run_block_size = 512))
+  expect_equal(r6_private(mod)$device_config_,
+               list(enabled = FALSE,
+                    device_id = -10,
+                    shared_size = 0,
+                    run_block_size = 512))
+})
+
+
 test_that("Error if using gpu features without device", {
   np <- 100
   len <- 20
