@@ -33,7 +33,7 @@ public:
 
   Dust(const pars_t& pars, const size_t step, const size_t n_particles,
        const size_t n_threads, const std::vector<uint64_t>& seed,
-       cuda::device_config device_config) :
+       const cuda::device_config& device_config) :
     n_pars_(0),
     n_particles_each_(n_particles),
     n_particles_total_(n_particles),
@@ -56,7 +56,7 @@ public:
 
   Dust(const std::vector<pars_t>& pars, const size_t step,
        const size_t n_particles, const size_t n_threads,
-       const std::vector<uint64_t>& seed, cuda::device_config device_config,
+       const std::vector<uint64_t>& seed, const cuda::device_config& device_config,
        std::vector<size_t> shape) :
     n_pars_(pars.size()),
     n_particles_each_(n_particles == 0 ? 1 : n_particles),
