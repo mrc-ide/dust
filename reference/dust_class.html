@@ -83,7 +83,7 @@ ones see dust_example()" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dust</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.10</span>
       </span>
     </div>
 
@@ -216,7 +216,7 @@ is the same size.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href
   n_threads <span class='op'>=</span> <span class='fl'>1L</span>,
   seed <span class='op'>=</span> <span class='cn'>NULL</span>,
   pars_multi <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  device_id <span class='op'>=</span> <span class='cn'>NULL</span>
+  device_config <span class='op'>=</span> <span class='cn'>NULL</span>
 <span class='op'>)</span></pre><p></div></p>
 
 <h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Arguments</h4>
@@ -249,15 +249,18 @@ should prepare <code>n_particles * length(pars)</code> particles for
 simulation. This has an effect on many of the other methods of
 the object.</p></dd>
 
-<dt><code>device_id</code></dt><dd><p>Integer, indicating the device to use, where the
-model has GPU support. If not given, then the default value of
-<code>NULL</code> will fall back on the first found device if any are
-available. An error is thrown if the device id given is larger
-than those reported to be available (note that CUDA numbers devices
-from 0, so that '0' is the first device, and so on). Negative values
-disable the use of a device.' See the method <code>$device_info()</code> for
-available device ids; this can be called before object creation as
-<code>dust_class$public_methods$device_info()</code></p></dd>
+<dt><code>device_config</code></dt><dd><p>Device configuration, typically an integer
+indicating the device to use, where the model has GPU support.
+If not given, then the default value of <code>NULL</code> will fall back on the
+first found device if any are available. An error is thrown if the
+device id given is larger than those reported to be available (note
+that CUDA numbers devices from 0, so that '0' is the first device,
+and so on). Negative values disable the use of a device. See the
+method <code>$device_info()</code> for available device ids; this can be called
+before object creation as <code>dust_class$public_methods$device_info()</code>.
+For additional control, provide a list with elements <code>device_id</code>
+and <code>run_block_size</code>. Further options (and validation) of this
+list will be added in a future version!</p></dd>
 
 </dl><p></div></p>
 <p><hr>
@@ -638,7 +641,11 @@ alone unless you're developing dust.</p></dd>
 <a id="method-device_info"></a></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Method <code>device_info()</code></h3>
 <p><strong>Experimental!</strong> Return information about GPU devices, if the model
 has been compiled with CUDA/GPU support. This can be called as a
-static method by running <code>dust_class$public_methods$device_info()</code></p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
+static method by running <code>dust_class$public_methods$device_info()</code>.
+If run from a GPU enabled object, it will also have an element
+<code>config</code> containing the computed device configuration: the device
+id, shared memory and the block size for the <code>run</code> method on the
+device.</p><h4 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Usage</h4>
 <p><div class="r"></p><pre><span class='va'>dust_class</span><span class='op'>$</span><span class='fu'>device_info</span><span class='op'>(</span><span class='op'>)</span></pre><p></div></p>
 
 
