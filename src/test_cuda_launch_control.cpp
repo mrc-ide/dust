@@ -1,6 +1,7 @@
 #include <cpp11.hpp>
 #include <dust/dust.hpp>
 #include <dust/cuda_launch_control.hpp>
+#include <dust/interface_helpers.hpp>
 
 cpp11::list launch_r_list(const dust::cuda::launch_control& p) {
   using namespace cpp11::literals;
@@ -12,13 +13,14 @@ cpp11::list launch_r_list(const dust::cuda::launch_control& p) {
 }
 
 [[cpp11::register]]
-SEXP test_cuda_pars(int device_id, int n_particles, int n_particles_each,
+SEXP test_cuda_pars(cpp11::sexp r_device_config, int n_particles,
+                    int n_particles_each,
                     int n_state, int n_state_full,
                     int n_shared_int, int n_shared_real, int data_size,
-                    int shared_size, int run_block_size) {
+                    int shared_size) {
   size_t real_size = sizeof(float);
-
-  dust::cuda::device_config config(device_id, run_block_size);
+  dust::cuda::device_config config =
+    dust::interface::device_config(r_device_config);
   config.shared_size_ = shared_size; // this will be zero, add our own size!
 
   auto pars = dust::cuda::launch_control_dust(config,

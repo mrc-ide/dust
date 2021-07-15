@@ -645,7 +645,7 @@ test_that("Can run and simulate with nontrivial index", {
 
 
 test_that("shared, with no device, is default initialised", {
-  res <- test_cuda_pars(-1, 2000, 2000, 100, 200, 0, 20, 30, 40000, 128)
+  res <- test_cuda_pars(-1, 2000, 2000, 100, 200, 0, 20, 30, 40000)
   empty <- create_launch_control(0, 0)
   expected <- list(run = empty,
                    compare = empty,
@@ -663,7 +663,7 @@ test_that("Can fit a small model into shared", {
   res <- test_cuda_pars(0, 2000, 2000,
                         n_state, n_state_full,
                         20, 30, 0,
-                        40000, 128)
+                        40000)
   expect_true(res$run$shared_int)
   expect_true(res$run$shared_real)
   expect_true(res$compare$shared_int)
@@ -689,7 +689,7 @@ test_that("Can fit a small model into shared, with data", {
   res <- test_cuda_pars(0, 2000, 2000,
                         n_state, n_state_full,
                         20, 30, 32,
-                        40000, 128)
+                        40000)
   expect_true(res$run$shared_int)
   expect_true(res$run$shared_real)
   expect_true(res$compare$shared_int)
@@ -707,7 +707,7 @@ test_that("Will spill a large model out of shared, but keep ints", {
   res <- test_cuda_pars(0, 2000, 2000,
                         n_state, n_state_full,
                         200, 50000, 32,
-                        40000, 128)
+                        40000)
   expect_true(res$run$shared_int)
   expect_false(res$run$shared_real)
   expect_true(res$compare$shared_int)
@@ -722,7 +722,7 @@ test_that("Will spill a really large model out of shared", {
   res <- test_cuda_pars(0, 2000, 2000,
                         n_state, n_state_full,
                         20000, 10000, 0,
-                        40000, 128)
+                        40000)
   expect_false(res$run$shared_int)
   expect_false(res$run$shared_real)
   expect_false(res$compare$shared_int)
@@ -735,10 +735,11 @@ test_that("Will spill a really large model out of shared", {
 test_that("Can tune block size", {
   n_state <- 100
   n_state_full <- 202
-  res <- test_cuda_pars(0, 2000, 2000,
+  config <- list(device_id = 0, run_block_size = 512)
+  res <- test_cuda_pars(config, 2000, 2000,
                         n_state, n_state_full,
                         20, 30, 0,
-                        40000, 512)
+                        40000)
   expect_true(res$run$shared_int)
   expect_true(res$run$shared_real)
   expect_true(res$compare$shared_int)
@@ -756,4 +757,27 @@ test_that("Can tune block size", {
   expect_equal(res$scatter, create_launch_control(64, 6313))
   expect_equal(res$index_scatter, create_launch_control(64, 3125))
   expect_equal(res$interval, create_launch_control(128, 3157))
+})
+
+
+test_that("Can validate block size", {
+  n_state <- 100
+  n_state_full <- 202
+  config <- list(device_id = 0, run_block_size = -512)
+  expect_error(
+    test_cuda_pars(config, 2000, 2000,
+                   n_state, n_state_full,
+                   20, 30, 0,
+                   40000),
+    "'run_block_size' must be positive (but was -512)",
+    fixed = TRUE)
+
+  config$run_block_size <- 513
+  expect_error(
+    test_cuda_pars(config, 2000, 2000,
+                   n_state, n_state_full,
+                   20, 30, 0,
+                   40000),
+    "'run_block_size' must be a multiple of 32 (but was 513)",
+    fixed = TRUE)
 })

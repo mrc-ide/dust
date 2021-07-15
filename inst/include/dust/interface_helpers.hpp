@@ -374,7 +374,16 @@ inline dust::cuda::device_config device_config(cpp11::sexp r_device_config) {
     r_device_id = r_device_config_l["device_id"]; // could error if missing?
     cpp11::sexp r_run_block_size = r_device_config_l["run_block_size"];
     if (r_run_block_size != R_NilValue) {
-      run_block_size = cpp11::as_cpp<int>(r_run_block_size);
+      int run_block_size_int = cpp11::as_cpp<int>(r_run_block_size);
+      if (run_block_size_int < 0) {
+        cpp11::stop("'run_block_size' must be positive (but was %d)",
+                    run_block_size_int);
+      }
+      if (run_block_size_int % 32 != 0) {
+        cpp11::stop("'run_block_size' must be a multiple of 32 (but was %d)",
+                    run_block_size_int);
+      }
+      run_block_size = run_block_size_int;
     }
   }
   return dust::cuda::device_config(check_device_id(r_device_id),
