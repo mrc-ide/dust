@@ -5,9 +5,9 @@
 
 SEXP dust_{{name}}_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                          cpp11::sexp r_n_particles, size_t n_threads,
-                         cpp11::sexp r_seed, cpp11::sexp device_id) {
+                         cpp11::sexp r_seed, cpp11::sexp device_config) {
   return dust::r::dust_alloc<{{class}}>(r_pars, pars_multi, step, r_n_particles,
-                                        n_threads, r_seed, device_id);
+                                        n_threads, r_seed, device_config);
 }
 
 SEXP dust_{{name}}_run(SEXP ptr, size_t step_end, bool device) {
