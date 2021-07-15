@@ -49,6 +49,9 @@ public:
     initialise(pars, step, n_particles, true);
     initialise_index();
     shape_ = {n_particles};
+#ifdef DUST_USING_CUDA_PROFILER
+    cuda_profiler_start(device_config_);
+#endif
   }
 
   Dust(const std::vector<pars_t>& pars, const size_t step,
@@ -76,7 +79,19 @@ public:
     for (auto i : shape) {
       shape_.push_back(i);
     }
+#ifdef DUST_USING_CUDA_PROFILER
+    cuda_profiler_start(device_config_);
+#endif
   }
+
+  // We only need a destructor when running with cuda profiling; don't
+  // include ond otherwise because we don't actually follow the rule
+  // of 3/5/0
+#ifdef DUST_USING_CUDA_PROFILER
+  ~Dust() {
+    cuda_profiler_stop(device_config_);
+  }
+#endif
 
   void reset(const pars_t& pars, const size_t step) {
     const size_t n_particles = particles_.size();

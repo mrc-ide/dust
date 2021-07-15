@@ -9,6 +9,10 @@
 #define KERNEL __global__
 #define ALIGN(n) __align__(n)
 
+#ifdef DUST_ENABLE_CUDA_PROFILER
+#define DUST_USING_CUDA_PROFILER
+#endif
+
 // This is necessary due to templates which are __host__ __device__;
 // whenever a HOSTDEVICE function is called from another HOSTDEVICE
 // function the compiler gets confused as it can't tell which one it's

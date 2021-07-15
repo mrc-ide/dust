@@ -41,27 +41,35 @@ public:
     if (device_id_ >= 0) {
       CUDA_CALL(cudaSetDevice(device_id_));
       CUDA_CALL(cudaDeviceSetCacheConfig(cudaFuncCachePreferL1));
-#ifdef DUST_ENABLE_CUDA_PROFILER
-      CUDA_CALL(cudaProfilerStart());
-#endif
     }
 #endif
   }
-
-  // We only need a destructor when running with cuda profiling; don't
-  // include ond otherwise because we don't actually follow the rule
-  // of 3/5/0
-#ifdef DUST_ENABLE_CUDA_PROFILER
-  ~device_config() {
-    CUDA_CALL_NOTHROW(cudaProfilerStop());
-  }
-#endif
 
   const int device_id_;
   const size_t run_block_size_;
   size_t shared_size_;
   const bool enabled_;
 };
+
+
+void cuda_profiler_start(const device_config& config) {
+#ifdef DUST_USING_CUDA_PROFILER
+  if (config.enabled_) {
+      std::cout << "Starting profiler" << std::endl;
+      CUDA_CALL(cudaProfilerStart());
+  }
+#endif
+}
+
+void cuda_profiler_stop(const device_config& config) {
+#ifdef DUST_USING_CUDA_PROFILER
+  if (config.enabled_) {
+      std::cout << "Stopping profiler" << std::endl;
+      CUDA_CALL(cudaProfilerStop());
+  }
+#endif
+}
+
 
 class launch_control_dust {
 public:
