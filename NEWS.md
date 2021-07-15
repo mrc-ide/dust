@@ -1,3 +1,8 @@
+# dust 0.9.10
+
+* Finer control over GPU settings, with the block size of `run()` now (optionally) exposed
+* On the GPU integers are kept in shared memory even where reals will no longer fit (#245)
+
 # dust 0.9.8
 
 * Fix infinite loop with rbinom using floats

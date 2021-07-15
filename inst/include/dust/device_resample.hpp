@@ -1,6 +1,8 @@
 #ifndef DUST_DEVICE_RESAMPLE_HPP
 #define DUST_DEVICE_RESAMPLE_HPP
 
+#include <dust/cuda_launch_control.hpp>
+
 namespace dust {
 
 namespace filter {
@@ -9,7 +11,7 @@ template <typename real_t>
 void run_device_resample(const size_t n_particles,
                          const size_t n_pars,
                          const size_t n_state,
-                         const cuda_launch& cuda_pars,
+                         const dust::cuda::launch_control_dust& cuda_pars,
                          dust::cuda::cuda_stream& kernel_stream,
                          dust::cuda::cuda_stream& resample_stream,
                          rng_state_t<real_t>& resample_rng,
@@ -53,8 +55,8 @@ void run_device_resample(const size_t n_particles,
 
     // Generate the scatter indices
 #ifdef __NVCC__
-    dust::find_intervals<real_t><<<cuda_pars.interval_blockCount,
-                                   cuda_pars.interval_blockSize,
+    dust::find_intervals<real_t><<<cuda_pars.interval.block_count,
+                                   cuda_pars.interval.block_size,
                                    0,
                                    kernel_stream.stream()>>>(
       scan.cum_weights.data(),
@@ -76,8 +78,8 @@ void run_device_resample(const size_t n_particles,
 
     // Shuffle the particles
 #ifdef __NVCC__
-    dust::scatter_device<real_t><<<cuda_pars.scatter_blockCount,
-                                   cuda_pars.scatter_blockSize,
+    dust::scatter_device<real_t><<<cuda_pars.scatter.block_count,
+                                   cuda_pars.scatter.block_size,
                                    0,
                                    kernel_stream.stream()>>>(
         device_state.scatter_index.data(),

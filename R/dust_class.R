@@ -33,7 +33,7 @@ dust_class <- R6::R6Class(
     n_particles_each_ = NULL,
     shape_ = NULL,
     ptr_ = NULL,
-    device_id_ = NULL,
+    device_config_ = NULL,
     param_ = NULL
   ),
 
@@ -79,17 +79,21 @@ dust_class <- R6::R6Class(
     ##' simulation. This has an effect on many of the other methods of
     ##' the object.
     ##'
-    ##' @param device_id Integer, indicating the device to use, where the
-    ##' model has GPU support. If not given, then the default value of
-    ##' `NULL` will fall back on the first found device if any are
-    ##' available. An error is thrown if the device id given is larger
-    ##' than those reported to be available (note that CUDA numbers devices
-    ##' from 0, so that '0' is the first device, and so on). Negative values
-    ##' disable the use of a device.' See the method `$device_info()` for
-    ##' available device ids; this can be called before object creation as
-    ##' `dust_class$public_methods$device_info()`
+    ##' @param device_config Device configuration, typically an integer
+    ##' indicating the device to use, where the model has GPU support.
+    ##' If not given, then the default value of `NULL` will fall back on the
+    ##' first found device if any are available. An error is thrown if the
+    ##' device id given is larger than those reported to be available (note
+    ##' that CUDA numbers devices from 0, so that '0' is the first device,
+    ##' and so on). Negative values disable the use of a device. See the
+    ##' method `$device_info()` for available device ids; this can be called
+    ##' before object creation as `dust_class$public_methods$device_info()`.
+    ##' For additional control, provide a list with elements `device_id`
+    ##' and `run_block_size`. Further options (and validation) of this
+    ##' list will be added in a future version!
     initialize = function(pars, step, n_particles, n_threads = 1L,
-                          seed = NULL, pars_multi = FALSE, device_id = NULL) {
+                          seed = NULL, pars_multi = FALSE,
+                          device_config = NULL) {
     },
 
     ##' @description
@@ -417,7 +421,11 @@ dust_class <- R6::R6Class(
     ##' @description
     ##' **Experimental!** Return information about GPU devices, if the model
     ##' has been compiled with CUDA/GPU support. This can be called as a
-    ##' static method by running `dust_class$public_methods$device_info()`
+    ##' static method by running `dust_class$public_methods$device_info()`.
+    ##' If run from a GPU enabled object, it will also have an element
+    ##' `config` containing the computed device configuration: the device
+    ##' id, shared memory and the block size for the `run` method on the
+    ##' device.
     device_info = function() {
     }
   ))

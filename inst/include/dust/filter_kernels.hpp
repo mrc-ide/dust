@@ -1,6 +1,9 @@
 #ifndef DUST_FILTER_KERNELS_HPP
 #define DUST_FILTER_KERNELS_HPP
 
+#include <cmath>
+#include <dust/cuda.cuh>
+
 namespace dust {
 
 template <typename real_t>

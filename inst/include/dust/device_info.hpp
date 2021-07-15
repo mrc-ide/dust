@@ -25,17 +25,7 @@ inline int devices_count() {
   return device_count;
 }
 
-template <typename T>
-constexpr size_t sizeof_real_t() {
-  return sizeof(typename T::real_t);
-}
-
-template <>
-constexpr inline size_t sizeof_real_t<void>() {
-  return 0;
-}
-
-template <typename T>
+template <typename real_t>
 cpp11::sexp device_info() {
   using namespace cpp11::literals;
   cpp11::writable::logicals has_cuda(1);
@@ -79,7 +69,7 @@ cpp11::sexp device_info() {
     });
 
   cpp11::writable::integers real_bits =
-    cpp11::as_sexp(sizeof_real_t<T>() * CHAR_BIT);
+    cpp11::as_sexp(sizeof(real_t) * CHAR_BIT);
 
   return cpp11::writable::list({"has_cuda"_nm = has_cuda,
                                 "cuda_version"_nm = cuda_version,

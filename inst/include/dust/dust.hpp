@@ -20,6 +20,7 @@
 #include <dust/particle.hpp>
 #include <dust/kernels.hpp>
 #include <dust/device_resample.hpp>
+#include <dust/cuda_launch_control.hpp>
 
 namespace dust {
 
@@ -32,48 +33,43 @@ public:
 
   Dust(const pars_t& pars, const size_t step, const size_t n_particles,
        const size_t n_threads, const std::vector<uint64_t>& seed,
-       size_t device_id) :
+       const cuda::device_config& device_config) :
     n_pars_(0),
     n_particles_each_(n_particles),
     n_particles_total_(n_particles),
     pars_are_shared_(true),
     n_threads_(n_threads),
-    device_id_(device_id),
+    device_config_(device_config),
     rng_(n_particles_total_ + 1, seed),  // +1 for the filter's rng state
     errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true),
     select_needed_(true),
-    select_scatter_(false),
-    shared_size_(0) {
-#ifdef __NVCC__
-    initialise_device(device_id);
-#endif
+    select_scatter_(false) {
     initialise(pars, step, n_particles, true);
     initialise_index();
     shape_ = {n_particles};
+#ifdef DUST_USING_CUDA_PROFILER
+    cuda_profiler_start(device_config_);
+#endif
   }
 
   Dust(const std::vector<pars_t>& pars, const size_t step,
        const size_t n_particles, const size_t n_threads,
-       const std::vector<uint64_t>& seed, size_t device_id,
+       const std::vector<uint64_t>& seed, const cuda::device_config& device_config,
        std::vector<size_t> shape) :
     n_pars_(pars.size()),
     n_particles_each_(n_particles == 0 ? 1 : n_particles),
     n_particles_total_(n_particles_each_ * pars.size()),
     pars_are_shared_(n_particles != 0),
     n_threads_(n_threads),
-    device_id_(device_id),
+    device_config_(device_config),
     rng_(n_particles_total_ + 1, seed),  // +1 for the filter's rng state
     errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true),
     select_needed_(true),
-    select_scatter_(false),
-    shared_size_(0) {
-#ifdef __NVCC__
-    initialise_device(device_id);
-#endif
+    select_scatter_(false) {
     initialise(pars, step, n_particles_each_, true);
     initialise_index();
     // constructing the shape here is harder than above.
@@ -83,14 +79,17 @@ public:
     for (auto i : shape) {
       shape_.push_back(i);
     }
+#ifdef DUST_USING_CUDA_PROFILER
+    cuda_profiler_start(device_config_);
+#endif
   }
 
   // We only need a destructor when running with cuda profiling; don't
   // include ond otherwise because we don't actually follow the rule
   // of 3/5/0
-#ifdef DUST_ENABLE_CUDA_PROFILER
+#ifdef DUST_USING_CUDA_PROFILER
   ~Dust() {
-    CUDA_CALL_NOTHROW(cudaProfilerStop());
+    cuda_profiler_stop(device_config_);
   }
 #endif
 
@@ -188,9 +187,9 @@ public:
     if (step_end > device_step_) {
       const size_t step_start = device_step_;
 #ifdef __NVCC__
-      dust::run_particles<T><<<cuda_pars_.run_blockCount,
-                               cuda_pars_.run_blockSize,
-                               cuda_pars_.run_shared_size_bytes,
+      dust::run_particles<T><<<cuda_pars_.run.block_count,
+                               cuda_pars_.run.block_size,
+                               cuda_pars_.run.shared_size_bytes,
                                kernel_stream_.stream()>>>(
                       step_start, step_end, particles_.size(),
                       n_pars_effective(),
@@ -202,7 +201,8 @@ public:
                       device_state_.shared_int.data(),
                       device_state_.shared_real.data(),
                       device_state_.rng.data(),
-                      cuda_pars_.run_L1);
+                      cuda_pars_.run.shared_int,
+                      cuda_pars_.run.shared_real);
       kernel_stream_.sync();
 #else
       dust::run_particles<T>(step_start, step_end, particles_.size(),
@@ -215,6 +215,7 @@ public:
                       device_state_.shared_int.data(),
                       device_state_.shared_real.data(),
                       device_state_.rng.data(),
+                      false,
                       false);
 #endif
 
@@ -363,8 +364,8 @@ public:
       size_t n_state = n_state_full();
       device_state_.scatter_index.set_array(index);
 #ifdef __NVCC__
-      dust::scatter_device<real_t><<<cuda_pars_.reorder_blockCount,
-                                     cuda_pars_.reorder_blockSize,
+      dust::scatter_device<real_t><<<cuda_pars_.reorder.block_count,
+                                     cuda_pars_.reorder.block_size,
                                      0,
                                      kernel_stream_.stream()>>>(
         device_state_.scatter_index.data(),
@@ -601,9 +602,9 @@ public:
                       const size_t data_offset) {
     refresh_device();
 #ifdef __NVCC__
-    dust::compare_particles<T><<<cuda_pars_.compare_blockCount,
-                                 cuda_pars_.compare_blockSize,
-                                 cuda_pars_.compare_shared_size_bytes,
+    dust::compare_particles<T><<<cuda_pars_.compare.block_count,
+                                 cuda_pars_.compare.block_size,
+                                 cuda_pars_.compare.shared_size_bytes,
                                  kernel_stream_.stream()>>>(
                      particles_.size(),
                      n_pars_effective(),
@@ -617,7 +618,8 @@ public:
                      device_state_.shared_real.data(),
                      device_data_.data() + data_offset,
                      device_state_.rng.data(),
-                     cuda_pars_.compare_L1);
+                     cuda_pars_.compare.shared_int,
+                     cuda_pars_.compare.shared_real);
     kernel_stream_.sync();
 #else
     dust::compare_particles<T>(
@@ -633,6 +635,7 @@ public:
                      device_state_.shared_real.data(),
                      device_data_.data() + data_offset,
                      device_state_.rng.data(),
+                     false,
                      false);
 #endif
     stale_host_ = true; // RNG use
@@ -649,7 +652,7 @@ private:
   const bool pars_are_shared_; // Does the n_particles dimension exist in shape?
   std::vector<size_t> shape_; // shape of output
   size_t n_threads_;
-  int device_id_;
+  cuda::device_config device_config_;
   dust::pRNG<real_t> rng_;
   std::map<size_t, std::vector<data_t>> data_;
   dust::openmp_errors errors_;
@@ -659,7 +662,7 @@ private:
   std::vector<dust::shared_ptr<T>> shared_;
 
   // Device support
-  cuda_launch cuda_pars_;
+  dust::cuda::launch_control_dust cuda_pars_;
   dust::device_state<real_t> device_state_;
   dust::device_array<data_t> device_data_;
   std::map<size_t, size_t> device_data_offsets_;
@@ -670,36 +673,7 @@ private:
   bool stale_device_;
   bool select_needed_;
   bool select_scatter_;
-  size_t shared_size_;
   size_t device_step_;
-
-  // Sets device
-  template <typename U = T>
-  typename std::enable_if<!dust::has_gpu_support<U>::value, void>::type
-  initialise_device(const int device_id) {
-    throw std::invalid_argument("GPU support not enabled for this object");
-  }
-
-  template <typename U = T>
-  typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
-  initialise_device(const int device_id) {
-    if (device_id < 0) {
-      return;
-    }
-#ifdef __NVCC__
-    CUDA_CALL(cudaSetDevice(device_id));
-    CUDA_CALL(cudaDeviceSetCacheConfig(cudaFuncCachePreferL1));
-
-    int shared_size = 0;
-    CUDA_CALL(cudaDeviceGetAttribute(&shared_size,
-                                     cudaDevAttrMaxSharedMemoryPerBlock,
-                                     device_id));
-    shared_size_ = static_cast<size_t>(shared_size);
-#ifdef DUST_ENABLE_CUDA_PROFILER
-    CUDA_CALL(cudaProfilerStart());
-#endif
-#endif
-  }
 
   void initialise(const pars_t& pars, const size_t step,
                   const size_t n_particles, bool set_state) {
@@ -789,7 +763,7 @@ private:
   // This only gets called on construction; the size of these never
   // changes.
   void initialise_device_state() {
-    if (device_id_ < 0) {
+    if (!device_config_.enabled_) {
       return;
     }
     const auto s = shared_[0];
@@ -811,7 +785,7 @@ private:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   initialise_device_data() {
-    if (device_id_ < 0) {
+    if (!device_config_.enabled_) {
       return;
     }
     std::vector<data_t> flattened_data;
@@ -836,7 +810,7 @@ private:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   update_device_shared() {
-    if (device_id_ < 0) {
+    if (!device_config_.enabled_) {
       return;
     }
     const size_t n_shared_int = device_state_.n_shared_int;
@@ -863,10 +837,11 @@ private:
   }
 
   void update_device_index() {
-    if (device_id_ < 0) {
+    if (!device_config_.enabled_) {
       return;
     }
-    device_state_.set_device_index(index_, particles_.size(), n_state_full());
+    const size_t n_particles = particles_.size();
+    device_state_.set_device_index(index_, n_particles, n_state_full());
 
     select_needed_ = true;
     if (!std::is_sorted(index_.cbegin(), index_.cend())) {
@@ -874,6 +849,10 @@ private:
     } else {
       select_scatter_ = false;
     }
+
+    // TODO: get this 64 from the original configuration, if possible.
+    cuda_pars_.index_scatter =
+      dust::cuda::launch_control_simple(64, n_particles * n_state());
   }
 
   // Default noop refresh methods
@@ -894,7 +873,7 @@ private:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   refresh_device() {
-    if (device_id_ < 0) {
+    if (!device_config_.enabled_) {
       throw std::runtime_error("Can't refresh a non-existent device");
     }
     if (stale_device_) {
@@ -975,8 +954,8 @@ private:
                                 kernel_stream_.stream());
     kernel_stream_.sync();
     if (select_scatter_) {
-      dust::scatter_device<real_t><<<cuda_pars_.index_scatter_blockCount,
-                                     cuda_pars_.index_scatter_blockSize,
+      dust::scatter_device<real_t><<<cuda_pars_.index_scatter.block_count,
+                                     cuda_pars_.index_scatter.block_size,
                                      0,
                                      kernel_stream_.stream()>>>(
         device_state_.index_state_scatter.data(),
@@ -1020,91 +999,15 @@ private:
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
   set_cuda_launch() {
-    if (device_id_ < 0) {
-      return;
-    }
-    const int warp_size = dust::cuda::warp_size;
-    size_t warp_blockSize = warp_size * (n_particles_each_ + warp_size - 1) / warp_size;
-
-    // Run kernel
-    cuda_pars_.run_blockSize = 128;
-    cuda_pars_.run_L1 = true;
-    size_t n_shared_int_effective = device_state_.n_shared_int +
-      dust::utils::align_padding(device_state_.n_shared_int * sizeof(int), sizeof(real_t)) / sizeof(int);
-    cuda_pars_.run_shared_size_bytes = n_shared_int_effective * sizeof(int) +
-      device_state_.n_shared_real * sizeof(real_t);
-    if (n_particles_each_ < warp_size || cuda_pars_.run_shared_size_bytes > shared_size_) {
-      // If not enough particles per pars to make a whole block use
-      // shared, or if shared_t too big for L1, turn it off, and run
-      // in 'classic' mode where each particle is totally independent
-      cuda_pars_.run_L1 = false;
-      cuda_pars_.run_shared_size_bytes = 0;
-      cuda_pars_.run_blockCount = (n_particles() + cuda_pars_.run_blockSize - 1) / cuda_pars_.run_blockSize;
-    } else {
-      // If it's possible to make blocks with shared_t in L1 cache,
-      // each block runs a pars set. Each pars set has enough blocks
-      // to run all of its particles, the final block may have some
-      // threads that don't do anything (hang off the end)
-      // This is nocov as it requires __shared__ to exist (so shared_size > 0)
-      cuda_pars_.run_blockSize =                              // #nocov start
-        std::min(cuda_pars_.run_blockSize, warp_blockSize);
-      cuda_pars_.run_blockCount =
-        n_pars_effective() *
-        (n_particles_each_ + cuda_pars_.run_blockSize - 1) /
-        cuda_pars_.run_blockSize;                             // #nocov end
-    }
-
-    // Compare kernel
-    cuda_pars_.compare_blockSize = 128;
-    cuda_pars_.compare_L1 = true;
-    // Compare uses data_t too, with real aligned to 16-bytes, so has a larger
-    // shared memory requirement
-    size_t n_shared_real_effective = device_state_.n_shared_real +
-      dust::utils::align_padding(n_shared_int_effective * sizeof(int) +
-                                 device_state_.n_shared_real * sizeof(real_t),
-                                 16) / sizeof(real_t);
-    cuda_pars_.compare_shared_size_bytes = n_shared_int_effective * sizeof(int) +
-      n_shared_real_effective * sizeof(real_t) +
-      sizeof(data_t);
-    if (n_particles_each_ < warp_size || cuda_pars_.compare_shared_size_bytes > shared_size_) {
-      // If not enough particles per pars to make a whole block use
-      // shared, or if shared_t too big for L1, turn it off, and run
-      // in 'classic' mode where each particle is totally independent
-      cuda_pars_.compare_L1 = false;
-      cuda_pars_.compare_shared_size_bytes = 0;
-      cuda_pars_.compare_blockCount = (n_particles() + cuda_pars_.compare_blockSize - 1) / cuda_pars_.compare_blockSize;
-    } else {
-      // If it's possible to make blocks with shared_t in L1 cache,
-      // each block runs a pars set. Each pars set has enough blocks
-      // to run all of its particles, the final block may have some
-      // threads that don't do anything (hang off the end)
-      // This is nocov as it requires __shared__ to exist (so shared_size > 0)
-      cuda_pars_.compare_blockSize =                              // #nocov start
-        std::min(cuda_pars_.compare_blockSize, warp_blockSize);
-      cuda_pars_.compare_blockCount =
-        n_pars_effective() *
-        (n_particles_each_ + cuda_pars_.compare_blockSize - 1) /
-        cuda_pars_.compare_blockSize;                             // #nocov end
-    }
-
-    // Reorder kernel
-    cuda_pars_.reorder_blockSize = 128;
-    cuda_pars_.reorder_blockCount =
-        (n_particles() * n_state_full() + cuda_pars_.reorder_blockSize - 1) / cuda_pars_.reorder_blockSize;
-
-    // Scatter kernels
-    cuda_pars_.scatter_blockSize = 64;
-    cuda_pars_.scatter_blockCount =
-        (n_particles() * n_state_full() + cuda_pars_.scatter_blockSize - 1) / cuda_pars_.scatter_blockSize;
-
-    cuda_pars_.index_scatter_blockSize = 64;
-    cuda_pars_.index_scatter_blockCount =
-        (n_particles() * n_state() + cuda_pars_.index_scatter_blockSize - 1) / cuda_pars_.index_scatter_blockSize;
-
-    // Interval kernel
-    cuda_pars_.interval_blockSize = 128;
-    cuda_pars_.interval_blockCount =
-        (n_particles() + cuda_pars_.interval_blockSize - 1) / cuda_pars_.interval_blockSize;
+    cuda_pars_ = dust::cuda::launch_control_dust(device_config_,
+                                                 n_particles(),
+                                                 n_particles_each_,
+                                                 n_state(),
+                                                 n_state_full(),
+                                                 device_state_.n_shared_int,
+                                                 device_state_.n_shared_real,
+                                                 sizeof(real_t),
+                                                 sizeof(data_t));
   }
 };
 
