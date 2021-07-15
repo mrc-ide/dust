@@ -69,7 +69,7 @@ is the same size.
   n_threads = 1L,
   seed = NULL,
   pars_multi = FALSE,
-  device_id = NULL
+  device_config = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -104,15 +104,18 @@ should prepare \code{n_particles * length(pars)} particles for
 simulation. This has an effect on many of the other methods of
 the object.}
 
-\item{\code{device_id}}{Integer, indicating the device to use, where the
-model has GPU support. If not given, then the default value of
-\code{NULL} will fall back on the first found device if any are
-available. An error is thrown if the device id given is larger
-than those reported to be available (note that CUDA numbers devices
-from 0, so that '0' is the first device, and so on). Negative values
-disable the use of a device.' See the method \verb{$device_info()} for
-available device ids; this can be called before object creation as
-\code{dust_class$public_methods$device_info()}}
+\item{\code{device_config}}{Device configuration, typically an integer
+indicating the device to use, where the model has GPU support.
+If not given, then the default value of \code{NULL} will fall back on the
+first found device if any are available. An error is thrown if the
+device id given is larger than those reported to be available (note
+that CUDA numbers devices from 0, so that '0' is the first device,
+and so on). Negative values disable the use of a device. See the
+method \verb{$device_info()} for available device ids; this can be called
+before object creation as \code{dust_class$public_methods$device_info()}.
+For additional control, provide a list with elements \code{device_id}
+and \code{run_block_size}. Further options (and validation) of this
+list will be added in a future version!}
 }
 \if{html}{\out{</div>}}
 }
@@ -677,7 +680,11 @@ alone unless you're developing dust.}
 \subsection{Method \code{device_info()}}{
 \strong{Experimental!} Return information about GPU devices, if the model
 has been compiled with CUDA/GPU support. This can be called as a
-static method by running \code{dust_class$public_methods$device_info()}
+static method by running \code{dust_class$public_methods$device_info()}.
+If run from a GPU enabled object, it will also have an element
+\code{config} containing the computed device configuration: the device
+id, shared memory and the block size for the \code{run} method on the
+device.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_class$device_info()}\if{html}{\out{</div>}}
 }

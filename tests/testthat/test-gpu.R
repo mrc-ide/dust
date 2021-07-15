@@ -747,8 +747,8 @@ test_that("Can tune block size", {
   expect_equal(res$run$shared_size_bytes, 200)
   expect_equal(res$compare$shared_size_bytes, 200)
 
-  expect_equal(res$run$block_size, 128)
-  expect_equal(res$run$block_count, 16)
+  expect_equal(res$run$block_size, 512)
+  expect_equal(res$run$block_count, 4)
   expect_equal(res$compare$block_size, 128)
   expect_equal(res$compare$block_count, 16)
 
