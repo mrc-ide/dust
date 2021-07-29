@@ -791,4 +791,7 @@ test_that("Can't run deterministically on the device", {
   expect_error(
     mod$run(10, TRUE, TRUE),
     "'deterministic' is not compatible with 'device'")
+  expect_error(
+    mod$simulate(0:10, TRUE, TRUE),
+    "'deterministic' is not compatible with 'device'")
 })

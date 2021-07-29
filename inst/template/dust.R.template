@@ -171,7 +171,7 @@
     ##'   replacing a random number from some distribution with its
     ##'   expectation.
     simulate = function(step_end, device = FALSE, deterministic = FALSE) {
-      m <- dust_{{name}}_simulate(private$ptr_, step_end, device)
+      m <- dust_{{name}}_simulate(private$ptr_, step_end, device, deterministic)
       rownames(m) <- names(private$index_)
       m
     },
@@ -249,7 +249,7 @@
     ##' different values, then this would run up to the largest step
     ##' deterministically (see `$run()` for more details).
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      dust_{{name}}_set_state(private$ptr_, state, step)
+      dust_{{name}}_set_state(private$ptr_, state, step, deterministic)
       invisible()
     },
 

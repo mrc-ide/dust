@@ -56,7 +56,7 @@ sir <- R6::R6Class(
     },
 
     simulate = function(step_end, device = FALSE, deterministic = FALSE) {
-      m <- dust_sir_simulate(private$ptr_, step_end, device)
+      m <- dust_sir_simulate(private$ptr_, step_end, device, deterministic)
       rownames(m) <- names(private$index_)
       m
     },
@@ -92,7 +92,7 @@ sir <- R6::R6Class(
     },
 
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      dust_sir_set_state(private$ptr_, state, step)
+      dust_sir_set_state(private$ptr_, state, step, deterministic)
       invisible()
     },
 
@@ -248,7 +248,7 @@ sirs <- R6::R6Class(
     },
 
     simulate = function(step_end, device = FALSE, deterministic = FALSE) {
-      m <- dust_sirs_simulate(private$ptr_, step_end, device)
+      m <- dust_sirs_simulate(private$ptr_, step_end, device, deterministic)
       rownames(m) <- names(private$index_)
       m
     },
@@ -284,7 +284,7 @@ sirs <- R6::R6Class(
     },
 
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      dust_sirs_set_state(private$ptr_, state, step)
+      dust_sirs_set_state(private$ptr_, state, step, deterministic)
       invisible()
     },
 
@@ -437,7 +437,7 @@ variable <- R6::R6Class(
     },
 
     simulate = function(step_end, device = FALSE, deterministic = FALSE) {
-      m <- dust_variable_simulate(private$ptr_, step_end, device)
+      m <- dust_variable_simulate(private$ptr_, step_end, device, deterministic)
       rownames(m) <- names(private$index_)
       m
     },
@@ -473,7 +473,7 @@ variable <- R6::R6Class(
     },
 
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      dust_variable_set_state(private$ptr_, state, step)
+      dust_variable_set_state(private$ptr_, state, step, deterministic)
       invisible()
     },
 
@@ -626,7 +626,7 @@ volatility <- R6::R6Class(
     },
 
     simulate = function(step_end, device = FALSE, deterministic = FALSE) {
-      m <- dust_volatility_simulate(private$ptr_, step_end, device)
+      m <- dust_volatility_simulate(private$ptr_, step_end, device, deterministic)
       rownames(m) <- names(private$index_)
       m
     },
@@ -662,7 +662,7 @@ volatility <- R6::R6Class(
     },
 
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      dust_volatility_set_state(private$ptr_, state, step)
+      dust_volatility_set_state(private$ptr_, state, step, deterministic)
       invisible()
     },
 
@@ -815,7 +815,7 @@ walk <- R6::R6Class(
     },
 
     simulate = function(step_end, device = FALSE, deterministic = FALSE) {
-      m <- dust_walk_simulate(private$ptr_, step_end, device)
+      m <- dust_walk_simulate(private$ptr_, step_end, device, deterministic)
       rownames(m) <- names(private$index_)
       m
     },
@@ -851,7 +851,7 @@ walk <- R6::R6Class(
     },
 
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      dust_walk_set_state(private$ptr_, state, step)
+      dust_walk_set_state(private$ptr_, state, step, deterministic)
       invisible()
     },
 

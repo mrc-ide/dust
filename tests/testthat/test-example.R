@@ -714,3 +714,17 @@ test_that("run random walk deterministically", {
   expect_equal(obj$run(10, deterministic = TRUE), m)
   expect_equal(obj$rng_state(), rng_state)
 })
+
+
+test_that("run simulate deterministically", {
+  res <- dust_example("walk")
+  obj <- res$new(list(sd = 1), 0, 100, seed = 1L)
+  rng_state <- obj$rng_state()
+  m <- obj$state()
+  m[] <- runif(length(m))
+  obj$set_state(m)
+  res <- obj$simulate(0:10, deterministic = TRUE)
+  expect_equal(res,
+               array(rep(m, 11), c(1, 100, 11)))
+  expect_equal(obj$rng_state(), rng_state)
+})

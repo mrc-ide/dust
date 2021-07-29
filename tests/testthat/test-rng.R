@@ -622,7 +622,6 @@ test_that("deterministic runif returns mean", {
 })
 
 
-## This is not quite correct, though it's really close!
 test_that("deterministic rexp returns mean", {
   m <- 10
   rate <- runif(m, 0, 10)
@@ -639,7 +638,6 @@ test_that("deterministic rexp returns mean", {
 })
 
 
-## This is not quite correct, though it's really close!
 test_that("deterministic rnorm returns mean", {
   m <- 10
   mu <- runif(m, -10, 10)
