@@ -728,3 +728,26 @@ test_that("run simulate deterministically", {
                array(rep(m, 11), c(1, 100, 11)))
   expect_equal(obj$rng_state(), rng_state)
 })
+
+
+test_that("staggered start times, deterministically", {
+  sir <- dust_example("sir")
+  mod <- sir$new(list(), 0, 10, seed = 1L)
+
+  state <- mod$state()
+  n <- round(runif(10, -5, 5))
+  state[1, ] <- state[1, ] - n
+  state[2, ] <- state[2, ] + n
+  step <- 1:10
+
+  mod$set_state(state, step, deterministic = TRUE)
+
+  res <- mod$state()
+  f <- function(i) {
+    mod <- sir$new(list(), 0, 1, seed = NULL)
+    mod$set_state(state[, i], step[i])
+    mod$run(10, deterministic = TRUE)
+  }
+  cmp <- vapply(1:10, f, numeric(5))
+  expect_equal(res, cmp)
+})
