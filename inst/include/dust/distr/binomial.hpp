@@ -190,8 +190,10 @@ HOSTDEVICE real_t rbinom(rng_state_t<real_t>& rng_state, int n,
     throw std::runtime_error(buffer);
 #endif
     draw = 0; // never happens
+#ifndef __CUDA_ARCH__
   } else if (rng_state.deterministic) {
     draw = n * p;
+#endif
   } else {
     real_t q = p;
     if (p > static_cast<real_t>(0.5)) {

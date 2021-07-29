@@ -16,8 +16,10 @@ HOSTDEVICE real_t rpois(rng_state_t<real_t>& rng_state,
   real_t x = 0;
   if (lambda == 0) {
     // do nothing, but leave this branch in to help the GPU
+#ifndef __CUDA_ARCH__
   } else if (rng_state.deterministic) {
     x = lambda;
+#endif
   } else if (lambda < 10) {
     // Knuth's algorithm for generating Poisson random variates.
     // Given a Poisson process, the time between events is exponentially
