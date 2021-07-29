@@ -7,13 +7,17 @@
 namespace dust {
 namespace distr {
 
+// NOTE: we return a real, not an int, as with deterministic mode this
+// will not necessarily be an integer
 __nv_exec_check_disable__
 template <typename real_t>
-HOSTDEVICE int rpois(rng_state_t<real_t>& rng_state,
-                     typename rng_state_t<real_t>::real_t lambda) {
-  int x = 0;
+HOSTDEVICE real_t rpois(rng_state_t<real_t>& rng_state,
+                        typename rng_state_t<real_t>::real_t lambda) {
+  real_t x = 0;
   if (lambda == 0) {
     // do nothing, but leave this branch in to help the GPU
+  } else if (rng_state.deterministic) {
+    x = lambda;
   } else if (lambda < 10) {
     // Knuth's algorithm for generating Poisson random variates.
     // Given a Poisson process, the time between events is exponentially

@@ -105,7 +105,7 @@ extern "C" SEXP _dust_dust_rng_rbinom(SEXP ptr, SEXP n, SEXP r_size, SEXP r_prob
   END_CPP11
 }
 // dust_rng.cpp
-cpp11::writable::integers dust_rng_rpois(SEXP ptr, int n, cpp11::doubles r_lambda, bool is_float);
+cpp11::writable::doubles dust_rng_rpois(SEXP ptr, int n, cpp11::doubles r_lambda, bool is_float);
 extern "C" SEXP _dust_dust_rng_rpois(SEXP ptr, SEXP n, SEXP r_lambda, SEXP is_float) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_rng_rpois(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_lambda), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));

@@ -583,3 +583,15 @@ test_that("deterministic rbinom returns mean", {
   expect_true(rng_f$set_deterministic(FALSE))
   expect_true(rng_d$set_deterministic(FALSE))
 })
+
+
+test_that("deterministic rpois returns mean", {
+  m <- 10
+  lambda <- runif(m, 0, 50)
+  rng_f <- dust_rng$new(1, m, "float")
+  rng_d <- dust_rng$new(1, m, "double")
+  rng_f$set_deterministic(TRUE)
+  rng_d$set_deterministic(TRUE)
+  expect_equal(rng_f$rpois(m, lambda), lambda, tolerance = 1e-6)
+  expect_equal(rng_d$rpois(m, lambda), lambda)
+})

@@ -139,14 +139,14 @@ cpp11::writable::doubles dust_rng_rbinom(SEXP ptr, int n,
 }
 
 template <typename real_t>
-cpp11::writable::integers dust_rng_rpois(SEXP ptr, int n,
-                                         cpp11::doubles r_lambda) {
+cpp11::writable::doubles dust_rng_rpois(SEXP ptr, int n,
+                                        cpp11::doubles r_lambda) {
   dust::pRNG<real_t> *rng = cpp11::as_cpp<dust_rng_ptr_t<real_t>>(ptr).get();
   const double * lambda = REAL(r_lambda);
   const size_t n_generators = rng->size();
 
-  cpp11::writable::integers ret = cpp11::writable::integers(n);
-  int * y = INTEGER(ret);
+  cpp11::writable::doubles ret = cpp11::writable::doubles(n);
+  double * y = REAL(ret);
 
   for (size_t i = 0; i < (size_t)n; ++i) {
     y[i] = dust::distr::rpois(rng->state(i % n_generators), lambda[i]);
@@ -254,9 +254,9 @@ cpp11::writable::doubles dust_rng_rbinom(SEXP ptr, int n, cpp11::sexp r_size,
 }
 
 [[cpp11::register]]
-cpp11::writable::integers dust_rng_rpois(SEXP ptr, int n,
-                                         cpp11::doubles r_lambda,
-                                         bool is_float) {
+cpp11::writable::doubles dust_rng_rpois(SEXP ptr, int n,
+                                        cpp11::doubles r_lambda,
+                                        bool is_float) {
   return is_float ?
     dust::rng::dust_rng_rpois<float>(ptr, n, r_lambda) :
     dust::rng::dust_rng_rpois<double>(ptr, n, r_lambda);
