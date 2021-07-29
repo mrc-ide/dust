@@ -10,13 +10,15 @@ SEXP dust_walk_run(SEXP ptr, size_t step_end, bool device,
                        bool deterministic);
 
 [[cpp11::register]]
-SEXP dust_walk_simulate(SEXP ptr, cpp11::sexp step_end, bool device);
+SEXP dust_walk_simulate(SEXP ptr, cpp11::sexp step_end, bool device,
+                            bool deterministic);
 
 [[cpp11::register]]
 SEXP dust_walk_set_index(SEXP ptr, cpp11::sexp r_index);
 
 [[cpp11::register]]
-SEXP dust_walk_set_state(SEXP ptr, SEXP r_state, SEXP r_step);
+SEXP dust_walk_set_state(SEXP ptr, SEXP r_state, SEXP r_step,
+                             bool deterministic);
 
 [[cpp11::register]]
 SEXP dust_walk_reset(SEXP ptr, cpp11::list r_pars, size_t step);
@@ -123,8 +125,10 @@ SEXP dust_walk_run(SEXP ptr, size_t step_end, bool device,
   return dust::r::dust_run<walk>(ptr, step_end, device, deterministic);
 }
 
-SEXP dust_walk_simulate(SEXP ptr, cpp11::sexp step_end, bool device) {
-  return dust::r::dust_simulate<walk>(ptr, step_end, device);
+SEXP dust_walk_simulate(SEXP ptr, cpp11::sexp step_end, bool device,
+                            bool deterministic) {
+  return dust::r::dust_simulate<walk>(ptr, step_end, device,
+                                           deterministic);
 }
 
 SEXP dust_walk_set_index(SEXP ptr, cpp11::sexp r_index) {
@@ -132,8 +136,9 @@ SEXP dust_walk_set_index(SEXP ptr, cpp11::sexp r_index) {
   return R_NilValue;
 }
 
-SEXP dust_walk_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
-  dust::r::dust_set_state<walk>(ptr, r_state, r_step);
+SEXP dust_walk_set_state(SEXP ptr, SEXP r_state, SEXP r_step,
+                             bool deterministic) {
+  dust::r::dust_set_state<walk>(ptr, r_state, r_step, deterministic);
   return R_NilValue;
 }
 

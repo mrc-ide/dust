@@ -9,13 +9,15 @@ SEXP dust_{{name}}_run(SEXP ptr, size_t step_end, bool device,
                        bool deterministic);
 
 [[cpp11::register]]
-SEXP dust_{{name}}_simulate(SEXP ptr, cpp11::sexp step_end, bool device);
+SEXP dust_{{name}}_simulate(SEXP ptr, cpp11::sexp step_end, bool device,
+                            bool deterministic);
 
 [[cpp11::register]]
 SEXP dust_{{name}}_set_index(SEXP ptr, cpp11::sexp r_index);
 
 [[cpp11::register]]
-SEXP dust_{{name}}_set_state(SEXP ptr, SEXP r_state, SEXP r_step);
+SEXP dust_{{name}}_set_state(SEXP ptr, SEXP r_state, SEXP r_step,
+                             bool deterministic);
 
 [[cpp11::register]]
 SEXP dust_{{name}}_reset(SEXP ptr, cpp11::list r_pars, size_t step);

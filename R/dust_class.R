@@ -157,7 +157,11 @@ dust_class <- R6::R6Class(
     ##' this argument will likely change to allow selecting the GPU on
     ##' systems with more than one. In short, please leave this argument
     ##' alone unless you're developing dust.
-    simulate = function(step_end, device = FALSE) {
+    ##'
+    ##' @param deterministic Run random number generation deterministically,
+    ##'   replacing a random number from some distribution with its
+    ##'   expectation.
+    simulate = function(step_end, device = FALSE, deterministic = FALSE) {
     },
 
     ##' @description
@@ -219,7 +223,11 @@ dust_class <- R6::R6Class(
     ##' is a vector (with the same length as the number of particles), then
     ##' particles are started from different initial steps and run up to the
     ##' largest step given (i.e., `max(step)`)
-    set_state = function(state, step = NULL) {
+    ##'
+    ##' @param deterministic If `TRUE` and if `step` is a vector with
+    ##' different values, then this would run up to the largest step
+    ##' deterministically (see `$run()` for more details).
+    set_state = function(state, step = NULL, deterministic = FALSE) {
     },
 
     ##' @description

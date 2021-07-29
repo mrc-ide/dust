@@ -147,14 +147,14 @@ public:
     }
   }
 
-  void set_step(const std::vector<size_t>& step) {
+  void set_step(const std::vector<size_t>& step, bool deterministic) {
     const size_t n_particles = particles_.size();
     for (size_t i = 0; i < n_particles; ++i) {
       particles_[i].set_step(step[i]);
     }
     const auto r = std::minmax_element(step.begin(), step.end());
     if (*r.second > *r.first) {
-      run(*r.second, false); // note; never deterministic
+      run(*r.second, deterministic);
     }
   }
 
@@ -241,9 +241,14 @@ public:
     }
   }
 
-  std::vector<real_t> simulate(const std::vector<size_t>& step_end) {
+  std::vector<real_t> simulate(const std::vector<size_t>& step_end,
+                               bool deterministic) {
     const size_t n_time = step_end.size();
     std::vector<real_t> ret(n_particles() * n_state() * n_time);
+
+    if (deterministic) {
+      rng_.set_deterministic(true);
+    }
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
@@ -257,6 +262,9 @@ public:
       } catch (std::exception const& e) {
         errors_.capture(e, i);
       }
+    }
+    if (deterministic) {
+      rng_.set_deterministic(false);
     }
     errors_.report();
     return ret;

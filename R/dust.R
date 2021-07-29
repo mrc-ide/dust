@@ -55,7 +55,7 @@ sir <- R6::R6Class(
       m
     },
 
-    simulate = function(step_end, device = FALSE) {
+    simulate = function(step_end, device = FALSE, deterministic = FALSE) {
       m <- dust_sir_simulate(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
@@ -91,7 +91,7 @@ sir <- R6::R6Class(
       private$shape_
     },
 
-    set_state = function(state, step = NULL) {
+    set_state = function(state, step = NULL, deterministic = FALSE) {
       dust_sir_set_state(private$ptr_, state, step)
       invisible()
     },
@@ -247,7 +247,7 @@ sirs <- R6::R6Class(
       m
     },
 
-    simulate = function(step_end, device = FALSE) {
+    simulate = function(step_end, device = FALSE, deterministic = FALSE) {
       m <- dust_sirs_simulate(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
@@ -283,7 +283,7 @@ sirs <- R6::R6Class(
       private$shape_
     },
 
-    set_state = function(state, step = NULL) {
+    set_state = function(state, step = NULL, deterministic = FALSE) {
       dust_sirs_set_state(private$ptr_, state, step)
       invisible()
     },
@@ -436,7 +436,7 @@ variable <- R6::R6Class(
       m
     },
 
-    simulate = function(step_end, device = FALSE) {
+    simulate = function(step_end, device = FALSE, deterministic = FALSE) {
       m <- dust_variable_simulate(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
@@ -472,7 +472,7 @@ variable <- R6::R6Class(
       private$shape_
     },
 
-    set_state = function(state, step = NULL) {
+    set_state = function(state, step = NULL, deterministic = FALSE) {
       dust_variable_set_state(private$ptr_, state, step)
       invisible()
     },
@@ -625,7 +625,7 @@ volatility <- R6::R6Class(
       m
     },
 
-    simulate = function(step_end, device = FALSE) {
+    simulate = function(step_end, device = FALSE, deterministic = FALSE) {
       m <- dust_volatility_simulate(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
@@ -661,7 +661,7 @@ volatility <- R6::R6Class(
       private$shape_
     },
 
-    set_state = function(state, step = NULL) {
+    set_state = function(state, step = NULL, deterministic = FALSE) {
       dust_volatility_set_state(private$ptr_, state, step)
       invisible()
     },
@@ -814,7 +814,7 @@ walk <- R6::R6Class(
       m
     },
 
-    simulate = function(step_end, device = FALSE) {
+    simulate = function(step_end, device = FALSE, deterministic = FALSE) {
       m <- dust_walk_simulate(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
@@ -850,7 +850,7 @@ walk <- R6::R6Class(
       private$shape_
     },
 
-    set_state = function(state, step = NULL) {
+    set_state = function(state, step = NULL, deterministic = FALSE) {
       dust_walk_set_state(private$ptr_, state, step)
       invisible()
     },
