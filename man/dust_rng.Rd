@@ -269,9 +269,18 @@ state.
 \if{html}{\out{<a id="method-set_deterministic"></a>}}
 \if{latex}{\out{\hypertarget{method-set_deterministic}{}}}
 \subsection{Method \code{set_deterministic()}}{
+Toggle the RNG into/out of deterministic mode
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng$set_deterministic(value)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{value}}{Logical, \code{TRUE} if the RNG should run in deterministic
+mode.}
+}
+\if{html}{\out{</div>}}
+}
 }
 }
