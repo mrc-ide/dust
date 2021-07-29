@@ -119,16 +119,16 @@ cpp11::writable::doubles dust_rng_rnorm(SEXP ptr, int n,
 }
 
 template <typename real_t>
-cpp11::writable::integers dust_rng_rbinom(SEXP ptr, int n,
-                                          cpp11::sexp r_size,
-                                          cpp11::doubles r_prob) {
+cpp11::writable::doubles dust_rng_rbinom(SEXP ptr, int n,
+                                         cpp11::sexp r_size,
+                                         cpp11::doubles r_prob) {
   dust::pRNG<real_t> *rng = cpp11::as_cpp<dust_rng_ptr_t<real_t>>(ptr).get();
   cpp11::integers r_size_int = dust::interface::as_integer(r_size, "size");
   const int * size = INTEGER(r_size_int);
   const double * prob = REAL(r_prob);
 
-  cpp11::writable::integers ret = cpp11::writable::integers(n);
-  int * y = INTEGER(ret);
+  cpp11::writable::doubles ret = cpp11::writable::doubles(n);
+  double * y = REAL(ret);
 
   const size_t n_generators = rng->size();
   for (size_t i = 0; i < (size_t)n; ++i) {
@@ -163,6 +163,16 @@ cpp11::writable::raws dust_rng_state(SEXP ptr) {
   cpp11::writable::raws ret(len);
   std::memcpy(RAW(ret), state.data(), len);
   return ret;
+}
+
+template <typename real_t>
+bool dust_rng_set_deterministic(SEXP ptr, bool value) {
+  dust::pRNG<real_t> *rng = cpp11::as_cpp<dust_rng_ptr_t<real_t>>(ptr).get();
+  bool prev = rng->state(0).deterministic;
+  if (prev != value) {
+    rng->set_deterministic(value);
+  }
+  return prev;
 }
 
 }
@@ -235,9 +245,9 @@ cpp11::writable::doubles dust_rng_rnorm(SEXP ptr, int n, cpp11::doubles r_mean,
 }
 
 [[cpp11::register]]
-cpp11::writable::integers dust_rng_rbinom(SEXP ptr, int n, cpp11::sexp r_size,
-                                          cpp11::doubles r_prob,
-                                          bool is_float) {
+cpp11::writable::doubles dust_rng_rbinom(SEXP ptr, int n, cpp11::sexp r_size,
+                                         cpp11::doubles r_prob,
+                                         bool is_float) {
   return is_float ?
     dust::rng::dust_rng_rbinom<float>(ptr, n, r_size, r_prob) :
     dust::rng::dust_rng_rbinom<double>(ptr, n, r_size, r_prob);
@@ -257,4 +267,11 @@ cpp11::writable::raws dust_rng_state(SEXP ptr, bool is_float) {
   return is_float ?
     dust::rng::dust_rng_state<float>(ptr) :
     dust::rng::dust_rng_state<double>(ptr);
+}
+
+[[cpp11::register]]
+bool dust_rng_set_deterministic(SEXP ptr, bool value, bool is_float) {
+  return is_float ?
+    dust::rng::dust_rng_set_deterministic<float>(ptr, value) :
+    dust::rng::dust_rng_set_deterministic<double>(ptr, value);
 }

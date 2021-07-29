@@ -160,6 +160,10 @@ dust_rng <- R6::R6Class(
     ##' state.
     state = function() {
       dust_rng_state(private$ptr, private$float)
+    },
+
+    set_deterministic = function(value) {
+      invisible(dust_rng_set_deterministic(private$ptr, value, private$float))
     }
   ))
 

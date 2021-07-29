@@ -166,10 +166,12 @@ inline HOSTDEVICE real_t btrs(rng_state_t<real_t>& rng_state, int n_int, real_t 
   return draw;
 }
 
+// NOTE: we return a real, not an int, as with deterministic mode this
+// will not necessarily be an integer
 template <typename real_t>
-HOSTDEVICE int rbinom(rng_state_t<real_t>& rng_state, int n,
-                      typename rng_state_t<real_t>::real_t p) {
-  int draw;
+HOSTDEVICE real_t rbinom(rng_state_t<real_t>& rng_state, int n,
+                         typename rng_state_t<real_t>::real_t p) {
+  real_t draw;
 
   // Early exit:
   if (n == 0 || p == 0) {
@@ -188,6 +190,8 @@ HOSTDEVICE int rbinom(rng_state_t<real_t>& rng_state, int n,
     throw std::runtime_error(buffer);
 #endif
     draw = 0; // never happens
+  } else if (rng_state.deterministic) {
+    draw = n * p;
   } else {
     real_t q = p;
     if (p > static_cast<real_t>(0.5)) {
@@ -195,9 +199,9 @@ HOSTDEVICE int rbinom(rng_state_t<real_t>& rng_state, int n,
     }
 
     if (n * q >= 10) {
-      draw = static_cast<int>(btrs(rng_state, n, q));
+      draw = btrs(rng_state, n, q);
     } else {
-      draw = static_cast<int>(binomial_inversion(rng_state, n, q));
+      draw = binomial_inversion(rng_state, n, q);
     }
 
     if (p > static_cast<real_t>(0.5)) {

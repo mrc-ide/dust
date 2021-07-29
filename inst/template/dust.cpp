@@ -10,8 +10,9 @@ SEXP dust_{{name}}_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                                         n_threads, r_seed, device_config);
 }
 
-SEXP dust_{{name}}_run(SEXP ptr, size_t step_end, bool device) {
-  return dust::r::dust_run<{{class}}>(ptr, step_end, device);
+SEXP dust_{{name}}_run(SEXP ptr, size_t step_end, bool device,
+                       bool deterministic) {
+  return dust::r::dust_run<{{class}}>(ptr, step_end, device, deterministic);
 }
 
 SEXP dust_{{name}}_simulate(SEXP ptr, cpp11::sexp step_end, bool device) {

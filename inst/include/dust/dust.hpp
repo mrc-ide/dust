@@ -40,7 +40,7 @@ public:
     pars_are_shared_(true),
     n_threads_(n_threads),
     device_config_(device_config),
-    rng_(n_particles_total_ + 1, seed),  // +1 for the filter's rng state
+    rng_(n_particles_total_ + 1, seed), // +1 for the filter's rng state
     errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true),
@@ -154,12 +154,15 @@ public:
     }
     const auto r = std::minmax_element(step.begin(), step.end());
     if (*r.second > *r.first) {
-      run(*r.second);
+      run(*r.second, false); // note; never deterministic
     }
   }
 
-  void run(const size_t step_end) {
+  void run(const size_t step_end, bool deterministic) {
     refresh_host();
+    if (deterministic) {
+      rng_.set_deterministic(true);
+    }
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
@@ -169,6 +172,9 @@ public:
       } catch (std::exception const& e) {
         errors_.capture(e, i);
       }
+    }
+    if (deterministic) {
+      rng_.set_deterministic(false);
     }
     errors_.report();
     stale_device_ = true;

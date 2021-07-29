@@ -152,14 +152,17 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
 }
 
 template <typename T>
-cpp11::sexp dust_run(SEXP ptr, int step_end, bool device) {
+cpp11::sexp dust_run(SEXP ptr, int step_end, bool device, bool deterministic) {
+  if (device && deterministic) {
+    cpp11::stop("'deterministic' is not compatible with 'device'");
+  }
   dust::interface::validate_size(step_end, "step_end");
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
   if (device) {
     obj->run_device(step_end);
   } else {
-    obj->run(step_end);
+    obj->run(step_end, deterministic);
   }
 
   // TODO: the allocation should come from the dust object, *or* we

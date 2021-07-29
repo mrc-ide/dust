@@ -564,3 +564,22 @@ test_that("Require double or float", {
     dust_rng$new(1, 5, "binary16"),
     "Invalid value for 'real_type': must be 'double' or 'float'")
 })
+
+
+test_that("deterministic rbinom returns mean", {
+  m <- 10
+  n <- sample(10, m, replace = TRUE)
+  p <- runif(m)
+
+  rng_f <- dust_rng$new(1, m, "float")
+  rng_d <- dust_rng$new(1, m, "double")
+
+  expect_false(rng_f$set_deterministic(TRUE))
+  expect_false(rng_d$set_deterministic(TRUE))
+
+  expect_equal(rng_f$rbinom(m, n, p), n * p, tolerance = 1e-6)
+  expect_equal(rng_d$rbinom(m, n, p), n * p)
+
+  expect_true(rng_f$set_deterministic(FALSE))
+  expect_true(rng_d$set_deterministic(FALSE))
+})

@@ -25,6 +25,10 @@ struct rng_state_t {
     return 4;
   }
   uint64_t state[4];
+  // This flag indicates that the distributions should return the
+  // deterministic expectation of the draw, and not use any random
+  // numbers
+  bool deterministic = false;
   HOSTDEVICE uint64_t& operator[](size_t i) {
     return state[i];
   }
