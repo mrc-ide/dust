@@ -123,7 +123,11 @@ dust_class <- R6::R6Class(
     ##' this argument will likely change to allow selecting the GPU on
     ##' systems with more than one. In short, please leave this argument
     ##' alone unless you're developing dust.
-    run = function(step_end, device = FALSE) {
+    ##'
+    ##' @param deterministic Run random number generation deterministically,
+    ##'   replacing a random number from some distribution with its
+    ##'   expectation.
+    run = function(step_end, device = FALSE, deterministic = FALSE) {
     },
 
     ##' @description

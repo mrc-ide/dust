@@ -45,6 +45,7 @@ rng$rpois(5, 2)
 \item \href{#method-rpois}{\code{dust_rng$rpois()}}
 \item \href{#method-rexp}{\code{dust_rng$rexp()}}
 \item \href{#method-state}{\code{dust_rng$state()}}
+\item \href{#method-set_deterministic}{\code{dust_rng$set_deterministic()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -261,6 +262,15 @@ debugging as one cannot (yet) initialise a dust_rng object with this
 state.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng$state()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-set_deterministic"></a>}}
+\if{latex}{\out{\hypertarget{method-set_deterministic}{}}}
+\subsection{Method \code{set_deterministic()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$set_deterministic(value)}\if{html}{\out{</div>}}
 }
 
 }

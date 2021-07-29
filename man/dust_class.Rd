@@ -149,7 +149,7 @@ describes the contents of pars passed to the constructor or to
 Run the model up to a point in time, returning the filtered state
 at that point.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$run(step_end, device = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$run(step_end, device = FALSE, deterministic = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -166,6 +166,10 @@ slower than running with \code{device = TRUE}. The interpretation of
 this argument will likely change to allow selecting the GPU on
 systems with more than one. In short, please leave this argument
 alone unless you're developing dust.}
+
+\item{\code{deterministic}}{Run random number generation deterministically,
+replacing a random number from some distribution with its
+expectation.}
 }
 \if{html}{\out{</div>}}
 }
