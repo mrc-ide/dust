@@ -17,7 +17,7 @@ namespace distr {
 // important.
 template <typename real_t>
 HOSTDEVICE real_t exp_rand(rng_state_t<real_t>& rng_state) {
-  return -std::log(dust::unif_rand(rng_state));
+  return rng_state.deterministic ? 1 : -std::log(dust::unif_rand(rng_state));
 }
 
 __nv_exec_check_disable__

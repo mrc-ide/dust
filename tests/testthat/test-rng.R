@@ -573,6 +573,8 @@ test_that("deterministic rbinom returns mean", {
 
   rng_f <- dust_rng$new(1, m, "float")
   rng_d <- dust_rng$new(1, m, "double")
+  state_f <- rng_f$state()
+  state_d <- rng_f$state()
 
   expect_false(rng_f$set_deterministic(TRUE))
   expect_false(rng_d$set_deterministic(TRUE))
@@ -582,6 +584,8 @@ test_that("deterministic rbinom returns mean", {
 
   expect_true(rng_f$set_deterministic(FALSE))
   expect_true(rng_d$set_deterministic(FALSE))
+  expect_equal(rng_f$state(), state_f)
+  expect_equal(rng_d$state(), state_d)
 })
 
 
@@ -590,8 +594,64 @@ test_that("deterministic rpois returns mean", {
   lambda <- runif(m, 0, 50)
   rng_f <- dust_rng$new(1, m, "float")
   rng_d <- dust_rng$new(1, m, "double")
+  state_f <- rng_f$state()
+  state_d <- rng_f$state()
   rng_f$set_deterministic(TRUE)
   rng_d$set_deterministic(TRUE)
   expect_equal(rng_f$rpois(m, lambda), lambda, tolerance = 1e-6)
   expect_equal(rng_d$rpois(m, lambda), lambda)
+  expect_equal(rng_f$state(), state_f)
+  expect_equal(rng_d$state(), state_d)
+})
+
+
+test_that("deterministic runif returns mean", {
+  m <- 10
+  l <- runif(m, -10, 10)
+  u <- l + runif(m, 0, 10)
+  rng_f <- dust_rng$new(1, m, "float")
+  rng_d <- dust_rng$new(1, m, "double")
+  state_f <- rng_f$state()
+  state_d <- rng_f$state()
+  rng_f$set_deterministic(TRUE)
+  rng_d$set_deterministic(TRUE)
+  expect_equal(rng_f$runif(m, l, u), (l + u) / 2, tolerance = 1e-6)
+  expect_equal(rng_d$runif(m, l, u), (l + u) / 2)
+  expect_equal(rng_f$state(), state_f)
+  expect_equal(rng_d$state(), state_d)
+})
+
+
+## This is not quite correct, though it's really close!
+test_that("deterministic rexp returns mean", {
+  m <- 10
+  rate <- runif(m, 0, 10)
+  rng_f <- dust_rng$new(1, m, "float")
+  rng_d <- dust_rng$new(1, m, "double")
+  state_f <- rng_f$state()
+  state_d <- rng_f$state()
+  rng_f$set_deterministic(TRUE)
+  rng_d$set_deterministic(TRUE)
+  expect_equal(rng_f$rexp(m, rate), 1 / rate, tolerance = 1e-6)
+  expect_equal(rng_d$rexp(m, rate), 1 / rate)
+  expect_equal(rng_f$state(), state_f)
+  expect_equal(rng_d$state(), state_d)
+})
+
+
+## This is not quite correct, though it's really close!
+test_that("deterministic rnorm returns mean", {
+  m <- 10
+  mu <- runif(m, -10, 10)
+  sd <- runif(m, 0, 10)
+  rng_f <- dust_rng$new(1, m, "float")
+  rng_d <- dust_rng$new(1, m, "double")
+  state_f <- rng_f$state()
+  state_d <- rng_f$state()
+  rng_f$set_deterministic(TRUE)
+  rng_d$set_deterministic(TRUE)
+  expect_equal(rng_f$rnorm(m, mu, sd), mu, tolerance = 1e-6)
+  expect_equal(rng_d$rnorm(m, mu, sd), mu)
+  expect_equal(rng_f$state(), state_f)
+  expect_equal(rng_d$state(), state_d)
 })

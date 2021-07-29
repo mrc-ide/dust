@@ -144,18 +144,19 @@ inline HOST void xoshiro_long_jump(rng_state_t<T>& state) {
 }
 
 template <typename T, typename U = T>
-HOST U unif_rand(rng_state_t<T>& state) {
-  const uint64_t value = xoshiro_next(state);
-  return U(value) / U(std::numeric_limits<uint64_t>::max());
-}
+HOST U unif_rand(rng_state_t<T>& state);
 
 template <>
 inline HOSTDEVICE double unif_rand(rng_state_t<double>& state) {
-  const uint64_t value = xoshiro_next(state);
 #ifdef __CUDA_ARCH__
+  const uint64_t value = xoshiro_next(state);
   // 18446744073709551616.0 == __ull2double_rn(UINT64_MAX)
   double rand = (__ddiv_rn(__ull2double_rn(value), 18446744073709551616.0));
 #else
+  if (state.deterministic) {
+    return 0.5;
+  }
+  const uint64_t value = xoshiro_next(state);
   double rand = double(value) / double(std::numeric_limits<uint64_t>::max());
 #endif
   return rand;
@@ -163,10 +164,14 @@ inline HOSTDEVICE double unif_rand(rng_state_t<double>& state) {
 
 template <>
 inline HOSTDEVICE float unif_rand(rng_state_t<float>& state) {
-  const uint64_t value = xoshiro_next(state);
 #ifdef __CUDA_ARCH__
+  const uint64_t value = xoshiro_next(state);
   float rand = (__fdiv_rn(__ull2float_rn(value), 18446744073709551616.0f));
 #else
+  if (state.deterministic) {
+    return 0.5;
+  }
+  const uint64_t value = xoshiro_next(state);
   float rand = float(value) / float(std::numeric_limits<uint64_t>::max());
 #endif
   return rand;
