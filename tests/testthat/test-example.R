@@ -702,3 +702,15 @@ test_that("steps must not be negative", {
     mod$simulate(c(0:10, -5)),
     "All elements of 'step_end' must be non-negative")
 })
+
+
+test_that("run random walk deterministically", {
+  res <- dust_example("walk")
+  obj <- res$new(list(sd = 1), 0, 100, seed = 1L)
+  rng_state <- obj$rng_state()
+  m <- obj$state()
+  m[] <- runif(length(m))
+  obj$set_state(m)
+  expect_equal(obj$run(10, deterministic = TRUE), m)
+  expect_equal(obj$rng_state(), rng_state)
+})
