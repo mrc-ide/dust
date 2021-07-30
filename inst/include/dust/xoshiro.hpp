@@ -169,7 +169,7 @@ inline HOSTDEVICE float unif_rand(rng_state_t<float>& state) {
   float rand = (__fdiv_rn(__ull2float_rn(value), 18446744073709551616.0f));
 #else
   if (state.deterministic) {
-    return 0.5;
+    return 0.5f;
   }
   const uint64_t value = xoshiro_next(state);
   float rand = float(value) / float(std::numeric_limits<uint64_t>::max());

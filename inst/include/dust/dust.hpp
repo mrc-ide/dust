@@ -147,7 +147,7 @@ public:
     }
   }
 
-  void set_step(const std::vector<size_t>& step, bool deterministic) {
+  void set_step(const std::vector<size_t>& step, const bool deterministic) {
     const size_t n_particles = particles_.size();
     for (size_t i = 0; i < n_particles; ++i) {
       particles_[i].set_step(step[i]);
@@ -158,7 +158,7 @@ public:
     }
   }
 
-  void run(const size_t step_end, bool deterministic) {
+  void run(const size_t step_end, const bool deterministic) {
     refresh_host();
     if (deterministic) {
       rng_.set_deterministic(true);
@@ -242,7 +242,7 @@ public:
   }
 
   std::vector<real_t> simulate(const std::vector<size_t>& step_end,
-                               bool deterministic) {
+                               const bool deterministic) {
     const size_t n_time = step_end.size();
     std::vector<real_t> ret(n_particles() * n_state() * n_time);
 
