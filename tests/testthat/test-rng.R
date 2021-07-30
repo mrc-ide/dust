@@ -606,19 +606,27 @@ test_that("deterministic rbinom accepts non-integer size", {
 })
 
 
-test_that("deterministic rpois returns mean", {
+test_that("deterministic rbinom allow small negative innacuracies", {
   m <- 10
-  lambda <- runif(m, 0, 50)
+  n <- runif(m, 0, 10)
+  p <- runif(m)
   rng_f <- dust_rng$new(1, m, "float")
   rng_d <- dust_rng$new(1, m, "double")
-  state_f <- rng_f$state()
-  state_d <- rng_f$state()
   rng_f$set_deterministic(TRUE)
   rng_d$set_deterministic(TRUE)
-  expect_equal(rng_f$rpois(m, lambda), lambda, tolerance = 1e-6)
-  expect_equal(rng_d$rpois(m, lambda), lambda)
-  expect_equal(rng_f$state(), state_f)
-  expect_equal(rng_d$state(), state_d)
+
+  eps_d <- .Machine$double.eps
+  eps_f <- 2^-23
+
+  expect_identical(rng_f$rbinom(1, 0, 0.5), 0.0)
+  expect_identical(rng_d$rbinom(1, 0, 0.5), 0.0)
+  expect_identical(rng_f$rbinom(1, -eps_f, 0.5), 0.0)
+  expect_identical(rng_d$rbinom(1, -eps_d, 0.5), 0.0)
+
+  expect_error(rng_f$rbinom(1, -sqrt(eps_f * 1.1), 0.5),
+               "Invalid call to rbinom with n = -")
+  expect_error(rng_d$rbinom(1, -sqrt(eps_d * 1.1), 0.5),
+               "Invalid call to rbinom with n = -")
 })
 
 
@@ -637,6 +645,21 @@ test_that("deterministic rpois returns mean", {
   expect_equal(rng_d$state(), state_d)
 })
 
+
+test_that("deterministic rpois returns mean", {
+  m <- 10
+  lambda <- runif(m, 0, 50)
+  rng_f <- dust_rng$new(1, m, "float")
+  rng_d <- dust_rng$new(1, m, "double")
+  state_f <- rng_f$state()
+  state_d <- rng_f$state()
+  rng_f$set_deterministic(TRUE)
+  rng_d$set_deterministic(TRUE)
+  expect_equal(rng_f$rpois(m, lambda), lambda, tolerance = 1e-6)
+  expect_equal(rng_d$rpois(m, lambda), lambda)
+  expect_equal(rng_f$state(), state_f)
+  expect_equal(rng_d$state(), state_d)
+})
 
 
 test_that("deterministic runif returns mean", {

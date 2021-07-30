@@ -184,9 +184,15 @@ HOSTDEVICE void rbinom_validate(int n, real_t p) {
 
 template <typename real_t>
 HOST real_t rbinom_deterministic(real_t n, real_t p) {
-  if (n < 0 && n * n > std::numeric_limits<real_t>::epsilon()) {
-    // Avoid small round-off errors here, we'll throw later
-    n = std::round(n);
+  if (n < 0) {
+    if (n * n < std::numeric_limits<real_t>::epsilon()) {
+      // Avoid small round-off errors here
+      n = std::round(n);
+    } else {
+      char buffer[256];
+      snprintf(buffer, 256, "Invalid call to rbinom with n = %f", n);
+      throw std::runtime_error(buffer);
+    }
   }
   rbinom_validate(n, p);
   return n * p;
