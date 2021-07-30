@@ -90,7 +90,7 @@ int n = rng.rpois(4.5);
 **Binomial distribution** with mean `size` and `prob`
 
 ```{r}
-rng$rbinom(10L, 10L, 0.3)
+rng$rbinom(10L, 10, 0.3)
 ```
 
 ```cc

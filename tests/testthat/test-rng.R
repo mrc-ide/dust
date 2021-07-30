@@ -76,7 +76,7 @@ test_that("distribution of uniform numbers", {
 
 test_that("run binomial random numbers", {
   m <- 100000
-  n <- 100L
+  n <- 100
   p <- 0.1
 
   ans1 <- dust_rng$new(1, 1)$rbinom(m, n, p)
@@ -92,10 +92,10 @@ test_that("run binomial random numbers", {
 
 test_that("binomial numbers run the short circuit path", {
   m <- 10000
-  n <- 100L
+  n <- 100
   p <- 0.1
 
-  expect_identical(dust_rng$new(1, 1)$rbinom(m, 0L, p),
+  expect_identical(dust_rng$new(1, 1)$rbinom(m, 0, p),
                    rep(0, m))
   expect_identical(dust_rng$new(1, 1)$rbinom(m, n, 0),
                    rep(0, m))
@@ -106,7 +106,7 @@ test_that("binomial numbers run the short circuit path", {
 
 test_that("binomial numbers on the 'small' path", {
   m <- 100000
-  n <- 20L
+  n <- 20
   p <- 0.2
 
   ans1 <- dust_rng$new(1, 1)$rbinom(m, n, p)
@@ -117,7 +117,7 @@ test_that("binomial numbers on the 'small' path", {
 
 test_that("binomial numbers and their complement are the same (np small)", {
   m <- 100
-  n <- 20L
+  n <- 20
   p <- 0.2
 
   ans1 <- dust_rng$new(1, 1)$rbinom(m, n, p)
@@ -128,7 +128,7 @@ test_that("binomial numbers and their complement are the same (np small)", {
 
 test_that("binomial numbers and their complement are the same (np large)", {
   m <- 100
-  n <- 200L
+  n <- 200
   p <- 0.2
 
   ans1 <- dust_rng$new(1, 1)$rbinom(m, n, p)
@@ -140,23 +140,23 @@ test_that("binomial numbers and their complement are the same (np large)", {
 test_that("Binomial random numbers prevent bad inputs", {
   skip_on_cran() # potentially system dependent
   r <- dust_rng$new(1, 1)
-  r$rbinom(1, 0L, 0)
+  r$rbinom(1, 0, 0)
   expect_error(
-    r$rbinom(1, 1L, -1),
+    r$rbinom(1, 1, -1),
     "Invalid call to rbinom with n = 1, p = -1")
   expect_error(
-    r$rbinom(1, 1L, 0 - 1e-8),
+    r$rbinom(1, 1, 0 - 1e-8),
     "Invalid call to rbinom with n = 1, p = -1e-08")
   expect_error(
-    r$rbinom(1, 1L, 2),
+    r$rbinom(1, 1, 2),
     "Invalid call to rbinom with n = 1, p = 2")
   ## TODO: this is not a great error here, but there's not much that
   ## can be done without a lot of faff with the underlying print
   expect_error(
-    r$rbinom(1, 1L, 1 + 1e-8),
+    r$rbinom(1, 1, 1 + 1e-8),
     "Invalid call to rbinom with n = 1, p = 1")
   expect_error(
-    r$rbinom(1, -1L, 0.5),
+    r$rbinom(1, -1, 0.5),
     "Invalid call to rbinom with n = -1, p = 0.5")
 })
 
@@ -429,7 +429,7 @@ test_that("can jump the rng state with dust_rng_state_long_jump", {
 
 test_that("binomial random numbers from floats have correct distribution", {
   m <- 100000
-  n <- 958L
+  n <- 958
   p <- 0.004145
   yf <- dust_rng$new(1, 1, "float")$rbinom(m, n, p)
   yd <- dust_rng$new(1, 1, "double")$rbinom(m, n, p)
@@ -454,7 +454,7 @@ test_that("special case", {
 
 test_that("binomial random numbers from floats have correct distribution", {
   m <- 100000
-  n <- 100L
+  n <- 100
   p <- 0.1
   yf <- dust_rng$new(1, 1, "float")$rbinom(m, n, p)
   yd <- dust_rng$new(1, 1, "double")$rbinom(m, n, p)
@@ -480,7 +480,7 @@ test_that("float/double binom identical behaviour in corner cases", {
   expect_identical(rng_f$state(), s)
 
   ## and a draw and its complement are the same
-  n <- 20L
+  n <- 20
   ans1 <- dust_rng$new(1, 1, "float")$rbinom(100, n, 0.2)
   ans2 <- dust_rng$new(1, 1, "float")$rbinom(100, n, 0.8)
   expect_equal(ans1, n - ans2)
@@ -568,7 +568,7 @@ test_that("Require double or float", {
 
 test_that("deterministic rbinom returns mean", {
   m <- 10
-  n <- sample(10, m, replace = TRUE)
+  n <- as.numeric(sample(10, m, replace = TRUE))
   p <- runif(m)
 
   rng_f <- dust_rng$new(1, m, "float")
@@ -589,6 +589,23 @@ test_that("deterministic rbinom returns mean", {
 })
 
 
+test_that("deterministic rbinom accepts non-integer size", {
+  m <- 10
+  n <- runif(m, 0, 10)
+  p <- runif(m)
+  rng_f <- dust_rng$new(1, m, "float")
+  rng_d <- dust_rng$new(1, m, "double")
+  state_f <- rng_f$state()
+  state_d <- rng_f$state()
+  expect_false(rng_f$set_deterministic(TRUE))
+  expect_false(rng_d$set_deterministic(TRUE))
+  expect_equal(rng_f$rbinom(m, n, p), n * p, tolerance = 1e-6)
+  expect_equal(rng_d$rbinom(m, n, p), n * p)
+  expect_equal(rng_f$state(), state_f)
+  expect_equal(rng_d$state(), state_d)
+})
+
+
 test_that("deterministic rpois returns mean", {
   m <- 10
   lambda <- runif(m, 0, 50)
@@ -603,6 +620,23 @@ test_that("deterministic rpois returns mean", {
   expect_equal(rng_f$state(), state_f)
   expect_equal(rng_d$state(), state_d)
 })
+
+
+test_that("deterministic rpois returns mean", {
+  m <- 10
+  lambda <- runif(m, 0, 50)
+  rng_f <- dust_rng$new(1, m, "float")
+  rng_d <- dust_rng$new(1, m, "double")
+  state_f <- rng_f$state()
+  state_d <- rng_f$state()
+  rng_f$set_deterministic(TRUE)
+  rng_d$set_deterministic(TRUE)
+  expect_equal(rng_f$rpois(m, lambda), lambda, tolerance = 1e-6)
+  expect_equal(rng_d$rpois(m, lambda), lambda)
+  expect_equal(rng_f$state(), state_f)
+  expect_equal(rng_d$state(), state_d)
+})
+
 
 
 test_that("deterministic runif returns mean", {

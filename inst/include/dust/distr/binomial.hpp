@@ -166,34 +166,44 @@ inline HOSTDEVICE real_t btrs(rng_state_t<real_t>& rng_state, int n_int, real_t 
   return draw;
 }
 
+template <typename real_t>
+HOSTDEVICE void rbinom_validate(int n, real_t p) {
+  if (n < 0 || p < 0 || p > 1) {
+#ifdef __CUDA_ARCH__
+    // This is unrecoverable
+    printf("Invalid call to rbinom with n = %d, p = %g, q = %g\n", n, p, 1 - p);
+    __trap();
+#else
+    char buffer[256];
+    snprintf(buffer, 256, "Invalid call to rbinom with n = %d, p = %g, q = %g",
+             n, p, 1 - p);
+    throw std::runtime_error(buffer);
+#endif
+  }
+}
+
+template <typename real_t>
+HOST real_t rbinom_deterministic(real_t n, real_t p) {
+  if (n < 0 && n * n > std::numeric_limits<real_t>::epsilon()) {
+    // Avoid small round-off errors here, we'll throw later
+    n = std::round(n);
+  }
+  rbinom_validate(n, p);
+  return n * p;
+}
+
 // NOTE: we return a real, not an int, as with deterministic mode this
 // will not necessarily be an integer
 template <typename real_t>
-HOSTDEVICE real_t rbinom(rng_state_t<real_t>& rng_state, int n,
-                         typename rng_state_t<real_t>::real_t p) {
+HOSTDEVICE real_t rbinom_stochastic(rng_state_t<real_t>& rng_state, int n,
+                                    real_t p) {
+  rbinom_validate(n, p);
   real_t draw;
 
-  // Early exit:
   if (n == 0 || p == 0) {
     draw = 0;
   } else if (p == 1) {
     draw = n;
-  } else if (n < 0 || p < 0 || p > 1) {
-#ifdef __CUDA_ARCH__
-    // This is unrecoverable
-    printf("Invalid call to rbinom with n = %d, p = %g\n", n, p);
-    __trap();
-#else
-    char buffer[256];
-    snprintf(buffer, 256, "Invalid call to rbinom with n = %d, p = %g",
-             n, p);
-    throw std::runtime_error(buffer);
-#endif
-    draw = 0; // never happens
-#ifndef __CUDA_ARCH__
-  } else if (rng_state.deterministic) {
-    draw = n * p;
-#endif
   } else {
     real_t q = p;
     if (p > static_cast<real_t>(0.5)) {
@@ -213,6 +223,20 @@ HOSTDEVICE real_t rbinom(rng_state_t<real_t>& rng_state, int n,
 
   SYNCWARP
   return draw;
+}
+
+template <typename real_t>
+HOSTDEVICE real_t rbinom(rng_state_t<real_t>& rng_state, real_t n, real_t p) {
+#ifndef __CUDA_ARCH__
+  if (rng_state.deterministic) {
+    return rbinom_deterministic<real_t>(n, p);
+  }
+#endif
+  // Avoid integer truncation (which a cast to int would cause) in
+  // case of numerical error, instead taking the slightly lower but
+  // more accurate round route. This means that `n - eps` becomes
+  // `n` not `n - 1`.
+  return rbinom_stochastic<real_t>(rng_state, std::round(n), p);
 }
 
 }
