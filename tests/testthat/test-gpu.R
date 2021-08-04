@@ -781,3 +781,17 @@ test_that("Can validate block size", {
     "'run_block_size' must be a multiple of 32 (but was 513)",
     fixed = TRUE)
 })
+
+
+test_that("Can't run deterministically on the device", {
+  np <- 100
+  len <- 20
+  gen <- dust_example("variable")
+  mod <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
+  expect_error(
+    mod$run(10, TRUE, TRUE),
+    "'deterministic' is not compatible with 'device'")
+  expect_error(
+    mod$simulate(0:10, TRUE, TRUE),
+    "'deterministic' is not compatible with 'device'")
+})

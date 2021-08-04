@@ -129,8 +129,12 @@
     ##' this argument will likely change to allow selecting the GPU on
     ##' systems with more than one. In short, please leave this argument
     ##' alone unless you're developing dust.
-    run = function(step_end, device = FALSE) {
-      m <- dust_{{name}}_run(private$ptr_, step_end, device)
+    ##'
+    ##' @param deterministic Run random number generation deterministically,
+    ##'   replacing a random number from some distribution with its
+    ##'   expectation.
+    run = function(step_end, device = FALSE, deterministic = FALSE) {
+      m <- dust_{{name}}_run(private$ptr_, step_end, device, deterministic)
       rownames(m) <- names(private$index_)
       m
     },
@@ -162,8 +166,12 @@
     ##' this argument will likely change to allow selecting the GPU on
     ##' systems with more than one. In short, please leave this argument
     ##' alone unless you're developing dust.
-    simulate = function(step_end, device = FALSE) {
-      m <- dust_{{name}}_simulate(private$ptr_, step_end, device)
+    ##'
+    ##' @param deterministic Run random number generation deterministically,
+    ##'   replacing a random number from some distribution with its
+    ##'   expectation.
+    simulate = function(step_end, device = FALSE, deterministic = FALSE) {
+      m <- dust_{{name}}_simulate(private$ptr_, step_end, device, deterministic)
       rownames(m) <- names(private$index_)
       m
     },
@@ -236,8 +244,12 @@
     ##' is a vector (with the same length as the number of particles), then
     ##' particles are started from different initial steps and run up to the
     ##' largest step given (i.e., `max(step)`)
-    set_state = function(state, step = NULL) {
-      dust_{{name}}_set_state(private$ptr_, state, step)
+    ##'
+    ##' @param deterministic If `TRUE` and if `step` is a vector with
+    ##' different values, then this would run up to the largest step
+    ##' deterministically (see `$run()` for more details).
+    set_state = function(state, step = NULL, deterministic = FALSE) {
+      dust_{{name}}_set_state(private$ptr_, state, step, deterministic)
       invisible()
     },
 

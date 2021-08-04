@@ -81,6 +81,12 @@ public:
     import_state(state, size());
   }
 
+  void set_deterministic(bool value) {
+    for (auto& x : state_) {
+      x.deterministic = value;
+    }
+  }
+
 private:
   std::vector<rng_state_t<T>> state_;
 };

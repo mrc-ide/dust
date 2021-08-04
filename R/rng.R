@@ -21,7 +21,7 @@
 ##' rng$rnorm(5, 4, 2)
 ##'
 ##' # Binomially distributed random numbers with size and prob
-##' rng$rbinom(5, 10L, 0.3)
+##' rng$rbinom(5, 10, 0.3)
 ##'
 ##' # Poisson distributed random numbers with mean lambda
 ##' rng$rpois(5, 2)
@@ -160,6 +160,15 @@ dust_rng <- R6::R6Class(
     ##' state.
     state = function() {
       dust_rng_state(private$ptr, private$float)
+    },
+
+    ##' @description
+    ##' Toggle the RNG into/out of deterministic mode
+    ##'
+    ##' @param value Logical, `TRUE` if the RNG should run in deterministic
+    ##'   mode.
+    set_deterministic = function(value) {
+      invisible(dust_rng_set_deterministic(private$ptr, value, private$float))
     }
   ))
 

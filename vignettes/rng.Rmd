@@ -90,7 +90,7 @@ int n = rng.rpois(4.5);
 **Binomial distribution** with mean `size` and `prob`
 
 ```{r}
-rng$rbinom(10L, 10L, 0.3)
+rng$rbinom(10L, 10, 0.3)
 ```
 
 ```cc
@@ -140,7 +140,7 @@ Binomial distribution, small `n * p`, which uses an inversion algorithm
 
 ```{r}
 rng1 <- dust::dust_rng$new(seed = 1, n_generators = 1)
-n <- rep(9:10, length.out = 1000)
+n <- as.numeric(rep(9:10, length.out = 1000))
 p <- rep(c(0.1, 0.11), length.out = 1000)
 bench::mark(
   rng1$rbinom(1000, n, p),
@@ -152,7 +152,7 @@ bench::mark(
 (note we vary `n` and `p` here as we've optimised things for random parameter access).
 
 ```{r}
-n <- rep(9999:10000, length.out = 1000)
+n <- as.numeric(rep(9999:10000, length.out = 1000))
 p <- rep(c(0.3, 0.31), length.out = 1000)
 bench::mark(
   rng1$rbinom(1000, n, p),

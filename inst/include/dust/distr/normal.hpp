@@ -33,7 +33,11 @@ template <typename real_t>
 HOSTDEVICE real_t rnorm(rng_state_t<real_t>& rng_state,
                         typename rng_state_t<real_t>::real_t mean,
                         typename rng_state_t<real_t>::real_t sd) {
+#ifdef __CUDA_ARCH__
   real_t z = box_muller<real_t>(rng_state);
+#else
+  real_t z = rng_state.deterministic ? 0 : box_muller<real_t>(rng_state);
+#endif
   return z * sd + mean;
 }
 

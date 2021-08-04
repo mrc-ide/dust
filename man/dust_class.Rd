@@ -149,7 +149,7 @@ describes the contents of pars passed to the constructor or to
 Run the model up to a point in time, returning the filtered state
 at that point.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$run(step_end, device = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$run(step_end, device = FALSE, deterministic = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -166,6 +166,10 @@ slower than running with \code{device = TRUE}. The interpretation of
 this argument will likely change to allow selecting the GPU on
 systems with more than one. In short, please leave this argument
 alone unless you're developing dust.}
+
+\item{\code{deterministic}}{Run random number generation deterministically,
+replacing a random number from some distribution with its
+expectation.}
 }
 \if{html}{\out{</div>}}
 }
@@ -186,7 +190,7 @@ the returned array is one less. For a scalar \code{step_end} you would
 ordinarily want to use \verb{$run()} but the resulting numbers would
 be identical.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$simulate(step_end, device = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$simulate(step_end, device = FALSE, deterministic = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -206,6 +210,10 @@ slower than running with \code{device = TRUE}. The interpretation of
 this argument will likely change to allow selecting the GPU on
 systems with more than one. In short, please leave this argument
 alone unless you're developing dust.}
+
+\item{\code{deterministic}}{Run random number generation deterministically,
+replacing a random number from some distribution with its
+expectation.}
 }
 \if{html}{\out{</div>}}
 }
@@ -301,7 +309,7 @@ Returns the shape of the particles
 Set the "state" vector for all particles, overriding whatever your
 models \code{initial()} method provides.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_class$set_state(state, step = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_class$set_state(state, step = NULL, deterministic = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -318,6 +326,10 @@ states at once).}
 is a vector (with the same length as the number of particles), then
 particles are started from different initial steps and run up to the
 largest step given (i.e., \code{max(step)})}
+
+\item{\code{deterministic}}{If \code{TRUE} and if \code{step} is a vector with
+different values, then this would run up to the largest step
+deterministically (see \verb{$run()} for more details).}
 }
 \if{html}{\out{</div>}}
 }

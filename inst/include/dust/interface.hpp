@@ -100,7 +100,7 @@ void dust_set_index(SEXP ptr, cpp11::sexp r_index) {
 }
 
 template <typename T>
-void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
+void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step, bool deterministic) {
   typedef typename T::real_t real_t;
 
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
@@ -140,7 +140,7 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
     if (step.size() == 1) {
       obj->set_step(step[0]);
     } else {
-      obj->set_step(step);
+      obj->set_step(step, deterministic);
     }
   }
 
@@ -152,14 +152,17 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step) {
 }
 
 template <typename T>
-cpp11::sexp dust_run(SEXP ptr, int step_end, bool device) {
+cpp11::sexp dust_run(SEXP ptr, int step_end, bool device, bool deterministic) {
+  if (device && deterministic) {
+    cpp11::stop("'deterministic' is not compatible with 'device'");
+  }
   dust::interface::validate_size(step_end, "step_end");
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
   if (device) {
     obj->run_device(step_end);
   } else {
-    obj->run(step_end);
+    obj->run(step_end, deterministic);
   }
 
   // TODO: the allocation should come from the dust object, *or* we
@@ -174,7 +177,11 @@ cpp11::sexp dust_run(SEXP ptr, int step_end, bool device) {
 }
 
 template <typename T>
-cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end, bool device) {
+cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end, bool device,
+                          bool deterministic) {
+  if (device && deterministic) {
+    cpp11::stop("'deterministic' is not compatible with 'device'");
+  }
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
   const std::vector<size_t> step_end =
@@ -195,9 +202,9 @@ cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end, bool device) {
 
   std::vector<typename T::real_t> dat;
   if (device) {
-     dat = obj->simulate_device(step_end);
+    dat = obj->simulate_device(step_end);
   } else {
-     dat = obj->simulate(step_end);
+    dat = obj->simulate(step_end, deterministic);
   }
   return dust::interface::state_array(dat, obj->n_state(), obj->shape(),
                                       n_time);

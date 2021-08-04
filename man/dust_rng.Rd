@@ -24,7 +24,7 @@ rng$runif(5, -2, 6)
 rng$rnorm(5, 4, 2)
 
 # Binomially distributed random numbers with size and prob
-rng$rbinom(5, 10L, 0.3)
+rng$rbinom(5, 10, 0.3)
 
 # Poisson distributed random numbers with mean lambda
 rng$rpois(5, 2)
@@ -45,6 +45,7 @@ rng$rpois(5, 2)
 \item \href{#method-rpois}{\code{dust_rng$rpois()}}
 \item \href{#method-rexp}{\code{dust_rng$rexp()}}
 \item \href{#method-state}{\code{dust_rng$state()}}
+\item \href{#method-set_deterministic}{\code{dust_rng$set_deterministic()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -263,5 +264,23 @@ state.
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng$state()}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-set_deterministic"></a>}}
+\if{latex}{\out{\hypertarget{method-set_deterministic}{}}}
+\subsection{Method \code{set_deterministic()}}{
+Toggle the RNG into/out of deterministic mode
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$set_deterministic(value)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{value}}{Logical, \code{TRUE} if the RNG should run in deterministic
+mode.}
+}
+\if{html}{\out{</div>}}
+}
 }
 }
