@@ -194,7 +194,7 @@ HOST real_t rbinom_deterministic(real_t n, real_t p) {
       throw std::runtime_error(buffer);
     }
   }
-  rbinom_validate(n, p);
+  rbinom_validate(static_cast<int>(n), p);
   return n * p;
 }
 
