@@ -1,11 +1,11 @@
-#ifndef DUST_TYPES_HPP
-#define DUST_TYPES_HPP
+#ifndef DUST_CUDA_TYPES_HPP
+#define DUST_CUDA_TYPES_HPP
 
 #include <numeric>
 #include <sstream>
 #include <vector>
 
-#include <dust/filter_kernels.hpp>
+#include <dust/cuda/filter_kernels.hpp>
 
 namespace dust {
 

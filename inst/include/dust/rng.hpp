@@ -2,13 +2,13 @@
 #define DUST_RNG_HPP
 
 #include <algorithm>
-#include "xoshiro.hpp"
-#include "distr/binomial.hpp"
-#include "distr/exponential.hpp"
-#include "distr/normal.hpp"
-#include "distr/poisson.hpp"
-#include "distr/uniform.hpp"
-#include "containers.hpp"
+#include <dust/xoshiro.hpp>
+#include <dust/distr/binomial.hpp>
+#include <dust/distr/exponential.hpp>
+#include <dust/distr/normal.hpp>
+#include <dust/distr/poisson.hpp>
+#include <dust/distr/uniform.hpp>
+#include <dust/cuda/containers.hpp>
 
 namespace dust {
 

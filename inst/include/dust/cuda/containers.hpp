@@ -1,5 +1,5 @@
-#ifndef DUST_CONTAINERS_HPP
-#define DUST_CONTAINERS_HPP
+#ifndef DUST_CUDA_CONTAINERS_HPP
+#define DUST_CUDA_CONTAINERS_HPP
 
 #include <cstdint>
 #include <cstddef>
@@ -9,7 +9,7 @@
 #include <sstream>
 #include <vector>
 
-#include <dust/cuda.cuh>
+#include <dust/cuda/cuda.hpp>
 
 namespace dust {
 

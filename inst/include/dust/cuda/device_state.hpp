@@ -1,9 +1,8 @@
-// -*- c++ -*-
-#ifndef DUST_DEVICE_STATE_CUH
-#define DUST_DEVICE_STATE_CUH
+#ifndef DUST_CUDA_DEVICE_STATE_CUH
+#define DUST_CUDA_DEVICE_STATE_CUH
 
-#include <dust/cuda.cuh>
-#include <dust/types.hpp>
+#include <dust/cuda/cuda.hpp>
+#include <dust/cuda/types.hpp>
 
 namespace dust {
 

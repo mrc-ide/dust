@@ -1,6 +1,5 @@
-// -*- c++ -*-
-#ifndef DUST_CUDA_CUH
-#define DUST_CUDA_CUH
+#ifndef DUST_CUDA_CUDA_HPP
+#define DUST_CUDA_CUDA_HPP
 
 #ifdef __NVCC__
 #define DEVICE __device__
@@ -19,7 +18,7 @@
 // going to use. This suppresses the warning as it is ok here.
 #define __nv_exec_check_disable__ _Pragma("nv_exec_check_disable")
 
-#include <dust/cuda_call.cuh>
+#include <dust/cuda/call.hpp>
 
 #include <device_launch_parameters.h>
 

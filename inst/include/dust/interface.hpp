@@ -13,9 +13,9 @@
 
 #include <dust/rng_interface.hpp>
 #include <dust/interface_helpers.hpp>
-#include <dust/device_info.hpp>
+#include <dust/cuda/device_info.hpp>
 #include <dust/filter.hpp>
-#include <dust/cuda_launch_control.hpp>
+#include <dust/cuda/launch_control.hpp>
 
 namespace dust {
 

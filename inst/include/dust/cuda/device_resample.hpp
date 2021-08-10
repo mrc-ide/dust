@@ -1,7 +1,7 @@
-#ifndef DUST_DEVICE_RESAMPLE_HPP
-#define DUST_DEVICE_RESAMPLE_HPP
+#ifndef DUST_CUDA_DEVICE_RESAMPLE_HPP
+#define DUST_CUDA_DEVICE_RESAMPLE_HPP
 
-#include <dust/cuda_launch_control.hpp>
+#include <dust/cuda/launch_control.hpp>
 
 namespace dust {
 

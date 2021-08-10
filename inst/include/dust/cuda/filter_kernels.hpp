@@ -1,8 +1,8 @@
-#ifndef DUST_FILTER_KERNELS_HPP
-#define DUST_FILTER_KERNELS_HPP
+#ifndef DUST_CUDA_FILTER_KERNELS_HPP
+#define DUST_CUDA_FILTER_KERNELS_HPP
 
 #include <cmath>
-#include <dust/cuda.cuh>
+#include <dust/cuda/cuda.hpp>
 
 namespace dust {
 
