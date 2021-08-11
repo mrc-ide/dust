@@ -24,7 +24,7 @@ One of our aims with `dust` was to enable the creation of fast particle filters.
 
 It is possible to implement this comparison directly in the dust model, which may slightly speed up the particle filter (because the compare function will be evaluated in parallel, and because of slightly reduced data copying), but also allows running the particle filter on a GPU (see `vignette("cuda")`).
 
-This vignette outlines the steps in implenenting the comparison directly as part of the model.  This is not required for basic use of dust models, and we would typically recommend this only after your model has stabilised and you are looking to extract potential additional speedups or accellerate the model on a GPU.
+This vignette outlines the steps in implementing the comparison directly as part of the model.  This is not required for basic use of dust models, and we would typically recommend this only after your model has stabilised and you are looking to extract potential additional speed-ups or accelerate the model on a GPU.
 
 We start with a simple example, a model of volatility
 
@@ -57,9 +57,9 @@ volatility_compare <- function(state, observed, pars) {
 
 i.e., the probability is normally distributed with mean of the equal to `gamma` multiplied by the modelled value, standard deviation of `tau` and evaluated at the observed value.  Our aim here is to adapt this so that it is implemented as part of the C++ model. This requires:
 
-* describing the data (here it will be a single numeric value, but the data could be arbitraricly complicated)
+* describing the data (here it will be a single numeric value, but the data could be arbitrarily complicated)
 * implementing a method to do the comparison
-* describe how to marshall the data into this structure
+* describe how to marshal the data into this structure
 
 ```{r, echo = FALSE, results = "asis"}
 cc_output(readLines(system.file("examples/volatility.cpp", package = "dust")))
@@ -97,7 +97,7 @@ This looks very much like the R version above:
 * the random number generator is available here, if your comparison is itself stochastic
 * unlike the R version where the comparison returns a vector across all particles, the C++ comparison is done for each particle
 
-Finally, the data mashalling is done by the `dust_data` template, within the `dust` namespace
+Finally, the data marshalling is done by the `dust_data` template, within the `dust` namespace
 
 ```cc
 namespace dust {

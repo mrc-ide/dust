@@ -295,7 +295,7 @@ dust_class <- R6::R6Class(
     ##' Returns the state of the random number generator. This returns a
     ##' raw vector of length 32 * n_particles. This can be useful for
     ##' debugging or for initialising other dust objects. The arguments
-    ##' `first_only` and `last_only` are mutally exclusive. If neither is
+    ##' `first_only` and `last_only` are mutually exclusive. If neither is
     ##' given then all all particles states are returned, being 32 bytes
     ##' per particle. The full returned state or `first_only` are most
     ##' suitable for reseeding a new dust object.

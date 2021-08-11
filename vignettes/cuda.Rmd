@@ -34,7 +34,7 @@ This vignette is written in reverse-order, starting with how to run a model on a
 The `sirs` model includes GPU support, and will be the focus of this vignette.  However, the installed version cannot be run directly on the GPU for a couple of reasons:
 
 * this would complicate distribution of binaries as we'd depend on all systems having a copy of the CUDA runtime
-* we would have to compile support for many possible GPU architechures at once
+* we would have to compile support for many possible GPU architectures at once
 * it is very likely that we'd want to run the model in single precision (`float`) mode rather than double precision (`double`), and changing that requires re-compilation
 
 So here, rather than using `dust::dust_example`, we compile the model and pass in arguments:
@@ -44,7 +44,7 @@ path <- system.file("examples/sirs.cpp", package = "dust")
 sirs <- dust::dust(path, gpu = TRUE, real_t = "float")
 ```
 
-Notice in compilation that `nvcc` is used to compile the model, rather than `g++`.  The additional option `-gencode=arch=compute_XX,code=sm_XX` was added by `dust` and will include the cuda compute version supported by your graphics cards. You can use `dust::dust_cuda_options` to set additional options, passing in the return value for the `gpu` argument above.
+Notice in compilation that `nvcc` is used to compile the model, rather than `g++`.  The additional option `-gencode=arch=compute_XX,code=sm_XX` was added by `dust` and will include the CUDA compute version supported by your graphics cards. You can use `dust::dust_cuda_options` to set additional options, passing in the return value for the `gpu` argument above.
 
 Once compiled with GPU support, the static method `has_cuda` will report `TRUE`:
 
@@ -115,7 +115,7 @@ struct has_gpu_support<sirs> : std::true_type {};
 }
 ```
 
-Next, within the dust namespace again, we declare the size of the *shared parameters* for the model. These are parameters that will be the same across all instances of a parmeter set, as opposed to quantities that change between particles.
+Next, within the dust namespace again, we declare the size of the *shared parameters* for the model. These are parameters that will be the same across all instances of a parameter set, as opposed to quantities that change between particles.
 
 ```cc
 namespace dust {
@@ -152,7 +152,7 @@ void device_shared_copy<sirs>(dust::shared_ptr<sirs> shared,
 }
 ```
 
-In the CPU version of the model we have a nice smart pointer to a struct (`dust::shared_ptr<sirs>`) from which we can access parameters by name (e.g., `shared->alpha`). No such nicities in CUDA where we need access to a single contiguous block of memory.  The `dust::shared_copy` is a small utility to make the bookkeeping here a bit easier, but this could have been written out as:
+In the CPU version of the model we have a nice smart pointer to a struct (`dust::shared_ptr<sirs>`) from which we can access parameters by name (e.g., `shared->alpha`). No such niceties in CUDA where we need access to a single contiguous block of memory.  The `dust::shared_copy` is a small utility to make the bookkeeping here a bit easier, but this could have been written out as:
 
 ```cc
 namespace dust {
@@ -251,9 +251,9 @@ Note that this totally duplicates the logic from the CPU version (which was a me
 
 Differences include:
 
-* the presence of the four auxillary data elements (`internal_int`, `internal_real`, `shared_int` and `shared_real`)
+* the presence of the four auxiliary data elements (`internal_int`, `internal_real`, `shared_int` and `shared_real`)
 * the data types that vary across particles are a special `dust::interleaved<>` type, which prevents uncoalesced reads
-* All accesses into the `shared_int` and `shared_real` elements are now by position in the array, rather than the previous pointer/name based acces
+* All accesses into the `shared_int` and `shared_real` elements are now by position in the array, rather than the previous pointer/name based access
 * The `DEVICE` annotation
 
 ## Data comparison functions
