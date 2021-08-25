@@ -49,10 +49,7 @@ clean:
 		src/*.gcov src/*.gcda src/*.gcno
 
 vignettes/cuda.Rmd: vignettes_src/cuda.Rmd
-	cd vignettes_src && ${RSCRIPT} -e 'knitr::knit("cuda.Rmd")'
-	mv vignettes_src/cuda.md $@
-	sed -i.bak 's/[[:space:]]*$$//' $@
-	rm -f $@.bak
+	./scripts/build_cuda_vignette
 
 vignettes: vignettes/dust.Rmd vignettes/rng.Rmd
 	${RSCRIPT} -e 'tools::buildVignettes(dir = ".")'
