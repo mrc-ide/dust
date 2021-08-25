@@ -47,7 +47,7 @@ head(data)
 plot(observed ~ step, data, type = "o", pch = 19, las = 1)
 ```
 
-As in the [`mcstate` vignette](https://mrc-ide.github.io/mcstate/articles/kalman.html) we some way of comparing model output to data.  The function used there is:
+As in the [`mcstate` vignette](https://mrc-ide.github.io/mcstate/articles/kalman.html) we need some way of comparing model output to data.  The likelihood function used there is:
 
 ```{r}
 volatility_compare <- function(state, observed, pars) {
@@ -57,9 +57,9 @@ volatility_compare <- function(state, observed, pars) {
 
 i.e., the probability is normally distributed with mean of the equal to `gamma` multiplied by the modelled value, standard deviation of `tau` and evaluated at the observed value.  Our aim here is to adapt this so that it is implemented as part of the C++ model. This requires:
 
-* describing the data (here it will be a single numeric value, but the data could be arbitrarily complicated)
+* describing the types of the observed data at each time point in a C++ struct (here it will be a single numeric value, but the data could be arbitrarily complicated)
 * implementing a method to do the comparison
-* describe how to marshal the data into this structure
+* describe how to marshal the data from R into this C++ structure
 
 ```{r, echo = FALSE, results = "asis"}
 cc_output(readLines(system.file("examples/volatility.cpp", package = "dust")))
@@ -81,7 +81,7 @@ which replaces the usual
 
 This structure can contain whatever you want, including things like a `std::vector` of values. In our use we've typically only had `real_t` and `int` though, even for complex models.
 
-The comparison is implemented by the method `compare_data`
+The comparison is implemented by the method `compare_data`, which has a standard signature for the function which takes the current state, the data at the current time point, and the RNG state:
 
 ```cc
   real_t compare_data(const real_t * state, const data_t& data,

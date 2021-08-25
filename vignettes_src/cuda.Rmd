@@ -29,8 +29,10 @@ This vignette is written in reverse-order, starting with how to run a model on a
 
 ## Principles
 
-* A GPU model can be run on the CPU
-*
+* A GPU model can be run on the CPU, and vice-versa.
+* The same random number generator sequence will be used in both cases.
+* Differences in results, if they exist, come from different precision/rounding between devices. When using `real_t = double` we get the same results.
+* Just the model update can be defined for the GPU, and comparisons and shuffling will still happen on the CPU. Defining a comparison function is also possible, allowing a full particle filter run on a GPU.
 
 ## Running a model with GPU support
 
@@ -47,7 +49,7 @@ path <- system.file("examples/sirs.cpp", package = "dust")
 sirs <- dust::dust(path, gpu = TRUE, real_t = "float")
 ```
 
-Notice in compilation that `nvcc` is used to compile the model, rather than `g++`.  The additional option `-gencode=arch=compute_XX,code=sm_XX` was added by `dust` and will include the CUDA compute version supported by your graphics cards. You can use `dust::dust_cuda_options` to set additional options, passing in the return value for the `gpu` argument above.
+Notice in compilation that `nvcc` is used to compile the model, rather than `g++`.  The additional option `-gencode=arch=compute_XX,code=sm_XX` was added by `dust` and will include the CUDA compute version supported by the graphics cards found on the current system. You can use `dust::dust_cuda_options` to set additional options, passing in the return value for the `gpu` argument above.
 
 Once compiled with GPU support, the static method `has_cuda` will report `TRUE`:
 
@@ -65,7 +67,7 @@ If you have more than one GPU, the `id` in the `devices` section will be useful 
 
 The object is initialised as usual but with slight differences:
 
-* you will probably want a (much) larger number of particles to take advantage of your device
+* you will probably want a (much) larger number of particles to take advantage of your device. As a rule of thumb we would suggest at least 10000, but depending on model and card 10-100x this may improve performance (relative to the same on a multicore CPU). See below for more discussion of this.
 * the `device_config` argument needs to be provided to indicate which device we are running on (or additional configuration)
 
 ```{r}
@@ -255,9 +257,9 @@ Note that this totally duplicates the logic from the CPU version (which was a me
 Differences include:
 
 * the presence of the four auxiliary data elements (`internal_int`, `internal_real`, `shared_int` and `shared_real`)
-* the data types that vary across particles are a special `dust::interleaved<>` type, which prevents uncoalesced reads
+* the data types that vary across particles are a special `dust::interleaved<>` type, which prevents slow uncoalesced reads from global device memory
 * All accesses into the `shared_int` and `shared_real` elements are now by position in the array, rather than the previous pointer/name based access
-* The `DEVICE` annotation
+* The `DEVICE` annotation, which compiles the function for use on the GPU
 
 ## Data comparison functions
 
