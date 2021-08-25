@@ -1,9 +1,9 @@
-#ifndef DUST_KERNELS_HPP
-#define DUST_KERNELS_HPP
+#ifndef DUST_CUDA_KERNELS_HPP
+#define DUST_CUDA_KERNELS_HPP
 
 #include <assert.h>
 #include <dust/utils.hpp>
-#include <dust/device_state.cuh>
+#include <dust/cuda/device_state.hpp>
 
 namespace dust {
 

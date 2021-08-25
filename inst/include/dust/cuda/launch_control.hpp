@@ -1,7 +1,7 @@
 #ifndef DUST_CUDA_LAUNCH_CONTROL_HPP
 #define DUST_CUDA_LAUNCH_CONTROL_HPP
 
-#include <dust/types.hpp>
+#include <dust/cuda/types.hpp>
 
 namespace dust {
 

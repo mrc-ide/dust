@@ -15,12 +15,12 @@
 #include <dust/densities.hpp>
 #include <dust/filter_state.hpp>
 #include <dust/filter_tools.hpp>
-#include <dust/types.hpp>
+#include <dust/cuda/types.hpp>
 #include <dust/utils.hpp>
 #include <dust/particle.hpp>
-#include <dust/kernels.hpp>
-#include <dust/device_resample.hpp>
-#include <dust/cuda_launch_control.hpp>
+#include <dust/cuda/kernels.hpp>
+#include <dust/cuda/device_resample.hpp>
+#include <dust/cuda/launch_control.hpp>
 
 namespace dust {
 

@@ -1,6 +1,5 @@
-// -*- c++ -*-
-#ifndef DUST_CUDA_CALL_CUH
-#define DUST_CUDA_CALL_CUH
+#ifndef DUST_CUDA_CALL_HPP
+#define DUST_CUDA_CALL_HPP
 
 #ifdef __NVCC__
 

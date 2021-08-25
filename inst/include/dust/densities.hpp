@@ -4,7 +4,7 @@
 #include <cmath>
 #include <limits>
 #include <type_traits>
-#include <dust/cuda.cuh>
+#include <dust/cuda/cuda.hpp>
 #include <dust/utils.hpp>
 
 CONSTANT double m_ln_sqrt_2pi_dbl = 0.918938533204672741780329736406;

@@ -1,5 +1,5 @@
-#ifndef DUST_DEVICE_INFO_HPP
-#define DUST_DEVICE_INFO_HPP
+#ifndef DUST_CUDA_DEVICE_INFO_HPP
+#define DUST_CUDA_DEVICE_INFO_HPP
 
 #include <vector>
 #include <climits>
@@ -9,7 +9,7 @@
 #include <cpp11/logicals.hpp>
 #include <cpp11/list.hpp>
 #include <cpp11/data_frame.hpp>
-#include <dust/cuda_call.cuh>
+#include <dust/cuda/call.hpp>
 
 namespace dust {
 namespace cuda {

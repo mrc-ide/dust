@@ -5,7 +5,7 @@
 #include <vector>
 #include <limits>
 
-#include <dust/cuda.cuh>
+#include <dust/cuda/cuda.hpp>
 
 // This is derived from http://prng.di.unimi.it/xoshiro256starstar.c
 // and http://prng.di.unimi.it/splitmix64.c, copies of which are

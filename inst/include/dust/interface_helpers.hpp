@@ -3,8 +3,8 @@
 
 #include <map>
 #include <cpp11/strings.hpp>
-#include <dust/device_info.hpp>
-#include <dust/cuda_launch_control.hpp>
+#include <dust/cuda/device_info.hpp>
+#include <dust/cuda/launch_control.hpp>
 
 namespace dust {
 namespace interface {
