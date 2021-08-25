@@ -25,7 +25,7 @@ plain_output <- function(x) lang_output(x, "plain")
 
 With the core approach in dust, you can run models in parallel efficiently up to the number of cores your workstation has available.  Getting more than 32 or 64 cores is hard though, and `dust` provides no multi-node parallelism (e.g., [MPI](https://en.wikipedia.org/wiki/Message_Passing_Interface)). Instead, we have developed a system for running `dust` models on GPUs (graphical processing units), specifically NVIDIA GPUs via CUDA (Compute Unified Device Architecture).
 
-This vignette is written in reverse-order, starting with how to run a model on a GPU, before covering how to write a `dust` model that can be run on a GPU. The reason for this is that we do not expect that people will write these directly; instead we expect that most people will use the [`odin.dust`](https://mrc-ide.github.io/odin.dust/) package to generate these interfaces automatically, without having to write as line of C++.
+This vignette is written in reverse-order, starting with how to run a model on a GPU, before covering how to write a `dust` model that can be run on a GPU. The reason for this is that we do not expect that people will write these directly; instead we expect that most people will use the [`odin.dust`](https://mrc-ide.github.io/odin.dust/) package to generate these interfaces automatically, without having to write a single line of C++ or CUDA code.
 
 ## Principles
 
@@ -41,6 +41,14 @@ The `sirs` model includes GPU support, and will be the focus of this vignette.  
 * this would complicate distribution of binaries as we'd depend on all systems having a copy of the CUDA runtime
 * we would have to compile support for many possible GPU architectures at once
 * it is very likely that we'd want to run the model in single precision (`float`) mode rather than double precision (`double`), and changing that requires re-compilation
+
+In addition, you will also need:
+
+* CUDA toolkit v10.2 or higher, v11.1 or higher preferred (compile time and run time)
+* CUDA capable GPU (run time)
+* nvidia drivers (run time)
+
+You can check with the command-line tool `nvidia-smi` if you have suitable hardware and drivers and with `dust::dust_cuda_configuration(quiet = FALSE, forget = TRUE)` if you have suitable build tools.
 
 So here, rather than using `dust::dust_example`, we compile the model and pass in arguments:
 
@@ -98,8 +106,7 @@ system.time(model_large$run(400, device = TRUE))
 
 Of course, _doing_ anything with all these particles is its own problem.
 
-The `run` and `simulate` methods both support a `device` function, which runs on the GPU if `TRUE`.  In addition, the `filter` method (for models with compare support) also supports a `device` argument, though this is typically used from the [`mcstate` interface](https://mrc-ide.github.io/mcstate/reference/particle_filter.html).
-The model step, internal state, parameters and rng state is automatically synchronised between the CPU and GPU version of the model.
+The `run` and `simulate` methods both support a `device` function, which runs on the GPU if `TRUE`.  In addition, the `filter` method (for models with compare support - see `vignette("data")`) also supports a `device` argument, though this is typically used from the [`mcstate` interface](https://mrc-ide.github.io/mcstate/reference/particle_filter.html). The model step, internal state, parameters and rng state is automatically synchronised between the CPU and GPU version of the model.
 
 ## Writing a GPU-capable model
 
@@ -328,3 +335,5 @@ model2$run(10, device = TRUE)
 ```
 
 These should be exactly the same, and this can form the basis of tests. Note that using `float` rather than `double` can throw up a few issues with algorithms, so it's worth checking with single-precision in your tests.
+
+If you hit problems, then `R -d cuda-gdb` can work in place of the usual `R -d gdb` to work with a debugger, though because of the huge numbers of particles you will typically work with, debugging remains a challenge.  Our usual strategy has been to try and recreate any issue purely in CPU code and debug as normal (see [this blog post](https://reside-ic.github.io/blog/debugging-memory-errors-with-valgrind-and-gdb/) for hints on doing this effectively).

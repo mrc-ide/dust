@@ -129,12 +129,20 @@ typename T::real_t compare(const typename T::real_t * state,
 }
 ```
 
-and the correct code would be generated.
+and the correct code would be generated (the annotations above the function are special to `odin.dust` and help it  build the interface, along with the `odin()` calls to locate quantities within the data structure).
+
+For other examples, see the contents of the files `system.file("examples/sir.cpp", package = "dust")` and `system.file("examples/sirs.cpp", package = "dust")`, which are the basis of the `sir` and `sirs` models in `dust::dust_example`.
 
 Once set up, the compare function can be used. First, create the model
 
 ```{r}
 mod <- volatility$new(list(alpha = 0.91, sigma = 1), 0, 30L)
+```
+
+We can confirm that we can use this model to compare with data:
+
+```{r}
+mod$has_compare()
 ```
 
 Next, set data into the object:
