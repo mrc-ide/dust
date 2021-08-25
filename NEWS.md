@@ -1,4 +1,4 @@
-# dust 0.9.13
+# dust 0.9.14
 
 * Add two new vignettes covering model/data comparison and use on GPUs; see `vignette("data")` and `vignette("cuda")` (#183, #229)
 
