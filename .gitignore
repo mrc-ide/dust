@@ -16,5 +16,6 @@ inst/doc
 pkgdown
 inst/include/cub
 *.gcov
+vignettes_src/cuda.md
 
 .vscode/

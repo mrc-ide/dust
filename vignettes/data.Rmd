@@ -1,0 +1,194 @@
+---
+title: "dust: Comparing models and data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{dust: Comparing models and data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+lang_output <- function(x, lang) {
+  cat(c(sprintf("```%s", lang), x, "```"), sep = "\n")
+}
+cc_output <- function(x) lang_output(x, "cc")
+r_output <- function(x) lang_output(x, "r")
+plain_output <- function(x) lang_output(x, "plain")
+```
+
+One of our aims with `dust` was to enable the creation of fast particle filters. Most of the high level interface for this is within the package [`mcstate`](https://mrc-ide.github.io/mcstate/).  Typically, when using a `dust` model with `mcstate`, you would define a function in R which compares the model state at some point in time to some data, returning a likelihood.
+
+It is possible to implement this comparison directly in the dust model, which may slightly speed up the particle filter (because the compare function will be evaluated in parallel, and because of slightly reduced data copying), but also allows running the particle filter on a GPU (see `vignette("cuda")`).
+
+This vignette outlines the steps in implementing the comparison directly as part of the model.  This is not required for basic use of dust models, and we would typically recommend this only after your model has stabilised and you are looking to extract potential additional speed-ups or accelerate the model on a GPU.
+
+We start with a simple example, a model of volatility
+
+```{r}
+volatility <- dust::dust_example("volatility")
+```
+
+To demonstrate the approach, we simulate some data from the model itself:
+
+```{r volatility_data_create}
+data <- local({
+  mod <- volatility$new(list(alpha = 0.91, sigma = 1), 0, 1L, seed = 1L)
+  mod$set_state(matrix(rnorm(1L, 0, 1L), 1))
+  steps <- seq(0, 100, by = 1)
+  res <- mod$simulate(steps)
+  observed <- res[1, 1, -1] + rnorm(length(steps) - 1, 0, 1)
+  data.frame(step = steps[-1], observed = observed)
+})
+head(data)
+plot(observed ~ step, data, type = "o", pch = 19, las = 1)
+```
+
+As in the [`mcstate` vignette](https://mrc-ide.github.io/mcstate/articles/kalman.html) we need some way of comparing model output to data.  The likelihood function used there is:
+
+```{r}
+volatility_compare <- function(state, observed, pars) {
+  dnorm(observed$observed, pars$gamma * drop(state), pars$tau, log = TRUE)
+}
+```
+
+i.e., the probability is normally distributed with mean of the equal to `gamma` multiplied by the modelled value, standard deviation of `tau` and evaluated at the observed value.  Our aim here is to adapt this so that it is implemented as part of the C++ model. This requires:
+
+* describing the types of the observed data at each time point in a C++ struct (here it will be a single numeric value, but the data could be arbitrarily complicated)
+* implementing a method to do the comparison
+* describe how to marshal the data from R into this C++ structure
+
+```{r, echo = FALSE, results = "asis"}
+cc_output(readLines(system.file("examples/volatility.cpp", package = "dust")))
+```
+
+The first part, the data definition, is the definition
+
+```cc
+  struct data_t {
+    real_t observed;
+  };
+```
+
+which replaces the usual
+
+```cc
+  typedef dust::no_data data_t;
+```
+
+This structure can contain whatever you want, including things like a `std::vector` of values. In our use we've typically only had `real_t` and `int` though, even for complex models.
+
+The comparison is implemented by the method `compare_data`, which has a standard signature for the function which takes the current state, the data at the current time point, and the RNG state:
+
+```cc
+  real_t compare_data(const real_t * state, const data_t& data,
+                      dust::rng_state_t<real_t>& rng_state) {
+    return dust::dnorm(data.observed, shared->gamma * state[0],
+                       shared->tau, true);
+  }
+```
+
+This looks very much like the R version above:
+
+* `dnorm` is replaced with the dust function `dust::dnorm` (do not use R API functions here, as this will be evaluated in a multi-threaded context)
+* the random number generator is available here, if your comparison is itself stochastic
+* unlike the R version where the comparison returns a vector across all particles, the C++ comparison is done for each particle
+
+Finally, the data marshalling is done by the `dust_data` template, within the `dust` namespace
+
+```cc
+namespace dust {
+template <>
+volatility::data_t dust_data<volatility>(cpp11::list data) {
+  return volatility::data_t{cpp11::as_cpp<double>(data["observed"])};
+}
+}
+```
+
+Here, you can use any function you could use from `cpp11`, much like within the `dust_pars` template specialisation. The input will be a list, corresponding to the data *at a single time point*.  The data.frame above will first be processed with `dust::dust_data`, so the first few entries look like:
+
+```{r}
+head(dust::dust_data(data), 3)
+```
+
+This is definitely a bit fiddly!  If using `odin.dust`, then this would be somewhat simplified as you could provide a single C++ file containing something like
+
+```cc
+// [[odin.dust::compare_data(observed = real_t)]]
+// [[odin.dust::compare_function]]
+template <typename T>
+typename T::real_t compare(const typename T::real_t * state,
+                           const typename T::data_t& data,
+                           const typename T::internal_t internal,
+                           std::shared_ptr<const typename T::shared_t> shared,
+                           dust::rng_state_t<typename T::real_t>& rng_state) {
+  return dust::dnorm(data.observed, odin(gamma) * odin(value), odin(tau), true);
+}
+```
+
+and the correct code would be generated (the annotations above the function are special to `odin.dust` and help it  build the interface, along with the `odin()` calls to locate quantities within the data structure).
+
+For other examples, see the contents of the files `system.file("examples/sir.cpp", package = "dust")` and `system.file("examples/sirs.cpp", package = "dust")`, which are the basis of the `sir` and `sirs` models in `dust::dust_example`.
+
+Once set up, the compare function can be used. First, create the model
+
+```{r}
+mod <- volatility$new(list(alpha = 0.91, sigma = 1), 0, 30L)
+```
+
+We can confirm that we can use this model to compare with data:
+
+```{r}
+mod$has_compare()
+```
+
+Next, set data into the object:
+
+```{r}
+mod$set_data(dust::dust_data(data))
+```
+
+Then, run to any point in the data set:
+
+```{r}
+y <- mod$run(1)
+```
+
+We can now compute the likelihood at this point:
+
+```{r}
+mod$compare_data()
+```
+
+This will line up with the R version:
+
+```{r}
+volatility_compare(y, data[1, ], list(tau = 1, gamma = 1))
+```
+
+You can also run a basic bootstrap particle filter using this approach:
+
+```{r}
+mod$reset(list(alpha = 0.91, sigma = 1), 0)
+res <- mod$filter(save_trajectories = TRUE)
+```
+
+This gives an overall likelihood:
+
+```{r}
+res$log_likelihood
+```
+
+and, as we provided `save_trajectories = TRUE`, filtered trajectories during the simulation:
+
+```{r}
+matplot(t(drop(res$trajectories)), type = "l", lty = 1, col = "#00000022")
+points(observed ~ step, data, type = "p", pch = 19, col = "blue")
+```
+
+Typically, you would use the much higher level interface in `mcstate` for this, though.
+
+Some additional work is required if you want to run the comparison on a GPU, see `vignette("cuda")` for more details.

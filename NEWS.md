@@ -1,3 +1,7 @@
+# dust 0.9.14
+
+* Add two new vignettes covering model/data comparison and use on GPUs; see `vignette("data")` and `vignette("cuda")` (#183, #229)
+
 # dust 0.9.10
 
 * Finer control over GPU settings, with the block size of `run()` now (optionally) exposed

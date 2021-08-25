@@ -1,0 +1,339 @@
+---
+title: "dust: Running models on GPUs with CUDA"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{dust: Running models on GPUs with CUDA}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<!-- HEADER -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  error = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
+lang_output <- function(x, lang) {
+  cat(c(sprintf("```%s", lang), x, "```"), sep = "\n")
+}
+cc_output <- function(x) lang_output(x, "cc")
+r_output <- function(x) lang_output(x, "r")
+plain_output <- function(x) lang_output(x, "plain")
+```
+
+With the core approach in dust, you can run models in parallel efficiently up to the number of cores your workstation has available.  Getting more than 32 or 64 cores is hard though, and `dust` provides no multi-node parallelism (e.g., [MPI](https://en.wikipedia.org/wiki/Message_Passing_Interface)). Instead, we have developed a system for running `dust` models on GPUs (graphical processing units), specifically NVIDIA GPUs via CUDA (Compute Unified Device Architecture).
+
+This vignette is written in reverse-order, starting with how to run a model on a GPU, before covering how to write a `dust` model that can be run on a GPU. The reason for this is that we do not expect that people will write these directly; instead we expect that most people will use the [`odin.dust`](https://mrc-ide.github.io/odin.dust/) package to generate these interfaces automatically, without having to write a single line of C++ or CUDA code.
+
+## Principles
+
+* A GPU model can be run on the CPU, and vice-versa.
+* The same random number generator sequence will be used in both cases.
+* Differences in results, if they exist, come from different precision/rounding between devices. When using `real_t = double` we get the same results.
+* Just the model update can be defined for the GPU, and comparisons and shuffling will still happen on the CPU. Defining a comparison function is also possible, allowing a full particle filter run on a GPU.
+
+## Running a model with GPU support
+
+The `sirs` model includes GPU support, and will be the focus of this vignette.  However, the installed version cannot be run directly on the GPU for a couple of reasons:
+
+* this would complicate distribution of binaries as we'd depend on all systems having a copy of the CUDA runtime
+* we would have to compile support for many possible GPU architectures at once
+* it is very likely that we'd want to run the model in single precision (`float`) mode rather than double precision (`double`), and changing that requires re-compilation
+
+In addition, you will also need:
+
+* CUDA toolkit v10.2 or higher, v11.1 or higher preferred (compile time and run time)
+* CUDA capable GPU (run time)
+* nvidia drivers (run time)
+
+You can check with the command-line tool `nvidia-smi` if you have suitable hardware and drivers and with `dust::dust_cuda_configuration(quiet = FALSE, forget = TRUE)` if you have suitable build tools.
+
+So here, rather than using `dust::dust_example`, we compile the model and pass in arguments:
+
+```{r}
+path <- system.file("examples/sirs.cpp", package = "dust")
+sirs <- dust::dust(path, gpu = TRUE, real_t = "float")
+```
+
+Notice in compilation that `nvcc` is used to compile the model, rather than `g++`.  The additional option `-gencode=arch=compute_XX,code=sm_XX` was added by `dust` and will include the CUDA compute version supported by the graphics cards found on the current system. You can use `dust::dust_cuda_options` to set additional options, passing in the return value for the `gpu` argument above.
+
+Once compiled with GPU support, the static method `has_cuda` will report `TRUE`:
+
+```{r}
+sirs$public_methods$has_cuda()
+```
+
+and the static method `device_info` will report on the devices available:
+
+```{r}
+sirs$public_methods$device_info()
+```
+
+If you have more than one GPU, the `id` in the `devices` section will be useful for targeting the correct device.
+
+The object is initialised as usual but with slight differences:
+
+* you will probably want a (much) larger number of particles to take advantage of your device. As a rule of thumb we would suggest at least 10000, but depending on model and card 10-100x this may improve performance (relative to the same on a multicore CPU). See below for more discussion of this.
+* the `device_config` argument needs to be provided to indicate which device we are running on (or additional configuration)
+
+```{r}
+model <- sirs$new(list(), 0, 8192, device_config = 0L, seed = 1L)
+```
+
+Above, we also set the index to show just the daily incidence (number of new infections).
+
+The model can be run on the CPU, as usual, and will be fairly slow here as this is a lot of particles:
+
+```{r}
+system.time(model$run(400))
+```
+
+To run the model on the device, pass `device = TRUE` to `run()`:
+
+```{r}
+model$reset(list(), 0L)
+system.time(model$run(400, device = TRUE))
+```
+
+This is much faster! However, 8,000 particles is unlikely to saturate a modern GPU and (overhead-aside) this will run about as quickly for potentially a hundred thousand particles. For example running 2^16 (`r 2^16`) particles only takes a little longer
+
+```{r}
+model_large <- sirs$new(list(), 0, 2^17, device_config = 0L, seed = 1L)
+system.time(model_large$run(400, device = TRUE))
+```
+
+Of course, _doing_ anything with all these particles is its own problem.
+
+The `run` and `simulate` methods both support a `device` function, which runs on the GPU if `TRUE`.  In addition, the `filter` method (for models with compare support - see `vignette("data")`) also supports a `device` argument, though this is typically used from the [`mcstate` interface](https://mrc-ide.github.io/mcstate/reference/particle_filter.html). The model step, internal state, parameters and rng state is automatically synchronised between the CPU and GPU version of the model.
+
+## Writing a GPU-capable model
+
+The sirs model from above:
+
+```{r, results = "asis", echo = FALSE}
+cc_output(readLines(path))
+```
+
+This is somewhat more complicated than the models described in `vignette("dust.Rmd")`. There are several important components required to run on the GPU.
+
+First, we need to specialise the `has_gpu_support` struct, within the `dust` namespace.
+
+```cc
+namespace dust {
+template <>
+struct has_gpu_support<sirs> : std::true_type {};
+}
+```
+
+Next, within the dust namespace again, we declare the size of the *shared parameters* for the model. These are parameters that will be the same across all instances of a parameter set, as opposed to quantities that change between particles.
+
+```cc
+namespace dust {
+template <>
+size_t device_shared_int_size<sirs>(dust::shared_ptr<sirs> shared) {
+  return 1;
+}
+
+template <>
+size_t device_shared_real_size<sirs>(dust::shared_ptr<sirs> shared) {
+  return 5;
+}
+}
+```
+
+These can be omitted if your model has no such parameters.
+
+The next definition makes the above a bit clearer, it defines the method for copying these parameters
+
+```cc
+namespace dust {
+template <>
+void device_shared_copy<sirs>(dust::shared_ptr<sirs> shared,
+                              int * shared_int,
+                              sirs::real_t * shared_real) {
+  typedef sirs::real_t real_t;
+  shared_real = dust::shared_copy<real_t>(shared_real, shared->alpha);
+  shared_real = dust::shared_copy<real_t>(shared_real, shared->beta);
+  shared_real = dust::shared_copy<real_t>(shared_real, shared->gamma);
+  shared_real = dust::shared_copy<real_t>(shared_real, shared->dt);
+  shared_real = dust::shared_copy<real_t>(shared_real, shared->exp_noise);
+  shared_int = dust::shared_copy<int>(shared_int, shared->freq);
+}
+}
+```
+
+In the CPU version of the model we have a nice smart pointer to a struct (`dust::shared_ptr<sirs>`) from which we can access parameters by name (e.g., `shared->alpha`). No such niceties in CUDA where we need access to a single contiguous block of memory.  The `dust::shared_copy` is a small utility to make the bookkeeping here a bit easier, but this could have been written out as:
+
+```cc
+namespace dust {
+template <>
+void device_shared_copy<sirs>(dust::shared_ptr<sirs> shared,
+                              int * shared_int,
+                              sirs::real_t * shared_real) {
+  typedef sirs::real_t real_t;
+  shared_real[0] = shared->alpha;
+  shared_real[1] = shared->beta;
+  shared_real[2] = shared->gamma;
+  shared_real[3] = shared->dt;
+  shared_real[4] = shared->exp_noise;
+  shared_int[0] = shared->freq;
+}
+}
+```
+
+The `dust::shared_copy` template has specialisations where the object being copied is a vector.
+
+There are two methods that are not used here, but could be included, to define the size of per-particle internal storage space. This is required if your model needs to store intermediate calculations during the `update` step if those will not fit on the stack.
+
+```cc
+namespace dust {
+template <>
+size_t dust::device_internal_real_size<sirs>(dust::shared_ptr<sirs> shared) {
+  return 0;
+}
+template <>
+size_t dust::device_internal_int_size<sirs>(dust::shared_ptr<sirs> shared) {
+  return 0;
+}
+}
+```
+
+Most interestingly we have the `update_device` method that actually does the update on the device
+
+```cc
+template <>
+DEVICE void update_device<sirs>(size_t step,
+                                const dust::interleaved<sirs::real_t> state,
+                                dust::interleaved<int> internal_int,
+                                dust::interleaved<sirs::real_t> internal_real,
+                                const int * shared_int,
+                                const sirs::real_t * shared_real,
+                                dust::rng_state_t<sirs::real_t>& rng_state,
+                                dust::interleaved<sirs::real_t> state_next) {
+  typedef sirs::real_t real_t;
+  const real_t alpha = shared_real[0];
+  const real_t beta = shared_real[1];
+  const real_t gamma = shared_real[2];
+  const real_t dt = shared_real[3];
+  const int freq = shared_int[0];
+  const real_t S = state[0];
+  const real_t I = state[1];
+  const real_t R = state[2];
+  const real_t N = S + I + R;
+  const real_t p_SI = 1 - exp(- beta * I / N);
+  const real_t p_IR = 1 - exp(- gamma);
+  const real_t p_RS = 1 - exp(- alpha);
+  const real_t n_SI = dust::distr::rbinom(rng_state, S, p_SI * dt);
+  const real_t n_IR = dust::distr::rbinom(rng_state, I, p_IR * dt);
+  const real_t n_RS = dust::distr::rbinom(rng_state, R, p_RS * dt);
+  state_next[0] = S - n_SI + n_RS;
+  state_next[1] = I + n_SI - n_IR;
+  state_next[2] = R + n_IR - n_RS;
+  state_next[3] = (step % freq == 0) ? n_SI : state[3] + n_SI;
+}
+```
+
+Note that this totally duplicates the logic from the CPU version (which was a method of the `sirs` object)
+
+```cc
+  void update(size_t step, const real_t * state,
+              dust::rng_state_t<real_t>& rng_state,
+              real_t * state_next) {
+    real_t S = state[0];
+    real_t I = state[1];
+    real_t R = state[2];
+    real_t N = S + I + R;
+
+    real_t p_SI = 1 - exp(- shared->beta * I / N);
+    real_t p_IR = 1 - exp(-(shared->gamma));
+    real_t p_RS = 1 - exp(- shared->alpha);
+
+    real_t n_SI = dust::distr::rbinom(rng_state, S, p_SI * shared->dt);
+    real_t n_IR = dust::distr::rbinom(rng_state, I, p_IR * shared->dt);
+    real_t n_RS = dust::distr::rbinom(rng_state, R, p_RS * shared->dt);
+
+    state_next[0] = S - n_SI + n_RS;
+    state_next[1] = I + n_SI - n_IR;
+    state_next[2] = R + n_IR - n_RS;
+    state_next[3] = (step % shared->freq == 0) ? n_SI : state[3] + n_SI;
+  }
+```
+
+Differences include:
+
+* the presence of the four auxiliary data elements (`internal_int`, `internal_real`, `shared_int` and `shared_real`)
+* the data types that vary across particles are a special `dust::interleaved<>` type, which prevents slow uncoalesced reads from global device memory
+* All accesses into the `shared_int` and `shared_real` elements are now by position in the array, rather than the previous pointer/name based access
+* The `DEVICE` annotation, which compiles the function for use on the GPU
+
+## Data comparison functions
+
+Finally, if running a particle filter on the GPU, a version of the `compare_data` function is required that can run on the device:
+
+```cc
+template <>
+DEVICE sirs::real_t compare_device<sirs>(const dust::interleaved<sirs::real_t> state,
+                           const sirs::data_t& data,
+                           dust::interleaved<int> internal_int,
+                           dust::interleaved<sirs::real_t> internal_real,
+                           const int * shared_int,
+                           const sirs::real_t * shared_real,
+                           dust::rng_state_t<sirs::real_t>& rng_state) {
+  typedef sirs::real_t real_t;
+  const real_t exp_noise = shared_real[4];
+  const real_t incidence_modelled = state[3];
+  const real_t incidence_observed = data.incidence;
+  const real_t lambda = incidence_modelled +
+    dust::distr::rexp(rng_state, exp_noise);
+  return dust::dpois(incidence_observed, lambda, true);
+}
+```
+
+This is very similar to the CPU version
+
+```cc
+  real_t compare_data(const real_t * state, const data_t& data,
+                      dust::rng_state_t<real_t>& rng_state) {
+    const real_t incidence_modelled = state[3];
+    const real_t incidence_observed = data.incidence;
+    const real_t lambda = incidence_modelled +
+      dust::distr::rexp(rng_state, shared->exp_noise);
+    return dust::dpois(incidence_observed, lambda, true);
+  }
+```
+
+with similar differences to the update function:
+
+* argument types are different (interleaved types, internals and shared data passed explicitly)
+* Accessing of shared parameters is by position, not name
+* The `DEVICE` annotation
+
+## Developing a GPU model
+
+Debugging on a GPU is a pain, especially because there are typically many particles, and error recovery is not straightforward.  In addition, most continuous integration systems do not provide GPUs, so testing your GPU code becomes difficult.  To make this easier, `dust` allows running GPU code on the CPU - this will be typically slower than the CPU code, but allows easier debugging and verification that the model is behaving.  We use this extensively in `dust`'s tests and also in models built using `dust` that will run on the GPU.
+
+To do this, compile the model with your preferred real type, but set the `gpu` argument to `FALSE`
+
+```{r}
+sirs_cpu <- dust::dust(path, gpu = FALSE, real_t = "float")
+```
+
+Note that above the model is compiled with `g++`, not `nvcc`. However, the "device" code is still compiled into the model.  We can then initialise this with and without a `device_config` argument
+
+```{r}
+model1 <- sirs_cpu$new(list(), 0, 10, seed = 1L)
+model2 <- sirs_cpu$new(list(), 0, 10, device_config = 0L, seed = 1L)
+```
+
+And run the models using the "device" code and the normal CPU code:
+
+```{r}
+model1$run(10, device = FALSE)
+model2$run(10, device = TRUE)
+```
+
+These should be exactly the same, and this can form the basis of tests. Note that using `float` rather than `double` can throw up a few issues with algorithms, so it's worth checking with single-precision in your tests.
+
+If you hit problems, then `R -d cuda-gdb` can work in place of the usual `R -d gdb` to work with a debugger, though because of the huge numbers of particles you will typically work with, debugging remains a challenge.  Our usual strategy has been to try and recreate any issue purely in CPU code and debug as normal (see [this blog post](https://reside-ic.github.io/blog/debugging-memory-errors-with-valgrind-and-gdb/) for hints on doing this effectively).
