@@ -13,12 +13,14 @@ vignette: >
 
 With the core approach in dust, you can run models in parallel efficiently up to the number of cores your workstation has available.  Getting more than 32 or 64 cores is hard though, and `dust` provides no multi-node parallelism (e.g., [MPI](https://en.wikipedia.org/wiki/Message_Passing_Interface)). Instead, we have developed a system for running `dust` models on GPUs (graphical processing units), specifically NVIDIA GPUs via CUDA (Compute Unified Device Architecture).
 
-This vignette is written in reverse-order, starting with how to run a model on a GPU, before covering how to write a `dust` model that can be run on a GPU. The reason for this is that we do not expect that people will write these directly; instead we expect that most people will use the [`odin.dust`](https://mrc-ide.github.io/odin.dust/) package to generate these interfaces automatically, without having to write as line of C++.
+This vignette is written in reverse-order, starting with how to run a model on a GPU, before covering how to write a `dust` model that can be run on a GPU. The reason for this is that we do not expect that people will write these directly; instead we expect that most people will use the [`odin.dust`](https://mrc-ide.github.io/odin.dust/) package to generate these interfaces automatically, without having to write a single line of C++ or CUDA code.
 
 ## Principles
 
-* A GPU model can be run on the CPU
-*
+* A GPU model can be run on the CPU, and vice-versa.
+* The same random number generator sequence will be used in both cases.
+* Differences in results, if they exist, come from different precision/rounding between devices. When using `real_t = double` we get the same results.
+* Just the model update can be defined for the GPU, and comparisons and shuffling will still happen on the CPU. Defining a comparison function is also possible, allowing a full particle filter run on a GPU.
 
 ## Running a model with GPU support
 
@@ -27,6 +29,14 @@ The `sirs` model includes GPU support, and will be the focus of this vignette.  
 * this would complicate distribution of binaries as we'd depend on all systems having a copy of the CUDA runtime
 * we would have to compile support for many possible GPU architectures at once
 * it is very likely that we'd want to run the model in single precision (`float`) mode rather than double precision (`double`), and changing that requires re-compilation
+
+In addition, you will also need:
+
+* CUDA toolkit v10.2 or higher, v11.1 or higher preferred (compile time and run time)
+* CUDA capable GPU (run time)
+* nvidia drivers (run time)
+
+You can check with the command-line tool `nvidia-smi` if you have suitable hardware and drivers and with `dust::dust_cuda_configuration(quiet = FALSE, forget = TRUE)` if you have suitable build tools.
 
 So here, rather than using `dust::dust_example`, we compile the model and pass in arguments:
 
@@ -38,20 +48,20 @@ sirs <- dust::dust(path, gpu = TRUE, real_t = "float")
 #> ✔ generated file 'cpp11.R'
 #> ✔ generated file 'cpp11.cpp'
 #> Re-compiling sirsbe1444bcgpu
-#>   ─  installing *source* package ‘sirsbe1444bcgpu’ ...
-#>      ** using staged installation
-#>      ** libs
-#>      g++ -std=gnu++14 -I"/usr/share/R/include" -DNDEBUG  -I'/home/rfitzjoh/lib/R/library/cpp11/include' -g -Wall -Wextra -pedantic -Wmaybe-uninitialized -Wno-unused-parameter -Wno-cast-function-type -Wno-missing-field-initializers -O2  -I/home/rfitzjoh/lib/R/library/dust/include -DHAVE_INLINE -fopenmp -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-QwogzP/r-base-4.1.1=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c cpp11.cpp -o cpp11.o
-#>      nvcc -std=c++14 -O2 -I. -I/usr/share/R/include -I/home/rfitzjoh/lib/R/library/dust/include -I/home/rfitzjoh/.local/share/R/dust/cub -I'/home/rfitzjoh/lib/R/library/cpp11/include' -gencode=arch=compute_75,code=sm_75 -Xcompiler -fPIC -Xcompiler -fopenmp -x cu -c dust.cu -o dust.o
-#>      g++ -std=gnu++14 -shared -L/usr/lib/R/lib -Wl,-Bsymbolic-functions -Wl,-z,relro -o sirsbe1444bcgpu.so cpp11.o dust.o -lcudart -fopenmp -L/usr/lib/R/lib -lR
-#>      installing to /tmp/RtmpQsyc9n/devtools_install_29cd6c274768/00LOCK-file29cdb9e9317/00new/sirsbe1444bcgpu/libs
-#>      ** checking absolute paths in shared objects and dynamic libraries
-#>   ─  DONE (sirsbe1444bcgpu)
+#>   ─  installing *source* package ‘sirsbe1444bcgpu’ ...
+#>      ** using staged installation
+#>      ** libs
+#>      g++ -std=gnu++14 -I"/usr/share/R/include" -DNDEBUG  -I'/home/rfitzjoh/lib/R/library/cpp11/include' -g -Wall -Wextra -pedantic -Wmaybe-uninitialized -Wno-unused-parameter -Wno-cast-function-type -Wno-missing-field-initializers -O2  -I/home/rfitzjoh/lib/R/library/dust/include -DHAVE_INLINE -fopenmp -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-QwogzP/r-base-4.1.1=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c cpp11.cpp -o cpp11.o
+#>      nvcc -std=c++14 -O2 -I. -I/usr/share/R/include -I/home/rfitzjoh/lib/R/library/dust/include -I/home/rfitzjoh/.local/share/R/dust/cub -I'/home/rfitzjoh/lib/R/library/cpp11/include' -gencode=arch=compute_75,code=sm_75 -Xcompiler -fPIC -Xcompiler -fopenmp -x cu -c dust.cu -o dust.o
+#>      g++ -std=gnu++14 -shared -L/usr/lib/R/lib -Wl,-Bsymbolic-functions -Wl,-z,relro -o sirsbe1444bcgpu.so cpp11.o dust.o -lcudart -fopenmp -L/usr/lib/R/lib -lR
+#>      installing to /tmp/RtmpAxVhQc/devtools_install_361656db9ff2/00LOCK-file36166de8373d/00new/sirsbe1444bcgpu/libs
+#>      ** checking absolute paths in shared objects and dynamic libraries
+#>   ─  DONE (sirsbe1444bcgpu)
 #>
 #> ℹ Loading sirsbe1444bcgpu
 ```
 
-Notice in compilation that `nvcc` is used to compile the model, rather than `g++`.  The additional option `-gencode=arch=compute_XX,code=sm_XX` was added by `dust` and will include the CUDA compute version supported by your graphics cards. You can use `dust::dust_cuda_options` to set additional options, passing in the return value for the `gpu` argument above.
+Notice in compilation that `nvcc` is used to compile the model, rather than `g++`.  The additional option `-gencode=arch=compute_XX,code=sm_XX` was added by `dust` and will include the CUDA compute version supported by the graphics cards found on the current system. You can use `dust::dust_cuda_options` to set additional options, passing in the return value for the `gpu` argument above.
 
 Once compiled with GPU support, the static method `has_cuda` will report `TRUE`:
 
@@ -84,7 +94,7 @@ If you have more than one GPU, the `id` in the `devices` section will be useful 
 
 The object is initialised as usual but with slight differences:
 
-* you will probably want a (much) larger number of particles to take advantage of your device
+* you will probably want a (much) larger number of particles to take advantage of your device. As a rule of thumb we would suggest at least 10000, but depending on model and card 10-100x this may improve performance (relative to the same on a multicore CPU). See below for more discussion of this.
 * the `device_config` argument needs to be provided to indicate which device we are running on (or additional configuration)
 
 
@@ -100,7 +110,7 @@ The model can be run on the CPU, as usual, and will be fairly slow here as this 
 ```r
 system.time(model$run(400))
 #>    user  system elapsed
-#>     0.5     0.0     0.5
+#>    0.51    0.00    0.51
 ```
 
 To run the model on the device, pass `device = TRUE` to `run()`:
@@ -110,7 +120,7 @@ To run the model on the device, pass `device = TRUE` to `run()`:
 model$reset(list(), 0L)
 system.time(model$run(400, device = TRUE))
 #>    user  system elapsed
-#>   0.005   0.003   0.009
+#>   0.009   0.000   0.009
 ```
 
 This is much faster! However, 8,000 particles is unlikely to saturate a modern GPU and (overhead-aside) this will run about as quickly for potentially a hundred thousand particles. For example running 2^16 (6.5536 &times; 10<sup>4</sup>) particles only takes a little longer
@@ -120,13 +130,12 @@ This is much faster! However, 8,000 particles is unlikely to saturate a modern G
 model_large <- sirs$new(list(), 0, 2^17, device_config = 0L, seed = 1L)
 system.time(model_large$run(400, device = TRUE))
 #>    user  system elapsed
-#>   0.038   0.003   0.042
+#>   0.045   0.000   0.044
 ```
 
 Of course, _doing_ anything with all these particles is its own problem.
 
-The `run` and `simulate` methods both support a `device` function, which runs on the GPU if `TRUE`.  In addition, the `filter` method (for models with compare support) also supports a `device` argument, though this is typically used from the [`mcstate` interface](https://mrc-ide.github.io/mcstate/reference/particle_filter.html).
-The model step, internal state, parameters and rng state is automatically synchronised between the CPU and GPU version of the model.
+The `run` and `simulate` methods both support a `device` function, which runs on the GPU if `TRUE`.  In addition, the `filter` method (for models with compare support - see `vignette("data")`) also supports a `device` argument, though this is typically used from the [`mcstate` interface](https://mrc-ide.github.io/mcstate/reference/particle_filter.html). The model step, internal state, parameters and rng state is automatically synchronised between the CPU and GPU version of the model.
 
 ## Writing a GPU-capable model
 
@@ -470,9 +479,9 @@ Note that this totally duplicates the logic from the CPU version (which was a me
 Differences include:
 
 * the presence of the four auxiliary data elements (`internal_int`, `internal_real`, `shared_int` and `shared_real`)
-* the data types that vary across particles are a special `dust::interleaved<>` type, which prevents uncoalesced reads
+* the data types that vary across particles are a special `dust::interleaved<>` type, which prevents slow uncoalesced reads from global device memory
 * All accesses into the `shared_int` and `shared_real` elements are now by position in the array, rather than the previous pointer/name based access
-* The `DEVICE` annotation
+* The `DEVICE` annotation, which compiles the function for use on the GPU
 
 ## Data comparison functions
 
@@ -529,15 +538,15 @@ sirs_cpu <- dust::dust(path, gpu = FALSE, real_t = "float")
 #> ✔ generated file 'cpp11.R'
 #> ✔ generated file 'cpp11.cpp'
 #> Re-compiling sirsbe1444bc
-#>   ─  installing *source* package ‘sirsbe1444bc’ ...
-#>      ** using staged installation
-#>      ** libs
-#>      g++ -std=gnu++11 -I"/usr/share/R/include" -DNDEBUG  -I'/home/rfitzjoh/lib/R/library/cpp11/include' -g -Wall -Wextra -pedantic -Wmaybe-uninitialized -Wno-unused-parameter -Wno-cast-function-type -Wno-missing-field-initializers -O2  -I/home/rfitzjoh/lib/R/library/dust/include -DHAVE_INLINE -fopenmp -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-QwogzP/r-base-4.1.1=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c cpp11.cpp -o cpp11.o
-#>      g++ -std=gnu++11 -I"/usr/share/R/include" -DNDEBUG  -I'/home/rfitzjoh/lib/R/library/cpp11/include' -g -Wall -Wextra -pedantic -Wmaybe-uninitialized -Wno-unused-parameter -Wno-cast-function-type -Wno-missing-field-initializers -O2  -I/home/rfitzjoh/lib/R/library/dust/include -DHAVE_INLINE -fopenmp -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-QwogzP/r-base-4.1.1=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c dust.cpp -o dust.o
-#>      g++ -std=gnu++11 -shared -L/usr/lib/R/lib -Wl,-Bsymbolic-functions -Wl,-z,relro -o sirsbe1444bc.so cpp11.o dust.o -fopenmp -L/usr/lib/R/lib -lR
-#>      installing to /tmp/RtmpQsyc9n/devtools_install_29cd30e55789/00LOCK-file29cd4b13d091/00new/sirsbe1444bc/libs
-#>      ** checking absolute paths in shared objects and dynamic libraries
-#>   ─  DONE (sirsbe1444bc)
+#>   ─  installing *source* package ‘sirsbe1444bc’ ...
+#>      ** using staged installation
+#>      ** libs
+#>      g++ -std=gnu++11 -I"/usr/share/R/include" -DNDEBUG  -I'/home/rfitzjoh/lib/R/library/cpp11/include' -g -Wall -Wextra -pedantic -Wmaybe-uninitialized -Wno-unused-parameter -Wno-cast-function-type -Wno-missing-field-initializers -O2  -I/home/rfitzjoh/lib/R/library/dust/include -DHAVE_INLINE -fopenmp -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-QwogzP/r-base-4.1.1=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c cpp11.cpp -o cpp11.o
+#>      g++ -std=gnu++11 -I"/usr/share/R/include" -DNDEBUG  -I'/home/rfitzjoh/lib/R/library/cpp11/include' -g -Wall -Wextra -pedantic -Wmaybe-uninitialized -Wno-unused-parameter -Wno-cast-function-type -Wno-missing-field-initializers -O2  -I/home/rfitzjoh/lib/R/library/dust/include -DHAVE_INLINE -fopenmp -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-QwogzP/r-base-4.1.1=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c dust.cpp -o dust.o
+#>      g++ -std=gnu++11 -shared -L/usr/lib/R/lib -Wl,-Bsymbolic-functions -Wl,-z,relro -o sirsbe1444bc.so cpp11.o dust.o -fopenmp -L/usr/lib/R/lib -lR
+#>      installing to /tmp/RtmpAxVhQc/devtools_install_361647b61e24/00LOCK-file3616446bb195/00new/sirsbe1444bc/libs
+#>      ** checking absolute paths in shared objects and dynamic libraries
+#>   ─  DONE (sirsbe1444bc)
 #>
 #> ℹ Loading sirsbe1444bc
 ```
@@ -569,3 +578,5 @@ model2$run(10, device = TRUE)
 ```
 
 These should be exactly the same, and this can form the basis of tests. Note that using `float` rather than `double` can throw up a few issues with algorithms, so it's worth checking with single-precision in your tests.
+
+If you hit problems, then `R -d cuda-gdb` can work in place of the usual `R -d gdb` to work with a debugger, though because of the huge numbers of particles you will typically work with, debugging remains a challenge.  Our usual strategy has been to try and recreate any issue purely in CPU code and debug as normal (see [this blog post](https://reside-ic.github.io/blog/debugging-memory-errors-with-valgrind-and-gdb/) for hints on doing this effectively).
