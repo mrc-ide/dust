@@ -55,7 +55,6 @@ public:
 inline void cuda_profiler_start(const device_config& config) {
 #ifdef DUST_USING_CUDA_PROFILER
   if (config.enabled_) {
-      std::cout << "Starting profiler" << std::endl;
       CUDA_CALL(cudaProfilerStart());
   }
 #endif
@@ -64,7 +63,6 @@ inline void cuda_profiler_start(const device_config& config) {
 inline void cuda_profiler_stop(const device_config& config) {
 #ifdef DUST_USING_CUDA_PROFILER
   if (config.enabled_) {
-      std::cout << "Stopping profiler" << std::endl;
       CUDA_CALL(cudaProfilerStop());
   }
 #endif
