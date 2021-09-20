@@ -140,6 +140,10 @@ package_validate <- function(path) {
   package_validate_has_dep(deps, "dust", "LinkingTo")
 
   name <- desc$get_field("Package")
+  if (grepl("[._]+", name)) {
+    stop(sprintf(
+      "Package name must not contain '.' or '_' (found '%s')", name))
+  }
   package_validate_namespace(file.path(path, "NAMESPACE"), name)
 
   path
