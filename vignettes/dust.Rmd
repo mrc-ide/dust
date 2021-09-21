@@ -407,6 +407,7 @@ desc <- c(
   "LinkingTo: cpp11, dust",
   "Authors@R: c(person('A', 'Person', role = c('aut', 'cre')",
   "                     email = 'person@example.com'))",
+  "SystemRequirements: C++11",
   "License: CC0")
 ns <- "useDynLib('example', .registration = TRUE)"
 
