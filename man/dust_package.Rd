@@ -59,7 +59,8 @@ dir.create(dest)
 dir.create(file.path(dest, "inst/dust"), FALSE, TRUE)
 writeLines(c("Package: example",
              "Version: 0.0.1",
-             "LinkingTo: cpp11, dust"),
+             "LinkingTo: cpp11, dust",
+             "SystemRequirements: C++11"),
            file.path(dest, "DESCRIPTION"))
 writeLines("useDynLib('example', .registration = TRUE)",
            file.path(dest, "NAMESPACE"))
