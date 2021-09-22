@@ -175,3 +175,48 @@ test_that("Validate openmp support in real package", {
     dust_package(path),
     "Package has a 'src/Makevars' but no openmp flags support")
 })
+
+
+test_that("guide user to sensible package name", {
+  path <- create_test_package()
+
+  path_descr <- file.path(path, "DESCRIPTION")
+  descr <- sub("Package: pkg", "Package: my.pkg", readLines(path_descr),
+               fixed = TRUE)
+  writeLines(descr, path_descr)
+
+  path_namespace <- file.path(path, "NAMESPACE")
+  namespace <- sub("pkg", "my.pkg", readLines(path_namespace),
+               fixed = TRUE)
+  writeLines(namespace, path_namespace)
+
+  expect_error(
+    dust_package(path),
+    "Package name must not contain '.' or '_' (found 'my.pkg')",
+    fixed = TRUE)
+})
+
+
+test_that("check that package uses C++11", {
+  path <- create_test_package()
+
+  expect_silent(
+    package_validate_uses_cpp11(path))
+
+  path_descr <- file.path(path, "DESCRIPTION")
+  descr <- grep("^SystemRequirements:", readLines(path_descr),
+                value = TRUE, invert = TRUE)
+  writeLines(descr, path_descr)
+
+  expect_error(
+    package_validate_uses_cpp11(path),
+    "Did not find a SystemRequirements: C++11 (or similar) in DESCRIPTION",
+    fixed = TRUE)
+
+  writeLines(
+    c("# some makevars file", "CXX_STD = C++11"),
+    file.path(path, "src", "Makevars"))
+
+  expect_silent(
+    package_validate_uses_cpp11(path))
+})

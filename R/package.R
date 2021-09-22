@@ -60,7 +60,8 @@
 ##' dir.create(file.path(dest, "inst/dust"), FALSE, TRUE)
 ##' writeLines(c("Package: example",
 ##'              "Version: 0.0.1",
-##'              "LinkingTo: cpp11, dust"),
+##'              "LinkingTo: cpp11, dust",
+##'              "SystemRequirements: C++11"),
 ##'            file.path(dest, "DESCRIPTION"))
 ##' writeLines("useDynLib('example', .registration = TRUE)",
 ##'            file.path(dest, "NAMESPACE"))
@@ -140,7 +141,12 @@ package_validate <- function(path) {
   package_validate_has_dep(deps, "dust", "LinkingTo")
 
   name <- desc$get_field("Package")
+  if (grepl("[._]+", name)) {
+    stop(sprintf(
+      "Package name must not contain '.' or '_' (found '%s')", name))
+  }
   package_validate_namespace(file.path(path, "NAMESPACE"), name)
+  package_validate_uses_cpp11(path)
 
   path
 }
@@ -222,5 +228,23 @@ package_validate_makevars_openmp <- function(text) {
     grepl("SHLIB_OPENMP_CXXFLAGS", text)
   if (!ok) {
     stop("Package has a 'src/Makevars' but no openmp flags support")
+  }
+}
+
+
+package_validate_uses_cpp11 <- function(path) {
+  desc <- pkgload::pkg_desc(file.path(path, "DESCRIPTION"))
+  makevars <- file.path(path, "src", "Makevars")
+
+  has_cpp11_desc <- desc$has_fields("SystemRequirements") &&
+    grepl("\\bC\\+\\+[0-9][0-9a-z]\\b", desc$get_field("SystemRequirements"),
+          ignore.case = TRUE)
+  has_cpp11_makevars <-
+    file.exists(makevars) && any(grepl("^CXX_STD\\b", readLines(makevars)))
+
+  has_cpp11 <- has_cpp11_desc || has_cpp11_makevars
+
+  if (!has_cpp11) {
+    stop("Did not find a SystemRequirements: C++11 (or similar) in DESCRIPTION")
   }
 }

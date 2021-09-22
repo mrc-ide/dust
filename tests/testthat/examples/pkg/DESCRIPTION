@@ -7,3 +7,4 @@ Title: An Example Using Dust
 Description: Provides an example of dust within a packge. Not intended to
     be used for anything really.
 License: CC0
+SystemRequirements: C++11
