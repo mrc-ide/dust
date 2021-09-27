@@ -1,7 +1,7 @@
 ##' Create a dust model from a C++ input file.  This function will
 ##' compile the dust support around your model and return an object
 ##' that can be used to work with the model (see the Details below,
-##' and [dust::dust_generator]).
+##' and [`dust::dust_generator`]).
 ##'
 ##' @section Input requirements:
 ##'
@@ -178,10 +178,10 @@
 ##'   real type will typically just decrease precision for no
 ##'   additional performance.
 ##'
-##' @seealso [dust::dust_generator] for a description of the class of created
+##' @seealso [`dust::dust_generator`] for a description of the class of created
 ##'   objects, and [dust::dust_example()] for some pre-built examples.
 ##'
-##' @return A [dust::dust_generator] object based on your source files
+##' @return A [`dust::dust_generator`] object based on your source files
 ##' @export
 ##' @examples
 ##'
