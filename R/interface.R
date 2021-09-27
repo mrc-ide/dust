@@ -178,6 +178,11 @@
 ##'   real type will typically just decrease precision for no
 ##'   additional performance.
 ##'
+##' @param skip_cache Logical, indicating if the cache of previously
+##'   compiled moels should be skipped. If `TRUE` then your model will
+##'   not be looked for in the cache, nor will it be added to the
+##'   cache after compilation.
+##'
 ##' @seealso [`dust::dust_generator`] for a description of the class
 ##'   of created objects, and [dust::dust_example()] for some
 ##'   pre-built examples. If you want to just generate the code and

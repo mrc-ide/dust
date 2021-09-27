@@ -41,6 +41,11 @@ that will use 32 bit \code{floats} (rather than 64 bit doubles, which
 are much slower). For CPU models decreasing precision of your
 real type will typically just decrease precision for no
 additional performance.}
+
+\item{skip_cache}{Logical, indicating if the cache of previously
+compiled moels should be skipped. If \code{TRUE} then your model will
+not be looked for in the cache, nor will it be added to the
+cache after compilation.}
 }
 \value{
 A \code{\link{dust_generator}} object based on your source files
