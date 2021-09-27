@@ -3,6 +3,10 @@
 \name{dust_rng}
 \alias{dust_rng}
 \title{Dust Random Number Generator}
+\value{
+A \code{dust_rng} object, which can be used to drawn random
+numbers from dust's distributions.
+}
 \description{
 Create an object that can be used to generate random
 numbers with the same RNG as dust uses internally.  This is

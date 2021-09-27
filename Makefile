@@ -15,7 +15,7 @@ test_leaks: .valgrind_ignore
 	$(RM) $@.bak
 
 roxygen:
-	./scripts/update_dust_class
+	./scripts/update_dust_generator
 	@mkdir -p man
 	${RSCRIPT} -e "library(methods); devtools::document()"
 

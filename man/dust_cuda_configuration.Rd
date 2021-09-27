@@ -102,3 +102,8 @@ dust::dust_cuda_configuration(
 # may work:
 dust::dust_cuda_configuration(forget = TRUE, quiet = FALSE)
 }
+\seealso{
+\link{dust_cuda_options} which controls additional CUDA
+compilation options (e.g., profiling, debug mode or custom
+flags)
+}

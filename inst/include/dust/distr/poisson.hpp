@@ -58,7 +58,7 @@ HOSTDEVICE real_t rpois_hormann(rng_state_t<real_t>& rng_state,
   // algorithm.
   //
   // For more details on transformed rejection, see:
-  // http://citeseer.ist.psu.edu/viewdoc/citations;jsessionid=1BEB35946CC807879F55D42512E5490C?doi=10.1.1.48.3054.
+  // https://citeseer.ist.psu.edu/viewdoc/citations;jsessionid=1BEB35946CC807879F55D42512E5490C?doi=10.1.1.48.3054
   //
   // The dominating distribution in this case:
   //

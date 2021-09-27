@@ -16,6 +16,12 @@ nonnegative and unique}
 \item{multi}{Control how to interpret data for multi-parameter
 dust object; see Details}
 }
+\value{
+A list of dust time/data pairs that will be used for the
+compare function in a compiled model.  Each element is a list of
+length two or more where the first element is the time step and
+the subsequent elements are data for that time step.
+}
 \description{
 Prepare data for use with the \verb{$set_data()} method. This is not
 required for use but tries to simplify the most common use case

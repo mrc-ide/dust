@@ -35,11 +35,14 @@ are much slower). For CPU models decreasing precision of your
 real type will typically just decrease precision for no
 additional performance.}
 }
+\value{
+A \code{\link{dust_generator}} object based on your source files
+}
 \description{
 Create a dust model from a C++ input file.  This function will
 compile the dust support around your model and return an object
 that can be used to work with the model (see the Details below,
-and \link{dust_class}).
+and \code{\link{dust_generator}}).
 }
 \section{Input requirements}{
 
@@ -218,6 +221,6 @@ obj$reorder(sample(30, replace = TRUE))
 obj$state()
 }
 \seealso{
-\link{dust_class} for a description of the class of created
+\code{\link{dust_generator}} for a description of the class of created
 objects, and \code{\link[=dust_example]{dust_example()}} for some pre-built examples.
 }

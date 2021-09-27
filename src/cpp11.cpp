@@ -3,6 +3,7 @@
 
 
 #include "cpp11/declarations.hpp"
+#include <R_ext/Visibility.h>
 
 // densities.cpp
 SEXP dust_dbinom(cpp11::integers x, cpp11::integers size, cpp11::doubles prob, bool log);
@@ -858,128 +859,6 @@ extern "C" SEXP _dust_dust_walk_device_info() {
 }
 
 extern "C" {
-/* .Call calls */
-extern SEXP _dust_cpp_openmp_info();
-extern SEXP _dust_cpp_scale_log_weights(SEXP);
-extern SEXP _dust_dust_dbetabinom(SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_dbinom(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_dnbinom(SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_dnorm(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_dpois(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_rng_alloc(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_rng_jump(SEXP, SEXP);
-extern SEXP _dust_dust_rng_long_jump(SEXP, SEXP);
-extern SEXP _dust_dust_rng_norm_rand(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_rng_rbinom(SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_rng_rexp(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_rng_rnorm(SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_rng_rpois(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_rng_runif(SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_rng_set_deterministic(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_rng_state(SEXP, SEXP);
-extern SEXP _dust_dust_rng_unif_rand(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_sir_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_sir_capabilities();
-extern SEXP _dust_dust_sir_compare_data(SEXP, SEXP);
-extern SEXP _dust_dust_sir_device_info();
-extern SEXP _dust_dust_sir_filter(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_sir_n_state(SEXP);
-extern SEXP _dust_dust_sir_reorder(SEXP, SEXP);
-extern SEXP _dust_dust_sir_resample(SEXP, SEXP);
-extern SEXP _dust_dust_sir_reset(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_sir_rng_state(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_sir_run(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_sir_set_data(SEXP, SEXP);
-extern SEXP _dust_dust_sir_set_index(SEXP, SEXP);
-extern SEXP _dust_dust_sir_set_n_threads(SEXP, SEXP);
-extern SEXP _dust_dust_sir_set_pars(SEXP, SEXP);
-extern SEXP _dust_dust_sir_set_rng_state(SEXP, SEXP);
-extern SEXP _dust_dust_sir_set_state(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_sir_simulate(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_sir_state(SEXP, SEXP);
-extern SEXP _dust_dust_sir_step(SEXP);
-extern SEXP _dust_dust_sirs_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_sirs_capabilities();
-extern SEXP _dust_dust_sirs_compare_data(SEXP, SEXP);
-extern SEXP _dust_dust_sirs_device_info();
-extern SEXP _dust_dust_sirs_filter(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_sirs_n_state(SEXP);
-extern SEXP _dust_dust_sirs_reorder(SEXP, SEXP);
-extern SEXP _dust_dust_sirs_resample(SEXP, SEXP);
-extern SEXP _dust_dust_sirs_reset(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_sirs_rng_state(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_sirs_run(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_sirs_set_data(SEXP, SEXP);
-extern SEXP _dust_dust_sirs_set_index(SEXP, SEXP);
-extern SEXP _dust_dust_sirs_set_n_threads(SEXP, SEXP);
-extern SEXP _dust_dust_sirs_set_pars(SEXP, SEXP);
-extern SEXP _dust_dust_sirs_set_rng_state(SEXP, SEXP);
-extern SEXP _dust_dust_sirs_set_state(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_sirs_simulate(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_sirs_state(SEXP, SEXP);
-extern SEXP _dust_dust_sirs_step(SEXP);
-extern SEXP _dust_dust_variable_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_variable_capabilities();
-extern SEXP _dust_dust_variable_compare_data(SEXP, SEXP);
-extern SEXP _dust_dust_variable_device_info();
-extern SEXP _dust_dust_variable_filter(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_variable_n_state(SEXP);
-extern SEXP _dust_dust_variable_reorder(SEXP, SEXP);
-extern SEXP _dust_dust_variable_resample(SEXP, SEXP);
-extern SEXP _dust_dust_variable_reset(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_variable_rng_state(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_variable_run(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_variable_set_data(SEXP, SEXP);
-extern SEXP _dust_dust_variable_set_index(SEXP, SEXP);
-extern SEXP _dust_dust_variable_set_n_threads(SEXP, SEXP);
-extern SEXP _dust_dust_variable_set_pars(SEXP, SEXP);
-extern SEXP _dust_dust_variable_set_rng_state(SEXP, SEXP);
-extern SEXP _dust_dust_variable_set_state(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_variable_simulate(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_variable_state(SEXP, SEXP);
-extern SEXP _dust_dust_variable_step(SEXP);
-extern SEXP _dust_dust_volatility_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_volatility_capabilities();
-extern SEXP _dust_dust_volatility_compare_data(SEXP, SEXP);
-extern SEXP _dust_dust_volatility_device_info();
-extern SEXP _dust_dust_volatility_filter(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_volatility_n_state(SEXP);
-extern SEXP _dust_dust_volatility_reorder(SEXP, SEXP);
-extern SEXP _dust_dust_volatility_resample(SEXP, SEXP);
-extern SEXP _dust_dust_volatility_reset(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_volatility_rng_state(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_volatility_run(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_volatility_set_data(SEXP, SEXP);
-extern SEXP _dust_dust_volatility_set_index(SEXP, SEXP);
-extern SEXP _dust_dust_volatility_set_n_threads(SEXP, SEXP);
-extern SEXP _dust_dust_volatility_set_pars(SEXP, SEXP);
-extern SEXP _dust_dust_volatility_set_rng_state(SEXP, SEXP);
-extern SEXP _dust_dust_volatility_set_state(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_volatility_simulate(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_volatility_state(SEXP, SEXP);
-extern SEXP _dust_dust_volatility_step(SEXP);
-extern SEXP _dust_dust_walk_alloc(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_walk_capabilities();
-extern SEXP _dust_dust_walk_compare_data(SEXP, SEXP);
-extern SEXP _dust_dust_walk_device_info();
-extern SEXP _dust_dust_walk_filter(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_walk_n_state(SEXP);
-extern SEXP _dust_dust_walk_reorder(SEXP, SEXP);
-extern SEXP _dust_dust_walk_resample(SEXP, SEXP);
-extern SEXP _dust_dust_walk_reset(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_walk_rng_state(SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_walk_run(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_walk_set_data(SEXP, SEXP);
-extern SEXP _dust_dust_walk_set_index(SEXP, SEXP);
-extern SEXP _dust_dust_walk_set_n_threads(SEXP, SEXP);
-extern SEXP _dust_dust_walk_set_pars(SEXP, SEXP);
-extern SEXP _dust_dust_walk_set_rng_state(SEXP, SEXP);
-extern SEXP _dust_dust_walk_set_state(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_walk_simulate(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _dust_dust_walk_state(SEXP, SEXP);
-extern SEXP _dust_dust_walk_step(SEXP);
-extern SEXP _dust_test_cuda_pars(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-
 static const R_CallMethodDef CallEntries[] = {
     {"_dust_cpp_openmp_info",               (DL_FUNC) &_dust_cpp_openmp_info,               0},
     {"_dust_cpp_scale_log_weights",         (DL_FUNC) &_dust_cpp_scale_log_weights,         1},
@@ -1105,7 +984,7 @@ static const R_CallMethodDef CallEntries[] = {
 };
 }
 
-extern "C" void R_init_dust(DllInfo* dll){
+extern "C" attribute_visible void R_init_dust(DllInfo* dll){
   R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
   R_useDynamicSymbols(dll, FALSE);
   R_forceSymbols(dll, TRUE);

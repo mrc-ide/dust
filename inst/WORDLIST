@@ -1,5 +1,6 @@
 AppVeyor
 CMRG
+COVID
 CUDA
 CUDA
 CUDA's
@@ -18,13 +19,16 @@ Resample
 SEIR
 STL
 TensorFlow
+Vigna
 WIP
 Xoshiro
 api
+arXiv
 codecov
 const
 cpp
 dnbinom
+doi
 etc
 io
 mcstate

@@ -1,19 +1,27 @@
 Package: dust
 Title: Iterate Multiple Realisations of Stochastic Models
-Version: 0.9.16
+Version: 0.9.17
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     email = "rich.fitzjohn@gmail.com"),
              person("John", "Lees", role = "aut"),
              person("Imperial College of Science, Technology and Medicine",
                     role = "cph"))
-Description: Fast and simple iteration of stochastic models. Designed
-    to work as a component of a particle filter.
+Description: An Engine for simulation of stochastic models. Includes
+    support for running stochastic models in parallel, either with
+    shared or varying parameters. Simulations are run efficiently in
+    compiled code and can be run with a fraction of simulated states
+    returned to R, allowing control over memory usage. Support is
+    provided for building bootstrap particle filter for performing
+    Sequential Monte Carlo (e.g., Gordon et al. 1993
+    <doi:10.1049/ip-f-2.1993.0015>). The core of the simulation engine is
+    the 'xoshiro256**' algorithm (Blackman and Vigna
+    <arXiv:1805.01407>), and the package is further described in
+    FitzJohn et al 2021 <doi:10.12688/wellcomeopenres.16466.2>.
 URL: https://github.com/mrc-ide/dust
 BugReports: https://github.com/mrc-ide/dust/issues
 SystemRequirements: C++11
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
 Language: en-GB
 Imports:
     R6,
@@ -33,6 +41,6 @@ Suggests:
     mockery,
     rmarkdown,
     testthat
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr

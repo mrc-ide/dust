@@ -74,6 +74,10 @@
 ##' If compilation of the test program fails, then `has_cuda` will be
 ##'   `FALSE` and all other elements will be `NULL`.
 ##'
+##' @seealso [dust::dust_cuda_options] which controls additional CUDA
+##'   compilation options (e.g., profiling, debug mode or custom
+##'   flags)
+##'
 ##' @export
 ##' @examples
 ##' # If you have your CUDA library in an unusual location, then you
@@ -115,7 +119,7 @@ dust_cuda_configuration <- function(path_cuda_lib = NULL,
 ##'   maths", which lets the optimiser enable optimisations that break
 ##'   IEEE compliance and disables some error checking (see [the CUDA
 ##'   docs](https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html)
-##'   for more details.
+##'   for more details).
 ##'
 ##' @param flags Optional extra arguments to pass to nvcc. These
 ##'   options will not be passed to your normal C++ compiler, nor the
@@ -124,8 +128,12 @@ dust_cuda_configuration <- function(path_cuda_lib = NULL,
 ##'   (`--maxrregcount x`). If not `NULL`, this must be a character
 ##'   vector, which will be concatenated with spaces between options.
 ##'
-##' @return An object of type `cuda_options`, which is subject to
-##'   change, but can be passed into [dust::dust] as argument `gpu`
+##' @return An object of type `cuda_options`, which can be passed into
+##'   [dust::dust] as argument `gpu`
+##'
+##' @seealso [dust::dust_cuda_configuration] which identifies and
+##'   returns the core CUDA configuration (often used implicitly by
+##'   this function).
 ##'
 ##' @export
 ##' @examples

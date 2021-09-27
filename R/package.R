@@ -209,8 +209,7 @@ package_generate <- function(filename) {
   ## the correct help page, and the user may not be using roxygen at
   ## all, and they could just link to the help file ?dust to get the
   ## same documentation.
-  template_r <- paste(template_r[!grepl("\\s*#+'", template_r)],
-                      collapse = "\n")
+  template_r <- paste(drop_roxygen(template_r), collapse = "\n")
   code_r <- glue_whisker(template_r, data)
 
   template_hpp <- read_lines(dust_file("template/dust.hpp"))

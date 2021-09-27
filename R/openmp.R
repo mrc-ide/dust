@@ -1,5 +1,5 @@
 ##' Return information about OpenMP support for this system.  For
-##' individual models look at the `$has_openmp()` method
+##' individual models look at the `$has_openmp()` method.
 ##'
 ##' @title Information about OpenMP support
 ##'
@@ -8,6 +8,23 @@
 ##'
 ##' @seealso [dust_openmp_threads()] for setting a polite number of
 ##'   threads.
+##'
+##' @return A list with information about the openmp support on your
+##'   system.
+##'
+##' * The first few elements come from the openmp library directly:
+##'   `num_proc`, `max_threads`, `thread_limit`; these correspond to a
+##'   call to the function `omp_get_<name>()` in C and
+##'   `openmp_version` which is the value of the `_OPENMP` macro.
+##' * A logical `has_openmp` which is `TRUE` if it looks like runtime
+##'   OpenMP support is available
+##' * The next elements tell you about different sources that might
+##'   control the number of threads allowed to run: `mc.cores` (from
+##'   the R option with the same name), `OMP_THREAD_LIMIT`,
+##'   `OMP_NUM_THREADS`, `MC_CORES` (from environment variables),
+##'   `limit_r` (limit computed against R-related control variables),
+##'   `limit_openmp` (limit computed against OpenMP-related variables)
+##'   and `limit` the smaller of `limit_r` and `limit_openmp`
 ##'
 ##' @export
 ##' @examples

@@ -4,6 +4,9 @@
 ##'   numbers with the same RNG as dust uses internally.  This is
 ##'   primarily meant for debugging and testing.
 ##'
+##' @return A `dust_rng` object, which can be used to drawn random
+##'   numbers from dust's distributions.
+##'
 ##' @export
 ##' @examples
 ##' rng <- dust::dust_rng$new(42)
@@ -189,6 +192,9 @@ dust_rng <- R6::R6Class(
 ##' @param times An integer indicating the number of times the
 ##'   `long_jump` should be performed. The default is one, but values
 ##'   larger than one will repeatedly advance the state.
+##'
+##' @return A raw vector of random number state, suitable to set into
+##'   a `dust` or `dust_rng` object, or for use as a seed.
 ##'
 ##' @export
 ##' @examples

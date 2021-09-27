@@ -95,3 +95,8 @@ writelines_if_changed <- function(text, path) {
 same_content <- function(path, text) {
   identical(read_lines(path), paste(as.character(text), collapse = "\n"))
 }
+
+
+drop_roxygen <- function(text) {
+  text[!grepl("\\s*#+'", text)]
+}

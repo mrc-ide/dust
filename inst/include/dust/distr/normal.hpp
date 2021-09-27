@@ -11,7 +11,7 @@ __nv_exec_check_disable__
 template <typename real_t>
 HOSTDEVICE inline real_t box_muller(rng_state_t<real_t>& rng_state) {
   // This function implements the Box-Muller transform:
-  // http://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform#Basic_form
+  // https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform#Basic_form
   // Do not send a really small number to log().
   const real_t epsilon = dust::utils::epsilon<real_t>();
   const real_t two_pi = 2 * M_PI;

@@ -24,7 +24,7 @@ plain_output <- function(x) lang_output(x, "plain")
 
 Stochastic models can be used in statistical inference via methods such as [particle filtering](https://en.wikipedia.org/wiki/Particle_filter) but doing so requires that the models can be run over and over again very quickly. While R has excellent support for sampling from distributions, it is not necessarily well suited for this sort of problem because R is single threaded, so we are forced to evaluate realisations of the stochastic process in series (one after another) rather than in parallel.
 
-The `dust` package provides tools to help write stochastic models that can be evaluated in parallel. It does not directly provide statistical methods; see the [mcstate](https://mrc-ide.github.io/mcstate) package for that. Instead, it focuses on providing:
+The `dust` package provides tools to help write stochastic models that can be evaluated in parallel. It does not directly provide statistical methods; see the [mcstate](https://mrc-ide.github.io/mcstate/) package for that. Instead, it focuses on providing:
 
 * a fast random number generator that can be evaluated in parallel (see `vignette("rng")` for details)
 * a way of wrapping a user-provided model, itself written as a C++ class

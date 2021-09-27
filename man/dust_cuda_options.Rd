@@ -23,7 +23,7 @@ dust_cuda_options(
 \item{fast_math}{Logical, indicating if we should enable "fast
 maths", which lets the optimiser enable optimisations that break
 IEEE compliance and disables some error checking (see \href{https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html}{the CUDA docs}
-for more details.}
+for more details).}
 
 \item{flags}{Optional extra arguments to pass to nvcc. These
 options will not be passed to your normal C++ compiler, nor the
@@ -33,8 +33,8 @@ to do things like tune the maximum number of registers
 vector, which will be concatenated with spaces between options.}
 }
 \value{
-An object of type \code{cuda_options}, which is subject to
-change, but can be passed into \link{dust} as argument \code{gpu}
+An object of type \code{cuda_options}, which can be passed into
+\link{dust} as argument \code{gpu}
 }
 \description{
 Create options for compiling for CUDA.  Unless you need to change
@@ -46,4 +46,9 @@ useful to see what is being passed to the compiler.
 tryCatch(
   dust::dust_cuda_options(),
   error = function(e) NULL)
+}
+\seealso{
+\link{dust_cuda_configuration} which identifies and
+returns the core CUDA configuration (often used implicitly by
+this function).
 }

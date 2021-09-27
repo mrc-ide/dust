@@ -14,6 +14,10 @@ generator; see \code{\link{dust_rng}}.}
 \code{long_jump} should be performed. The default is one, but values
 larger than one will repeatedly advance the state.}
 }
+\value{
+A raw vector of random number state, suitable to set into
+a \code{dust} or \code{dust_rng} object, or for use as a seed.
+}
 \description{
 Advance a saved random number state by performing a "long jump" on
 it. If you have serialised the state using the \verb{$rng_state()}

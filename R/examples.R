@@ -22,7 +22,7 @@
 ##'   examples: `sir`, `sirs`, `variable`, `volatility` and `walk`
 ##'   (see Details).
 ##'
-##' @return A [`dust`](dust_class) object that can be used to create a
+##' @return A [`dust::dust_generator`] object that can be used to create a
 ##'   model.  See examples for usage.
 ##'
 ##' @export
