@@ -1,0 +1,12 @@
+citHeader("To cite dust in publications use:")
+
+citEntry(
+  entry = "Article",
+  title = "Reproducible parallel inference and simulation of stochastic state space models using odin, dust, and mcstate",
+  author = "Richard G. FitzJohn and Edward S. Knock and Lilith K. Whittles and Pablo N. Perez-Guzman and Sangeeta Bhatia and Fernando Guntoro and Oliver J. Watson and Charles Whittaker and Neil M. Ferguson and Anne Cori and Marc Baguelin and John A. Lees",
+  journal = "Wellcome Open Research",
+  year = 2021,
+  volume = 5,
+  pages = 288,
+  doi = "10.12688/wellcomeopenres.16466.2",
+  textVersion = "FitzJohn et al. 2021 Reproducible parallel inference and simulation of stochastic state space models using odin, dust, and mcstate. Wellcome Open Research 5, 288 <doi:10.12688/wellcomeopenres.16466.2>")

@@ -30,6 +30,10 @@ There are further vignettes describing details:
 * `vignette("data")` on running a bootstrap particle filter
 * `vignette("cuda")` on creating and running models on GPUs
 
+You can also read our open access paper describing `dust` and some related tools that use it:
+
+> [FitzJohn, Knock, Whittles, Perez-Guizman, Bhatia, Guntoro, Watson, Whittaker, Ferguson, Cori, Baguelin, Lees 2021: Reproducible parallel inference and simulation of stochastic state space models using odin, dust, and mcstate, Wellcome Open Research 5, 288](https://wellcomeopenresearch.org/articles/5-288/v2)
+
 ## Higher-level
 
 The `dust` package, while designed to be user-friendly, is lower-level than many users need. The [`odin.dust`](https://mrc-ide.github.io/odin.dust/) package provides a way of compiling stochastic [`odin`](https://mrc-ide.github.io/odin/) models to work with `dust`.  For example, to create a parallel epidemiological model, one might write simply:
