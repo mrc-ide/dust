@@ -3,7 +3,7 @@ context("interface")
 test_that("Basic interface use", {
   filename <- dust_file("examples/walk.cpp")
   res <- dust(filename, quiet = TRUE)
-  expect_is(res, "R6ClassGenerator")
+  expect_is(res, "dust_generator")
   obj <- res$new(list(sd = 1), 0L, 100L)
   expect_is(obj, "dust")
 })
@@ -353,4 +353,28 @@ test_that("informative error message if expected string not found", {
   expect_error(
     dust_rewrite_real(tmp, "float"),
     "did not find real_t declaration in '.+\\.cpp'")
+})
+
+
+test_that("create temporary package", {
+  skip_on_cran()
+  filename <- dust_file("examples/walk.cpp")
+  path <- dust_generate(filename, quiet = TRUE, mangle = TRUE)
+  expect_match(
+    read.dcf(file.path(path, "DESCRIPTION"))[, "Package"],
+    "^walk[[:xdigit:]]{8}$")
+  pkg <- pkgload::load_all(path, quiet = TRUE, export_all = FALSE)
+  expect_is(pkg$env$walk, "dust_generator")
+  obj <- pkg$env$walk$new(list(sd = 1), 0L, 100L)
+  expect_is(obj, "dust")
+})
+
+
+test_that("Don't mangle name in generated package", {
+  skip_on_cran()
+  filename <- dust_file("examples/walk.cpp")
+  path <- dust_generate(filename, quiet = TRUE)
+  expect_equal(
+    unname(read.dcf(file.path(path, "DESCRIPTION"))[, "Package"]),
+    "walk")
 })

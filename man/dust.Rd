@@ -221,6 +221,9 @@ obj$reorder(sample(30, replace = TRUE))
 obj$state()
 }
 \seealso{
-\code{\link{dust_generator}} for a description of the class of created
-objects, and \code{\link[=dust_example]{dust_example()}} for some pre-built examples.
+\code{\link{dust_generator}} for a description of the class
+of created objects, and \code{\link[=dust_example]{dust_example()}} for some
+pre-built examples. If you want to just generate the code and
+load it yourself with \code{pkgload::load_all} or some other means,
+see \code{\link{dust_generate}})
 }
