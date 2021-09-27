@@ -1,5 +1,3 @@
-context("utils")
-
 test_that("null-or-value works", {
   expect_equal(1 %||% NULL, 1)
   expect_equal(1 %||% 2, 1)

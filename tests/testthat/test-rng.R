@@ -1,5 +1,3 @@
-context("rng")
-
 test_that("can generate random numbers", {
   ans1 <- dust_rng$new(1, 1)$unif_rand(100)
   ans2 <- dust_rng$new(1, 1)$unif_rand(100)
@@ -171,8 +169,8 @@ test_that("poisson numbers", {
   expect_identical(ans1, ans2)
   expect_false(all(ans1 == ans3))
 
-  expect_equal(mean(ans1), lambda, 1e-2)
-  expect_equal(var(ans1), lambda, 1e-2)
+  expect_equal(mean(ans1), lambda, tolerance = 1e-2)
+  expect_equal(var(ans1), lambda, tolerance = 1e-2)
 })
 
 
@@ -186,8 +184,8 @@ test_that("Big poisson numbers", {
   expect_identical(ans1, ans2)
   expect_false(all(ans1 == ans3))
 
-  expect_equal(mean(ans1), lambda, 1e-2)
-  expect_equal(var(ans1), lambda, 1e-2)
+  expect_equal(mean(ans1), lambda, tolerance = 1e-2)
+  expect_equal(var(ans1), lambda, tolerance = 1e-2)
 })
 
 

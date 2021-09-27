@@ -1,11 +1,9 @@
-context("interface")
-
 test_that("Basic interface use", {
   filename <- dust_file("examples/walk.cpp")
   res <- dust(filename, quiet = TRUE)
-  expect_is(res, "dust_generator")
+  expect_s3_class(res, "dust_generator")
   obj <- res$new(list(sd = 1), 0L, 100L)
-  expect_is(obj, "dust")
+  expect_s3_class(obj, "dust")
 })
 
 
@@ -14,9 +12,9 @@ test_that("Interface passes arguments as expected", {
   filename <- dust_file("examples/walk.cpp")
   mock_compile_and_load <- mockery::mock(NULL)
   workdir <- tempfile()
-  with_mock(
-    "dust::compile_and_load" = mock_compile_and_load,
-    dust(filename, TRUE, workdir))
+
+  mockery::stub(dust, "compile_and_load", mock_compile_and_load)
+  dust(filename, TRUE, workdir)
 
   mockery::expect_called(mock_compile_and_load, 1L)
   expect_equal(
@@ -364,9 +362,9 @@ test_that("create temporary package", {
     read.dcf(file.path(path, "DESCRIPTION"))[, "Package"],
     "^walk[[:xdigit:]]{8}$")
   pkg <- pkgload::load_all(path, quiet = TRUE, export_all = FALSE)
-  expect_is(pkg$env$walk, "dust_generator")
+  expect_s3_class(pkg$env$walk, "dust_generator")
   obj <- pkg$env$walk$new(list(sd = 1), 0L, 100L)
-  expect_is(obj, "dust")
+  expect_s3_class(obj, "dust")
 })
 
 

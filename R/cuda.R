@@ -292,6 +292,9 @@ cuda_install_cub <- function(path, version = "1.9.10", quiet = FALSE) {
   base <- sprintf("cub-%s", version)
   stopifnot(file.exists(file.path(tmp_src, base)))
 
+  ## We currently print this message regardless of the value of
+  ## 'quiet', which mostly is there to be passed to download.file,
+  ## which otherwise prints all sorts of stuff to stdout.
   message(sprintf("Installing cub headers into %s", path))
   dir.create(path, FALSE, TRUE)
   file.copy(file.path(tmp_src, base, "LICENSE.TXT"), path)

@@ -1,5 +1,3 @@
-context("example")
-
 test_that("create walk, stepping for one step", {
   res <- dust_example("walk")
   obj <- res$new(list(sd = 1), 0, 10, seed = 1L)
@@ -323,13 +321,9 @@ test_that("Basic threading test", {
 test_that("cache hits do not compile", {
   skip_on_cran()
   cmp <- dust(dust_file("examples/walk.cpp"), quiet = TRUE)
-
-  mock <- mockery::mock()
-  res <- with_mock(
-    "pkgbuild::compile_dll" = mock,
-    dust(dust_file("examples/walk.cpp"), quiet = TRUE))
-  ## Never called
-  expect_equal(mockery::mock_calls(mock), list())
+  expect_message(
+    res <- dust(dust_file("examples/walk.cpp"), quiet = FALSE),
+    "Using cached model")
   ## Same object
   expect_identical(res, cmp)
 })

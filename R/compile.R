@@ -78,6 +78,8 @@ compile_and_load <- function(filename, quiet = FALSE, workdir = NULL,
     res$gen <- res$env[[res$data$name]]
 
     cache$models$set(res$key, res, skip_cache)
+  } else if (!quiet) {
+    message("Using cached model")
   }
 
   res$gen

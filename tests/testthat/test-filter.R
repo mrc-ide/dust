@@ -1,5 +1,3 @@
-context("filter")
-
 test_that("Can run the filter", {
   dat <- example_filter()
 

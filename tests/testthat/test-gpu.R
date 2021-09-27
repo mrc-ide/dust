@@ -1,5 +1,3 @@
-context("gpu")
-
 test_that("Can run device version of model on cpu", {
   np <- 100
   len <- 20
@@ -126,9 +124,10 @@ test_that("Can generate cuda compatible code", {
 test_that("Generate default cuda configuration", {
   skip_if_not_installed("mockery")
   mock_create <- mockery::mock(stop("no nvcc found!"))
-  res <- with_mock(
-    "dust:::cuda_create_test_package" = mock_create,
-    cuda_configuration())
+  mockery::stub(cuda_configuration, "cuda_create_test_package",
+                mock_create)
+  res <- cuda_configuration(quiet = TRUE)
+  mockery::expect_called(mock_create, 1)
   expect_equal(res,
                list(has_cuda = FALSE,
                     cuda_version = NULL,
@@ -140,12 +139,11 @@ test_that("Generate default cuda configuration", {
 
 test_that("Retrieve configuration", {
   skip_if_not_installed("mockery")
-  mock_create <- mockery::mock(stop("no nvcc found!"))
-  mock_ctp <- mockery::mock(mock_create_test_package())
-  res <- with_mock(
-    "dust:::cuda_create_test_package" = mock_ctp,
-    cuda_configuration(quiet = TRUE))
-  mockery::expect_called(mock_ctp, 1)
+  mock_create <- mockery::mock(mock_create_test_package())
+  mockery::stub(cuda_configuration, "cuda_create_test_package",
+                mock_create)
+  res <- cuda_configuration(quiet = TRUE)
+  mockery::expect_called(mock_create, 1)
   expect_equal(res, c(example_cuda_config(),
                       list(path_cuda_lib = NULL, path_cub_include = NULL)))
 })
@@ -154,10 +152,10 @@ test_that("Retrieve configuration", {
 test_that("Report error if requested", {
   skip_if_not_installed("mockery")
   mock_create <- mockery::mock(stop("no nvcc found!"))
-  res <- with_mock(
-    "dust:::cuda_create_test_package" = mock_create,
-    expect_message(cuda_configuration(),
-                   "nvcc detection reported failure:.*no nvcc found!"))
+  mockery::stub(cuda_configuration, "cuda_create_test_package",
+                mock_create)
+  expect_message(cuda_configuration(),
+                 "nvcc detection reported failure:.*no nvcc found!")
 })
 
 
@@ -186,20 +184,21 @@ test_that("locate cub", {
     c(DUST_PATH_CUB_INCLUDE = path_good),
     expect_null(cuda_path_cub_include(version_11, NULL)))
 
-  res <- with_mock(
-    "dust:::cuda_cub_path_default" = mockery::mock(path_bad, path_good, NULL),
-    expect_error(
-      cuda_path_cub_include(version_10, NULL),
-      "Did not find directory 'cub' within '.+' \\(via default path"),
-    expect_equal(cuda_path_cub_include(version_10, NULL), path_good),
-    expect_error(
-      cuda_path_cub_include(version_10, NULL),
-      "Did not find cub headers"))
+  mock_cuda_path <- mockery::mock(path_bad, path_good, NULL)
+  mockery::stub(cuda_path_cub_include,
+                "cuda_cub_path_default",
+                mock_cuda_path)
+  expect_error(
+    cuda_path_cub_include(version_10, NULL),
+    "Did not find directory 'cub' within '.+' \\(via default path")
+  expect_equal(cuda_path_cub_include(version_10, NULL), path_good)
+  expect_error(
+    cuda_path_cub_include(version_10, NULL),
+    "Did not find cub headers")
 })
 
 
 test_that("locate cuda libs", {
-  skip_if_not_installed("mockery")
   path_good <- tempfile()
   path_bad <- tempfile()
   dir.create(path_good, FALSE, TRUE)
@@ -238,7 +237,10 @@ test_that("install cub", {
   skip_if_offline()
 
   path <- tempfile()
-  expect_equal(cuda_install_cub(path, quiet = TRUE), path)
+  expect_equal(
+    expect_message(cuda_install_cub(path, quiet = TRUE),
+                   "Installing cub headers"),
+    path)
   expect_setequal(dir(path), c("cub", "LICENSE.TXT"))
   expect_true(file.exists(file.path(path, "cub", "cub.cuh")))
 
