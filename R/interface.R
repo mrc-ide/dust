@@ -255,9 +255,10 @@ dust <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
 ##' @return The path to the generated package (will be `workdir` if
 ##'   that was provided, otherwise a temporary directory).
 ##'
+##' @export
 ##' @examples
 ##' filename <- system.file("examples/walk.cpp", package = "dust")
-##' path <- dust_generate(filename)
+##' path <- dust::dust_generate(filename)
 ##'
 ##' # Simple package created:
 ##' dir(path)

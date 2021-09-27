@@ -62,7 +62,7 @@ with CUDA models).
 }
 \examples{
 filename <- system.file("examples/walk.cpp", package = "dust")
-path <- dust_generate(filename)
+path <- dust::dust_generate(filename)
 
 # Simple package created:
 dir(path)
