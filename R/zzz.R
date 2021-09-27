@@ -1,7 +1,6 @@
 ##' @useDynLib dust, .registration = TRUE
-.onLoad <- function(...) {
+.onLoad <- function(...) {           # nolint
   cache$models <- simple_cache$new() # nocov
 }
-NULL
 
 cache <- new.env(parent = emptyenv())
