@@ -223,9 +223,10 @@
 ##' # See the state again
 ##' obj$state()
 dust <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
-                 real_t = NULL) {
+                 real_t = NULL, skip_cache = FALSE) {
   filename <- dust_prepare(filename, real_t)
-  compile_and_load(filename, quiet, workdir, cuda_check(gpu))
+  compile_and_load(filename, quiet, workdir, cuda_check(gpu),
+                   skip_cache)
 }
 
 
@@ -260,7 +261,7 @@ dust <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
 dust_generate <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
                           real_t = NULL, mangle = FALSE) {
   filename <- dust_prepare(filename, real_t)
-  res <- generate_dust(filename, quiet, workdir, cuda_check(gpu), NULL, mangle)
+  res <- generate_dust(filename, quiet, workdir, cuda_check(gpu), TRUE, mangle)
   cpp11::cpp_register(res$path, quiet = quiet)
   res$path
 }

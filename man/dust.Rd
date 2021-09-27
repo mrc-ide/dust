@@ -4,7 +4,14 @@
 \alias{dust}
 \title{Create a dust model from a C++ input file}
 \usage{
-dust(filename, quiet = FALSE, workdir = NULL, gpu = FALSE, real_t = NULL)
+dust(
+  filename,
+  quiet = FALSE,
+  workdir = NULL,
+  gpu = FALSE,
+  real_t = NULL,
+  skip_cache = FALSE
+)
 }
 \arguments{
 \item{filename}{The path to a single C++ file}

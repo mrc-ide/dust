@@ -100,3 +100,30 @@ same_content <- function(path, text) {
 drop_roxygen <- function(text) {
   text[!grepl("\\s*#+'", text)]
 }
+
+
+simple_cache <- R6::R6Class(
+  "simple_cache",
+  cloneable = FALSE,
+  private = list(
+    contents = list()
+  ),
+  public = list(
+    set = function(key, value, skip) {
+      if (!skip) {
+        private$contents[[key]] <- value
+      }
+    },
+
+    get = function(key, skip) {
+      if (skip) {
+        NULL
+      } else {
+        private$contents[[key]]
+      }
+    },
+
+    has_key = function(key, skip) {
+      !skip && key %in% names(private$contents)
+    }
+  ))
