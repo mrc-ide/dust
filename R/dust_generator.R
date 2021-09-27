@@ -127,14 +127,10 @@ dust_generator <- R6::R6Class(
     ##' @param step_end Step to run to (if less than or equal to the current
     ##' step(), silently nothing will happen)
     ##'
-    ##' @param device **Experimental!**: This argument may allow running on
-    ##' a GPU once support is finished, if the model supports it, and if
-    ##' the model is compiled appropriately (and assuming you have a
-    ##' suitable GPU). At present it exists for testing and will run
-    ##' slower than running with `device = TRUE`. The interpretation of
-    ##' this argument will likely change to allow selecting the GPU on
-    ##' systems with more than one. In short, please leave this argument
-    ##' alone unless you're developing dust.
+    ##' @param device Logical, indicating if the model should be run on
+    ##'   the GPU device. This is only possible if your model supports it,
+    ##'   was compiled with this enabled, and you have a suitable GPU
+    ##'   available (see `vignette("cuda")`).
     ##'
     ##' @param deterministic Run random number generation deterministically,
     ##'   replacing a random number from some distribution with its
@@ -161,14 +157,8 @@ dust_generator <- R6::R6Class(
     ##'   greater than those before it (ties are allowed though probably
     ##'   not wanted).
     ##'
-    ##' @param device **Experimental!**: This argument may allow running on
-    ##' a GPU once support is finished, if the model supports it, and if
-    ##' the model is compiled appropriately (and assuming you have a
-    ##' suitable GPU). At present it exists for testing and will run
-    ##' slower than running with `device = TRUE`. The interpretation of
-    ##' this argument will likely change to allow selecting the GPU on
-    ##' systems with more than one. In short, please leave this argument
-    ##' alone unless you're developing dust.
+    ##' @param device Logical, indicating if the model should be run on
+    ##'   the GPU device. See `$run()` for more information.
     ##'
     ##' @param deterministic Run random number generation deterministically,
     ##'   replacing a random number from some distribution with its
@@ -400,14 +390,8 @@ dust_generator <- R6::R6Class(
     ##' underlying `compare_data` function is stochastic, then each call to
     ##' this function may be result in a different answer.
     ##'
-    ##' @param device **Experimental!**: This argument may allow running on
-    ##' a GPU once support is finished, if the model supports it, and if
-    ##' the model is compiled appropriately (and assuming you have a
-    ##' suitable GPU). At present it exists for testing and will run
-    ##' slower than running with `device = FALSE`. The interpretation of
-    ##' this argument will likely change to allow selecting the GPU on
-    ##' systems with more than one. In short, please leave this argument
-    ##' alone unless you're developing dust.
+    ##' @param device Logical, indicating if the model should be run on
+    ##'   the GPU device. See `$run()` for more information.
     compare_data = function(device = FALSE) {
     },
 
@@ -430,20 +414,14 @@ dust_generator <- R6::R6Class(
     ##' a multidimensional array (`state x <shape> x step_snapshot`)
     ##' containing full state values at the requested steps.
     ##'
-    ##' @param device **Experimental!**: This argument may allow running on
-    ##' a GPU once support is finished, if the model supports it, and if
-    ##' the model is compiled appropriately (and assuming you have a
-    ##' suitable GPU). At present it exists for testing and will run
-    ##' slower than running with `device = FALSE`. The interpretation of
-    ##' this argument will likely change to allow selecting the GPU on
-    ##' systems with more than one. In short, please leave this argument
-    ##' alone unless you're developing dust.
+    ##' @param device Logical, indicating if the model should be run on
+    ##'   the GPU device. See `$run()` for more information.
     filter = function(save_trajectories = FALSE, step_snapshot = NULL,
                       device = FALSE) {
     },
 
     ##' @description
-    ##' **Experimental!** Return information about GPU devices, if the model
+    ##' Return information about GPU devices, if the model
     ##' has been compiled with CUDA/GPU support. This can be called as a
     ##' static method by running `dust_generator$public_methods$device_info()`.
     ##' If run from a GPU enabled object, it will also have an element
