@@ -1,6 +1,5 @@
 skip_for_compilation <- function() {
   testthat::skip_on_cran()
-  testthat::skip("Not opted in to compilation")
 }
 
 
