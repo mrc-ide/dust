@@ -82,3 +82,28 @@ test_that("writelines_if_changed doesn't replace file", {
   skip_on_os("windows")
   expect_gt(file.mtime(path), t)
 })
+
+
+test_that("simple cache allows skipping", {
+  obj <- simple_cache$new()
+  key <- "a"
+  value <- runif(10)
+  expect_false(obj$has_key(key, FALSE))
+  expect_false(obj$has_key(key, TRUE))
+  expect_null(obj$get(key, FALSE))
+  expect_null(obj$get(key, TRUE))
+
+  ## set with skip does nothing
+  obj$set(key, value, TRUE)
+  expect_false(obj$has_key(key, FALSE))
+  expect_false(obj$has_key(key, TRUE))
+  expect_null(obj$get(key, FALSE))
+  expect_null(obj$get(key, TRUE))
+
+  ## set without skip adds key
+  obj$set(key, value, FALSE)
+  expect_true(obj$has_key(key, FALSE))
+  expect_false(obj$has_key(key, TRUE))
+  expect_equal(obj$get(key, FALSE), value)
+  expect_null(obj$get(key, TRUE))
+})
