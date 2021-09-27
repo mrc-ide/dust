@@ -1,13 +1,23 @@
-##' @name dust_class
-##' @rdname dust_class
+##' @name dust_generator
+##' @rdname dust_generator
 ##' @title The dust class
 ##'
 ##' @description
 ##'
-##' All "dust" dust models are really [R6][R6::R6Class] objects and
-##'   expose the same set of "methods".  To create a dust model of
-##'   your own, see [dust::dust] and to interact with some built-in
-##'   ones see [dust::dust_example()]
+##' All "dust" dust models are [R6][R6::R6Class] objects and expose a
+##'   common set of "methods".  To create a dust model of your own,
+##'   see [dust::dust] and to interact with some built-in ones see
+##'   [dust::dust_example()]
+##'
+##' @examples
+##' # An example dust object from the package:
+##' walk <- dust::dust_example("walk")
+##'
+##' # The generator object has class "dust_generator"
+##' class(walk)
+##'
+##' # The methods below are are described in the documentation
+##' walk
 {{name}} <- R6::R6Class(
   "dust",
   cloneable = FALSE,

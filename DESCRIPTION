@@ -33,6 +33,6 @@ Suggests:
     mockery,
     rmarkdown,
     testthat
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr

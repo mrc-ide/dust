@@ -12,7 +12,7 @@ examples: \code{sir}, \code{sirs}, \code{variable}, \code{volatility} and \code{
 (see Details).}
 }
 \value{
-A \href{dust_class}{\code{dust}} object that can be used to create a
+A \href{dust_generator}{\code{dust}} object that can be used to create a
 model.  See examples for usage.
 }
 \description{
