@@ -43,6 +43,12 @@ generate_dust <- function(filename, quiet, workdir, cuda, cache) {
                              file.path(path, "src", "Makevars"))
   }
 
+  ## Keep the generated dust files simple by dropping roxygen docs
+  ## which are used in making the interface docs (?dust_generator)
+  dust_r <- readLines(file.path(path, "R/dust.R"))
+  writeLines(dust_r[!grepl("\\s*##'", dust_r)],
+             file.path(path, "R/dust.R"))
+
   res <- list(key = base, gpu = gpu, data = data, path = path)
   cache$models[[base]] <- res
   res
