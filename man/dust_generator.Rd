@@ -171,14 +171,10 @@ at that point.
 \item{\code{step_end}}{Step to run to (if less than or equal to the current
 step(), silently nothing will happen)}
 
-\item{\code{device}}{\strong{Experimental!}: This argument may allow running on
-a GPU once support is finished, if the model supports it, and if
-the model is compiled appropriately (and assuming you have a
-suitable GPU). At present it exists for testing and will run
-slower than running with \code{device = TRUE}. The interpretation of
-this argument will likely change to allow selecting the GPU on
-systems with more than one. In short, please leave this argument
-alone unless you're developing dust.}
+\item{\code{device}}{Logical, indicating if the model should be run on
+the GPU device. This is only possible if your model supports it,
+was compiled with this enabled, and you have a suitable GPU
+available (see \code{vignette("cuda")}).}
 
 \item{\code{deterministic}}{Run random number generation deterministically,
 replacing a random number from some distribution with its
@@ -215,14 +211,8 @@ as the current time, and every subsequent time must be equal or
 greater than those before it (ties are allowed though probably
 not wanted).}
 
-\item{\code{device}}{\strong{Experimental!}: This argument may allow running on
-a GPU once support is finished, if the model supports it, and if
-the model is compiled appropriately (and assuming you have a
-suitable GPU). At present it exists for testing and will run
-slower than running with \code{device = TRUE}. The interpretation of
-this argument will likely change to allow selecting the GPU on
-systems with more than one. In short, please leave this argument
-alone unless you're developing dust.}
+\item{\code{device}}{Logical, indicating if the model should be run on
+the GPU device. See \verb{$run()} for more information.}
 
 \item{\code{deterministic}}{Run random number generation deterministically,
 replacing a random number from some distribution with its
@@ -643,14 +633,8 @@ this function may be result in a different answer.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{device}}{\strong{Experimental!}: This argument may allow running on
-a GPU once support is finished, if the model supports it, and if
-the model is compiled appropriately (and assuming you have a
-suitable GPU). At present it exists for testing and will run
-slower than running with \code{device = FALSE}. The interpretation of
-this argument will likely change to allow selecting the GPU on
-systems with more than one. In short, please leave this argument
-alone unless you're developing dust.}
+\item{\code{device}}{Logical, indicating if the model should be run on
+the GPU device. See \verb{$run()} for more information.}
 }
 \if{html}{\out{</div>}}
 }
@@ -687,14 +671,8 @@ match steps given in the \code{data} object. The return value with be
 a multidimensional array (\verb{state x <shape> x step_snapshot})
 containing full state values at the requested steps.}
 
-\item{\code{device}}{\strong{Experimental!}: This argument may allow running on
-a GPU once support is finished, if the model supports it, and if
-the model is compiled appropriately (and assuming you have a
-suitable GPU). At present it exists for testing and will run
-slower than running with \code{device = FALSE}. The interpretation of
-this argument will likely change to allow selecting the GPU on
-systems with more than one. In short, please leave this argument
-alone unless you're developing dust.}
+\item{\code{device}}{Logical, indicating if the model should be run on
+the GPU device. See \verb{$run()} for more information.}
 }
 \if{html}{\out{</div>}}
 }
@@ -703,7 +681,7 @@ alone unless you're developing dust.}
 \if{html}{\out{<a id="method-device_info"></a>}}
 \if{latex}{\out{\hypertarget{method-device_info}{}}}
 \subsection{Method \code{device_info()}}{
-\strong{Experimental!} Return information about GPU devices, if the model
+Return information about GPU devices, if the model
 has been compiled with CUDA/GPU support. This can be called as a
 static method by running \code{dust_generator$public_methods$device_info()}.
 If run from a GPU enabled object, it will also have an element
