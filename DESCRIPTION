@@ -6,7 +6,6 @@ Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
              person("John", "Lees", role = "aut"),
              person("Imperial College of Science, Technology and Medicine",
                     role = "cph"))
-
 Description: An Engine for simulation of stochastic models. Includes
     support for running stochastic models in parallel, either with
     shared or varying parameters. Simulations are run efficiently in
