@@ -32,7 +32,7 @@ There are further vignettes describing details:
 
 ## Higher-level
 
-The `dust` package, while designed to be user-friendly, is lower-level than many users need. The [`odin.dust`](https://mrc-ide.github.io/odin.dust) package provides a way of compiling stochastic [`odin`](https://mrc-ide.github.io/odin) models to work with `dust`.  For example, to create a parallel epidemiological model, one might write simply:
+The `dust` package, while designed to be user-friendly, is lower-level than many users need. The [`odin.dust`](https://mrc-ide.github.io/odin.dust/) package provides a way of compiling stochastic [`odin`](https://mrc-ide.github.io/odin/) models to work with `dust`.  For example, to create a parallel epidemiological model, one might write simply:
 
 ```r
 sir <- odin.dust::odin_dust({

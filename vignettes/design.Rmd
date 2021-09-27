@@ -72,7 +72,7 @@ that would draw the 10 numbers in parallel rather than in series. When drawing a
 
 As such it makes sense (to us at least) to store the state of each stream's random number generator separately, so if we have `n` particles within a `dust` object we have `n` separate streams, and we might think of the model state as being the state that is declared by the user as a vector of doubles alongside the random number state. During each model step, the model state is updated and so is the random number state.
 
-This might seem wasteful, and if we used the popular [Mersenne Twister](https://en.wikipedia.org/wiki/Mersenne_Twister) it would be to some degree as each particle would require 2560 bytes of additional state. In contrast the newer [xoshiro](http://prng.di.unimi.it/) generators that we use require only 256 bytes of state; the same as 4 double-precision floating point numbers. So for any nontrivial simulation it's not a very large overhead.
+This might seem wasteful, and if we used the popular [Mersenne Twister](https://en.wikipedia.org/wiki/Mersenne_Twister) it would be to some degree as each particle would require 2560 bytes of additional state. In contrast the newer [xoshiro](https://prng.di.unimi.it/) generators that we use require only 256 bytes of state; the same as 4 double-precision floating point numbers. So for any nontrivial simulation it's not a very large overhead.
 
 Setting the seed for these runs is not trivial, particularly as the number of simultaneous particles increase. If you've used random numbers with the [future](https://cran.r-project.org/package=future) package you may have seen it raise a warning if you do not configure it to use a "L'Ecuyer-CMRG" which adapts R's native random number seeds to be safe in parallel.
 
