@@ -1,4 +1,5 @@
 test_that("Basic interface use", {
+  skip_for_compilation()
   filename <- dust_file("examples/walk.cpp")
   res <- dust(filename, quiet = TRUE)
   expect_s3_class(res, "dust_generator")
@@ -91,6 +92,7 @@ test_that("dust_workdir will error if path is not a directory", {
 
 
 test_that("validate interface", {
+  skip_for_compilation()
   res <- dust(dust_file("examples/walk.cpp"), quiet = TRUE)
   cmp <- dust_generator
 
@@ -174,6 +176,7 @@ test_that("set rng state", {
 
 
 test_that("setting a named index returns names", {
+  skip_for_compilation()
   res <- dust(dust_file("examples/sirs.cpp"), quiet = TRUE)
   mod <- res$new(list(), 0, 10)
 
@@ -290,6 +293,7 @@ test_that("step must be nonnegative", {
 
 
 test_that("Can get parameters from generators", {
+  skip_for_compilation()
   res <- dust(dust_file("examples/sirs.cpp"), quiet = TRUE)
   expect_s3_class(res, "dust_generator")
   expect_equal(coef(res), parse_metadata(dust_file("examples/sirs.cpp"))$param)

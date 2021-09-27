@@ -243,6 +243,7 @@ test_that("validate reorder vector is in correct range", {
 
 
 test_that("run in float mode", {
+  skip_for_compilation()
   res_d <- dust_example("walk")
   res_f <- dust(dust_file("examples/walk.cpp"), real_t = "float", quiet = TRUE)
 
@@ -275,6 +276,7 @@ test_that("reset changes info", {
 
 
 test_that("Basic threading test", {
+  skip_for_compilation()
   res <- dust(dust_file("examples/parallel.cpp"), quiet = TRUE)
 
   obj <- res$new(list(sd = 1), 0, 10, n_threads = 2L, seed = 1L)
