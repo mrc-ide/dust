@@ -1,3 +1,7 @@
+# dust 0.9.18
+
+* New function `dust::dust_generate` for creating a mini-package from a dust model for inspection or later loading (#204)
+
 # dust 0.9.14
 
 * Add two new vignettes covering model/data comparison and use on GPUs; see `vignette("data")` and `vignette("cuda")` (#183, #229)
