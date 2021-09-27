@@ -35,6 +35,9 @@ are much slower). For CPU models decreasing precision of your
 real type will typically just decrease precision for no
 additional performance.}
 }
+\value{
+A \link{dust_generator} object based on your source files
+}
 \description{
 Create a dust model from a C++ input file.  This function will
 compile the dust support around your model and return an object

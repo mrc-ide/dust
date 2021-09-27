@@ -10,9 +10,28 @@ dust_openmp_support(check_compile = FALSE)
 \item{check_compile}{Logical, indicating if we should check if we
 can compile an openmp program - this is slow the first time.}
 }
+\value{
+A list with information about the openmp support on your
+system.
+\itemize{
+\item The first few elements come from the openmp library directly:
+\code{num_proc}, \code{max_threads}, \code{thread_limit}; these correspond to a
+call to the function \verb{omp_get_<name>()} in C and
+\code{openmp_version} which is the value of the \verb{_OPENMP} macro.
+\item A logical \code{has_openmp} which is \code{TRUE} if it looks like runtime
+OpenMP support is available
+\item The next elements tell you about different sources that might
+control the number of threads allowed to run: \code{mc.cores} (from
+the R option with the same name), \code{OMP_THREAD_LIMIT},
+\code{OMP_NUM_THREADS}, \code{MC_CORES} (from environment variables),
+\code{limit_r} (limit computed against R-related control variables),
+\code{limit_openmp} (limit computed against OpenMP-related variables)
+and \code{limit} the smaller of \code{limit_r} and \code{limit_openmp}
+}
+}
 \description{
 Return information about OpenMP support for this system.  For
-individual models look at the \verb{$has_openmp()} method
+individual models look at the \verb{$has_openmp()} method.
 }
 \examples{
 # System wide support

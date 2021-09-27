@@ -181,6 +181,7 @@
 ##' @seealso [dust_generator] for a description of the class of created
 ##'   objects, and [dust::dust_example()] for some pre-built examples.
 ##'
+##' @return A [dust_generator] object based on your source files
 ##' @export
 ##' @examples
 ##'

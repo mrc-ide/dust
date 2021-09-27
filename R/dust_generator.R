@@ -20,6 +20,8 @@
 ##'   see [dust::dust] and to interact with some built-in ones see
 ##'   [dust::dust_example()]
 ##'
+##' @return A `dust_generator` object
+##'
 ##' @examples
 ##' # An example dust object from the package:
 ##' walk <- dust::dust_example("walk")
