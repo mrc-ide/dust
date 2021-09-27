@@ -22,3 +22,4 @@
 ^\.github$
 \.*gcov$
 ^vignettes_src$
+^developing\.md$
