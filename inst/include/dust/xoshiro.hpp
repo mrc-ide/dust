@@ -7,8 +7,8 @@
 
 #include <dust/cuda/cuda.hpp>
 
-// This is derived from http://prng.di.unimi.it/xoshiro256starstar.c
-// and http://prng.di.unimi.it/splitmix64.c, copies of which are
+// This is derived from https://prng.di.unimi.it/xoshiro256starstar.c
+// and https://prng.di.unimi.it/splitmix64.c, copies of which are
 // included in the package (in inst/rng in the source package). The
 // original code is CC0 licenced but was written by David Blackman and
 // Sebastiano Vigna.

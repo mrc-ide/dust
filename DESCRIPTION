@@ -6,8 +6,16 @@ Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
              person("John", "Lees", role = "aut"),
              person("Imperial College of Science, Technology and Medicine",
                     role = "cph"))
-Description: Fast and simple iteration of stochastic models. Designed
-    to work as a component of a particle filter.
+Description: An Engine for simulation of stochastic models. Includes
+    support for running stochastic models in parallel, either with
+    shared or varying parameters. Simulations are run efficiently in
+    compiled code and can be run with a fraction of simulated states
+    returned to R, allowing control over memory usage. Support is
+    provided for building bootstrap particle filter for performing
+    Sequential Monte Carlo (e.g., Del Moral 1997
+    <doi:10.1016/S0764-4442(97)84778-7>). The core of the engine is
+    the 'xoshiro256**' algorithm (Blackman and Vigna
+    <arXiv:1805.01407>)
 URL: https://github.com/mrc-ide/dust
 BugReports: https://github.com/mrc-ide/dust/issues
 SystemRequirements: C++11
