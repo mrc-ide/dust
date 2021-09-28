@@ -1,8 +1,6 @@
-context("openmp")
-
 test_that("dust_openmp_info contains expected fields", {
   info <- dust_openmp_support()
-  expect_is(info, "list")
+  expect_type(info, "list")
   nms <- c("num_procs", "max_threads", "thread_limit", "openmp_version",
            "has_openmp", "mc.cores", "OMP_THREAD_LIMIT", "OMP_NUM_THREADS",
            "MC_CORES", "limit_r", "limit_openmp", "limit")
@@ -11,6 +9,7 @@ test_that("dust_openmp_info contains expected fields", {
 
 
 test_that("dust_openmp_info contains expected fields", {
+  skip_on_cran()
   info1 <- dust_openmp_support()
   info2 <- dust_openmp_support(TRUE)
   expect_equal(
@@ -29,16 +28,16 @@ test_that("check limit", {
     "Requested number of threads '10' exceeds a limit of '2'")
 
   expect_message(
-    openmp_check_limit(10, 2, "message"),
+    res <- openmp_check_limit(10, 2, "message"),
     "Requested number of threads '10' exceeds a limit of '2'")
   expect_equal(
-    openmp_check_limit(10, 2, "message"), 10)
+    res, 10)
 
   expect_message(
-    openmp_check_limit(10, 2, "fix"),
+    res <- openmp_check_limit(10, 2, "fix"),
     "Requested number of threads '10' exceeds a limit of '2'")
   expect_equal(
-    openmp_check_limit(10, 2, "fix"), 2)
+    res, 2)
 
   expect_error(
     openmp_check_limit(10, 2, "increase"),
@@ -52,9 +51,8 @@ test_that("limit is 1 if openmp not supported", {
     list(num_procs = NA_integer_, max_threads = NA_integer_,
          thread_limit = NA_integer_,  openmp_version = NA_integer_,
          has_openmp = FALSE))
-  res <- with_mock(
-    "dust:::cpp_openmp_info" = mock_info,
-    openmp_info())
+  mockery::stub(openmp_info, "cpp_openmp_info", mock_info)
+  res <- openmp_info()
 
   mockery::expect_called(mock_info, 1L)
   expect_equal(res$limit, 1)
@@ -68,11 +66,10 @@ test_that("limit is more than 1 if openmp supported", {
     list(num_procs = 8L, max_threads = 8L,
          thread_limit = 1024L, openmp_version = 201511L,
          has_openmp = TRUE))
+  mockery::stub(openmp_info, "cpp_openmp_info", mock_info)
   res <- withr::with_options(
     list(mc.cores = 4),
-    with_mock(
-      "dust:::cpp_openmp_info" = mock_info,
-      openmp_info()))
+    openmp_info())
   mockery::expect_called(mock_info, 1L)
   expect_equal(res$limit, 4)
   expect_equal(res$limit_openmp, 8L)
@@ -103,9 +100,8 @@ test_that("detect compilation failure", {
   skip_if_not_installed("mockery")
   mock_dust <- mockery::mock(
     stop("compilation failed!"))
-  with_mock(
-    "dust::dust" = mock_dust,
-    expect_false(has_openmp_compiler_test()))
+  mockery::stub(has_openmp_compiler_test, "dust", mock_dust)
+  expect_false(has_openmp_compiler_test())
 })
 
 
@@ -117,10 +113,8 @@ test_that("detect compilation success, no support", {
                   initialize = function(...) NULL,
                   run = function(...) NULL,
                   state = function(...) mock_state(...))))
-
-  with_mock(
-    "dust::dust" = mock_dust,
-    expect_false(has_openmp_compiler_test()))
+  mockery::stub(has_openmp_compiler_test, "dust", mock_dust)
+  expect_false(has_openmp_compiler_test())
   mockery::expect_called(mock_state, 1L)
   expect_equal(mockery::mock_args(mock_state)[[1]], list(2L))
 })
@@ -134,10 +128,8 @@ test_that("detect compilation success, with support", {
                   initialize = function(...) NULL,
                   run = function(...) NULL,
                   state = function(...) mock_state(...))))
-
-  with_mock(
-    "dust::dust" = mock_dust,
-    expect_true(has_openmp_compiler_test()))
+  mockery::stub(has_openmp_compiler_test, "dust", mock_dust)
+  expect_true(has_openmp_compiler_test())
   mockery::expect_called(mock_state, 1L)
   expect_equal(mockery::mock_args(mock_state)[[1]], list(2L))
 })
@@ -148,10 +140,10 @@ test_that("dust_openmp_threads interface works", {
     dust_openmp_threads(NULL),
     dust_openmp_support()$limit)
   expect_equal(
-    dust_openmp_threads(1000, action = "message"),
+    suppressMessages(dust_openmp_threads(1000, action = "message")),
     1000)
   expect_equal(
-    dust_openmp_threads(1000, action = "fix"),
+    suppressMessages(dust_openmp_threads(1000, action = "fix")),
     dust_openmp_support()$limit)
   expect_equal(
     dust_openmp_threads(1, action = "error"),

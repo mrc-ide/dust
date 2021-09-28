@@ -1,5 +1,3 @@
-context("densities")
-
 ## This one is the easiest:
 test_that("dpois agrees", {
   lambda <- rexp(50)

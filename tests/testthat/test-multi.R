@@ -1,5 +1,3 @@
-context("multi")
-
 test_that("create trivial multi dust object", {
   res <- dust_example("walk")
   obj1 <- res$new(list(sd = 1), 0, 10, seed = 1L, pars_multi = FALSE)

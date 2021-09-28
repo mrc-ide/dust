@@ -1,9 +1,7 @@
-context("data")
-
 test_that("Can construct dust_data", {
   d <- data.frame(step = seq(0, 50, by = 10), a = runif(6), b = runif(6))
   res <- dust_data(d)
-  expect_is(res, "list")
+  expect_type(res, "list")
   expect_null(names(res))
   expect_length(res, 6)
   expect_equal(lengths(res), rep(2, 6))
@@ -47,7 +45,7 @@ test_that("multiple data, shared", {
   d <- data.frame(step = seq(0, 50, by = 10), a = runif(6), b = runif(6))
   res <- dust_data(d, multi = 3L)
 
-  expect_is(res, "list")
+  expect_type(res, "list")
   expect_null(names(res))
   expect_length(res, 6)
   expect_equal(lengths(res), rep(4, 6))
@@ -62,7 +60,7 @@ test_that("multiple data, different", {
                   a = runif(18), b = runif(18))
 
   res <- dust_data(d, multi = "group")
-  expect_is(res, "list")
+  expect_type(res, "list")
   expect_length(res, 6)
   expect_equal(lengths(res), rep(4, 6))
   expect_identical(lapply(res, "[[", 1), list(0L, 10L, 20L, 30L, 40L, 50L))

@@ -1,11 +1,10 @@
-context("interface")
-
 test_that("Basic interface use", {
+  skip_for_compilation()
   filename <- dust_file("examples/walk.cpp")
   res <- dust(filename, quiet = TRUE)
-  expect_is(res, "dust_generator")
+  expect_s3_class(res, "dust_generator")
   obj <- res$new(list(sd = 1), 0L, 100L)
-  expect_is(obj, "dust")
+  expect_s3_class(obj, "dust")
 })
 
 
@@ -14,9 +13,9 @@ test_that("Interface passes arguments as expected", {
   filename <- dust_file("examples/walk.cpp")
   mock_compile_and_load <- mockery::mock(NULL)
   workdir <- tempfile()
-  with_mock(
-    "dust::compile_and_load" = mock_compile_and_load,
-    dust(filename, TRUE, workdir))
+
+  mockery::stub(dust, "compile_and_load", mock_compile_and_load)
+  dust(filename, TRUE, workdir)
 
   mockery::expect_called(mock_compile_and_load, 1L)
   expect_equal(
@@ -93,6 +92,7 @@ test_that("dust_workdir will error if path is not a directory", {
 
 
 test_that("validate interface", {
+  skip_for_compilation()
   res <- dust(dust_file("examples/walk.cpp"), quiet = TRUE)
   cmp <- dust_generator
 
@@ -176,6 +176,7 @@ test_that("set rng state", {
 
 
 test_that("setting a named index returns names", {
+  skip_for_compilation()
   res <- dust(dust_file("examples/sirs.cpp"), quiet = TRUE)
   mod <- res$new(list(), 0, 10)
 
@@ -292,6 +293,7 @@ test_that("step must be nonnegative", {
 
 
 test_that("Can get parameters from generators", {
+  skip_for_compilation()
   res <- dust(dust_file("examples/sirs.cpp"), quiet = TRUE)
   expect_s3_class(res, "dust_generator")
   expect_equal(coef(res), parse_metadata(dust_file("examples/sirs.cpp"))$param)
@@ -364,9 +366,9 @@ test_that("create temporary package", {
     read.dcf(file.path(path, "DESCRIPTION"))[, "Package"],
     "^walk[[:xdigit:]]{8}$")
   pkg <- pkgload::load_all(path, quiet = TRUE, export_all = FALSE)
-  expect_is(pkg$env$walk, "dust_generator")
+  expect_s3_class(pkg$env$walk, "dust_generator")
   obj <- pkg$env$walk$new(list(sd = 1), 0L, 100L)
-  expect_is(obj, "dust")
+  expect_s3_class(obj, "dust")
 })
 
 

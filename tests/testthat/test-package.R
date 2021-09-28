@@ -1,5 +1,3 @@
-context("package")
-
 test_that("validate package", {
   skip_if_not_installed("pkgload")
   skip_on_cran()
@@ -9,7 +7,7 @@ test_that("validate package", {
   file.remove(file.path(path, "R"))
   file.remove(file.path(path, "src"))
 
-  path <- dust_package(path)
+  path <- dust_package(path, quiet = TRUE)
   expect_false(any(grepl("##'", readLines(file.path(path, "R", "dust.R")))))
 
   expect_true(file.exists(file.path(path, "src/Makevars")))
@@ -18,7 +16,7 @@ test_that("validate package", {
     readLines(dust_file("template/Makevars.pkg")))
 
   pkgbuild::compile_dll(path, quiet = TRUE)
-  res <- pkgload::load_all(path)
+  res <- pkgload::load_all(path, quiet = TRUE)
   w <- res$env$walk$new(list(sd = 1), 0, 100)
   expect_equal(w$state(), matrix(0, 1, 100))
 
