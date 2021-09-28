@@ -178,8 +178,16 @@
 ##'   real type will typically just decrease precision for no
 ##'   additional performance.
 ##'
-##' @seealso [`dust::dust_generator`] for a description of the class of created
-##'   objects, and [dust::dust_example()] for some pre-built examples.
+##' @param skip_cache Logical, indicating if the cache of previously
+##'   compiled moels should be skipped. If `TRUE` then your model will
+##'   not be looked for in the cache, nor will it be added to the
+##'   cache after compilation.
+##'
+##' @seealso [`dust::dust_generator`] for a description of the class
+##'   of created objects, and [dust::dust_example()] for some
+##'   pre-built examples. If you want to just generate the code and
+##'   load it yourself with `pkgload::load_all` or some other means,
+##'   see [`dust::dust_generate`])
 ##'
 ##' @return A [`dust::dust_generator`] object based on your source files
 ##' @export
@@ -220,12 +228,57 @@
 ##' # See the state again
 ##' obj$state()
 dust <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
-                 real_t = NULL) {
+                 real_t = NULL, skip_cache = FALSE) {
+  filename <- dust_prepare(filename, real_t)
+  compile_and_load(filename, quiet, workdir, cuda_check(gpu),
+                   skip_cache)
+}
+
+
+##' Generate a package out of a dust model. The resulting package can
+##' be installed or loaded via `pkgload::load_all()` though it
+##' contains minimal metadata and if you want to create a persistant
+##' package you should use [dust::dust_package()].  This function is
+##' intended for cases where you either want to inspect the code or
+##' generate it once and load multiple times (useful in some workflows
+##' with CUDA models).
+##'
+##' @title Generate dust code
+##'
+##' @inheritParams dust
+##'
+##' @param mangle Logical, indicating if the model name should be
+##'   mangled when creating the package. This is safer if you will
+##'   load multiple copies of the package into a single session, but
+##'   is `FALSE` by default as the generated code is easier to read.
+##'
+##' @return The path to the generated package (will be `workdir` if
+##'   that was provided, otherwise a temporary directory).
+##'
+##' @export
+##' @examples
+##' filename <- system.file("examples/walk.cpp", package = "dust")
+##' path <- dust::dust_generate(filename)
+##'
+##' # Simple package created:
+##' dir(path)
+##' dir(file.path(path, "R"))
+##' dir(file.path(path, "src"))
+dust_generate <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
+                          real_t = NULL, mangle = FALSE) {
+  filename <- dust_prepare(filename, real_t)
+  res <- generate_dust(filename, quiet, workdir, cuda_check(gpu), TRUE, mangle)
+  cpp11::cpp_register(res$path, quiet = quiet)
+  res$path
+}
+
+
+dust_prepare <- function(filename, real_t) {
   assert_file_exists(filename)
   if (!is.null(real_t)) {
     filename <- dust_rewrite_real(filename, real_t)
   }
-  compile_and_load(filename, quiet, workdir, cuda_check(gpu))
+  filename
 }
 
 

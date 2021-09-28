@@ -4,7 +4,14 @@
 \alias{dust}
 \title{Create a dust model from a C++ input file}
 \usage{
-dust(filename, quiet = FALSE, workdir = NULL, gpu = FALSE, real_t = NULL)
+dust(
+  filename,
+  quiet = FALSE,
+  workdir = NULL,
+  gpu = FALSE,
+  real_t = NULL,
+  skip_cache = FALSE
+)
 }
 \arguments{
 \item{filename}{The path to a single C++ file}
@@ -34,6 +41,11 @@ that will use 32 bit \code{floats} (rather than 64 bit doubles, which
 are much slower). For CPU models decreasing precision of your
 real type will typically just decrease precision for no
 additional performance.}
+
+\item{skip_cache}{Logical, indicating if the cache of previously
+compiled moels should be skipped. If \code{TRUE} then your model will
+not be looked for in the cache, nor will it be added to the
+cache after compilation.}
 }
 \value{
 A \code{\link{dust_generator}} object based on your source files
@@ -221,6 +233,9 @@ obj$reorder(sample(30, replace = TRUE))
 obj$state()
 }
 \seealso{
-\code{\link{dust_generator}} for a description of the class of created
-objects, and \code{\link[=dust_example]{dust_example()}} for some pre-built examples.
+\code{\link{dust_generator}} for a description of the class
+of created objects, and \code{\link[=dust_example]{dust_example()}} for some
+pre-built examples. If you want to just generate the code and
+load it yourself with \code{pkgload::load_all} or some other means,
+see \code{\link{dust_generate}})
 }

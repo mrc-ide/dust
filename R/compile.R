@@ -1,14 +1,17 @@
-generate_dust <- function(filename, quiet, workdir, cuda, cache) {
+generate_dust <- function(filename, quiet, workdir, cuda, skip_cache, mangle) {
   config <- parse_metadata(filename)
-  hash <- hash_file(filename)
-  base <- sprintf("%s%s", config$name, hash)
+  if (mangle) {
+    base <- sprintf("%s%s", config$name, hash_file(filename))
+  } else {
+    base <- config$name
+  }
   gpu <- isTRUE(cuda$has_cuda)
   if (gpu) {
     base <- paste0(base, "gpu")
   }
 
-  if (base %in% names(cache$models)) {
-    return(cache$models[[base]])
+  if (cache$models$has_key(base, skip_cache)) {
+    return(cache$models$get(base, skip_cache))
   }
 
   model <- read_lines(filename)
@@ -49,14 +52,14 @@ generate_dust <- function(filename, quiet, workdir, cuda, cache) {
   writeLines(drop_roxygen(dust_r), file.path(path, "R/dust.R"))
 
   res <- list(key = base, gpu = gpu, data = data, path = path)
-  cache$models[[base]] <- res
+  cache$models$set(base, res, skip_cache)
   res
 }
 
 
 compile_and_load <- function(filename, quiet = FALSE, workdir = NULL,
-                             cuda = NULL) {
-  res <- generate_dust(filename, quiet, workdir, cuda, cache)
+                             cuda = NULL, skip_cache = FALSE) {
+  res <- generate_dust(filename, quiet, workdir, cuda, skip_cache, TRUE)
 
   if (is.null(res$env)) {
     path <- res$path
@@ -74,7 +77,7 @@ compile_and_load <- function(filename, quiet = FALSE, workdir = NULL,
     res$env <- tmp$env
     res$gen <- res$env[[res$data$name]]
 
-    cache$models[[res$key]] <- res
+    cache$models$set(res$key, res, skip_cache)
   }
 
   res$gen

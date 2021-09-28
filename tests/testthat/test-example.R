@@ -321,6 +321,7 @@ test_that("Basic threading test", {
 ## This at least shows that on the second time round we don't compile
 ## and we get the right data out.
 test_that("cache hits do not compile", {
+  skip_on_cran()
   cmp <- dust(dust_file("examples/walk.cpp"), quiet = TRUE)
 
   mock <- mockery::mock()

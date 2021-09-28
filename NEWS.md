@@ -1,3 +1,8 @@
+# dust 0.9.18
+
+* New function `dust::dust_generate` for creating a mini-package from a dust model for inspection or later loading (#204)
+* New option to `dust::dust` to skip the model cache, which may be useful when compiling with (say) different GPU options (#248)
+
 # dust 0.9.14
 
 * Add two new vignettes covering model/data comparison and use on GPUs; see `vignette("data")` and `vignette("cuda")` (#183, #229)
