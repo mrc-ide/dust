@@ -8,8 +8,12 @@ dust_dnorm <- function(x, mu, sd, log) {
   .Call(`_dust_dust_dnorm`, x, mu, sd, log)
 }
 
-dust_dnbinom <- function(x, size, mu, log, is_float) {
-  .Call(`_dust_dust_dnbinom`, x, size, mu, log, is_float)
+dust_dnbinom_mu <- function(x, size, mu, log, is_float) {
+  .Call(`_dust_dust_dnbinom_mu`, x, size, mu, log, is_float)
+}
+
+dust_dnbinom_prob <- function(x, size, prob, log) {
+  .Call(`_dust_dust_dnbinom_prob`, x, size, prob, log)
 }
 
 dust_dbetabinom <- function(x, size, prob, rho, log) {
