@@ -251,8 +251,9 @@
     ##' different values, then this would run up to the largest step
     ##' deterministically (see `$run()` for more details).
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      dust_{{name}}_set_state(private$ptr_, state, step, deterministic)
-      invisible()
+      .Deprecated("update_state(NULL, state, step)",
+                  old = "set_state(state, step)")
+      self$update_state(NULL, state, step, deterministic = deterministic)
     },
 
     ##' @description
@@ -261,9 +262,9 @@
     ##' @param pars New pars for the model (see constructor)
     ##' @param step New initial step for the model (see constructor)
     reset = function(pars, step) {
-      private$info_ <- dust_{{name}}_reset(private$ptr_, pars, step)
-      private$pars_ <- pars
-      invisible()
+      .Deprecated("$update_state(pars, NULL, step)",
+                  old = "$reset(pars, step)")
+      self$update_state(pars, NULL, step)
     },
 
     ##' @description
@@ -274,8 +275,20 @@
     ##'
     ##' @param pars New pars for the model (see constructor)
     set_pars = function(pars) {
-      private$info_ <- dust_{{name}}_set_pars(private$ptr_, pars)
-      private$pars_ <- pars
+      .Deprecated("$update_state(pars, NULL, NULL)",
+                  old = "set_pars(pars)")
+      self$self$update_state(pars, NULL, NULL)
+    },
+
+    update_state = function(pars, state, step, set_state = is.null(state),
+                            deterministic = FALSE) {
+      info <- dust_{{name}}_update_state(private$ptr_, pars, state, step,
+                                         set_state, deterministic)
+      if (!is.null(pars)) {
+        private$info_ <- info
+        private$pars_ <- pars
+      }
+      invisible()
     },
 
     ##' @description

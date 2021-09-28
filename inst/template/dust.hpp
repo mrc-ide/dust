@@ -1,3 +1,4 @@
+/// IMPORTANT; changes here must be reflected into inst/template/dust.hpp
 #include <cpp11.hpp>
 [[cpp11::register]]
 SEXP dust_{{name}}_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
@@ -16,11 +17,8 @@ SEXP dust_{{name}}_simulate(SEXP ptr, cpp11::sexp step_end, bool device,
 SEXP dust_{{name}}_set_index(SEXP ptr, cpp11::sexp r_index);
 
 [[cpp11::register]]
-SEXP dust_{{name}}_set_state(SEXP ptr, SEXP r_state, SEXP r_step,
-                             bool deterministic);
-
-[[cpp11::register]]
-SEXP dust_{{name}}_reset(SEXP ptr, cpp11::list r_pars, size_t step);
+SEXP dust_{{name}}_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
+                                bool set_state, bool deterministic);
 
 [[cpp11::register]]
 SEXP dust_{{name}}_state(SEXP ptr, SEXP r_index);
@@ -33,9 +31,6 @@ void dust_{{name}}_reorder(SEXP ptr, cpp11::sexp r_index);
 
 [[cpp11::register]]
 SEXP dust_{{name}}_resample(SEXP ptr, cpp11::doubles r_weights);
-
-[[cpp11::register]]
-SEXP dust_{{name}}_set_pars(SEXP ptr, cpp11::list r_pars);
 
 [[cpp11::register]]
 SEXP dust_{{name}}_rng_state(SEXP ptr, bool first_only, bool last_only);

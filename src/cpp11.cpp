@@ -169,17 +169,10 @@ extern "C" SEXP _dust_dust_sir_set_index(SEXP ptr, SEXP r_index) {
   END_CPP11
 }
 // sir.cpp
-SEXP dust_sir_set_state(SEXP ptr, SEXP r_state, SEXP r_step, bool deterministic);
-extern "C" SEXP _dust_dust_sir_set_state(SEXP ptr, SEXP r_state, SEXP r_step, SEXP deterministic) {
+SEXP dust_sir_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, bool set_state, bool deterministic);
+extern "C" SEXP _dust_dust_sir_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP set_state, SEXP deterministic) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_sir_set_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
-  END_CPP11
-}
-// sir.cpp
-SEXP dust_sir_reset(SEXP ptr, cpp11::list r_pars, size_t step);
-extern "C" SEXP _dust_dust_sir_reset(SEXP ptr, SEXP r_pars, SEXP step) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_sir_reset(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<size_t>>(step)));
+    return cpp11::as_sexp(dust_sir_update_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_pars), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<bool>>(set_state), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
   END_CPP11
 }
 // sir.cpp
@@ -209,13 +202,6 @@ SEXP dust_sir_resample(SEXP ptr, cpp11::doubles r_weights);
 extern "C" SEXP _dust_dust_sir_resample(SEXP ptr, SEXP r_weights) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_sir_resample(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_weights)));
-  END_CPP11
-}
-// sir.cpp
-SEXP dust_sir_set_pars(SEXP ptr, cpp11::list r_pars);
-extern "C" SEXP _dust_dust_sir_set_pars(SEXP ptr, SEXP r_pars) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_sir_set_pars(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars)));
   END_CPP11
 }
 // sir.cpp
@@ -311,17 +297,10 @@ extern "C" SEXP _dust_dust_sirs_set_index(SEXP ptr, SEXP r_index) {
   END_CPP11
 }
 // sirs.cpp
-SEXP dust_sirs_set_state(SEXP ptr, SEXP r_state, SEXP r_step, bool deterministic);
-extern "C" SEXP _dust_dust_sirs_set_state(SEXP ptr, SEXP r_state, SEXP r_step, SEXP deterministic) {
+SEXP dust_sirs_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, bool set_state, bool deterministic);
+extern "C" SEXP _dust_dust_sirs_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP set_state, SEXP deterministic) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_sirs_set_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
-  END_CPP11
-}
-// sirs.cpp
-SEXP dust_sirs_reset(SEXP ptr, cpp11::list r_pars, size_t step);
-extern "C" SEXP _dust_dust_sirs_reset(SEXP ptr, SEXP r_pars, SEXP step) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_sirs_reset(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<size_t>>(step)));
+    return cpp11::as_sexp(dust_sirs_update_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_pars), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<bool>>(set_state), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
   END_CPP11
 }
 // sirs.cpp
@@ -351,13 +330,6 @@ SEXP dust_sirs_resample(SEXP ptr, cpp11::doubles r_weights);
 extern "C" SEXP _dust_dust_sirs_resample(SEXP ptr, SEXP r_weights) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_sirs_resample(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_weights)));
-  END_CPP11
-}
-// sirs.cpp
-SEXP dust_sirs_set_pars(SEXP ptr, cpp11::list r_pars);
-extern "C" SEXP _dust_dust_sirs_set_pars(SEXP ptr, SEXP r_pars) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_sirs_set_pars(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars)));
   END_CPP11
 }
 // sirs.cpp
@@ -467,17 +439,10 @@ extern "C" SEXP _dust_dust_variable_set_index(SEXP ptr, SEXP r_index) {
   END_CPP11
 }
 // variable.cpp
-SEXP dust_variable_set_state(SEXP ptr, SEXP r_state, SEXP r_step, bool deterministic);
-extern "C" SEXP _dust_dust_variable_set_state(SEXP ptr, SEXP r_state, SEXP r_step, SEXP deterministic) {
+SEXP dust_variable_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, bool set_state, bool deterministic);
+extern "C" SEXP _dust_dust_variable_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP set_state, SEXP deterministic) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_variable_set_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
-  END_CPP11
-}
-// variable.cpp
-SEXP dust_variable_reset(SEXP ptr, cpp11::list r_pars, size_t step);
-extern "C" SEXP _dust_dust_variable_reset(SEXP ptr, SEXP r_pars, SEXP step) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_variable_reset(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<size_t>>(step)));
+    return cpp11::as_sexp(dust_variable_update_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_pars), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<bool>>(set_state), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
   END_CPP11
 }
 // variable.cpp
@@ -507,13 +472,6 @@ SEXP dust_variable_resample(SEXP ptr, cpp11::doubles r_weights);
 extern "C" SEXP _dust_dust_variable_resample(SEXP ptr, SEXP r_weights) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_variable_resample(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_weights)));
-  END_CPP11
-}
-// variable.cpp
-SEXP dust_variable_set_pars(SEXP ptr, cpp11::list r_pars);
-extern "C" SEXP _dust_dust_variable_set_pars(SEXP ptr, SEXP r_pars) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_variable_set_pars(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars)));
   END_CPP11
 }
 // variable.cpp
@@ -609,17 +567,10 @@ extern "C" SEXP _dust_dust_volatility_set_index(SEXP ptr, SEXP r_index) {
   END_CPP11
 }
 // volatility.cpp
-SEXP dust_volatility_set_state(SEXP ptr, SEXP r_state, SEXP r_step, bool deterministic);
-extern "C" SEXP _dust_dust_volatility_set_state(SEXP ptr, SEXP r_state, SEXP r_step, SEXP deterministic) {
+SEXP dust_volatility_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, bool set_state, bool deterministic);
+extern "C" SEXP _dust_dust_volatility_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP set_state, SEXP deterministic) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_volatility_set_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
-  END_CPP11
-}
-// volatility.cpp
-SEXP dust_volatility_reset(SEXP ptr, cpp11::list r_pars, size_t step);
-extern "C" SEXP _dust_dust_volatility_reset(SEXP ptr, SEXP r_pars, SEXP step) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_volatility_reset(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<size_t>>(step)));
+    return cpp11::as_sexp(dust_volatility_update_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_pars), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<bool>>(set_state), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
   END_CPP11
 }
 // volatility.cpp
@@ -649,13 +600,6 @@ SEXP dust_volatility_resample(SEXP ptr, cpp11::doubles r_weights);
 extern "C" SEXP _dust_dust_volatility_resample(SEXP ptr, SEXP r_weights) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_volatility_resample(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_weights)));
-  END_CPP11
-}
-// volatility.cpp
-SEXP dust_volatility_set_pars(SEXP ptr, cpp11::list r_pars);
-extern "C" SEXP _dust_dust_volatility_set_pars(SEXP ptr, SEXP r_pars) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_volatility_set_pars(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars)));
   END_CPP11
 }
 // volatility.cpp
@@ -751,17 +695,10 @@ extern "C" SEXP _dust_dust_walk_set_index(SEXP ptr, SEXP r_index) {
   END_CPP11
 }
 // walk.cpp
-SEXP dust_walk_set_state(SEXP ptr, SEXP r_state, SEXP r_step, bool deterministic);
-extern "C" SEXP _dust_dust_walk_set_state(SEXP ptr, SEXP r_state, SEXP r_step, SEXP deterministic) {
+SEXP dust_walk_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, bool set_state, bool deterministic);
+extern "C" SEXP _dust_dust_walk_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP set_state, SEXP deterministic) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_walk_set_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
-  END_CPP11
-}
-// walk.cpp
-SEXP dust_walk_reset(SEXP ptr, cpp11::list r_pars, size_t step);
-extern "C" SEXP _dust_dust_walk_reset(SEXP ptr, SEXP r_pars, SEXP step) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_walk_reset(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<size_t>>(step)));
+    return cpp11::as_sexp(dust_walk_update_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_pars), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<bool>>(set_state), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
   END_CPP11
 }
 // walk.cpp
@@ -791,13 +728,6 @@ SEXP dust_walk_resample(SEXP ptr, cpp11::doubles r_weights);
 extern "C" SEXP _dust_dust_walk_resample(SEXP ptr, SEXP r_weights) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_walk_resample(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_weights)));
-  END_CPP11
-}
-// walk.cpp
-SEXP dust_walk_set_pars(SEXP ptr, cpp11::list r_pars);
-extern "C" SEXP _dust_dust_walk_set_pars(SEXP ptr, SEXP r_pars) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_walk_set_pars(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars)));
   END_CPP11
 }
 // walk.cpp
@@ -895,18 +825,16 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_sir_n_state",              (DL_FUNC) &_dust_dust_sir_n_state,              1},
     {"_dust_dust_sir_reorder",              (DL_FUNC) &_dust_dust_sir_reorder,              2},
     {"_dust_dust_sir_resample",             (DL_FUNC) &_dust_dust_sir_resample,             2},
-    {"_dust_dust_sir_reset",                (DL_FUNC) &_dust_dust_sir_reset,                3},
     {"_dust_dust_sir_rng_state",            (DL_FUNC) &_dust_dust_sir_rng_state,            3},
     {"_dust_dust_sir_run",                  (DL_FUNC) &_dust_dust_sir_run,                  4},
     {"_dust_dust_sir_set_data",             (DL_FUNC) &_dust_dust_sir_set_data,             2},
     {"_dust_dust_sir_set_index",            (DL_FUNC) &_dust_dust_sir_set_index,            2},
     {"_dust_dust_sir_set_n_threads",        (DL_FUNC) &_dust_dust_sir_set_n_threads,        2},
-    {"_dust_dust_sir_set_pars",             (DL_FUNC) &_dust_dust_sir_set_pars,             2},
     {"_dust_dust_sir_set_rng_state",        (DL_FUNC) &_dust_dust_sir_set_rng_state,        2},
-    {"_dust_dust_sir_set_state",            (DL_FUNC) &_dust_dust_sir_set_state,            4},
     {"_dust_dust_sir_simulate",             (DL_FUNC) &_dust_dust_sir_simulate,             4},
     {"_dust_dust_sir_state",                (DL_FUNC) &_dust_dust_sir_state,                2},
     {"_dust_dust_sir_step",                 (DL_FUNC) &_dust_dust_sir_step,                 1},
+    {"_dust_dust_sir_update_state",         (DL_FUNC) &_dust_dust_sir_update_state,         6},
     {"_dust_dust_sirs_alloc",               (DL_FUNC) &_dust_dust_sirs_alloc,               7},
     {"_dust_dust_sirs_capabilities",        (DL_FUNC) &_dust_dust_sirs_capabilities,        0},
     {"_dust_dust_sirs_compare_data",        (DL_FUNC) &_dust_dust_sirs_compare_data,        2},
@@ -915,18 +843,16 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_sirs_n_state",             (DL_FUNC) &_dust_dust_sirs_n_state,             1},
     {"_dust_dust_sirs_reorder",             (DL_FUNC) &_dust_dust_sirs_reorder,             2},
     {"_dust_dust_sirs_resample",            (DL_FUNC) &_dust_dust_sirs_resample,            2},
-    {"_dust_dust_sirs_reset",               (DL_FUNC) &_dust_dust_sirs_reset,               3},
     {"_dust_dust_sirs_rng_state",           (DL_FUNC) &_dust_dust_sirs_rng_state,           3},
     {"_dust_dust_sirs_run",                 (DL_FUNC) &_dust_dust_sirs_run,                 4},
     {"_dust_dust_sirs_set_data",            (DL_FUNC) &_dust_dust_sirs_set_data,            2},
     {"_dust_dust_sirs_set_index",           (DL_FUNC) &_dust_dust_sirs_set_index,           2},
     {"_dust_dust_sirs_set_n_threads",       (DL_FUNC) &_dust_dust_sirs_set_n_threads,       2},
-    {"_dust_dust_sirs_set_pars",            (DL_FUNC) &_dust_dust_sirs_set_pars,            2},
     {"_dust_dust_sirs_set_rng_state",       (DL_FUNC) &_dust_dust_sirs_set_rng_state,       2},
-    {"_dust_dust_sirs_set_state",           (DL_FUNC) &_dust_dust_sirs_set_state,           4},
     {"_dust_dust_sirs_simulate",            (DL_FUNC) &_dust_dust_sirs_simulate,            4},
     {"_dust_dust_sirs_state",               (DL_FUNC) &_dust_dust_sirs_state,               2},
     {"_dust_dust_sirs_step",                (DL_FUNC) &_dust_dust_sirs_step,                1},
+    {"_dust_dust_sirs_update_state",        (DL_FUNC) &_dust_dust_sirs_update_state,        6},
     {"_dust_dust_variable_alloc",           (DL_FUNC) &_dust_dust_variable_alloc,           7},
     {"_dust_dust_variable_capabilities",    (DL_FUNC) &_dust_dust_variable_capabilities,    0},
     {"_dust_dust_variable_compare_data",    (DL_FUNC) &_dust_dust_variable_compare_data,    2},
@@ -935,18 +861,16 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_variable_n_state",         (DL_FUNC) &_dust_dust_variable_n_state,         1},
     {"_dust_dust_variable_reorder",         (DL_FUNC) &_dust_dust_variable_reorder,         2},
     {"_dust_dust_variable_resample",        (DL_FUNC) &_dust_dust_variable_resample,        2},
-    {"_dust_dust_variable_reset",           (DL_FUNC) &_dust_dust_variable_reset,           3},
     {"_dust_dust_variable_rng_state",       (DL_FUNC) &_dust_dust_variable_rng_state,       3},
     {"_dust_dust_variable_run",             (DL_FUNC) &_dust_dust_variable_run,             4},
     {"_dust_dust_variable_set_data",        (DL_FUNC) &_dust_dust_variable_set_data,        2},
     {"_dust_dust_variable_set_index",       (DL_FUNC) &_dust_dust_variable_set_index,       2},
     {"_dust_dust_variable_set_n_threads",   (DL_FUNC) &_dust_dust_variable_set_n_threads,   2},
-    {"_dust_dust_variable_set_pars",        (DL_FUNC) &_dust_dust_variable_set_pars,        2},
     {"_dust_dust_variable_set_rng_state",   (DL_FUNC) &_dust_dust_variable_set_rng_state,   2},
-    {"_dust_dust_variable_set_state",       (DL_FUNC) &_dust_dust_variable_set_state,       4},
     {"_dust_dust_variable_simulate",        (DL_FUNC) &_dust_dust_variable_simulate,        4},
     {"_dust_dust_variable_state",           (DL_FUNC) &_dust_dust_variable_state,           2},
     {"_dust_dust_variable_step",            (DL_FUNC) &_dust_dust_variable_step,            1},
+    {"_dust_dust_variable_update_state",    (DL_FUNC) &_dust_dust_variable_update_state,    6},
     {"_dust_dust_volatility_alloc",         (DL_FUNC) &_dust_dust_volatility_alloc,         7},
     {"_dust_dust_volatility_capabilities",  (DL_FUNC) &_dust_dust_volatility_capabilities,  0},
     {"_dust_dust_volatility_compare_data",  (DL_FUNC) &_dust_dust_volatility_compare_data,  2},
@@ -955,18 +879,16 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_volatility_n_state",       (DL_FUNC) &_dust_dust_volatility_n_state,       1},
     {"_dust_dust_volatility_reorder",       (DL_FUNC) &_dust_dust_volatility_reorder,       2},
     {"_dust_dust_volatility_resample",      (DL_FUNC) &_dust_dust_volatility_resample,      2},
-    {"_dust_dust_volatility_reset",         (DL_FUNC) &_dust_dust_volatility_reset,         3},
     {"_dust_dust_volatility_rng_state",     (DL_FUNC) &_dust_dust_volatility_rng_state,     3},
     {"_dust_dust_volatility_run",           (DL_FUNC) &_dust_dust_volatility_run,           4},
     {"_dust_dust_volatility_set_data",      (DL_FUNC) &_dust_dust_volatility_set_data,      2},
     {"_dust_dust_volatility_set_index",     (DL_FUNC) &_dust_dust_volatility_set_index,     2},
     {"_dust_dust_volatility_set_n_threads", (DL_FUNC) &_dust_dust_volatility_set_n_threads, 2},
-    {"_dust_dust_volatility_set_pars",      (DL_FUNC) &_dust_dust_volatility_set_pars,      2},
     {"_dust_dust_volatility_set_rng_state", (DL_FUNC) &_dust_dust_volatility_set_rng_state, 2},
-    {"_dust_dust_volatility_set_state",     (DL_FUNC) &_dust_dust_volatility_set_state,     4},
     {"_dust_dust_volatility_simulate",      (DL_FUNC) &_dust_dust_volatility_simulate,      4},
     {"_dust_dust_volatility_state",         (DL_FUNC) &_dust_dust_volatility_state,         2},
     {"_dust_dust_volatility_step",          (DL_FUNC) &_dust_dust_volatility_step,          1},
+    {"_dust_dust_volatility_update_state",  (DL_FUNC) &_dust_dust_volatility_update_state,  6},
     {"_dust_dust_walk_alloc",               (DL_FUNC) &_dust_dust_walk_alloc,               7},
     {"_dust_dust_walk_capabilities",        (DL_FUNC) &_dust_dust_walk_capabilities,        0},
     {"_dust_dust_walk_compare_data",        (DL_FUNC) &_dust_dust_walk_compare_data,        2},
@@ -975,18 +897,16 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_walk_n_state",             (DL_FUNC) &_dust_dust_walk_n_state,             1},
     {"_dust_dust_walk_reorder",             (DL_FUNC) &_dust_dust_walk_reorder,             2},
     {"_dust_dust_walk_resample",            (DL_FUNC) &_dust_dust_walk_resample,            2},
-    {"_dust_dust_walk_reset",               (DL_FUNC) &_dust_dust_walk_reset,               3},
     {"_dust_dust_walk_rng_state",           (DL_FUNC) &_dust_dust_walk_rng_state,           3},
     {"_dust_dust_walk_run",                 (DL_FUNC) &_dust_dust_walk_run,                 4},
     {"_dust_dust_walk_set_data",            (DL_FUNC) &_dust_dust_walk_set_data,            2},
     {"_dust_dust_walk_set_index",           (DL_FUNC) &_dust_dust_walk_set_index,           2},
     {"_dust_dust_walk_set_n_threads",       (DL_FUNC) &_dust_dust_walk_set_n_threads,       2},
-    {"_dust_dust_walk_set_pars",            (DL_FUNC) &_dust_dust_walk_set_pars,            2},
     {"_dust_dust_walk_set_rng_state",       (DL_FUNC) &_dust_dust_walk_set_rng_state,       2},
-    {"_dust_dust_walk_set_state",           (DL_FUNC) &_dust_dust_walk_set_state,           4},
     {"_dust_dust_walk_simulate",            (DL_FUNC) &_dust_dust_walk_simulate,            4},
     {"_dust_dust_walk_state",               (DL_FUNC) &_dust_dust_walk_state,               2},
     {"_dust_dust_walk_step",                (DL_FUNC) &_dust_dust_walk_step,                1},
+    {"_dust_dust_walk_update_state",        (DL_FUNC) &_dust_dust_walk_update_state,        6},
     {"_dust_test_cuda_pars",                (DL_FUNC) &_dust_test_cuda_pars,                9},
     {NULL, NULL, 0}
 };

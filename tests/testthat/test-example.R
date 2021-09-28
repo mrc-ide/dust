@@ -29,7 +29,10 @@ test_that("Reset particles and resume continues with rng", {
 
   y1 <- obj$run(5)
   expect_equal(obj$step(), 5)
+
   obj$reset(list(sd = sd2), 0)
+  ## obj$update_state(list(sd = sd2), NULL, 0, set_state = TRUE)
+
   expect_equal(obj$step(), 0)
   y2 <- obj$run(5)
   expect_equal(obj$step(), 5)
