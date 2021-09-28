@@ -1,3 +1,8 @@
+# dust 0.9.20
+
+* Change to the `dust::densities::dnbinom()` to offer both of the same
+parameterisations as R's `dnbinom`, explicitly as `dust::densities::dnbinom_mu()` and `dust::densities::dnbinom_prob()` (#171)
+
 # dust 0.9.18
 
 * New function `dust::dust_generate` for creating a mini-package from a dust model for inspection or later loading (#204)

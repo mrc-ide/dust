@@ -20,10 +20,17 @@ extern "C" SEXP _dust_dust_dnorm(SEXP x, SEXP mu, SEXP sd, SEXP log) {
   END_CPP11
 }
 // densities.cpp
-SEXP dust_dnbinom(cpp11::integers x, cpp11::doubles size, cpp11::doubles mu, bool log, bool is_float);
-extern "C" SEXP _dust_dust_dnbinom(SEXP x, SEXP size, SEXP mu, SEXP log, SEXP is_float) {
+SEXP dust_dnbinom_mu(cpp11::integers x, cpp11::doubles size, cpp11::doubles mu, bool log, bool is_float);
+extern "C" SEXP _dust_dust_dnbinom_mu(SEXP x, SEXP size, SEXP mu, SEXP log, SEXP is_float) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_dnbinom(cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(x), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(size), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(mu), cpp11::as_cpp<cpp11::decay_t<bool>>(log), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
+    return cpp11::as_sexp(dust_dnbinom_mu(cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(x), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(size), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(mu), cpp11::as_cpp<cpp11::decay_t<bool>>(log), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
+  END_CPP11
+}
+// densities.cpp
+SEXP dust_dnbinom_prob(cpp11::integers x, cpp11::doubles size, cpp11::doubles prob, bool log);
+extern "C" SEXP _dust_dust_dnbinom_prob(SEXP x, SEXP size, SEXP prob, SEXP log) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_dnbinom_prob(cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(x), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(size), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(prob), cpp11::as_cpp<cpp11::decay_t<bool>>(log)));
   END_CPP11
 }
 // densities.cpp
@@ -864,7 +871,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_cpp_scale_log_weights",         (DL_FUNC) &_dust_cpp_scale_log_weights,         1},
     {"_dust_dust_dbetabinom",               (DL_FUNC) &_dust_dust_dbetabinom,               5},
     {"_dust_dust_dbinom",                   (DL_FUNC) &_dust_dust_dbinom,                   4},
-    {"_dust_dust_dnbinom",                  (DL_FUNC) &_dust_dust_dnbinom,                  5},
+    {"_dust_dust_dnbinom_mu",               (DL_FUNC) &_dust_dust_dnbinom_mu,               5},
+    {"_dust_dust_dnbinom_prob",             (DL_FUNC) &_dust_dust_dnbinom_prob,             4},
     {"_dust_dust_dnorm",                    (DL_FUNC) &_dust_dust_dnorm,                    4},
     {"_dust_dust_dpois",                    (DL_FUNC) &_dust_dust_dpois,                    3},
     {"_dust_dust_rng_alloc",                (DL_FUNC) &_dust_dust_rng_alloc,                3},

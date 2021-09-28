@@ -85,7 +85,7 @@ HOSTDEVICE T dnorm(T x, T mu, T sd, bool log) {
 }
 
 template <typename T>
-HOSTDEVICE T dnbinom(int x, T size, T mu, bool log) {
+HOSTDEVICE T dnbinom_mu(int x, T size, T mu, bool log) {
 #ifndef __CUDA_ARCH__
   static_assert(std::is_floating_point<T>::value,
                 "dnbinom should only be used with real types");
@@ -119,6 +119,14 @@ HOSTDEVICE T dnbinom(int x, T size, T mu, bool log) {
 
   SYNCWARP
   return maybe_log(ret, log);
+}
+
+// This may not be stable for all size and prob, but provides
+// compatibility with R's C-level function. See ?dnbinom for details.
+template <typename T>
+HOSTDEVICE T dnbinom_prob(int x, T size, T prob, bool log) {
+  const T mu = size * (1 - prob) / prob;
+  return dnbinom_mu(x, size, mu, log);
 }
 
 // A note on this parametrisation:

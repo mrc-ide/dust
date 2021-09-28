@@ -61,72 +61,89 @@ test_that("dnbinom agrees", {
     prob <- runif(length(size))
     mu <- size * (1 - prob) / prob
     x <- as.integer(sample(size, replace = TRUE))
-    expect_equal(dust_dnbinom(x, size, mu, TRUE, is_float),
+    expect_equal(dust_dnbinom_mu(x, size, mu, TRUE, is_float),
                  dnbinom(x, size, mu = mu, log = TRUE),
                  tolerance = tolerance)
-    expect_equal(dust_dnbinom(x, size, mu, FALSE, is_float),
+    expect_equal(dust_dnbinom_mu(x, size, mu, FALSE, is_float),
                  dnbinom(x, size, mu = mu, log = FALSE),
                  tolerance = tolerance)
 
     ## size > x case which was implemented incorrectly in <= v0.6.5
     expect_equal(
       dnbinom(511, 2, mu = 6.65, log = TRUE),
-      dust_dnbinom(511L, 2, 6.65, TRUE, is_float),
+      dust_dnbinom_mu(511L, 2, 6.65, TRUE, is_float),
       tolerance = tolerance)
 
     ## Allow non integer size (wrong in <= 0.7.5)
     expect_equal(
-      dust_dnbinom(511L, 3.5, 1, TRUE, is_float),
+      dust_dnbinom_mu(511L, 3.5, 1, TRUE, is_float),
       dnbinom(511, 3.5, mu = 1, log = TRUE),
       tolerance = tolerance)
 
     ## Corner cases
-    expect_equal(dust_dnbinom(0L, 0, 0, TRUE, is_float),
+    expect_equal(dust_dnbinom_mu(0L, 0, 0, TRUE, is_float),
                  dnbinom(0, 0, mu = 0, log = TRUE))
-    expect_equal(dust_dnbinom(0L, 0, 0, FALSE, is_float),
+    expect_equal(dust_dnbinom_mu(0L, 0, 0, FALSE, is_float),
                  dnbinom(0, 0, mu = 0, log = FALSE))
-    expect_equal(dust_dnbinom(0L, 0, 0.5, FALSE, is_float),
+    expect_equal(dust_dnbinom_mu(0L, 0, 0.5, FALSE, is_float),
                  dnbinom(0, 0, mu = 0.5, log = FALSE))
-    expect_equal(dust_dnbinom(10L, 0, 1, TRUE, is_float),
+    expect_equal(dust_dnbinom_mu(10L, 0, 1, TRUE, is_float),
                  suppressWarnings(dnbinom(10L, 0L, mu = 1, log = TRUE)))
-    expect_equal(dust_dnbinom(10L, 1, 1, TRUE, is_float),
+    expect_equal(dust_dnbinom_mu(10L, 1, 1, TRUE, is_float),
                  dnbinom(10L, 1L, mu = 1, log = TRUE))
-    expect_equal(dust_dnbinom(10L, 0, 1, FALSE, is_float),
+    expect_equal(dust_dnbinom_mu(10L, 0, 1, FALSE, is_float),
                  suppressWarnings(dnbinom(10L, 0L, mu = 1, log = FALSE)))
-    expect_equal(dust_dnbinom(0L, 10, 1, TRUE, is_float),
+    expect_equal(dust_dnbinom_mu(0L, 10, 1, TRUE, is_float),
                  suppressWarnings(dnbinom(0L, 10L, mu = 1, log = TRUE)),
                  tolerance = tolerance)
     ## We disagree with R here; we *could* return NaN but -Inf seems
     ## more sensible, and is what R returns if mu = eps
-    expect_equal(dust_dnbinom(10L, 0, 0, TRUE, is_float), -Inf)
+    expect_equal(dust_dnbinom_mu(10L, 0, 0, TRUE, is_float), -Inf)
 
     expect_equal(
-      dust_dnbinom(x = 0L, size = 2, mu = 0, log = TRUE, is_float = is_float),
+      dust_dnbinom_mu(x = 0L, size = 2, mu = 0, log = TRUE,
+                      is_float = is_float),
       dnbinom(x = 0, size = 2, mu = 0, log = TRUE))
     expect_equal(
-      dust_dnbinom(x = 0L, size = 2, mu = 0, log = FALSE, is_float = is_float),
+      dust_dnbinom_mu(x = 0L, size = 2, mu = 0, log = FALSE,
+                      is_float = is_float),
       dnbinom(x = 0, size = 2, mu = 0, log = FALSE))
     expect_equal(
-      dust_dnbinom(x = 1L, size = 2, mu = 0, log = TRUE, is_float = is_float),
+      dust_dnbinom_mu(x = 1L, size = 2, mu = 0, log = TRUE,
+                      is_float = is_float),
       dnbinom(x = 1, size = 2, mu = 0, log = TRUE))
     expect_equal(
-      dust_dnbinom(x = 1L, size = 2, mu = 0, log = FALSE, is_float = is_float),
+      dust_dnbinom_mu(x = 1L, size = 2, mu = 0, log = FALSE,
+                      is_float = is_float),
       dnbinom(x = 1, size = 2, mu = 0, log = FALSE))
 
     ## Special case where mu is zero
     expect_equal(
       dnbinom(34, 2, mu = 0, log = TRUE),
-      dust_dnbinom(34L, 2, 0, TRUE, is_float))
+      dust_dnbinom_mu(34L, 2, 0, TRUE, is_float))
     expect_equal(
       dnbinom(34, 2, mu = 0, log = FALSE),
-      dust_dnbinom(34L, 2, 0, FALSE, is_float))
+      dust_dnbinom_mu(34L, 2, 0, FALSE, is_float))
 
     ## Special case of mu << size
-    expect_equal(dust_dnbinom(0L, 50, 1e-8, TRUE, is_float),
+    expect_equal(dust_dnbinom_mu(0L, 50, 1e-8, TRUE, is_float),
                  dnbinom(0L, size = 50, mu = 1e-8, log = TRUE))
-    expect_equal(dust_dnbinom(0L, 50, 1e-20, TRUE, is_float),
+    expect_equal(dust_dnbinom_mu(0L, 50, 1e-20, TRUE, is_float),
                  dnbinom(0L, size = 50, mu = 1e-20, log = TRUE))
   }
+})
+
+
+## This is very basic for now, we can expand it to pick up the corner
+## cases when it is more widely used.
+test_that("dnbinom agrees in prob mode", {
+  x <- 0:11
+  size <- rep(1, length(x))
+  prob <- rep(0.5, length(x))
+  expect_equal(dust_dnbinom_prob(x, size, prob, TRUE),
+               dnbinom(x, size, prob, log = TRUE))
+  expect_equal(dust_dnbinom_prob(x, size, prob, FALSE),
+               dnbinom(x, size, prob, log = FALSE))
 })
 
 
