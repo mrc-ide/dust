@@ -1,3 +1,7 @@
+# dust 0.9.21
+
+* Deprecate the previous state update methods (`$reset()`, `$set_pars()` and `$set_state()`) in favour of a single method that can update any or all of parameters, model state and time, `$update_state()` (#180)
+
 # dust 0.9.20
 
 * Change to the `dust::densities::dnbinom()` to offer both of the same
