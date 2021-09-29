@@ -23,9 +23,10 @@ sir <- R6::R6Class(
   public = list(
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
+                          deterministic = FALSE,
                           device_config = NULL) {
       res <- dust_sir_alloc(pars, pars_multi, step, n_particles,
-                        n_threads, seed, device_config)
+                        n_threads, seed, deterministic, device_config)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
@@ -49,14 +50,14 @@ sir <- R6::R6Class(
       private$param_
     },
 
-    run = function(step_end, device = FALSE, deterministic = FALSE) {
-      m <- dust_sir_run(private$ptr_, step_end, device, deterministic)
+    run = function(step_end, device = FALSE) {
+      m <- dust_sir_run(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
     },
 
-    simulate = function(step_end, device = FALSE, deterministic = FALSE) {
-      m <- dust_sir_simulate(private$ptr_, step_end, device, deterministic)
+    simulate = function(step_end, device = FALSE) {
+      m <- dust_sir_simulate(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
     },
@@ -91,17 +92,15 @@ sir <- R6::R6Class(
       private$shape_
     },
 
-    set_state = function(state, step = NULL, deterministic = FALSE) {
+    set_state = function(state, step = NULL) {
       if (is.null(step)) {
         .Deprecated("$update_state(state = state)",
                     old = "$set_state(state)")
       } else {
-        .Deprecated("$update_state(state = state, step = step,
-                                   deterministic = deterministic)",
+        .Deprecated("$update_state(state = state, step = step)",
                     old = "$set_state(state, step)")
       }
-      self$update_state(state = state, step = step,
-                        deterministic = deterministic)
+      self$update_state(state = state, step = step)
     },
 
     reset = function(pars, step) {
@@ -117,10 +116,9 @@ sir <- R6::R6Class(
     },
 
     update_state = function(pars = NULL, state = NULL, step = NULL,
-                            set_initial_state = NULL,
-                            deterministic = FALSE) {
+                            set_initial_state = NULL) {
       info <- dust_sir_update_state(private$ptr_, pars, state, step,
-                                         set_initial_state, deterministic)
+                                         set_initial_state)
       if (!is.null(pars)) {
         private$info_ <- info
         private$pars_ <- pars
@@ -236,9 +234,10 @@ sirs <- R6::R6Class(
   public = list(
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
+                          deterministic = FALSE,
                           device_config = NULL) {
       res <- dust_sirs_alloc(pars, pars_multi, step, n_particles,
-                        n_threads, seed, device_config)
+                        n_threads, seed, deterministic, device_config)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
@@ -262,14 +261,14 @@ sirs <- R6::R6Class(
       private$param_
     },
 
-    run = function(step_end, device = FALSE, deterministic = FALSE) {
-      m <- dust_sirs_run(private$ptr_, step_end, device, deterministic)
+    run = function(step_end, device = FALSE) {
+      m <- dust_sirs_run(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
     },
 
-    simulate = function(step_end, device = FALSE, deterministic = FALSE) {
-      m <- dust_sirs_simulate(private$ptr_, step_end, device, deterministic)
+    simulate = function(step_end, device = FALSE) {
+      m <- dust_sirs_simulate(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
     },
@@ -304,17 +303,15 @@ sirs <- R6::R6Class(
       private$shape_
     },
 
-    set_state = function(state, step = NULL, deterministic = FALSE) {
+    set_state = function(state, step = NULL) {
       if (is.null(step)) {
         .Deprecated("$update_state(state = state)",
                     old = "$set_state(state)")
       } else {
-        .Deprecated("$update_state(state = state, step = step,
-                                   deterministic = deterministic)",
+        .Deprecated("$update_state(state = state, step = step)",
                     old = "$set_state(state, step)")
       }
-      self$update_state(state = state, step = step,
-                        deterministic = deterministic)
+      self$update_state(state = state, step = step)
     },
 
     reset = function(pars, step) {
@@ -330,10 +327,9 @@ sirs <- R6::R6Class(
     },
 
     update_state = function(pars = NULL, state = NULL, step = NULL,
-                            set_initial_state = NULL,
-                            deterministic = FALSE) {
+                            set_initial_state = NULL) {
       info <- dust_sirs_update_state(private$ptr_, pars, state, step,
-                                         set_initial_state, deterministic)
+                                         set_initial_state)
       if (!is.null(pars)) {
         private$info_ <- info
         private$pars_ <- pars
@@ -446,9 +442,10 @@ variable <- R6::R6Class(
   public = list(
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
+                          deterministic = FALSE,
                           device_config = NULL) {
       res <- dust_variable_alloc(pars, pars_multi, step, n_particles,
-                        n_threads, seed, device_config)
+                        n_threads, seed, deterministic, device_config)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
@@ -472,14 +469,14 @@ variable <- R6::R6Class(
       private$param_
     },
 
-    run = function(step_end, device = FALSE, deterministic = FALSE) {
-      m <- dust_variable_run(private$ptr_, step_end, device, deterministic)
+    run = function(step_end, device = FALSE) {
+      m <- dust_variable_run(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
     },
 
-    simulate = function(step_end, device = FALSE, deterministic = FALSE) {
-      m <- dust_variable_simulate(private$ptr_, step_end, device, deterministic)
+    simulate = function(step_end, device = FALSE) {
+      m <- dust_variable_simulate(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
     },
@@ -514,17 +511,15 @@ variable <- R6::R6Class(
       private$shape_
     },
 
-    set_state = function(state, step = NULL, deterministic = FALSE) {
+    set_state = function(state, step = NULL) {
       if (is.null(step)) {
         .Deprecated("$update_state(state = state)",
                     old = "$set_state(state)")
       } else {
-        .Deprecated("$update_state(state = state, step = step,
-                                   deterministic = deterministic)",
+        .Deprecated("$update_state(state = state, step = step)",
                     old = "$set_state(state, step)")
       }
-      self$update_state(state = state, step = step,
-                        deterministic = deterministic)
+      self$update_state(state = state, step = step)
     },
 
     reset = function(pars, step) {
@@ -540,10 +535,9 @@ variable <- R6::R6Class(
     },
 
     update_state = function(pars = NULL, state = NULL, step = NULL,
-                            set_initial_state = NULL,
-                            deterministic = FALSE) {
+                            set_initial_state = NULL) {
       info <- dust_variable_update_state(private$ptr_, pars, state, step,
-                                         set_initial_state, deterministic)
+                                         set_initial_state)
       if (!is.null(pars)) {
         private$info_ <- info
         private$pars_ <- pars
@@ -656,9 +650,10 @@ volatility <- R6::R6Class(
   public = list(
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
+                          deterministic = FALSE,
                           device_config = NULL) {
       res <- dust_volatility_alloc(pars, pars_multi, step, n_particles,
-                        n_threads, seed, device_config)
+                        n_threads, seed, deterministic, device_config)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
@@ -682,14 +677,14 @@ volatility <- R6::R6Class(
       private$param_
     },
 
-    run = function(step_end, device = FALSE, deterministic = FALSE) {
-      m <- dust_volatility_run(private$ptr_, step_end, device, deterministic)
+    run = function(step_end, device = FALSE) {
+      m <- dust_volatility_run(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
     },
 
-    simulate = function(step_end, device = FALSE, deterministic = FALSE) {
-      m <- dust_volatility_simulate(private$ptr_, step_end, device, deterministic)
+    simulate = function(step_end, device = FALSE) {
+      m <- dust_volatility_simulate(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
     },
@@ -724,17 +719,15 @@ volatility <- R6::R6Class(
       private$shape_
     },
 
-    set_state = function(state, step = NULL, deterministic = FALSE) {
+    set_state = function(state, step = NULL) {
       if (is.null(step)) {
         .Deprecated("$update_state(state = state)",
                     old = "$set_state(state)")
       } else {
-        .Deprecated("$update_state(state = state, step = step,
-                                   deterministic = deterministic)",
+        .Deprecated("$update_state(state = state, step = step)",
                     old = "$set_state(state, step)")
       }
-      self$update_state(state = state, step = step,
-                        deterministic = deterministic)
+      self$update_state(state = state, step = step)
     },
 
     reset = function(pars, step) {
@@ -750,10 +743,9 @@ volatility <- R6::R6Class(
     },
 
     update_state = function(pars = NULL, state = NULL, step = NULL,
-                            set_initial_state = NULL,
-                            deterministic = FALSE) {
+                            set_initial_state = NULL) {
       info <- dust_volatility_update_state(private$ptr_, pars, state, step,
-                                         set_initial_state, deterministic)
+                                         set_initial_state)
       if (!is.null(pars)) {
         private$info_ <- info
         private$pars_ <- pars
@@ -866,9 +858,10 @@ walk <- R6::R6Class(
   public = list(
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
+                          deterministic = FALSE,
                           device_config = NULL) {
       res <- dust_walk_alloc(pars, pars_multi, step, n_particles,
-                        n_threads, seed, device_config)
+                        n_threads, seed, deterministic, device_config)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
@@ -892,14 +885,14 @@ walk <- R6::R6Class(
       private$param_
     },
 
-    run = function(step_end, device = FALSE, deterministic = FALSE) {
-      m <- dust_walk_run(private$ptr_, step_end, device, deterministic)
+    run = function(step_end, device = FALSE) {
+      m <- dust_walk_run(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
     },
 
-    simulate = function(step_end, device = FALSE, deterministic = FALSE) {
-      m <- dust_walk_simulate(private$ptr_, step_end, device, deterministic)
+    simulate = function(step_end, device = FALSE) {
+      m <- dust_walk_simulate(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
     },
@@ -934,17 +927,15 @@ walk <- R6::R6Class(
       private$shape_
     },
 
-    set_state = function(state, step = NULL, deterministic = FALSE) {
+    set_state = function(state, step = NULL) {
       if (is.null(step)) {
         .Deprecated("$update_state(state = state)",
                     old = "$set_state(state)")
       } else {
-        .Deprecated("$update_state(state = state, step = step,
-                                   deterministic = deterministic)",
+        .Deprecated("$update_state(state = state, step = step)",
                     old = "$set_state(state, step)")
       }
-      self$update_state(state = state, step = step,
-                        deterministic = deterministic)
+      self$update_state(state = state, step = step)
     },
 
     reset = function(pars, step) {
@@ -960,10 +951,9 @@ walk <- R6::R6Class(
     },
 
     update_state = function(pars = NULL, state = NULL, step = NULL,
-                            set_initial_state = NULL,
-                            deterministic = FALSE) {
+                            set_initial_state = NULL) {
       info <- dust_walk_update_state(private$ptr_, pars, state, step,
-                                         set_initial_state, deterministic)
+                                         set_initial_state)
       if (!is.null(pars)) {
         private$info_ <- info
         private$pars_ <- pars

@@ -83,6 +83,7 @@ is the same size.
   n_threads = 1L,
   seed = NULL,
   pars_multi = FALSE,
+  deterministic = FALSE,
   device_config = NULL
 )}\if{html}{\out{</div>}}
 }
@@ -117,6 +118,11 @@ interpreted as a set of different initialisations, and that we
 should prepare \code{n_particles * length(pars)} particles for
 simulation. This has an effect on many of the other methods of
 the object.}
+
+\item{\code{deterministic}}{Run random number generation deterministically,
+replacing a random number from some distribution with its
+expectation. Deterministic models are not compatible with running on
+a a GPU.}
 
 \item{\code{device_config}}{Device configuration, typically an integer
 indicating the device to use, where the model has GPU support.
@@ -164,7 +170,7 @@ on the model.
 Run the model up to a point in time, returning the filtered state
 at that point.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$run(step_end, device = FALSE, deterministic = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$run(step_end, device = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -177,10 +183,6 @@ step(), silently nothing will happen)}
 the GPU device. This is only possible if your model supports it,
 was compiled with this enabled, and you have a suitable GPU
 available (see \code{vignette("cuda")}).}
-
-\item{\code{deterministic}}{Run random number generation deterministically,
-replacing a random number from some distribution with its
-expectation.}
 }
 \if{html}{\out{</div>}}
 }
@@ -201,7 +203,7 @@ the returned array is one less. For a scalar \code{step_end} you would
 ordinarily want to use \verb{$run()} but the resulting numbers would
 be identical.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$simulate(step_end, device = FALSE, deterministic = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$simulate(step_end, device = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -215,10 +217,6 @@ not wanted).}
 
 \item{\code{device}}{Logical, indicating if the model should be run on
 the GPU device. See \verb{$run()} for more information.}
-
-\item{\code{deterministic}}{Run random number generation deterministically,
-replacing a random number from some distribution with its
-expectation.}
 }
 \if{html}{\out{</div>}}
 }
@@ -312,7 +310,7 @@ Returns the shape of the particles
 Set the "state" vector for all particles, overriding whatever your
 models \code{initial()} method provides.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$set_state(state, step = NULL, deterministic = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$set_state(state, step = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -329,10 +327,6 @@ states at once).}
 is a vector (with the same length as the number of particles), then
 particles are started from different initial steps and run up to the
 largest step given (i.e., \code{max(step)})}
-
-\item{\code{deterministic}}{If \code{TRUE} and if \code{step} is a vector with
-different values, then this would run up to the largest step
-deterministically (see \verb{$run()} for more details).}
 }
 \if{html}{\out{</div>}}
 }
@@ -391,8 +385,7 @@ this.
   pars = NULL,
   state = NULL,
   step = NULL,
-  set_initial_state = NULL,
-  deterministic = FALSE
+  set_initial_state = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -417,10 +410,6 @@ largest step given (i.e., \code{max(step)})}
 should be set while setting parameters. It is an error for
 this to be \code{TRUE} when either \code{pars} is \code{NULL} or when \code{state}
 is non-\code{NULL}.}
-
-\item{\code{deterministic}}{If \code{TRUE} and if \code{step} is a vector with
-different values, then this would run up to the largest step
-deterministically (see \verb{$run()} for more details).}
 }
 \if{html}{\out{</div>}}
 }

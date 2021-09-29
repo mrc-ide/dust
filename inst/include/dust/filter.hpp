@@ -37,7 +37,7 @@ std::vector<typename T::real_t> filter(Dust<T> * obj,
   }
 
   for (auto & d : obj->data()) {
-    obj->run(d.first, false); // note, never deterministic, for now at least
+    obj->run(d.first);
     obj->compare_data(weights, d.second);
 
     // TODO: we should cope better with the case where all weights

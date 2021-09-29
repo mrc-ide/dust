@@ -1,6 +1,7 @@
 # dust 0.9.21
 
 * Deprecate the previous state update methods (`$reset()`, `$set_pars()` and `$set_state()`) in favour of a single method that can update any or all of parameters, model state and time, `$update_state()` (#180)
+* Model determinism is now fixed at creation, rather than being settable via `run` and `simulate`, with `deterministic` now an argument to the constructor (#270)
 
 # dust 0.9.20
 

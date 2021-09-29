@@ -83,6 +83,11 @@
     ##' simulation. This has an effect on many of the other methods of
     ##' the object.
     ##'
+    ##' @param deterministic Run random number generation deterministically,
+    ##' replacing a random number from some distribution with its
+    ##' expectation. Deterministic models are not compatible with running on
+    ##' a a GPU.
+    ##'
     ##' @param device_config Device configuration, typically an integer
     ##' indicating the device to use, where the model has GPU support.
     ##' If not given, then the default value of `NULL` will fall back on the
@@ -97,9 +102,10 @@
     ##' list will be added in a future version!
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
+                          deterministic = FALSE,
                           device_config = NULL) {
       res <- dust_{{name}}_alloc(pars, pars_multi, step, n_particles,
-                        n_threads, seed, device_config)
+                        n_threads, seed, deterministic, device_config)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
@@ -135,18 +141,14 @@
     ##' at that point.
     ##'
     ##' @param step_end Step to run to (if less than or equal to the current
-    ##' step(), silently nothing will happen)
+    ##'   step(), silently nothing will happen)
     ##'
     ##' @param device Logical, indicating if the model should be run on
     ##'   the GPU device. This is only possible if your model supports it,
     ##'   was compiled with this enabled, and you have a suitable GPU
     ##'   available (see `vignette("cuda")`).
-    ##'
-    ##' @param deterministic Run random number generation deterministically,
-    ##'   replacing a random number from some distribution with its
-    ##'   expectation.
-    run = function(step_end, device = FALSE, deterministic = FALSE) {
-      m <- dust_{{name}}_run(private$ptr_, step_end, device, deterministic)
+    run = function(step_end, device = FALSE) {
+      m <- dust_{{name}}_run(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
     },
@@ -172,12 +174,8 @@
     ##'
     ##' @param device Logical, indicating if the model should be run on
     ##'   the GPU device. See `$run()` for more information.
-    ##'
-    ##' @param deterministic Run random number generation deterministically,
-    ##'   replacing a random number from some distribution with its
-    ##'   expectation.
-    simulate = function(step_end, device = FALSE, deterministic = FALSE) {
-      m <- dust_{{name}}_simulate(private$ptr_, step_end, device, deterministic)
+    simulate = function(step_end, device = FALSE) {
+      m <- dust_{{name}}_simulate(private$ptr_, step_end, device)
       rownames(m) <- names(private$index_)
       m
     },
@@ -248,11 +246,7 @@
     ##' is a vector (with the same length as the number of particles), then
     ##' particles are started from different initial steps and run up to the
     ##' largest step given (i.e., `max(step)`)
-    ##'
-    ##' @param deterministic If `TRUE` and if `step` is a vector with
-    ##' different values, then this would run up to the largest step
-    ##' deterministically (see `$run()` for more details).
-    set_state = function(state, step = NULL, deterministic = FALSE) {
+    set_state = function(state, step = NULL) {
       ### There are two different likely forms that this function is
       ### used and we can give a slightly simpler deprecation notice this
       ### way.
@@ -260,12 +254,10 @@
         .Deprecated("$update_state(state = state)",
                     old = "$set_state(state)")
       } else {
-        .Deprecated("$update_state(state = state, step = step,
-                                   deterministic = deterministic)",
+        .Deprecated("$update_state(state = state, step = step)",
                     old = "$set_state(state, step)")
       }
-      self$update_state(state = state, step = step,
-                        deterministic = deterministic)
+      self$update_state(state = state, step = step)
     },
 
     ##' @description
@@ -317,15 +309,10 @@
     ##'   should be set while setting parameters. It is an error for
     ##'   this to be `TRUE` when either `pars` is `NULL` or when `state`
     ##'   is non-`NULL`.
-    ##'
-    ##' @param deterministic If `TRUE` and if `step` is a vector with
-    ##'   different values, then this would run up to the largest step
-    ##'   deterministically (see `$run()` for more details).
     update_state = function(pars = NULL, state = NULL, step = NULL,
-                            set_initial_state = NULL,
-                            deterministic = FALSE) {
+                            set_initial_state = NULL) {
       info <- dust_{{name}}_update_state(private$ptr_, pars, state, step,
-                                         set_initial_state, deterministic)
+                                         set_initial_state)
       if (!is.null(pars)) {
         private$info_ <- info
         private$pars_ <- pars

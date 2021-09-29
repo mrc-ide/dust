@@ -705,24 +705,24 @@ test_that("steps must not be negative", {
 
 test_that("run random walk deterministically", {
   res <- dust_example("walk")
-  obj <- res$new(list(sd = 1), 0, 100, seed = 1L)
+  obj <- res$new(list(sd = 1), 0, 100, seed = 1L, deterministic = TRUE)
   rng_state <- obj$rng_state()
   m <- obj$state()
   m[] <- runif(length(m))
   obj$update_state(state = m)
-  expect_equal(obj$run(10, deterministic = TRUE), m)
+  expect_equal(obj$run(10), m)
   expect_equal(obj$rng_state(), rng_state)
 })
 
 
 test_that("run simulate deterministically", {
   res <- dust_example("walk")
-  obj <- res$new(list(sd = 1), 0, 100, seed = 1L)
+  obj <- res$new(list(sd = 1), 0, 100, seed = 1L, deterministic = TRUE)
   rng_state <- obj$rng_state()
   m <- obj$state()
   m[] <- runif(length(m))
   obj$update_state(state = m)
-  res <- obj$simulate(0:10, deterministic = TRUE)
+  res <- obj$simulate(0:10)
   expect_equal(res,
                array(rep(m, 11), c(1, 100, 11)))
   expect_equal(obj$rng_state(), rng_state)
@@ -731,7 +731,7 @@ test_that("run simulate deterministically", {
 
 test_that("staggered start times, deterministically", {
   sir <- dust_example("sir")
-  mod <- sir$new(list(), 0, 10, seed = 1L)
+  mod <- sir$new(list(), 0, 10, seed = 1L, deterministic = TRUE)
 
   state <- mod$state()
   n <- round(runif(10, -5, 5))
@@ -739,13 +739,13 @@ test_that("staggered start times, deterministically", {
   state[2, ] <- state[2, ] + n
   step <- 1:10
 
-  mod$update_state(state = state, step = step, deterministic = TRUE)
+  mod$update_state(state = state, step = step)
 
   res <- mod$state()
   f <- function(i) {
-    mod <- sir$new(list(), 0, 1, seed = NULL)
+    mod <- sir$new(list(), 0, 1, seed = NULL, deterministic = TRUE)
     mod$update_state(state = state[, i], step = step[i])
-    mod$run(10, deterministic = TRUE)
+    mod$run(10)
   }
   cmp <- vapply(1:10, f, numeric(5))
   expect_equal(res, cmp)

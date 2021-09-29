@@ -33,7 +33,7 @@ public:
 
   Dust(const pars_t& pars, const size_t step, const size_t n_particles,
        const size_t n_threads, const std::vector<uint64_t>& seed,
-       const cuda::device_config& device_config) :
+       const bool deterministic, const cuda::device_config& device_config) :
     n_pars_(0),
     n_particles_each_(n_particles),
     n_particles_total_(n_particles),
@@ -41,6 +41,7 @@ public:
     n_threads_(n_threads),
     device_config_(device_config),
     rng_(n_particles_total_ + 1, seed), // +1 for the filter's rng state
+    deterministic_(deterministic),
     errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true),
@@ -56,9 +57,9 @@ public:
 
   Dust(const std::vector<pars_t>& pars, const size_t step,
        const size_t n_particles, const size_t n_threads,
-       const std::vector<uint64_t>& seed, const
-       cuda::device_config& device_config,
-       std::vector<size_t> shape) :
+       const std::vector<uint64_t>& seed,
+       const bool deterministic, const cuda::device_config& device_config,
+       const std::vector<size_t>& shape) :
     n_pars_(pars.size()),
     n_particles_each_(n_particles == 0 ? 1 : n_particles),
     n_particles_total_(n_particles_each_ * pars.size()),
@@ -66,6 +67,7 @@ public:
     n_threads_(n_threads),
     device_config_(device_config),
     rng_(n_particles_total_ + 1, seed),  // +1 for the filter's rng state
+    deterministic_(deterministic),
     errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true),
@@ -136,14 +138,14 @@ public:
     stale_device_ = true;
   }
 
-  void set_step(const std::vector<size_t>& step, const bool deterministic) {
+  void set_step(const std::vector<size_t>& step) {
     const size_t n_particles = particles_.size();
     for (size_t i = 0; i < n_particles; ++i) {
       particles_[i].set_step(step[i]);
     }
     const auto r = std::minmax_element(step.begin(), step.end());
     if (*r.second > *r.first) {
-      run(*r.second, deterministic);
+      run(*r.second);
     }
     stale_device_ = true;
   }
@@ -155,9 +157,9 @@ public:
     update_device_index();
   }
 
-  void run(const size_t step_end, const bool deterministic) {
+  void run(const size_t step_end) {
     refresh_host();
-    if (deterministic) {
+    if (deterministic_) {
       rng_.set_deterministic(true);
     }
 #ifdef _OPENMP
@@ -170,7 +172,7 @@ public:
         errors_.capture(e, i);
       }
     }
-    if (deterministic) {
+    if (deterministic_) {
       rng_.set_deterministic(false);
     }
     errors_.report();
@@ -238,12 +240,11 @@ public:
     }
   }
 
-  std::vector<real_t> simulate(const std::vector<size_t>& step_end,
-                               const bool deterministic) {
+  std::vector<real_t> simulate(const std::vector<size_t>& step_end) {
     const size_t n_time = step_end.size();
     std::vector<real_t> ret(n_particles() * n_state() * n_time);
 
-    if (deterministic) {
+    if (deterministic_) {
       rng_.set_deterministic(true);
     }
 #ifdef _OPENMP
@@ -260,7 +261,7 @@ public:
         errors_.capture(e, i);
       }
     }
-    if (deterministic) {
+    if (deterministic_) {
       rng_.set_deterministic(false);
     }
     errors_.report();
@@ -665,6 +666,7 @@ private:
   size_t n_threads_;
   cuda::device_config device_config_;
   dust::pRNG<real_t> rng_;
+  const bool deterministic_;
   std::map<size_t, std::vector<data_t>> data_;
   dust::openmp_errors errors_;
 
@@ -879,6 +881,9 @@ private:
   refresh_device() {
     if (!device_config_.enabled_) {
       throw std::runtime_error("Can't refresh a non-existent device");
+    }
+    if (deterministic_) {
+      throw std::runtime_error("Can't run deterministic models on GPU");
     }
     if (stale_device_) {
       const size_t np = n_particles(), ny = n_state_full();

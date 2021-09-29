@@ -35,7 +35,8 @@ namespace r {
 template <typename T>
 cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
                        cpp11::sexp r_n_particles, int n_threads,
-                       cpp11::sexp r_seed, cpp11::sexp r_device_config) {
+                       cpp11::sexp r_seed, bool deterministic,
+                       cpp11::sexp r_device_config) {
   dust::interface::validate_size(step, "step");
   dust::interface::validate_positive(n_threads, "n_threads");
   std::vector<uint64_t> seed =
@@ -70,13 +71,14 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
       n_particles = cpp11::as_cpp<int>(r_n_particles);
       dust::interface::validate_size(n_particles, "n_particles");
     }
-    d = new Dust<T>(pars, step, n_particles, n_threads, seed, device_config,
-                    shape);
+    d = new Dust<T>(pars, step, n_particles, n_threads, seed, deterministic,
+                    device_config, shape);
   } else {
     size_t n_particles = cpp11::as_cpp<int>(r_n_particles);
     dust::interface::validate_positive(n_particles, "n_particles");
     dust::pars_t<T> pars = dust_pars<T>(r_pars);
-    d = new Dust<T>(pars, step, n_particles, n_threads, seed, device_config);
+    d = new Dust<T>(pars, step, n_particles, n_threads, seed, deterministic,
+                    device_config);
     info = dust_info<T>(pars);
   }
   cpp11::external_pointer<Dust<T>> ptr(d, true, false);
@@ -128,8 +130,7 @@ template <typename T>
 cpp11::sexp dust_update_set(Dust<T> *obj, SEXP r_pars,
                             const std::vector<typename T::real_t>& state,
                             const std::vector<size_t>& step,
-                            bool set_initial_state,
-                            bool deterministic) {
+                            bool set_initial_state) {
   cpp11::sexp ret = R_NilValue;
   if (r_pars != R_NilValue) {
     ret = dust_update_set_pars(obj, cpp11::as_cpp<cpp11::list>(r_pars),
@@ -143,7 +144,7 @@ cpp11::sexp dust_update_set(Dust<T> *obj, SEXP r_pars,
   if (step.size() == 1) {
     obj->set_step(step[0]);
   } else if (step.size() > 1) {
-    obj->set_step(step, deterministic);
+    obj->set_step(step);
   }
 
   // If we set both initial conditions and step then we're safe to
@@ -160,7 +161,7 @@ cpp11::sexp dust_update_set(Dust<T> *obj, SEXP r_pars,
 // pars, (2) state, (3) step
 template <typename T>
 SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
-                       SEXP r_set_initial_state, bool deterministic) {
+                       SEXP r_set_initial_state) {
   typedef typename T::real_t real_t;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
 
@@ -203,22 +204,18 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
                                                  obj->pars_are_shared());
   }
 
-  return dust_update_set(obj, r_pars, state, step,
-                         set_initial_state, deterministic);
+  return dust_update_set(obj, r_pars, state, step, set_initial_state);
 }
 
 template <typename T>
-cpp11::sexp dust_run(SEXP ptr, int step_end, bool device, bool deterministic) {
-  if (device && deterministic) {
-    cpp11::stop("'deterministic' is not compatible with 'device'");
-  }
+cpp11::sexp dust_run(SEXP ptr, int step_end, bool device) {
   dust::interface::validate_size(step_end, "step_end");
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
   if (device) {
     obj->run_device(step_end);
   } else {
-    obj->run(step_end, deterministic);
+    obj->run(step_end);
   }
 
   // TODO: the allocation should come from the dust object, *or* we
@@ -233,11 +230,7 @@ cpp11::sexp dust_run(SEXP ptr, int step_end, bool device, bool deterministic) {
 }
 
 template <typename T>
-cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end, bool device,
-                          bool deterministic) {
-  if (device && deterministic) {
-    cpp11::stop("'deterministic' is not compatible with 'device'");
-  }
+cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end, bool device) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
   const std::vector<size_t> step_end =
@@ -260,7 +253,7 @@ cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end, bool device,
   if (device) {
     dat = obj->simulate_device(step_end);
   } else {
-    dat = obj->simulate(step_end, deterministic);
+    dat = obj->simulate(step_end);
   }
   return dust::interface::state_array(dat, obj->n_state(), obj->shape(),
                                       n_time);

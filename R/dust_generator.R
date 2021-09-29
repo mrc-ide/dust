@@ -91,6 +91,11 @@ dust_generator <- R6::R6Class(
     ##' simulation. This has an effect on many of the other methods of
     ##' the object.
     ##'
+    ##' @param deterministic Run random number generation deterministically,
+    ##' replacing a random number from some distribution with its
+    ##' expectation. Deterministic models are not compatible with running on
+    ##' a a GPU.
+    ##'
     ##' @param device_config Device configuration, typically an integer
     ##' indicating the device to use, where the model has GPU support.
     ##' If not given, then the default value of `NULL` will fall back on the
@@ -105,6 +110,7 @@ dust_generator <- R6::R6Class(
     ##' list will be added in a future version!
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
+                          deterministic = FALSE,
                           device_config = NULL) {
     },
 
@@ -126,17 +132,13 @@ dust_generator <- R6::R6Class(
     ##' at that point.
     ##'
     ##' @param step_end Step to run to (if less than or equal to the current
-    ##' step(), silently nothing will happen)
+    ##'   step(), silently nothing will happen)
     ##'
     ##' @param device Logical, indicating if the model should be run on
     ##'   the GPU device. This is only possible if your model supports it,
     ##'   was compiled with this enabled, and you have a suitable GPU
     ##'   available (see `vignette("cuda")`).
-    ##'
-    ##' @param deterministic Run random number generation deterministically,
-    ##'   replacing a random number from some distribution with its
-    ##'   expectation.
-    run = function(step_end, device = FALSE, deterministic = FALSE) {
+    run = function(step_end, device = FALSE) {
     },
 
     ##' @description
@@ -160,11 +162,7 @@ dust_generator <- R6::R6Class(
     ##'
     ##' @param device Logical, indicating if the model should be run on
     ##'   the GPU device. See `$run()` for more information.
-    ##'
-    ##' @param deterministic Run random number generation deterministically,
-    ##'   replacing a random number from some distribution with its
-    ##'   expectation.
-    simulate = function(step_end, device = FALSE, deterministic = FALSE) {
+    simulate = function(step_end, device = FALSE) {
     },
 
     ##' @description
@@ -224,11 +222,7 @@ dust_generator <- R6::R6Class(
     ##' is a vector (with the same length as the number of particles), then
     ##' particles are started from different initial steps and run up to the
     ##' largest step given (i.e., `max(step)`)
-    ##'
-    ##' @param deterministic If `TRUE` and if `step` is a vector with
-    ##' different values, then this would run up to the largest step
-    ##' deterministically (see `$run()` for more details).
-    set_state = function(state, step = NULL, deterministic = FALSE) {
+    set_state = function(state, step = NULL) {
     },
 
     ##' @description
@@ -274,13 +268,8 @@ dust_generator <- R6::R6Class(
     ##'   should be set while setting parameters. It is an error for
     ##'   this to be `TRUE` when either `pars` is `NULL` or when `state`
     ##'   is non-`NULL`.
-    ##'
-    ##' @param deterministic If `TRUE` and if `step` is a vector with
-    ##'   different values, then this would run up to the largest step
-    ##'   deterministically (see `$run()` for more details).
     update_state = function(pars = NULL, state = NULL, step = NULL,
-                            set_initial_state = NULL,
-                            deterministic = FALSE) {
+                            set_initial_state = NULL) {
     },
 
     ##' @description

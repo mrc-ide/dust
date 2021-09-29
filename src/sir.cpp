@@ -3,23 +3,21 @@
 [[cpp11::register]]
 SEXP dust_sir_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                          cpp11::sexp r_n_particles, size_t n_threads,
-                         cpp11::sexp r_seed, cpp11::sexp device_config);
+                         cpp11::sexp r_seed, bool deterministic,
+                         cpp11::sexp device_config);
 
 [[cpp11::register]]
-SEXP dust_sir_run(SEXP ptr, size_t step_end, bool device,
-                       bool deterministic);
+SEXP dust_sir_run(SEXP ptr, size_t step_end, bool device);
 
 [[cpp11::register]]
-SEXP dust_sir_simulate(SEXP ptr, cpp11::sexp step_end, bool device,
-                            bool deterministic);
+SEXP dust_sir_simulate(SEXP ptr, cpp11::sexp step_end, bool device);
 
 [[cpp11::register]]
 SEXP dust_sir_set_index(SEXP ptr, cpp11::sexp r_index);
 
 [[cpp11::register]]
 SEXP dust_sir_update_state(SEXP ptr, SEXP r_pars, SEXP r_state,
-                                SEXP r_step, SEXP r_set_initial_state,
-                                bool deterministic);
+                                SEXP r_step, SEXP r_set_initial_state);
 
 [[cpp11::register]]
 SEXP dust_sir_state(SEXP ptr, SEXP r_index);
@@ -193,20 +191,19 @@ sir::data_t dust_data<sir>(cpp11::list data) {
 
 SEXP dust_sir_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                          cpp11::sexp r_n_particles, size_t n_threads,
-                         cpp11::sexp r_seed, cpp11::sexp device_config) {
+                         cpp11::sexp r_seed, bool deterministic,
+                         cpp11::sexp device_config) {
   return dust::r::dust_alloc<sir>(r_pars, pars_multi, step, r_n_particles,
-                                        n_threads, r_seed, device_config);
+                                        n_threads, r_seed, deterministic,
+                                        device_config);
 }
 
-SEXP dust_sir_run(SEXP ptr, size_t step_end, bool device,
-                       bool deterministic) {
-  return dust::r::dust_run<sir>(ptr, step_end, device, deterministic);
+SEXP dust_sir_run(SEXP ptr, size_t step_end, bool device) {
+  return dust::r::dust_run<sir>(ptr, step_end, device);
 }
 
-SEXP dust_sir_simulate(SEXP ptr, cpp11::sexp step_end, bool device,
-                            bool deterministic) {
-  return dust::r::dust_simulate<sir>(ptr, step_end, device,
-                                           deterministic);
+SEXP dust_sir_simulate(SEXP ptr, cpp11::sexp step_end, bool device) {
+  return dust::r::dust_simulate<sir>(ptr, step_end, device);
 }
 
 SEXP dust_sir_set_index(SEXP ptr, cpp11::sexp r_index) {
@@ -215,11 +212,9 @@ SEXP dust_sir_set_index(SEXP ptr, cpp11::sexp r_index) {
 }
 
 SEXP dust_sir_update_state(SEXP ptr, SEXP r_pars, SEXP r_state,
-                                SEXP r_step, SEXP r_set_initial_state,
-                                bool deterministic) {
+                                SEXP r_step, SEXP r_set_initial_state) {
   return dust::r::dust_update_state<sir>(ptr, r_pars, r_state, r_step,
-                                               r_set_initial_state,
-                                               deterministic);
+                                               r_set_initial_state);
 }
 
 SEXP dust_sir_state(SEXP ptr, SEXP r_index) {
