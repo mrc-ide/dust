@@ -255,8 +255,8 @@
     ##' different values, then this would run up to the largest step
     ##' deterministically (see `$run()` for more details).
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      # .Deprecated("update_state(NULL, state, step)",
-      #             old = "set_state(state, step)")
+      # .Deprecated("$update_state(NULL, state, step)",
+      #             old = "$set_state(state, step)")
       self$update_state(NULL, state, step, deterministic = deterministic)
     },
 
@@ -266,9 +266,9 @@
     ##' @param pars New pars for the model (see constructor)
     ##' @param step New initial step for the model (see constructor)
     reset = function(pars, step) {
-      # .Deprecated("$update_state(pars, NULL, step)",
+      # .Deprecated("$update_state(pars = pars, step = step)",
       #             old = "$reset(pars, step)")
-      self$update_state(pars, NULL, step)
+      self$update_state(pars = pars, step = step)
     },
 
     ##' @description
@@ -279,15 +279,16 @@
     ##'
     ##' @param pars New pars for the model (see constructor)
     set_pars = function(pars) {
-      # .Deprecated("$update_state(pars, NULL, NULL, set_state = FALSE)",
-      #             old = "set_pars(pars)")
-      self$update_state(pars, NULL, NULL, set_state = FALSE)
+      .Deprecated("$update_state(pars = pars, set_initial_state = FALSE)",
+                  old = "$set_pars(pars)")
+      self$update_state(pars = pars, set_initial_state = FALSE)
     },
 
-    update_state = function(pars, state, step, set_state = is.null(state),
+    update_state = function(pars = NULL, state = NULL, step = NULL,
+                            set_initial_state = is.null(state),
                             deterministic = FALSE) {
       info <- dust_{{name}}_update_state(private$ptr_, pars, state, step,
-                                         set_state, deterministic)
+                                         set_initial_state, deterministic)
       if (!is.null(pars)) {
         private$info_ <- info
         private$pars_ <- pars

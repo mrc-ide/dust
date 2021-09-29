@@ -215,6 +215,7 @@ test_that("resetting preserves index names", {
 
 
 test_that("Can't change dimensionality on reset/set_pars", {
+  ## TODO: refactor slightly after reset/set_pars merge
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 10, 5)
   y <- matrix(runif(10 * 5), 10, 5)
@@ -225,7 +226,7 @@ test_that("Can't change dimensionality on reset/set_pars", {
     paste("'pars' created inconsistent state size:",
           "expected length 10 but created length 5"))
   expect_error(
-    mod$set_pars(list(len = 5)),
+    mod$update_state(list(len = 5), set_initial_state = FALSE),
     paste("'pars' created inconsistent state size:",
           "expected length 10 but created length 5"))
 
@@ -309,7 +310,7 @@ test_that("can change pars", {
   obj <- res$new(list(sd = 1), 0L, 10L, seed = 1L)
   y1 <- obj$run(1)
 
-  obj$set_pars(list(sd = 2))
+  obj$update_state(pars = list(sd = 2), set_initial_state = FALSE)
   expect_equal(obj$state(), y1)
   expect_equal(obj$step(), 1)
   expect_equal(obj$pars(), list(sd = 2))
@@ -330,7 +331,8 @@ test_that("Validate changing pars leaves particles in sensible state", {
   y1 <- obj$run(1)
 
   expect_error(
-    obj$set_pars(list(len = 6, mean = 10, sd = 10)),
+    obj$update_state(pars = list(len = 6, mean = 10, sd = 10),
+                     set_initial_state = FALSE),
     paste("'pars' created inconsistent state size:",
           "expected length 5 but created length 6"))
   expect_identical(obj$state(), y1)

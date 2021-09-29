@@ -96,27 +96,28 @@ sir <- R6::R6Class(
     },
 
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      # .Deprecated("update_state(NULL, state, step)",
-      #             old = "set_state(state, step)")
+      # .Deprecated("$update_state(NULL, state, step)",
+      #             old = "$set_state(state, step)")
       self$update_state(NULL, state, step, deterministic = deterministic)
     },
 
     reset = function(pars, step) {
-      # .Deprecated("$update_state(pars, NULL, step)",
+      # .Deprecated("$update_state(pars = pars, step = step)",
       #             old = "$reset(pars, step)")
-      self$update_state(pars, NULL, step)
+      self$update_state(pars = pars, step = step)
     },
 
     set_pars = function(pars) {
-      # .Deprecated("$update_state(pars, NULL, NULL, set_state = FALSE)",
-      #             old = "set_pars(pars)")
-      self$update_state(pars, NULL, NULL, set_state = FALSE)
+      .Deprecated("$update_state(pars = pars, set_initial_state = FALSE)",
+                  old = "$set_pars(pars)")
+      self$update_state(pars = pars, set_initial_state = FALSE)
     },
 
-    update_state = function(pars, state, step, set_state = is.null(state),
+    update_state = function(pars = NULL, state = NULL, step = NULL,
+                            set_initial_state = is.null(state),
                             deterministic = FALSE) {
       info <- dust_sir_update_state(private$ptr_, pars, state, step,
-                                         set_state, deterministic)
+                                         set_initial_state, deterministic)
       if (!is.null(pars)) {
         private$info_ <- info
         private$pars_ <- pars
@@ -305,27 +306,28 @@ sirs <- R6::R6Class(
     },
 
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      # .Deprecated("update_state(NULL, state, step)",
-      #             old = "set_state(state, step)")
+      # .Deprecated("$update_state(NULL, state, step)",
+      #             old = "$set_state(state, step)")
       self$update_state(NULL, state, step, deterministic = deterministic)
     },
 
     reset = function(pars, step) {
-      # .Deprecated("$update_state(pars, NULL, step)",
+      # .Deprecated("$update_state(pars = pars, step = step)",
       #             old = "$reset(pars, step)")
-      self$update_state(pars, NULL, step)
+      self$update_state(pars = pars, step = step)
     },
 
     set_pars = function(pars) {
-      # .Deprecated("$update_state(pars, NULL, NULL, set_state = FALSE)",
-      #             old = "set_pars(pars)")
-      self$update_state(pars, NULL, NULL, set_state = FALSE)
+      .Deprecated("$update_state(pars = pars, set_initial_state = FALSE)",
+                  old = "$set_pars(pars)")
+      self$update_state(pars = pars, set_initial_state = FALSE)
     },
 
-    update_state = function(pars, state, step, set_state = is.null(state),
+    update_state = function(pars = NULL, state = NULL, step = NULL,
+                            set_initial_state = is.null(state),
                             deterministic = FALSE) {
       info <- dust_sirs_update_state(private$ptr_, pars, state, step,
-                                         set_state, deterministic)
+                                         set_initial_state, deterministic)
       if (!is.null(pars)) {
         private$info_ <- info
         private$pars_ <- pars
@@ -511,27 +513,28 @@ variable <- R6::R6Class(
     },
 
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      # .Deprecated("update_state(NULL, state, step)",
-      #             old = "set_state(state, step)")
+      # .Deprecated("$update_state(NULL, state, step)",
+      #             old = "$set_state(state, step)")
       self$update_state(NULL, state, step, deterministic = deterministic)
     },
 
     reset = function(pars, step) {
-      # .Deprecated("$update_state(pars, NULL, step)",
+      # .Deprecated("$update_state(pars = pars, step = step)",
       #             old = "$reset(pars, step)")
-      self$update_state(pars, NULL, step)
+      self$update_state(pars = pars, step = step)
     },
 
     set_pars = function(pars) {
-      # .Deprecated("$update_state(pars, NULL, NULL, set_state = FALSE)",
-      #             old = "set_pars(pars)")
-      self$update_state(pars, NULL, NULL, set_state = FALSE)
+      .Deprecated("$update_state(pars = pars, set_initial_state = FALSE)",
+                  old = "$set_pars(pars)")
+      self$update_state(pars = pars, set_initial_state = FALSE)
     },
 
-    update_state = function(pars, state, step, set_state = is.null(state),
+    update_state = function(pars = NULL, state = NULL, step = NULL,
+                            set_initial_state = is.null(state),
                             deterministic = FALSE) {
       info <- dust_variable_update_state(private$ptr_, pars, state, step,
-                                         set_state, deterministic)
+                                         set_initial_state, deterministic)
       if (!is.null(pars)) {
         private$info_ <- info
         private$pars_ <- pars
@@ -717,27 +720,28 @@ volatility <- R6::R6Class(
     },
 
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      # .Deprecated("update_state(NULL, state, step)",
-      #             old = "set_state(state, step)")
+      # .Deprecated("$update_state(NULL, state, step)",
+      #             old = "$set_state(state, step)")
       self$update_state(NULL, state, step, deterministic = deterministic)
     },
 
     reset = function(pars, step) {
-      # .Deprecated("$update_state(pars, NULL, step)",
+      # .Deprecated("$update_state(pars = pars, step = step)",
       #             old = "$reset(pars, step)")
-      self$update_state(pars, NULL, step)
+      self$update_state(pars = pars, step = step)
     },
 
     set_pars = function(pars) {
-      # .Deprecated("$update_state(pars, NULL, NULL, set_state = FALSE)",
-      #             old = "set_pars(pars)")
-      self$update_state(pars, NULL, NULL, set_state = FALSE)
+      .Deprecated("$update_state(pars = pars, set_initial_state = FALSE)",
+                  old = "$set_pars(pars)")
+      self$update_state(pars = pars, set_initial_state = FALSE)
     },
 
-    update_state = function(pars, state, step, set_state = is.null(state),
+    update_state = function(pars = NULL, state = NULL, step = NULL,
+                            set_initial_state = is.null(state),
                             deterministic = FALSE) {
       info <- dust_volatility_update_state(private$ptr_, pars, state, step,
-                                         set_state, deterministic)
+                                         set_initial_state, deterministic)
       if (!is.null(pars)) {
         private$info_ <- info
         private$pars_ <- pars
@@ -923,27 +927,28 @@ walk <- R6::R6Class(
     },
 
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      # .Deprecated("update_state(NULL, state, step)",
-      #             old = "set_state(state, step)")
+      # .Deprecated("$update_state(NULL, state, step)",
+      #             old = "$set_state(state, step)")
       self$update_state(NULL, state, step, deterministic = deterministic)
     },
 
     reset = function(pars, step) {
-      # .Deprecated("$update_state(pars, NULL, step)",
+      # .Deprecated("$update_state(pars = pars, step = step)",
       #             old = "$reset(pars, step)")
-      self$update_state(pars, NULL, step)
+      self$update_state(pars = pars, step = step)
     },
 
     set_pars = function(pars) {
-      # .Deprecated("$update_state(pars, NULL, NULL, set_state = FALSE)",
-      #             old = "set_pars(pars)")
-      self$update_state(pars, NULL, NULL, set_state = FALSE)
+      .Deprecated("$update_state(pars = pars, set_initial_state = FALSE)",
+                  old = "$set_pars(pars)")
+      self$update_state(pars = pars, set_initial_state = FALSE)
     },
 
-    update_state = function(pars, state, step, set_state = is.null(state),
+    update_state = function(pars = NULL, state = NULL, step = NULL,
+                            set_initial_state = is.null(state),
                             deterministic = FALSE) {
       info <- dust_walk_update_state(private$ptr_, pars, state, step,
-                                         set_state, deterministic)
+                                         set_initial_state, deterministic)
       if (!is.null(pars)) {
         private$info_ <- info
         private$pars_ <- pars

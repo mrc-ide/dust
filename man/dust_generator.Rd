@@ -383,10 +383,10 @@ the index will remain valid.
 \subsection{Method \code{update_state()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$update_state(
-  pars,
-  state,
-  step,
-  set_state = is.null(state),
+  pars = NULL,
+  state = NULL,
+  step = NULL,
+  set_initial_state = is.null(state),
   deterministic = FALSE
 )}\if{html}{\out{</div>}}
 }

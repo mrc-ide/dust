@@ -254,7 +254,8 @@ dust_generator <- R6::R6Class(
     set_pars = function(pars) {
     },
 
-    update_state = function(pars, state, step, set_state = is.null(state),
+    update_state = function(pars = NULL, state = NULL, step = NULL,
+                            set_initial_state = is.null(state),
                             deterministic = FALSE) {
     },
 

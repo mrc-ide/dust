@@ -56,4 +56,4 @@ vignettes: vignettes/dust.Rmd vignettes/rng.Rmd
 	mkdir -p inst/doc
 	cp vignettes/*.html vignettes/*.Rmd inst/doc
 
-.PHONY: all test document install vignettes pkgdown
+.PHONY: all test roxygen install vignettes pkgdown

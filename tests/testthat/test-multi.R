@@ -262,14 +262,14 @@ test_that("Can change pars", {
   expect_identical(obj$rng_state(last_only = TRUE),
                    b$rng_state(last_only = TRUE))
 
-  obj$set_pars(p2)
+  obj$update_state(pars = p2, set_initial_state = FALSE)
   expect_equal(obj$state(), y1)
   expect_equal(obj$step(), 1)
   expect_equal(obj$pars(), p2)
 
   y2 <- obj$run(2)
-  a$set_pars(p2[[1]])
-  b$set_pars(p2[[2]])
+  a$update_state(pars = p2[[1]], set_initial_state = FALSE)
+  b$update_state(pars = p2[[2]], set_initial_state = FALSE)
   expect_equal(drop(a$run(2)), y2[, , 1])
   expect_equal(drop(b$run(2)), y2[, , 2])
 
@@ -290,6 +290,8 @@ test_that("must use same sized simulations", {
 
 
 test_that("Can't change parameter size on reset or set_pars", {
+  ## TODO: this test gets slightly refactored now that reset and
+  ## set_pars merge?
   res <- dust_example("variable")
   pars <- rep(list(list(len = 7)), 5)
   obj <- res$new(pars, 0, 10, seed = 1L, pars_multi = TRUE)
@@ -299,7 +301,7 @@ test_that("Can't change parameter size on reset or set_pars", {
     paste("'pars' created inconsistent state size:",
           "expected length 7 but parameter set 1 created length 8"))
   expect_error(
-    obj$set_pars(pars2),
+    obj$update_state(pars2, set_initial_state = FALSE),
     paste("'pars' created inconsistent state size:",
           "expected length 7 but parameter set 1 created length 8"))
   pars3 <- pars
@@ -309,7 +311,7 @@ test_that("Can't change parameter size on reset or set_pars", {
     paste("'pars' created inconsistent state size:",
           "expected length 7 but parameter set 3 created length 8"))
   expect_error(
-    obj$set_pars(pars3),
+    obj$update_state(pars3, set_initial_state = FALSE),
     paste("'pars' created inconsistent state size:",
           "expected length 7 but parameter set 3 created length 8"))
 })
@@ -322,11 +324,11 @@ test_that("Validate parameter suitability", {
 
   expect_error(obj$reset(pars[-1], 0),
                "Expected a list of length 6 for 'pars'")
-  expect_error(obj$set_pars(pars[-1]),
+  expect_error(obj$update_state(pars[-1], set_initial_state = FALSE),
                "Expected a list of length 6 for 'pars'")
 
   expect_error(
-    obj$set_pars(pars[[1]]),
+    obj$update_state(pars[[1]], set_initial_state = FALSE),
     "Expected an unnamed list for 'pars' (given 'pars_multi')",
     fixed = TRUE)
   expect_error(
@@ -336,7 +338,7 @@ test_that("Validate parameter suitability", {
 
   pars2 <- structure(pars, dim = c(2, 3))
   expect_error(
-    obj$set_pars(pars2),
+    obj$update_state(pars2, set_initial_state = FALSE),
     "Expected a list with no dimension attribute for 'pars'")
   expect_error(
     obj$reset(pars2, 0),
@@ -565,7 +567,7 @@ test_that("Can set pars into unreplicated multiparameter model", {
   p2 <- lapply(runif(10), function(x) list(len = 7, sd = x))
   res <- dust_example("variable")
   mod <- res$new(p1, 0, NULL, seed = 1L, pars_multi = TRUE)
-  expect_silent(mod$set_pars(p2))
+  expect_silent(mod$update_state(pars = p2, set_initial_state = FALSE))
   expect_identical(mod$pars(), p2)
 
   mod$set_state(matrix(0, 7, 10))
@@ -583,7 +585,8 @@ test_that("Can set pars into unreplicated multiparameter model", {
   mod2$pars()
   mod2$set_state(array(0, c(7, 5, 2)))
 
-  expect_silent(mod2$set_pars(reshape(p2)))
+  expect_silent(
+    mod2$update_state(pars = reshape(p2), set_initial_state = FALSE))
   expect_identical(mod2$pars(), reshape(p2))
   y2 <- mod2$run(1)
   expect_equal(dim(y2), c(7, 5, 2))
@@ -600,13 +603,13 @@ test_that("Can set pars into a structured parameter model", {
   res <- dust_example("variable")
   mod <- res$new(p1, 0, 6, seed = 1L, pars_multi = TRUE)
 
-  expect_silent(mod$set_pars(p2))
+  expect_silent(mod$update_state(p2, set_initial_state = FALSE))
   expect_identical(mod$pars(), p2)
 
-  expect_error(mod$set_pars(p3),
+  expect_error(mod$update_state(p3, set_initial_state = FALSE),
                "Expected a list array of rank 2 for 'pars'")
-  expect_error(mod$set_pars(p2[-1, ]),
-               "cted dimension 1 of 'pars' to be 5 but given 4")
+  expect_error(mod$update_state(p2[-1, ], set_initial_state = FALSE),
+               "Expected dimension 1 of 'pars' to be 5 but given 4")
 })
 
 
