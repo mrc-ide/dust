@@ -47,9 +47,17 @@ generate_dust <- function(filename, quiet, workdir, cuda, skip_cache, mangle) {
   }
 
   ## Keep the generated dust files simple by dropping roxygen docs
-  ## which are used in making the interface docs (?dust_generator)
-  dust_r <- readLines(file.path(path, "R/dust.R"))
+  ## which are used in making the interface docs (?dust_generator) and
+  ## internal comments which remind developers about next steps after
+  ## modifying files.
+  dust_r <- drop_internal_comments(readLines(file.path(path, "R/dust.R")))
   writeLines(drop_roxygen(dust_r), file.path(path, "R/dust.R"))
+
+  dust_cpp <- drop_internal_comments(readLines(file.path(path, "src/dust.cpp")))
+  writeLines(dust_cpp, file.path(path, "src/dust.cpp"))
+
+  dust_hpp <- drop_internal_comments(readLines(file.path(path, "src/dust.hpp")))
+  writeLines(dust_hpp, file.path(path, "src/dust.hpp"))
 
   res <- list(key = base, gpu = gpu, data = data, path = path)
   cache$models$set(base, res, skip_cache)
@@ -99,6 +107,9 @@ substitute_dust_template <- function(data, src, dest) {
 
 
 glue_whisker <- function(template, data) {
+  if (length(template) > 1L) {
+    template <- paste(template, collapse = "\n")
+  }
   glue::glue(template, .envir = data, .open = "{{", .close = "}}",
              .trim = FALSE)
 }

@@ -1,7 +1,6 @@
 ### IMPORTANT: After making changes here, run
 ### ./scripts/update_dust_generator and devtools::document() in order
 ### to regenerate the package interface.
-
 ##' @name dust_generator
 ##' @rdname dust_generator
 ##' @title The dust class

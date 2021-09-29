@@ -203,17 +203,20 @@ package_generate <- function(filename) {
   model <- read_lines(filename)
   data <- dust_template_data(model, config, NULL)
 
-  template_r <- readLines(dust_file("template/dust.R.template"))
+  template_r <- drop_internal_comments(
+    readLines(dust_file("template/dust.R.template")))
   ## Drop all the roxygen comments here before writing out the R
   ## code. The reasoning here is that we have no way of tying this to
   ## the correct help page, and the user may not be using roxygen at
   ## all, and they could just link to the help file ?dust to get the
   ## same documentation.
-  template_r <- paste(drop_roxygen(template_r), collapse = "\n")
+  template_r <- drop_roxygen(template_r)
   code_r <- glue_whisker(template_r, data)
 
-  template_hpp <- read_lines(dust_file("template/dust.hpp"))
-  template_cpp <- read_lines(dust_file("template/dust.cpp"))
+  template_hpp <- drop_internal_comments(
+    readLines(dust_file("template/dust.hpp")))
+  template_cpp <- drop_internal_comments(
+    readLines(dust_file("template/dust.cpp")))
   code_hpp <- glue_whisker(template_hpp, data)
   code_cpp <- glue_whisker(template_cpp, data)
   src <- set_names(paste(code_hpp, code_cpp, sep = "\n\n"), basename(filename))
