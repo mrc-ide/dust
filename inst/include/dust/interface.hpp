@@ -198,7 +198,7 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
   }
 
   return dust_update_set(obj, r_pars, state, step,
-                         deterministic, set_initial_state);
+                         set_initial_state, deterministic);
 }
 
 template <typename T>
