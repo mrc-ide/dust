@@ -207,7 +207,7 @@ test_that("resetting preserves index names", {
     mod$run(0),
     matrix(c(1, 3, 5), 3, 5, dimnames = list(c("x", "y", "z"), NULL)))
 
-  mod$reset(list(len = 10), 0)
+  mod$update_state(pars = list(len = 10), step = 0)
   expect_equal(
     mod$run(0),
     matrix(c(1, 3, 5), 3, 5, dimnames = list(c("x", "y", "z"), NULL)))
@@ -222,7 +222,7 @@ test_that("Can't change dimensionality on reset/set_pars", {
   mod$update_state(state = y)
 
   expect_error(
-    mod$reset(list(len = 5), 0),
+    mod$update_state(pars = list(len = 5), step = 0),
     paste("'pars' created inconsistent state size:",
           "expected length 10 but created length 5"))
   expect_error(

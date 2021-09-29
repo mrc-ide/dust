@@ -20,7 +20,7 @@ test_that("walk agrees with random number stream", {
 })
 
 
-test_that("Reset particles and resume continues with rng", {
+test_that("Update particle state and resume continues with rng", {
   res <- dust_example("walk")
   sd1 <- 2
   sd2 <- 4
@@ -30,7 +30,7 @@ test_that("Reset particles and resume continues with rng", {
   y1 <- obj$run(5)
   expect_equal(obj$step(), 5)
 
-  obj$reset(list(sd = sd2), 0)
+  obj$update_state(pars = list(sd = sd2), step = 0)
   ## obj$update_state(list(sd = sd2), NULL, 0, set_initial_state = TRUE)
 
   expect_equal(obj$step(), 0)
@@ -110,12 +110,12 @@ test_that("set index", {
 })
 
 
-test_that("reset does not clear the index", {
+test_that("update_state with pars does not clear the index", {
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 1, seed = 1L)
   mod$set_index(2:4)
   expect_equal(mod$run(0), matrix(2:4))
-  mod$reset(list(len = 10), 0)
+  mod$update_state(pars = list(len = 10), step = 0)
   expect_equal(mod$run(0), matrix(2:4))
 })
 
@@ -265,13 +265,13 @@ test_that("run in float mode", {
 })
 
 
-test_that("reset changes info", {
+test_that("update_state with pars changes info", {
   res <- dust_example("sir")
   obj <- res$new(list(), 0, 100, seed = 1L)
   expect_equal(obj$info(),
                list(vars = c("S", "I", "R", "cases_cumul", "cases_inc"),
                     pars = list(beta = 0.2, gamma = 0.1)))
-  obj$reset(list(beta = 0.1), 0)
+  obj$update_state(pars = list(beta = 0.1), step = 0)
   expect_equal(obj$info(),
                list(vars = c("S", "I", "R", "cases_cumul", "cases_inc"),
                     pars = list(beta = 0.1, gamma = 0.1)))
@@ -560,7 +560,7 @@ test_that("volality compare is correct", {
                dat$compare(y, dat$data[1, ], pars))
 
   f <- function() {
-    mod$reset(pars, 0L)
+    mod$update_state(pars = pars, step = 0L)
     mod$filter()$log_likelihood
   }
   ll <- replicate(200, f())

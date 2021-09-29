@@ -112,8 +112,8 @@ sir <- R6::R6Class(
     },
 
     reset = function(pars, step) {
-      # .Deprecated("$update_state(pars = pars, step = step)",
-      #             old = "$reset(pars, step)")
+      .Deprecated("$update_state(pars = pars, step = step)",
+                  old = "$reset(pars, step)")
       self$update_state(pars = pars, step = step)
     },
 
@@ -332,8 +332,8 @@ sirs <- R6::R6Class(
     },
 
     reset = function(pars, step) {
-      # .Deprecated("$update_state(pars = pars, step = step)",
-      #             old = "$reset(pars, step)")
+      .Deprecated("$update_state(pars = pars, step = step)",
+                  old = "$reset(pars, step)")
       self$update_state(pars = pars, step = step)
     },
 
@@ -549,8 +549,8 @@ variable <- R6::R6Class(
     },
 
     reset = function(pars, step) {
-      # .Deprecated("$update_state(pars = pars, step = step)",
-      #             old = "$reset(pars, step)")
+      .Deprecated("$update_state(pars = pars, step = step)",
+                  old = "$reset(pars, step)")
       self$update_state(pars = pars, step = step)
     },
 
@@ -766,8 +766,8 @@ volatility <- R6::R6Class(
     },
 
     reset = function(pars, step) {
-      # .Deprecated("$update_state(pars = pars, step = step)",
-      #             old = "$reset(pars, step)")
+      .Deprecated("$update_state(pars = pars, step = step)",
+                  old = "$reset(pars, step)")
       self$update_state(pars = pars, step = step)
     },
 
@@ -983,8 +983,8 @@ walk <- R6::R6Class(
     },
 
     reset = function(pars, step) {
-      # .Deprecated("$update_state(pars = pars, step = step)",
-      #             old = "$reset(pars, step)")
+      .Deprecated("$update_state(pars = pars, step = step)",
+                  old = "$reset(pars, step)")
       self$update_state(pars = pars, step = step)
     },
 

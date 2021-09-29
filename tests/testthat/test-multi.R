@@ -66,7 +66,7 @@ test_that("Can reset particles and resume continues with rng", {
   y1 <- obj$run(ns)
   expect_equal(obj$step(), ns)
 
-  obj$reset(pars2, 0)
+  obj$update_state(pars = pars2, step = 0)
   expect_equal(obj$step(), 0)
   y2 <- obj$run(ns)
   expect_equal(obj$step(), ns)
@@ -297,7 +297,7 @@ test_that("Can't change parameter size on reset or set_pars", {
   obj <- res$new(pars, 0, 10, seed = 1L, pars_multi = TRUE)
   pars2 <- rep(list(list(len = 8)), 5)
   expect_error(
-    obj$reset(pars2, 0),
+    obj$update_state(pars = pars2, step = 0),
     paste("'pars' created inconsistent state size:",
           "expected length 7 but parameter set 1 created length 8"))
   expect_error(
@@ -307,7 +307,7 @@ test_that("Can't change parameter size on reset or set_pars", {
   pars3 <- pars
   pars3[[3]] <- pars2[[3]]
   expect_error(
-    obj$reset(pars3, 0),
+    obj$update_state(pars = pars3, step = 0),
     paste("'pars' created inconsistent state size:",
           "expected length 7 but parameter set 3 created length 8"))
   expect_error(
@@ -322,7 +322,7 @@ test_that("Validate parameter suitability", {
   pars <- rep(list(list(len = 7)), 6)
   obj <- res$new(pars, 0, 10, seed = 1L, pars_multi = TRUE)
 
-  expect_error(obj$reset(pars[-1], 0),
+  expect_error(obj$update_state(pars = pars[-1], step = 0),
                "Expected a list of length 6 for 'pars'")
   expect_error(obj$update_state(pars[-1], set_initial_state = FALSE),
                "Expected a list of length 6 for 'pars'")
@@ -332,7 +332,7 @@ test_that("Validate parameter suitability", {
     "Expected an unnamed list for 'pars' (given 'pars_multi')",
     fixed = TRUE)
   expect_error(
-    obj$reset(pars[[1]], 0),
+    obj$update_state(pars = pars[[1]], step = 0),
     "Expected an unnamed list for 'pars' (given 'pars_multi')",
     fixed = TRUE)
 
@@ -341,7 +341,7 @@ test_that("Validate parameter suitability", {
     obj$update_state(pars2, set_initial_state = FALSE),
     "Expected a list with no dimension attribute for 'pars'")
   expect_error(
-    obj$reset(pars2, 0),
+    obj$update_state(pars = pars2, step = 0),
     "Expected a list with no dimension attribute for 'pars'")
 })
 

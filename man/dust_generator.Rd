@@ -150,7 +150,8 @@ Returns friendly model name
 \subsection{Method \code{param()}}{
 Returns parameter information, if provided by the model. This
 describes the contents of pars passed to the constructor or to
-\code{reset} as the \code{pars} argument, and the details depend on the model.
+\verb{$update_state()} as the \code{pars} argument, and the details depend
+on the model.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$param()}\if{html}{\out{</div>}}
 }
@@ -229,9 +230,7 @@ expectation.}
 Set the "index" vector that is used to return a subset of pars
 after using \code{run()}. If this is not used then \code{run()} returns
 all elements in your state vector, which may be excessive and slower
-than necessary. This method must be called after any
-call to \code{reset()} as \code{reset()} may change the size of the state
-and that will invalidate the index.
+than necessary.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$set_index(index)}\if{html}{\out{</div>}}
 }
@@ -660,9 +659,9 @@ the GPU device. See \verb{$run()} for more information.}
 \if{latex}{\out{\hypertarget{method-filter}{}}}
 \subsection{Method \code{filter()}}{
 Run a particle filter. The interface here will change a lot over the
-next few versions. You \emph{must} \verb{$reset()} the filter before using
-this method to get sensible values. We will tinker with this in
-future versions to allow things like partial runs.
+next few versions. You \emph{must} reset the dust object using
+\verb{$update_state(pars = ..., step = ...)} before using this method to
+get sensible values.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$filter(
   save_trajectories = FALSE,
