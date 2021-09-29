@@ -40,6 +40,7 @@ walk
 \item \href{#method-set_state}{\code{dust_generator$set_state()}}
 \item \href{#method-reset}{\code{dust_generator$reset()}}
 \item \href{#method-set_pars}{\code{dust_generator$set_pars()}}
+\item \href{#method-update_state}{\code{dust_generator$update_state()}}
 \item \href{#method-state}{\code{dust_generator$state()}}
 \item \href{#method-step}{\code{dust_generator$step()}}
 \item \href{#method-reorder}{\code{dust_generator$reorder()}}
@@ -375,6 +376,21 @@ the index will remain valid.
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-update_state"></a>}}
+\if{latex}{\out{\hypertarget{method-update_state}{}}}
+\subsection{Method \code{update_state()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$update_state(
+  pars,
+  state,
+  step,
+  set_state = is.null(state),
+  deterministic = FALSE
+)}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-state"></a>}}

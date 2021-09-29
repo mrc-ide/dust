@@ -9,6 +9,10 @@
 ## The code and object below have exactly the interface of all generated
 ## dust objects, and this page acts as a reference for all such methods
 ## modelled on the ?regex page in base R's documentation
+### IMPORTANT: After making changes here, run
+### ./scripts/update_dust_generator and devtools::document() in order
+### to regenerate the package interface.
+
 ##' @name dust_generator
 ##' @rdname dust_generator
 ##' @title The dust class
@@ -248,6 +252,10 @@ dust_generator <- R6::R6Class(
     ##'
     ##' @param pars New pars for the model (see constructor)
     set_pars = function(pars) {
+    },
+
+    update_state = function(pars, state, step, set_state = is.null(state),
+                            deterministic = FALSE) {
     },
 
     ##' @description

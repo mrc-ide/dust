@@ -1,3 +1,7 @@
+### IMPORTANT: After making changes here, run
+### ./scripts/update_dust_generator and devtools::document() in order
+### to regenerate the package interface.
+
 ##' @name dust_generator
 ##' @rdname dust_generator
 ##' @title The dust class
@@ -251,8 +255,8 @@
     ##' different values, then this would run up to the largest step
     ##' deterministically (see `$run()` for more details).
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      .Deprecated("update_state(NULL, state, step)",
-                  old = "set_state(state, step)")
+      # .Deprecated("update_state(NULL, state, step)",
+      #             old = "set_state(state, step)")
       self$update_state(NULL, state, step, deterministic = deterministic)
     },
 
@@ -262,8 +266,8 @@
     ##' @param pars New pars for the model (see constructor)
     ##' @param step New initial step for the model (see constructor)
     reset = function(pars, step) {
-      .Deprecated("$update_state(pars, NULL, step)",
-                  old = "$reset(pars, step)")
+      # .Deprecated("$update_state(pars, NULL, step)",
+      #             old = "$reset(pars, step)")
       self$update_state(pars, NULL, step)
     },
 
@@ -275,9 +279,9 @@
     ##'
     ##' @param pars New pars for the model (see constructor)
     set_pars = function(pars) {
-      .Deprecated("$update_state(pars, NULL, NULL)",
-                  old = "set_pars(pars)")
-      self$self$update_state(pars, NULL, NULL)
+      # .Deprecated("$update_state(pars, NULL, NULL, set_state = FALSE)",
+      #             old = "set_pars(pars)")
+      self$update_state(pars, NULL, NULL, set_state = FALSE)
     },
 
     update_state = function(pars, state, step, set_state = is.null(state),
