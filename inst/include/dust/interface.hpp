@@ -99,6 +99,62 @@ void dust_set_index(SEXP ptr, cpp11::sexp r_index) {
   obj->set_index(index);
 }
 
+template <typename T>
+cpp11::sexp dust_update_set_pars(Dust<T> *obj, cpp11::list r_pars,
+                                 bool set_initial_state) {
+  cpp11::sexp ret = R_NilValue;
+  if (obj->n_pars() == 0) {
+    dust::pars_t<T> pars = dust_pars<T>(r_pars);
+    obj->set_pars(pars, set_initial_state);
+    ret = dust_info<T>(pars);
+  } else {
+    dust::interface::check_pars_multi(r_pars, obj->shape(),
+                                      obj->pars_are_shared());
+    std::vector<dust::pars_t<T>> pars;
+    pars.reserve(obj->n_pars());
+    cpp11::writable::list info_list =
+      cpp11::writable::list(r_pars.size());
+    for (int i = 0; i < r_pars.size(); ++i) {
+      pars.push_back(dust_pars<T>(r_pars[i]));
+      info_list[i] = dust_info<T>(pars[i]);
+    }
+    obj->set_pars(pars, set_initial_state);
+    ret = info_list;
+  }
+  return ret;
+}
+
+template <typename T>
+cpp11::sexp dust_update_set(Dust<T> *obj, SEXP r_pars,
+                            const std::vector<typename T::real_t>& state,
+                            const std::vector<size_t>& step,
+                            bool set_initial_state,
+                            bool deterministic) {
+  cpp11::sexp ret = R_NilValue;
+  if (r_pars != R_NilValue) {
+    ret = dust_update_set_pars(obj, cpp11::as_cpp<cpp11::list>(r_pars),
+                               set_initial_state);
+  }
+
+  if (state.size() > 0) {
+    obj->set_state(state);
+  }
+
+  if (step.size() == 1) {
+    obj->set_step(step[0]);
+  } else if (step.size() > 1) {
+    obj->set_step(step, deterministic);
+  }
+
+  // If we set both initial conditions and step then we're safe to
+  // continue here.
+  if (state.size() > 0 && step.size() > 0) {
+    obj->reset_errors();
+  }
+
+  return ret;
+}
+
 // There are many components of state (not including rng state which
 // we treat separately), we set components always in the order (1)
 // pars, (2) state, (3) step
@@ -107,7 +163,6 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
                        bool set_initial_state, bool deterministic) {
   typedef typename T::real_t real_t;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  cpp11::sexp ret = R_NilValue;
 
   // ** Stage 1, validate
   if (set_initial_state && r_pars == R_NilValue) {
@@ -120,7 +175,7 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
   // Do the validation on both arguments first so that we leave this
   // function having dealt with both or neither (i.e., do not fail on
   // step after succeeding on state).
-  const size_t n_state = obj->n_state_full();
+
   std::vector<size_t> step;
   std::vector<real_t> state;
 
@@ -136,48 +191,14 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
   }
 
   if (r_state != R_NilValue) {
-    state = dust::interface::check_state<real_t>(r_state, n_state, obj->shape(),
+    state = dust::interface::check_state<real_t>(r_state,
+                                                 obj->n_state_full(),
+                                                 obj->shape(),
                                                  obj->pars_are_shared());
   }
 
-  // ** Stage 2, set; if setting pars errors it's ok because we've not
-  // ** made any changes to the object by this point.
-  if (r_pars != R_NilValue) {
-    cpp11::list r_pars_list = cpp11::as_cpp<cpp11::list>(r_pars);
-    if (obj->n_pars() == 0) {
-      dust::pars_t<T> pars = dust_pars<T>(r_pars_list);
-      obj->set_pars(pars, set_initial_state);
-      ret = dust_info<T>(pars);
-    } else {
-      dust::interface::check_pars_multi(r_pars_list, obj->shape(),
-                                        obj->pars_are_shared());
-      std::vector<dust::pars_t<T>> pars;
-      pars.reserve(obj->n_pars());
-      cpp11::writable::list info_list =
-        cpp11::writable::list(r_pars_list.size());
-      for (int i = 0; i < r_pars_list.size(); ++i) {
-        pars.push_back(dust_pars<T>(r_pars_list[i]));
-        info_list[i] = dust_info<T>(pars[i]);
-      }
-      obj->set_pars(pars, set_initial_state);
-      ret = info_list;
-    }
-  }
-
-  if (r_state != R_NilValue) {
-    obj->set_state(state);
-  }
-
-  if (r_step != R_NilValue) {
-    if (step.size() == 1) {
-      obj->set_step(step[0]);
-    } else {
-      obj->set_step(step, deterministic);
-    }
-    obj->reset_errors();
-  }
-
-  return ret;
+  return dust_update_set(obj, r_pars, state, step,
+                         deterministic, set_initial_state);
 }
 
 template <typename T>
