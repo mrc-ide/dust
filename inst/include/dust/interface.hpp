@@ -104,14 +104,17 @@ void dust_set_index(SEXP ptr, cpp11::sexp r_index) {
 // pars, (2) state, (3) step
 template <typename T>
 SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
-                       bool set_state, bool deterministic) {
+                       bool set_initial_state, bool deterministic) {
   typedef typename T::real_t real_t;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   cpp11::sexp ret = R_NilValue;
 
   // ** Stage 1, validate
-  if (set_state && r_state != R_NilValue) {
-    cpp11::stop("Can't use both 'set_state' and provide 'state'");
+  if (set_initial_state && r_state != R_NilValue) {
+    cpp11::stop("Can't use both 'set_initial_state' and provide 'state'");
+  }
+  if (set_initial_state && r_pars == R_NilValue) {
+    cpp11::stop("Can't use 'set_initial_state' without providing 'pars'");
   }
 
   // Do the validation on both arguments first so that we leave this
@@ -143,7 +146,7 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
     cpp11::list r_pars_list = cpp11::as_cpp<cpp11::list>(r_pars);
     if (obj->n_pars() == 0) {
       dust::pars_t<T> pars = dust_pars<T>(r_pars_list);
-      obj->set_pars(pars, set_state);
+      obj->set_pars(pars, set_initial_state);
       ret = dust_info<T>(pars);
     } else {
       dust::interface::check_pars_multi(r_pars_list, obj->shape(),
@@ -156,7 +159,7 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
         pars.push_back(dust_pars<T>(r_pars_list[i]));
         info_list[i] = dust_info<T>(pars[i]);
       }
-      obj->set_pars(pars, set_state);
+      obj->set_pars(pars, set_initial_state);
       ret = info_list;
     }
   }

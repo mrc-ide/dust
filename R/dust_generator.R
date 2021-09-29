@@ -249,8 +249,37 @@ dust_generator <- R6::R6Class(
     set_pars = function(pars) {
     },
 
+    ##' @description Update one or more components of the model state.
+    ##'   This method can be used to update any or all of `pars`, `state` and
+    ##'   `step`.  If `pars` is given and `state` is not, then by default we
+    ##'   will update the model internal state according to your model's
+    ##'   initial conditions - use `set_initial_state = FALSE` to prevent
+    ##'   this.
+    ##'
+    ##' @param pars New pars for the model (see constructor)
+    ##'
+    ##' @param step New initial step for the model. If this
+    ##'   is a vector (with the same length as the number of particles), then
+    ##'   particles are started from different initial steps and run up to the
+    ##'   largest step given (i.e., `max(step)`)
+    ##'
+    ##' @param state The state vector - can be either a numeric vector with the
+    ##'   same length as the model's current state (in which case the same
+    ##'   state is applied to all particles), or a numeric matrix with as
+    ##'   many rows as your model's state and as many columns as you have
+    ##'   particles (in which case you can set a number of different starting
+    ##'   states at once).
+    ##'
+    ##' @param set_initial_state Control if the model initial state
+    ##'   should be set while setting parameters. It is an error for
+    ##'   this to be `TRUE` when either `pars` is `NULL` or when `state`
+    ##'   is non-`NULL`.
+    ##'
+    ##' @param deterministic If `TRUE` and if `step` is a vector with
+    ##'   different values, then this would run up to the largest step
+    ##'   deterministically (see `$run()` for more details).
     update_state = function(pars = NULL, state = NULL, step = NULL,
-                            set_initial_state = is.null(state),
+                            set_initial_state = NULL,
                             deterministic = FALSE) {
     },
 

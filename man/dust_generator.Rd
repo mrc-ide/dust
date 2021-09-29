@@ -380,16 +380,50 @@ the index will remain valid.
 \if{html}{\out{<a id="method-update_state"></a>}}
 \if{latex}{\out{\hypertarget{method-update_state}{}}}
 \subsection{Method \code{update_state()}}{
+Update one or more components of the model state.
+This method can be used to update any or all of \code{pars}, \code{state} and
+\code{step}.  If \code{pars} is given and \code{state} is not, then by default we
+will update the model internal state according to your model's
+initial conditions - use \code{set_initial_state = FALSE} to prevent
+this.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$update_state(
   pars = NULL,
   state = NULL,
   step = NULL,
-  set_initial_state = is.null(state),
+  set_initial_state = NULL,
   deterministic = FALSE
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{pars}}{New pars for the model (see constructor)}
+
+\item{\code{state}}{The state vector - can be either a numeric vector with the
+same length as the model's current state (in which case the same
+state is applied to all particles), or a numeric matrix with as
+many rows as your model's state and as many columns as you have
+particles (in which case you can set a number of different starting
+states at once).}
+
+\item{\code{step}}{New initial step for the model. If this
+is a vector (with the same length as the number of particles), then
+particles are started from different initial steps and run up to the
+largest step given (i.e., \code{max(step)})}
+
+\item{\code{set_initial_state}}{Control if the model initial state
+should be set while setting parameters. It is an error for
+this to be \code{TRUE} when either \code{pars} is \code{NULL} or when \code{state}
+is non-\code{NULL}.}
+
+\item{\code{deterministic}}{If \code{TRUE} and if \code{step} is a vector with
+different values, then this would run up to the largest step
+deterministically (see \verb{$run()} for more details).}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-state"></a>}}
