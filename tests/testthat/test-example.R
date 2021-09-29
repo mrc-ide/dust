@@ -31,7 +31,6 @@ test_that("Update particle state and resume continues with rng", {
   expect_equal(obj$step(), 5)
 
   obj$update_state(pars = list(sd = sd2), step = 0)
-  ## obj$update_state(list(sd = sd2), NULL, 0, set_initial_state = TRUE)
 
   expect_equal(obj$step(), 0)
   y2 <- obj$run(5)
