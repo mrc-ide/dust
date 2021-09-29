@@ -125,18 +125,18 @@
 ##'
 ##' @section Error handling:
 ##'
-##' Your model throw exceptions as a last resort. One such last resort
-##'   exists if `rbinom` is given invalid inputs to prevent an
-##'   infinite loop. If an error is thrown, all particles will
-##'   complete their current run, and then the error will be rethrown
-##'   - this is required by our parallel processing design. Once this
-##'   happens though the state of the system is "inconsistent" as it
-##'   contains particles that have run for different lengths of
-##'   time. You can extract the state of the system at the point of
-##'   failure (which may help with debugging) but you will be unable
-##'   to continue running the object until either you reset it (with
-##'   `$reset()`) or set *both* the state and step with
-##'   `$set_state()`. An error will be thrown otherwise.
+##' Your model should only throw exceptions as a last resort. One such
+##'   last resort exists already if `rbinom` is given invalid inputs
+##'   to prevent an infinite loop. If an error is thrown, all
+##'   particles will complete their current run, and then the error
+##'   will be rethrown - this is required by our parallel processing
+##'   design. Once this happens though the state of the system is
+##'   "inconsistent" as it contains particles that have run for
+##'   different lengths of time. You can extract the state of the
+##'   system at the point of failure (which may help with debugging)
+##'   but you will be unable to continue running the object until
+##'   either you reset it (with `$update_state()`). An error will be
+##'   thrown otherwise.
 ##'
 ##' Things are worse on a GPU; if an error is thrown by the RNG code
 ##'   (happens in `rbinom` when given impossible inputs such as

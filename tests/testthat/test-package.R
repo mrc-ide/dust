@@ -21,7 +21,7 @@ test_that("validate package", {
   expect_equal(w$state(), matrix(0, 1, 100))
 
   expect_equal(w$run(0), matrix(0, 1, 100))
-  w$set_state(pi)
+  w$update_state(state = pi)
   expect_equal(w$run(0), matrix(pi, 1, 100))
   w$set_index(integer(0))
   expect_equal(w$run(0), matrix(0, 0, 100))

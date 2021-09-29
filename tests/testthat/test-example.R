@@ -31,7 +31,7 @@ test_that("Reset particles and resume continues with rng", {
   expect_equal(obj$step(), 5)
 
   obj$reset(list(sd = sd2), 0)
-  ## obj$update_state(list(sd = sd2), NULL, 0, set_state = TRUE)
+  ## obj$update_state(list(sd = sd2), NULL, 0, set_initial_state = TRUE)
 
   expect_equal(obj$step(), 0)
   y2 <- obj$run(5)
@@ -125,10 +125,10 @@ test_that("set model state", {
   mod <- res$new(list(len = 10), 0, 1, seed = 1L)
   expect_equal(mod$state(), matrix(1:10))
   x <- runif(10)
-  mod$set_state(x)
+  mod$update_state(state = x)
   expect_equal(mod$state(), matrix(x))
   expect_error(
-    mod$set_state(1),
+    mod$update_state(state = 1),
     "Expected a vector of length 10 for 'state'")
   expect_equal(mod$state(), matrix(x))
 })
@@ -139,10 +139,10 @@ test_that("set model state into multiple particles", {
   mod <- res$new(list(len = 10), 0, 20, seed = 1L)
   expect_equal(mod$state(), matrix(1:10, 10, 20))
   x <- runif(10)
-  mod$set_state(x)
+  mod$update_state(state = x)
   expect_equal(mod$state(), matrix(x, 10, 20))
   expect_error(
-    mod$set_state(1),
+    mod$update_state(state = 1),
     "Expected a vector of length 10 for 'state'")
   expect_equal(mod$state(), matrix(x, 10, 20))
 })
@@ -152,14 +152,14 @@ test_that("set model state with a matrix", {
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(runif(20), 10, 2)
-  mod$set_state(m)
+  mod$update_state(state = m)
 
   expect_equal(mod$state(), m)
   expect_error(
-    mod$set_state(m[, c(1, 1, 2, 2)]),
+    mod$update_state(state = m[, c(1, 1, 2, 2)]),
     "Expected a matrix with 2 cols for 'state' but given 4")
   expect_error(
-    mod$set_state(m[1:5, ]),
+    mod$update_state(state = m[1:5, ]),
     "Expected a matrix with 10 rows for 'state' but given 5")
   expect_equal(mod$state(), m)
 })
@@ -339,7 +339,7 @@ test_that("set model state and time, varying time", {
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(rep(as.numeric(1:2), each = 10), 10, 2)
   step <- 0:1
-  mod$set_state(m, step)
+  mod$update_state(state = m, step = step)
   cmp <- dust_rng$new(1, 1)$rnorm(10, 0, 1)
 
   state <- mod$state()
@@ -354,10 +354,10 @@ test_that("setting model state and step requires correct length step", {
   mod <- res$new(list(len = 10), 0, 5, seed = 1L)
   m <- matrix(rep(as.numeric(1:5), each = 10), 10, 5)
   expect_error(
-    mod$set_state(m, 0:3),
+    mod$update_state(state = m, step = 0:3),
     "Expected 'step' to be scalar or length 5")
   expect_error(
-    mod$set_state(m, 0:7),
+    mod$update_state(state = m, step = 0:7),
     "Expected 'step' to be scalar or length 5")
 })
 
@@ -367,7 +367,7 @@ test_that("set model state and time, constant time", {
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(runif(20), 10, 2)
   step <- 10L
-  mod$set_state(m, step)
+  mod$update_state(state = m, step = step)
 
   state <- mod$state()
   expect_equal(mod$step(), 10)
@@ -378,11 +378,11 @@ test_that("set model state and time, constant time", {
 test_that("set model time but not state", {
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
-  expect_null(mod$set_state(NULL, NULL))
+  expect_null(mod$update_state(state = NULL, step = NULL))
   expect_equal(mod$step(), 0)
   expect_equal(mod$state(), matrix(1:10, 10, 2))
 
-  expect_null(mod$set_state(NULL, 10L))
+  expect_null(mod$update_state(state = NULL, step = 10L))
   expect_equal(mod$step(), 10)
   expect_equal(mod$state(), matrix(1:10, 10, 2))
 })
@@ -392,15 +392,15 @@ test_that("NULL state leaves state untouched", {
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(runif(20), 10, 2)
-  mod$set_state(m, NULL)
+  mod$update_state(state = m, step = NULL)
   expect_equal(mod$state(), m)
   expect_equal(mod$step(), 0)
 
-  mod$set_state(NULL, 10L)
+  mod$update_state(state = NULL, step = 10L)
   expect_equal(mod$state(), m)
   expect_equal(mod$step(), 10)
 
-  mod$set_state(NULL, NULL)
+  mod$update_state(state = NULL, step = NULL)
   expect_equal(mod$state(), m)
   expect_equal(mod$step(), 10)
 })
@@ -513,7 +513,7 @@ test_that("resample", {
   res <- dust_example("variable")
   obj <- res$new(list(len = 5), 0, 7, seed = 1L)
   m <- matrix(as.numeric(1:35), 5, 7)
-  obj$set_state(m)
+  obj$update_state(state = m)
   rng <- dust_rng$new(obj$rng_state(last_only = TRUE))
   u <- rng$unif_rand(1)
   w <- runif(obj$n_particles())
@@ -528,7 +528,7 @@ test_that("resample error cases", {
   res <- dust_example("variable")
   obj <- res$new(list(len = 5), 0, 7, seed = 1L)
   m <- matrix(as.numeric(1:35), 5, 7)
-  obj$set_state(m)
+  obj$update_state(state = m)
   rng <- dust_rng$new(obj$rng_state(last_only = TRUE))
   u <- rng$unif_rand(1)
   w <- runif(obj$n_particles())
@@ -593,7 +593,7 @@ test_that("validate simulate steps", {
   np <- 20
   mod <- res$new(list(len = 5), 10, np, seed = 1L)
   y <- matrix(runif(np * 5), 5, np)
-  mod$set_state(y)
+  mod$update_state(state = y)
 
   expect_error(
     mod$simulate(integer(0)),
@@ -638,7 +638,7 @@ test_that("throw when triggering invalid binomials", {
   mod <- res$new(list(), 0, 10)
   s <- mod$state()
   s[2, c(4, 9)] <- c(-1, -10)
-  mod$set_state(s)
+  mod$update_state(state = s)
 
   err <- expect_error(
     mod$run(10),
@@ -657,7 +657,7 @@ test_that("throw when triggering invalid binomials", {
   expect_error(mod$filter(), "Errors pending; reset required")
 
   ## This will clear the errors:
-  mod$set_state(abs(s), 0)
+  mod$update_state(state = abs(s), step = 0)
   ## And we can run again:
   expect_silent(mod$run(10))
   expect_equal(mod$step(), 10)
@@ -669,7 +669,7 @@ test_that("Truncate errors past certain point", {
   mod <- res$new(list(), 0, 10)
   s <- mod$state()
   s[2, ] <- -10
-  mod$set_state(s)
+  mod$update_state(state = s)
   err <- expect_error(
     mod$simulate(0:10),
     "10 particles reported errors")
@@ -710,7 +710,7 @@ test_that("run random walk deterministically", {
   rng_state <- obj$rng_state()
   m <- obj$state()
   m[] <- runif(length(m))
-  obj$set_state(m)
+  obj$update_state(state = m)
   expect_equal(obj$run(10, deterministic = TRUE), m)
   expect_equal(obj$rng_state(), rng_state)
 })
@@ -722,7 +722,7 @@ test_that("run simulate deterministically", {
   rng_state <- obj$rng_state()
   m <- obj$state()
   m[] <- runif(length(m))
-  obj$set_state(m)
+  obj$update_state(state = m)
   res <- obj$simulate(0:10, deterministic = TRUE)
   expect_equal(res,
                array(rep(m, 11), c(1, 100, 11)))
@@ -740,12 +740,12 @@ test_that("staggered start times, deterministically", {
   state[2, ] <- state[2, ] + n
   step <- 1:10
 
-  mod$set_state(state, step, deterministic = TRUE)
+  mod$update_state(state = state, step = step, deterministic = TRUE)
 
   res <- mod$state()
   f <- function(i) {
     mod <- sir$new(list(), 0, 1, seed = NULL)
-    mod$set_state(state[, i], step[i])
+    mod$update_state(state = state[, i], step = step[i])
     mod$run(10, deterministic = TRUE)
   }
   cmp <- vapply(1:10, f, numeric(5))

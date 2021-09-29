@@ -255,9 +255,19 @@
     ##' different values, then this would run up to the largest step
     ##' deterministically (see `$run()` for more details).
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      # .Deprecated("$update_state(NULL, state, step)",
-      #             old = "$set_state(state, step)")
-      self$update_state(NULL, state, step, deterministic = deterministic)
+      ### There are two different likely forms that this function is
+      ### used and we can give a slightly simpler deprecation notice this
+      ### way.
+      if (is.null(step)) {
+        .Deprecated("$update_state(state = state)",
+                    old = "$set_state(state)")
+      } else {
+        .Deprecated("$update_state(state = state, step = step,
+                                   deterministic = deterministic)",
+                    old = "$set_state(state, step)")
+      }
+      self$update_state(state = state, step = step,
+                        deterministic = deterministic)
     },
 
     ##' @description

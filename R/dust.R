@@ -96,9 +96,19 @@ sir <- R6::R6Class(
     },
 
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      # .Deprecated("$update_state(NULL, state, step)",
-      #             old = "$set_state(state, step)")
-      self$update_state(NULL, state, step, deterministic = deterministic)
+      ### There are two different likely forms that this function is
+      ### used and we can give a slightly simpler deprecation notice this
+      ### way.
+      if (is.null(step)) {
+        .Deprecated("$update_state(state = state)",
+                    old = "$set_state(state)")
+      } else {
+        .Deprecated("$update_state(state = state, step = step,
+                                   deterministic = deterministic)",
+                    old = "$set_state(state, step)")
+      }
+      self$update_state(state = state, step = step,
+                        deterministic = deterministic)
     },
 
     reset = function(pars, step) {
@@ -306,9 +316,19 @@ sirs <- R6::R6Class(
     },
 
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      # .Deprecated("$update_state(NULL, state, step)",
-      #             old = "$set_state(state, step)")
-      self$update_state(NULL, state, step, deterministic = deterministic)
+      ### There are two different likely forms that this function is
+      ### used and we can give a slightly simpler deprecation notice this
+      ### way.
+      if (is.null(step)) {
+        .Deprecated("$update_state(state = state)",
+                    old = "$set_state(state)")
+      } else {
+        .Deprecated("$update_state(state = state, step = step,
+                                   deterministic = deterministic)",
+                    old = "$set_state(state, step)")
+      }
+      self$update_state(state = state, step = step,
+                        deterministic = deterministic)
     },
 
     reset = function(pars, step) {
@@ -513,9 +533,19 @@ variable <- R6::R6Class(
     },
 
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      # .Deprecated("$update_state(NULL, state, step)",
-      #             old = "$set_state(state, step)")
-      self$update_state(NULL, state, step, deterministic = deterministic)
+      ### There are two different likely forms that this function is
+      ### used and we can give a slightly simpler deprecation notice this
+      ### way.
+      if (is.null(step)) {
+        .Deprecated("$update_state(state = state)",
+                    old = "$set_state(state)")
+      } else {
+        .Deprecated("$update_state(state = state, step = step,
+                                   deterministic = deterministic)",
+                    old = "$set_state(state, step)")
+      }
+      self$update_state(state = state, step = step,
+                        deterministic = deterministic)
     },
 
     reset = function(pars, step) {
@@ -720,9 +750,19 @@ volatility <- R6::R6Class(
     },
 
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      # .Deprecated("$update_state(NULL, state, step)",
-      #             old = "$set_state(state, step)")
-      self$update_state(NULL, state, step, deterministic = deterministic)
+      ### There are two different likely forms that this function is
+      ### used and we can give a slightly simpler deprecation notice this
+      ### way.
+      if (is.null(step)) {
+        .Deprecated("$update_state(state = state)",
+                    old = "$set_state(state)")
+      } else {
+        .Deprecated("$update_state(state = state, step = step,
+                                   deterministic = deterministic)",
+                    old = "$set_state(state, step)")
+      }
+      self$update_state(state = state, step = step,
+                        deterministic = deterministic)
     },
 
     reset = function(pars, step) {
@@ -927,9 +967,19 @@ walk <- R6::R6Class(
     },
 
     set_state = function(state, step = NULL, deterministic = FALSE) {
-      # .Deprecated("$update_state(NULL, state, step)",
-      #             old = "$set_state(state, step)")
-      self$update_state(NULL, state, step, deterministic = deterministic)
+      ### There are two different likely forms that this function is
+      ### used and we can give a slightly simpler deprecation notice this
+      ### way.
+      if (is.null(step)) {
+        .Deprecated("$update_state(state = state)",
+                    old = "$set_state(state)")
+      } else {
+        .Deprecated("$update_state(state = state, step = step,
+                                   deterministic = deterministic)",
+                    old = "$set_state(state, step)")
+      }
+      self$update_state(state = state, step = step,
+                        deterministic = deterministic)
     },
 
     reset = function(pars, step) {

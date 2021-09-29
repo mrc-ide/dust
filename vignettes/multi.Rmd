@@ -178,7 +178,7 @@ mod <- sir$new(pars, 0, 8)
 We might set all particles to have the same initial state:
 
 ```{r}
-mod$set_state(c(1000, 10, 0, 0, 0))
+mod$update_state(state = c(1000, 10, 0, 0, 0))
 mod$state()
 ```
 
@@ -186,7 +186,7 @@ or we might set each particle to a different state, perhaps representing some st
 
 ```{r}
 n <- rpois(8, 10)
-mod$set_state(rbind(1010 - n, n, 0, 0, 0))
+mod$update_state(state = rbind(1010 - n, n, 0, 0, 0))
 mod$state()
 ```
 

@@ -219,7 +219,7 @@ test_that("Can't change dimensionality on reset/set_pars", {
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 10, 5)
   y <- matrix(runif(10 * 5), 10, 5)
-  mod$set_state(y)
+  mod$update_state(state = y)
 
   expect_error(
     mod$reset(list(len = 5), 0),

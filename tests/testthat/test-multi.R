@@ -104,23 +104,23 @@ test_that("Can set state", {
   y <- mod$state()
   y[] <- runif(length(y))
 
-  mod$set_state(y)
+  mod$update_state(state = y)
   expect_equal(mod$state(), y)
 
   expect_error(
-    mod$set_state(c(y)),
+    mod$update_state(state = c(y)),
     "Expected array of rank 2 or 3 for 'state'")
   expect_error(
-    mod$set_state(matrix(c(y), c(ns, nd * np))),
+    mod$update_state(state = matrix(c(y), c(ns, nd * np))),
     "Expected a matrix with 3 cols for 'state' but given 39")
   expect_error(
-    mod$set_state(y[-1, , ]),
+    mod$update_state(state = y[-1, , ]),
     "Expected dimension 1 of 'state' to be 7 but given 6")
   expect_error(
-    mod$set_state(y[, -1, ]),
+    mod$update_state(state = y[, -1, ]),
     "Expected dimension 2 of 'state' to be 13 but given 12")
   expect_error(
-    mod$set_state(y[, , -1]),
+    mod$update_state(state = y[, , -1]),
     "Expected dimension 3 of 'state' to be 3 but given 2")
 
   ## Unchanged
@@ -137,7 +137,7 @@ test_that("can set index", {
   mod <- res$new(pars, 0, np, seed = 1L, pars_multi = TRUE)
   y <- mod$state()
   y[] <- runif(length(y))
-  mod$set_state(y)
+  mod$update_state(state = y)
   idx <- c(1, 3, 5)
   mod$set_index(idx)
 
@@ -168,7 +168,7 @@ test_that("Can reorder particles (easy case)", {
   pars <- rep(list(list(len = ns)), nd)
   mod <- res$new(pars, 0, np, seed = 1L, pars_multi = TRUE)
   y <- array(as.numeric(seq_len(nd * ns * np)), c(ns, np, nd))
-  mod$set_state(y)
+  mod$update_state(state = y)
 
   i <- cbind(c(1, 4, 2, 3),
              c(1, 2, 3, 4),
@@ -195,7 +195,7 @@ test_that("Can reorder particles", {
   pars <- rep(list(list(len = ns)), nd)
   mod <- res$new(pars, 0, np, seed = 1L, pars_multi = TRUE)
   y <- array(as.numeric(seq_len(nd * ns * np)), c(ns, np, nd))
-  mod$set_state(y)
+  mod$update_state(state = y)
 
   ## Our reorder matrix:
   i <- replicate(nd, sample.int(np, np, replace = TRUE))
@@ -217,7 +217,7 @@ test_that("Can avoid invalid reorder index matrices", {
   pars <- rep(list(list(len = ns)), nd)
   mod <- res$new(pars, 0, np, seed = 1L, pars_multi = TRUE)
   y <- array(as.numeric(seq_len(nd * ns * np)), c(ns, np, nd))
-  mod$set_state(y)
+  mod$update_state(state = y)
 
   ## Our reorder matrix:
   i <- replicate(nd, sample.int(np, np, replace = TRUE))
@@ -369,11 +369,11 @@ test_that("compare with multi pars", {
   cmp <- res$new(p, 0, np, seed = 1L)
   cmp$set_data(dust_data(d))
   cmp$run(36)
-  cmp$set_state(s[, , 1])
+  cmp$update_state(state = s[, , 1])
   expect_equal(cmp$compare_data(), x[, 1])
-  cmp$set_state(s[, , 2])
+  cmp$update_state(state = s[, , 2])
   expect_equal(cmp$compare_data(), x[, 2])
-  cmp$set_state(s[, , 3])
+  cmp$update_state(state = s[, , 3])
   expect_equal(cmp$compare_data(), x[, 3])
 })
 
@@ -431,15 +431,15 @@ test_that("compare with multi pars and different data", {
   cmp$run(36)
 
   cmp$set_data(dust_data(d[d$group == "a", ]))
-  cmp$set_state(s[, , 1])
+  cmp$update_state(state = s[, , 1])
   expect_equal(cmp$compare_data(), x[, 1])
 
   cmp$set_data(dust_data(d[d$group == "b", ]))
-  cmp$set_state(s[, , 2])
+  cmp$update_state(state = s[, , 2])
   expect_equal(cmp$compare_data(), x[, 2])
 
   cmp$set_data(dust_data(d[d$group == "c", ]))
-  cmp$set_state(s[, , 3])
+  cmp$update_state(state = s[, , 3])
   expect_equal(cmp$compare_data(), x[, 3])
 })
 
@@ -450,7 +450,7 @@ test_that("resample multi", {
                  seed = 1L, pars_multi = TRUE)
   m <- obj$state()
   m[] <- seq_along(m)
-  obj$set_state(m)
+  obj$update_state(state = m)
 
   rng <- dust_rng$new(obj$rng_state(), 15)
   expect_identical(rng$state(), obj$rng_state())
@@ -479,7 +479,7 @@ test_that("resample multi validates inputs", {
                  seed = 1L, pars_multi = TRUE)
   m <- obj$state()
   m[] <- seq_along(m)
-  obj$set_state(m)
+  obj$update_state(state = m)
 
   rng <- dust_rng$new(obj$rng_state(), 15)
   expect_identical(rng$state(), obj$rng_state())
@@ -528,7 +528,7 @@ test_that("Can create unreplicated multi-pars examples", {
   expect_equal(s, matrix(1:7, 7, 10))
 
   s[] <- runif(length(s))
-  expect_silent(mod$set_state(s))
+  expect_silent(mod$update_state(state = s))
   expect_identical(mod$state(), s)
 
   expect_equal(mod$shape(), 10)
@@ -553,11 +553,11 @@ test_that("Can set state into 3d model", {
 
   s <- mod$state()
   s[] <- runif(length(s))
-  expect_silent(mod$set_state(s))
+  expect_silent(mod$update_state(state = s))
 
   s2 <- s
   s2[] <- runif(length(s2))
-  expect_error(mod$set_state(c(s2)),
+  expect_error(mod$update_state(state = c(s2)),
                "Expected array of rank 3 or 4 for 'state'")
 })
 
@@ -570,7 +570,7 @@ test_that("Can set pars into unreplicated multiparameter model", {
   expect_silent(mod$update_state(pars = p2, set_initial_state = FALSE))
   expect_identical(mod$pars(), p2)
 
-  mod$set_state(matrix(0, 7, 10))
+  mod$update_state(state = matrix(0, 7, 10))
 
   y <- mod$run(1)
 
@@ -583,7 +583,7 @@ test_that("Can set pars into unreplicated multiparameter model", {
   }
   mod2 <- res$new(reshape(p1), 0, NULL, seed = 1L, pars_multi = TRUE)
   mod2$pars()
-  mod2$set_state(array(0, c(7, 5, 2)))
+  mod2$update_state(state = array(0, c(7, 5, 2)))
 
   expect_silent(
     mod2$update_state(pars = reshape(p2), set_initial_state = FALSE))
@@ -622,11 +622,11 @@ test_that("Can set state into a multiparameter model, shared + flat", {
   y <- array(as.numeric(seq_along(s)), dim(s))
 
   ## Set full model state:
-  expect_silent(mod$set_state(y))
+  expect_silent(mod$update_state(state = y))
   expect_identical(mod$state(), y)
 
   ## Replicate model state:
-  mod$set_state(y[, 1, ])
+  mod$update_state(state = y[, 1, ])
   expect_identical(mod$state(), y[, rep(1, 7), ])
 })
 
@@ -640,12 +640,12 @@ test_that("Can set state into a multiparameter model, unshared + flat", {
   y <- array(as.numeric(seq_along(s)), dim(s))
 
   ## Set full model state:
-  expect_silent(mod$set_state(y))
+  expect_silent(mod$update_state(state = y))
   expect_identical(mod$state(), y)
 
-  expect_error(mod$set_state(y[, 1]),
+  expect_error(mod$update_state(state = y[, 1]),
                "Expected a matrix for 'state'")
-  expect_error(mod$set_state(y[, 1, drop = FALSE]),
+  expect_error(mod$update_state(state = y[, 1, drop = FALSE]),
                "Expected a matrix with 6 cols for 'state' but given 1")
 })
 
@@ -660,11 +660,11 @@ test_that("Can set state into a multiparameter model, shared + structured", {
   y <- array(as.numeric(seq_along(s)), dim(s))
 
   ## Set full model state:
-  expect_silent(mod$set_state(y))
+  expect_silent(mod$update_state(state = y))
   expect_identical(mod$state(), y)
 
   ## Replicate model state:
-  mod$set_state(y[, 1, , ])
+  mod$update_state(state = y[, 1, , ])
   expect_identical(mod$state(), y[, rep(1, 7), , ])
 })
 
@@ -679,13 +679,13 @@ test_that("Can set state into a multiparameter model, unshared + structured", {
   y <- array(as.numeric(seq_along(s)), dim(s))
 
   ## Set full model state:
-  expect_silent(mod$set_state(y))
+  expect_silent(mod$update_state(state = y))
   expect_identical(mod$state(), y)
 
   ## Replicate model state:
-  expect_error(mod$set_state(y[, 1, ]),
+  expect_error(mod$update_state(state = y[, 1, ]),
                "Expected an array of rank 3 for 'state'")
-  expect_error(mod$set_state(y[, 1, , drop = FALSE]),
+  expect_error(mod$update_state(state = y[, 1, , drop = FALSE]),
                "Expected dimension 2 of 'state' to be 3 but given 1")
 })
 
@@ -697,7 +697,7 @@ test_that("Reorder across particles", {
 
   s <- mod$state()
   y <- array(as.numeric(seq_along(s)), dim(s))
-  mod$set_state(y)
+  mod$update_state(state = y)
 
   i <- sample.int(length(p), replace = TRUE)
   mod$reorder(i)

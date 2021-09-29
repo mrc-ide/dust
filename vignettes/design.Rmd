@@ -179,14 +179,14 @@ The reason why this is important is because if we reorder particles what we real
 
 Given this, the sorts of verbs that we need include:
 
-* Setting model state (`$set_state`) - leaves RNG state and parameters untouched but replaces model state for all particles. This is useful for model initialisation and for performing arbitrary model state changes.
 * Running the model up to a time point (`$run`) - runs the model's `update` method as many times as required to reach the new time point, returning the model state at this time point. This is useful where you might want to change the system at this time point, then continue.
 * Running the model and collecting history (`$simulate`) - as for `$run` but also collects partial state at a number of times along the way. This always has one more dimension than `$run` (being time) and the two functions coexist so that dimensionality is easy to program against.
-* Reset particles and the components of their state (`$update_state`) which includes parameters, state vectors and time.
+* Setting model state (`$update_state`) - leaves RNG state and parameters untouched but replaces model state for all particles. This is useful for model initialisation and for performing arbitrary model state changes.
+* More generally reset particles and the components of their state (`$update_state`) which includes parameters, state vectors and time.
 
 In addition, we have more specific methods oriented towards [particle filtering](https://en.wikipedia.org/wiki/Particle_filter):
 
-* Reordering the particles (`$reorder`) - shuffles particle state among particles within a parameter set. This is useful for implementing a resampling algorithms and updates only the state (as for `$set_state`, leaving RNG state and internal state untouched)
+* Reordering the particles (`$reorder`) - shuffles particle state among particles within a parameter set. This is useful for implementing a resampling algorithms and updates only the state (as for `$update_state`, leaving RNG state and internal state untouched)
 * Resampling particles according to some weight vector (`$resample`) which implements a bootstrap sampling algorithm on top of `$reorder`
 * Run a bootstrap particle filter (`$filter`) which is implemented using the above methods, in the case where the model provides a compare function. This is likely to be a bit low level for direct use, and is better approached via the interface in [mcstate](https://mrc-ide.github.io/mcstate/)
 

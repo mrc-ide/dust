@@ -309,11 +309,11 @@ This is not terribly useful on its own but is a key part of a particle filter.
 
 ### Set initial state
 
-By default every particle starts from the initial condition specified by your model classes `initial()` method. However, you can specify a state directly using the `$set_state()` method. Here, we initialise our SIR model with only 1 infected individual rather than 10:
+By default every particle starts from the initial condition specified by your model classes `initial()` method. However, you can specify a state directly using the `$update_state()` method. Here, we initialise our SIR model with only 1 infected individual rather than 10:
 
-```{r set_state}
+```{r update_state}
 model <- sir$new(list(), 0, 20)
-model$set_state(c(1000, 1, 0, 0, 0))
+model$update_state(state = c(1000, 1, 0, 0, 0))
 model$state()
 ```
 
@@ -332,7 +332,7 @@ You can optionally set the initial step at the same time as the state. This is u
 ```{r initial_step}
 step0 <- sample(0:30, 20, replace = TRUE)
 model <- sir$new(list(), 0, 20)
-model$set_state(c(1000, 10, 0, 0, 0), step0)
+model$update_state(state = c(1000, 10, 0, 0, 0), step = step0)
 ```
 
 After initialisation, our model is now at `r max(step0)`, the last step referenced in `step0`
@@ -362,7 +362,7 @@ You can also set the initial state to a range of different values. Suppose we se
 ```{r}
 I0 <- rpois(20, 10)
 state0 <- rbind(1010 - I0, I0, 0, 0, 0, deparse.level = 0)
-model$set_state(state0, 0L)
+model$update_state(state = state0, step = 0L)
 model$step()
 model$state()
 ```
@@ -370,7 +370,7 @@ model$state()
 Here, we have our variable initial state and all particles starting at step 0. You can combine the two approaches to have a variable initial state and variable initial time by running
 
 ```{r}
-model$set_state(state0, step0)
+model$update_state(state = state0, step = step0)
 model$step()
 model$state()
 ```
