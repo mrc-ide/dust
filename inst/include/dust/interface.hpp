@@ -110,11 +110,11 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
   cpp11::sexp ret = R_NilValue;
 
   // ** Stage 1, validate
-  if (set_initial_state && r_state != R_NilValue) {
-    cpp11::stop("Can't use both 'set_initial_state' and provide 'state'");
-  }
   if (set_initial_state && r_pars == R_NilValue) {
     cpp11::stop("Can't use 'set_initial_state' without providing 'pars'");
+  }
+  if (set_initial_state && r_state != R_NilValue) {
+    cpp11::stop("Can't use both 'set_initial_state' and provide 'state'");
   }
 
   // Do the validation on both arguments first so that we leave this

@@ -751,3 +751,36 @@ test_that("staggered start times, deterministically", {
   cmp <- vapply(1:10, f, numeric(5))
   expect_equal(res, cmp)
 })
+
+
+test_that("update_state controls initial state", {
+  gen <- dust_example("sir")
+  mod <- gen$new(list(I0 = 1), 0, 1)
+  expect_equal(mod$state(), rbind(1000, 1, 0, 0, 0))
+
+  ## By default, update state
+  mod$update_state(list(I0 = 2))
+  expect_equal(mod$state(), rbind(1000, 2, 0, 0, 0))
+
+  ## Allow turning this behaviour off:
+  mod$update_state(list(I0 = 3), set_initial_state = FALSE)
+  expect_equal(mod$state(), rbind(1000, 2, 0, 0, 0))
+
+  ## Take state from 'state' value
+  mod$update_state(list(I0 = 4), c(1000, 5, 0, 0, 0))
+  expect_equal(mod$state(), rbind(1000, 5, 0, 0, 0))
+
+  ## Prevent conflicting state definitions:
+  expect_error(
+    mod$update_state(list(I0 = 6), c(1000, 7, 0, 0, 0),
+                     set_initial_state = TRUE),
+    "Can't use both 'set_initial_state' and provide 'state'")
+  expect_equal(mod$pars(), list(I0 = 4))
+  expect_equal(mod$state(), rbind(1000, 5, 0, 0, 0))
+
+  expect_error(
+    mod$update_state(state = c(1000, 8, 0, 0, 0), set_initial_state = TRUE),
+    "Can't use 'set_initial_state' without providing 'pars'")
+  expect_equal(mod$pars(), list(I0 = 4))
+  expect_equal(mod$state(), rbind(1000, 5, 0, 0, 0))
+})
