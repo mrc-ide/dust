@@ -17,8 +17,9 @@ SEXP dust_variable_simulate(SEXP ptr, cpp11::sexp step_end, bool device,
 SEXP dust_variable_set_index(SEXP ptr, cpp11::sexp r_index);
 
 [[cpp11::register]]
-SEXP dust_variable_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
-                                bool set_state, bool deterministic);
+SEXP dust_variable_update_state(SEXP ptr, SEXP r_pars, SEXP r_state,
+                                SEXP r_step, SEXP r_set_initial_state,
+                                bool deterministic);
 
 [[cpp11::register]]
 SEXP dust_variable_state(SEXP ptr, SEXP r_index);
@@ -192,10 +193,12 @@ SEXP dust_variable_set_index(SEXP ptr, cpp11::sexp r_index) {
   return R_NilValue;
 }
 
-SEXP dust_variable_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
-                                bool set_state, bool deterministic) {
+SEXP dust_variable_update_state(SEXP ptr, SEXP r_pars, SEXP r_state,
+                                SEXP r_step, SEXP r_set_initial_state,
+                                bool deterministic) {
   return dust::r::dust_update_state<variable>(ptr, r_pars, r_state, r_step,
-                                               set_state, deterministic);
+                                               r_set_initial_state,
+                                               deterministic);
 }
 
 SEXP dust_variable_state(SEXP ptr, SEXP r_index) {

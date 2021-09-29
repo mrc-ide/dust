@@ -92,8 +92,8 @@ dust_sir_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_sir_set_index`, ptr, r_index)
 }
 
-dust_sir_update_state <- function(ptr, r_pars, r_state, r_step, set_state, deterministic) {
-  .Call(`_dust_dust_sir_update_state`, ptr, r_pars, r_state, r_step, set_state, deterministic)
+dust_sir_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state, deterministic) {
+  .Call(`_dust_dust_sir_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state, deterministic)
 }
 
 dust_sir_state <- function(ptr, r_index) {
@@ -164,8 +164,8 @@ dust_sirs_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_sirs_set_index`, ptr, r_index)
 }
 
-dust_sirs_update_state <- function(ptr, r_pars, r_state, r_step, set_state, deterministic) {
-  .Call(`_dust_dust_sirs_update_state`, ptr, r_pars, r_state, r_step, set_state, deterministic)
+dust_sirs_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state, deterministic) {
+  .Call(`_dust_dust_sirs_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state, deterministic)
 }
 
 dust_sirs_state <- function(ptr, r_index) {
@@ -244,8 +244,8 @@ dust_variable_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_variable_set_index`, ptr, r_index)
 }
 
-dust_variable_update_state <- function(ptr, r_pars, r_state, r_step, set_state, deterministic) {
-  .Call(`_dust_dust_variable_update_state`, ptr, r_pars, r_state, r_step, set_state, deterministic)
+dust_variable_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state, deterministic) {
+  .Call(`_dust_dust_variable_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state, deterministic)
 }
 
 dust_variable_state <- function(ptr, r_index) {
@@ -316,8 +316,8 @@ dust_volatility_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_volatility_set_index`, ptr, r_index)
 }
 
-dust_volatility_update_state <- function(ptr, r_pars, r_state, r_step, set_state, deterministic) {
-  .Call(`_dust_dust_volatility_update_state`, ptr, r_pars, r_state, r_step, set_state, deterministic)
+dust_volatility_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state, deterministic) {
+  .Call(`_dust_dust_volatility_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state, deterministic)
 }
 
 dust_volatility_state <- function(ptr, r_index) {
@@ -388,8 +388,8 @@ dust_walk_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_walk_set_index`, ptr, r_index)
 }
 
-dust_walk_update_state <- function(ptr, r_pars, r_state, r_step, set_state, deterministic) {
-  .Call(`_dust_dust_walk_update_state`, ptr, r_pars, r_state, r_step, set_state, deterministic)
+dust_walk_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state, deterministic) {
+  .Call(`_dust_dust_walk_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state, deterministic)
 }
 
 dust_walk_state <- function(ptr, r_index) {

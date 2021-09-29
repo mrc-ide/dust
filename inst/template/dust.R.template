@@ -324,9 +324,6 @@
     update_state = function(pars = NULL, state = NULL, step = NULL,
                             set_initial_state = NULL,
                             deterministic = FALSE) {
-      if (is.null(set_initial_state)) {
-        set_initial_state <- is.null(state) && !is.null(pars)
-      }
       info <- dust_{{name}}_update_state(private$ptr_, pars, state, step,
                                          set_initial_state, deterministic)
       if (!is.null(pars)) {

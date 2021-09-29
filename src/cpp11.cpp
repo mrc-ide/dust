@@ -169,10 +169,10 @@ extern "C" SEXP _dust_dust_sir_set_index(SEXP ptr, SEXP r_index) {
   END_CPP11
 }
 // sir.cpp
-SEXP dust_sir_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, bool set_state, bool deterministic);
-extern "C" SEXP _dust_dust_sir_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP set_state, SEXP deterministic) {
+SEXP dust_sir_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP r_set_initial_state, bool deterministic);
+extern "C" SEXP _dust_dust_sir_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP r_set_initial_state, SEXP deterministic) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_sir_update_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_pars), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<bool>>(set_state), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
+    return cpp11::as_sexp(dust_sir_update_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_pars), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_set_initial_state), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
   END_CPP11
 }
 // sir.cpp
@@ -297,10 +297,10 @@ extern "C" SEXP _dust_dust_sirs_set_index(SEXP ptr, SEXP r_index) {
   END_CPP11
 }
 // sirs.cpp
-SEXP dust_sirs_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, bool set_state, bool deterministic);
-extern "C" SEXP _dust_dust_sirs_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP set_state, SEXP deterministic) {
+SEXP dust_sirs_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP r_set_initial_state, bool deterministic);
+extern "C" SEXP _dust_dust_sirs_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP r_set_initial_state, SEXP deterministic) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_sirs_update_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_pars), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<bool>>(set_state), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
+    return cpp11::as_sexp(dust_sirs_update_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_pars), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_set_initial_state), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
   END_CPP11
 }
 // sirs.cpp
@@ -439,10 +439,10 @@ extern "C" SEXP _dust_dust_variable_set_index(SEXP ptr, SEXP r_index) {
   END_CPP11
 }
 // variable.cpp
-SEXP dust_variable_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, bool set_state, bool deterministic);
-extern "C" SEXP _dust_dust_variable_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP set_state, SEXP deterministic) {
+SEXP dust_variable_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP r_set_initial_state, bool deterministic);
+extern "C" SEXP _dust_dust_variable_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP r_set_initial_state, SEXP deterministic) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_variable_update_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_pars), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<bool>>(set_state), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
+    return cpp11::as_sexp(dust_variable_update_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_pars), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_set_initial_state), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
   END_CPP11
 }
 // variable.cpp
@@ -567,10 +567,10 @@ extern "C" SEXP _dust_dust_volatility_set_index(SEXP ptr, SEXP r_index) {
   END_CPP11
 }
 // volatility.cpp
-SEXP dust_volatility_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, bool set_state, bool deterministic);
-extern "C" SEXP _dust_dust_volatility_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP set_state, SEXP deterministic) {
+SEXP dust_volatility_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP r_set_initial_state, bool deterministic);
+extern "C" SEXP _dust_dust_volatility_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP r_set_initial_state, SEXP deterministic) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_volatility_update_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_pars), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<bool>>(set_state), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
+    return cpp11::as_sexp(dust_volatility_update_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_pars), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_set_initial_state), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
   END_CPP11
 }
 // volatility.cpp
@@ -695,10 +695,10 @@ extern "C" SEXP _dust_dust_walk_set_index(SEXP ptr, SEXP r_index) {
   END_CPP11
 }
 // walk.cpp
-SEXP dust_walk_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, bool set_state, bool deterministic);
-extern "C" SEXP _dust_dust_walk_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP set_state, SEXP deterministic) {
+SEXP dust_walk_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP r_set_initial_state, bool deterministic);
+extern "C" SEXP _dust_dust_walk_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step, SEXP r_set_initial_state, SEXP deterministic) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_walk_update_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_pars), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<bool>>(set_state), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
+    return cpp11::as_sexp(dust_walk_update_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_pars), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_state), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_step), cpp11::as_cpp<cpp11::decay_t<SEXP>>(r_set_initial_state), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic)));
   END_CPP11
 }
 // walk.cpp

@@ -160,9 +160,16 @@ cpp11::sexp dust_update_set(Dust<T> *obj, SEXP r_pars,
 // pars, (2) state, (3) step
 template <typename T>
 SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
-                       bool set_initial_state, bool deterministic) {
+                       SEXP r_set_initial_state, bool deterministic) {
   typedef typename T::real_t real_t;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+
+  bool set_initial_state = false;
+  if (r_set_initial_state == R_NilValue) {
+    set_initial_state = r_state == R_NilValue && r_pars != R_NilValue;
+  } else {
+    set_initial_state = cpp11::as_cpp<bool>(r_set_initial_state);
+  }
 
   // ** Stage 1, validate
   if (set_initial_state && r_pars == R_NilValue) {

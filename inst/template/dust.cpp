@@ -27,10 +27,12 @@ SEXP dust_{{name}}_set_index(SEXP ptr, cpp11::sexp r_index) {
   return R_NilValue;
 }
 
-SEXP dust_{{name}}_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
-                                bool set_state, bool deterministic) {
+SEXP dust_{{name}}_update_state(SEXP ptr, SEXP r_pars, SEXP r_state,
+                                SEXP r_step, SEXP r_set_initial_state,
+                                bool deterministic) {
   return dust::r::dust_update_state<{{class}}>(ptr, r_pars, r_state, r_step,
-                                               set_state, deterministic);
+                                               r_set_initial_state,
+                                               deterministic);
 }
 
 SEXP dust_{{name}}_state(SEXP ptr, SEXP r_index) {

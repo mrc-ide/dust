@@ -17,8 +17,9 @@ SEXP dust_{{name}}_simulate(SEXP ptr, cpp11::sexp step_end, bool device,
 SEXP dust_{{name}}_set_index(SEXP ptr, cpp11::sexp r_index);
 
 [[cpp11::register]]
-SEXP dust_{{name}}_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
-                                bool set_state, bool deterministic);
+SEXP dust_{{name}}_update_state(SEXP ptr, SEXP r_pars, SEXP r_state,
+                                SEXP r_step, SEXP r_set_initial_state,
+                                bool deterministic);
 
 [[cpp11::register]]
 SEXP dust_{{name}}_state(SEXP ptr, SEXP r_index);
