@@ -117,8 +117,11 @@ sir <- R6::R6Class(
     },
 
     update_state = function(pars = NULL, state = NULL, step = NULL,
-                            set_initial_state = is.null(state),
+                            set_initial_state = NULL,
                             deterministic = FALSE) {
+      if (is.null(set_initial_state)) {
+        set_initial_state <- is.null(state) && !is.null(pars)
+      }
       info <- dust_sir_update_state(private$ptr_, pars, state, step,
                                          set_initial_state, deterministic)
       if (!is.null(pars)) {
@@ -330,8 +333,11 @@ sirs <- R6::R6Class(
     },
 
     update_state = function(pars = NULL, state = NULL, step = NULL,
-                            set_initial_state = is.null(state),
+                            set_initial_state = NULL,
                             deterministic = FALSE) {
+      if (is.null(set_initial_state)) {
+        set_initial_state <- is.null(state) && !is.null(pars)
+      }
       info <- dust_sirs_update_state(private$ptr_, pars, state, step,
                                          set_initial_state, deterministic)
       if (!is.null(pars)) {
@@ -540,8 +546,11 @@ variable <- R6::R6Class(
     },
 
     update_state = function(pars = NULL, state = NULL, step = NULL,
-                            set_initial_state = is.null(state),
+                            set_initial_state = NULL,
                             deterministic = FALSE) {
+      if (is.null(set_initial_state)) {
+        set_initial_state <- is.null(state) && !is.null(pars)
+      }
       info <- dust_variable_update_state(private$ptr_, pars, state, step,
                                          set_initial_state, deterministic)
       if (!is.null(pars)) {
@@ -750,8 +759,11 @@ volatility <- R6::R6Class(
     },
 
     update_state = function(pars = NULL, state = NULL, step = NULL,
-                            set_initial_state = is.null(state),
+                            set_initial_state = NULL,
                             deterministic = FALSE) {
+      if (is.null(set_initial_state)) {
+        set_initial_state <- is.null(state) && !is.null(pars)
+      }
       info <- dust_volatility_update_state(private$ptr_, pars, state, step,
                                          set_initial_state, deterministic)
       if (!is.null(pars)) {
@@ -960,8 +972,11 @@ walk <- R6::R6Class(
     },
 
     update_state = function(pars = NULL, state = NULL, step = NULL,
-                            set_initial_state = is.null(state),
+                            set_initial_state = NULL,
                             deterministic = FALSE) {
+      if (is.null(set_initial_state)) {
+        set_initial_state <- is.null(state) && !is.null(pars)
+      }
       info <- dust_walk_update_state(private$ptr_, pars, state, step,
                                          set_initial_state, deterministic)
       if (!is.null(pars)) {
