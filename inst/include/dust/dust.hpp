@@ -31,9 +31,6 @@ public:
   typedef typename T::real_t real_t;
   typedef typename T::data_t data_t;
 
-  // TODO: add set_state here too? It could leave state uninitialised
-  // though, so if doing that we might also want to accept state along
-  // with step here.
   Dust(const pars_t& pars, const size_t step, const size_t n_particles,
        const size_t n_threads, const std::vector<uint64_t>& seed,
        const cuda::device_config& device_config) :
