@@ -290,8 +290,6 @@ test_that("must use same sized simulations", {
 
 
 test_that("Can't change parameter size on reset or set_pars", {
-  ## TODO: this test gets slightly refactored now that reset and
-  ## set_pars merge?
   res <- dust_example("variable")
   pars <- rep(list(list(len = 7)), 5)
   obj <- res$new(pars, 0, 10, seed = 1L, pars_multi = TRUE)

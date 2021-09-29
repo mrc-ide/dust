@@ -171,7 +171,6 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
     set_initial_state = cpp11::as_cpp<bool>(r_set_initial_state);
   }
 
-  // ** Stage 1, validate
   if (set_initial_state && r_pars == R_NilValue) {
     cpp11::stop("Can't use 'set_initial_state' without providing 'pars'");
   }

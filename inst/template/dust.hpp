@@ -1,4 +1,4 @@
-/// IMPORTANT; changes here must be reflected into inst/template/dust.hpp
+/// IMPORTANT; changes here must be reflected into inst/template/dust.cpp
 #include <cpp11.hpp>
 [[cpp11::register]]
 SEXP dust_{{name}}_alloc(cpp11::list r_pars, bool pars_multi, size_t step,

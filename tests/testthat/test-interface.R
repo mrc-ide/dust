@@ -215,7 +215,6 @@ test_that("resetting preserves index names", {
 
 
 test_that("Can't change dimensionality on reset/set_pars", {
-  ## TODO: refactor slightly after reset/set_pars merge
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 10, 5)
   y <- matrix(runif(10 * 5), 10, 5)
