@@ -40,8 +40,7 @@ public:
     pars_are_shared_(true),
     n_threads_(n_threads),
     device_config_(device_config),
-    rng_(n_particles_total_ + 1, seed), // +1 for the filter's rng state
-    deterministic_(deterministic),
+    rng_(n_particles_total_ + 1, seed, deterministic), // +1 for filter
     errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true),
@@ -66,8 +65,7 @@ public:
     pars_are_shared_(n_particles != 0),
     n_threads_(n_threads),
     device_config_(device_config),
-    rng_(n_particles_total_ + 1, seed),  // +1 for the filter's rng state
-    deterministic_(deterministic),
+    rng_(n_particles_total_ + 1, seed, deterministic),  // +1 for filter
     errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true),
@@ -159,9 +157,6 @@ public:
 
   void run(const size_t step_end) {
     refresh_host();
-    if (deterministic_) {
-      rng_.set_deterministic(true);
-    }
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
@@ -171,9 +166,6 @@ public:
       } catch (std::exception const& e) {
         errors_.capture(e, i);
       }
-    }
-    if (deterministic_) {
-      rng_.set_deterministic(false);
     }
     errors_.report();
     stale_device_ = true;
@@ -244,9 +236,6 @@ public:
     const size_t n_time = step_end.size();
     std::vector<real_t> ret(n_particles() * n_state() * n_time);
 
-    if (deterministic_) {
-      rng_.set_deterministic(true);
-    }
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
@@ -260,9 +249,6 @@ public:
       } catch (std::exception const& e) {
         errors_.capture(e, i);
       }
-    }
-    if (deterministic_) {
-      rng_.set_deterministic(false);
     }
     errors_.report();
     return ret;
@@ -562,6 +548,9 @@ public:
   }
 
   void set_data(std::map<size_t, std::vector<data_t>> data) {
+    if (rng_.deterministic()) {
+      throw std::runtime_error("Can't use data with deterministic models");
+    }
     data_ = data;
     initialise_device_data();
   }
@@ -666,7 +655,6 @@ private:
   size_t n_threads_;
   cuda::device_config device_config_;
   dust::pRNG<real_t> rng_;
-  const bool deterministic_;
   std::map<size_t, std::vector<data_t>> data_;
   dust::openmp_errors errors_;
 
@@ -882,7 +870,7 @@ private:
     if (!device_config_.enabled_) {
       throw std::runtime_error("Can't refresh a non-existent device");
     }
-    if (deterministic_) {
+    if (rng_.deterministic()) {
       throw std::runtime_error("Can't run deterministic models on GPU");
     }
     if (stale_device_) {

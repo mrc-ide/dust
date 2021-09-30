@@ -102,8 +102,8 @@ void dust_set_index(SEXP ptr, cpp11::sexp r_index) {
 }
 
 template <typename T>
-cpp11::sexp dust_update_set_pars(Dust<T> *obj, cpp11::list r_pars,
-                                 bool set_initial_state) {
+cpp11::sexp dust_update_state_set_pars(Dust<T> *obj, cpp11::list r_pars,
+                                       bool set_initial_state) {
   cpp11::sexp ret = R_NilValue;
   if (obj->n_pars() == 0) {
     dust::pars_t<T> pars = dust_pars<T>(r_pars);
@@ -127,13 +127,13 @@ cpp11::sexp dust_update_set_pars(Dust<T> *obj, cpp11::list r_pars,
 }
 
 template <typename T>
-cpp11::sexp dust_update_set(Dust<T> *obj, SEXP r_pars,
-                            const std::vector<typename T::real_t>& state,
-                            const std::vector<size_t>& step,
-                            bool set_initial_state) {
+cpp11::sexp dust_update_state_set(Dust<T> *obj, SEXP r_pars,
+                                  const std::vector<typename T::real_t>& state,
+                                  const std::vector<size_t>& step,
+                                  bool set_initial_state) {
   cpp11::sexp ret = R_NilValue;
   if (r_pars != R_NilValue) {
-    ret = dust_update_set_pars(obj, cpp11::as_cpp<cpp11::list>(r_pars),
+    ret = dust_update_state_set_pars(obj, cpp11::as_cpp<cpp11::list>(r_pars),
                                set_initial_state);
   }
 
@@ -204,7 +204,7 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
                                                  obj->pars_are_shared());
   }
 
-  return dust_update_set(obj, r_pars, state, step, set_initial_state);
+  return dust_update_state_set(obj, r_pars, state, step, set_initial_state);
 }
 
 template <typename T>
