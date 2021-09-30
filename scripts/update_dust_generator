@@ -1,7 +1,8 @@
 #!/usr/bin/env Rscript
 devtools::load_all()
 
-template_r <- read_lines("inst/template/dust.R.template")
+template_r <- drop_internal_comments(
+  readLines("inst/template/dust.R.template"))
 
 txt <- glue_whisker(template_r, list(name = "dust_generator", param = "NULL"))
 txt <- gsub(") \\{.+?\n    \\}", ") {\n    }", txt)

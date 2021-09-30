@@ -91,6 +91,11 @@ dust_generator <- R6::R6Class(
     ##' simulation. This has an effect on many of the other methods of
     ##' the object.
     ##'
+    ##' @param deterministic Run random number generation deterministically,
+    ##' replacing a random number from some distribution with its
+    ##' expectation. Deterministic models are not compatible with running on
+    ##' a a GPU.
+    ##'
     ##' @param device_config Device configuration, typically an integer
     ##' indicating the device to use, where the model has GPU support.
     ##' If not given, then the default value of `NULL` will fall back on the
@@ -105,6 +110,7 @@ dust_generator <- R6::R6Class(
     ##' list will be added in a future version!
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
+                          deterministic = FALSE,
                           device_config = NULL) {
     },
 
@@ -116,7 +122,8 @@ dust_generator <- R6::R6Class(
     ##' @description
     ##' Returns parameter information, if provided by the model. This
     ##' describes the contents of pars passed to the constructor or to
-    ##' `reset` as the `pars` argument, and the details depend on the model.
+    ##' `$update_state()` as the `pars` argument, and the details depend
+    ##' on the model.
     param = function() {
     },
 
@@ -125,17 +132,13 @@ dust_generator <- R6::R6Class(
     ##' at that point.
     ##'
     ##' @param step_end Step to run to (if less than or equal to the current
-    ##' step(), silently nothing will happen)
+    ##'   step(), silently nothing will happen)
     ##'
     ##' @param device Logical, indicating if the model should be run on
     ##'   the GPU device. This is only possible if your model supports it,
     ##'   was compiled with this enabled, and you have a suitable GPU
     ##'   available (see `vignette("cuda")`).
-    ##'
-    ##' @param deterministic Run random number generation deterministically,
-    ##'   replacing a random number from some distribution with its
-    ##'   expectation.
-    run = function(step_end, device = FALSE, deterministic = FALSE) {
+    run = function(step_end, device = FALSE) {
     },
 
     ##' @description
@@ -159,20 +162,14 @@ dust_generator <- R6::R6Class(
     ##'
     ##' @param device Logical, indicating if the model should be run on
     ##'   the GPU device. See `$run()` for more information.
-    ##'
-    ##' @param deterministic Run random number generation deterministically,
-    ##'   replacing a random number from some distribution with its
-    ##'   expectation.
-    simulate = function(step_end, device = FALSE, deterministic = FALSE) {
+    simulate = function(step_end, device = FALSE) {
     },
 
     ##' @description
     ##' Set the "index" vector that is used to return a subset of pars
     ##' after using `run()`. If this is not used then `run()` returns
     ##' all elements in your state vector, which may be excessive and slower
-    ##' than necessary. This method must be called after any
-    ##' call to `reset()` as `reset()` may change the size of the state
-    ##' and that will invalidate the index.
+    ##' than necessary.
     ##'
     ##' @param index The index vector - must be an integer vector with
     ##' elements between 1 and the length of the state (this will be
@@ -225,11 +222,7 @@ dust_generator <- R6::R6Class(
     ##' is a vector (with the same length as the number of particles), then
     ##' particles are started from different initial steps and run up to the
     ##' largest step given (i.e., `max(step)`)
-    ##'
-    ##' @param deterministic If `TRUE` and if `step` is a vector with
-    ##' different values, then this would run up to the largest step
-    ##' deterministically (see `$run()` for more details).
-    set_state = function(state, step = NULL, deterministic = FALSE) {
+    set_state = function(state, step = NULL) {
     },
 
     ##' @description
@@ -248,6 +241,35 @@ dust_generator <- R6::R6Class(
     ##'
     ##' @param pars New pars for the model (see constructor)
     set_pars = function(pars) {
+    },
+
+    ##' @description Update one or more components of the model state.
+    ##'   This method can be used to update any or all of `pars`, `state` and
+    ##'   `step`.  If both `pars` and `step` are given and `state` is not,
+    ##'   then by default we will update the model internal state according
+    ##'   to your model's initial conditions - use `set_initial_state = FALSE`
+    ##'   to prevent this.
+    ##'
+    ##' @param pars New pars for the model (see constructor)
+    ##'
+    ##' @param step New initial step for the model. If this
+    ##'   is a vector (with the same length as the number of particles), then
+    ##'   particles are started from different initial steps and run up to the
+    ##'   largest step given (i.e., `max(step)`)
+    ##'
+    ##' @param state The state vector - can be either a numeric vector with the
+    ##'   same length as the model's current state (in which case the same
+    ##'   state is applied to all particles), or a numeric matrix with as
+    ##'   many rows as your model's state and as many columns as you have
+    ##'   particles (in which case you can set a number of different starting
+    ##'   states at once).
+    ##'
+    ##' @param set_initial_state Control if the model initial state
+    ##'   should be set while setting parameters. It is an error for
+    ##'   this to be `TRUE` when either `pars` is `NULL` or when `state`
+    ##'   is non-`NULL`.
+    update_state = function(pars = NULL, state = NULL, step = NULL,
+                            set_initial_state = NULL) {
     },
 
     ##' @description
@@ -397,9 +419,9 @@ dust_generator <- R6::R6Class(
 
     ##' @description
     ##' Run a particle filter. The interface here will change a lot over the
-    ##' next few versions. You *must* `$reset()` the filter before using
-    ##' this method to get sensible values. We will tinker with this in
-    ##' future versions to allow things like partial runs.
+    ##' next few versions. You *must* reset the dust object using
+    ##' `$update_state(pars = ..., step = ...)` before using this method to
+    ##' get sensible values.
     ##'
     ##' @param save_trajectories Logical, indicating if the filtered particle
     ##' trajectories should be saved. If `TRUE` then the `trajectories` element

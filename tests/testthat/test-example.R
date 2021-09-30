@@ -20,7 +20,7 @@ test_that("walk agrees with random number stream", {
 })
 
 
-test_that("Reset particles and resume continues with rng", {
+test_that("Update particle state and resume continues with rng", {
   res <- dust_example("walk")
   sd1 <- 2
   sd2 <- 4
@@ -29,7 +29,9 @@ test_that("Reset particles and resume continues with rng", {
 
   y1 <- obj$run(5)
   expect_equal(obj$step(), 5)
-  obj$reset(list(sd = sd2), 0)
+
+  obj$update_state(pars = list(sd = sd2), step = 0)
+
   expect_equal(obj$step(), 0)
   y2 <- obj$run(5)
   expect_equal(obj$step(), 5)
@@ -107,12 +109,12 @@ test_that("set index", {
 })
 
 
-test_that("reset does not clear the index", {
+test_that("update_state with pars does not clear the index", {
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 1, seed = 1L)
   mod$set_index(2:4)
   expect_equal(mod$run(0), matrix(2:4))
-  mod$reset(list(len = 10), 0)
+  mod$update_state(pars = list(len = 10), step = 0)
   expect_equal(mod$run(0), matrix(2:4))
 })
 
@@ -122,10 +124,10 @@ test_that("set model state", {
   mod <- res$new(list(len = 10), 0, 1, seed = 1L)
   expect_equal(mod$state(), matrix(1:10))
   x <- runif(10)
-  mod$set_state(x)
+  mod$update_state(state = x)
   expect_equal(mod$state(), matrix(x))
   expect_error(
-    mod$set_state(1),
+    mod$update_state(state = 1),
     "Expected a vector of length 10 for 'state'")
   expect_equal(mod$state(), matrix(x))
 })
@@ -136,10 +138,10 @@ test_that("set model state into multiple particles", {
   mod <- res$new(list(len = 10), 0, 20, seed = 1L)
   expect_equal(mod$state(), matrix(1:10, 10, 20))
   x <- runif(10)
-  mod$set_state(x)
+  mod$update_state(state = x)
   expect_equal(mod$state(), matrix(x, 10, 20))
   expect_error(
-    mod$set_state(1),
+    mod$update_state(state = 1),
     "Expected a vector of length 10 for 'state'")
   expect_equal(mod$state(), matrix(x, 10, 20))
 })
@@ -149,14 +151,14 @@ test_that("set model state with a matrix", {
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(runif(20), 10, 2)
-  mod$set_state(m)
+  mod$update_state(state = m)
 
   expect_equal(mod$state(), m)
   expect_error(
-    mod$set_state(m[, c(1, 1, 2, 2)]),
+    mod$update_state(state = m[, c(1, 1, 2, 2)]),
     "Expected a matrix with 2 cols for 'state' but given 4")
   expect_error(
-    mod$set_state(m[1:5, ]),
+    mod$update_state(state = m[1:5, ]),
     "Expected a matrix with 10 rows for 'state' but given 5")
   expect_equal(mod$state(), m)
 })
@@ -262,13 +264,13 @@ test_that("run in float mode", {
 })
 
 
-test_that("reset changes info", {
+test_that("update_state with pars changes info", {
   res <- dust_example("sir")
   obj <- res$new(list(), 0, 100, seed = 1L)
   expect_equal(obj$info(),
                list(vars = c("S", "I", "R", "cases_cumul", "cases_inc"),
                     pars = list(beta = 0.2, gamma = 0.1)))
-  obj$reset(list(beta = 0.1), 0)
+  obj$update_state(pars = list(beta = 0.1), step = 0)
   expect_equal(obj$info(),
                list(vars = c("S", "I", "R", "cases_cumul", "cases_inc"),
                     pars = list(beta = 0.1, gamma = 0.1)))
@@ -336,7 +338,7 @@ test_that("set model state and time, varying time", {
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(rep(as.numeric(1:2), each = 10), 10, 2)
   step <- 0:1
-  mod$set_state(m, step)
+  mod$update_state(state = m, step = step)
   cmp <- dust_rng$new(1, 1)$rnorm(10, 0, 1)
 
   state <- mod$state()
@@ -351,10 +353,10 @@ test_that("setting model state and step requires correct length step", {
   mod <- res$new(list(len = 10), 0, 5, seed = 1L)
   m <- matrix(rep(as.numeric(1:5), each = 10), 10, 5)
   expect_error(
-    mod$set_state(m, 0:3),
+    mod$update_state(state = m, step = 0:3),
     "Expected 'step' to be scalar or length 5")
   expect_error(
-    mod$set_state(m, 0:7),
+    mod$update_state(state = m, step = 0:7),
     "Expected 'step' to be scalar or length 5")
 })
 
@@ -364,7 +366,7 @@ test_that("set model state and time, constant time", {
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(runif(20), 10, 2)
   step <- 10L
-  mod$set_state(m, step)
+  mod$update_state(state = m, step = step)
 
   state <- mod$state()
   expect_equal(mod$step(), 10)
@@ -375,11 +377,11 @@ test_that("set model state and time, constant time", {
 test_that("set model time but not state", {
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
-  expect_null(mod$set_state(NULL, NULL))
+  expect_null(mod$update_state(state = NULL, step = NULL))
   expect_equal(mod$step(), 0)
   expect_equal(mod$state(), matrix(1:10, 10, 2))
 
-  expect_null(mod$set_state(NULL, 10L))
+  expect_null(mod$update_state(state = NULL, step = 10L))
   expect_equal(mod$step(), 10)
   expect_equal(mod$state(), matrix(1:10, 10, 2))
 })
@@ -389,15 +391,15 @@ test_that("NULL state leaves state untouched", {
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(runif(20), 10, 2)
-  mod$set_state(m, NULL)
+  mod$update_state(state = m, step = NULL)
   expect_equal(mod$state(), m)
   expect_equal(mod$step(), 0)
 
-  mod$set_state(NULL, 10L)
+  mod$update_state(state = NULL, step = 10L)
   expect_equal(mod$state(), m)
   expect_equal(mod$step(), 10)
 
-  mod$set_state(NULL, NULL)
+  mod$update_state(state = NULL, step = NULL)
   expect_equal(mod$state(), m)
   expect_equal(mod$step(), 10)
 })
@@ -510,7 +512,7 @@ test_that("resample", {
   res <- dust_example("variable")
   obj <- res$new(list(len = 5), 0, 7, seed = 1L)
   m <- matrix(as.numeric(1:35), 5, 7)
-  obj$set_state(m)
+  obj$update_state(state = m)
   rng <- dust_rng$new(obj$rng_state(last_only = TRUE))
   u <- rng$unif_rand(1)
   w <- runif(obj$n_particles())
@@ -525,7 +527,7 @@ test_that("resample error cases", {
   res <- dust_example("variable")
   obj <- res$new(list(len = 5), 0, 7, seed = 1L)
   m <- matrix(as.numeric(1:35), 5, 7)
-  obj$set_state(m)
+  obj$update_state(state = m)
   rng <- dust_rng$new(obj$rng_state(last_only = TRUE))
   u <- rng$unif_rand(1)
   w <- runif(obj$n_particles())
@@ -557,7 +559,7 @@ test_that("volality compare is correct", {
                dat$compare(y, dat$data[1, ], pars))
 
   f <- function() {
-    mod$reset(pars, 0L)
+    mod$update_state(pars = pars, step = 0L)
     mod$filter()$log_likelihood
   }
   ll <- replicate(200, f())
@@ -590,7 +592,7 @@ test_that("validate simulate steps", {
   np <- 20
   mod <- res$new(list(len = 5), 10, np, seed = 1L)
   y <- matrix(runif(np * 5), 5, np)
-  mod$set_state(y)
+  mod$update_state(state = y)
 
   expect_error(
     mod$simulate(integer(0)),
@@ -635,7 +637,7 @@ test_that("throw when triggering invalid binomials", {
   mod <- res$new(list(), 0, 10)
   s <- mod$state()
   s[2, c(4, 9)] <- c(-1, -10)
-  mod$set_state(s)
+  mod$update_state(state = s)
 
   err <- expect_error(
     mod$run(10),
@@ -654,7 +656,7 @@ test_that("throw when triggering invalid binomials", {
   expect_error(mod$filter(), "Errors pending; reset required")
 
   ## This will clear the errors:
-  mod$set_state(abs(s), 0)
+  mod$update_state(state = abs(s), step = 0)
   ## And we can run again:
   expect_silent(mod$run(10))
   expect_equal(mod$step(), 10)
@@ -666,7 +668,7 @@ test_that("Truncate errors past certain point", {
   mod <- res$new(list(), 0, 10)
   s <- mod$state()
   s[2, ] <- -10
-  mod$set_state(s)
+  mod$update_state(state = s)
   err <- expect_error(
     mod$simulate(0:10),
     "10 particles reported errors")
@@ -703,33 +705,42 @@ test_that("steps must not be negative", {
 
 test_that("run random walk deterministically", {
   res <- dust_example("walk")
-  obj <- res$new(list(sd = 1), 0, 100, seed = 1L)
+  obj <- res$new(list(sd = 1), 0, 100, seed = 1L, deterministic = TRUE)
   rng_state <- obj$rng_state()
   m <- obj$state()
   m[] <- runif(length(m))
-  obj$set_state(m)
-  expect_equal(obj$run(10, deterministic = TRUE), m)
+  obj$update_state(state = m)
+  expect_equal(obj$run(10), m)
   expect_equal(obj$rng_state(), rng_state)
 })
 
 
 test_that("run simulate deterministically", {
   res <- dust_example("walk")
-  obj <- res$new(list(sd = 1), 0, 100, seed = 1L)
+  obj <- res$new(list(sd = 1), 0, 100, seed = 1L, deterministic = TRUE)
   rng_state <- obj$rng_state()
   m <- obj$state()
   m[] <- runif(length(m))
-  obj$set_state(m)
-  res <- obj$simulate(0:10, deterministic = TRUE)
+  obj$update_state(state = m)
+  res <- obj$simulate(0:10)
   expect_equal(res,
                array(rep(m, 11), c(1, 100, 11)))
   expect_equal(obj$rng_state(), rng_state)
 })
 
 
+test_that("can't set data into deterministic models", {
+  res <- dust_example("sir")
+  mod <- res$new(list(), 0, 100, seed = 1L, deterministic = TRUE)
+  d <- dust_data(data.frame(step = c(0, 1, 2, 4), incidence = c(0, 0, 2, 4)))
+  expect_error(mod$set_data(d),
+               "Can't use data with deterministic models")
+})
+
+
 test_that("staggered start times, deterministically", {
   sir <- dust_example("sir")
-  mod <- sir$new(list(), 0, 10, seed = 1L)
+  mod <- sir$new(list(), 0, 10, seed = 1L, deterministic = TRUE)
 
   state <- mod$state()
   n <- round(runif(10, -5, 5))
@@ -737,14 +748,55 @@ test_that("staggered start times, deterministically", {
   state[2, ] <- state[2, ] + n
   step <- 1:10
 
-  mod$set_state(state, step, deterministic = TRUE)
+  mod$update_state(state = state, step = step)
 
   res <- mod$state()
   f <- function(i) {
-    mod <- sir$new(list(), 0, 1, seed = NULL)
-    mod$set_state(state[, i], step[i])
-    mod$run(10, deterministic = TRUE)
+    mod <- sir$new(list(), 0, 1, seed = NULL, deterministic = TRUE)
+    mod$update_state(state = state[, i], step = step[i])
+    mod$run(10)
   }
   cmp <- vapply(1:10, f, numeric(5))
   expect_equal(res, cmp)
+})
+
+
+test_that("update_state controls initial state", {
+  gen <- dust_example("sir")
+  mod <- gen$new(list(I0 = 1), 0, 1)
+  expect_equal(mod$state(), rbind(1000, 1, 0, 0, 0))
+
+  ## By default, update state when pars and step given
+  mod$update_state(list(I0 = 2), step = 0)
+  expect_equal(mod$state(), rbind(1000, 2, 0, 0, 0))
+
+  ## Allow turning this behaviour off:
+  mod$update_state(list(I0 = 3, step = 0), set_initial_state = FALSE)
+  expect_equal(mod$state(), rbind(1000, 2, 0, 0, 0))
+
+  ## Not changed when given just pars
+  mod$update_state(list(I0 = 4))
+  expect_equal(mod$state(), rbind(1000, 2, 0, 0, 0))
+
+  ## Unless we ask for it
+  mod$update_state(list(I0 = 5), set_initial_state = TRUE)
+  expect_equal(mod$state(), rbind(1000, 5, 0, 0, 0))
+
+  ## Take state from 'state' value
+  mod$update_state(list(I0 = 6), c(1000, 7, 0, 0, 0))
+  expect_equal(mod$state(), rbind(1000, 7, 0, 0, 0))
+
+  ## Prevent conflicting state definitions:
+  expect_error(
+    mod$update_state(list(I0 = 8), c(1000, 9, 0, 0, 0),
+                     set_initial_state = TRUE),
+    "Can't use both 'set_initial_state' and provide 'state'")
+  expect_equal(mod$pars(), list(I0 = 6))
+  expect_equal(mod$state(), rbind(1000, 7, 0, 0, 0))
+
+  expect_error(
+    mod$update_state(state = c(1000, 10, 0, 0, 0), set_initial_state = TRUE),
+    "Can't use 'set_initial_state' without providing 'pars'")
+  expect_equal(mod$pars(), list(I0 = 6))
+  expect_equal(mod$state(), rbind(1000, 7, 0, 0, 0))
 })

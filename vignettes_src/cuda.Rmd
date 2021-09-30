@@ -93,7 +93,7 @@ system.time(model$run(400))
 To run the model on the device, pass `device = TRUE` to `run()`:
 
 ```{r}
-model$reset(list(), 0L)
+model$update_state(pars = list(), step = 0L)
 system.time(model$run(400, device = TRUE))
 ```
 

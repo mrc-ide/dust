@@ -40,6 +40,7 @@ walk
 \item \href{#method-set_state}{\code{dust_generator$set_state()}}
 \item \href{#method-reset}{\code{dust_generator$reset()}}
 \item \href{#method-set_pars}{\code{dust_generator$set_pars()}}
+\item \href{#method-update_state}{\code{dust_generator$update_state()}}
 \item \href{#method-state}{\code{dust_generator$state()}}
 \item \href{#method-step}{\code{dust_generator$step()}}
 \item \href{#method-reorder}{\code{dust_generator$reorder()}}
@@ -82,6 +83,7 @@ is the same size.
   n_threads = 1L,
   seed = NULL,
   pars_multi = FALSE,
+  deterministic = FALSE,
   device_config = NULL
 )}\if{html}{\out{</div>}}
 }
@@ -117,6 +119,11 @@ should prepare \code{n_particles * length(pars)} particles for
 simulation. This has an effect on many of the other methods of
 the object.}
 
+\item{\code{deterministic}}{Run random number generation deterministically,
+replacing a random number from some distribution with its
+expectation. Deterministic models are not compatible with running on
+a a GPU.}
+
 \item{\code{device_config}}{Device configuration, typically an integer
 indicating the device to use, where the model has GPU support.
 If not given, then the default value of \code{NULL} will fall back on the
@@ -149,7 +156,8 @@ Returns friendly model name
 \subsection{Method \code{param()}}{
 Returns parameter information, if provided by the model. This
 describes the contents of pars passed to the constructor or to
-\code{reset} as the \code{pars} argument, and the details depend on the model.
+\verb{$update_state()} as the \code{pars} argument, and the details depend
+on the model.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$param()}\if{html}{\out{</div>}}
 }
@@ -162,7 +170,7 @@ describes the contents of pars passed to the constructor or to
 Run the model up to a point in time, returning the filtered state
 at that point.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$run(step_end, device = FALSE, deterministic = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$run(step_end, device = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -175,10 +183,6 @@ step(), silently nothing will happen)}
 the GPU device. This is only possible if your model supports it,
 was compiled with this enabled, and you have a suitable GPU
 available (see \code{vignette("cuda")}).}
-
-\item{\code{deterministic}}{Run random number generation deterministically,
-replacing a random number from some distribution with its
-expectation.}
 }
 \if{html}{\out{</div>}}
 }
@@ -199,7 +203,7 @@ the returned array is one less. For a scalar \code{step_end} you would
 ordinarily want to use \verb{$run()} but the resulting numbers would
 be identical.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$simulate(step_end, device = FALSE, deterministic = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$simulate(step_end, device = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -213,10 +217,6 @@ not wanted).}
 
 \item{\code{device}}{Logical, indicating if the model should be run on
 the GPU device. See \verb{$run()} for more information.}
-
-\item{\code{deterministic}}{Run random number generation deterministically,
-replacing a random number from some distribution with its
-expectation.}
 }
 \if{html}{\out{</div>}}
 }
@@ -228,9 +228,7 @@ expectation.}
 Set the "index" vector that is used to return a subset of pars
 after using \code{run()}. If this is not used then \code{run()} returns
 all elements in your state vector, which may be excessive and slower
-than necessary. This method must be called after any
-call to \code{reset()} as \code{reset()} may change the size of the state
-and that will invalidate the index.
+than necessary.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$set_index(index)}\if{html}{\out{</div>}}
 }
@@ -312,7 +310,7 @@ Returns the shape of the particles
 Set the "state" vector for all particles, overriding whatever your
 models \code{initial()} method provides.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$set_state(state, step = NULL, deterministic = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$set_state(state, step = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -329,10 +327,6 @@ states at once).}
 is a vector (with the same length as the number of particles), then
 particles are started from different initial steps and run up to the
 largest step given (i.e., \code{max(step)})}
-
-\item{\code{deterministic}}{If \code{TRUE} and if \code{step} is a vector with
-different values, then this would run up to the largest step
-deterministically (see \verb{$run()} for more details).}
 }
 \if{html}{\out{</div>}}
 }
@@ -372,6 +366,50 @@ the index will remain valid.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{pars}}{New pars for the model (see constructor)}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-update_state"></a>}}
+\if{latex}{\out{\hypertarget{method-update_state}{}}}
+\subsection{Method \code{update_state()}}{
+Update one or more components of the model state.
+This method can be used to update any or all of \code{pars}, \code{state} and
+\code{step}.  If \code{pars} is given and \code{state} is not, then by default we
+will update the model internal state according to your model's
+initial conditions - use \code{set_initial_state = FALSE} to prevent
+this.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$update_state(
+  pars = NULL,
+  state = NULL,
+  step = NULL,
+  set_initial_state = NULL
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{pars}}{New pars for the model (see constructor)}
+
+\item{\code{state}}{The state vector - can be either a numeric vector with the
+same length as the model's current state (in which case the same
+state is applied to all particles), or a numeric matrix with as
+many rows as your model's state and as many columns as you have
+particles (in which case you can set a number of different starting
+states at once).}
+
+\item{\code{step}}{New initial step for the model. If this
+is a vector (with the same length as the number of particles), then
+particles are started from different initial steps and run up to the
+largest step given (i.e., \code{max(step)})}
+
+\item{\code{set_initial_state}}{Control if the model initial state
+should be set while setting parameters. It is an error for
+this to be \code{TRUE} when either \code{pars} is \code{NULL} or when \code{state}
+is non-\code{NULL}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -644,9 +682,9 @@ the GPU device. See \verb{$run()} for more information.}
 \if{latex}{\out{\hypertarget{method-filter}{}}}
 \subsection{Method \code{filter()}}{
 Run a particle filter. The interface here will change a lot over the
-next few versions. You \emph{must} \verb{$reset()} the filter before using
-this method to get sensible values. We will tinker with this in
-future versions to allow things like partial runs.
+next few versions. You \emph{must} reset the dust object using
+\verb{$update_state(pars = ..., step = ...)} before using this method to
+get sensible values.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$filter(
   save_trajectories = FALSE,

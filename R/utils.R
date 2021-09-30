@@ -98,7 +98,12 @@ same_content <- function(path, text) {
 
 
 drop_roxygen <- function(text) {
-  text[!grepl("\\s*#+'", text)]
+  text[!grepl("^\\s*#+'", text)]
+}
+
+
+drop_internal_comments <- function(text) {
+  text[!grepl("^\\s*(###|///)", text)]
 }
 
 

@@ -76,28 +76,24 @@ cpp_openmp_info <- function() {
   .Call(`_dust_cpp_openmp_info`)
 }
 
-dust_sir_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_config) {
-  .Call(`_dust_dust_sir_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_config)
+dust_sir_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {
+  .Call(`_dust_dust_sir_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config)
 }
 
-dust_sir_run <- function(ptr, step_end, device, deterministic) {
-  .Call(`_dust_dust_sir_run`, ptr, step_end, device, deterministic)
+dust_sir_run <- function(ptr, step_end, device) {
+  .Call(`_dust_dust_sir_run`, ptr, step_end, device)
 }
 
-dust_sir_simulate <- function(ptr, step_end, device, deterministic) {
-  .Call(`_dust_dust_sir_simulate`, ptr, step_end, device, deterministic)
+dust_sir_simulate <- function(ptr, step_end, device) {
+  .Call(`_dust_dust_sir_simulate`, ptr, step_end, device)
 }
 
 dust_sir_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_sir_set_index`, ptr, r_index)
 }
 
-dust_sir_set_state <- function(ptr, r_state, r_step, deterministic) {
-  .Call(`_dust_dust_sir_set_state`, ptr, r_state, r_step, deterministic)
-}
-
-dust_sir_reset <- function(ptr, r_pars, step) {
-  .Call(`_dust_dust_sir_reset`, ptr, r_pars, step)
+dust_sir_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state) {
+  .Call(`_dust_dust_sir_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state)
 }
 
 dust_sir_state <- function(ptr, r_index) {
@@ -114,10 +110,6 @@ dust_sir_reorder <- function(ptr, r_index) {
 
 dust_sir_resample <- function(ptr, r_weights) {
   .Call(`_dust_dust_sir_resample`, ptr, r_weights)
-}
-
-dust_sir_set_pars <- function(ptr, r_pars) {
-  .Call(`_dust_dust_sir_set_pars`, ptr, r_pars)
 }
 
 dust_sir_rng_state <- function(ptr, first_only, last_only) {
@@ -156,28 +148,24 @@ dust_sir_device_info <- function() {
   .Call(`_dust_dust_sir_device_info`)
 }
 
-dust_sirs_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_config) {
-  .Call(`_dust_dust_sirs_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_config)
+dust_sirs_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {
+  .Call(`_dust_dust_sirs_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config)
 }
 
-dust_sirs_run <- function(ptr, step_end, device, deterministic) {
-  .Call(`_dust_dust_sirs_run`, ptr, step_end, device, deterministic)
+dust_sirs_run <- function(ptr, step_end, device) {
+  .Call(`_dust_dust_sirs_run`, ptr, step_end, device)
 }
 
-dust_sirs_simulate <- function(ptr, step_end, device, deterministic) {
-  .Call(`_dust_dust_sirs_simulate`, ptr, step_end, device, deterministic)
+dust_sirs_simulate <- function(ptr, step_end, device) {
+  .Call(`_dust_dust_sirs_simulate`, ptr, step_end, device)
 }
 
 dust_sirs_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_sirs_set_index`, ptr, r_index)
 }
 
-dust_sirs_set_state <- function(ptr, r_state, r_step, deterministic) {
-  .Call(`_dust_dust_sirs_set_state`, ptr, r_state, r_step, deterministic)
-}
-
-dust_sirs_reset <- function(ptr, r_pars, step) {
-  .Call(`_dust_dust_sirs_reset`, ptr, r_pars, step)
+dust_sirs_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state) {
+  .Call(`_dust_dust_sirs_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state)
 }
 
 dust_sirs_state <- function(ptr, r_index) {
@@ -194,10 +182,6 @@ dust_sirs_reorder <- function(ptr, r_index) {
 
 dust_sirs_resample <- function(ptr, r_weights) {
   .Call(`_dust_dust_sirs_resample`, ptr, r_weights)
-}
-
-dust_sirs_set_pars <- function(ptr, r_pars) {
-  .Call(`_dust_dust_sirs_set_pars`, ptr, r_pars)
 }
 
 dust_sirs_rng_state <- function(ptr, first_only, last_only) {
@@ -244,28 +228,24 @@ cpp_scale_log_weights <- function(w) {
   .Call(`_dust_cpp_scale_log_weights`, w)
 }
 
-dust_variable_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_config) {
-  .Call(`_dust_dust_variable_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_config)
+dust_variable_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {
+  .Call(`_dust_dust_variable_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config)
 }
 
-dust_variable_run <- function(ptr, step_end, device, deterministic) {
-  .Call(`_dust_dust_variable_run`, ptr, step_end, device, deterministic)
+dust_variable_run <- function(ptr, step_end, device) {
+  .Call(`_dust_dust_variable_run`, ptr, step_end, device)
 }
 
-dust_variable_simulate <- function(ptr, step_end, device, deterministic) {
-  .Call(`_dust_dust_variable_simulate`, ptr, step_end, device, deterministic)
+dust_variable_simulate <- function(ptr, step_end, device) {
+  .Call(`_dust_dust_variable_simulate`, ptr, step_end, device)
 }
 
 dust_variable_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_variable_set_index`, ptr, r_index)
 }
 
-dust_variable_set_state <- function(ptr, r_state, r_step, deterministic) {
-  .Call(`_dust_dust_variable_set_state`, ptr, r_state, r_step, deterministic)
-}
-
-dust_variable_reset <- function(ptr, r_pars, step) {
-  .Call(`_dust_dust_variable_reset`, ptr, r_pars, step)
+dust_variable_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state) {
+  .Call(`_dust_dust_variable_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state)
 }
 
 dust_variable_state <- function(ptr, r_index) {
@@ -282,10 +262,6 @@ dust_variable_reorder <- function(ptr, r_index) {
 
 dust_variable_resample <- function(ptr, r_weights) {
   .Call(`_dust_dust_variable_resample`, ptr, r_weights)
-}
-
-dust_variable_set_pars <- function(ptr, r_pars) {
-  .Call(`_dust_dust_variable_set_pars`, ptr, r_pars)
 }
 
 dust_variable_rng_state <- function(ptr, first_only, last_only) {
@@ -324,28 +300,24 @@ dust_variable_device_info <- function() {
   .Call(`_dust_dust_variable_device_info`)
 }
 
-dust_volatility_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_config) {
-  .Call(`_dust_dust_volatility_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_config)
+dust_volatility_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {
+  .Call(`_dust_dust_volatility_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config)
 }
 
-dust_volatility_run <- function(ptr, step_end, device, deterministic) {
-  .Call(`_dust_dust_volatility_run`, ptr, step_end, device, deterministic)
+dust_volatility_run <- function(ptr, step_end, device) {
+  .Call(`_dust_dust_volatility_run`, ptr, step_end, device)
 }
 
-dust_volatility_simulate <- function(ptr, step_end, device, deterministic) {
-  .Call(`_dust_dust_volatility_simulate`, ptr, step_end, device, deterministic)
+dust_volatility_simulate <- function(ptr, step_end, device) {
+  .Call(`_dust_dust_volatility_simulate`, ptr, step_end, device)
 }
 
 dust_volatility_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_volatility_set_index`, ptr, r_index)
 }
 
-dust_volatility_set_state <- function(ptr, r_state, r_step, deterministic) {
-  .Call(`_dust_dust_volatility_set_state`, ptr, r_state, r_step, deterministic)
-}
-
-dust_volatility_reset <- function(ptr, r_pars, step) {
-  .Call(`_dust_dust_volatility_reset`, ptr, r_pars, step)
+dust_volatility_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state) {
+  .Call(`_dust_dust_volatility_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state)
 }
 
 dust_volatility_state <- function(ptr, r_index) {
@@ -362,10 +334,6 @@ dust_volatility_reorder <- function(ptr, r_index) {
 
 dust_volatility_resample <- function(ptr, r_weights) {
   .Call(`_dust_dust_volatility_resample`, ptr, r_weights)
-}
-
-dust_volatility_set_pars <- function(ptr, r_pars) {
-  .Call(`_dust_dust_volatility_set_pars`, ptr, r_pars)
 }
 
 dust_volatility_rng_state <- function(ptr, first_only, last_only) {
@@ -404,28 +372,24 @@ dust_volatility_device_info <- function() {
   .Call(`_dust_dust_volatility_device_info`)
 }
 
-dust_walk_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_config) {
-  .Call(`_dust_dust_walk_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, device_config)
+dust_walk_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {
+  .Call(`_dust_dust_walk_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config)
 }
 
-dust_walk_run <- function(ptr, step_end, device, deterministic) {
-  .Call(`_dust_dust_walk_run`, ptr, step_end, device, deterministic)
+dust_walk_run <- function(ptr, step_end, device) {
+  .Call(`_dust_dust_walk_run`, ptr, step_end, device)
 }
 
-dust_walk_simulate <- function(ptr, step_end, device, deterministic) {
-  .Call(`_dust_dust_walk_simulate`, ptr, step_end, device, deterministic)
+dust_walk_simulate <- function(ptr, step_end, device) {
+  .Call(`_dust_dust_walk_simulate`, ptr, step_end, device)
 }
 
 dust_walk_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_walk_set_index`, ptr, r_index)
 }
 
-dust_walk_set_state <- function(ptr, r_state, r_step, deterministic) {
-  .Call(`_dust_dust_walk_set_state`, ptr, r_state, r_step, deterministic)
-}
-
-dust_walk_reset <- function(ptr, r_pars, step) {
-  .Call(`_dust_dust_walk_reset`, ptr, r_pars, step)
+dust_walk_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state) {
+  .Call(`_dust_dust_walk_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state)
 }
 
 dust_walk_state <- function(ptr, r_index) {
@@ -442,10 +406,6 @@ dust_walk_reorder <- function(ptr, r_index) {
 
 dust_walk_resample <- function(ptr, r_weights) {
   .Call(`_dust_dust_walk_resample`, ptr, r_weights)
-}
-
-dust_walk_set_pars <- function(ptr, r_pars) {
-  .Call(`_dust_dust_walk_set_pars`, ptr, r_pars)
 }
 
 dust_walk_rng_state <- function(ptr, first_only, last_only) {

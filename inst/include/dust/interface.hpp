@@ -35,7 +35,8 @@ namespace r {
 template <typename T>
 cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
                        cpp11::sexp r_n_particles, int n_threads,
-                       cpp11::sexp r_seed, cpp11::sexp r_device_config) {
+                       cpp11::sexp r_seed, bool deterministic,
+                       cpp11::sexp r_device_config) {
   dust::interface::validate_size(step, "step");
   dust::interface::validate_positive(n_threads, "n_threads");
   std::vector<uint64_t> seed =
@@ -70,13 +71,14 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
       n_particles = cpp11::as_cpp<int>(r_n_particles);
       dust::interface::validate_size(n_particles, "n_particles");
     }
-    d = new Dust<T>(pars, step, n_particles, n_threads, seed, device_config,
-                    shape);
+    d = new Dust<T>(pars, step, n_particles, n_threads, seed, deterministic,
+                    device_config, shape);
   } else {
     size_t n_particles = cpp11::as_cpp<int>(r_n_particles);
     dust::interface::validate_positive(n_particles, "n_particles");
     dust::pars_t<T> pars = dust_pars<T>(r_pars);
-    d = new Dust<T>(pars, step, n_particles, n_threads, seed, device_config);
+    d = new Dust<T>(pars, step, n_particles, n_threads, seed, deterministic,
+                    device_config);
     info = dust_info<T>(pars);
   }
   cpp11::external_pointer<Dust<T>> ptr(d, true, false);
@@ -100,15 +102,88 @@ void dust_set_index(SEXP ptr, cpp11::sexp r_index) {
 }
 
 template <typename T>
-void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step, bool deterministic) {
-  typedef typename T::real_t real_t;
+cpp11::sexp dust_update_state_set_pars(Dust<T> *obj, cpp11::list r_pars,
+                                       bool set_initial_state) {
+  cpp11::sexp ret = R_NilValue;
+  if (obj->n_pars() == 0) {
+    dust::pars_t<T> pars = dust_pars<T>(r_pars);
+    obj->set_pars(pars, set_initial_state);
+    ret = dust_info<T>(pars);
+  } else {
+    dust::interface::check_pars_multi(r_pars, obj->shape(),
+                                      obj->pars_are_shared());
+    std::vector<dust::pars_t<T>> pars;
+    pars.reserve(obj->n_pars());
+    cpp11::writable::list info_list =
+      cpp11::writable::list(r_pars.size());
+    for (int i = 0; i < r_pars.size(); ++i) {
+      pars.push_back(dust_pars<T>(r_pars[i]));
+      info_list[i] = dust_info<T>(pars[i]);
+    }
+    obj->set_pars(pars, set_initial_state);
+    ret = info_list;
+  }
+  return ret;
+}
 
+// There are many components of state (not including rng state which
+// we treat separately), we set components always in the order (1)
+// pars, (2) state, (3) step
+template <typename T>
+cpp11::sexp dust_update_state_set(Dust<T> *obj, SEXP r_pars,
+                                  const std::vector<typename T::real_t>& state,
+                                  const std::vector<size_t>& step,
+                                  bool set_initial_state) {
+  cpp11::sexp ret = R_NilValue;
+  if (r_pars != R_NilValue) {
+    ret = dust_update_state_set_pars(obj, cpp11::as_cpp<cpp11::list>(r_pars),
+                               set_initial_state);
+  }
+
+  if (state.size() > 0) {
+    obj->set_state(state);
+  }
+
+  if (step.size() == 1) {
+    obj->set_step(step[0]);
+  } else if (step.size() > 1) {
+    obj->set_step(step);
+  }
+
+  // If we set both initial conditions and step then we're safe to
+  // continue here.
+  if (state.size() > 0 && step.size() > 0) {
+    obj->reset_errors();
+  }
+
+  return ret;
+}
+
+template <typename T>
+SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
+                       SEXP r_set_initial_state) {
+  typedef typename T::real_t real_t;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  const size_t n_state = obj->n_state_full();
+
+  bool set_initial_state = false;
+  if (r_set_initial_state == R_NilValue) {
+    set_initial_state = r_state == R_NilValue &&
+      r_pars != R_NilValue && r_step != R_NilValue;
+  } else {
+    set_initial_state = cpp11::as_cpp<bool>(r_set_initial_state);
+  }
+
+  if (set_initial_state && r_pars == R_NilValue) {
+    cpp11::stop("Can't use 'set_initial_state' without providing 'pars'");
+  }
+  if (set_initial_state && r_state != R_NilValue) {
+    cpp11::stop("Can't use both 'set_initial_state' and provide 'state'");
+  }
 
   // Do the validation on both arguments first so that we leave this
   // function having dealt with both or neither (i.e., do not fail on
   // step after succeeding on state).
+
   std::vector<size_t> step;
   std::vector<real_t> state;
 
@@ -124,45 +199,24 @@ void dust_set_state(SEXP ptr, SEXP r_state, SEXP r_step, bool deterministic) {
   }
 
   if (r_state != R_NilValue) {
-    state =
-      dust::interface::check_state<real_t>(r_state, n_state, obj->shape(),
-                                           obj->pars_are_shared());
+    state = dust::interface::check_state<real_t>(r_state,
+                                                 obj->n_state_full(),
+                                                 obj->shape(),
+                                                 obj->pars_are_shared());
   }
 
-  if (state.size() > 0) {
-    obj->set_state(state, state.size() == n_state * obj->n_particles());
-  }
-
-  // It is important to set the step *after* the state as if it is a
-  // vector then the particles will be run until they reach the latest
-  // state found within the vector.
-  if (step.size() > 0) {
-    if (step.size() == 1) {
-      obj->set_step(step[0]);
-    } else {
-      obj->set_step(step, deterministic);
-    }
-  }
-
-  // If we set both initial conditions and step then we're safe to
-  // continue here.
-  if (state.size() > 0 && step.size() > 0) {
-    obj->reset_errors();
-  }
+  return dust_update_state_set(obj, r_pars, state, step, set_initial_state);
 }
 
 template <typename T>
-cpp11::sexp dust_run(SEXP ptr, int step_end, bool device, bool deterministic) {
-  if (device && deterministic) {
-    cpp11::stop("'deterministic' is not compatible with 'device'");
-  }
+cpp11::sexp dust_run(SEXP ptr, int step_end, bool device) {
   dust::interface::validate_size(step_end, "step_end");
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
   if (device) {
     obj->run_device(step_end);
   } else {
-    obj->run(step_end, deterministic);
+    obj->run(step_end);
   }
 
   // TODO: the allocation should come from the dust object, *or* we
@@ -177,11 +231,7 @@ cpp11::sexp dust_run(SEXP ptr, int step_end, bool device, bool deterministic) {
 }
 
 template <typename T>
-cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end, bool device,
-                          bool deterministic) {
-  if (device && deterministic) {
-    cpp11::stop("'deterministic' is not compatible with 'device'");
-  }
+cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end, bool device) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
   const std::vector<size_t> step_end =
@@ -204,59 +254,10 @@ cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end, bool device,
   if (device) {
     dat = obj->simulate_device(step_end);
   } else {
-    dat = obj->simulate(step_end, deterministic);
+    dat = obj->simulate(step_end);
   }
   return dust::interface::state_array(dat, obj->n_state(), obj->shape(),
                                       n_time);
-}
-
-template <typename T>
-cpp11::sexp dust_reset(SEXP ptr, cpp11::list r_pars, int step) {
-  dust::interface::validate_size(step, "step");
-  Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  cpp11::sexp info;
-  if (obj->n_pars() == 0) {
-    dust::pars_t<T> pars = dust_pars<T>(r_pars);
-    obj->reset(pars, step);
-    info = dust_info<T>(pars);
-  } else {
-    dust::interface::check_pars_multi(r_pars, obj->shape(),
-                                      obj->pars_are_shared());
-    std::vector<dust::pars_t<T>> pars;
-    pars.reserve(obj->n_pars());
-    cpp11::writable::list info_list = cpp11::writable::list(r_pars.size());
-    for (int i = 0; i < r_pars.size(); ++i) {
-      pars.push_back(dust_pars<T>(r_pars[i]));
-      info_list[i] = dust_info<T>(pars[i]);
-    }
-    obj->reset(pars, step);
-    info = info_list;
-  }
-  return info;
-}
-
-template <typename T>
-cpp11::sexp dust_set_pars(SEXP ptr, cpp11::list r_pars) {
-  Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
-  cpp11::sexp info;
-  if (obj->n_pars() == 0) {
-    dust::pars_t<T> pars = dust_pars<T>(r_pars);
-    obj->set_pars(pars);
-    info = dust_info<T>(pars);
-  } else {
-    dust::interface::check_pars_multi(r_pars, obj->shape(),
-                                      obj->pars_are_shared());
-    std::vector<dust::pars_t<T>> pars;
-    pars.reserve(obj->n_pars());
-    cpp11::writable::list info_list = cpp11::writable::list(r_pars.size());
-    for (int i = 0; i < r_pars.size(); ++i) {
-      pars.push_back(dust_pars<T>(r_pars[i]));
-      info_list[i] = dust_info<T>(pars[i]);
-    }
-    obj->set_pars(pars);
-    info = info_list;
-  }
-  return info;
 }
 
 template <typename T>

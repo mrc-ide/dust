@@ -1,3 +1,4 @@
+/// IMPORTANT; changes here must be reflected into inst/template/dust.hpp
 #include <dust/dust.hpp>
 #include <dust/interface.hpp>
 
@@ -5,20 +6,19 @@
 
 SEXP dust_{{name}}_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                          cpp11::sexp r_n_particles, size_t n_threads,
-                         cpp11::sexp r_seed, cpp11::sexp device_config) {
+                         cpp11::sexp r_seed, bool deterministic,
+                         cpp11::sexp device_config) {
   return dust::r::dust_alloc<{{class}}>(r_pars, pars_multi, step, r_n_particles,
-                                        n_threads, r_seed, device_config);
+                                        n_threads, r_seed, deterministic,
+                                        device_config);
 }
 
-SEXP dust_{{name}}_run(SEXP ptr, size_t step_end, bool device,
-                       bool deterministic) {
-  return dust::r::dust_run<{{class}}>(ptr, step_end, device, deterministic);
+SEXP dust_{{name}}_run(SEXP ptr, size_t step_end, bool device) {
+  return dust::r::dust_run<{{class}}>(ptr, step_end, device);
 }
 
-SEXP dust_{{name}}_simulate(SEXP ptr, cpp11::sexp step_end, bool device,
-                            bool deterministic) {
-  return dust::r::dust_simulate<{{class}}>(ptr, step_end, device,
-                                           deterministic);
+SEXP dust_{{name}}_simulate(SEXP ptr, cpp11::sexp step_end, bool device) {
+  return dust::r::dust_simulate<{{class}}>(ptr, step_end, device);
 }
 
 SEXP dust_{{name}}_set_index(SEXP ptr, cpp11::sexp r_index) {
@@ -26,14 +26,10 @@ SEXP dust_{{name}}_set_index(SEXP ptr, cpp11::sexp r_index) {
   return R_NilValue;
 }
 
-SEXP dust_{{name}}_set_state(SEXP ptr, SEXP r_state, SEXP r_step,
-                             bool deterministic) {
-  dust::r::dust_set_state<{{class}}>(ptr, r_state, r_step, deterministic);
-  return R_NilValue;
-}
-
-SEXP dust_{{name}}_reset(SEXP ptr, cpp11::list r_pars, size_t step) {
-  return dust::r::dust_reset<{{class}}>(ptr, r_pars, step);
+SEXP dust_{{name}}_update_state(SEXP ptr, SEXP r_pars, SEXP r_state,
+                                SEXP r_step, SEXP r_set_initial_state) {
+  return dust::r::dust_update_state<{{class}}>(ptr, r_pars, r_state, r_step,
+                                               r_set_initial_state);
 }
 
 SEXP dust_{{name}}_state(SEXP ptr, SEXP r_index) {
@@ -50,10 +46,6 @@ void dust_{{name}}_reorder(SEXP ptr, cpp11::sexp r_index) {
 
 SEXP dust_{{name}}_resample(SEXP ptr, cpp11::doubles r_weights) {
   return dust::r::dust_resample<{{class}}>(ptr, r_weights);
-}
-
-SEXP dust_{{name}}_set_pars(SEXP ptr, cpp11::list r_pars) {
-  return dust::r::dust_set_pars<{{class}}>(ptr, r_pars);
 }
 
 SEXP dust_{{name}}_rng_state(SEXP ptr, bool first_only, bool last_only) {

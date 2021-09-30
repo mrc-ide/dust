@@ -33,14 +33,14 @@ public:
 
   Dust(const pars_t& pars, const size_t step, const size_t n_particles,
        const size_t n_threads, const std::vector<uint64_t>& seed,
-       const cuda::device_config& device_config) :
+       const bool deterministic, const cuda::device_config& device_config) :
     n_pars_(0),
     n_particles_each_(n_particles),
     n_particles_total_(n_particles),
     pars_are_shared_(true),
     n_threads_(n_threads),
     device_config_(device_config),
-    rng_(n_particles_total_ + 1, seed), // +1 for the filter's rng state
+    rng_(n_particles_total_ + 1, seed, deterministic), // +1 for filter
     errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true),
@@ -56,15 +56,16 @@ public:
 
   Dust(const std::vector<pars_t>& pars, const size_t step,
        const size_t n_particles, const size_t n_threads,
-       const std::vector<uint64_t>& seed, const cuda::device_config& device_config,
-       std::vector<size_t> shape) :
+       const std::vector<uint64_t>& seed,
+       const bool deterministic, const cuda::device_config& device_config,
+       const std::vector<size_t>& shape) :
     n_pars_(pars.size()),
     n_particles_each_(n_particles == 0 ? 1 : n_particles),
     n_particles_total_(n_particles_each_ * pars.size()),
     pars_are_shared_(n_particles != 0),
     n_threads_(n_threads),
     device_config_(device_config),
-    rng_(n_particles_total_ + 1, seed),  // +1 for the filter's rng state
+    rng_(n_particles_total_ + 1, seed, deterministic),  // +1 for filter
     errors_(n_particles_total_),
     stale_host_(false),
     stale_device_(true),
@@ -93,31 +94,14 @@ public:
   }
 #endif
 
-  void reset(const pars_t& pars, const size_t step) {
+  void set_pars(const pars_t& pars, bool set_state) {
     const size_t n_particles = particles_.size();
-    initialise(pars, step, n_particles, true);
+    initialise(pars, step(), n_particles, set_state);
   }
 
-  void reset(const std::vector<pars_t>& pars, const size_t step) {
-    const size_t n_particles = particles_.size() / pars.size();
-    initialise(pars, step, n_particles, true);
-  }
-
-  void set_pars(const pars_t& pars) {
+  void set_pars(const std::vector<pars_t>& pars, bool set_state) {
     const size_t n_particles = particles_.size();
-    initialise(pars, step(), n_particles, false);
-  }
-
-  void set_pars(const std::vector<pars_t>& pars) {
-    const size_t n_particles = particles_.size();
-    initialise(pars, step(), n_particles / pars.size(), false);
-  }
-
-  // It's the callee's responsibility to ensure that index is in
-  // range [0, n-1]
-  void set_index(const std::vector<size_t>& index) {
-    index_ = index;
-    update_device_index();
+    initialise(pars, step(), n_particles / pars.size(), set_state);
   }
 
   // It's the callee's responsibility to ensure this is the correct length:
@@ -126,11 +110,15 @@ public:
   //   and all particles get the state
   // * if is_matrix is true, state must be length (n_state_full() *
   //   n_particles()) and every particle gets a different state.
-  void set_state(const std::vector<real_t>& state, bool individual) {
+  void set_state(const std::vector<real_t>& state) {
     const size_t n_particles = particles_.size();
     const size_t n_state = n_state_full();
+    const bool individual = state.size() == n_state * n_particles;
     const size_t n = individual ? 1 : n_particles_each_;
     auto it = state.begin();
+#ifdef _OPENMP
+    #pragma omp parallel for schedule(static) num_threads(n_threads_)
+#endif
     for (size_t i = 0; i < n_particles; ++i) {
       particles_[i].set_state(it + (i / n) * n_state);
     }
@@ -145,24 +133,30 @@ public:
     for (size_t i = 0; i < n_particles; ++i) {
       particles_[i].set_step(step);
     }
+    stale_device_ = true;
   }
 
-  void set_step(const std::vector<size_t>& step, const bool deterministic) {
+  void set_step(const std::vector<size_t>& step) {
     const size_t n_particles = particles_.size();
     for (size_t i = 0; i < n_particles; ++i) {
       particles_[i].set_step(step[i]);
     }
     const auto r = std::minmax_element(step.begin(), step.end());
     if (*r.second > *r.first) {
-      run(*r.second, deterministic);
+      run(*r.second);
     }
+    stale_device_ = true;
   }
 
-  void run(const size_t step_end, const bool deterministic) {
+  // It's the callee's responsibility to ensure that index is in
+  // range [0, n-1]
+  void set_index(const std::vector<size_t>& index) {
+    index_ = index;
+    update_device_index();
+  }
+
+  void run(const size_t step_end) {
     refresh_host();
-    if (deterministic) {
-      rng_.set_deterministic(true);
-    }
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
@@ -172,9 +166,6 @@ public:
       } catch (std::exception const& e) {
         errors_.capture(e, i);
       }
-    }
-    if (deterministic) {
-      rng_.set_deterministic(false);
     }
     errors_.report();
     stale_device_ = true;
@@ -241,14 +232,10 @@ public:
     }
   }
 
-  std::vector<real_t> simulate(const std::vector<size_t>& step_end,
-                               const bool deterministic) {
+  std::vector<real_t> simulate(const std::vector<size_t>& step_end) {
     const size_t n_time = step_end.size();
     std::vector<real_t> ret(n_particles() * n_state() * n_time);
 
-    if (deterministic) {
-      rng_.set_deterministic(true);
-    }
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
@@ -262,9 +249,6 @@ public:
       } catch (std::exception const& e) {
         errors_.capture(e, i);
       }
-    }
-    if (deterministic) {
-      rng_.set_deterministic(false);
     }
     errors_.report();
     return ret;
@@ -564,6 +548,9 @@ public:
   }
 
   void set_data(std::map<size_t, std::vector<data_t>> data) {
+    if (rng_.deterministic()) {
+      throw std::runtime_error("Can't use data with deterministic models");
+    }
     data_ = data;
     initialise_device_data();
   }
@@ -785,10 +772,10 @@ private:
     const size_t n_internal_real = dust::device_internal_real_size<T>(s);
     const size_t n_shared_int = dust::device_shared_int_size<T>(s);
     const size_t n_shared_real = dust::device_shared_real_size<T>(s);
-    device_state_.initialise(particles_.size(), n_state_full(), n_pars_effective(),
-                            shared_.size(),
-                            n_internal_int, n_internal_real,
-                            n_shared_int, n_shared_real);
+    device_state_.initialise(particles_.size(), n_state_full(),
+                             n_pars_effective(), shared_.size(),
+                             n_internal_int, n_internal_real,
+                             n_shared_int, n_shared_real);
   }
 
   template <typename U = T>
@@ -882,6 +869,9 @@ private:
   refresh_device() {
     if (!device_config_.enabled_) {
       throw std::runtime_error("Can't refresh a non-existent device");
+    }
+    if (rng_.deterministic()) {
+      throw std::runtime_error("Can't run deterministic models on GPU");
     }
     if (stale_device_) {
       const size_t np = n_particles(), ny = n_state_full();

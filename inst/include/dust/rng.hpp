@@ -16,7 +16,8 @@ namespace dust {
 template <typename T>
 class pRNG { // # nocov
 public:
-  pRNG(const size_t n, const std::vector<uint64_t>& seed) {
+  pRNG(const size_t n, const std::vector<uint64_t>& seed,
+       bool deterministic = false) {
     rng_state_t<T> s;
     auto len = rng_state_t<T>::size();
     auto n_seed = seed.size() / len;
@@ -28,6 +29,7 @@ public:
       }
       state_.push_back(s);
     }
+    set_deterministic(deterministic);
   }
 
   size_t size() const {
@@ -85,6 +87,10 @@ public:
     for (auto& x : state_) {
       x.deterministic = value;
     }
+  }
+
+  bool deterministic() const {
+    return state_[0].deterministic;
   }
 
 private:
