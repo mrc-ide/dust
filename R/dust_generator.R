@@ -245,10 +245,10 @@ dust_generator <- R6::R6Class(
 
     ##' @description Update one or more components of the model state.
     ##'   This method can be used to update any or all of `pars`, `state` and
-    ##'   `step`.  If `pars` is given and `state` is not, then by default we
-    ##'   will update the model internal state according to your model's
-    ##'   initial conditions - use `set_initial_state = FALSE` to prevent
-    ##'   this.
+    ##'   `step`.  If both `pars` and `step` are given and `state` is not,
+    ##'   then by default we will update the model internal state according
+    ##'   to your model's initial conditions - use `set_initial_state = FALSE`
+    ##'   to prevent this.
     ##'
     ##' @param pars New pars for the model (see constructor)
     ##'

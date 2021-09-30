@@ -757,29 +757,37 @@ test_that("update_state controls initial state", {
   mod <- gen$new(list(I0 = 1), 0, 1)
   expect_equal(mod$state(), rbind(1000, 1, 0, 0, 0))
 
-  ## By default, update state
-  mod$update_state(list(I0 = 2))
+  ## By default, update state when pars and step given
+  mod$update_state(list(I0 = 2), step = 0)
   expect_equal(mod$state(), rbind(1000, 2, 0, 0, 0))
 
   ## Allow turning this behaviour off:
-  mod$update_state(list(I0 = 3), set_initial_state = FALSE)
+  mod$update_state(list(I0 = 3, step = 0), set_initial_state = FALSE)
   expect_equal(mod$state(), rbind(1000, 2, 0, 0, 0))
 
-  ## Take state from 'state' value
-  mod$update_state(list(I0 = 4), c(1000, 5, 0, 0, 0))
+  ## Not changed when given just pars
+  mod$update_state(list(I0 = 4))
+  expect_equal(mod$state(), rbind(1000, 2, 0, 0, 0))
+
+  ## Unless we ask for it
+  mod$update_state(list(I0 = 5), set_initial_state = TRUE)
   expect_equal(mod$state(), rbind(1000, 5, 0, 0, 0))
+
+  ## Take state from 'state' value
+  mod$update_state(list(I0 = 6), c(1000, 7, 0, 0, 0))
+  expect_equal(mod$state(), rbind(1000, 7, 0, 0, 0))
 
   ## Prevent conflicting state definitions:
   expect_error(
-    mod$update_state(list(I0 = 6), c(1000, 7, 0, 0, 0),
+    mod$update_state(list(I0 = 8), c(1000, 9, 0, 0, 0),
                      set_initial_state = TRUE),
     "Can't use both 'set_initial_state' and provide 'state'")
-  expect_equal(mod$pars(), list(I0 = 4))
-  expect_equal(mod$state(), rbind(1000, 5, 0, 0, 0))
+  expect_equal(mod$pars(), list(I0 = 6))
+  expect_equal(mod$state(), rbind(1000, 7, 0, 0, 0))
 
   expect_error(
-    mod$update_state(state = c(1000, 8, 0, 0, 0), set_initial_state = TRUE),
+    mod$update_state(state = c(1000, 10, 0, 0, 0), set_initial_state = TRUE),
     "Can't use 'set_initial_state' without providing 'pars'")
-  expect_equal(mod$pars(), list(I0 = 4))
-  expect_equal(mod$state(), rbind(1000, 5, 0, 0, 0))
+  expect_equal(mod$pars(), list(I0 = 6))
+  expect_equal(mod$state(), rbind(1000, 7, 0, 0, 0))
 })

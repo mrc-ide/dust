@@ -167,7 +167,8 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
 
   bool set_initial_state = false;
   if (r_set_initial_state == R_NilValue) {
-    set_initial_state = r_state == R_NilValue && r_pars != R_NilValue;
+    set_initial_state = r_state == R_NilValue &&
+      r_pars != R_NilValue && r_step != R_NilValue;
   } else {
     set_initial_state = cpp11::as_cpp<bool>(r_set_initial_state);
   }
