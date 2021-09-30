@@ -39,8 +39,7 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
                        cpp11::sexp r_device_config) {
   dust::interface::validate_size(step, "step");
   dust::interface::validate_positive(n_threads, "n_threads");
-  std::vector<uint64_t> seed =
-    dust::interface::as_rng_seed<typename T::real_t>(r_seed);
+  std::vector<uint64_t> seed = dust::interface::as_rng_seed(r_seed);
 
   const dust::cuda::device_config device_config =
     dust::interface::device_config(r_device_config);
@@ -342,7 +341,7 @@ SEXP dust_rng_state(SEXP ptr, bool first_only, bool last_only) {
     cpp11::stop("Only one of 'first_only' or 'last_only' may be TRUE");
   }
   size_t n = (first_only || last_only) ?
-    dust::rng_state_t<double>::size() : state.size();
+    dust::rng_state_t::size() : state.size();
   size_t rng_offset = last_only ? obj->n_particles() * n : 0;
   size_t len = sizeof(uint64_t) * n;
   cpp11::writable::raws ret(len);

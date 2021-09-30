@@ -96,7 +96,7 @@ public:
   }
 
   void update(size_t step, const real_t * state,
-              dust::rng_state_t<real_t>& rng_state,
+              dust::rng_state_t& rng_state,
               real_t * state_next) {
     real_t S = state[0];
     real_t I = state[1];
@@ -120,7 +120,7 @@ public:
   }
 
   real_t compare_data(const real_t * state, const data_t& data,
-                      dust::rng_state_t<real_t>& rng_state) {
+                      dust::rng_state_t& rng_state) {
     const real_t incidence_modelled = state[4];
     const real_t incidence_observed = data.incidence;
     const real_t lambda = incidence_modelled +

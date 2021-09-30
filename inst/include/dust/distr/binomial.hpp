@@ -60,11 +60,11 @@ real_t HOSTDEVICE binomial_inversion_calc(real_t u, int n, real_t p) {
 // (given p) that corresponds to this
 __nv_exec_check_disable__
 template <typename real_t>
-real_t HOSTDEVICE binomial_inversion(rng_state_t<real_t>& rng_state, int n,
+real_t HOSTDEVICE binomial_inversion(rng_state_t& rng_state, int n,
                                      real_t p) {
   real_t k = -1;
   do {
-    real_t u = dust::unif_rand(rng_state);
+    real_t u = dust::unif_rand<real_t>(rng_state);
     k = binomial_inversion_calc(u, n, p);
   } while (k < 0);
   return k;
@@ -108,7 +108,7 @@ HOSTDEVICE inline double stirling_approx_tail(double k) {
 // https://www.tandfonline.com/doi/abs/10.1080/00949659308811496
 __nv_exec_check_disable__
 template <typename real_t>
-inline HOSTDEVICE real_t btrs(rng_state_t<real_t>& rng_state, int n_int, real_t p) {
+inline HOSTDEVICE real_t btrs(rng_state_t& rng_state, int n_int, real_t p) {
   const real_t n = static_cast<real_t>(n_int);
   const real_t one = 1.0;
   const real_t half = 0.5;
@@ -128,8 +128,8 @@ inline HOSTDEVICE real_t btrs(rng_state_t<real_t>& rng_state, int n_int, real_t 
 
   real_t draw;
   while (true) {
-    real_t u = dust::unif_rand<real_t, real_t>(rng_state);
-    real_t v = dust::unif_rand<real_t, real_t>(rng_state);
+    real_t u = dust::unif_rand<real_t>(rng_state);
+    real_t v = dust::unif_rand<real_t>(rng_state);
     u -= half;
     real_t us = half - std::fabs(u);
     real_t k = std::floor((2 * a / us + b) * u + c);
@@ -201,7 +201,7 @@ HOST real_t rbinom_deterministic(real_t n, real_t p) {
 // NOTE: we return a real, not an int, as with deterministic mode this
 // will not necessarily be an integer
 template <typename real_t>
-HOSTDEVICE real_t rbinom_stochastic(rng_state_t<real_t>& rng_state, int n,
+HOSTDEVICE real_t rbinom_stochastic(rng_state_t& rng_state, int n,
                                     real_t p) {
   rbinom_validate(n, p);
   real_t draw;
@@ -232,7 +232,9 @@ HOSTDEVICE real_t rbinom_stochastic(rng_state_t<real_t>& rng_state, int n,
 }
 
 template <typename real_t>
-HOSTDEVICE real_t rbinom(rng_state_t<real_t>& rng_state, real_t n, real_t p) {
+HOSTDEVICE real_t rbinom(rng_state_t& rng_state, real_t n, real_t p) {
+  static_assert(std::is_floating_point<real_t>::value,
+                "Only valid for floating-point types; use rbinom<real_t>()");
 #ifndef __CUDA_ARCH__
   if (rng_state.deterministic) {
     return rbinom_deterministic<real_t>(n, p);

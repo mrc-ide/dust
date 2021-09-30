@@ -56,7 +56,7 @@ struct device_state {
     n_shared_len = n_shared_len_;
     n_shared_int = n_shared_int_;
     n_shared_real = n_shared_real_;
-    const size_t n_rng = dust::rng_state_t<real_t>::size();
+    const size_t n_rng = dust::rng_state_t::size();
     y = dust::device_array<real_t>(n_state * n_particles);
     y_next = dust::device_array<real_t>(n_state * n_particles);
     internal_int = dust::device_array<int>(n_internal_int * n_particles);

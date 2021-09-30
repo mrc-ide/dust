@@ -9,7 +9,7 @@ namespace distr {
 
 __nv_exec_check_disable__
 template <typename real_t>
-HOSTDEVICE inline real_t box_muller(rng_state_t<real_t>& rng_state) {
+HOSTDEVICE inline real_t box_muller(rng_state_t& rng_state) {
   // This function implements the Box-Muller transform:
   // https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform#Basic_form
   // Do not send a really small number to log().
@@ -18,8 +18,8 @@ HOSTDEVICE inline real_t box_muller(rng_state_t<real_t>& rng_state) {
 
   real_t u1, u2;
   do {
-    u1 = dust::unif_rand(rng_state);
-    u2 = dust::unif_rand(rng_state);
+    u1 = dust::unif_rand<real_t>(rng_state);
+    u2 = dust::unif_rand<real_t>(rng_state);
   } while (u1 <= epsilon);
 
   SYNCWARP
@@ -30,9 +30,9 @@ HOSTDEVICE inline real_t box_muller(rng_state_t<real_t>& rng_state) {
 // compiler complaining about conflicting inferred types for real_t
 __nv_exec_check_disable__
 template <typename real_t>
-HOSTDEVICE real_t rnorm(rng_state_t<real_t>& rng_state,
-                        typename rng_state_t<real_t>::real_t mean,
-                        typename rng_state_t<real_t>::real_t sd) {
+HOSTDEVICE real_t rnorm(rng_state_t& rng_state, real_t mean, real_t sd) {
+  static_assert(std::is_floating_point<real_t>::value,
+                "Only valid for floating-point types; use rnorm<real_t>()");
 #ifdef __CUDA_ARCH__
   real_t z = box_muller<real_t>(rng_state);
 #else

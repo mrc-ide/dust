@@ -93,14 +93,14 @@ public:
   }
 
   void update(size_t step, const real_t * state,
-              dust::rng_state_t<real_t>& rng_state, real_t * state_next) {
+              dust::rng_state_t& rng_state, real_t * state_next) {
     const real_t x = state[0];
     state_next[0] = shared->alpha * x +
-      shared->sigma * dust::distr::rnorm(rng_state, 0, 1);
+      shared->sigma * dust::distr::rnorm<real_t>(rng_state, 0, 1);
   }
 
   real_t compare_data(const real_t * state, const data_t& data,
-                      dust::rng_state_t<real_t>& rng_state) {
+                      dust::rng_state_t& rng_state) {
     return dust::dnorm(data.observed, shared->gamma * state[0],
                        shared->tau, true);
   }

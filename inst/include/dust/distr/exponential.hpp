@@ -16,19 +16,21 @@ namespace distr {
 // Faster generators will exist but we can swap one in if it becomes
 // important.
 template <typename real_t>
-HOSTDEVICE real_t exp_rand(rng_state_t<real_t>& rng_state) {
+HOSTDEVICE real_t exp_rand(rng_state_t& rng_state) {
 #ifdef __CUDA_ARCH__
-  return -std::log(dust::unif_rand(rng_state));
+  return -std::log(dust::unif_rand<real_t>(rng_state));
 #else
-  return rng_state.deterministic ? 1 : -std::log(dust::unif_rand(rng_state));
+  return rng_state.deterministic ? 1 :
+    -std::log(dust::unif_rand<real_t>(rng_state));
 #endif
 }
 
 __nv_exec_check_disable__
 template <typename real_t>
-HOSTDEVICE real_t rexp(rng_state_t<real_t>& rng_state,
-                       typename rng_state_t<real_t>::real_t rate) {
-  return exp_rand(rng_state) / rate;
+HOSTDEVICE real_t rexp(rng_state_t& rng_state, real_t rate) {
+  static_assert(std::is_floating_point<real_t>::value,
+                "Only valid for floating-point types; use rexp<real_t>()");
+  return exp_rand<real_t>(rng_state) / rate;
 }
 
 }

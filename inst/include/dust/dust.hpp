@@ -415,7 +415,7 @@ public:
     if (n_pars_ == 0) {
       // One parameter set; shuffle among all particles
       const size_t np = particles_.size();
-      real_t u = dust::unif_rand(rng_.state(n_particles_total_));
+      real_t u = dust::unif_rand<real_t>(rng_.state(n_particles_total_));
       dust::filter::resample_weight(it_weights, np, u, 0, it_index);
     } else {
       // Multiple parameter set; shuffle within each group
@@ -423,7 +423,7 @@ public:
       const size_t np = particles_.size() / n_pars_;
       std::vector<real_t> u;
       for (size_t i = 0; i < n_pars_; ++i) {
-        u.push_back(dust::unif_rand(rng_.state(n_particles_total_)));
+        u.push_back(dust::unif_rand<real_t>(rng_.state(n_particles_total_)));
       }
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
@@ -654,7 +654,7 @@ private:
   std::vector<size_t> shape_; // shape of output
   size_t n_threads_;
   cuda::device_config device_config_;
-  dust::pRNG<real_t> rng_;
+  dust::pRNG rng_;
   std::map<size_t, std::vector<data_t>> data_;
   dust::openmp_errors errors_;
 
@@ -875,7 +875,7 @@ private:
     }
     if (stale_device_) {
       const size_t np = n_particles(), ny = n_state_full();
-      const size_t rng_len = dust::rng_state_t<real_t>::size();
+      const size_t rng_len = dust::rng_state_t::size();
       std::vector<real_t> y_tmp(ny); // Individual particle state
       std::vector<real_t> y(np * ny); // Interleaved state of all particles
       std::vector<uint64_t> rng(np * rng_len); // Interleaved RNG state
@@ -888,7 +888,7 @@ private:
         dust::utils::stride_copy(y.data(), y_tmp, i, np);
 
         // Interleave RNG state
-        dust::rng_state_t<real_t> p_rng = rng_.state(i);
+        dust::rng_state_t p_rng = rng_.state(i);
         size_t rng_offset = i;
         for (size_t j = 0; j < rng_len; ++j) {
           rng_offset = dust::utils::stride_copy(rng.data(), p_rng[j],
@@ -909,7 +909,7 @@ private:
   refresh_host() {
     if (stale_host_) {
       const size_t np = n_particles(), ny = n_state_full();
-      const size_t rng_len = dust::rng_state_t<real_t>::size();
+      const size_t rng_len = dust::rng_state_t::size();
       std::vector<real_t> y_tmp(ny); // Individual particle state
       std::vector<real_t> y(np * ny); // Interleaved state of all particles
       std::vector<uint64_t> rngi(np * rng_len); // Interleaved RNG state

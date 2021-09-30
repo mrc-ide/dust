@@ -13,13 +13,12 @@
 namespace dust {
 
 // This is just a container class for state
-template <typename T>
 class pRNG { // # nocov
 public:
   pRNG(const size_t n, const std::vector<uint64_t>& seed,
        bool deterministic = false) {
-    rng_state_t<T> s;
-    auto len = rng_state_t<T>::size();
+    rng_state_t s;
+    auto len = rng_state_t::size();
     auto n_seed = seed.size() / len;
     for (size_t i = 0; i < n; ++i) {
       if (i < n_seed) {
@@ -48,7 +47,7 @@ public:
     }
   }
 
-  rng_state_t<T>& state(size_t i) {
+  rng_state_t& state(size_t i) {
     return state_[i];
   }
 
@@ -59,7 +58,7 @@ public:
   }
 
   void export_state(std::vector<uint64_t>& state) {
-    const size_t n = rng_state_t<T>::size();
+    const size_t n = rng_state_t::size();
     state.resize(size() * n);
     for (size_t i = 0, k = 0; i < size(); ++i) {
       for (size_t j = 0; j < n; ++j, ++k) {
@@ -70,7 +69,7 @@ public:
 
   void import_state(const std::vector<uint64_t>& state, const size_t len) {
     auto it = state.begin();
-    const size_t n = rng_state_t<T>::size();
+    const size_t n = rng_state_t::size();
     for (size_t i = 0; i < len; ++i) {
       for (size_t j = 0; j < n; ++j) {
         state_[i][j] = *it;
@@ -94,12 +93,12 @@ public:
   }
 
 private:
-  std::vector<rng_state_t<T>> state_;
+  std::vector<rng_state_t> state_;
 };
 
-template <typename T>
-DEVICE rng_state_t<T> get_rng_state(const dust::interleaved<uint64_t>& full_rng_state) {
-  rng_state_t<T> rng_state;
+inline DEVICE
+rng_state_t get_rng_state(const dust::interleaved<uint64_t>& full_rng_state) {
+  rng_state_t rng_state;
   for (size_t i = 0; i < rng_state.size(); i++) {
     rng_state.state[i] = full_rng_state[i];
   }
@@ -107,9 +106,9 @@ DEVICE rng_state_t<T> get_rng_state(const dust::interleaved<uint64_t>& full_rng_
 }
 
 // Write state into global memory
-template <typename T>
-DEVICE void put_rng_state(rng_state_t<T>& rng_state,
-                   dust::interleaved<uint64_t>& full_rng_state) {
+inline DEVICE
+void put_rng_state(rng_state_t& rng_state,
+                                 dust::interleaved<uint64_t>& full_rng_state) {
   for (size_t i = 0; i < rng_state.size(); i++) {
     full_rng_state[i] = rng_state.state[i];
   }

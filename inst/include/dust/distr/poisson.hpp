@@ -9,8 +9,7 @@ namespace distr {
 
 __nv_exec_check_disable__
 template <typename real_t>
-HOSTDEVICE real_t rpois_knuth(rng_state_t<real_t>& rng_state,
-                              typename rng_state_t<real_t>::real_t lambda) {
+HOSTDEVICE real_t rpois_knuth(rng_state_t& rng_state, real_t lambda) {
   int x = 0;
   // Knuth's algorithm for generating Poisson random variates.
   // Given a Poisson process, the time between events is exponentially
@@ -40,8 +39,7 @@ HOSTDEVICE real_t rpois_knuth(rng_state_t<real_t>& rng_state,
 
 __nv_exec_check_disable__
 template <typename real_t>
-HOSTDEVICE real_t rpois_hormann(rng_state_t<real_t>& rng_state,
-                                typename rng_state_t<real_t>::real_t lambda) {
+HOSTDEVICE real_t rpois_hormann(rng_state_t& rng_state, real_t lambda) {
   // Transformed rejection due to Hormann.
   //
   // Given a CDF F(x), and G(x), a dominating distribution chosen such
@@ -121,8 +119,9 @@ HOSTDEVICE real_t rpois_hormann(rng_state_t<real_t>& rng_state,
 // will not necessarily be an integer
 __nv_exec_check_disable__
 template <typename real_t>
-HOSTDEVICE real_t rpois(rng_state_t<real_t>& rng_state,
-                        typename rng_state_t<real_t>::real_t lambda) {
+HOSTDEVICE real_t rpois(rng_state_t& rng_state, real_t lambda) {
+  static_assert(std::is_floating_point<real_t>::value,
+                "Only valid for floating-point types; use rpois<real_t>()");
   real_t x = 0;
   if (lambda == 0) {
     // do nothing, but leave this branch in to help the GPU

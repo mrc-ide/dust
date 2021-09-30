@@ -103,7 +103,7 @@ public:
   }
 
   void update(size_t step, const real_t * state,
-              dust::rng_state_t<real_t>& rng_state,
+              dust::rng_state_t& rng_state,
               real_t * state_next) {
     real_t S = state[0];
     real_t I = state[1];
@@ -125,7 +125,7 @@ public:
   }
 
   real_t compare_data(const real_t * state, const data_t& data,
-                      dust::rng_state_t<real_t>& rng_state) {
+                      dust::rng_state_t& rng_state) {
     const real_t incidence_modelled = state[3];
     const real_t incidence_observed = data.incidence;
     const real_t lambda = incidence_modelled +
@@ -208,7 +208,7 @@ DEVICE void update_device<sirs>(size_t step,
                                 dust::interleaved<sirs::real_t> internal_real,
                                 const int * shared_int,
                                 const sirs::real_t * shared_real,
-                                dust::rng_state_t<sirs::real_t>& rng_state,
+                                dust::rng_state_t& rng_state,
                                 dust::interleaved<sirs::real_t> state_next) {
   typedef sirs::real_t real_t;
   const real_t alpha = shared_real[0];
@@ -239,7 +239,7 @@ DEVICE sirs::real_t compare_device<sirs>(const dust::interleaved<sirs::real_t> s
                            dust::interleaved<sirs::real_t> internal_real,
                            const int * shared_int,
                            const sirs::real_t * shared_real,
-                           dust::rng_state_t<sirs::real_t>& rng_state) {
+                           dust::rng_state_t& rng_state) {
   typedef sirs::real_t real_t;
   const real_t exp_noise = shared_real[4];
   const real_t incidence_modelled = state[3];
