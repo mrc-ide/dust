@@ -126,6 +126,9 @@ cpp11::sexp dust_update_state_set_pars(Dust<T> *obj, cpp11::list r_pars,
   return ret;
 }
 
+// There are many components of state (not including rng state which
+// we treat separately), we set components always in the order (1)
+// pars, (2) state, (3) step
 template <typename T>
 cpp11::sexp dust_update_state_set(Dust<T> *obj, SEXP r_pars,
                                   const std::vector<typename T::real_t>& state,
@@ -156,9 +159,6 @@ cpp11::sexp dust_update_state_set(Dust<T> *obj, SEXP r_pars,
   return ret;
 }
 
-// There are many components of state (not including rng state which
-// we treat separately), we set components always in the order (1)
-// pars, (2) state, (3) step
 template <typename T>
 SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
                        SEXP r_set_initial_state) {
