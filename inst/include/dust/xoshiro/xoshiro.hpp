@@ -29,10 +29,10 @@ struct xoshiro_state {
 template <typename T>
 typename T::data_type rng_next(T& state);
 
-template <typename T, size_t N>
+template <typename T, size_t N, xoshiro_mode M>
 std::array<T, N> jump_constants();
 
-template <typename T, size_t N>
+template <typename T, size_t N, xoshiro_mode M>
 std::array<T, N> long_jump_constants();
 
 // This is probably doable with sizeof(T) * 8 too?
@@ -72,14 +72,14 @@ void rng_jump_state(xoshiro_state<T, N, M>& state, std::array<T, N> coef) {
 template <typename T, size_t N, xoshiro_mode M>
 inline HOST
 void rng_jump(xoshiro_state<T, N, M>& state) {
-  constexpr std::array<T, N> jump = jump_constants<T, N>();
+  constexpr std::array<T, N> jump = jump_constants<T, N, M>();
   rng_jump_state(state, jump);
 }
 
 template <typename T, size_t N, xoshiro_mode M>
 inline HOST
 void rng_long_jump(xoshiro_state<T, N, M>& state) {
-  constexpr std::array<T, N> jump = long_jump_constants<T, N>();
+  constexpr std::array<T, N> jump = long_jump_constants<T, N, M>();
   rng_jump_state(state, jump);
 }
 

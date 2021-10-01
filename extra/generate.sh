@@ -18,3 +18,6 @@ do
     echo "Generating $dest"
     ./$exe > $dest
 done
+
+mkdir -p ../tests/testthat/xoshiro-ref
+cp -r out/* ../tests/testthat/xoshiro-ref

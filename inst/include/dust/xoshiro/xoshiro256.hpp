@@ -3,7 +3,7 @@
 //
 // xoshiro256**  | https://prng.di.unimi.it/xoshiro256starstar.c
 // xoshiro256++  | https://prng.di.unimi.it/xoshiro256plusplus.c
-// xoshiro256+   | https://prng.di.unimi.it/xoshiro256plus.
+// xoshiro256+   | https://prng.di.unimi.it/xoshiro256plus.c
 
 using xoshiro256starstar_state = xoshiro_state<uint64_t, 4, STARSTAR>;
 using xoshiro256plusplus_state = xoshiro_state<uint64_t, 4, PLUSPLUS>;
@@ -13,20 +13,40 @@ using xoshiro256plus_state     = xoshiro_state<uint64_t, 4, PLUS>;
 // * 2^128 calls to rng_next
 // * 2^128 non-overlapping subsequences
 template <>
-constexpr std::array<uint64_t, 4> jump_constants<uint64_t, 4>() {
+constexpr std::array<uint64_t, 4> jump_constants<uint64_t, 4, STARSTAR>() {
   return std::array<uint64_t, 4>{
     0x180ec6d33cfd0aba, 0xd5a61266f0c9392c,
     0xa9582618e03fc9aa, 0x39abdc4529b1661c };
+}
+
+template <>
+constexpr std::array<uint64_t, 4> jump_constants<uint64_t, 4, PLUSPLUS>() {
+  return jump_constants<uint64_t, 4, STARSTAR>();
+}
+
+template <>
+constexpr std::array<uint64_t, 4> jump_constants<uint64_t, 4, PLUS>() {
+  return jump_constants<uint64_t, 4, STARSTAR>();
 }
 
 // Long-jump coefficients
 // * 2^192 calls to rng_next
 // * 2^64 starting points, each with 2^64 subsequences
 template <>
-constexpr std::array<uint64_t, 4> long_jump_constants<uint64_t, 4>() {
+constexpr std::array<uint64_t, 4> long_jump_constants<uint64_t, 4, STARSTAR>() {
   return std::array<uint64_t, 4>{
     0x76e15d3efefdcbbf, 0xc5004e441c522fb3,
     0x77710069854ee241, 0x39109bb02acbe635 };
+}
+
+template <>
+constexpr std::array<uint64_t, 4> long_jump_constants<uint64_t, 4, PLUSPLUS>() {
+  return long_jump_constants<uint64_t, 4, STARSTAR>();
+}
+
+template <>
+constexpr std::array<uint64_t, 4> long_jump_constants<uint64_t, 4, PLUS>() {
+  return long_jump_constants<uint64_t, 4, STARSTAR>();
 }
 
 template <>

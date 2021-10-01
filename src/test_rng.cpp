@@ -47,7 +47,7 @@ std::vector<std::string> test_xoshiro_run(std::string name) {
   } else if (name == "xoshiro128plusplus") {
     ret = test_xoshiro_run1<xoshiro128plusplus_state>();
   } else if (name == "xoshiro128plus") {
-    ret = test_xoshiro_run1<xoroshiro128plus_state>();
+    ret = test_xoshiro_run1<xoshiro128plus_state>();
   } else if (name == "xoroshiro128starstar") {
     ret = test_xoshiro_run1<xoroshiro128starstar_state>();
   } else if (name == "xoroshiro128plusplus") {
