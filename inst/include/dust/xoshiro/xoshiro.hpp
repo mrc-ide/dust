@@ -35,12 +35,27 @@ std::array<T, N> jump_constants();
 template <typename T, size_t N>
 std::array<T, N> long_jump_constants();
 
+// This is probably doable with sizeof(T) * 8 too?
+template <typename T>
+constexpr size_t bit_size();
+
+template <>
+constexpr size_t bit_size<uint32_t>() {
+  return 32;
+}
+
+template <>
+constexpr size_t bit_size<uint64_t>() {
+  return 64;
+}
+
 template <typename T, size_t N, xoshiro_mode M>
 inline HOST
 void rng_jump_state(xoshiro_state<T, N, M>& state, std::array<T, N> coef) {
   T work[N] = { }; // enforced zero-initialisation
+  constexpr int bits = bit_size<T>();
   for (size_t i = 0; i < N; ++i) {
-    for (int b = 0; b < 64; b++) {
+    for (int b = 0; b < bits; b++) {
       if (coef[i] & static_cast<T>(1) << b) {
         for (size_t j = 0; j < N; ++j) {
           work[j] ^= state[j];
