@@ -10,7 +10,7 @@
 ##' @export
 ##' @examples
 ##' rng <- dust::dust_rng$new(42)
-##'
+##' 
 ##' # Shorthand for Uniform(0, 1)
 ##' rng$unif_rand(5)
 ##'
@@ -32,6 +32,16 @@ dust_rng <- R6::R6Class(
   "dust_rng",
   cloneable = FALSE,
 
+  ## TODO parallel; though this requires some thought with threads
+  ## going neatly through generators. Do in a new issue/pr as the
+  ## easiest way would be to generate 'n' numbers per generator in
+  ## parallel, much like the core simuation does.
+  ##
+  ## This would change interpretation of the functions below to draw
+  ## 'n' *per* generator, or we could require that the number of
+  ## parameters goes across each generator.
+
+  ## TODO: change ui here to match C++ ui (disruptive to tests)
   private = list(
     ptr = NULL,
     n_generators = NULL,
@@ -90,14 +100,14 @@ dust_rng <- R6::R6Class(
     ##'
     ##' @param n Number of samples to draw
     unif_rand = function(n) {
-      dust_rng_unif_rand(private$ptr, n, private$float)
+      dust_rng_random_real(private$ptr, n, private$float)
     },
 
     ##' Generate `n` numbers from a standard normal distribution
     ##'
     ##' @param n Number of samples to draw
     norm_rand = function(n) {
-      dust_rng_norm_rand(private$ptr, n, private$float)
+      self$rnorm(n, rep_len(0, n), rep_len(1, n))
     },
 
     ##' Generate `n` numbers from a uniform distribution
@@ -108,8 +118,8 @@ dust_rng <- R6::R6Class(
     ##'
     ##' @param max The maximum of the distribution (length 1 or n)
     runif = function(n, min, max) {
-      dust_rng_runif(private$ptr, n, recycle(min, n), recycle(max, n),
-                     private$float)
+      dust_rng_uniform(private$ptr, n, recycle(min, n), recycle(max, n),
+                       private$float)
     },
 
     ##' Generate `n` numbers from a normal distribution
@@ -120,8 +130,8 @@ dust_rng <- R6::R6Class(
     ##'
     ##' @param sd The standard deviation of the distribution (length 1 or n)
     rnorm = function(n, mean, sd) {
-      dust_rng_rnorm(private$ptr, n, recycle(mean, n), recycle(sd, n),
-                     private$float)
+      dust_rng_normal(private$ptr, n, recycle(mean, n), recycle(sd, n),
+                      private$float)
     },
 
     ##' Generate `n` numbers from a binomial distribution
@@ -133,8 +143,8 @@ dust_rng <- R6::R6Class(
     ##' @param prob The probability of success on each trial
     ##'   (between 0 and 1, length 1 or n)
     rbinom = function(n, size, prob) {
-      dust_rng_rbinom(private$ptr, n, recycle(size, n), recycle(prob, n),
-                      private$float)
+      dust_rng_binomial(private$ptr, n, recycle(size, n), recycle(prob, n),
+                        private$float)
     },
 
     ##' Generate `n` numbers from a Poisson distribution
@@ -143,8 +153,8 @@ dust_rng <- R6::R6Class(
     ##'
     ##' @param lambda The mean (zero or more, length 1 or n)
     rpois = function(n, lambda) {
-      dust_rng_rpois(private$ptr, n, recycle(lambda, n),
-                     private$float)
+      dust_rng_poisson(private$ptr, n, recycle(lambda, n),
+                       private$float)
     },
 
     ##' Generate `n` numbers from a exponential distribution
@@ -153,7 +163,7 @@ dust_rng <- R6::R6Class(
     ##'
     ##' @param rate The rate of the exponential
     rexp = function(n, rate) {
-      dust_rng_rexp(private$ptr, n, recycle(rate, n), private$float)
+      dust_rng_exponential(private$ptr, n, recycle(rate, n), private$float)
     },
 
     ##' @description

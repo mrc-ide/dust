@@ -141,21 +141,21 @@ test_that("Binomial random numbers prevent bad inputs", {
   r$rbinom(1, 0, 0)
   expect_error(
     r$rbinom(1, 1, -1),
-    "Invalid call to rbinom with n = 1, p = -1")
+    "Invalid call to binomial with n = 1, p = -1")
   expect_error(
     r$rbinom(1, 1, 0 - 1e-8),
-    "Invalid call to rbinom with n = 1, p = -1e-08")
+    "Invalid call to binomial with n = 1, p = -1e-08")
   expect_error(
     r$rbinom(1, 1, 2),
-    "Invalid call to rbinom with n = 1, p = 2")
+    "Invalid call to binomial with n = 1, p = 2")
   ## TODO: this is not a great error here, but there's not much that
   ## can be done without a lot of faff with the underlying print
   expect_error(
     r$rbinom(1, 1, 1 + 1e-8),
-    "Invalid call to rbinom with n = 1, p = 1")
+    "Invalid call to binomial with n = 1, p = 1")
   expect_error(
     r$rbinom(1, -1, 0.5),
-    "Invalid call to rbinom with n = -1, p = 0.5")
+    "Invalid call to binomial with n = -1, p = 0.5")
 })
 
 

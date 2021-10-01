@@ -1,10 +1,8 @@
 {{header}}
-#ifndef DUST_DISTR_GAMMA_TABLE_HPP
-#define DUST_DISTR_GAMMA_TABLE_HPP
-
+#pragma once
 
 namespace dust {
-namespace distr {
+namespace random {
 
 CONSTANT int k_tail_values_max_f = {{k_max_f}};
 CONSTANT int k_tail_values_max_d = {{k_max_d}};
@@ -21,5 +19,3 @@ double k_tail_values_d[] = {
 
 }
 }
-
-#endif

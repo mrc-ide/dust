@@ -149,6 +149,8 @@ HOSTDEVICE real_t lgamma(real_t x) {
 #endif
 }
 
+// TODO: remove integer_max, epsilon, lgamma (random/numeric)
+
 }
 }
 
