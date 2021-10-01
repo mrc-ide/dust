@@ -224,6 +224,10 @@ test_cuda_pars <- function(r_device_config, n_particles, n_particles_each, n_sta
   .Call(`_dust_test_cuda_pars`, r_device_config, n_particles, n_particles_each, n_state, n_state_full, n_shared_int, n_shared_real, data_size, shared_size)
 }
 
+test_xoshiro_run <- function(name) {
+  .Call(`_dust_test_xoshiro_run`, name)
+}
+
 cpp_scale_log_weights <- function(w) {
   .Call(`_dust_cpp_scale_log_weights`, w)
 }

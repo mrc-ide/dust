@@ -403,6 +403,13 @@ extern "C" SEXP _dust_test_cuda_pars(SEXP r_device_config, SEXP n_particles, SEX
     return cpp11::as_sexp(test_cuda_pars(cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_device_config), cpp11::as_cpp<cpp11::decay_t<int>>(n_particles), cpp11::as_cpp<cpp11::decay_t<int>>(n_particles_each), cpp11::as_cpp<cpp11::decay_t<int>>(n_state), cpp11::as_cpp<cpp11::decay_t<int>>(n_state_full), cpp11::as_cpp<cpp11::decay_t<int>>(n_shared_int), cpp11::as_cpp<cpp11::decay_t<int>>(n_shared_real), cpp11::as_cpp<cpp11::decay_t<int>>(data_size), cpp11::as_cpp<cpp11::decay_t<int>>(shared_size)));
   END_CPP11
 }
+// test_rng.cpp
+std::vector<std::string> test_xoshiro_run(std::string name);
+extern "C" SEXP _dust_test_xoshiro_run(SEXP name) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(test_xoshiro_run(cpp11::as_cpp<cpp11::decay_t<std::string>>(name)));
+  END_CPP11
+}
 // tools.cpp
 cpp11::list cpp_scale_log_weights(std::vector<double> w);
 extern "C" SEXP _dust_cpp_scale_log_weights(SEXP w) {
@@ -908,6 +915,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_walk_step",                (DL_FUNC) &_dust_dust_walk_step,                1},
     {"_dust_dust_walk_update_state",        (DL_FUNC) &_dust_dust_walk_update_state,        5},
     {"_dust_test_cuda_pars",                (DL_FUNC) &_dust_test_cuda_pars,                9},
+    {"_dust_test_xoshiro_run",              (DL_FUNC) &_dust_test_xoshiro_run,              1},
     {NULL, NULL, 0}
 };
 }
