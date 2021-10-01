@@ -11,7 +11,7 @@ do
         (cd src; curl -sSLO "https://prng.di.unimi.it/${file}")
     fi
     exe="bin/$target"
-    dest="out/$target.txt"
+    dest="out/$target"
     def=$(sed -E 's/(xo.*[0-9]+).*/\U\1/' <<< $target)
     echo "Compiling $exe"
     g++ -include $src -D$def -o$exe harness.cpp

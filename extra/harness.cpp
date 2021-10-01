@@ -40,17 +40,16 @@ int main() {
     s[i] = seed[i];
   }
   constexpr int n = 10;
-  std::array<data_type, n * 3> ret;
   for (int i = 0; i < n * 3; ++i) {
     if (i == n - 1) {
       jump();
     } else if (i == 2 * n - 1) {
       long_jump();
     }
-    ret[i] = next();
+    auto x = next();
     std::cout <<
-      std::setw(16) << std::setfill('0') << std::hex << ret[i] <<
-      " " << std::dec << ret[i] <<
+      //std::setw(16) << std::setfill('0') << std::hex << x << " " <<
+      std::dec << x <<
       std::endl;
   }
 
