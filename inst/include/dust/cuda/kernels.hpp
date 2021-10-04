@@ -13,20 +13,20 @@ namespace cuda {
 // within the file in that we expect that the user will specialise it.
 template <typename T>
 DEVICE void update_device(size_t step,
-                   const dust::cuda::interleaved<typename T::real_t> state,
-                   dust::cuda::interleaved<int> internal_int,
-                   dust::cuda::interleaved<typename T::real_t> internal_real,
+                   const interleaved<typename T::real_t> state,
+                   interleaved<int> internal_int,
+                   interleaved<typename T::real_t> internal_real,
                    const int * shared_int,
                    const typename T::real_t * shared_real,
                    typename T::rng_state_t& rng_state,
-                   dust::cuda::interleaved<typename T::real_t> state_next);
+                   interleaved<typename T::real_t> state_next);
 
 template <typename T>
 DEVICE typename T::real_t compare_device(
-                   const dust::cuda::interleaved<typename T::real_t> state,
+                   const interleaved<typename T::real_t> state,
                    const typename T::data_t& data,
-                   dust::cuda::interleaved<int> internal_int,
-                   dust::cuda::interleaved<typename T::real_t> internal_real,
+                   interleaved<int> internal_int,
+                   interleaved<typename T::real_t> internal_real,
                    const int * shared_int,
                    const typename T::real_t * shared_real,
                    typename T::rng_state_t& rng_state);
@@ -96,15 +96,15 @@ KERNEL void run_particles(size_t step_start,
   } else {
     j = (blockIdx.x * blockDim.x + threadIdx.x) / n_particles_each;
   }
-  dust::cuda::device_ptrs<T> shared_state =
-    dust::cuda::load_shared_state<T>(j,
-                                     n_shared_int,
-                                     n_shared_real,
-                                     shared_int,
-                                     shared_real,
-                                     nullptr,
-                                     use_shared_int,
-                                     use_shared_real);
+  device_ptrs<T> shared_state =
+    load_shared_state<T>(j,
+                         n_shared_int,
+                         n_shared_real,
+                         shared_int,
+                         shared_real,
+                         nullptr,
+                         use_shared_int,
+                         use_shared_real);
 
   int i, max_i;
   if (use_shared_int || use_shared_real) {
@@ -123,8 +123,8 @@ KERNEL void run_particles(size_t step_start,
   // omp here
   for (size_t i = 0; i < n_particles; ++i) {
     const int j = i / n_particles_each;
-    dust::cuda::device_ptrs<T> shared_state =
-      dust::cuda::load_shared_state<T>(j,
+    device_ptrs<T> shared_state =
+      load_shared_state<T>(j,
                                        n_shared_int,
                                        n_shared_real,
                                        shared_int,
@@ -133,13 +133,13 @@ KERNEL void run_particles(size_t step_start,
                                        false,
                                        false);
 #endif
-    dust::cuda::interleaved<real_t> p_state(state, i, n_particles);
-    dust::cuda::interleaved<real_t> p_state_next(state_next, i, n_particles);
-    dust::cuda::interleaved<int> p_internal_int(internal_int, i, n_particles);
-    dust::cuda::interleaved<real_t> p_internal_real(internal_real, i, n_particles);
-    dust::cuda::interleaved<uint64_t> p_rng(rng_state, i, n_particles);
+    interleaved<real_t> p_state(state, i, n_particles);
+    interleaved<real_t> p_state_next(state_next, i, n_particles);
+    interleaved<int> p_internal_int(internal_int, i, n_particles);
+    interleaved<real_t> p_internal_real(internal_real, i, n_particles);
+    interleaved<uint64_t> p_rng(rng_state, i, n_particles);
 
-    rng_state_t rng_block = dust::get_rng_state(p_rng);
+    rng_state_t rng_block = get_rng_state<rng_state_t>(p_rng);
     for (size_t step = step_start; step < step_end; ++step) {
       update_device<T>(step,
                        p_state,
@@ -151,11 +151,11 @@ KERNEL void run_particles(size_t step_start,
                        p_state_next);
       SYNCWARP
 
-      dust::cuda::interleaved<real_t> tmp = p_state;
+      interleaved<real_t> tmp = p_state;
       p_state = p_state_next;
       p_state_next = tmp;
     }
-    dust::put_rng_state(rng_block, p_rng);
+    put_rng_state(rng_block, p_rng);
   }
 }
 
@@ -187,15 +187,15 @@ KERNEL void compare_particles(size_t n_particles,
   } else {
     j = (blockIdx.x * blockDim.x + threadIdx.x) / n_particles_each;
   }
-  dust::cuda::device_ptrs<T> shared_state =
-    dust::load_shared_state<T>(j,
-                               n_shared_int,
-                               n_shared_real,
-                               shared_int,
-                               shared_real,
-                               data,
-                               use_shared_int,
-                               use_shared_real);
+  device_ptrs<T> shared_state =
+    load_shared_state<T>(j,
+                         n_shared_int,
+                         n_shared_real,
+                         shared_int,
+                         shared_real,
+                         data,
+                         use_shared_int,
+                         use_shared_real);
 
   // Particle index i, and max index to process in the block
   int i, max_i;
@@ -215,21 +215,21 @@ KERNEL void compare_particles(size_t n_particles,
   // omp here
   for (size_t i = 0; i < n_particles; ++i) {
     const int j = i / n_particles_each;
-    dust::cuda::device_ptrs<T> shared_state =
-      dust::load_shared_state<T>(j,
-                                 n_shared_int,
-                                 n_shared_real,
-                                 shared_int,
-                                 shared_real,
-                                 data,
-                                 use_shared_int,
-                                 use_shared_real);
+    device_ptrs<T> shared_state =
+      load_shared_state<T>(j,
+                           n_shared_int,
+                           n_shared_real,
+                           shared_int,
+                           shared_real,
+                           data,
+                           use_shared_int,
+                           use_shared_real);
 #endif
-    dust::cuda::interleaved<real_t> p_state(state, i, n_particles);
-    dust::cuda::interleaved<int> p_internal_int(internal_int, i, n_particles);
-    dust::cuda::interleaved<real_t> p_internal_real(internal_real, i, n_particles);
-    dust::cuda::interleaved<uint64_t> p_rng(rng_state, i, n_particles);
-    rng_state_t rng_block = dust::get_rng_state(p_rng);
+    interleaved<real_t> p_state(state, i, n_particles);
+    interleaved<int> p_internal_int(internal_int, i, n_particles);
+    interleaved<real_t> p_internal_real(internal_real, i, n_particles);
+    interleaved<uint64_t> p_rng(rng_state, i, n_particles);
+    rng_state_t rng_block = get_rng_state<rng_state_t>(p_rng);
 
     weights[i] = compare_device<T>(p_state,
                                    *shared_state.data,
@@ -239,7 +239,7 @@ KERNEL void compare_particles(size_t n_particles,
                                    shared_state.shared_real,
                                    rng_block);
     SYNCWARP
-    dust::put_rng_state(rng_block, p_rng);
+    put_rng_state(rng_block, p_rng);
   }
 }
 

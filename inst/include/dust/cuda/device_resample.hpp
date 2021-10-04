@@ -1,7 +1,9 @@
 #ifndef DUST_CUDA_DEVICE_RESAMPLE_HPP
 #define DUST_CUDA_DEVICE_RESAMPLE_HPP
 
+#include <dust/random/random.hpp>
 #include <dust/cuda/launch_control.hpp>
+#include <dust/cuda/kernels.hpp>
 
 namespace dust {
 
@@ -55,10 +57,10 @@ void run_device_resample(const size_t n_particles,
 
     // Generate the scatter indices
 #ifdef __NVCC__
-    dust::find_intervals<real_t><<<cuda_pars.interval.block_count,
-                                   cuda_pars.interval.block_size,
-                                   0,
-                                   kernel_stream.stream()>>>(
+    dust::cuda::find_intervals<real_t><<<cuda_pars.interval.block_count,
+                                         cuda_pars.interval.block_size,
+                                         0,
+                                         kernel_stream.stream()>>>(
       scan.cum_weights.data(),
       n_particles,
       n_pars,
@@ -67,7 +69,7 @@ void run_device_resample(const size_t n_particles,
     );
     kernel_stream.sync();
 #else
-    dust::find_intervals<real_t>(
+    dust::cuda::find_intervals<real_t>(
       scan.cum_weights.data(),
       n_particles,
       n_pars,
@@ -78,7 +80,7 @@ void run_device_resample(const size_t n_particles,
 
     // Shuffle the particles
 #ifdef __NVCC__
-    dust::scatter_device<real_t><<<cuda_pars.scatter.block_count,
+    dust::cuda::scatter_device<real_t><<<cuda_pars.scatter.block_count,
                                    cuda_pars.scatter.block_size,
                                    0,
                                    kernel_stream.stream()>>>(
@@ -90,7 +92,7 @@ void run_device_resample(const size_t n_particles,
         false);
     kernel_stream.sync();
 #else
-    dust::scatter_device<real_t>(
+    dust::cuda::scatter_device<real_t>(
         device_state.scatter_index.data(),
         device_state.y.data(),
         device_state.y_next.data(),

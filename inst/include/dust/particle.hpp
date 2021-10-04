@@ -9,6 +9,7 @@ public:
   typedef dust::pars_t<T> pars_t;
   typedef typename T::real_t real_t;
   typedef typename T::data_t data_t;
+  typedef typename T::rng_state_t rng_state_t;
 
   Particle(pars_t pars, size_t step) :
     model_(pars),

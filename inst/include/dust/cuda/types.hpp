@@ -1,9 +1,12 @@
 #ifndef DUST_CUDA_TYPES_HPP
 #define DUST_CUDA_TYPES_HPP
 
+#include <cstring>
 #include <numeric>
 #include <sstream>
 #include <vector>
+
+#include <dust/types.hpp>
 
 #include <dust/cuda/filter_kernels.hpp>
 #include <dust/cuda/utils.hpp>
@@ -12,6 +15,45 @@
 
 namespace dust {
 namespace cuda {
+
+// The class from before, which is a light wrapper around a pointer
+// This can be used within a kernel with copying memory. There is no
+// way of telling if the pointer has been freed or not, so this must
+// have a lifecycle that is shorter than the calling function.
+template <typename T>
+class interleaved {
+public:
+  DEVICE interleaved(T* data, size_t offset, size_t stride) :
+    data_(data + offset),
+    stride_(stride) {
+  }
+
+  template <typename Container>
+  DEVICE interleaved(Container& data, size_t offset, size_t stride) :
+    interleaved(data.data(), offset, stride) {
+  }
+
+  DEVICE T& operator[](size_t i) {
+    return data_[i * stride_];
+  }
+
+  DEVICE const T& operator[](size_t i) const {
+    return data_[i * stride_];
+  }
+
+  DEVICE interleaved<T> operator+(size_t by) {
+    return interleaved(data_ + by * stride_, 0, stride_);
+  }
+
+  DEVICE const interleaved<T> operator+(size_t by) const {
+    return interleaved(data_ + by * stride_, 0, stride_);
+  }
+
+private:
+  // TODO: these can be set as const.
+  T* data_;
+  size_t stride_;
+};
 
 template <typename T>
 class device_array {
@@ -613,58 +655,25 @@ struct device_ptrs {
   const typename T::data_t * data;
 };
 
-class openmp_errors {
-public:
-  openmp_errors() : openmp_errors(0) {
+template <typename rng_state_t>
+DEVICE
+rng_state_t get_rng_state(const interleaved<typename rng_state_t::data_type>& full_rng_state) {
+  rng_state_t rng_state;
+  for (size_t i = 0; i < rng_state.size(); i++) {
+    rng_state.state[i] = full_rng_state[i];
   }
-  openmp_errors(size_t len) :
-    count(0), err(len), seen(len) {
+  return rng_state;
+}
+
+// Write state into global memory
+template <typename rng_state_t>
+DEVICE
+void put_rng_state(rng_state_t& rng_state,
+                   interleaved<typename rng_state_t::data_type>& full_rng_state) {
+  for (size_t i = 0; i < rng_state.size(); i++) {
+    full_rng_state[i] = rng_state.state[i];
   }
-
-  void reset() {
-    count = 0;
-    std::fill(seen.begin(), seen.end(), false);
-    std::fill(err.begin(), err.end(), "");
-  }
-
-  bool unresolved() const {
-    return count > 0;
-  }
-
-  template <typename T>
-  void capture(const T& e, size_t i) {
-    err[i] = e.what();
-    seen[i] = true;
-  }
-
-  void report(size_t n_max = 4) {
-    count = std::accumulate(std::begin(seen), std::end(seen), 0);
-    if (count == 0) {
-      return;
-    }
-
-    std::stringstream msg;
-    msg << count << " particles reported errors.";
-
-    const size_t n_report = std::min(n_max, count);
-    for (size_t i = 0, j = 0; i < seen.size() && j < n_report; ++i) {
-      if (seen[i]) {
-        msg << std::endl << "  - " << i + 1 << ": " << err[i];
-        ++j;
-      }
-    }
-    if (n_report < count) {
-      msg << std::endl << "  - (and " << (count - n_report) << " more)";
-    }
-
-    throw std::runtime_error(msg.str());
-  }
-
-private:
-  size_t count;
-  std::vector<std::string> err;
-  std::vector<bool> seen;
-};
+}
 
 }
 }

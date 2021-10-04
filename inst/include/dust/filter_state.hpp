@@ -3,6 +3,8 @@
 
 #include <cstddef>
 
+#include <dust/cuda/types.hpp>
+
 namespace dust {
 namespace filter {
 

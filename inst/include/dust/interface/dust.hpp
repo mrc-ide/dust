@@ -39,7 +39,8 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
                        cpp11::sexp r_device_config) {
   dust::interface::validate_size(step, "step");
   dust::interface::validate_positive(n_threads, "n_threads");
-  std::vector<uint64_t> seed = dust::interface::as_rng_seed(r_seed);
+  std::vector<uint64_t> seed =
+    dust::interface::as_rng_seed<typename T::rng_state_t>(r_seed);
 
   const dust::cuda::device_config device_config =
     dust::interface::device_config(r_device_config);
