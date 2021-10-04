@@ -6,6 +6,9 @@
 #include <vector>
 
 #include <dust/cuda/filter_kernels.hpp>
+#include <dust/cuda/utils.hpp>
+
+#include <dust/random/numeric.hpp>
 
 namespace dust {
 
@@ -111,7 +114,7 @@ struct device_state {
     }
     index.set_array(bool_idx);
 
-    std::vector<size_t> index_scatter = dust::utils::sort_indexes(host_index);
+    std::vector<size_t> index_scatter = dust::cuda::utils::sort_indexes(host_index);
     index_state_scatter = dust::device_array<size_t>(n_state);
     index_state_scatter.set_array(index_scatter);
 
@@ -291,7 +294,7 @@ public:
     );
     kernel_stream_.sync();
 #else
-    std::vector<real_t> max_w(n_pars_, -dust::utils::infinity<real_t>());
+    std::vector<real_t> max_w(n_pars_, -dust::random::utils::infinity<real_t>());
     std::vector<real_t> host_w(n_particles_);
     weights_.get_array(host_w);
     for (size_t i = 0; i < n_pars_; ++i) {

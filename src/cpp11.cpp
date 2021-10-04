@@ -126,6 +126,13 @@ extern "C" SEXP _dust_cpp_openmp_info() {
     return cpp11::as_sexp(cpp_openmp_info());
   END_CPP11
 }
+// test_cuda_launch_control.cpp
+SEXP test_cuda_pars(cpp11::sexp r_device_config, int n_particles, int n_particles_each, int n_state, int n_state_full, int n_shared_int, int n_shared_real, int data_size, int shared_size);
+extern "C" SEXP _dust_test_cuda_pars(SEXP r_device_config, SEXP n_particles, SEXP n_particles_each, SEXP n_state, SEXP n_state_full, SEXP n_shared_int, SEXP n_shared_real, SEXP data_size, SEXP shared_size) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(test_cuda_pars(cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_device_config), cpp11::as_cpp<cpp11::decay_t<int>>(n_particles), cpp11::as_cpp<cpp11::decay_t<int>>(n_particles_each), cpp11::as_cpp<cpp11::decay_t<int>>(n_state), cpp11::as_cpp<cpp11::decay_t<int>>(n_state_full), cpp11::as_cpp<cpp11::decay_t<int>>(n_shared_int), cpp11::as_cpp<cpp11::decay_t<int>>(n_shared_real), cpp11::as_cpp<cpp11::decay_t<int>>(data_size), cpp11::as_cpp<cpp11::decay_t<int>>(shared_size)));
+  END_CPP11
+}
 // test_rng.cpp
 std::vector<std::string> test_xoshiro_run(std::string name);
 extern "C" SEXP _dust_test_xoshiro_run(SEXP name) {
@@ -161,6 +168,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_rng_random_real",  (DL_FUNC) &_dust_dust_rng_random_real,  3},
     {"_dust_dust_rng_state",        (DL_FUNC) &_dust_dust_rng_state,        2},
     {"_dust_dust_rng_uniform",      (DL_FUNC) &_dust_dust_rng_uniform,      5},
+    {"_dust_test_cuda_pars",        (DL_FUNC) &_dust_test_cuda_pars,        9},
     {"_dust_test_xoshiro_run",      (DL_FUNC) &_dust_test_xoshiro_run,      1},
     {NULL, NULL, 0}
 };
