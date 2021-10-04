@@ -15,7 +15,7 @@ public:
        const bool deterministic) {
     rng_state s;
     s.deterministic = deterministic;
-    
+
     const size_t len = rng_state::size();
     auto n_seed = seed.size() / len;
     for (size_t i = 0; i < n; ++i) {
@@ -81,7 +81,7 @@ public:
     export_state(state);
     return state;
   }
-  
+
   void import_state(const std::vector<data_type>& state) {
     import_state(state, size());
   }
@@ -96,6 +96,3 @@ private:
 
 }
 }
-
-// TODO: somewhere needs to implement put_rng_state and get_rng_state
-// but I think that belongs in kernels.hpp

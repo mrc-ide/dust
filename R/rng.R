@@ -10,7 +10,7 @@
 ##' @export
 ##' @examples
 ##' rng <- dust::dust_rng$new(42)
-##' 
+##'
 ##' # Shorthand for Uniform(0, 1)
 ##' rng$unif_rand(5)
 ##'
@@ -51,7 +51,7 @@ dust_rng <- R6::R6Class(
   public = list(
     ##' @field info Information about the generator (read-only)
     info = NULL,
-    
+
     ##' @description Create a `dust_rng` object
     ##'
     ##' @param seed The seed, as an integer or as a raw vector.
