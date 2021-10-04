@@ -316,7 +316,7 @@ struct device_state {
     internal_real = device_array<real_t>(n_internal_real * n_particles);
     shared_int = device_array<int>(n_shared_int * n_shared_len);
     shared_real = device_array<real_t>(n_shared_real * n_shared_len);
-    rng = device_array<uint64_t>(n_rng * n_particles);
+    rng = device_array<typename rng_state_t::data_type>(n_rng * n_particles);
     index = device_array<char>(n_state * n_particles);
     n_selected = device_array<int>(1);
     scatter_index = device_array<size_t>(n_particles);
@@ -382,7 +382,7 @@ struct device_state {
   device_array<real_t> internal_real;
   device_array<int> shared_int;
   device_array<real_t> shared_real;
-  device_array<uint64_t> rng;
+  device_array<typename rng_state_t::data_type> rng;
   device_array<char> index;
   device_array<size_t> index_state_scatter;
   device_array<int> n_selected;
