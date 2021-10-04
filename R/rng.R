@@ -32,16 +32,6 @@ dust_rng <- R6::R6Class(
   "dust_rng",
   cloneable = FALSE,
 
-  ## TODO parallel; though this requires some thought with threads
-  ## going neatly through generators. Do in a new issue/pr as the
-  ## easiest way would be to generate 'n' numbers per generator in
-  ## parallel, much like the core simuation does.
-  ##
-  ## This would change interpretation of the functions below to draw
-  ## 'n' *per* generator, or we could require that the number of
-  ## parameters goes across each generator.
-
-  ## TODO: change ui here to match C++ ui (disruptive to tests)
   private = list(
     ptr = NULL,
     n_generators = NULL,

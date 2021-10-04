@@ -9,9 +9,6 @@
 using dust_rng64 = dust::random::prng<dust::random::xoshiro256starstar_state>;
 using dust_rng32 = dust::random::prng<dust::random::xoshiro128starstar_state>;
 
-// TODO: descriptive type for T throughout
-// TODO: <float, dust_rng64> -> <float, dust_rng32>
-
 template <typename T>
 SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators, bool deterministic) {
   auto seed = dust::interface::as_rng_seed<typename T::rng_state>(r_seed);

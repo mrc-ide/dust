@@ -368,8 +368,6 @@ test_that("require that raw vector is of sensible size", {
                "Expected raw vector of length as multiple of 32 for 'seed'")
   expect_error(dust_rng$new(raw(63), 1L),
                "Expected raw vector of length as multiple of 32 for 'seed'")
-  ## TODO: changes to 16 -> 32 as rng size changes; would be nice to
-  ## make that a property of the generator really.
   expect_error(dust_rng$new(raw(63), 1L, "float"),
                "Expected raw vector of length as multiple of 32 for 'seed'")
 })
@@ -388,9 +386,8 @@ test_that("initialise with NULL, generating a seed from R", {
   expect_identical(rng2$state(), rng1$state())
   expect_false(identical(rng3$state(), rng2$state()))
 
-  i <- rep(rep(c(TRUE, TRUE), each = 4), 4)
-  expect_identical(rng4$state(), rng1$state()[i])
-  expect_identical(rng5$state(), rng3$state()[i])
+  expect_identical(rng4$state(), rng1$state())
+  expect_identical(rng5$state(), rng3$state())
 })
 
 

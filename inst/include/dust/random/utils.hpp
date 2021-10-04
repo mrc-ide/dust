@@ -8,7 +8,6 @@ enum xoshiro_mode {STARSTAR, PLUSPLUS, PLUS};
 template <typename T, typename U>
 T int_to_real(U value);
 
-// TODO: all int_to_real need replacing with better implementations
 template <>
 inline HOSTDEVICE
 double int_to_real(uint64_t value) {

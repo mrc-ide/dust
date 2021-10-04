@@ -26,11 +26,9 @@ std::vector<typename rng_state_t::data_type> as_rng_seed(cpp11::sexp r_seed) {
     std::memcpy(seed.data(), RAW(seed_data), seed_data.size());
   } else if (seed_type == NILSXP) {
     GetRNGstate();
-    // TOOD: Rf_unif_rand?
     size_t seed_int =
       std::ceil(std::abs(::unif_rand()) * std::numeric_limits<size_t>::max());
     PutRNGstate();
-    // TODO: needs work
     seed = dust::random::seed_data<rng_state_t>(seed_int);
   } else {
     cpp11::stop("Invalid type for 'seed'");

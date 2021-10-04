@@ -28,11 +28,6 @@ public:
     }
   }
 
-  // TODO: this is a more natural way I think
-  rng_state& operator[](size_t i) {
-    return state_[i];
-  }
-
   size_t size() const {
     return state_.size();
   }
@@ -53,16 +48,16 @@ public:
     return state_[i];
   }
 
-  // TODO: these can be rationalised
-  // TODO: export should be a const method
-  void export_state(std::vector<data_type>& state) {
+  std::vector<data_type> export_state() {
     const size_t n = rng_state::size();
+    std::vector<data_type> state;
     state.resize(size() * n);
     for (size_t i = 0, k = 0; i < size(); ++i) {
       for (size_t j = 0; j < n; ++j, ++k) {
         state[k] = state_[i][j];
       }
     }
+    return state;
   }
 
   void import_state(const std::vector<data_type>& state, const size_t len) {
@@ -74,12 +69,6 @@ public:
         ++it;
       }
     }
-  }
-
-  std::vector<data_type> export_state() {
-    std::vector<data_type> state;
-    export_state(state);
-    return state;
   }
 
   void import_state(const std::vector<data_type>& state) {
