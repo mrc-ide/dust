@@ -48,10 +48,10 @@ extern "C" SEXP _dust_dust_dpois(SEXP x, SEXP lambda, SEXP log) {
   END_CPP11
 }
 // dust_rng.cpp
-SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators, bool is_float);
-extern "C" SEXP _dust_dust_rng_alloc(SEXP r_seed, SEXP n_generators, SEXP is_float) {
+SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators, bool deterministic, bool is_float);
+extern "C" SEXP _dust_dust_rng_alloc(SEXP r_seed, SEXP n_generators, SEXP deterministic, SEXP is_float) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<int>>(n_generators), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
+    return cpp11::as_sexp(dust_rng_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<int>>(n_generators), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
   END_CPP11
 }
 // dust_rng.cpp
@@ -151,7 +151,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_dnbinom_prob",     (DL_FUNC) &_dust_dust_dnbinom_prob,     4},
     {"_dust_dust_dnorm",            (DL_FUNC) &_dust_dust_dnorm,            4},
     {"_dust_dust_dpois",            (DL_FUNC) &_dust_dust_dpois,            3},
-    {"_dust_dust_rng_alloc",        (DL_FUNC) &_dust_dust_rng_alloc,        3},
+    {"_dust_dust_rng_alloc",        (DL_FUNC) &_dust_dust_rng_alloc,        4},
     {"_dust_dust_rng_binomial",     (DL_FUNC) &_dust_dust_rng_binomial,     5},
     {"_dust_dust_rng_exponential",  (DL_FUNC) &_dust_dust_rng_exponential,  4},
     {"_dust_dust_rng_jump",         (DL_FUNC) &_dust_dust_rng_jump,         2},

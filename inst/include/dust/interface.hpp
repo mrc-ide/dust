@@ -11,7 +11,7 @@
 #include <cpp11/raws.hpp>
 #include <cpp11/strings.hpp>
 
-#include <dust/rng_interface.hpp>
+#include <dust/interface/random.hpp>
 #include <dust/interface_helpers.hpp>
 #include <dust/cuda/device_info.hpp>
 #include <dust/filter.hpp>

@@ -12,7 +12,7 @@ public:
   typedef T rng_state;
   typedef typename rng_state::data_type data_type;
   prng(const size_t n, const std::vector<data_type>& seed,
-       const bool deterministic = false) {
+       const bool deterministic) {
     rng_state s;
     s.deterministic = deterministic;
     

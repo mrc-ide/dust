@@ -11,8 +11,10 @@
 #include <omp.h>
 #endif
 
-#include <dust/rng.hpp>
-#include <dust/densities.hpp>
+#include <dust/cuda/cuda.hpp>
+
+#include <dust/random/prng.hpp>
+#include <dust/random/density.hpp>
 #include <dust/filter_state.hpp>
 #include <dust/filter_tools.hpp>
 #include <dust/cuda/types.hpp>
@@ -654,7 +656,7 @@ private:
   std::vector<size_t> shape_; // shape of output
   size_t n_threads_;
   cuda::device_config device_config_;
-  dust::pRNG rng_;
+  dust::prng<rng_state_t> rng_;
   std::map<size_t, std::vector<data_t>> data_;
   dust::openmp_errors errors_;
 

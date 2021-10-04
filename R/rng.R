@@ -45,11 +45,13 @@ dust_rng <- R6::R6Class(
   private = list(
     ptr = NULL,
     n_generators = NULL,
-    float = NULL,
-    real_t = NULL
+    float = NULL
   ),
 
   public = list(
+    ##' @field info Information about the generator (read-only)
+    info = NULL,
+    
     ##' @description Create a `dust_rng` object
     ##'
     ##' @param seed The seed, as an integer or as a raw vector.
@@ -62,14 +64,23 @@ dust_rng <- R6::R6Class(
     ##'   only `float` and `double` are supported (with `double` being
     ##'   the default). This will have no (or negligible) impact on speed,
     ##'   but exists to test the low-precision generators.
-    initialize = function(seed, n_generators = 1L, real_type = "double") {
+    initialize = function(seed, n_generators = 1L, real_type = "double",
+                          deterministic = FALSE) {
       if (!(real_type %in% c("double", "float"))) {
         stop("Invalid value for 'real_type': must be 'double' or 'float'")
       }
       private$float <- real_type == "float"
-      private$ptr <- dust_rng_alloc(seed, n_generators, private$float)
+      private$ptr <- dust_rng_alloc(seed, n_generators, deterministic,
+                                    private$float)
       private$n_generators <- n_generators
-      private$real_t <- real_type
+
+      self$info <- list(
+        real_type = private$real_t,
+        rng_type = "xoshiro256starstar",
+        deterministic = FALSE,
+        rng_size_data_bits = 64L,
+        rng_size_state_bytes = 4 * 8L)
+      lockBinding("info", self)
     },
 
     ##' @description Number of generators available
@@ -173,15 +184,6 @@ dust_rng <- R6::R6Class(
     ##' state.
     state = function() {
       dust_rng_state(private$ptr, private$float)
-    },
-
-    ##' @description
-    ##' Toggle the RNG into/out of deterministic mode
-    ##'
-    ##' @param value Logical, `TRUE` if the RNG should run in deterministic
-    ##'   mode.
-    set_deterministic = function(value) {
-      invisible(dust_rng_set_deterministic(private$ptr, value, private$float))
     }
   ))
 

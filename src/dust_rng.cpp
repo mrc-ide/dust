@@ -13,9 +13,9 @@ using dust_rng32 = dust::random::prng<dust::random::xoshiro128starstar_state>;
 // TODO: <float, dust_rng64> -> <float, dust_rng32>
 
 template <typename T>
-SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators) {
+SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators, bool deterministic) {
   auto seed = dust::interface::as_rng_seed<typename T::rng_state>(r_seed);
-  T *rng = new T(n_generators, seed);
+  T *rng = new T(n_generators, seed, deterministic);
   return cpp11::external_pointer<T>(rng);
 }
 
@@ -153,16 +153,17 @@ cpp11::writable::raws dust_rng_state(SEXP ptr) {
 }
 
 [[cpp11::register]]
-SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators, bool is_float) {
+SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators, bool deterministic,
+                    bool is_float) {
   return is_float ?
-    dust_rng_alloc<dust_rng32>(r_seed, n_generators) :
-    dust_rng_alloc<dust_rng64>(r_seed, n_generators);
+    dust_rng_alloc<dust_rng64>(r_seed, n_generators, deterministic) :
+    dust_rng_alloc<dust_rng64>(r_seed, n_generators, deterministic);
 }
 
 [[cpp11::register]]
 void dust_rng_jump(SEXP ptr, bool is_float) {
   if (is_float) {
-    dust_rng_jump<dust_rng32>(ptr);
+    dust_rng_jump<dust_rng64>(ptr);
   } else {
     dust_rng_jump<dust_rng64>(ptr);
   }
@@ -171,7 +172,7 @@ void dust_rng_jump(SEXP ptr, bool is_float) {
 [[cpp11::register]]
 void dust_rng_long_jump(SEXP ptr, bool is_float) {
   if (is_float) {
-    dust_rng_long_jump<dust_rng32>(ptr);
+    dust_rng_long_jump<dust_rng64>(ptr);
   } else {
     dust_rng_long_jump<dust_rng64>(ptr);
   }
@@ -233,6 +234,6 @@ cpp11::writable::doubles dust_rng_poisson(SEXP ptr, int n,
 [[cpp11::register]]
 cpp11::writable::raws dust_rng_state(SEXP ptr, bool is_float) {
   return is_float ?
-    dust_rng_state<dust_rng32>(ptr) :
+    dust_rng_state<dust_rng64>(ptr) :
     dust_rng_state<dust_rng64>(ptr);
 }

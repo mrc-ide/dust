@@ -24,8 +24,8 @@ dust_dpois <- function(x, lambda, log) {
   .Call(`_dust_dust_dpois`, x, lambda, log)
 }
 
-dust_rng_alloc <- function(r_seed, n_generators, is_float) {
-  .Call(`_dust_dust_rng_alloc`, r_seed, n_generators, is_float)
+dust_rng_alloc <- function(r_seed, n_generators, deterministic, is_float) {
+  .Call(`_dust_dust_rng_alloc`, r_seed, n_generators, deterministic, is_float)
 }
 
 dust_rng_jump <- function(ptr, is_float) {

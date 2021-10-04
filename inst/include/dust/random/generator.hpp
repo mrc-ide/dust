@@ -24,6 +24,7 @@
 #include <array>
 #include <cstdint>
 #include <cstddef>
+#include <vector>
 
 #include <dust/random/cuda.hpp>
 #include <dust/random/utils.hpp>
