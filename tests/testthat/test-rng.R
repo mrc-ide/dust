@@ -141,21 +141,21 @@ test_that("Binomial random numbers prevent bad inputs", {
   r$rbinom(1, 0, 0)
   expect_error(
     r$rbinom(1, 1, -1),
-    "Invalid call to binomial with n = 1, p = -1")
+    "Invalid call to rbinom with n = 1, p = -1")
   expect_error(
     r$rbinom(1, 1, 0 - 1e-8),
-    "Invalid call to binomial with n = 1, p = -1e-08")
+    "Invalid call to rbinom with n = 1, p = -1e-08")
   expect_error(
     r$rbinom(1, 1, 2),
-    "Invalid call to binomial with n = 1, p = 2")
+    "Invalid call to rbinom with n = 1, p = 2")
   ## TODO: this is not a great error here, but there's not much that
   ## can be done without a lot of faff with the underlying print
   expect_error(
     r$rbinom(1, 1, 1 + 1e-8),
-    "Invalid call to binomial with n = 1, p = 1")
+    "Invalid call to rbinom with n = 1, p = 1")
   expect_error(
     r$rbinom(1, -1, 0.5),
-    "Invalid call to binomial with n = -1, p = 0.5")
+    "Invalid call to rbinom with n = -1, p = 0.5")
 })
 
 
@@ -485,7 +485,7 @@ test_that("float/double binom identical behaviour in corner cases", {
   ## ...nor does an error
   expect_error(
     rng_f$rbinom(100, -1, 0.5),
-    "Invalid call to binomial with n = -1, p = 0.5")
+    "Invalid call to rbinom with n = -1, p = 0.5")
   expect_identical(rng_f$state(), s)
 
   ## and a draw and its complement are the same
@@ -624,9 +624,9 @@ test_that("deterministic rbinom allow small negative innacuracies", {
   expect_identical(rng_d$rbinom(1, -eps_d, 0.5), 0.0)
 
   expect_error(rng_f$rbinom(1, -sqrt(eps_f * 1.1), 0.5),
-               "Invalid call to binomial with n = -")
+               "Invalid call to rbinom with n = -")
   expect_error(rng_d$rbinom(1, -sqrt(eps_d * 1.1), 0.5),
-               "Invalid call to binomial with n = -")
+               "Invalid call to rbinom with n = -")
 })
 
 

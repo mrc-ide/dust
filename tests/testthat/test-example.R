@@ -644,10 +644,10 @@ test_that("throw when triggering invalid binomials", {
     "2 particles reported errors")
   expect_match(
     err$message,
-    "- 4: Invalid call to binomial with n = -1, p =")
+    "- 4: Invalid call to rbinom with n = -1, p =")
   expect_match(
     err$message,
-    "- 9: Invalid call to binomial with n = -10, p =")
+    "- 9: Invalid call to rbinom with n = -10, p =")
   expect_equal(mod$state()[, c(4, 9)], s[, c(4, 9)])
   expect_error(mod$step(), "Errors pending; reset required")
   expect_error(mod$run(10), "Errors pending; reset required")
@@ -687,7 +687,7 @@ test_that("more binomial errors", {
   mod <- res$new(par, 0, NULL, seed = 1L, pars_multi = TRUE)
   err <- expect_error(mod$run(10),
                       "3 particles reported errors")
-  expect_match(err$message, "10: Invalid call to binomial")
+  expect_match(err$message, "10: Invalid call to rbinom")
 })
 
 

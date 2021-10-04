@@ -170,11 +170,11 @@ HOSTDEVICE void binomial_validate(int n, real_t p) {
   if (n < 0 || p < 0 || p > 1) {
 #ifdef __CUDA_ARCH__
     // This is unrecoverable
-    printf("Invalid call to binomial with n = %d, p = %g, q = %g\n", n, p, 1 - p);
+    printf("Invalid call to rbinom with n = %d, p = %g, q = %g\n", n, p, 1 - p);
     __trap();
 #else
     char buffer[256];
-    snprintf(buffer, 256, "Invalid call to binomial with n = %d, p = %g, q = %g",
+    snprintf(buffer, 256, "Invalid call to rbinom with n = %d, p = %g, q = %g",
              n, p, 1 - p);
     throw std::runtime_error(buffer);
 #endif
@@ -189,7 +189,7 @@ HOST real_t binomial_deterministic(real_t n, real_t p) {
       n = std::round(n);
     } else {
       char buffer[256];
-      snprintf(buffer, 256, "Invalid call to binomial with n = %f", n);
+      snprintf(buffer, 256, "Invalid call to rbinom with n = %f", n);
       throw std::runtime_error(buffer);
     }
   }
