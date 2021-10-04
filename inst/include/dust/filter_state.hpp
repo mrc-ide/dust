@@ -137,8 +137,8 @@ public:
       this->history_order[i] = i;
     }
 
-    history_value_swap = dust::device_array<real_t>(this->n_state_ * this->n_particles_);
-    history_order_swap = dust::device_array<size_t>(this->n_particles_);
+    history_value_swap = dust::cuda::device_array<real_t>(this->n_state_ * this->n_particles_);
+    history_order_swap = dust::cuda::device_array<size_t>(this->n_particles_);
 
 #ifdef __NVCC__
     // Page lock memory on host
@@ -160,7 +160,7 @@ public:
     return this->offset_ * this->n_particles_;
   }
 
-  void store_values(dust::device_array<real_t>& state) {
+  void store_values(dust::cuda::device_array<real_t>& state) {
     host_memory_stream_.sync();
     state.get_array(history_value_swap.data(), device_memory_stream_, true);
     device_memory_stream_.sync();
@@ -168,7 +168,7 @@ public:
                                  host_memory_stream_, true);
   }
 
-  void store_order(dust::device_array<size_t>& kappa) {
+  void store_order(dust::cuda::device_array<size_t>& kappa) {
     host_memory_stream_.sync();
     kappa.get_array(history_order_swap.data(), device_memory_stream_, true);
     device_memory_stream_.sync();
@@ -186,8 +186,8 @@ private:
   filter_trajectories_device ( const filter_trajectories_device & ) = delete;
   filter_trajectories_device ( filter_trajectories_device && ) = delete;
 
-  dust::device_array<real_t> history_value_swap;
-  dust::device_array<size_t> history_order_swap;
+  dust::cuda::device_array<real_t> history_value_swap;
+  dust::cuda::device_array<size_t> history_order_swap;
 
   dust::cuda::cuda_stream device_memory_stream_;
   dust::cuda::cuda_stream host_memory_stream_;
@@ -294,7 +294,7 @@ public:
     assert_has_storage(this->n_state_ , this->n_particles_, this->n_steps_);
     this->state_.resize(this->n_state_ * this->n_particles_ * this->n_steps_);
 
-    state_swap = dust::device_array<real_t>(this->n_state_ * this->n_particles_);
+    state_swap = dust::cuda::device_array<real_t>(this->n_state_ * this->n_particles_);
 
 #ifdef __NVCC__
     // Page lock memory on host
@@ -309,7 +309,7 @@ public:
     return this->offset_ * this->n_state_ * this->n_particles_;
   }
 
-  void store(dust::device_array<real_t>& state) {
+  void store(dust::cuda::device_array<real_t>& state) {
     host_memory_stream_.sync();
     state.get_array(state_swap.data(), device_memory_stream_, true);
     device_memory_stream_.sync();
@@ -339,7 +339,7 @@ private:
   filter_snapshots_device ( const filter_snapshots_device & ) = delete;
   filter_snapshots_device ( filter_snapshots_device && ) = delete;
 
-  dust::device_array<real_t> state_swap;
+  dust::cuda::device_array<real_t> state_swap;
 
   dust::cuda::cuda_stream device_memory_stream_;
   dust::cuda::cuda_stream host_memory_stream_;

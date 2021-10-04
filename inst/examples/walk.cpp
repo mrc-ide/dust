@@ -21,8 +21,7 @@ public:
     return ret;
   }
 
-  void update(size_t step, const real_t * state,
-              dust::rng_state_t& rng_state,
+  void update(size_t step, const real_t * state, rng_state_t& rng_state,
               real_t * state_next) {
     real_t mean = state[0];
     state_next[0] = dust::random::normal<real_t>(rng_state, mean, shared->sd);

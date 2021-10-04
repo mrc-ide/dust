@@ -5,6 +5,7 @@
 #include <dust/cuda/types.hpp>
 
 namespace dust {
+namespace cuda {
 
 // This function loads the shared state (shared_int and shared_real) for a
 // single set of parameters into __shared__ memory. If data is set, provided
@@ -20,7 +21,7 @@ namespace dust {
 // This is also the default behaviour for non-NVCC compiled code through
 // this function (which does not have __shared__ memory).
 template <typename T>
-DEVICE dust::device_ptrs<T> load_shared_state(const int pars_idx,
+DEVICE dust::cuda::device_ptrs<T> load_shared_state(const int pars_idx,
                                               const size_t n_shared_int,
                                               const size_t n_shared_real,
                                               const int * shared_int,
@@ -28,7 +29,7 @@ DEVICE dust::device_ptrs<T> load_shared_state(const int pars_idx,
                                               const typename T::data_t * data,
                                               bool use_shared_int,
                                               bool use_shared_real) {
-  dust::device_ptrs<T> ptrs;
+  dust::cuda::device_ptrs<T> ptrs;
 
   // Get start address in shared space
   ptrs.shared_int = shared_int + pars_idx * n_shared_int;
@@ -86,6 +87,7 @@ DEVICE dust::device_ptrs<T> load_shared_state(const int pars_idx,
   return ptrs;
 }
 
+}
 }
 
 #endif

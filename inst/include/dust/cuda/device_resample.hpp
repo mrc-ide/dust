@@ -15,9 +15,9 @@ void run_device_resample(const size_t n_particles,
                          dust::cuda::cuda_stream& kernel_stream,
                          dust::cuda::cuda_stream& resample_stream,
                          rng_state_t& resample_rng,
-                         dust::device_state<real_t, rng_state_t>& device_state,
-                         dust::device_array<real_t>& weights,
-                         dust::device_scan_state<real_t>& scan) {
+                         dust::cuda::device_state<real_t, rng_state_t>& device_state,
+                         dust::cuda::device_array<real_t>& weights,
+                         dust::cuda::device_scan_state<real_t>& scan) {
 #ifdef __NVCC__
     // Cumulative sum
     // Note this is over all parameters, this is fixed with a

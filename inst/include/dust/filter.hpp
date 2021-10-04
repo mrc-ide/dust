@@ -100,9 +100,9 @@ filter(Dust<T> * obj,
   const size_t n_pars = obj->n_pars_effective();
 
   std::vector<real_t> ll_host(n_pars, 0);
-  dust::device_array<real_t> log_likelihood(ll_host);
-  dust::device_weights<real_t> weights(n_particles, n_pars);
-  dust::device_scan_state<real_t> scan;
+  dust::cuda::device_array<real_t> log_likelihood(ll_host);
+  dust::cuda::device_weights<real_t> weights(n_particles, n_pars);
+  dust::cuda::device_scan_state<real_t> scan;
   scan.initialise(n_particles, weights.weights());
 
   if (save_trajectories) {

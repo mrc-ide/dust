@@ -342,7 +342,7 @@ public:
     }
   }
 
-  void state_full(dust::device_array<real_t>& device_state, size_t dst_offset) {
+  void state_full(dust::cuda::device_array<real_t>& device_state, size_t dst_offset) {
     refresh_device();
     device_state.set_array(device_state_.y.data(),
                            device_state_.y.size(), dst_offset);
@@ -444,8 +444,8 @@ public:
   }
 
   // device resample
-  void resample(dust::device_array<real_t>& weights,
-                dust::device_scan_state<real_t>& scan) {
+  void resample(dust::cuda::device_array<real_t>& weights,
+                dust::cuda::device_scan_state<real_t>& scan) {
     refresh_device();
     dust::filter::run_device_resample(n_particles(), n_pars_effective(), n_state_full(),
                                       cuda_pars_, kernel_stream_, resample_stream_,
@@ -455,17 +455,17 @@ public:
   }
 
   // Functions used in the device filter
-  dust::device_array<size_t>& kappa() {
+  dust::cuda::device_array<size_t>& kappa() {
     return device_state_.scatter_index;
   }
 
-  dust::device_array<real_t>& device_state_full() {
+  dust::cuda::device_array<real_t>& device_state_full() {
     refresh_device();
     kernel_stream_.sync();
     return device_state_.y;
   }
 
-  dust::device_array<real_t>& device_state_selected() {
+  dust::cuda::device_array<real_t>& device_state_selected() {
     refresh_device();
     run_device_select();
     return device_state_.y_selected;
@@ -604,7 +604,7 @@ public:
 
   template <typename U = T>
   typename std::enable_if<dust::has_gpu_support<U>::value, void>::type
-  compare_data_device(dust::device_array<real_t>& res,
+  compare_data_device(dust::cuda::device_array<real_t>& res,
                       const size_t data_offset) {
     refresh_device();
 #ifdef __NVCC__
@@ -669,8 +669,8 @@ private:
 
   // Device support
   dust::cuda::launch_control_dust cuda_pars_;
-  dust::device_state<real_t, rng_state_t> device_state_;
-  dust::device_array<data_t> device_data_;
+  dust::cuda::device_state<real_t, rng_state_t> device_state_;
+  dust::cuda::device_array<data_t> device_data_;
   std::map<size_t, size_t> device_data_offsets_;
   dust::cuda::cuda_stream kernel_stream_;
   dust::cuda::cuda_stream resample_stream_;
@@ -773,10 +773,10 @@ private:
       return;
     }
     const auto s = shared_[0];
-    const size_t n_internal_int = dust::device_internal_int_size<T>(s);
-    const size_t n_internal_real = dust::device_internal_real_size<T>(s);
-    const size_t n_shared_int = dust::device_shared_int_size<T>(s);
-    const size_t n_shared_real = dust::device_shared_real_size<T>(s);
+    const size_t n_internal_int = dust::cuda::device_internal_int_size<T>(s);
+    const size_t n_internal_real = dust::cuda::device_internal_real_size<T>(s);
+    const size_t n_shared_int = dust::cuda::device_shared_int_size<T>(s);
+    const size_t n_shared_real = dust::cuda::device_shared_real_size<T>(s);
     device_state_.initialise(particles_.size(), n_state_full(),
                              n_pars_effective(), shared_.size(),
                              n_internal_int, n_internal_real,
@@ -804,7 +804,7 @@ private:
         i++;
       }
     }
-    device_data_ = dust::device_array<data_t>(flattened_data.size());
+    device_data_ = dust::cuda::device_array<data_t>(flattened_data.size());
     device_data_.set_array(flattened_data);
   }
 
@@ -826,7 +826,7 @@ private:
     for (size_t i = 0; i < shared_.size(); ++i) {
       int * dest_int = shared_int.data() + n_shared_int * i;
       real_t * dest_real = shared_real.data() + n_shared_real * i;
-      dust::device_shared_copy<T>(shared_[i], dest_int, dest_real);
+      dust::cuda::device_shared_copy<T>(shared_[i], dest_int, dest_real);
     }
     device_state_.shared_int.set_array(shared_int);
     device_state_.shared_real.set_array(shared_real);

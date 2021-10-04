@@ -79,3 +79,75 @@ test_xoshiro_run <- function(name) {
 cpp_scale_log_weights <- function(w) {
   .Call(`_dust_cpp_scale_log_weights`, w)
 }
+
+dust_walk_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {
+  .Call(`_dust_dust_walk_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config)
+}
+
+dust_walk_run <- function(ptr, step_end, device) {
+  .Call(`_dust_dust_walk_run`, ptr, step_end, device)
+}
+
+dust_walk_simulate <- function(ptr, step_end, device) {
+  .Call(`_dust_dust_walk_simulate`, ptr, step_end, device)
+}
+
+dust_walk_set_index <- function(ptr, r_index) {
+  .Call(`_dust_dust_walk_set_index`, ptr, r_index)
+}
+
+dust_walk_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state) {
+  .Call(`_dust_dust_walk_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state)
+}
+
+dust_walk_state <- function(ptr, r_index) {
+  .Call(`_dust_dust_walk_state`, ptr, r_index)
+}
+
+dust_walk_step <- function(ptr) {
+  .Call(`_dust_dust_walk_step`, ptr)
+}
+
+dust_walk_reorder <- function(ptr, r_index) {
+  invisible(.Call(`_dust_dust_walk_reorder`, ptr, r_index))
+}
+
+dust_walk_resample <- function(ptr, r_weights) {
+  .Call(`_dust_dust_walk_resample`, ptr, r_weights)
+}
+
+dust_walk_rng_state <- function(ptr, first_only, last_only) {
+  .Call(`_dust_dust_walk_rng_state`, ptr, first_only, last_only)
+}
+
+dust_walk_set_rng_state <- function(ptr, rng_state) {
+  .Call(`_dust_dust_walk_set_rng_state`, ptr, rng_state)
+}
+
+dust_walk_set_data <- function(ptr, data) {
+  .Call(`_dust_dust_walk_set_data`, ptr, data)
+}
+
+dust_walk_compare_data <- function(ptr, device) {
+  .Call(`_dust_dust_walk_compare_data`, ptr, device)
+}
+
+dust_walk_filter <- function(ptr, save_trajectories, step_snapshot, device) {
+  .Call(`_dust_dust_walk_filter`, ptr, save_trajectories, step_snapshot, device)
+}
+
+dust_walk_capabilities <- function() {
+  .Call(`_dust_dust_walk_capabilities`)
+}
+
+dust_walk_set_n_threads <- function(ptr, n_threads) {
+  invisible(.Call(`_dust_dust_walk_set_n_threads`, ptr, n_threads))
+}
+
+dust_walk_n_state <- function(ptr) {
+  .Call(`_dust_dust_walk_n_state`, ptr)
+}
+
+dust_walk_device_info <- function() {
+  .Call(`_dust_dust_walk_device_info`)
+}

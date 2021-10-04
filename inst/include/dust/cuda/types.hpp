@@ -11,43 +11,251 @@
 #include <dust/random/numeric.hpp>
 
 namespace dust {
-
-struct nothing {};
-typedef nothing no_data;
-typedef nothing no_internal;
-typedef nothing no_shared;
-
-// By default we do not support anything on the gpu. This name might
-// change, but it does reflect our intent and it's likely that to work
-// on a GPU the model will have to provide a number of things. If of
-// those becomes a type (as with data, internal and shared) we could
-// use the same approach as above.
-template <typename T>
-struct has_gpu_support : std::false_type {};
+namespace cuda {
 
 template <typename T>
-using shared_ptr = std::shared_ptr<const typename T::shared_t>;
+class device_array {
+public:
+  // Default constructor
+  device_array() : data_(nullptr), size_(0) {
+  }
 
-template <typename T>
-struct pars_t {
-  std::shared_ptr<const typename T::shared_t> shared;
-  typename T::internal_t internal;
+  // Constructor to allocate empty memory
+  device_array(const size_t size) : size_(size) {
+#ifdef __NVCC__
+    CUDA_CALL(cudaMalloc((void**)&data_, size_ * sizeof(T)));
+    CUDA_CALL(cudaMemset(data_, 0, size_ * sizeof(T)));
+#else
+    data_ = new T[size_];
+    std::memset(data_, 0, size_ * sizeof(T));
+#endif
+  }
 
-  pars_t(std::shared_ptr<const typename T::shared_t> shared_,
-         typename T::internal_t internal_) :
-    shared(shared_), internal(internal_) {
+  // Constructor from vector
+  device_array(const std::vector<T>& data) : size_(data.size()) {
+#ifdef __NVCC__
+    CUDA_CALL(cudaMalloc((void**)&data_, size_ * sizeof(T)));
+    CUDA_CALL(cudaMemcpy(data_, data.data(), size_ * sizeof(T),
+                         cudaMemcpyDefault));
+#else
+    data_ = new T[size_];
+    std::memcpy(data_, data.data(), size_ * sizeof(T));
+#endif
   }
-  pars_t(typename T::shared_t shared_,
-         typename T::internal_t internal_) :
-    shared(std::make_shared<const typename T::shared_t>(shared_)),
-    internal(internal_) {
+
+  // Copy
+  device_array(const device_array& other) : size_(other.size_) {
+#ifdef __NVCC__
+    CUDA_CALL(cudaMalloc((void**)&data_, size_ * sizeof(T)));
+    CUDA_CALL(cudaMemcpy(data_, other.data_, size_ * sizeof(T),
+                         cudaMemcpyDefault));
+#else
+    data_ = new T[size_];
+    std::memcpy(data_, other.data_, size_ * sizeof(T));
+#endif
   }
-  pars_t(typename T::shared_t shared_) :
-    pars_t(shared_, dust::nothing()) {
+
+  // Copy assign
+  device_array& operator=(const device_array& other) {
+    if (this != &other) {
+      size_ = other.size_;
+#ifdef __NVCC__
+      CUDA_CALL(cudaFree(data_));
+      CUDA_CALL(cudaMalloc((void**)&data_, size_ * sizeof(T)));
+      CUDA_CALL(cudaMemcpy(data_, other.data_, size_ * sizeof(T),
+                           cudaMemcpyDefault));
+#else
+      delete[] data_;
+      data_ = new T[size_];
+      std::memcpy(data_, other.data_, size_ * sizeof(T));
+#endif
+    }
+    return *this;
   }
-  pars_t(typename T::internal_t internal_) :
-    pars_t(dust::nothing(), internal_) {
+
+  // Move
+  device_array(device_array&& other) : data_(nullptr), size_(0) {
+    data_ = other.data_;
+    size_ = other.size_;
+    other.data_ = nullptr;
+    other.size_ = 0;
   }
+
+  // Move assign
+  device_array& operator=(device_array&& other) {
+    if (this != &other) {
+#ifdef __NVCC__
+      CUDA_CALL(cudaFree(data_));
+#else
+      delete[] data_;
+#endif
+      data_ = other.data_;
+      size_ = other.size_;
+      other.data_ = nullptr;
+      other.size_ = 0;
+    }
+    return *this;
+  }
+
+  ~device_array() {
+#ifdef __NVCC__
+    CUDA_CALL_NOTHROW(cudaFree(data_));
+#else
+    delete[] data_;
+#endif
+  }
+
+  void get_array(std::vector<T>& dst, const bool async = false) const {
+#ifdef __NVCC__
+    if (async) {
+      CUDA_CALL(cudaMemcpyAsync(dst.data(), data_, dst.size() * sizeof(T),
+                          cudaMemcpyDefault));
+    } else {
+      CUDA_CALL(cudaMemcpy(dst.data(), data_, dst.size() * sizeof(T),
+                          cudaMemcpyDefault));
+    }
+#else
+    std::memcpy(dst.data(), data_, dst.size() * sizeof(T));
+#endif
+  }
+
+  void get_array(T * dst, cuda_stream& stream, const bool async = false) const {
+#ifdef __NVCC__
+    if (async) {
+      CUDA_CALL(cudaMemcpyAsync(dst, data_, size() * sizeof(T),
+                          cudaMemcpyDefault, stream.stream()));
+    } else {
+      CUDA_CALL(cudaMemcpy(dst, data_, size() * sizeof(T),
+                          cudaMemcpyDefault));
+    }
+#else
+    std::memcpy(dst, data_, size() * sizeof(T));
+#endif
+  }
+
+  // General method to set the device array, allowing src to be written
+  // into the device data_ array starting at dst_offset
+  void set_array(const T* src, const size_t src_size,
+                 const size_t dst_offset, const bool async = false) {
+#ifdef __NVCC__
+    if (async) {
+      CUDA_CALL(cudaMemcpyAsync(data_ + dst_offset, src,
+                          src_size * sizeof(T), cudaMemcpyDefault));
+    } else {
+      CUDA_CALL(cudaMemcpy(data_ + dst_offset, src,
+                          src_size * sizeof(T), cudaMemcpyDefault));
+    }
+#else
+    std::memcpy(data_ + dst_offset, src, src_size * sizeof(T));
+#endif
+  }
+
+  // Specialised form to set the device array, writing all of src into
+  // the device data_
+  void set_array(const std::vector<T>& src, const bool async = false) {
+    size_ = src.size();
+#ifdef __NVCC__
+    if (async) {
+      CUDA_CALL(cudaMemcpyAsync(data_, src.data(), size_ * sizeof(T),
+                          cudaMemcpyDefault));
+    } else {
+      CUDA_CALL(cudaMemcpy(data_, src.data(), size_ * sizeof(T),
+                          cudaMemcpyDefault));
+    }
+#else
+    std::memcpy(data_, src.data(), size_ * sizeof(T));
+#endif
+  }
+
+  void set_array(T * dst, cuda_stream& stream, const bool async = false) const {
+#ifdef __NVCC__
+    if (async) {
+      CUDA_CALL(cudaMemcpyAsync(data_, dst, size() * sizeof(T),
+                                cudaMemcpyDefault, stream.stream()));
+    } else {
+      CUDA_CALL(cudaMemcpy(data_, dst, size() * sizeof(T),
+                           cudaMemcpyDefault));
+    }
+#else
+    std::memcpy(data_, dst, size() * sizeof(T));
+#endif
+  }
+
+  T* data() {
+    return data_;
+  }
+
+  size_t size() const {
+    return size_;
+  }
+
+private:
+  T* data_;
+  size_t size_;
+};
+
+// Specialisation of the above for void* memory needed by some cub functions
+// Construct once and use set_size() to modify
+// Still using malloc/free instead of new and delete, as void type problematic
+template <>
+class device_array<void> {
+public:
+  // Default constructor
+  device_array() : data_(nullptr), size_(0) {}
+  // Constructor to allocate empty memory
+  device_array(const size_t size) : size_(size) {
+    if (size_ > 0) {
+#ifdef __NVCC__
+      CUDA_CALL(cudaMalloc((void**)&data_, size_));
+#else
+      data_ = (void*) std::malloc(size_);
+      if (!data_) {
+        throw std::bad_alloc();
+      }
+#endif
+    }
+  }
+  ~device_array() {
+#ifdef __NVCC__
+    CUDA_CALL_NOTHROW(cudaFree(data_));
+#else
+    std::free(data_);
+#endif
+  }
+  void set_size(size_t size) {
+    size_ = size;
+#ifdef __NVCC__
+    CUDA_CALL(cudaFree(data_));
+    if (size_ > 0) {
+      CUDA_CALL(cudaMalloc((void**)&data_, size_));
+    } else {
+      data_ = nullptr;
+    }
+#else
+    std::free(data_);
+    if (size_ > 0) {
+      data_ = (void*) std::malloc(size_);
+      if (!data_) {
+        throw std::bad_alloc();
+      }
+    } else {
+      data_ = nullptr;
+    }
+#endif
+  }
+  void* data() {
+    return data_;
+  }
+  size_t size() const {
+    return size_;
+  }
+
+private:
+  device_array ( const device_array<void> & ) = delete;
+  device_array ( device_array<void> && ) = delete;
+
+  void* data_;
+  size_t size_;
 };
 
 template <typename real_t, typename rng_state_t>
@@ -60,18 +268,18 @@ struct device_state {
     n_shared_int = n_shared_int_;
     n_shared_real = n_shared_real_;
     const size_t n_rng = rng_state_t::size();
-    y = dust::device_array<real_t>(n_state * n_particles);
-    y_next = dust::device_array<real_t>(n_state * n_particles);
-    internal_int = dust::device_array<int>(n_internal_int * n_particles);
-    internal_real = dust::device_array<real_t>(n_internal_real * n_particles);
-    shared_int = dust::device_array<int>(n_shared_int * n_shared_len);
-    shared_real = dust::device_array<real_t>(n_shared_real * n_shared_len);
-    rng = dust::device_array<uint64_t>(n_rng * n_particles);
-    index = dust::device_array<char>(n_state * n_particles);
-    n_selected = dust::device_array<int>(1);
-    scatter_index = dust::device_array<size_t>(n_particles);
-    compare_res = dust::device_array<real_t>(n_particles);
-    resample_u = dust::device_array<real_t>(n_pars);
+    y = device_array<real_t>(n_state * n_particles);
+    y_next = device_array<real_t>(n_state * n_particles);
+    internal_int = device_array<int>(n_internal_int * n_particles);
+    internal_real = device_array<real_t>(n_internal_real * n_particles);
+    shared_int = device_array<int>(n_shared_int * n_shared_len);
+    shared_real = device_array<real_t>(n_shared_real * n_shared_len);
+    rng = device_array<uint64_t>(n_rng * n_particles);
+    index = device_array<char>(n_state * n_particles);
+    n_selected = device_array<int>(1);
+    scatter_index = device_array<size_t>(n_particles);
+    compare_res = device_array<real_t>(n_particles);
+    resample_u = device_array<real_t>(n_pars);
     set_cub_tmp();
   }
   void swap() {
@@ -99,8 +307,8 @@ struct device_state {
                         const size_t n_particles,
                         const size_t n_state_full) {
     const size_t n_state = host_index.size();
-    y_selected = dust::device_array<real_t>(n_state * n_particles);
-    y_selected_swap = dust::device_array<real_t>(n_state * n_particles);
+    y_selected = device_array<real_t>(n_state * n_particles);
+    y_selected_swap = device_array<real_t>(n_state * n_particles);
 
     // e.g. 4 particles with 3 states ABC stored on device as
     // [1_A, 2_A, 3_A, 4_A, 1_B, 2_B, 3_B, 4_B, 1_C, 2_C, 3_C, 4_C]
@@ -114,8 +322,8 @@ struct device_state {
     }
     index.set_array(bool_idx);
 
-    std::vector<size_t> index_scatter = dust::cuda::utils::sort_indexes(host_index);
-    index_state_scatter = dust::device_array<size_t>(n_state);
+    std::vector<size_t> index_scatter = utils::sort_indexes(host_index);
+    index_state_scatter = device_array<size_t>(n_state);
     index_state_scatter.set_array(index_scatter);
 
     set_cub_tmp();
@@ -124,33 +332,33 @@ struct device_state {
   size_t n_shared_len;
   size_t n_shared_int;
   size_t n_shared_real;
-  dust::device_array<real_t> y;
-  dust::device_array<real_t> y_next;
-  dust::device_array<real_t> y_selected;
-  dust::device_array<real_t> y_selected_swap;
-  dust::device_array<int> internal_int;
-  dust::device_array<real_t> internal_real;
-  dust::device_array<int> shared_int;
-  dust::device_array<real_t> shared_real;
-  dust::device_array<uint64_t> rng;
-  dust::device_array<char> index;
-  dust::device_array<size_t> index_state_scatter;
-  dust::device_array<int> n_selected;
-  dust::device_array<void> select_tmp;
-  dust::device_array<size_t> scatter_index;
-  dust::device_array<real_t> compare_res;
-  dust::device_array<real_t> resample_u;
+  device_array<real_t> y;
+  device_array<real_t> y_next;
+  device_array<real_t> y_selected;
+  device_array<real_t> y_selected_swap;
+  device_array<int> internal_int;
+  device_array<real_t> internal_real;
+  device_array<int> shared_int;
+  device_array<real_t> shared_real;
+  device_array<uint64_t> rng;
+  device_array<char> index;
+  device_array<size_t> index_state_scatter;
+  device_array<int> n_selected;
+  device_array<void> select_tmp;
+  device_array<size_t> scatter_index;
+  device_array<real_t> compare_res;
+  device_array<real_t> resample_u;
 };
 
 template <typename real_t>
 struct device_scan_state {
   void initialise(const size_t n_particles,
-                  dust::device_array<real_t>& weights) {
-    cum_weights = dust::device_array<real_t>(n_particles);
+                  device_array<real_t>& weights) {
+    cum_weights = device_array<real_t>(n_particles);
     set_cub_tmp(weights);
   }
 
-  void set_cub_tmp(dust::device_array<real_t>& weights) {
+  void set_cub_tmp(device_array<real_t>& weights) {
 #ifdef __NVCC__
     tmp_bytes = 0;
     scan_tmp.set_size(tmp_bytes);
@@ -164,8 +372,8 @@ struct device_scan_state {
   }
 
   size_t tmp_bytes;
-  dust::device_array<real_t> cum_weights;
-  dust::device_array<void> scan_tmp;
+  device_array<real_t> cum_weights;
+  device_array<void> scan_tmp;
 };
 
 template <typename real_t>
@@ -179,12 +387,12 @@ public:
       weight_blockSize(64),
       weight_blockCount((n_pars + weight_blockSize - 1) / weight_blockSize) {
   // Set up storage
-  weights_ = dust::device_array<real_t>(n_particles_);
-  cum_weights_ = dust::device_array<real_t>(n_particles_);
-  weights_max_ = dust::device_array<real_t>(n_pars_);
-  log_likelihood_step_ = dust::device_array<real_t>(n_pars_);
+  weights_ = device_array<real_t>(n_particles_);
+  cum_weights_ = device_array<real_t>(n_particles_);
+  weights_max_ = device_array<real_t>(n_pars_);
+  log_likelihood_step_ = device_array<real_t>(n_pars_);
 
-  pars_offsets_ = dust::device_array<int>(n_pars_ + 1);
+  pars_offsets_ = device_array<int>(n_pars_ + 1);
   std::vector<int> offsets(n_pars_ + 1);
   for (size_t i = 0; i < n_pars + 1; ++i) {
     offsets[i] = i * n_particles_each_;
@@ -230,7 +438,7 @@ public:
   }
 
   // CUDA version of log-sum-exp trick
-  void scale_log_weights(dust::device_array<real_t>& log_likelihood) {
+  void scale_log_weights(device_array<real_t>& log_likelihood) {
 #ifdef __NVCC__
     // Scale log-weights. First calculate the max
     if (n_pars_ > 1) {
@@ -327,7 +535,7 @@ public:
 #endif
   }
 
-  dust::device_array<real_t>& weights() {
+  device_array<real_t>& weights() {
     return weights_;
   }
 
@@ -340,16 +548,16 @@ private:
   const size_t weight_blockSize, weight_blockCount;
 
   size_t max_tmp_bytes, sum_tmp_bytes;
-  dust::device_array<real_t> weights_;
-  dust::device_array<real_t> cum_weights_;
-  dust::device_array<real_t> weights_max_;
-  dust::device_array<real_t> log_likelihood_step_;
-  dust::device_array<int> pars_offsets_;
-  dust::device_array<void> max_tmp_;
-  dust::device_array<void> sum_tmp_;
+  device_array<real_t> weights_;
+  device_array<real_t> cum_weights_;
+  device_array<real_t> weights_max_;
+  device_array<real_t> log_likelihood_step_;
+  device_array<int> pars_offsets_;
+  device_array<void> max_tmp_;
+  device_array<void> sum_tmp_;
 
 #ifdef __NVCC__
-  dust::cuda::cuda_stream kernel_stream_;
+  cuda_stream kernel_stream_;
 #endif
 };
 
@@ -458,6 +666,7 @@ private:
   std::vector<bool> seen;
 };
 
+}
 }
 
 #endif
