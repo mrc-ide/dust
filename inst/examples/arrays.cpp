@@ -4,6 +4,7 @@ class arrays {
 public:
   typedef double real_t;
   typedef dust::no_data data_t;
+  typedef dust::random::xoshiro256starstar_state rng_state_t;
 
   struct shared_t {
     int dim_r;
@@ -34,8 +35,8 @@ public:
     return state;
   }
 
-  void update(size_t step, const real_t * state,
-              dust::rng_state_t& rng_state, real_t * state_next) {
+  void update(size_t step, const real_t * state, rng_state_t& rng_state,
+              real_t * state_next) {
     const real_t * x = state + 1;
     const real_t y = state[0];
     state_next[0] = y + shared->n;

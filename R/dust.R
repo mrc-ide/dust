@@ -110,7 +110,7 @@ sir <- R6::R6Class(
     },
 
     set_pars = function(pars) {
-      .Deprecated("$update_state(pars = pars, set_initial_state = FALSE)",
+      .Deprecated("$update_state(pars = pars)",
                   old = "$set_pars(pars)")
       self$update_state(pars = pars, set_initial_state = FALSE)
     },
@@ -321,7 +321,7 @@ sirs <- R6::R6Class(
     },
 
     set_pars = function(pars) {
-      .Deprecated("$update_state(pars = pars, set_initial_state = FALSE)",
+      .Deprecated("$update_state(pars = pars)",
                   old = "$set_pars(pars)")
       self$update_state(pars = pars, set_initial_state = FALSE)
     },
@@ -529,7 +529,7 @@ variable <- R6::R6Class(
     },
 
     set_pars = function(pars) {
-      .Deprecated("$update_state(pars = pars, set_initial_state = FALSE)",
+      .Deprecated("$update_state(pars = pars)",
                   old = "$set_pars(pars)")
       self$update_state(pars = pars, set_initial_state = FALSE)
     },
@@ -737,7 +737,7 @@ volatility <- R6::R6Class(
     },
 
     set_pars = function(pars) {
-      .Deprecated("$update_state(pars = pars, set_initial_state = FALSE)",
+      .Deprecated("$update_state(pars = pars)",
                   old = "$set_pars(pars)")
       self$update_state(pars = pars, set_initial_state = FALSE)
     },
@@ -945,7 +945,7 @@ walk <- R6::R6Class(
     },
 
     set_pars = function(pars) {
-      .Deprecated("$update_state(pars = pars, set_initial_state = FALSE)",
+      .Deprecated("$update_state(pars = pars)",
                   old = "$set_pars(pars)")
       self$update_state(pars = pars, set_initial_state = FALSE)
     },

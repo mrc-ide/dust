@@ -46,7 +46,7 @@ void run_device_resample(const size_t n_particles,
     // Generate random numbers for each parameter set
     std::vector<real_t> shuffle_draws(n_pars);
     for (size_t i = 0; i < n_pars; ++i) {
-      shuffle_draws[i] = dust::random::uniform<real_t>(resample_rng);
+      shuffle_draws[i] = dust::random::uniform<real_t>(resample_rng, 0, 1);
     }
     device_state.resample_u.set_array(shuffle_draws.data(),
                                       resample_stream, true);

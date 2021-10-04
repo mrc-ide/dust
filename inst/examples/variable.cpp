@@ -3,6 +3,7 @@ public:
   typedef double real_t;
   typedef dust::no_data data_t;
   typedef dust::no_internal internal_t;
+  typedef dust::random::xoshiro256starstar_state rng_state_t;
 
   struct shared_t {
     size_t len;
@@ -25,12 +26,11 @@ public:
     return ret;
   }
 
-  void update(size_t step, const real_t * state,
-              dust::rng_state_t& rng_state,
+  void update(size_t step, const real_t * state, rng_state_t& rng_state,
               real_t * state_next) {
     for (size_t i = 0; i < shared->len; ++i) {
-      state_next[i] =
-        dust::distr::rnorm(rng_state, state[i] + shared->mean, shared->sd);
+      state_next[i] = state[i] +
+        dust::random::normal<real_t>(rng_state, shared->mean, shared->sd);
     }
   }
 
@@ -39,48 +39,6 @@ private:
 };
 
 namespace dust {
-template <>
-struct has_gpu_support<variable> : std::true_type {};
-
-template <>
-size_t device_shared_int_size<variable>(dust::shared_ptr<variable> shared) {
-  return 1;
-}
-
-template <>
-size_t device_shared_real_size<variable>(dust::shared_ptr<variable> shared) {
-  return 2;
-}
-
-template <>
-void device_shared_copy<variable>(dust::shared_ptr<variable> shared,
-                                  int * shared_int,
-                                  variable::real_t * shared_real) {
-  typedef variable::real_t real_t;
-  shared_int = dust::shared_copy<int>(shared_int, shared->len);
-  shared_real = dust::shared_copy<real_t>(shared_real, shared->mean);
-  shared_real = dust::shared_copy<real_t>(shared_real, shared->sd);
-}
-
-template <>
-DEVICE
-void update_device<variable>(size_t step,
-                             const dust::interleaved<variable::real_t> state,
-                             dust::interleaved<int> internal_int,
-                             dust::interleaved<variable::real_t> internal_real,
-                             const int * shared_int,
-                             const variable::real_t * shared_real,
-                             dust::rng_state_t& rng_state,
-                             dust::interleaved<variable::real_t> state_next) {
-  typedef variable::real_t real_t;
-  const size_t len = shared_int[0];
-  const real_t mean = shared_real[0];
-  const real_t sd = shared_real[1];
-  for (size_t i = 0; i < len; ++i) {
-    state_next[i] = dust::distr::rnorm(rng_state, state[i] + mean, sd);
-  }
-}
-
 template <>
 dust::pars_t<variable> dust_pars<variable>(cpp11::list pars) {
   typedef variable::real_t real_t;
@@ -101,4 +59,51 @@ dust::pars_t<variable> dust_pars<variable>(cpp11::list pars) {
   return dust::pars_t<variable>(shared);
 }
 
+template <>
+struct has_gpu_support<variable> : std::true_type {};
+
+namespace cuda {
+
+template <>
+size_t device_shared_int_size<variable>(dust::shared_ptr<variable> shared) {
+  return 1;
+}
+
+template <>
+size_t device_shared_real_size<variable>(dust::shared_ptr<variable> shared) {
+  return 2;
+}
+
+template <>
+void device_shared_copy<variable>(dust::shared_ptr<variable> shared,
+                                  int * shared_int,
+                                  variable::real_t * shared_real) {
+  using dust::cuda::shared_copy;
+  typedef variable::real_t real_t;
+  shared_int = shared_copy<int>(shared_int, shared->len);
+  shared_real = shared_copy<real_t>(shared_real, shared->mean);
+  shared_real = shared_copy<real_t>(shared_real, shared->sd);
+}
+
+template <>
+DEVICE
+void update_device<variable>(size_t step,
+                             const dust::cuda::interleaved<variable::real_t> state,
+                             dust::cuda::interleaved<int> internal_int,
+                             dust::cuda::interleaved<variable::real_t> internal_real,
+                             const int * shared_int,
+                             const variable::real_t * shared_real,
+                             variable::rng_state_t& rng_state,
+                             dust::cuda::interleaved<variable::real_t> state_next) {
+  typedef variable::real_t real_t;
+  const size_t len = shared_int[0];
+  const real_t mean = shared_real[0];
+  const real_t sd = shared_real[1];
+  for (size_t i = 0; i < len; ++i) {
+    state_next[i] = state[i] +
+      dust::random::normal<real_t>(rng_state, mean, sd);
+  }
+}
+
+}
 }

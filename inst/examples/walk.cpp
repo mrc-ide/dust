@@ -3,7 +3,7 @@ public:
   typedef double real_t;
   typedef dust::no_data data_t;
   typedef dust::no_internal internal_t;
-  typedef rng_state_t = dust::random::xoshiro256starstar_state;
+  typedef dust::random::xoshiro256starstar_state rng_state_t;
 
   struct shared_t {
     real_t sd;

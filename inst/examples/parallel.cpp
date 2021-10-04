@@ -8,6 +8,7 @@ public:
   typedef double real_t;
   typedef dust::no_data data_t;
   typedef dust::no_internal internal_t;
+  typedef dust::random::xoshiro256starstar_state rng_state_t;
   struct shared_t {
     real_t sd;
   };
@@ -29,11 +30,10 @@ public:
     return ret;
   }
 
-  void update(size_t step, const real_t * state,
-              dust::rng_state_t& rng_state,
+  void update(size_t step, const real_t * state, rng_state_t& rng_state,
               real_t * state_next) {
     real_t mean = state[0];
-    state_next[0] = dust::distr::rnorm(rng_state, mean, shared->sd);
+    state_next[0] = dust::random::normal<real_t>(rng_state, mean, shared->sd);
 #ifdef _OPENMP
     state_next[1] = (real_t) omp_get_thread_num();
 #else

@@ -5,6 +5,7 @@ public:
     real_t incidence;
   };
   typedef dust::no_internal internal_t;
+  typedef dust::random::xoshiro256starstar_state rng_state_t;
 
   struct shared_t {
     real_t S0;
@@ -30,8 +31,7 @@ public:
     return ret;
   }
 
-  void update(size_t step, const real_t * state,
-              dust::rng_state_t& rng_state,
+  void update(size_t step, const real_t * state, rng_state_t& rng_state,
               real_t * state_next) {
     real_t S = state[0];
     real_t I = state[1];
@@ -42,8 +42,10 @@ public:
 
     real_t p_SI = 1 - std::exp(-(shared->beta) * I / N);
     real_t p_IR = 1 - std::exp(-(shared->gamma));
-    real_t n_IR = dust::distr::rbinom(rng_state, I, p_IR * shared->dt);
-    real_t n_SI = dust::distr::rbinom(rng_state, S, p_SI * shared->dt);
+    real_t n_IR = dust::random::binomial<real_t>(rng_state, I,
+                                                 p_IR * shared->dt);
+    real_t n_SI = dust::random::binomial<real_t>(rng_state, S,
+                                                 p_SI * shared->dt);
 
     state_next[0] = S - n_SI;
     state_next[1] = I + n_SI - n_IR;
@@ -55,12 +57,12 @@ public:
   }
 
   real_t compare_data(const real_t * state, const data_t& data,
-                      dust::rng_state_t& rng_state) {
+                      rng_state_t& rng_state) {
     const real_t incidence_modelled = state[4];
     const real_t incidence_observed = data.incidence;
     const real_t lambda = incidence_modelled +
-      dust::distr::rexp(rng_state, shared->exp_noise);
-    return dust::dpois(incidence_observed, lambda, true);
+      dust::random::exponential(rng_state, shared->exp_noise);
+    return dust::density::poisson(incidence_observed, lambda, true);
   }
 
 private:
