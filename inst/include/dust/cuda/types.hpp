@@ -47,7 +47,7 @@ struct pars_t {
   }
 };
 
-template <typename real_t>
+template <typename real_t, typename rng_state_t>
 struct device_state {
   void initialise(size_t n_particles, size_t n_state, size_t n_pars,
                   size_t n_shared_len_,
@@ -56,7 +56,7 @@ struct device_state {
     n_shared_len = n_shared_len_;
     n_shared_int = n_shared_int_;
     n_shared_real = n_shared_real_;
-    const size_t n_rng = dust::rng_state_t::size();
+    const size_t n_rng = rng_state_t::size();
     y = dust::device_array<real_t>(n_state * n_particles);
     y_next = dust::device_array<real_t>(n_state * n_particles);
     internal_int = dust::device_array<int>(n_internal_int * n_particles);

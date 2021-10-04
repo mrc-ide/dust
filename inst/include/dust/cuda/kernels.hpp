@@ -17,7 +17,7 @@ DEVICE void update_device(size_t step,
                    dust::interleaved<typename T::real_t> internal_real,
                    const int * shared_int,
                    const typename T::real_t * shared_real,
-                   dust::rng_state_t& rng_state,
+                   typename T::rng_state_t& rng_state,
                    dust::interleaved<typename T::real_t> state_next);
 
 template <typename T>
@@ -28,7 +28,7 @@ DEVICE typename T::real_t compare_device(
                    dust::interleaved<typename T::real_t> internal_real,
                    const int * shared_int,
                    const typename T::real_t * shared_real,
-                   dust::rng_state_t& rng_state);
+                   typename T::rng_state_t& rng_state);
 
 // __global__ for shuffling particles
 template <typename real_t>
@@ -84,6 +84,7 @@ KERNEL void run_particles(size_t step_start,
                           bool use_shared_int,
                           bool use_shared_real) {
   typedef typename T::real_t real_t;
+  typedef typename T::rng_state_t rng_state_t;
   const size_t n_particles_each = n_particles / n_pars;
 
 #ifdef __CUDA_ARCH__
@@ -137,7 +138,7 @@ KERNEL void run_particles(size_t step_start,
     dust::interleaved<real_t> p_internal_real(internal_real, i, n_particles);
     dust::interleaved<uint64_t> p_rng(rng_state, i, n_particles);
 
-    dust::rng_state_t rng_block = dust::get_rng_state(p_rng);
+    rng_state_t rng_block = dust::get_rng_state(p_rng);
     for (size_t step = step_start; step < step_end; ++step) {
       update_device<T>(step,
                        p_state,
@@ -174,6 +175,7 @@ KERNEL void compare_particles(size_t n_particles,
                               bool use_shared_real) {
   // This setup is mostly shared with run_particles
   typedef typename T::real_t real_t;
+  typedef typename T::rng_state_t rng_state_t;
   const size_t n_particles_each = n_particles / n_pars;
 
 #ifdef __CUDA_ARCH__
@@ -226,7 +228,7 @@ KERNEL void compare_particles(size_t n_particles,
     dust::interleaved<int> p_internal_int(internal_int, i, n_particles);
     dust::interleaved<real_t> p_internal_real(internal_real, i, n_particles);
     dust::interleaved<uint64_t> p_rng(rng_state, i, n_particles);
-    dust::rng_state_t rng_block = dust::get_rng_state(p_rng);
+    rng_state_t rng_block = dust::get_rng_state(p_rng);
 
     weights[i] = compare_device<T>(p_state,
                                    *shared_state.data,

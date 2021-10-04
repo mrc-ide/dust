@@ -12,7 +12,7 @@
 #include <cpp11/strings.hpp>
 
 #include <dust/interface/random.hpp>
-#include <dust/interface_helpers.hpp>
+#include <dust/interface/helpers.hpp>
 #include <dust/cuda/device_info.hpp>
 #include <dust/filter.hpp>
 #include <dust/cuda/launch_control.hpp>
@@ -336,12 +336,13 @@ SEXP dust_resample(SEXP ptr, cpp11::doubles r_weights) {
 template <typename T>
 SEXP dust_rng_state(SEXP ptr, bool first_only, bool last_only) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  typedef typename T::rng_state_t rng_state_t;
   auto state = obj->rng_state();
   if (first_only && last_only) {
     cpp11::stop("Only one of 'first_only' or 'last_only' may be TRUE");
   }
   size_t n = (first_only || last_only) ?
-    dust::rng_state_t::size() : state.size();
+    rng_state_t::size() : state.size();
   size_t rng_offset = last_only ? obj->n_particles() * n : 0;
   size_t len = sizeof(uint64_t) * n;
   cpp11::writable::raws ret(len);

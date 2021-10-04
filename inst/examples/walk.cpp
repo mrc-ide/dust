@@ -3,6 +3,7 @@ public:
   typedef double real_t;
   typedef dust::no_data data_t;
   typedef dust::no_internal internal_t;
+  typedef rng_state_t = dust::random::xoshiro256starstar_state;
 
   struct shared_t {
     real_t sd;
@@ -24,7 +25,7 @@ public:
               dust::rng_state_t& rng_state,
               real_t * state_next) {
     real_t mean = state[0];
-    state_next[0] = dust::distr::rnorm(rng_state, mean, shared->sd);
+    state_next[0] = dust::random::normal<real_t>(rng_state, mean, shared->sd);
   }
 
 private:
