@@ -347,7 +347,7 @@ test_that("initialise parallel rng with binary state and drop", {
   seed <- 42
   rng10 <- dust_rng$new(seed, 10L)
   rng5 <- dust_rng$new(rng10$state(), 5L)
-  len <- 5 * rng5$info$rng_size_state_bytes
+  len <- 5 * rng5$info$size_state_bytes
   expect_identical(rng5$state(), rng10$state()[seq_len(len)])
 })
 
@@ -356,7 +356,7 @@ test_that("initialise parallel rng with binary state and drop for floats", {
   seed <- 42
   rng10 <- dust_rng$new(seed, 10L, "float")
   rng5 <- dust_rng$new(rng10$state(), 5L, "float")
-  len <- 5 * rng5$info$rng_size_state_bytes
+  len <- 5 * rng5$info$size_state_bytes
   expect_identical(rng5$state(), rng10$state()[seq_len(len)])
 })
 
