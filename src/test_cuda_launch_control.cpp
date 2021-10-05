@@ -1,7 +1,6 @@
 #include <cpp11.hpp>
 
 #include <dust/types.hpp>
-#include <dust/cuda/containers.hpp>
 #include <dust/cuda/launch_control.hpp>
 #include <dust/interface/helpers.hpp>
 
