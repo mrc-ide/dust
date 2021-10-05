@@ -8,3 +8,9 @@ Adding new methods to the dust object requires a few steps (most of which will b
 * The cuda vignette is built offline because it requires access to a CUDA toolchain and compatible device.  The script `./scripts/build_cuda_vignette` will update the version in the package
 
 All PRs, no matter small, must increase the version number. This is enforced by github actions. We aim to use [semanitic versioning](https://semver.org/) as much as is reasonable, but our main aim is that all commits to master are easily findable in future.
+
+## Random number library
+
+We keep the random number library in `inst/include/dust` so that it does not depend on anything else in the source tree so that it could be reused in other projects (R or otherwise).
+
+To update the underlying generator code with the reference implementations at https://prng.di.unimi.it/ you should run the script at `./extra/generate.sh` which will download, compile, and run small programs with the upstream implementation and write out reference output in the test directory.

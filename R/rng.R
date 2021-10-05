@@ -68,8 +68,11 @@ dust_rng <- R6::R6Class(
         real_type = real_type,
         name = "xoshiro256starstar",
         deterministic = FALSE,
-        size_data_bits = 64L,
-        size_data_ints = 4L,
+        ## Size, in bits, of the underlying integer
+        size_int_bits = 64L,
+        ## Number of integers used for state
+        size_state_ints = 4L,
+        ## Total size in bytes of the state
         size_state_bytes = 4L * 8L)
       lockBinding("info", self)
     },
