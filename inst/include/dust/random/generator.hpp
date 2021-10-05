@@ -36,7 +36,7 @@ namespace random {
 template <typename T, size_t N, xoshiro_mode M>
 struct xoshiro_state {
   typedef T data_type;
-  static size_t size() {
+  static HOSTDEVICE size_t size() {
     return N;
   }
   data_type state[N];
