@@ -60,7 +60,8 @@ DEVICE dust::cuda::device_ptrs<T> load_shared_state(const int pars_idx,
     // with int and real, as odd n_shared_int leaves pointer in the middle of an
     // 8-byte word)
     size_t real_ptr_start = n_shared_int +
-      dust::utils::align_padding(n_shared_int * sizeof(int), sizeof(real_t)) / sizeof(int);
+      utils::align_padding(n_shared_int * sizeof(int),
+                           sizeof(real_t)) / sizeof(int);
     real_t * shared_block_real = (real_t*)&shared_block[real_ptr_start];
     dust::cuda::shared_mem_cpy(block, shared_block_real, ptrs.shared_real,
                                n_shared_real);
@@ -69,9 +70,9 @@ DEVICE dust::cuda::device_ptrs<T> load_shared_state(const int pars_idx,
     // Copy data in, which is aligned to 16-bytes
     if (data != nullptr && sizeof(data_t) > 0) {
       size_t data_ptr_start = n_shared_real +
-        dust::utils::align_padding(real_ptr_start * sizeof(int) +
-                                   n_shared_real * sizeof(real_t),
-                                   16) / sizeof(real_t);
+        utils::align_padding(real_ptr_start * sizeof(int) +
+                             n_shared_real * sizeof(real_t), 16) /
+        sizeof(real_t);
       data_t * shared_block_data = (data_t*)&shared_block_real[data_ptr_start];
       dust::cuda::shared_mem_cpy(block, shared_block_data, ptrs.data, 1);
       ptrs.data = shared_block_data;
