@@ -11,19 +11,19 @@ T int_to_real(U value);
 template <>
 inline HOSTDEVICE
 double int_to_real(uint64_t value) {
-  return double(value) / double(std::numeric_limits<uint64_t>::max());
+  return double(value) / double(uint64_max());
 }
 
 template <>
 inline HOSTDEVICE
 float int_to_real(uint64_t value) {
-  return float(value) / float(std::numeric_limits<uint64_t>::max());
+  return float(value) / float(uint64_max());
 }
 
 template <>
 inline HOSTDEVICE
 float int_to_real(uint32_t value) {
-  return float(value) / float(std::numeric_limits<uint32_t>::max());
+  return float(value) / float(uint32_max());
 }
 
 inline HOSTDEVICE
