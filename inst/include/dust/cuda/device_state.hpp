@@ -21,15 +21,16 @@ namespace cuda {
 // This is also the default behaviour for non-NVCC compiled code through
 // this function (which does not have __shared__ memory).
 template <typename T>
-DEVICE dust::cuda::device_ptrs<T> load_shared_state(const int pars_idx,
-                                              const size_t n_shared_int,
-                                              const size_t n_shared_real,
-                                              const int * shared_int,
-                                              const typename T::real_t * shared_real,
-                                              const typename T::data_t * data,
-                                              bool use_shared_int,
-                                              bool use_shared_real) {
-  dust::cuda::device_ptrs<T> ptrs;
+DEVICE
+device_ptrs<T> load_shared_state(const int pars_idx,
+                                 const size_t n_shared_int,
+                                 const size_t n_shared_real,
+                                 const int * shared_int,
+                                 const typename T::real_t * shared_real,
+                                 const typename T::data_t * data,
+                                 bool use_shared_int,
+                                 bool use_shared_real) {
+  device_ptrs<T> ptrs;
 
   // Get start address in shared space
   ptrs.shared_int = shared_int + pars_idx * n_shared_int;
@@ -48,7 +49,7 @@ DEVICE dust::cuda::device_ptrs<T> load_shared_state(const int pars_idx,
                 "real_t and int shared memory not alignable");
   if (use_shared_int) {
     int * shared_block_int = shared_block;
-    dust::cuda::shared_mem_cpy(block, shared_block_int, ptrs.shared_int,
+    shared_mem_cpy(block, shared_block_int, ptrs.shared_int,
                                n_shared_int);
     ptrs.shared_int = shared_block_int;
   }
@@ -63,7 +64,7 @@ DEVICE dust::cuda::device_ptrs<T> load_shared_state(const int pars_idx,
       utils::align_padding(n_shared_int * sizeof(int),
                            sizeof(real_t)) / sizeof(int);
     real_t * shared_block_real = (real_t*)&shared_block[real_ptr_start];
-    dust::cuda::shared_mem_cpy(block, shared_block_real, ptrs.shared_real,
+    shared_mem_cpy(block, shared_block_real, ptrs.shared_real,
                                n_shared_real);
     ptrs.shared_real = shared_block_real;
 
@@ -74,7 +75,7 @@ DEVICE dust::cuda::device_ptrs<T> load_shared_state(const int pars_idx,
                              n_shared_real * sizeof(real_t), 16) /
         sizeof(real_t);
       data_t * shared_block_data = (data_t*)&shared_block_real[data_ptr_start];
-      dust::cuda::shared_mem_cpy(block, shared_block_data, ptrs.data, 1);
+      shared_mem_cpy(block, shared_block_data, ptrs.data, 1);
       ptrs.data = shared_block_data;
     } else {
       ptrs.data = nullptr;
@@ -82,7 +83,7 @@ DEVICE dust::cuda::device_ptrs<T> load_shared_state(const int pars_idx,
   }
 
   // Required to sync loads into L1 cache
-  dust::cuda::shared_mem_wait(block);
+  shared_mem_wait(block);
 #endif
 
   return ptrs;

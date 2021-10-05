@@ -126,13 +126,13 @@ KERNEL void run_particles(size_t step_start,
     const int j = i / n_particles_each;
     device_ptrs<T> shared_state =
       load_shared_state<T>(j,
-                                       n_shared_int,
-                                       n_shared_real,
-                                       shared_int,
-                                       shared_real,
-                                       nullptr,
-                                       false,
-                                       false);
+                           n_shared_int,
+                           n_shared_real,
+                           shared_int,
+                           shared_real,
+                           nullptr,
+                           false,
+                           false);
 #endif
     interleaved<real_t> p_state(state, i, n_particles);
     interleaved<real_t> p_state_next(state_next, i, n_particles);
