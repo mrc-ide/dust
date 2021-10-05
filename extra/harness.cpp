@@ -4,13 +4,13 @@
 #include <iostream>
 
 #if defined(XOSHIRO256)
-typedef uint64_t data_type;
+typedef uint64_t int_type;
 constexpr size_t data_size = 4;
 #elif defined(XOSHIRO128)
-typedef uint64_t data_type;
+typedef uint64_t int_type;
 constexpr size_t data_size = 4;
 #elif defined(XOROSHIRO128)
-typedef uint64_t data_type;
+typedef uint64_t int_type;
 constexpr size_t data_size = 4;
 #else
 #error "no target defined"
@@ -29,13 +29,13 @@ std::array<T, N> rng_seed(uint64_t seed) {
   const size_t n = N;
   for (size_t i = 0; i < n; ++i) {
     seed = splitmix64(seed);
-    state[i] = static_cast<data_type>(seed);
+    state[i] = static_cast<int_type>(seed);
   }
   return state;
 }
 
 int main() {
-  std::array<data_type, data_size> seed = rng_seed<data_type, data_size>(42);
+  std::array<int_type, data_size> seed = rng_seed<int_type, data_size>(42);
   for (size_t i = 0; i < data_size; ++i) {
     s[i] = seed[i];
   }

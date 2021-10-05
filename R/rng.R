@@ -66,6 +66,7 @@ dust_rng <- R6::R6Class(
 
       self$info <- list(
         real_type = real_type,
+        int_type = "uint64_t",
         name = "xoshiro256starstar",
         deterministic = FALSE,
         ## Size, in bits, of the underlying integer

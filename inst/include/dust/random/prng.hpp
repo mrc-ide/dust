@@ -11,8 +11,8 @@ template <typename T>
 class prng {
 public:
   typedef T rng_state;
-  typedef typename rng_state::data_type data_type;
-  prng(const size_t n, const std::vector<data_type>& seed,
+  typedef typename rng_state::int_type int_type;
+  prng(const size_t n, const std::vector<int_type>& seed,
        const bool deterministic) {
     rng_state s;
     s.deterministic = deterministic;
@@ -49,9 +49,9 @@ public:
     return state_[i];
   }
 
-  std::vector<data_type> export_state() {
+  std::vector<int_type> export_state() {
     const size_t n = rng_state::size();
-    std::vector<data_type> state;
+    std::vector<int_type> state;
     state.resize(size() * n);
     for (size_t i = 0, k = 0; i < size(); ++i) {
       for (size_t j = 0; j < n; ++j, ++k) {
@@ -61,7 +61,7 @@ public:
     return state;
   }
 
-  void import_state(const std::vector<data_type>& state, const size_t len) {
+  void import_state(const std::vector<int_type>& state, const size_t len) {
     auto it = state.begin();
     const size_t n = rng_state::size();
     for (size_t i = 0; i < len; ++i) {
@@ -72,7 +72,7 @@ public:
     }
   }
 
-  void import_state(const std::vector<data_type>& state) {
+  void import_state(const std::vector<int_type>& state) {
     import_state(state, size());
   }
 

@@ -34,10 +34,10 @@ public:
   typedef typename T::real_t real_t;
   typedef typename T::data_t data_t;
   typedef typename T::rng_state_t rng_state_t;
-  typedef typename rng_state_t::data_type rng_data_type;
+  typedef typename rng_state_t::int_type rng_int_type;
 
   Dust(const pars_t& pars, const size_t step, const size_t n_particles,
-       const size_t n_threads, const std::vector<rng_data_type>& seed,
+       const size_t n_threads, const std::vector<rng_int_type>& seed,
        const bool deterministic, const cuda::device_config& device_config) :
     n_pars_(0),
     n_particles_each_(n_particles),
@@ -61,7 +61,7 @@ public:
 
   Dust(const std::vector<pars_t>& pars, const size_t step,
        const size_t n_particles, const size_t n_threads,
-       const std::vector<rng_data_type>& seed,
+       const std::vector<rng_int_type>& seed,
        const bool deterministic, const cuda::device_config& device_config,
        const std::vector<size_t>& shape) :
     n_pars_(pars.size()),
@@ -531,12 +531,12 @@ public:
     errors_.reset();
   }
 
-  std::vector<rng_data_type> rng_state() {
+  std::vector<rng_int_type> rng_state() {
     refresh_host();
     return rng_.export_state();
   }
 
-  void set_rng_state(const std::vector<rng_data_type>& rng_state) {
+  void set_rng_state(const std::vector<rng_int_type>& rng_state) {
     refresh_host();
     rng_.import_state(rng_state);
     stale_device_ = true;
@@ -885,7 +885,7 @@ private:
       const size_t rng_len = rng_state_t::size();
       std::vector<real_t> y_tmp(ny); // Individual particle state
       std::vector<real_t> y(np * ny); // Interleaved state of all particles
-      std::vector<rng_data_type> rng(np * rng_len); // Interleaved RNG state
+      std::vector<rng_int_type> rng(np * rng_len); // Interleaved RNG state
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
@@ -919,8 +919,8 @@ private:
       const size_t rng_len = rng_state_t::size();
       std::vector<real_t> y_tmp(ny); // Individual particle state
       std::vector<real_t> y(np * ny); // Interleaved state of all particles
-      std::vector<rng_data_type> rngi(np * rng_len); // Interleaved RNG state
-      std::vector<rng_data_type> rng(np * rng_len); //  Deinterleaved RNG state
+      std::vector<rng_int_type> rngi(np * rng_len); // Interleaved RNG state
+      std::vector<rng_int_type> rng(np * rng_len); //  Deinterleaved RNG state
       // D -> H copies
       device_state_.y.get_array(y);
       device_state_.rng.get_array(rngi);

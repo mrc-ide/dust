@@ -143,7 +143,7 @@ template <typename T>
 cpp11::writable::raws dust_rng_state(SEXP ptr) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   auto state = rng->export_state();
-  size_t len = sizeof(typename T::data_type) * state.size();
+  size_t len = sizeof(typename T::int_type) * state.size();
   cpp11::writable::raws ret(len);
   std::memcpy(RAW(ret), state.data(), len);
   return ret;

@@ -36,22 +36,22 @@ namespace random {
 // Generic data storage, this is common
 template <typename T, size_t N, xoshiro_mode M>
 struct xoshiro_state {
-  typedef T data_type;
+  typedef T int_type;
   static HOSTDEVICE size_t size() {
     return N;
   }
-  data_type state[N];
+  int_type state[N];
   // This flag indicates that the distributions should return the
   // deterministic expectation of the draw, and not use any random
   // numbers
   bool deterministic = false;
-  HOSTDEVICE data_type& operator[](size_t i) {
+  HOSTDEVICE int_type& operator[](size_t i) {
     return state[i];
   }
 };
 
 template <typename T>
-typename T::data_type next(T& state);
+typename T::int_type next(T& state);
 
 template <typename T, size_t N, xoshiro_mode M>
 inline HOST
@@ -91,10 +91,10 @@ template <typename T>
 HOST
 void seed(T& state, uint64_t seed) {
   const size_t n = T::size();
-  using data_type = typename T::data_type;
+  using int_type = typename T::int_type;
   for (size_t i = 0; i < n; ++i) {
     seed = splitmix64(seed);
-    state[i] = static_cast<data_type>(seed);
+    state[i] = static_cast<int_type>(seed);
   }
 }
 
@@ -108,10 +108,10 @@ T seed(uint64_t seed) {
 
 template <typename T>
 HOST
-std::vector<typename T::data_type> seed_data(uint64_t seed) {
+std::vector<typename T::int_type> seed_data(uint64_t seed) {
   T state = dust::random::seed<T>(seed);
   const size_t n = state.size();
-  std::vector<typename T::data_type> ret(n);
+  std::vector<typename T::int_type> ret(n);
   std::copy_n(state.state, n, ret.begin());
   return ret;
 }

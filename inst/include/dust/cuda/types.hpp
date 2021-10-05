@@ -316,7 +316,7 @@ struct device_state {
     internal_real = device_array<real_t>(n_internal_real * n_particles);
     shared_int = device_array<int>(n_shared_int * n_shared_len);
     shared_real = device_array<real_t>(n_shared_real * n_shared_len);
-    rng = device_array<typename rng_state_t::data_type>(n_rng * n_particles);
+    rng = device_array<typename rng_state_t::int_type>(n_rng * n_particles);
     index = device_array<char>(n_state * n_particles);
     n_selected = device_array<int>(1);
     scatter_index = device_array<size_t>(n_particles);
@@ -382,7 +382,7 @@ struct device_state {
   device_array<real_t> internal_real;
   device_array<int> shared_int;
   device_array<real_t> shared_real;
-  device_array<typename rng_state_t::data_type> rng;
+  device_array<typename rng_state_t::int_type> rng;
   device_array<char> index;
   device_array<size_t> index_state_scatter;
   device_array<int> n_selected;
@@ -657,7 +657,7 @@ struct device_ptrs {
 
 template <typename rng_state_t>
 DEVICE
-rng_state_t get_rng_state(const interleaved<typename rng_state_t::data_type>& full_rng_state) {
+rng_state_t get_rng_state(const interleaved<typename rng_state_t::int_type>& full_rng_state) {
   rng_state_t rng_state;
   for (size_t i = 0; i < rng_state.size(); i++) {
     rng_state.state[i] = full_rng_state[i];
@@ -669,7 +669,7 @@ rng_state_t get_rng_state(const interleaved<typename rng_state_t::data_type>& fu
 template <typename rng_state_t>
 DEVICE
 void put_rng_state(rng_state_t& rng_state,
-                   interleaved<typename rng_state_t::data_type>& full_rng_state) {
+                   interleaved<typename rng_state_t::int_type>& full_rng_state) {
   for (size_t i = 0; i < rng_state.size(); i++) {
     full_rng_state[i] = rng_state.state[i];
   }
