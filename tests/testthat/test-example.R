@@ -4,7 +4,7 @@ test_that("create walk, stepping for one step", {
   expect_null(obj$info())
 
   y <- obj$run(1)
-  cmp <- dust_rng$new(1, 10)$rnorm(10, 0, 1)
+  cmp <- dust_rng$new(1, 10)$normal(10, 0, 1)
   expect_identical(drop(y), cmp)
 })
 
@@ -14,7 +14,7 @@ test_that("walk agrees with random number stream", {
   obj <- res$new(list(sd = 1), 0, 10, seed = 1L)
   y <- obj$run(5)
 
-  cmp <- dust_rng$new(1, 10)$rnorm(50, 0, 1)
+  cmp <- dust_rng$new(1, 10)$normal(50, 0, 1)
   expect_equal(drop(y), colSums(matrix(cmp, 5, 10, byrow = TRUE)))
   expect_identical(obj$state(), y)
 })
@@ -37,7 +37,7 @@ test_that("Update particle state and resume continues with rng", {
   expect_equal(obj$step(), 5)
 
   ## Then draw the random numbers:
-  cmp <- dust_rng$new(1, 10)$rnorm(100, 0, 1)
+  cmp <- dust_rng$new(1, 10)$normal(100, 0, 1)
   m1 <- matrix(cmp[1:50], 5, 10, byrow = TRUE)
   m2 <- matrix(cmp[51:100], 5, 10, byrow = TRUE)
 
@@ -179,7 +179,7 @@ test_that("reorder", {
 
   y3 <- obj$run(10)
 
-  cmp <- dust_rng$new(1, 10)$rnorm(100, 0, 1)
+  cmp <- dust_rng$new(1, 10)$normal(100, 0, 1)
   m1 <- matrix(cmp[1:50], 5, 10, byrow = TRUE)
   m2 <- m1[, index]
   m3 <- matrix(cmp[51:100], 5, 10, byrow = TRUE)
@@ -204,7 +204,7 @@ test_that("reorder and duplicate", {
 
   y3 <- obj$run(10)
 
-  cmp <- dust_rng$new(1, 10)$rnorm(100, 0, 1)
+  cmp <- dust_rng$new(1, 10)$normal(100, 0, 1)
   m1 <- matrix(cmp[1:50], 5, 10, byrow = TRUE)
   m2 <- m1[, index]
   m3 <- matrix(cmp[51:100], 5, 10, byrow = TRUE)
@@ -339,7 +339,7 @@ test_that("set model state and time, varying time", {
   m <- matrix(rep(as.numeric(1:2), each = 10), 10, 2)
   step <- 0:1
   mod$update_state(state = m, step = step)
-  cmp <- dust_rng$new(1, 1)$rnorm(10, 0, 1)
+  cmp <- dust_rng$new(1, 1)$normal(10, 0, 1)
 
   state <- mod$state()
   expect_equal(mod$step(), 1)

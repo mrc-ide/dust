@@ -73,8 +73,8 @@ test_that("Can reset particles and resume continues with rng", {
 
   ## Then draw the random numbers:
   rng <- dust_rng$new(1, 20)
-  m1 <- array(rng$rnorm(ns * nd * np, 0, 1), c(np, nd, ns))
-  m2 <- array(rng$rnorm(ns * nd * np, 0, 1), c(np, nd, ns))
+  m1 <- array(rng$normal(ns * nd * np, 0, 1), c(np, nd, ns))
+  m2 <- array(rng$normal(ns * nd * np, 0, 1), c(np, nd, ns))
 
   expect_equal(
     array(y1, c(np, nd)),
@@ -572,7 +572,7 @@ test_that("Can set pars into unreplicated multiparameter model", {
 
   y <- mod$run(1)
 
-  cmp <- dust_rng$new(1L, 10)$norm_rand(7 * 10)
+  cmp <- dust_rng$new(1L, 10)$normal(7 * 10, 0, 1)
   expect_equal(y,
                matrix(cmp * vapply(p2, "[[", 1, "sd"), 7, 10, TRUE))
 

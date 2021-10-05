@@ -14,20 +14,20 @@
 ##' # Shorthand for Uniform(0, 1)
 ##' rng$unif_rand(5)
 ##'
-##' # Shorthand for Normal(0, 1)
-##' rng$norm_rand(5)
-##'
 ##' # Uniform random numbers between min and max
-##' rng$runif(5, -2, 6)
+##' rng$uniform(5, -2, 6)
 ##'
 ##' # Normally distributed random numbers with mean and sd
-##' rng$rnorm(5, 4, 2)
+##' rng$normal(5, 4, 2)
 ##'
 ##' # Binomially distributed random numbers with size and prob
-##' rng$rbinom(5, 10, 0.3)
+##' rng$binomial(5, 10, 0.3)
 ##'
 ##' # Poisson distributed random numbers with mean lambda
-##' rng$rpois(5, 2)
+##' rng$poisson(5, 2)
+##'
+##' # Exponentially distributed random numbers with rate
+##' rng$exponential(5, 2)
 dust_rng <- R6::R6Class(
   "dust_rng",
   cloneable = FALSE,
@@ -54,6 +54,10 @@ dust_rng <- R6::R6Class(
     ##'   only `float` and `double` are supported (with `double` being
     ##'   the default). This will have no (or negligible) impact on speed,
     ##'   but exists to test the low-precision generators.
+    ##'
+    ##' @param deterministic Logical, indicating if we should use
+    ##'   "deterministic" mode where distributions return their
+    ##'   expectations and the state is never changed.
     initialize = function(seed, n_generators = 1L, real_type = "double",
                           deterministic = FALSE) {
       if (!(real_type %in% c("double", "float"))) {
@@ -117,13 +121,6 @@ dust_rng <- R6::R6Class(
       dust_rng_random_real(private$ptr, n, private$float)
     },
 
-    ##' Generate `n` numbers from a standard normal distribution
-    ##'
-    ##' @param n Number of samples to draw
-    norm_rand = function(n) {
-      self$rnorm(n, rep_len(0, n), rep_len(1, n))
-    },
-
     ##' Generate `n` numbers from a uniform distribution
     ##'
     ##' @param n Number of samples to draw
@@ -131,7 +128,7 @@ dust_rng <- R6::R6Class(
     ##' @param min The minimum of the distribution (length 1 or n)
     ##'
     ##' @param max The maximum of the distribution (length 1 or n)
-    runif = function(n, min, max) {
+    uniform = function(n, min, max) {
       dust_rng_uniform(private$ptr, n, recycle(min, n), recycle(max, n),
                        private$float)
     },
@@ -143,7 +140,7 @@ dust_rng <- R6::R6Class(
     ##' @param mean The mean of the distribution (length 1 or n)
     ##'
     ##' @param sd The standard deviation of the distribution (length 1 or n)
-    rnorm = function(n, mean, sd) {
+    normal = function(n, mean, sd) {
       dust_rng_normal(private$ptr, n, recycle(mean, n), recycle(sd, n),
                       private$float)
     },
@@ -156,7 +153,7 @@ dust_rng <- R6::R6Class(
     ##'
     ##' @param prob The probability of success on each trial
     ##'   (between 0 and 1, length 1 or n)
-    rbinom = function(n, size, prob) {
+    binomial = function(n, size, prob) {
       dust_rng_binomial(private$ptr, n, recycle(size, n), recycle(prob, n),
                         private$float)
     },
@@ -166,7 +163,7 @@ dust_rng <- R6::R6Class(
     ##' @param n Number of samples to draw
     ##'
     ##' @param lambda The mean (zero or more, length 1 or n)
-    rpois = function(n, lambda) {
+    poisson = function(n, lambda) {
       dust_rng_poisson(private$ptr, n, recycle(lambda, n),
                        private$float)
     },
@@ -176,7 +173,7 @@ dust_rng <- R6::R6Class(
     ##' @param n Number of samples to draw
     ##'
     ##' @param rate The rate of the exponential
-    rexp = function(n, rate) {
+    exponential = function(n, rate) {
       dust_rng_exponential(private$ptr, n, recycle(rate, n), private$float)
     },
 

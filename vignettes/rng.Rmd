@@ -28,7 +28,7 @@ rng
 Currently only a few distributions are supported, with an interface that mimics R's interface both in names of functions and of arguments, with the exception that there are no default arguments:
 
 ```{r}
-rng$rnorm(100, 0, 1)
+rng$normal(100, 0, 1)
 ```
 
 One feature that we use here is to allow multiple streams of random numbers within a rng object. If running in parallel (via a dust model) these different random number streams can be given to different threads.
@@ -58,7 +58,7 @@ We do not yet support the full set of distributions provided by R. Like with R, 
 **Uniform distribution** between `min` and `max`:
 
 ```{r}
-rng$runif(10, 3, 6)
+rng$uniform(10, 3, 6)
 ```
 
 From C++
@@ -70,36 +70,36 @@ real_t u = rng.unif(3, 6);
 **Normal distribution** with parameters `mean` and `sd`
 
 ```{r}
-rng$rnorm(10, 3, 6)
+rng$normal(10, 3, 6)
 ```
 
 ```cc
-real_t z = rng.rnorm(3, 6);
+real_t z = rng.normal<real>(3, 6);
 ```
 
 **Poisson distribution** with mean `lambda`
 
 ```{r}
-rng$rpois(10, 4.5)
+rng$poisson(10, 4.5)
 ```
 
 ```cc
-int n = rng.rpois(4.5);
+int n = rng.poisson<real_t>(4.5);
 ```
 
 **Binomial distribution** with mean `size` and `prob`
 
 ```{r}
-rng$rbinom(10L, 10, 0.3)
+rng$binomial(10L, 10, 0.3)
 ```
 
 ```cc
-int n = rng.rbinom(10, 0.3);
+int n = rng.binomial<real_t>(10, 0.3);
 ```
 
 There are also helpers for some common special case distributions:
 
-**Standard uniform distribution** (between 0 and 1) - faster than using `$runif(n, 0, 1)`:
+**Standard uniform distribution** (between 0 and 1) - faster than using `$uniform(n, 0, 1)`:
 
 ```{r}
 rng$unif_rand(10)
@@ -109,18 +109,6 @@ rng$unif_rand(10)
 real_t u = rng.unif_rand();
 ```
 
-**Standard normal distribution** (mean 0 and standard deviation 1) - faster than using `$rnorm(n, 0, 1)`:
-
-```{r}
-rng$norm_rand(10)
-```
-
-```cc
-real_t z = rng.norm_rand();
-```
-
-Supported distributions are documented more-fully in `?dust::dust_rng`.
-
 ## Performance
 
 Performance should be on par with R's random number generator, though here the timings are likely to be mostly due to allocations and copies of memory:
@@ -128,7 +116,7 @@ Performance should be on par with R's random number generator, though here the t
 ```{r}
 bench::mark(
   rng1$unif_rand(1000),
-  rng1$runif(1000, 0, 1),
+  rng1$uniform(1000, 0, 1),
   runif(1000),
   time_unit = "us",
   check = FALSE)
@@ -143,7 +131,7 @@ rng1 <- dust::dust_rng$new(seed = 1, n_generators = 1)
 n <- as.numeric(rep(9:10, length.out = 1000))
 p <- rep(c(0.1, 0.11), length.out = 1000)
 bench::mark(
-  rng1$rbinom(1000, n, p),
+  rng1$binomial(1000, n, p),
   rbinom(1000, n, p),
   time_unit = "us",
   check = FALSE)
@@ -155,7 +143,7 @@ bench::mark(
 n <- as.numeric(rep(9999:10000, length.out = 1000))
 p <- rep(c(0.3, 0.31), length.out = 1000)
 bench::mark(
-  rng1$rbinom(1000, n, p),
+  rng1$binomial(1000, n, p),
   rbinom(1000, n, p),
   time_unit = "us",
   check = FALSE)

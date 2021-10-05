@@ -18,20 +18,27 @@ rng <- dust::dust_rng$new(42)
 # Shorthand for Uniform(0, 1)
 rng$unif_rand(5)
 
-# Shorthand for Normal(0, 1)
-rng$norm_rand(5)
-
 # Uniform random numbers between min and max
-rng$runif(5, -2, 6)
+rng$uniform(5, -2, 6)
 
 # Normally distributed random numbers with mean and sd
-rng$rnorm(5, 4, 2)
+rng$normal(5, 4, 2)
 
 # Binomially distributed random numbers with size and prob
-rng$rbinom(5, 10, 0.3)
+rng$binomial(5, 10, 0.3)
 
 # Poisson distributed random numbers with mean lambda
-rng$rpois(5, 2)
+rng$poisson(5, 2)
+
+# Exponentially distributed random numbers with rate
+rng$exponential(5, 2)
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{info}}{Information about the generator (read-only)}
+}
+\if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -42,14 +49,12 @@ rng$rpois(5, 2)
 \item \href{#method-jump}{\code{dust_rng$jump()}}
 \item \href{#method-long_jump}{\code{dust_rng$long_jump()}}
 \item \href{#method-unif_rand}{\code{dust_rng$unif_rand()}}
-\item \href{#method-norm_rand}{\code{dust_rng$norm_rand()}}
-\item \href{#method-runif}{\code{dust_rng$runif()}}
-\item \href{#method-rnorm}{\code{dust_rng$rnorm()}}
-\item \href{#method-rbinom}{\code{dust_rng$rbinom()}}
-\item \href{#method-rpois}{\code{dust_rng$rpois()}}
-\item \href{#method-rexp}{\code{dust_rng$rexp()}}
+\item \href{#method-uniform}{\code{dust_rng$uniform()}}
+\item \href{#method-normal}{\code{dust_rng$normal()}}
+\item \href{#method-binomial}{\code{dust_rng$binomial()}}
+\item \href{#method-poisson}{\code{dust_rng$poisson()}}
+\item \href{#method-exponential}{\code{dust_rng$exponential()}}
 \item \href{#method-state}{\code{dust_rng$state()}}
-\item \href{#method-set_deterministic}{\code{dust_rng$set_deterministic()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -58,7 +63,12 @@ rng$rpois(5, 2)
 \subsection{Method \code{new()}}{
 Create a \code{dust_rng} object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$new(seed, n_generators = 1L, real_type = "double")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$new(
+  seed,
+  n_generators = 1L,
+  real_type = "double",
+  deterministic = FALSE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -74,6 +84,10 @@ interleaved independent generators as dust would use in a model.}
 only \code{float} and \code{double} are supported (with \code{double} being
 the default). This will have no (or negligible) impact on speed,
 but exists to test the low-precision generators.}
+
+\item{\code{deterministic}}{Logical, indicating if we should use
+"deterministic" mode where distributions return their
+expectations and the state is never changed.}
 }
 \if{html}{\out{</div>}}
 }
@@ -133,34 +147,17 @@ Generate \code{n} numbers from a standard uniform distribution
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{n}}{Number of samples to draw
-Generate \code{n} numbers from a standard normal distribution}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-norm_rand"></a>}}
-\if{latex}{\out{\hypertarget{method-norm_rand}{}}}
-\subsection{Method \code{norm_rand()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$norm_rand(n)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{n}}{Number of samples to draw
 Generate \code{n} numbers from a uniform distribution}
 }
 \if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-runif"></a>}}
-\if{latex}{\out{\hypertarget{method-runif}{}}}
-\subsection{Method \code{runif()}}{
+\if{html}{\out{<a id="method-uniform"></a>}}
+\if{latex}{\out{\hypertarget{method-uniform}{}}}
+\subsection{Method \code{uniform()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$runif(n, min, max)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$uniform(n, min, max)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -177,11 +174,11 @@ Generate \code{n} numbers from a normal distribution}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-rnorm"></a>}}
-\if{latex}{\out{\hypertarget{method-rnorm}{}}}
-\subsection{Method \code{rnorm()}}{
+\if{html}{\out{<a id="method-normal"></a>}}
+\if{latex}{\out{\hypertarget{method-normal}{}}}
+\subsection{Method \code{normal()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$rnorm(n, mean, sd)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$normal(n, mean, sd)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -198,11 +195,11 @@ Generate \code{n} numbers from a binomial distribution}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-rbinom"></a>}}
-\if{latex}{\out{\hypertarget{method-rbinom}{}}}
-\subsection{Method \code{rbinom()}}{
+\if{html}{\out{<a id="method-binomial"></a>}}
+\if{latex}{\out{\hypertarget{method-binomial}{}}}
+\subsection{Method \code{binomial()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$rbinom(n, size, prob)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$binomial(n, size, prob)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -220,11 +217,11 @@ Generate \code{n} numbers from a Poisson distribution}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-rpois"></a>}}
-\if{latex}{\out{\hypertarget{method-rpois}{}}}
-\subsection{Method \code{rpois()}}{
+\if{html}{\out{<a id="method-poisson"></a>}}
+\if{latex}{\out{\hypertarget{method-poisson}{}}}
+\subsection{Method \code{poisson()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$rpois(n, lambda)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$poisson(n, lambda)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -239,11 +236,11 @@ Generate \code{n} numbers from a exponential distribution}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-rexp"></a>}}
-\if{latex}{\out{\hypertarget{method-rexp}{}}}
-\subsection{Method \code{rexp()}}{
+\if{html}{\out{<a id="method-exponential"></a>}}
+\if{latex}{\out{\hypertarget{method-exponential}{}}}
+\subsection{Method \code{exponential()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$rexp(n, rate)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$exponential(n, rate)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -268,23 +265,5 @@ state.
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng$state()}\if{html}{\out{</div>}}
 }
 
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set_deterministic"></a>}}
-\if{latex}{\out{\hypertarget{method-set_deterministic}{}}}
-\subsection{Method \code{set_deterministic()}}{
-Toggle the RNG into/out of deterministic mode
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$set_deterministic(value)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{value}}{Logical, \code{TRUE} if the RNG should run in deterministic
-mode.}
-}
-\if{html}{\out{</div>}}
-}
 }
 }
