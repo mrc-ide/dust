@@ -65,11 +65,12 @@ dust_rng <- R6::R6Class(
       private$n_generators <- n_generators
 
       self$info <- list(
-        real_type = private$real_t,
-        rng_type = "xoshiro256starstar",
+        real_type = real_type,
+        name = "xoshiro256starstar",
         deterministic = FALSE,
-        rng_size_data_bits = 64L,
-        rng_size_state_bytes = 4 * 8L)
+        size_data_bits = 64L,
+        size_data_ints = 4L,
+        size_state_bytes = 4L * 8L)
       lockBinding("info", self)
     },
 
