@@ -369,7 +369,7 @@ test_that("require that raw vector is of sensible size", {
   expect_error(dust_rng$new(raw(63), 1L),
                "Expected raw vector of length as multiple of 32 for 'seed'")
   expect_error(dust_rng$new(raw(63), 1L, "float"),
-               "Expected raw vector of length as multiple of 32 for 'seed'")
+               "Expected raw vector of length as multiple of 16 for 'seed'")
 })
 
 
@@ -386,8 +386,9 @@ test_that("initialise with NULL, generating a seed from R", {
   expect_identical(rng2$state(), rng1$state())
   expect_false(identical(rng3$state(), rng2$state()))
 
-  expect_identical(rng4$state(), rng1$state())
-  expect_identical(rng5$state(), rng3$state())
+  i <- rep(rep(c(TRUE, FALSE), each = 4), 4)
+  expect_identical(rng4$state(), rng1$state()[i])
+  expect_identical(rng5$state(), rng3$state()[i])
 })
 
 
@@ -434,13 +435,12 @@ test_that("can jump the rng state with dust_rng_state_long_jump", {
 
 
 test_that("binomial random numbers from floats have correct distribution", {
-  m <- 100000
+  m <- 1000000
   n <- 958
   p <- 0.004145
   yf <- dust_rng$new(1, 1, "float")$rbinom(m, n, p)
-  yd <- dust_rng$new(1, 1, "double")$rbinom(m, n, p)
-  expect_equal(mean(yf), mean(yd), tolerance = 1e-4)
-  expect_equal(var(yf), var(yd), tolerance = 1e-3)
+  expect_equal(mean(yf), n * p, tolerance = 1e-3)
+  expect_equal(var(yf), n * p * (1 - p), tolerance = 1e-2)
 })
 
 
@@ -451,10 +451,9 @@ test_that("special case", {
   n <- 6
   p <- 0.449999988
   yf <- dust_rng$new(1, 1, "float")$rbinom(m, n, p)
-  yd <- dust_rng$new(1, 1, "double")$rbinom(m, n, p)
 
-  expect_equal(mean(yf), mean(yd), tolerance = 1e-5)
-  expect_equal(var(yf), var(yd), tolerance = 1e-4)
+  expect_equal(mean(yf), n * p, tolerance = 1e-3)
+  expect_equal(var(yf), n * p * (1 - p), tolerance = 1e-2)
 })
 
 
@@ -463,9 +462,8 @@ test_that("binomial random numbers from floats have correct distribution", {
   n <- 100
   p <- 0.1
   yf <- dust_rng$new(1, 1, "float")$rbinom(m, n, p)
-  yd <- dust_rng$new(1, 1, "double")$rbinom(m, n, p)
-  expect_equal(mean(yf), mean(yd), tolerance = 1e-4)
-  expect_equal(var(yf), var(yd), tolerance = 1e-3)
+  expect_equal(mean(yf), n * p, tolerance = 1e-2)
+  expect_equal(var(yf), n * p * (1 - p), tolerance = 1e-2)
 })
 
 
@@ -497,9 +495,8 @@ test_that("poisson random numbers from floats have correct distribution", {
   n <- 100000
   lambda <- 10
   yf <- dust_rng$new(1, 1, "float")$rpois(n, lambda)
-  yd <- dust_rng$new(1, 1, "double")$rpois(n, lambda)
-  expect_equal(mean(yf), mean(yd), tolerance = 1e-4)
-  expect_equal(var(yf), var(yd), tolerance = 1e-3)
+  expect_equal(mean(yf), lambda, tolerance = 1e-3)
+  expect_equal(var(yf), lambda, tolerance = 5e-3)
 })
 
 
@@ -508,8 +505,8 @@ test_that("uniform random numbers from floats have correct distribution", {
   min <- -2
   max <- 4
   yf <- dust_rng$new(1, 1, "float")$runif(n, min, max)
-  yd <- dust_rng$new(1, 1, "double")$runif(n, min, max)
-  expect_lt(max(abs(yf - yd)), 1e-6)
+  expect_equal(mean(yf), (min + max) / 2, tolerance = 1e-2)
+  expect_equal(var(yf), (max - min)^2 / 12, tolerance = 1e-2)
 })
 
 
@@ -518,24 +515,16 @@ test_that("normal random numbers from floats have correct distribution", {
   mu <- 2
   sd <- 0.1
   yf <- dust_rng$new(1, 1, "float")$rnorm(n, mu, sd)
-  yd <- dust_rng$new(1, 1, "double")$rnorm(n, mu, sd)
-  expect_lt(max(abs(yf - yd)), 1e-6)
+  expect_equal(mean(yf), mu, tolerance = 1e-2)
+  expect_equal(sd(yf), sd, tolerance = 1e-2)
 })
 
 
 test_that("std uniform random numbers from floats have correct distribution", {
   n <- 100000
   yf <- dust_rng$new(1, 1, "float")$unif_rand(n)
-  yd <- dust_rng$new(1, 1, "double")$unif_rand(n)
-  expect_lt(max(abs(yf - yd)), 1e-6)
-})
-
-
-test_that("std normal random numbers from floats have correct distribution", {
-  n <- 100000
-  yf <- dust_rng$new(1, 1, "float")$norm_rand(n)
-  yd <- dust_rng$new(1, 1, "double")$norm_rand(n)
-  expect_lt(max(abs(yf - yd)), 4e-6)
+  expect_equal(mean(yf), 0.5, tolerance = 1e-3)
+  expect_equal(var(yf), 1 / 12, tolerance = 1e-2)
 })
 
 
@@ -543,25 +532,30 @@ test_that("exponential random numbers from floats have correct distribution", {
   n <- 100000
   rate <- 4
   yf <- dust_rng$new(1, 1, "float")$rexp(n, rate)
-  yd <- dust_rng$new(1, 1, "double")$rexp(n, rate)
-  expect_lt(max(abs(yf - yd)), 1e-6)
+  expect_equal(mean(yf), 1 / rate, tolerance = 1e-2)
+  expect_equal(var(yf), 1 / rate^2, tolerance = 5e-2)
+  expect_gt(suppressWarnings(ks.test(yf, "pexp", rate)$p.value), 0.1)
 })
 
 
-test_that("float interface works as expected", {
-  rng_f <- dust_rng$new(1, 5, "float")
-  rng_d <- dust_rng$new(1, 5, "double")
-  expect_equal(rng_f$real_type(), "float")
-  expect_equal(rng_d$real_type(), "double")
-  expect_equal(rng_f$size(), 5L)
-  expect_equal(rng_d$size(), 5L)
-  expect_identical(rng_f$state(), rng_d$state())
-  rng_f$jump()
-  rng_d$jump()
-  expect_identical(rng_f$state(), rng_d$state())
-  rng_f$long_jump()
-  rng_d$long_jump()
-  expect_identical(rng_f$state(), rng_d$state())
+test_that("long jump", {
+  seed <- 1
+  rng1 <- dust_rng$new(seed, 1L, "float")
+  rng2 <- dust_rng$new(seed, 1L, "float")$jump()
+  rng3 <- dust_rng$new(seed, 1L, "float")$long_jump()
+  rng4 <- dust_rng$new(seed, 1L, "float")$long_jump()$jump()
+
+  r1 <- rng1$unif_rand(20)
+  r2 <- rng2$unif_rand(20)
+  r3 <- rng3$unif_rand(20)
+  r4 <- rng3$unif_rand(20)
+
+  expect_true(all(r1 != r2))
+  expect_true(all(r1 != r3))
+  expect_true(all(r1 != r4))
+  expect_true(all(r2 != r3))
+  expect_true(all(r2 != r4))
+  expect_true(all(r3 != r4))
 })
 
 
@@ -580,7 +574,7 @@ test_that("deterministic rbinom returns mean", {
   rng_f <- dust_rng$new(1, m, "float", TRUE)
   rng_d <- dust_rng$new(1, m, "double", TRUE)
   state_f <- rng_f$state()
-  state_d <- rng_f$state()
+  state_d <- rng_d$state()
 
   expect_equal(rng_f$rbinom(m, n, p), n * p, tolerance = 1e-6)
   expect_equal(rng_d$rbinom(m, n, p), n * p)
@@ -597,7 +591,7 @@ test_that("deterministic rbinom accepts non-integer size", {
   rng_f <- dust_rng$new(1, m, "float", TRUE)
   rng_d <- dust_rng$new(1, m, "double", TRUE)
   state_f <- rng_f$state()
-  state_d <- rng_f$state()
+  state_d <- rng_d$state()
   expect_equal(rng_f$rbinom(m, n, p), n * p, tolerance = 1e-6)
   expect_equal(rng_d$rbinom(m, n, p), n * p)
   expect_equal(rng_f$state(), state_f)
@@ -633,7 +627,7 @@ test_that("deterministic rpois returns mean", {
   rng_f <- dust_rng$new(1, m, "float", TRUE)
   rng_d <- dust_rng$new(1, m, "double", TRUE)
   state_f <- rng_f$state()
-  state_d <- rng_f$state()
+  state_d <- rng_d$state()
   expect_equal(rng_f$rpois(m, lambda), lambda, tolerance = 1e-6)
   expect_equal(rng_d$rpois(m, lambda), lambda)
   expect_equal(rng_f$state(), state_f)
@@ -647,7 +641,7 @@ test_that("deterministic rpois returns mean", {
   rng_f <- dust_rng$new(1, m, "float", TRUE)
   rng_d <- dust_rng$new(1, m, "double", TRUE)
   state_f <- rng_f$state()
-  state_d <- rng_f$state()
+  state_d <- rng_d$state()
   expect_equal(rng_f$rpois(m, lambda), lambda, tolerance = 1e-6)
   expect_equal(rng_d$rpois(m, lambda), lambda)
   expect_equal(rng_f$state(), state_f)
@@ -662,7 +656,7 @@ test_that("deterministic runif returns mean", {
   rng_f <- dust_rng$new(1, m, "float", TRUE)
   rng_d <- dust_rng$new(1, m, "double", TRUE)
   state_f <- rng_f$state()
-  state_d <- rng_f$state()
+  state_d <- rng_d$state()
   expect_equal(rng_f$runif(m, l, u), (l + u) / 2, tolerance = 1e-6)
   expect_equal(rng_d$runif(m, l, u), (l + u) / 2)
   expect_equal(rng_f$state(), state_f)
@@ -676,7 +670,7 @@ test_that("deterministic rexp returns mean", {
   rng_f <- dust_rng$new(1, m, "float", TRUE)
   rng_d <- dust_rng$new(1, m, "double", TRUE)
   state_f <- rng_f$state()
-  state_d <- rng_f$state()
+  state_d <- rng_d$state()
   expect_equal(rng_f$rexp(m, rate), 1 / rate, tolerance = 1e-6)
   expect_equal(rng_d$rexp(m, rate), 1 / rate)
   expect_equal(rng_f$state(), state_f)
@@ -691,7 +685,7 @@ test_that("deterministic rnorm returns mean", {
   rng_f <- dust_rng$new(1, m, "float", TRUE)
   rng_d <- dust_rng$new(1, m, "double", TRUE)
   state_f <- rng_f$state()
-  state_d <- rng_f$state()
+  state_d <- rng_d$state()
   expect_equal(rng_f$rnorm(m, mu, sd), mu, tolerance = 1e-6)
   expect_equal(rng_d$rnorm(m, mu, sd), mu)
   expect_equal(rng_f$state(), state_f)

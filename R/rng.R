@@ -64,17 +64,25 @@ dust_rng <- R6::R6Class(
                                     private$float)
       private$n_generators <- n_generators
 
+      if (real_type == "float") {
+        size_int_bits <- 32L
+        name <- "xoshiro128starstar"
+      } else {
+        size_int_bits <- 64L
+        name <- "xoshiro128starstar"
+      }
+      size_int_bits <- if (real_type == "float") 32L else 64L
       self$info <- list(
         real_type = real_type,
-        int_type = "uint64_t",
-        name = "xoshiro256starstar",
-        deterministic = FALSE,
+        int_type = sprintf("uint%s_t", size_int_bits),
+        name = name,
+        deterministic = deterministic,
         ## Size, in bits, of the underlying integer
-        size_int_bits = 64L,
+        size_int_bits = size_int_bits,
         ## Number of integers used for state
         size_state_ints = 4L,
         ## Total size in bytes of the state
-        size_state_bytes = 4L * 8L)
+        size_state_bytes = 4L * size_int_bits / 8L)
       lockBinding("info", self)
     },
 
