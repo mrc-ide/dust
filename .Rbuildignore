@@ -23,3 +23,4 @@
 \.*gcov$
 ^vignettes_src$
 ^developing\.md$
+^extra$
