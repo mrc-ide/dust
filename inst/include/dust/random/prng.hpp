@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DUST_RANDOM_PRNG_HPP
+#define DUST_RANDOM_PRNG_HPP
 
 #include <vector>
 #include <dust/random/generator.hpp>
@@ -85,3 +86,5 @@ private:
 
 }
 }
+
+#endif

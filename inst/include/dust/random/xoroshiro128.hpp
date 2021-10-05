@@ -1,4 +1,6 @@
-#pragma once
+#ifndef DUST_RANDOM_XOROSHIRO128_HPP
+#define DUST_RANDOM_XOROSHIRO128_HPP
+
 // 64-bit generators, state is 2 * uint64_t
 //
 //  xoroshiro128**  | https://prng.di.unimi.it/xoroshiro128starstar.c
@@ -87,3 +89,5 @@ inline HOSTDEVICE uint64_t next(xoroshiro128plus_state& state) {
 
 }
 }
+
+#endif

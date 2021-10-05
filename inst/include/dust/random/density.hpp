@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DUST_RANDOM_DENSITY_HPP
+#define DUST_RANDOM_DENSITY_HPP
 
 #include <cmath>
 #include <limits>
@@ -179,3 +180,5 @@ HOSTDEVICE T poisson(int x, T lambda, bool log) {
 
 }
 }
+
+#endif

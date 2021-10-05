@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DUST_RANDOM_NORMAL_HPP
+#define DUST_RANDOM_NORMAL_HPP
 
 #include <cmath>
 #include <dust/random/numeric.hpp>
@@ -46,3 +47,5 @@ real_t normal(rng_state_t& rng_state, real_t mean, real_t sd) {
 
 }
 }
+
+#endif

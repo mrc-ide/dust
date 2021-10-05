@@ -1,4 +1,6 @@
-#pragma once
+#ifndef DUST_RANDOM_XOSHIRO256_HPP
+#define DUST_RANDOM_XOSHIRO256_HPP
+
 // 64-bit Generators, state is 4 * uint64_t
 //
 // xoshiro256**  | https://prng.di.unimi.it/xoshiro256starstar.c
@@ -93,3 +95,5 @@ inline HOSTDEVICE uint64_t next(xoshiro256plus_state& state) {
 
 }
 }
+
+#endif

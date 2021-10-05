@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DUST_CUDA_UTILS_HPP
+#define DUST_CUDA_UTILS_HPP
 
 #include <numeric>
 #include <vector>
@@ -39,3 +40,5 @@ inline HOSTDEVICE T align_padding(const T offset, const U align) {
 }
 }
 }
+
+#endif

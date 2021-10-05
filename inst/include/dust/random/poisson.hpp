@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DUST_RANDOM_POISSON_HPP
+#define DUST_RANDOM_POISSON_HPP
 
 #include <cmath>
 #include <dust/random/numeric.hpp>
@@ -139,3 +140,5 @@ HOSTDEVICE real_t poisson(rng_state_t& rng_state, real_t lambda) {
 
 }
 }
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DUST_RANDOM_BINOMIAL_HPP
+#define DUST_RANDOM_BINOMIAL_HPP
 
 #include <cmath>
 #include <dust/random/numeric.hpp>
@@ -248,3 +249,5 @@ HOSTDEVICE real_t binomial(rng_state_t& rng_state, real_t n, real_t p) {
 
 }
 }
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DUST_RANDOM_EXPONENTIAL_HPP
+#define DUST_RANDOM_EXPONENTIAL_HPP
 
 #include <cmath>
 
@@ -34,3 +35,5 @@ HOSTDEVICE real_t exponential(rng_state_t& rng_state, real_t rate) {
 
 }
 }
+
+#endif

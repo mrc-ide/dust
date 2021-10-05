@@ -1,4 +1,6 @@
-#pragma once
+#ifndef DUST_RANDOM_XOSHIRO128_HPP
+#define DUST_RANDOM_XOSHIRO128_HPP
+
 // 32-bit generators, state is 4 * uint32_t
 //
 //  xoshiro128**  | https://prng.di.unimi.it/xoshiro128starstar.c
@@ -91,3 +93,5 @@ inline HOSTDEVICE uint32_t next(xoshiro128plus_state& state) {
 
 }
 }
+
+#endif

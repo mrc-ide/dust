@@ -1,5 +1,6 @@
 {{header}}
-#pragma once
+#ifndef DUST_RANDOM_GAMMA_TABLE_HPP
+#define DUST_RANDOM_GAMMA_TABLE_HPP
 
 namespace dust {
 namespace random {
@@ -19,3 +20,5 @@ double k_tail_values_d[] = {
 
 }
 }
+
+#endif

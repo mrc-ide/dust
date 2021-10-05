@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DUST_TYPES_HPP
+#define DUST_TYPES_HPP
 
 namespace dust {
 
@@ -41,3 +42,5 @@ struct pars_t {
 };
 
 }
+
+#endif

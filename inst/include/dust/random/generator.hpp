@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DUST_RANDOM_GENERATOR_HPP
+#define DUST_RANDOM_GENERATOR_HPP
 
 // This is the random generator, holding rng state and providing
 // support for generating reals on the interval 0..1
@@ -136,3 +137,5 @@ T random_real(U& state) {
 
 // 32 bit generators, 4 * uint32_t
 #include "xoshiro128.hpp"
+
+#endif

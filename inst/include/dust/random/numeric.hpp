@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DUST_RANDOM_NUMERIC_HPP
+#define DUST_RANDOM_NUMERIC_HPP
 
 #include <cmath>
 #include <cstdint>
@@ -95,3 +96,5 @@ HOSTDEVICE real_t infinity() {
 }
 }
 }
+
+#endif

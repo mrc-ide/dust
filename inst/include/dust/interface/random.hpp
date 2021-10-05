@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DUST_INTERFACE_RANDOM_HPP
+#define DUST_INTERFACE_RANDOM_HPP
 
 #include <dust/random/generator.hpp>
 #include <cpp11/raws.hpp>
@@ -38,3 +39,5 @@ std::vector<typename rng_state_t::data_type> as_rng_seed(cpp11::sexp r_seed) {
 
 }
 }
+
+#endif

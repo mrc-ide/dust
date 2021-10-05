@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DUST_RANDOM_UTILS_HPP
+#define DUST_RANDOM_UTILS_HPP
 
 #include <dust/random/numeric.hpp>
 
@@ -69,3 +70,5 @@ inline HOST uint64_t splitmix64(uint64_t seed) {
 
 }
 }
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DUST_RANDOM_UNIFORM_HPP
+#define DUST_RANDOM_UNIFORM_HPP
 
 namespace dust {
 namespace random {
@@ -18,3 +19,5 @@ HOSTDEVICE real_t uniform(rng_state_t& rng_state, real_t min, real_t max) {
 
 }
 }
+
+#endif
