@@ -1,5 +1,7 @@
 #pragma once
 
+#include <dust/random/numeric.hpp>
+
 namespace dust {
 namespace random {
 
@@ -11,19 +13,19 @@ T int_to_real(U value);
 template <>
 inline HOSTDEVICE
 double int_to_real(uint64_t value) {
-  return double(value) / double(uint64_max());
+  return double(value) / double(utils::uint64_max());
 }
 
 template <>
 inline HOSTDEVICE
 float int_to_real(uint64_t value) {
-  return float(value) / float(uint64_max());
+  return float(value) / float(utils::uint64_max());
 }
 
 template <>
 inline HOSTDEVICE
 float int_to_real(uint32_t value) {
-  return float(value) / float(uint32_max());
+  return float(value) / float(utils::uint32_max());
 }
 
 inline HOSTDEVICE
