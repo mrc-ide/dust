@@ -53,8 +53,6 @@ std::vector<std::string> test_xoshiro_run(std::string name) {
     ret = test_xoshiro_run1<dust::random::xoroshiro128plusplus_state>();
   } else if (name == "xoroshiro128plus") {
     ret = test_xoshiro_run1<dust::random::xoroshiro128plus_state>();
-  } else {
-    cpp11::stop("Unknown type %s", name.c_str());
   }
 
   return ret;
