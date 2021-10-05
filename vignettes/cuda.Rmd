@@ -181,8 +181,7 @@ public:
     return state;
   }
 
-  void update(size_t step, const real_t * state,
-              dust::rng_state_t<real_t>& rng_state,
+  void update(size_t step, const real_t * state, rng_state_t& rng_state,
               real_t * state_next) {
     real_t S = state[0];
     real_t I = state[1];
@@ -193,9 +192,9 @@ public:
     real_t p_IR = 1 - exp(-(shared->gamma));
     real_t p_RS = 1 - exp(- shared->alpha);
 
-    real_t n_SI = dust::distr::rbinom(rng_state, S, p_SI * shared->dt);
-    real_t n_IR = dust::distr::rbinom(rng_state, I, p_IR * shared->dt);
-    real_t n_RS = dust::distr::rbinom(rng_state, R, p_RS * shared->dt);
+    real_t n_SI = dust::random::binomial(rng_state, S, p_SI * shared->dt);
+    real_t n_IR = dust::random::binomial(rng_state, I, p_IR * shared->dt);
+    real_t n_RS = dust::random::binomial(rng_state, R, p_RS * shared->dt);
 
     state_next[0] = S - n_SI + n_RS;
     state_next[1] = I + n_SI - n_IR;
@@ -204,7 +203,7 @@ public:
   }
 
   real_t compare_data(const real_t * state, const data_t& data,
-                      dust::rng_state_t<real_t>& rng_state) {
+                      rng_state_t& rng_state) {
     const real_t incidence_modelled = state[3];
     const real_t incidence_observed = data.incidence;
     const real_t lambda = incidence_modelled +
@@ -302,9 +301,9 @@ DEVICE void update_device<sirs>(size_t step,
   const real_t p_SI = 1 - exp(- beta * I / N);
   const real_t p_IR = 1 - exp(- gamma);
   const real_t p_RS = 1 - exp(- alpha);
-  const real_t n_SI = dust::distr::rbinom(rng_state, S, p_SI * dt);
-  const real_t n_IR = dust::distr::rbinom(rng_state, I, p_IR * dt);
-  const real_t n_RS = dust::distr::rbinom(rng_state, R, p_RS * dt);
+  const real_t n_SI = dust::random::binomial(rng_state, S, p_SI * dt);
+  const real_t n_IR = dust::random::binomial(rng_state, I, p_IR * dt);
+  const real_t n_RS = dust::random::binomial(rng_state, R, p_RS * dt);
   state_next[0] = S - n_SI + n_RS;
   state_next[1] = I + n_SI - n_IR;
   state_next[2] = R + n_IR - n_RS;
@@ -440,9 +439,9 @@ DEVICE void update_device<sirs>(size_t step,
   const real_t p_SI = 1 - exp(- beta * I / N);
   const real_t p_IR = 1 - exp(- gamma);
   const real_t p_RS = 1 - exp(- alpha);
-  const real_t n_SI = dust::distr::rbinom(rng_state, S, p_SI * dt);
-  const real_t n_IR = dust::distr::rbinom(rng_state, I, p_IR * dt);
-  const real_t n_RS = dust::distr::rbinom(rng_state, R, p_RS * dt);
+  const real_t n_SI = dust::random::binomial(rng_state, S, p_SI * dt);
+  const real_t n_IR = dust::random::binomial(rng_state, I, p_IR * dt);
+  const real_t n_RS = dust::random::binomial(rng_state, R, p_RS * dt);
   state_next[0] = S - n_SI + n_RS;
   state_next[1] = I + n_SI - n_IR;
   state_next[2] = R + n_IR - n_RS;
@@ -453,8 +452,7 @@ DEVICE void update_device<sirs>(size_t step,
 Note that this totally duplicates the logic from the CPU version (which was a method of the `sirs` object)
 
 ```cc
-  void update(size_t step, const real_t * state,
-              dust::rng_state_t<real_t>& rng_state,
+  void update(size_t step, const real_t * state, rng_state_t& rng_state,
               real_t * state_next) {
     real_t S = state[0];
     real_t I = state[1];
@@ -465,9 +463,9 @@ Note that this totally duplicates the logic from the CPU version (which was a me
     real_t p_IR = 1 - exp(-(shared->gamma));
     real_t p_RS = 1 - exp(- shared->alpha);
 
-    real_t n_SI = dust::distr::rbinom(rng_state, S, p_SI * shared->dt);
-    real_t n_IR = dust::distr::rbinom(rng_state, I, p_IR * shared->dt);
-    real_t n_RS = dust::distr::rbinom(rng_state, R, p_RS * shared->dt);
+    real_t n_SI = dust::random::binomial(rng_state, S, p_SI * shared->dt);
+    real_t n_IR = dust::random::binomial(rng_state, I, p_IR * shared->dt);
+    real_t n_RS = dust::random::binomial(rng_state, R, p_RS * shared->dt);
 
     state_next[0] = S - n_SI + n_RS;
     state_next[1] = I + n_SI - n_IR;
@@ -510,7 +508,7 @@ This is very similar to the CPU version
 
 ```cc
   real_t compare_data(const real_t * state, const data_t& data,
-                      dust::rng_state_t<real_t>& rng_state) {
+                      rng_state_t& rng_state) {
     const real_t incidence_modelled = state[3];
     const real_t incidence_observed = data.incidence;
     const real_t lambda = incidence_modelled +
