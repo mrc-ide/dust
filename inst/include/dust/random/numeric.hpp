@@ -26,22 +26,6 @@ inline HOSTDEVICE int integer_max() {
 #endif
 }
 
-inline HOSTDEVICE uint64_t uint64_max() {
-#ifdef __CUDA_ARCH__
-  return ULLONG_MAX;
-#else
-  return std::numeric_limits<uint64_t>::max();
-#endif
-}
-
-inline HOSTDEVICE uint64_t uint32_max() {
-#ifdef __CUDA_ARCH__
-  return ULONG_MAX;
-#else
-  return std::numeric_limits<uint32_t>::max();
-#endif
-}
-
 // We need this for the lgamma in rpois to work
 #ifdef __NVCC__
 template <typename real_t>
