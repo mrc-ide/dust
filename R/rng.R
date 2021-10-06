@@ -95,11 +95,6 @@ dust_rng <- R6::R6Class(
       private$n_generators
     },
 
-    ##' @description Indicates the floating point type
-    real_type = function() {
-      if (private$float) "float" else "double"
-    },
-
     ##' @description The jump function for the generator, equivalent to
     ##' 2^128 numbers drawn from the generator.
     jump = function() {

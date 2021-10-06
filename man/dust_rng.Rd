@@ -45,7 +45,6 @@ rng$exponential(5, 2)
 \itemize{
 \item \href{#method-new}{\code{dust_rng$new()}}
 \item \href{#method-size}{\code{dust_rng$size()}}
-\item \href{#method-real_type}{\code{dust_rng$real_type()}}
 \item \href{#method-jump}{\code{dust_rng$jump()}}
 \item \href{#method-long_jump}{\code{dust_rng$long_jump()}}
 \item \href{#method-unif_rand}{\code{dust_rng$unif_rand()}}
@@ -99,16 +98,6 @@ expectations and the state is never changed.}
 Number of generators available
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng$size()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-real_type"></a>}}
-\if{latex}{\out{\hypertarget{method-real_type}{}}}
-\subsection{Method \code{real_type()}}{
-Indicates the floating point type
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$real_type()}\if{html}{\out{</div>}}
 }
 
 }
