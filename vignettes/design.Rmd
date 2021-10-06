@@ -141,10 +141,10 @@ The internal state is the the hardest to understand in this set. Suppose that we
     std::vector<real_t> samples;
   };
   // ...
-  void update(size_t step, const real_t * state,
-              dust::rng_state_t<real_t>& rng_state, real_t * state_next) {
+  void update(size_t step, const real_t * state, rng_state_t& rng_state,
+              real_t * state_next) {
     for (size_t i = 0; i < shared->n; ++i) {
-      internal.samples[i] = dust::distr::unif_norm(rng_state)
+      internal.samples[i] = dust::random::uniform(rng_state, 0, 1)
     }
     state_next[0] = median(samples);
   }
@@ -226,9 +226,9 @@ public:
     state[0] = shared->initial_y;
     return state;
   }
-  void update(size_t step, const real_t * state, dust::rng_state_t<real_t>& rng_state, real_t * state_next) {
+  void update(size_t step, const real_t * state, rng_state_t& rng_state, real_t * state_next) {
     const real_t y = state[0];
-    state_next[0] = dust::distr::runif(rng_state, y, shared->sd);
+    state_next[0] = dust::random::normal(rng_state, y, shared->sd);
   }
 private:
   std::shared_ptr<const shared_t> shared;

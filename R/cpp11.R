@@ -24,8 +24,8 @@ dust_dpois <- function(x, lambda, log) {
   .Call(`_dust_dust_dpois`, x, lambda, log)
 }
 
-dust_rng_alloc <- function(r_seed, n_generators, is_float) {
-  .Call(`_dust_dust_rng_alloc`, r_seed, n_generators, is_float)
+dust_rng_alloc <- function(r_seed, n_generators, deterministic, is_float) {
+  .Call(`_dust_dust_rng_alloc`, r_seed, n_generators, deterministic, is_float)
 }
 
 dust_rng_jump <- function(ptr, is_float) {
@@ -36,40 +36,32 @@ dust_rng_long_jump <- function(ptr, is_float) {
   invisible(.Call(`_dust_dust_rng_long_jump`, ptr, is_float))
 }
 
-dust_rng_unif_rand <- function(ptr, n, is_float) {
-  .Call(`_dust_dust_rng_unif_rand`, ptr, n, is_float)
+dust_rng_random_real <- function(ptr, n, is_float) {
+  .Call(`_dust_dust_rng_random_real`, ptr, n, is_float)
 }
 
-dust_rng_norm_rand <- function(ptr, n, is_float) {
-  .Call(`_dust_dust_rng_norm_rand`, ptr, n, is_float)
+dust_rng_uniform <- function(ptr, n, r_min, r_max, is_float) {
+  .Call(`_dust_dust_rng_uniform`, ptr, n, r_min, r_max, is_float)
 }
 
-dust_rng_runif <- function(ptr, n, r_min, r_max, is_float) {
-  .Call(`_dust_dust_rng_runif`, ptr, n, r_min, r_max, is_float)
+dust_rng_exponential <- function(ptr, n, r_rate, is_float) {
+  .Call(`_dust_dust_rng_exponential`, ptr, n, r_rate, is_float)
 }
 
-dust_rng_rexp <- function(ptr, n, r_rate, is_float) {
-  .Call(`_dust_dust_rng_rexp`, ptr, n, r_rate, is_float)
+dust_rng_normal <- function(ptr, n, r_mean, r_sd, is_float) {
+  .Call(`_dust_dust_rng_normal`, ptr, n, r_mean, r_sd, is_float)
 }
 
-dust_rng_rnorm <- function(ptr, n, r_mean, r_sd, is_float) {
-  .Call(`_dust_dust_rng_rnorm`, ptr, n, r_mean, r_sd, is_float)
+dust_rng_binomial <- function(ptr, n, r_size, r_prob, is_float) {
+  .Call(`_dust_dust_rng_binomial`, ptr, n, r_size, r_prob, is_float)
 }
 
-dust_rng_rbinom <- function(ptr, n, r_size, r_prob, is_float) {
-  .Call(`_dust_dust_rng_rbinom`, ptr, n, r_size, r_prob, is_float)
-}
-
-dust_rng_rpois <- function(ptr, n, r_lambda, is_float) {
-  .Call(`_dust_dust_rng_rpois`, ptr, n, r_lambda, is_float)
+dust_rng_poisson <- function(ptr, n, r_lambda, is_float) {
+  .Call(`_dust_dust_rng_poisson`, ptr, n, r_lambda, is_float)
 }
 
 dust_rng_state <- function(ptr, is_float) {
   .Call(`_dust_dust_rng_state`, ptr, is_float)
-}
-
-dust_rng_set_deterministic <- function(ptr, value, is_float) {
-  .Call(`_dust_dust_rng_set_deterministic`, ptr, value, is_float)
 }
 
 cpp_openmp_info <- function() {
@@ -222,6 +214,10 @@ dust_sirs_device_info <- function() {
 
 test_cuda_pars <- function(r_device_config, n_particles, n_particles_each, n_state, n_state_full, n_shared_int, n_shared_real, data_size, shared_size) {
   .Call(`_dust_test_cuda_pars`, r_device_config, n_particles, n_particles_each, n_state, n_state_full, n_shared_int, n_shared_real, data_size, shared_size)
+}
+
+test_xoshiro_run <- function(name) {
+  .Call(`_dust_test_xoshiro_run`, name)
 }
 
 cpp_scale_log_weights <- function(w) {

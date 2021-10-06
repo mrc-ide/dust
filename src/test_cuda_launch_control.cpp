@@ -1,7 +1,8 @@
 #include <cpp11.hpp>
-#include <dust/dust.hpp>
+
+#include <dust/types.hpp>
 #include <dust/cuda/launch_control.hpp>
-#include <dust/interface_helpers.hpp>
+#include <dust/interface/helpers.hpp>
 
 cpp11::list launch_r_list(const dust::cuda::launch_control& p) {
   using namespace cpp11::literals;

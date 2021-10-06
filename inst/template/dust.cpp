@@ -1,6 +1,6 @@
 /// IMPORTANT; changes here must be reflected into inst/template/dust.hpp
 #include <dust/dust.hpp>
-#include <dust/interface.hpp>
+#include <dust/interface/dust.hpp>
 
 {{model}}
 

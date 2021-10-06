@@ -2,71 +2,52 @@
 #include <cpp11/external_pointer.hpp>
 #include <cpp11/raws.hpp>
 #include <cpp11/doubles.hpp>
-#include <dust/rng.hpp>
-#include <dust/rng_interface.hpp>
-#include <dust/interface_helpers.hpp>
 
-template <typename real_t>
-using dust_rng_ptr_t = cpp11::external_pointer<dust::pRNG<real_t>>;
+#include <dust/random/random.hpp>
+#include <dust/interface/random.hpp>
 
-namespace dust {
-namespace rng {
+using dust_rng64 = dust::random::prng<dust::random::xoshiro256starstar_state>;
+using dust_rng32 = dust::random::prng<dust::random::xoshiro128starstar_state>;
 
-template <typename real_t>
-SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators) {
-  std::vector<uint64_t> seed = dust::interface::as_rng_seed<real_t>(r_seed);
-  dust::pRNG<real_t> *rng = new dust::pRNG<real_t>(n_generators, seed);
-  return dust_rng_ptr_t<real_t>(rng);
+template <typename T>
+SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators, bool deterministic) {
+  auto seed = dust::interface::as_rng_seed<typename T::rng_state>(r_seed);
+  T *rng = new T(n_generators, seed, deterministic);
+  return cpp11::external_pointer<T>(rng);
 }
 
-template <typename real_t>
+template <typename T>
 void dust_rng_jump(SEXP ptr) {
-  dust::pRNG<real_t> *rng = cpp11::as_cpp<dust_rng_ptr_t<real_t>>(ptr).get();
+  T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   rng->jump();
 }
 
-template <typename real_t>
+template <typename T>
 void dust_rng_long_jump(SEXP ptr) {
-  dust::pRNG<real_t> *rng = cpp11::as_cpp<dust_rng_ptr_t<real_t>>(ptr).get();
+  T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   rng->long_jump();
 }
 
-template <typename real_t>
-cpp11::writable::doubles dust_rng_unif_rand(SEXP ptr, int n) {
-  dust::pRNG<real_t> *rng = cpp11::as_cpp<dust_rng_ptr_t<real_t>>(ptr).get();
+template <typename real_t, typename T>
+cpp11::writable::doubles dust_rng_random_real(SEXP ptr, int n) {
+  T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const size_t n_generators = rng->size();
 
   cpp11::writable::doubles ret = cpp11::writable::doubles(n);
   double * y = REAL(ret);
 
   for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::unif_rand(rng->state(i % n_generators));
+    y[i] = dust::random::random_real<real_t>(rng->state(i % n_generators));
   }
 
   return ret;
 }
 
-// NOTE: no special treatment (yet) for this
-template <typename real_t>
-cpp11::writable::doubles dust_rng_norm_rand(SEXP ptr, int n) {
-  dust::pRNG<real_t> *rng = cpp11::as_cpp<dust_rng_ptr_t<real_t>>(ptr).get();
-  const size_t n_generators = rng->size();
-
-  cpp11::writable::doubles ret = cpp11::writable::doubles(n);
-  double * y = REAL(ret);
-
-  for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::distr::rnorm(rng->state(i % n_generators), 0, 1);
-  }
-
-  return ret;
-}
-
-template <typename real_t>
-cpp11::writable::doubles dust_rng_runif(SEXP ptr, int n,
-                                        cpp11::doubles r_min,
-                                        cpp11::doubles r_max) {
-  dust::pRNG<real_t> *rng = cpp11::as_cpp<dust_rng_ptr_t<real_t>>(ptr).get();
+template <typename real_t, typename T>
+cpp11::writable::doubles dust_rng_uniform(SEXP ptr, int n,
+                                          cpp11::doubles r_min,
+                                          cpp11::doubles r_max) {
+  T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const double * min = REAL(r_min);
   const double * max = REAL(r_max);
   const size_t n_generators = rng->size();
@@ -75,16 +56,17 @@ cpp11::writable::doubles dust_rng_runif(SEXP ptr, int n,
   double * y = REAL(ret);
 
   for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::distr::runif(rng->state(i % n_generators), min[i], max[i]);
+    y[i] = dust::random::uniform<real_t>(rng->state(i % n_generators),
+                                         min[i], max[i]);
   }
 
   return ret;
 }
 
-template <typename real_t>
-cpp11::writable::doubles dust_rng_rexp(SEXP ptr, int n,
-                                       cpp11::doubles r_rate) {
-  dust::pRNG<real_t> *rng = cpp11::as_cpp<dust_rng_ptr_t<real_t>>(ptr).get();
+template <typename real_t, typename T>
+cpp11::writable::doubles dust_rng_exponential(SEXP ptr, int n,
+                                              cpp11::doubles r_rate) {
+  T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const double * rate = REAL(r_rate);
   const size_t n_generators = rng->size();
 
@@ -92,17 +74,18 @@ cpp11::writable::doubles dust_rng_rexp(SEXP ptr, int n,
   double * y = REAL(ret);
 
   for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::distr::rexp(rng->state(i % n_generators), rate[i]);
+    y[i] = dust::random::exponential<real_t>(rng->state(i % n_generators),
+                                             rate[i]);
   }
 
   return ret;
 }
 
-template <typename real_t>
-cpp11::writable::doubles dust_rng_rnorm(SEXP ptr, int n,
-                                        cpp11::doubles r_mean,
-                                        cpp11::doubles r_sd) {
-  dust::pRNG<real_t> *rng = cpp11::as_cpp<dust_rng_ptr_t<real_t>>(ptr).get();
+template <typename real_t, typename T>
+cpp11::writable::doubles dust_rng_normal(SEXP ptr, int n,
+                                         cpp11::doubles r_mean,
+                                         cpp11::doubles r_sd) {
+  T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const double * mean = REAL(r_mean);
   const double * sd = REAL(r_sd);
   const size_t n_generators = rng->size();
@@ -111,17 +94,18 @@ cpp11::writable::doubles dust_rng_rnorm(SEXP ptr, int n,
   double * y = REAL(ret);
 
   for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::distr::rnorm(rng->state(i % n_generators), mean[i], sd[i]);
+    y[i] = dust::random::normal<real_t>(rng->state(i % n_generators),
+                                        mean[i], sd[i]);
   }
 
   return ret;
 }
 
-template <typename real_t>
-cpp11::writable::doubles dust_rng_rbinom(SEXP ptr, int n,
-                                         cpp11::doubles r_size,
-                                         cpp11::doubles r_prob) {
-  dust::pRNG<real_t> *rng = cpp11::as_cpp<dust_rng_ptr_t<real_t>>(ptr).get();
+template <typename real_t, typename T>
+cpp11::writable::doubles dust_rng_binomial(SEXP ptr, int n,
+                                           cpp11::doubles r_size,
+                                           cpp11::doubles r_prob) {
+  T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const double * size = REAL(r_size);
   const double * prob = REAL(r_prob);
 
@@ -130,17 +114,17 @@ cpp11::writable::doubles dust_rng_rbinom(SEXP ptr, int n,
 
   const size_t n_generators = rng->size();
   for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::distr::rbinom<real_t>(rng->state(i % n_generators),
-                                       size[i], prob[i]);
+    y[i] = dust::random::binomial<real_t>(rng->state(i % n_generators),
+                                          size[i], prob[i]);
   }
 
   return ret;
 }
 
-template <typename real_t>
-cpp11::writable::doubles dust_rng_rpois(SEXP ptr, int n,
-                                        cpp11::doubles r_lambda) {
-  dust::pRNG<real_t> *rng = cpp11::as_cpp<dust_rng_ptr_t<real_t>>(ptr).get();
+template <typename real_t, typename T>
+cpp11::writable::doubles dust_rng_poisson(SEXP ptr, int n,
+                                          cpp11::doubles r_lambda) {
+  T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const double * lambda = REAL(r_lambda);
   const size_t n_generators = rng->size();
 
@@ -148,129 +132,105 @@ cpp11::writable::doubles dust_rng_rpois(SEXP ptr, int n,
   double * y = REAL(ret);
 
   for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::distr::rpois(rng->state(i % n_generators), lambda[i]);
+    y[i] = dust::random::poisson<real_t>(rng->state(i % n_generators),
+                                         lambda[i]);
   }
 
   return ret;
 }
 
-template <typename real_t>
+template <typename T>
 cpp11::writable::raws dust_rng_state(SEXP ptr) {
-  dust::pRNG<real_t> *rng = cpp11::as_cpp<dust_rng_ptr_t<real_t>>(ptr).get();
+  T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   auto state = rng->export_state();
-  size_t len = sizeof(uint64_t) * state.size();
+  size_t len = sizeof(typename T::int_type) * state.size();
   cpp11::writable::raws ret(len);
   std::memcpy(RAW(ret), state.data(), len);
   return ret;
 }
 
-template <typename real_t>
-bool dust_rng_set_deterministic(SEXP ptr, bool value) {
-  dust::pRNG<real_t> *rng = cpp11::as_cpp<dust_rng_ptr_t<real_t>>(ptr).get();
-  bool prev = rng->state(0).deterministic;
-  if (prev != value) {
-    rng->set_deterministic(value);
-  }
-  return prev;
-}
-
-}
-}
-
 [[cpp11::register]]
-SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators, bool is_float) {
+SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators, bool deterministic,
+                    bool is_float) {
   return is_float ?
-    dust::rng::dust_rng_alloc<float>(r_seed, n_generators) :
-    dust::rng::dust_rng_alloc<double>(r_seed, n_generators);
+    dust_rng_alloc<dust_rng64>(r_seed, n_generators, deterministic) :
+    dust_rng_alloc<dust_rng64>(r_seed, n_generators, deterministic);
 }
 
 [[cpp11::register]]
 void dust_rng_jump(SEXP ptr, bool is_float) {
   if (is_float) {
-    dust::rng::dust_rng_jump<float>(ptr);
+    dust_rng_jump<dust_rng64>(ptr);
   } else {
-    dust::rng::dust_rng_jump<double>(ptr);
+    dust_rng_jump<dust_rng64>(ptr);
   }
 }
 
 [[cpp11::register]]
 void dust_rng_long_jump(SEXP ptr, bool is_float) {
   if (is_float) {
-    dust::rng::dust_rng_long_jump<float>(ptr);
+    dust_rng_long_jump<dust_rng64>(ptr);
   } else {
-    dust::rng::dust_rng_long_jump<double>(ptr);
+    dust_rng_long_jump<dust_rng64>(ptr);
   }
 }
 
 [[cpp11::register]]
-cpp11::writable::doubles dust_rng_unif_rand(SEXP ptr, int n, bool is_float) {
+cpp11::writable::doubles dust_rng_random_real(SEXP ptr, int n, bool is_float) {
   return is_float ?
-    dust::rng::dust_rng_unif_rand<float>(ptr, n) :
-    dust::rng::dust_rng_unif_rand<double>(ptr, n);
-}
-
-// NOTE: no special treatment (yet) for this
-[[cpp11::register]]
-cpp11::writable::doubles dust_rng_norm_rand(SEXP ptr, int n, bool is_float) {
-  return is_float ?
-    dust::rng::dust_rng_norm_rand<float>(ptr, n) :
-    dust::rng::dust_rng_norm_rand<double>(ptr, n);
+    dust_rng_random_real<float, dust_rng64>(ptr, n) :
+    dust_rng_random_real<double, dust_rng64>(ptr, n);
 }
 
 [[cpp11::register]]
-cpp11::writable::doubles dust_rng_runif(SEXP ptr, int n,
-                                        cpp11::doubles r_min,
-                                        cpp11::doubles r_max,
-                                        bool is_float) {
+cpp11::writable::doubles dust_rng_uniform(SEXP ptr, int n,
+                                          cpp11::doubles r_min,
+                                          cpp11::doubles r_max,
+                                          bool is_float) {
   return is_float ?
-    dust::rng::dust_rng_runif<float>(ptr, n, r_min, r_max) :
-    dust::rng::dust_rng_runif<double>(ptr, n, r_min, r_max);
+    dust_rng_uniform<float, dust_rng64>(ptr, n, r_min, r_max) :
+    dust_rng_uniform<double, dust_rng64>(ptr, n, r_min, r_max);
 }
 
 [[cpp11::register]]
-cpp11::writable::doubles dust_rng_rexp(SEXP ptr, int n, cpp11::doubles r_rate,
-                                       bool is_float) {
+cpp11::writable::doubles dust_rng_exponential(SEXP ptr, int n,
+                                              cpp11::doubles r_rate,
+                                              bool is_float) {
   return is_float ?
-    dust::rng::dust_rng_rexp<float>(ptr, n, r_rate) :
-    dust::rng::dust_rng_rexp<double>(ptr, n, r_rate);
+    dust_rng_exponential<float, dust_rng64>(ptr, n, r_rate) :
+    dust_rng_exponential<double, dust_rng64>(ptr, n, r_rate);
 }
 
 [[cpp11::register]]
-cpp11::writable::doubles dust_rng_rnorm(SEXP ptr, int n, cpp11::doubles r_mean,
-                                        cpp11::doubles r_sd, bool is_float) {
+cpp11::writable::doubles dust_rng_normal(SEXP ptr, int n, cpp11::doubles r_mean,
+                                         cpp11::doubles r_sd, bool is_float) {
   return is_float ?
-    dust::rng::dust_rng_rnorm<float>(ptr, n, r_mean, r_sd) :
-    dust::rng::dust_rng_rnorm<double>(ptr, n, r_mean, r_sd);
+    dust_rng_normal<float, dust_rng64>(ptr, n, r_mean, r_sd) :
+    dust_rng_normal<double, dust_rng64>(ptr, n, r_mean, r_sd);
 }
 
 [[cpp11::register]]
-cpp11::writable::doubles dust_rng_rbinom(SEXP ptr, int n, cpp11::doubles r_size,
-                                         cpp11::doubles r_prob,
-                                         bool is_float) {
+cpp11::writable::doubles dust_rng_binomial(SEXP ptr, int n,
+                                           cpp11::doubles r_size,
+                                           cpp11::doubles r_prob,
+                                           bool is_float) {
   return is_float ?
-    dust::rng::dust_rng_rbinom<float>(ptr, n, r_size, r_prob) :
-    dust::rng::dust_rng_rbinom<double>(ptr, n, r_size, r_prob);
+    dust_rng_binomial<float, dust_rng64>(ptr, n, r_size, r_prob) :
+    dust_rng_binomial<double, dust_rng64>(ptr, n, r_size, r_prob);
 }
 
 [[cpp11::register]]
-cpp11::writable::doubles dust_rng_rpois(SEXP ptr, int n,
+cpp11::writable::doubles dust_rng_poisson(SEXP ptr, int n,
                                         cpp11::doubles r_lambda,
                                         bool is_float) {
   return is_float ?
-    dust::rng::dust_rng_rpois<float>(ptr, n, r_lambda) :
-    dust::rng::dust_rng_rpois<double>(ptr, n, r_lambda);
+    dust_rng_poisson<float, dust_rng64>(ptr, n, r_lambda) :
+    dust_rng_poisson<double, dust_rng64>(ptr, n, r_lambda);
 }
 
 [[cpp11::register]]
 cpp11::writable::raws dust_rng_state(SEXP ptr, bool is_float) {
   return is_float ?
-    dust::rng::dust_rng_state<float>(ptr) :
-    dust::rng::dust_rng_state<double>(ptr);
-}
-
-[[cpp11::register]]
-bool dust_rng_set_deterministic(SEXP ptr, bool value, bool is_float) {
-  return is_float ?
-    dust::rng::dust_rng_set_deterministic<float>(ptr, value) :
-    dust::rng::dust_rng_set_deterministic<double>(ptr, value);
+    dust_rng_state<dust_rng64>(ptr) :
+    dust_rng_state<dust_rng64>(ptr);
 }

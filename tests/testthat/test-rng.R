@@ -347,9 +347,17 @@ test_that("initialise parallel rng with binary state and drop", {
   seed <- 42
   rng10 <- dust_rng$new(seed, 10L)
   rng5 <- dust_rng$new(rng10$state(), 5L)
-  expect_identical(rng5$state(), rng10$state()[seq_len(5 * 4 * 8)])
-  expect_identical(dust_rng$new(rng10$state(), 5L, "float")$state(),
-                   rng5$state())
+  len <- 5 * rng5$info$size_state_bytes
+  expect_identical(rng5$state(), rng10$state()[seq_len(len)])
+})
+
+
+test_that("initialise parallel rng with binary state and drop for floats", {
+  seed <- 42
+  rng10 <- dust_rng$new(seed, 10L, "float")
+  rng5 <- dust_rng$new(rng10$state(), 5L, "float")
+  len <- 5 * rng5$info$size_state_bytes
+  expect_identical(rng5$state(), rng10$state()[seq_len(len)])
 })
 
 
@@ -569,19 +577,14 @@ test_that("deterministic rbinom returns mean", {
   n <- as.numeric(sample(10, m, replace = TRUE))
   p <- runif(m)
 
-  rng_f <- dust_rng$new(1, m, "float")
-  rng_d <- dust_rng$new(1, m, "double")
+  rng_f <- dust_rng$new(1, m, "float", TRUE)
+  rng_d <- dust_rng$new(1, m, "double", TRUE)
   state_f <- rng_f$state()
   state_d <- rng_f$state()
-
-  expect_false(rng_f$set_deterministic(TRUE))
-  expect_false(rng_d$set_deterministic(TRUE))
 
   expect_equal(rng_f$rbinom(m, n, p), n * p, tolerance = 1e-6)
   expect_equal(rng_d$rbinom(m, n, p), n * p)
 
-  expect_true(rng_f$set_deterministic(FALSE))
-  expect_true(rng_d$set_deterministic(FALSE))
   expect_equal(rng_f$state(), state_f)
   expect_equal(rng_d$state(), state_d)
 })
@@ -591,12 +594,10 @@ test_that("deterministic rbinom accepts non-integer size", {
   m <- 10
   n <- runif(m, 0, 10)
   p <- runif(m)
-  rng_f <- dust_rng$new(1, m, "float")
-  rng_d <- dust_rng$new(1, m, "double")
+  rng_f <- dust_rng$new(1, m, "float", TRUE)
+  rng_d <- dust_rng$new(1, m, "double", TRUE)
   state_f <- rng_f$state()
   state_d <- rng_f$state()
-  expect_false(rng_f$set_deterministic(TRUE))
-  expect_false(rng_d$set_deterministic(TRUE))
   expect_equal(rng_f$rbinom(m, n, p), n * p, tolerance = 1e-6)
   expect_equal(rng_d$rbinom(m, n, p), n * p)
   expect_equal(rng_f$state(), state_f)
@@ -608,10 +609,8 @@ test_that("deterministic rbinom allow small negative innacuracies", {
   m <- 10
   n <- runif(m, 0, 10)
   p <- runif(m)
-  rng_f <- dust_rng$new(1, m, "float")
-  rng_d <- dust_rng$new(1, m, "double")
-  rng_f$set_deterministic(TRUE)
-  rng_d$set_deterministic(TRUE)
+  rng_f <- dust_rng$new(1, m, "float", TRUE)
+  rng_d <- dust_rng$new(1, m, "double", TRUE)
 
   eps_d <- .Machine$double.eps
   eps_f <- 2^-23
@@ -631,12 +630,10 @@ test_that("deterministic rbinom allow small negative innacuracies", {
 test_that("deterministic rpois returns mean", {
   m <- 10
   lambda <- runif(m, 0, 50)
-  rng_f <- dust_rng$new(1, m, "float")
-  rng_d <- dust_rng$new(1, m, "double")
+  rng_f <- dust_rng$new(1, m, "float", TRUE)
+  rng_d <- dust_rng$new(1, m, "double", TRUE)
   state_f <- rng_f$state()
   state_d <- rng_f$state()
-  rng_f$set_deterministic(TRUE)
-  rng_d$set_deterministic(TRUE)
   expect_equal(rng_f$rpois(m, lambda), lambda, tolerance = 1e-6)
   expect_equal(rng_d$rpois(m, lambda), lambda)
   expect_equal(rng_f$state(), state_f)
@@ -647,12 +644,10 @@ test_that("deterministic rpois returns mean", {
 test_that("deterministic rpois returns mean", {
   m <- 10
   lambda <- runif(m, 0, 50)
-  rng_f <- dust_rng$new(1, m, "float")
-  rng_d <- dust_rng$new(1, m, "double")
+  rng_f <- dust_rng$new(1, m, "float", TRUE)
+  rng_d <- dust_rng$new(1, m, "double", TRUE)
   state_f <- rng_f$state()
   state_d <- rng_f$state()
-  rng_f$set_deterministic(TRUE)
-  rng_d$set_deterministic(TRUE)
   expect_equal(rng_f$rpois(m, lambda), lambda, tolerance = 1e-6)
   expect_equal(rng_d$rpois(m, lambda), lambda)
   expect_equal(rng_f$state(), state_f)
@@ -664,12 +659,10 @@ test_that("deterministic runif returns mean", {
   m <- 10
   l <- runif(m, -10, 10)
   u <- l + runif(m, 0, 10)
-  rng_f <- dust_rng$new(1, m, "float")
-  rng_d <- dust_rng$new(1, m, "double")
+  rng_f <- dust_rng$new(1, m, "float", TRUE)
+  rng_d <- dust_rng$new(1, m, "double", TRUE)
   state_f <- rng_f$state()
   state_d <- rng_f$state()
-  rng_f$set_deterministic(TRUE)
-  rng_d$set_deterministic(TRUE)
   expect_equal(rng_f$runif(m, l, u), (l + u) / 2, tolerance = 1e-6)
   expect_equal(rng_d$runif(m, l, u), (l + u) / 2)
   expect_equal(rng_f$state(), state_f)
@@ -680,12 +673,10 @@ test_that("deterministic runif returns mean", {
 test_that("deterministic rexp returns mean", {
   m <- 10
   rate <- runif(m, 0, 10)
-  rng_f <- dust_rng$new(1, m, "float")
-  rng_d <- dust_rng$new(1, m, "double")
+  rng_f <- dust_rng$new(1, m, "float", TRUE)
+  rng_d <- dust_rng$new(1, m, "double", TRUE)
   state_f <- rng_f$state()
   state_d <- rng_f$state()
-  rng_f$set_deterministic(TRUE)
-  rng_d$set_deterministic(TRUE)
   expect_equal(rng_f$rexp(m, rate), 1 / rate, tolerance = 1e-6)
   expect_equal(rng_d$rexp(m, rate), 1 / rate)
   expect_equal(rng_f$state(), state_f)
@@ -697,12 +688,10 @@ test_that("deterministic rnorm returns mean", {
   m <- 10
   mu <- runif(m, -10, 10)
   sd <- runif(m, 0, 10)
-  rng_f <- dust_rng$new(1, m, "float")
-  rng_d <- dust_rng$new(1, m, "double")
+  rng_f <- dust_rng$new(1, m, "float", TRUE)
+  rng_d <- dust_rng$new(1, m, "double", TRUE)
   state_f <- rng_f$state()
   state_d <- rng_f$state()
-  rng_f$set_deterministic(TRUE)
-  rng_d$set_deterministic(TRUE)
   expect_equal(rng_f$rnorm(m, mu, sd), mu, tolerance = 1e-6)
   expect_equal(rng_d$rnorm(m, mu, sd), mu)
   expect_equal(rng_f$state(), state_f)

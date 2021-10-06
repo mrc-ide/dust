@@ -1,12 +1,12 @@
-#ifndef DUST_DISTR_BINOMIAL_HPP
-#define DUST_DISTR_BINOMIAL_HPP
+#ifndef DUST_RANDOM_BINOMIAL_HPP
+#define DUST_RANDOM_BINOMIAL_HPP
 
 #include <cmath>
-#include <dust/utils.hpp>
-#include <dust/distr/gamma_table.hpp>
+#include <dust/random/numeric.hpp>
+#include <dust/random/gamma_table.hpp>
 
 namespace dust {
-namespace distr {
+namespace random {
 
 // Faster version of pow(x, n) for integer 'n' by using
 // "exponentiation by squaring"
@@ -59,12 +59,12 @@ real_t HOSTDEVICE binomial_inversion_calc(real_t u, int n, real_t p) {
 // random number from U(0, 1) and find the 'n' up the distribution
 // (given p) that corresponds to this
 __nv_exec_check_disable__
-template <typename real_t>
-real_t HOSTDEVICE binomial_inversion(rng_state_t<real_t>& rng_state, int n,
+template <typename real_t, typename rng_state_t>
+real_t HOSTDEVICE binomial_inversion(rng_state_t& rng_state, int n,
                                      real_t p) {
   real_t k = -1;
   do {
-    real_t u = dust::unif_rand(rng_state);
+    real_t u = random_real<real_t>(rng_state);
     k = binomial_inversion_calc(u, n, p);
   } while (k < 0);
   return k;
@@ -107,8 +107,8 @@ HOSTDEVICE inline double stirling_approx_tail(double k) {
 
 // https://www.tandfonline.com/doi/abs/10.1080/00949659308811496
 __nv_exec_check_disable__
-template <typename real_t>
-inline HOSTDEVICE real_t btrs(rng_state_t<real_t>& rng_state, int n_int, real_t p) {
+template <typename real_t, typename rng_state_t>
+inline HOSTDEVICE real_t btrs(rng_state_t& rng_state, int n_int, real_t p) {
   const real_t n = static_cast<real_t>(n_int);
   const real_t one = 1.0;
   const real_t half = 0.5;
@@ -128,8 +128,8 @@ inline HOSTDEVICE real_t btrs(rng_state_t<real_t>& rng_state, int n_int, real_t 
 
   real_t draw;
   while (true) {
-    real_t u = dust::unif_rand<real_t, real_t>(rng_state);
-    real_t v = dust::unif_rand<real_t, real_t>(rng_state);
+    real_t u = random_real<real_t>(rng_state);
+    real_t v = random_real<real_t>(rng_state);
     u -= half;
     real_t us = half - std::fabs(u);
     real_t k = std::floor((2 * a / us + b) * u + c);
@@ -167,7 +167,7 @@ inline HOSTDEVICE real_t btrs(rng_state_t<real_t>& rng_state, int n_int, real_t 
 }
 
 template <typename real_t>
-HOSTDEVICE void rbinom_validate(int n, real_t p) {
+HOSTDEVICE void binomial_validate(int n, real_t p) {
   if (n < 0 || p < 0 || p > 1) {
 #ifdef __CUDA_ARCH__
     // This is unrecoverable
@@ -183,7 +183,7 @@ HOSTDEVICE void rbinom_validate(int n, real_t p) {
 }
 
 template <typename real_t>
-HOST real_t rbinom_deterministic(real_t n, real_t p) {
+HOST real_t binomial_deterministic(real_t n, real_t p) {
   if (n < 0) {
     if (n * n < std::numeric_limits<real_t>::epsilon()) {
       // Avoid small round-off errors here
@@ -194,16 +194,16 @@ HOST real_t rbinom_deterministic(real_t n, real_t p) {
       throw std::runtime_error(buffer);
     }
   }
-  rbinom_validate(static_cast<int>(n), p);
+  binomial_validate(static_cast<int>(n), p);
   return n * p;
 }
 
 // NOTE: we return a real, not an int, as with deterministic mode this
 // will not necessarily be an integer
-template <typename real_t>
-HOSTDEVICE real_t rbinom_stochastic(rng_state_t<real_t>& rng_state, int n,
+template <typename real_t, typename rng_state_t>
+HOSTDEVICE real_t binomial_stochastic(rng_state_t& rng_state, int n,
                                     real_t p) {
-  rbinom_validate(n, p);
+  binomial_validate(n, p);
   real_t draw;
 
   if (n == 0 || p == 0) {
@@ -231,18 +231,20 @@ HOSTDEVICE real_t rbinom_stochastic(rng_state_t<real_t>& rng_state, int n,
   return draw;
 }
 
-template <typename real_t>
-HOSTDEVICE real_t rbinom(rng_state_t<real_t>& rng_state, real_t n, real_t p) {
+template <typename real_t, typename rng_state_t>
+HOSTDEVICE real_t binomial(rng_state_t& rng_state, real_t n, real_t p) {
+  static_assert(std::is_floating_point<real_t>::value,
+                "Only valid for floating-point types; use binomial<real_t>()");
 #ifndef __CUDA_ARCH__
   if (rng_state.deterministic) {
-    return rbinom_deterministic<real_t>(n, p);
+    return binomial_deterministic<real_t>(n, p);
   }
 #endif
   // Avoid integer truncation (which a cast to int would cause) in
   // case of numerical error, instead taking the slightly lower but
   // more accurate round route. This means that `n - eps` becomes
   // `n` not `n - 1`.
-  return rbinom_stochastic<real_t>(rng_state, std::round(n), p);
+  return binomial_stochastic<real_t>(rng_state, std::round(n), p);
 }
 
 }

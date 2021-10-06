@@ -9,6 +9,7 @@ public:
   typedef dust::pars_t<T> pars_t;
   typedef typename T::real_t real_t;
   typedef typename T::data_t data_t;
+  typedef typename T::rng_state_t rng_state_t;
 
   Particle(pars_t pars, size_t step) :
     model_(pars),
@@ -17,7 +18,7 @@ public:
     y_swap_(model_.size()) {
   }
 
-  void run(const size_t step_end, rng_state_t<real_t>& rng_state) {
+  void run(const size_t step_end, rng_state_t& rng_state) {
     while (step_ < step_end) {
       model_.update(step_, y_.data(), rng_state, y_swap_.data());
       step_++;
@@ -72,8 +73,7 @@ public:
     }
   }
 
-  real_t compare_data(const data_t& data,
-                      rng_state_t<real_t>& rng_state) {
+  real_t compare_data(const data_t& data, rng_state_t& rng_state) {
     return model_.compare_data(y_.data(), data, rng_state);
   }
 

@@ -11,8 +11,8 @@
 #include <cpp11/raws.hpp>
 #include <cpp11/strings.hpp>
 
-#include <dust/rng_interface.hpp>
-#include <dust/interface_helpers.hpp>
+#include <dust/interface/random.hpp>
+#include <dust/interface/helpers.hpp>
 #include <dust/cuda/device_info.hpp>
 #include <dust/filter.hpp>
 #include <dust/cuda/launch_control.hpp>
@@ -37,10 +37,11 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
                        cpp11::sexp r_n_particles, int n_threads,
                        cpp11::sexp r_seed, bool deterministic,
                        cpp11::sexp r_device_config) {
+  typedef typename T::rng_state_t rng_state_t;
   dust::interface::validate_size(step, "step");
   dust::interface::validate_positive(n_threads, "n_threads");
-  std::vector<uint64_t> seed =
-    dust::interface::as_rng_seed<typename T::real_t>(r_seed);
+  std::vector<typename rng_state_t::int_type> seed =
+    dust::interface::as_rng_seed<rng_state_t>(r_seed);
 
   const dust::cuda::device_config device_config =
     dust::interface::device_config(r_device_config);
@@ -337,14 +338,15 @@ SEXP dust_resample(SEXP ptr, cpp11::doubles r_weights) {
 template <typename T>
 SEXP dust_rng_state(SEXP ptr, bool first_only, bool last_only) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  typedef typename T::rng_state_t rng_state_t;
   auto state = obj->rng_state();
   if (first_only && last_only) {
     cpp11::stop("Only one of 'first_only' or 'last_only' may be TRUE");
   }
   size_t n = (first_only || last_only) ?
-    dust::rng_state_t<double>::size() : state.size();
+    rng_state_t::size() : state.size();
   size_t rng_offset = last_only ? obj->n_particles() * n : 0;
-  size_t len = sizeof(uint64_t) * n;
+  size_t len = sizeof(typename rng_state_t::int_type) * n;
   cpp11::writable::raws ret(len);
   std::memcpy(RAW(ret), state.data() + rng_offset, len);
   return ret;
@@ -353,13 +355,14 @@ SEXP dust_rng_state(SEXP ptr, bool first_only, bool last_only) {
 template <typename T>
 void dust_set_rng_state(SEXP ptr, cpp11::raws rng_state) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
+  typedef typename T::rng_state_t::int_type int_type;
   auto prev_state = obj->rng_state();
-  size_t len = prev_state.size() * sizeof(uint64_t);
+  size_t len = prev_state.size() * sizeof(int_type);
   if ((size_t)rng_state.size() != len) {
     cpp11::stop("'rng_state' must be a raw vector of length %d (but was %d)",
                 len, rng_state.size());
   }
-  std::vector<uint64_t> pars(prev_state.size());
+  std::vector<int_type> pars(prev_state.size());
   std::memcpy(pars.data(), RAW(rng_state), len);
   obj->set_rng_state(pars);
 }

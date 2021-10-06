@@ -85,7 +85,7 @@ The comparison is implemented by the method `compare_data`, which has a standard
 
 ```cc
   real_t compare_data(const real_t * state, const data_t& data,
-                      dust::rng_state_t<real_t>& rng_state) {
+                      rng_state_t& rng_state) {
     return dust::dnorm(data.observed, shared->gamma * state[0],
                        shared->tau, true);
   }

@@ -35,11 +35,13 @@ dust_rng <- R6::R6Class(
   private = list(
     ptr = NULL,
     n_generators = NULL,
-    float = NULL,
-    real_t = NULL
+    float = NULL
   ),
 
   public = list(
+    ##' @field info Information about the generator (read-only)
+    info = NULL,
+
     ##' @description Create a `dust_rng` object
     ##'
     ##' @param seed The seed, as an integer or as a raw vector.
@@ -52,14 +54,28 @@ dust_rng <- R6::R6Class(
     ##'   only `float` and `double` are supported (with `double` being
     ##'   the default). This will have no (or negligible) impact on speed,
     ##'   but exists to test the low-precision generators.
-    initialize = function(seed, n_generators = 1L, real_type = "double") {
+    initialize = function(seed, n_generators = 1L, real_type = "double",
+                          deterministic = FALSE) {
       if (!(real_type %in% c("double", "float"))) {
         stop("Invalid value for 'real_type': must be 'double' or 'float'")
       }
       private$float <- real_type == "float"
-      private$ptr <- dust_rng_alloc(seed, n_generators, private$float)
+      private$ptr <- dust_rng_alloc(seed, n_generators, deterministic,
+                                    private$float)
       private$n_generators <- n_generators
-      private$real_t <- real_type
+
+      self$info <- list(
+        real_type = real_type,
+        int_type = "uint64_t",
+        name = "xoshiro256starstar",
+        deterministic = FALSE,
+        ## Size, in bits, of the underlying integer
+        size_int_bits = 64L,
+        ## Number of integers used for state
+        size_state_ints = 4L,
+        ## Total size in bytes of the state
+        size_state_bytes = 4L * 8L)
+      lockBinding("info", self)
     },
 
     ##' @description Number of generators available
@@ -90,14 +106,14 @@ dust_rng <- R6::R6Class(
     ##'
     ##' @param n Number of samples to draw
     unif_rand = function(n) {
-      dust_rng_unif_rand(private$ptr, n, private$float)
+      dust_rng_random_real(private$ptr, n, private$float)
     },
 
     ##' Generate `n` numbers from a standard normal distribution
     ##'
     ##' @param n Number of samples to draw
     norm_rand = function(n) {
-      dust_rng_norm_rand(private$ptr, n, private$float)
+      self$rnorm(n, rep_len(0, n), rep_len(1, n))
     },
 
     ##' Generate `n` numbers from a uniform distribution
@@ -108,8 +124,8 @@ dust_rng <- R6::R6Class(
     ##'
     ##' @param max The maximum of the distribution (length 1 or n)
     runif = function(n, min, max) {
-      dust_rng_runif(private$ptr, n, recycle(min, n), recycle(max, n),
-                     private$float)
+      dust_rng_uniform(private$ptr, n, recycle(min, n), recycle(max, n),
+                       private$float)
     },
 
     ##' Generate `n` numbers from a normal distribution
@@ -120,8 +136,8 @@ dust_rng <- R6::R6Class(
     ##'
     ##' @param sd The standard deviation of the distribution (length 1 or n)
     rnorm = function(n, mean, sd) {
-      dust_rng_rnorm(private$ptr, n, recycle(mean, n), recycle(sd, n),
-                     private$float)
+      dust_rng_normal(private$ptr, n, recycle(mean, n), recycle(sd, n),
+                      private$float)
     },
 
     ##' Generate `n` numbers from a binomial distribution
@@ -133,8 +149,8 @@ dust_rng <- R6::R6Class(
     ##' @param prob The probability of success on each trial
     ##'   (between 0 and 1, length 1 or n)
     rbinom = function(n, size, prob) {
-      dust_rng_rbinom(private$ptr, n, recycle(size, n), recycle(prob, n),
-                      private$float)
+      dust_rng_binomial(private$ptr, n, recycle(size, n), recycle(prob, n),
+                        private$float)
     },
 
     ##' Generate `n` numbers from a Poisson distribution
@@ -143,8 +159,8 @@ dust_rng <- R6::R6Class(
     ##'
     ##' @param lambda The mean (zero or more, length 1 or n)
     rpois = function(n, lambda) {
-      dust_rng_rpois(private$ptr, n, recycle(lambda, n),
-                     private$float)
+      dust_rng_poisson(private$ptr, n, recycle(lambda, n),
+                       private$float)
     },
 
     ##' Generate `n` numbers from a exponential distribution
@@ -153,7 +169,7 @@ dust_rng <- R6::R6Class(
     ##'
     ##' @param rate The rate of the exponential
     rexp = function(n, rate) {
-      dust_rng_rexp(private$ptr, n, recycle(rate, n), private$float)
+      dust_rng_exponential(private$ptr, n, recycle(rate, n), private$float)
     },
 
     ##' @description
@@ -163,15 +179,6 @@ dust_rng <- R6::R6Class(
     ##' state.
     state = function() {
       dust_rng_state(private$ptr, private$float)
-    },
-
-    ##' @description
-    ##' Toggle the RNG into/out of deterministic mode
-    ##'
-    ##' @param value Logical, `TRUE` if the RNG should run in deterministic
-    ##'   mode.
-    set_deterministic = function(value) {
-      invisible(dust_rng_set_deterministic(private$ptr, value, private$float))
     }
   ))
 

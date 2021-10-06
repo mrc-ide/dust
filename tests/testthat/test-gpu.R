@@ -237,10 +237,9 @@ test_that("install cub", {
   skip_if_offline()
 
   path <- tempfile()
-  expect_equal(
-    expect_message(cuda_install_cub(path, quiet = TRUE),
-                   "Installing cub headers"),
-    path)
+  expect_message(p <- cuda_install_cub(path, quiet = TRUE),
+                 "Installing cub headers")
+  expect_equal(p, path)
   expect_setequal(dir(path), c("cub", "LICENSE.TXT"))
   expect_true(file.exists(file.path(path, "cub", "cub.cuh")))
 

@@ -1,16 +1,15 @@
-#ifndef DUST_DISTR_POISSON_HPP
-#define DUST_DISTR_POISSON_HPP
+#ifndef DUST_RANDOM_POISSON_HPP
+#define DUST_RANDOM_POISSON_HPP
 
 #include <cmath>
-#include <dust/utils.hpp>
+#include <dust/random/numeric.hpp>
 
 namespace dust {
-namespace distr {
+namespace random {
 
 __nv_exec_check_disable__
-template <typename real_t>
-HOSTDEVICE real_t rpois_knuth(rng_state_t<real_t>& rng_state,
-                              typename rng_state_t<real_t>::real_t lambda) {
+template <typename real_t, typename rng_state_t>
+HOSTDEVICE real_t poisson_knuth(rng_state_t& rng_state, real_t lambda) {
   int x = 0;
   // Knuth's algorithm for generating Poisson random variates.
   // Given a Poisson process, the time between events is exponentially
@@ -27,9 +26,9 @@ HOSTDEVICE real_t rpois_knuth(rng_state_t<real_t>& rng_state,
   // Keep trying until we surpass e^(-rate). This will take
   // expected time proportional to rate.
   while (true) {
-    real_t u = dust::unif_rand<real_t>(rng_state);
+    real_t u = random_real<real_t>(rng_state);
     prod = prod * u;
-    if (prod <= exp_neg_rate && x <= dust::utils::integer_max()) {
+    if (prod <= exp_neg_rate && x <= utils::integer_max()) {
       break;
     }
     x++;
@@ -37,11 +36,9 @@ HOSTDEVICE real_t rpois_knuth(rng_state_t<real_t>& rng_state,
   return x;
 }
 
-
 __nv_exec_check_disable__
-template <typename real_t>
-HOSTDEVICE real_t rpois_hormann(rng_state_t<real_t>& rng_state,
-                                typename rng_state_t<real_t>::real_t lambda) {
+template <typename real_t, typename rng_state_t>
+HOSTDEVICE real_t poisson_hormann(rng_state_t& rng_state, real_t lambda) {
   // Transformed rejection due to Hormann.
   //
   // Given a CDF F(x), and G(x), a dominating distribution chosen such
@@ -79,14 +76,14 @@ HOSTDEVICE real_t rpois_hormann(rng_state_t<real_t>& rng_state,
   const real_t inv_alpha = 1.1239 + 1.1328 / (b - 3.4);
 
   while (true) {
-    real_t u = dust::unif_rand<real_t>(rng_state);
+    real_t u = random_real<real_t>(rng_state);
     u -= 0.5;
-    real_t v = dust::unif_rand<real_t>(rng_state);
+    real_t v = random_real<real_t>(rng_state);
 
     real_t u_shifted = 0.5 - std::fabs(u);
     int k = floor((2 * a / u_shifted + b) * u + lambda + 0.43);
 
-    if (k > dust::utils::integer_max()) {
+    if (k > utils::integer_max()) {
       // retry in case of overflow.
       continue; // # nocov
     }
@@ -108,7 +105,7 @@ HOSTDEVICE real_t rpois_hormann(rng_state_t<real_t>& rng_state,
     // in transformed rejection (v <= alpha * F'(G(u)) * G'(u)).
     real_t s = std::log(v * inv_alpha / (a / (u_shifted * u_shifted) + b));
     real_t t = -lambda + k * log_rate -
-      dust::utils::lgamma(static_cast<real_t>(k + 1));
+      utils::lgamma(static_cast<real_t>(k + 1));
     if (s <= t) {
       x = k;
       break;
@@ -120,9 +117,10 @@ HOSTDEVICE real_t rpois_hormann(rng_state_t<real_t>& rng_state,
 // NOTE: we return a real, not an int, as with deterministic mode this
 // will not necessarily be an integer
 __nv_exec_check_disable__
-template <typename real_t>
-HOSTDEVICE real_t rpois(rng_state_t<real_t>& rng_state,
-                        typename rng_state_t<real_t>::real_t lambda) {
+template <typename real_t, typename rng_state_t>
+HOSTDEVICE real_t poisson(rng_state_t& rng_state, real_t lambda) {
+  static_assert(std::is_floating_point<real_t>::value,
+                "Only valid for floating-point types; use poisson<real_t>()");
   real_t x = 0;
   if (lambda == 0) {
     // do nothing, but leave this branch in to help the GPU
@@ -131,9 +129,9 @@ HOSTDEVICE real_t rpois(rng_state_t<real_t>& rng_state,
     x = lambda;
 #endif
   } else if (lambda < 10) {
-    x = rpois_knuth(rng_state, lambda);
+    x = poisson_knuth<real_t>(rng_state, lambda);
   } else {
-    x = rpois_hormann(rng_state, lambda);
+    x = poisson_hormann<real_t>(rng_state, lambda);
   }
 
   SYNCWARP

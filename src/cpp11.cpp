@@ -48,10 +48,10 @@ extern "C" SEXP _dust_dust_dpois(SEXP x, SEXP lambda, SEXP log) {
   END_CPP11
 }
 // dust_rng.cpp
-SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators, bool is_float);
-extern "C" SEXP _dust_dust_rng_alloc(SEXP r_seed, SEXP n_generators, SEXP is_float) {
+SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators, bool deterministic, bool is_float);
+extern "C" SEXP _dust_dust_rng_alloc(SEXP r_seed, SEXP n_generators, SEXP deterministic, SEXP is_float) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<int>>(n_generators), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
+    return cpp11::as_sexp(dust_rng_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<int>>(n_generators), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
   END_CPP11
 }
 // dust_rng.cpp
@@ -71,52 +71,45 @@ extern "C" SEXP _dust_dust_rng_long_jump(SEXP ptr, SEXP is_float) {
   END_CPP11
 }
 // dust_rng.cpp
-cpp11::writable::doubles dust_rng_unif_rand(SEXP ptr, int n, bool is_float);
-extern "C" SEXP _dust_dust_rng_unif_rand(SEXP ptr, SEXP n, SEXP is_float) {
+cpp11::writable::doubles dust_rng_random_real(SEXP ptr, int n, bool is_float);
+extern "C" SEXP _dust_dust_rng_random_real(SEXP ptr, SEXP n, SEXP is_float) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_unif_rand(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
+    return cpp11::as_sexp(dust_rng_random_real(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
   END_CPP11
 }
 // dust_rng.cpp
-cpp11::writable::doubles dust_rng_norm_rand(SEXP ptr, int n, bool is_float);
-extern "C" SEXP _dust_dust_rng_norm_rand(SEXP ptr, SEXP n, SEXP is_float) {
+cpp11::writable::doubles dust_rng_uniform(SEXP ptr, int n, cpp11::doubles r_min, cpp11::doubles r_max, bool is_float);
+extern "C" SEXP _dust_dust_rng_uniform(SEXP ptr, SEXP n, SEXP r_min, SEXP r_max, SEXP is_float) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_norm_rand(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
+    return cpp11::as_sexp(dust_rng_uniform(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_min), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_max), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
   END_CPP11
 }
 // dust_rng.cpp
-cpp11::writable::doubles dust_rng_runif(SEXP ptr, int n, cpp11::doubles r_min, cpp11::doubles r_max, bool is_float);
-extern "C" SEXP _dust_dust_rng_runif(SEXP ptr, SEXP n, SEXP r_min, SEXP r_max, SEXP is_float) {
+cpp11::writable::doubles dust_rng_exponential(SEXP ptr, int n, cpp11::doubles r_rate, bool is_float);
+extern "C" SEXP _dust_dust_rng_exponential(SEXP ptr, SEXP n, SEXP r_rate, SEXP is_float) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_runif(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_min), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_max), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
+    return cpp11::as_sexp(dust_rng_exponential(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_rate), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
   END_CPP11
 }
 // dust_rng.cpp
-cpp11::writable::doubles dust_rng_rexp(SEXP ptr, int n, cpp11::doubles r_rate, bool is_float);
-extern "C" SEXP _dust_dust_rng_rexp(SEXP ptr, SEXP n, SEXP r_rate, SEXP is_float) {
+cpp11::writable::doubles dust_rng_normal(SEXP ptr, int n, cpp11::doubles r_mean, cpp11::doubles r_sd, bool is_float);
+extern "C" SEXP _dust_dust_rng_normal(SEXP ptr, SEXP n, SEXP r_mean, SEXP r_sd, SEXP is_float) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_rexp(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_rate), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
+    return cpp11::as_sexp(dust_rng_normal(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_mean), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_sd), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
   END_CPP11
 }
 // dust_rng.cpp
-cpp11::writable::doubles dust_rng_rnorm(SEXP ptr, int n, cpp11::doubles r_mean, cpp11::doubles r_sd, bool is_float);
-extern "C" SEXP _dust_dust_rng_rnorm(SEXP ptr, SEXP n, SEXP r_mean, SEXP r_sd, SEXP is_float) {
+cpp11::writable::doubles dust_rng_binomial(SEXP ptr, int n, cpp11::doubles r_size, cpp11::doubles r_prob, bool is_float);
+extern "C" SEXP _dust_dust_rng_binomial(SEXP ptr, SEXP n, SEXP r_size, SEXP r_prob, SEXP is_float) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_rnorm(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_mean), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_sd), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
+    return cpp11::as_sexp(dust_rng_binomial(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_size), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_prob), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
   END_CPP11
 }
 // dust_rng.cpp
-cpp11::writable::doubles dust_rng_rbinom(SEXP ptr, int n, cpp11::doubles r_size, cpp11::doubles r_prob, bool is_float);
-extern "C" SEXP _dust_dust_rng_rbinom(SEXP ptr, SEXP n, SEXP r_size, SEXP r_prob, SEXP is_float) {
+cpp11::writable::doubles dust_rng_poisson(SEXP ptr, int n, cpp11::doubles r_lambda, bool is_float);
+extern "C" SEXP _dust_dust_rng_poisson(SEXP ptr, SEXP n, SEXP r_lambda, SEXP is_float) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_rbinom(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_size), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_prob), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
-  END_CPP11
-}
-// dust_rng.cpp
-cpp11::writable::doubles dust_rng_rpois(SEXP ptr, int n, cpp11::doubles r_lambda, bool is_float);
-extern "C" SEXP _dust_dust_rng_rpois(SEXP ptr, SEXP n, SEXP r_lambda, SEXP is_float) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_rpois(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_lambda), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
+    return cpp11::as_sexp(dust_rng_poisson(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_lambda), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
   END_CPP11
 }
 // dust_rng.cpp
@@ -124,13 +117,6 @@ cpp11::writable::raws dust_rng_state(SEXP ptr, bool is_float);
 extern "C" SEXP _dust_dust_rng_state(SEXP ptr, SEXP is_float) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
-  END_CPP11
-}
-// dust_rng.cpp
-bool dust_rng_set_deterministic(SEXP ptr, bool value, bool is_float);
-extern "C" SEXP _dust_dust_rng_set_deterministic(SEXP ptr, SEXP value, SEXP is_float) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_set_deterministic(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(value), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
   END_CPP11
 }
 // openmp.cpp
@@ -401,6 +387,13 @@ SEXP test_cuda_pars(cpp11::sexp r_device_config, int n_particles, int n_particle
 extern "C" SEXP _dust_test_cuda_pars(SEXP r_device_config, SEXP n_particles, SEXP n_particles_each, SEXP n_state, SEXP n_state_full, SEXP n_shared_int, SEXP n_shared_real, SEXP data_size, SEXP shared_size) {
   BEGIN_CPP11
     return cpp11::as_sexp(test_cuda_pars(cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_device_config), cpp11::as_cpp<cpp11::decay_t<int>>(n_particles), cpp11::as_cpp<cpp11::decay_t<int>>(n_particles_each), cpp11::as_cpp<cpp11::decay_t<int>>(n_state), cpp11::as_cpp<cpp11::decay_t<int>>(n_state_full), cpp11::as_cpp<cpp11::decay_t<int>>(n_shared_int), cpp11::as_cpp<cpp11::decay_t<int>>(n_shared_real), cpp11::as_cpp<cpp11::decay_t<int>>(data_size), cpp11::as_cpp<cpp11::decay_t<int>>(shared_size)));
+  END_CPP11
+}
+// test_rng.cpp
+std::vector<std::string> test_xoshiro_run(std::string name);
+extern "C" SEXP _dust_test_xoshiro_run(SEXP name) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(test_xoshiro_run(cpp11::as_cpp<cpp11::decay_t<std::string>>(name)));
   END_CPP11
 }
 // tools.cpp
@@ -805,18 +798,16 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_dnbinom_prob",             (DL_FUNC) &_dust_dust_dnbinom_prob,             4},
     {"_dust_dust_dnorm",                    (DL_FUNC) &_dust_dust_dnorm,                    4},
     {"_dust_dust_dpois",                    (DL_FUNC) &_dust_dust_dpois,                    3},
-    {"_dust_dust_rng_alloc",                (DL_FUNC) &_dust_dust_rng_alloc,                3},
+    {"_dust_dust_rng_alloc",                (DL_FUNC) &_dust_dust_rng_alloc,                4},
+    {"_dust_dust_rng_binomial",             (DL_FUNC) &_dust_dust_rng_binomial,             5},
+    {"_dust_dust_rng_exponential",          (DL_FUNC) &_dust_dust_rng_exponential,          4},
     {"_dust_dust_rng_jump",                 (DL_FUNC) &_dust_dust_rng_jump,                 2},
     {"_dust_dust_rng_long_jump",            (DL_FUNC) &_dust_dust_rng_long_jump,            2},
-    {"_dust_dust_rng_norm_rand",            (DL_FUNC) &_dust_dust_rng_norm_rand,            3},
-    {"_dust_dust_rng_rbinom",               (DL_FUNC) &_dust_dust_rng_rbinom,               5},
-    {"_dust_dust_rng_rexp",                 (DL_FUNC) &_dust_dust_rng_rexp,                 4},
-    {"_dust_dust_rng_rnorm",                (DL_FUNC) &_dust_dust_rng_rnorm,                5},
-    {"_dust_dust_rng_rpois",                (DL_FUNC) &_dust_dust_rng_rpois,                4},
-    {"_dust_dust_rng_runif",                (DL_FUNC) &_dust_dust_rng_runif,                5},
-    {"_dust_dust_rng_set_deterministic",    (DL_FUNC) &_dust_dust_rng_set_deterministic,    3},
+    {"_dust_dust_rng_normal",               (DL_FUNC) &_dust_dust_rng_normal,               5},
+    {"_dust_dust_rng_poisson",              (DL_FUNC) &_dust_dust_rng_poisson,              4},
+    {"_dust_dust_rng_random_real",          (DL_FUNC) &_dust_dust_rng_random_real,          3},
     {"_dust_dust_rng_state",                (DL_FUNC) &_dust_dust_rng_state,                2},
-    {"_dust_dust_rng_unif_rand",            (DL_FUNC) &_dust_dust_rng_unif_rand,            3},
+    {"_dust_dust_rng_uniform",              (DL_FUNC) &_dust_dust_rng_uniform,              5},
     {"_dust_dust_sir_alloc",                (DL_FUNC) &_dust_dust_sir_alloc,                8},
     {"_dust_dust_sir_capabilities",         (DL_FUNC) &_dust_dust_sir_capabilities,         0},
     {"_dust_dust_sir_compare_data",         (DL_FUNC) &_dust_dust_sir_compare_data,         2},
@@ -908,6 +899,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_walk_step",                (DL_FUNC) &_dust_dust_walk_step,                1},
     {"_dust_dust_walk_update_state",        (DL_FUNC) &_dust_dust_walk_update_state,        5},
     {"_dust_test_cuda_pars",                (DL_FUNC) &_dust_test_cuda_pars,                9},
+    {"_dust_test_xoshiro_run",              (DL_FUNC) &_dust_test_xoshiro_run,              1},
     {NULL, NULL, 0}
 };
 }
