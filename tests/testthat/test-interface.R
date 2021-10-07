@@ -318,8 +318,8 @@ test_that("can change pars", {
 
   ## Then the comparison:
   cmp <- dust_rng$new(seed = 1, 10)
-  expect_equal(cmp$rnorm(10, 0, 1), drop(y1))
-  expect_equal(y1 + cmp$rnorm(10, 0, 2), y2)
+  expect_equal(cmp$normal(10, 0, 1), drop(y1))
+  expect_equal(y1 + cmp$normal(10, 0, 2), y2)
 })
 
 

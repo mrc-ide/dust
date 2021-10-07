@@ -153,14 +153,14 @@ cpp11::writable::raws dust_rng_state(SEXP ptr) {
 SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators, bool deterministic,
                     bool is_float) {
   return is_float ?
-    dust_rng_alloc<dust_rng64>(r_seed, n_generators, deterministic) :
+    dust_rng_alloc<dust_rng32>(r_seed, n_generators, deterministic) :
     dust_rng_alloc<dust_rng64>(r_seed, n_generators, deterministic);
 }
 
 [[cpp11::register]]
 void dust_rng_jump(SEXP ptr, bool is_float) {
   if (is_float) {
-    dust_rng_jump<dust_rng64>(ptr);
+    dust_rng_jump<dust_rng32>(ptr);
   } else {
     dust_rng_jump<dust_rng64>(ptr);
   }
@@ -169,7 +169,7 @@ void dust_rng_jump(SEXP ptr, bool is_float) {
 [[cpp11::register]]
 void dust_rng_long_jump(SEXP ptr, bool is_float) {
   if (is_float) {
-    dust_rng_long_jump<dust_rng64>(ptr);
+    dust_rng_long_jump<dust_rng32>(ptr);
   } else {
     dust_rng_long_jump<dust_rng64>(ptr);
   }
@@ -178,7 +178,7 @@ void dust_rng_long_jump(SEXP ptr, bool is_float) {
 [[cpp11::register]]
 cpp11::writable::doubles dust_rng_random_real(SEXP ptr, int n, bool is_float) {
   return is_float ?
-    dust_rng_random_real<float, dust_rng64>(ptr, n) :
+    dust_rng_random_real<float, dust_rng32>(ptr, n) :
     dust_rng_random_real<double, dust_rng64>(ptr, n);
 }
 
@@ -188,7 +188,7 @@ cpp11::writable::doubles dust_rng_uniform(SEXP ptr, int n,
                                           cpp11::doubles r_max,
                                           bool is_float) {
   return is_float ?
-    dust_rng_uniform<float, dust_rng64>(ptr, n, r_min, r_max) :
+    dust_rng_uniform<float, dust_rng32>(ptr, n, r_min, r_max) :
     dust_rng_uniform<double, dust_rng64>(ptr, n, r_min, r_max);
 }
 
@@ -197,7 +197,7 @@ cpp11::writable::doubles dust_rng_exponential(SEXP ptr, int n,
                                               cpp11::doubles r_rate,
                                               bool is_float) {
   return is_float ?
-    dust_rng_exponential<float, dust_rng64>(ptr, n, r_rate) :
+    dust_rng_exponential<float, dust_rng32>(ptr, n, r_rate) :
     dust_rng_exponential<double, dust_rng64>(ptr, n, r_rate);
 }
 
@@ -205,7 +205,7 @@ cpp11::writable::doubles dust_rng_exponential(SEXP ptr, int n,
 cpp11::writable::doubles dust_rng_normal(SEXP ptr, int n, cpp11::doubles r_mean,
                                          cpp11::doubles r_sd, bool is_float) {
   return is_float ?
-    dust_rng_normal<float, dust_rng64>(ptr, n, r_mean, r_sd) :
+    dust_rng_normal<float, dust_rng32>(ptr, n, r_mean, r_sd) :
     dust_rng_normal<double, dust_rng64>(ptr, n, r_mean, r_sd);
 }
 
@@ -215,7 +215,7 @@ cpp11::writable::doubles dust_rng_binomial(SEXP ptr, int n,
                                            cpp11::doubles r_prob,
                                            bool is_float) {
   return is_float ?
-    dust_rng_binomial<float, dust_rng64>(ptr, n, r_size, r_prob) :
+    dust_rng_binomial<float, dust_rng32>(ptr, n, r_size, r_prob) :
     dust_rng_binomial<double, dust_rng64>(ptr, n, r_size, r_prob);
 }
 
@@ -224,13 +224,13 @@ cpp11::writable::doubles dust_rng_poisson(SEXP ptr, int n,
                                         cpp11::doubles r_lambda,
                                         bool is_float) {
   return is_float ?
-    dust_rng_poisson<float, dust_rng64>(ptr, n, r_lambda) :
+    dust_rng_poisson<float, dust_rng32>(ptr, n, r_lambda) :
     dust_rng_poisson<double, dust_rng64>(ptr, n, r_lambda);
 }
 
 [[cpp11::register]]
 cpp11::writable::raws dust_rng_state(SEXP ptr, bool is_float) {
   return is_float ?
-    dust_rng_state<dust_rng64>(ptr) :
+    dust_rng_state<dust_rng32>(ptr) :
     dust_rng_state<dust_rng64>(ptr);
 }

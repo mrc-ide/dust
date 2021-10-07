@@ -8,25 +8,40 @@ namespace random {
 
 enum xoshiro_mode {STARSTAR, PLUSPLUS, PLUS};
 
+// See for more background:
+// https://github.com/mrc-ide/dust/issues/280
+// https://mumble.net/~campbell/tmp/random_real.c
+// https://doornik.com/research/randomdouble.pdf
 template <typename T, typename U>
-T int_to_real(U value);
+T int_to_real(U x);
+
+#define TWOPOW32_INV (2.3283064e-10f)
+#define TWOPOW32_INV_DOUBLE (2.3283064365386963e-10)
+#define TWOPOW53_INV_DOUBLE (1.1102230246251565e-16)
 
 template <>
 inline HOSTDEVICE
-double int_to_real(uint64_t value) {
-  return double(value) / double(utils::uint64_max());
+double int_to_real(uint64_t x) {
+  return (x >> 11) * TWOPOW53_INV_DOUBLE + (TWOPOW53_INV_DOUBLE / 2.0);
 }
 
 template <>
 inline HOSTDEVICE
-float int_to_real(uint64_t value) {
-  return float(value) / float(utils::uint64_max());
+double int_to_real(uint32_t x) {
+  return x * TWOPOW32_INV_DOUBLE + (TWOPOW32_INV_DOUBLE / 2.0);
 }
 
 template <>
 inline HOSTDEVICE
-float int_to_real(uint32_t value) {
-  return float(value) / float(utils::uint32_max());
+float int_to_real(uint64_t x) {
+  uint32_t t = (uint32_t)(x >> 32);
+  return t * TWOPOW32_INV + (TWOPOW32_INV / 2.0f);
+}
+
+template <>
+inline HOSTDEVICE
+float int_to_real(uint32_t x) {
+  return x * TWOPOW32_INV + (TWOPOW32_INV / 2.0f);
 }
 
 inline HOSTDEVICE
