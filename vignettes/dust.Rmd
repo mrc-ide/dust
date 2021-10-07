@@ -49,8 +49,8 @@ The class is what does most of the work. It is important that this does not use 
 
 * the type `real_t` has to exist and indicate what sort of numeric type you use for "real numbers". Typically this will be `double`,but if you need a different type (longer or shorter) you can use it here.
 * the type `data_t` which for now should match exactly the construction `typedef dust::no_data data_t` until we stabilise and document this interface
-* the type `shared_t` is whatever data your model needs that is shared across a number of particles, and unmodified during the model update (most likely parameters), and an object of this type will be passed to your constructor as the `.shared` field to `pars` (see `dust::dust_pars` below, and see `vignette("multi")` for more on parameters)
-* the type `internal_t` is whatever internal data your model needs (most likely scratch space used for intermediate calculations), and an object of this type will be passed to your constructor as the `.internal` field to `pars` (see `dust::dust_pars` below)
+* the type `shared_type` is whatever data your model needs that is shared across a number of particles, and unmodified during the model update (most likely parameters), and an object of this type will be passed to your constructor as the `.shared` field to `pars` (see `dust::dust_pars` below, and see `vignette("multi")` for more on parameters)
+* the type `internal_type` is whatever internal data your model needs (most likely scratch space used for intermediate calculations), and an object of this type will be passed to your constructor as the `.internal` field to `pars` (see `dust::dust_pars` below)
 * the type `rng_state_type` is one of the valid RNG types. For now leave this as `dust::random::xoshiro256starstar_state`
 * the constructor must take only one argument, being `const dust::dust_pars<model>&`. You can do what you want in the constructor - here we just copy `shared` (containing parameters) into the object with the `pars` argument (we use the private member `shared` here but this can be anything you want, though the type is important)
 * the method `size()` must return the "size" of the system - how many state variables it has. Here we're considering a single individual moving randomly so the size is always 1
@@ -158,7 +158,7 @@ cc_output(readLines(dust:::dust_file("examples/sir.cpp")))
 There a few changes here compared to the version that was shown before for the walk model, but the core parts are only slightly different:
 
 * the `initial` method is slightly more complicated as we initialise a 3-element vector
-* our `shared_t` object has significantly more elements
+* our `shared_type` object has significantly more elements
 * the `dust_pars` function is much more complicated
 * there is a `compare_data` method and a nontrivial `data_t` definition, but ignore these for now
 

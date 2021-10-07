@@ -7,9 +7,9 @@ class parallel {
 public:
   typedef double real_t;
   typedef dust::no_data data_t;
-  typedef dust::no_internal internal_t;
+  typedef dust::no_internal internal_type;
   typedef dust::random::xoshiro256starstar_state rng_state_type;
-  struct shared_t {
+  struct shared_type {
     real_t sd;
   };
 
@@ -49,7 +49,7 @@ namespace dust {
 template <>
 dust::pars_type<parallel> dust_pars<parallel>(cpp11::list pars) {
   parallel::real_t sd = cpp11::as_cpp<parallel::real_t>(pars["sd"]);
-  parallel::shared_t shared{sd};
+  parallel::shared_type shared{sd};
   return dust::pars_type<parallel>(shared);
 }
 }

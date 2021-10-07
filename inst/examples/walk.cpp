@@ -2,10 +2,10 @@ class walk {
 public:
   typedef double real_t;
   typedef dust::no_data data_t;
-  typedef dust::no_internal internal_t;
+  typedef dust::no_internal internal_type;
   typedef dust::random::xoshiro256starstar_state rng_state_type;
 
-  struct shared_t {
+  struct shared_type {
     real_t sd;
   };
 
@@ -36,7 +36,7 @@ namespace dust {
 template <>
 dust::pars_type<walk> dust_pars<walk>(cpp11::list pars) {
   walk::real_t sd = cpp11::as_cpp<walk::real_t>(pars["sd"]);
-  return dust::pars_type<walk>(walk::shared_t{sd});
+  return dust::pars_type<walk>(walk::shared_type{sd});
 }
 
 }

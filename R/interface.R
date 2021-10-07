@@ -10,16 +10,16 @@
 ##' * Define some class that implements your model (below `model` is
 ##'   assumed to be the class name)
 ##'
-##' * That class must define a type `internal_t` (so
-##'   `model::internal_t`) that contains its internal data that the
+##' * That class must define a type `internal_type` (so
+##'   `model::internal_type`) that contains its internal data that the
 ##'   model may change during execution (i.e., that is not shared
 ##'   between particles). If no such data is needed, you can do
-##'   `typedef dust::no_internal internal_t` to indicate this.
+##'   `typedef dust::no_internal internal_type` to indicate this.
 ##'
-##' * We also need a type `shared_t` that contains *constant* internal
+##' * We also need a type `shared_type` that contains *constant* internal
 ##'   data is shared between particles (e.g., dimensions, arrays that
 ##'   are read but not written). If no such data is needed, you can do
-##'   `typedef dust::no_shared shared_t` to indicate this.
+##'   `typedef dust::no_shared shared_type` to indicate this.
 ##'
 ##' * That class must also include a typedef that describes the
 ##'   model's floating point type, `real_t`. Most models can include
@@ -78,7 +78,7 @@
 ##' ```
 ##'
 ##' With the body interacting with `pars` to create an object of type
-##'   `model::shared_t` and `model::internal_t` before returning the
+##'   `model::shared_type` and `model::internal_type` before returning the
 ##'   `dust::pars_type` object.  This function will be called in serial
 ##'   and may use anything in the cpp11 API.  All elements of the
 ##'   returned object must be standard C/C++ (e.g., STL) types and

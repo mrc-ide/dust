@@ -137,7 +137,7 @@ Normally we have in the object several things:
 The internal state is the the hardest to understand in this set. Suppose that we had a model that each time step we wanted to do something like take the median value found in a set of random number draws. We might want to write the update function like
 
 ```c++
-  struct internal_t {
+  struct internal_type {
     std::vector<real_t> samples;
   };
   // ...
@@ -166,9 +166,9 @@ this takes advantage of some internal space of the correct size in internal memo
 ```c++
 dust::pars_type<model> dust_pars<model>(cpp11::list user) {
   typedef typename model::real_t real_t;
-  auto shared = std::make_shared<model::shared_t>();
+  auto shared = std::make_shared<model::shared_type>();
   shared->n = 10;
-  model::internal_t internal{std::vector<model::real_t>(shared->n)};
+  model::internal_type internal{std::vector<model::real_t>(shared->n)};
   return dust::pars_type<model>(shared, internal);
 }
 ```
@@ -209,11 +209,11 @@ class odin {
 public:
   typedef double real_t;
   typedef dust::no_data data_t;
-  struct shared_t {
+  struct shared_type {
     real_t initial_y;
     real_t sd;
   };
-  struct internal_t {
+  struct internal_type {
   };
   odin(const dust::pars_type<odin>& pars) :
     shared(pars.shared), internal(pars.internal) {
@@ -231,16 +231,16 @@ public:
     state_next[0] = dust::random::normal(rng_state, y, shared->sd);
   }
 private:
-  std::shared_ptr<const shared_t> shared;
-  internal_t internal;
+  std::shared_ptr<const shared_type> shared;
+  internal_type internal;
 };
 
 // ...
 template<>
 dust::pars_type<odin> dust_pars<odin>(cpp11::list user) {
   typedef typename odin::real_t real_t;
-  auto shared = std::make_shared<odin::shared_t>();
-  odin::internal_t internal;
+  auto shared = std::make_shared<odin::shared_type>();
+  odin::internal_type internal;
   shared->initial_y = 0;
   shared->sd = NA_REAL;
   shared->sd = user_get_scalar<real_t>(user, "sd", shared->sd, NA_REAL, NA_REAL);

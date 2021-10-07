@@ -66,7 +66,7 @@ cpp11::sexp dust_sirs_device_info();
 class sirs {
 public:
   typedef double real_t;
-  typedef dust::no_internal internal_t;
+  typedef dust::no_internal internal_type;
   typedef dust::random::xoshiro256starstar_state rng_state_type;
 
   // ALIGN(16) is required before the data_t definition when using NVCC
@@ -75,7 +75,7 @@ public:
     double incidence;
   };
 
-  struct shared_t {
+  struct shared_type {
     real_t S0;
     real_t I0;
     real_t R0;
@@ -167,7 +167,7 @@ dust::pars_type<sirs> dust_pars<sirs>(cpp11::list pars) {
   // [[dust::param(gamma, required = FALSE, default = 0.1)]]
   sirs::real_t gamma = with_default(0.1, pars["gamma"]);
 
-  sirs::shared_t shared{S0, I0, R0, alpha, beta, gamma, dt, freq, exp_noise};
+  sirs::shared_type shared{S0, I0, R0, alpha, beta, gamma, dt, freq, exp_noise};
   return dust::pars_type<sirs>(shared);
 }
 

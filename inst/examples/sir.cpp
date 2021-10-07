@@ -4,10 +4,10 @@ public:
   struct data_t {
     real_t incidence;
   };
-  typedef dust::no_internal internal_t;
+  typedef dust::no_internal internal_type;
   typedef dust::random::xoshiro256starstar_state rng_state_type;
 
-  struct shared_t {
+  struct shared_type {
     real_t S0;
     real_t I0;
     real_t R0;
@@ -99,7 +99,7 @@ dust::pars_type<sir> dust_pars<sir>(cpp11::list pars) {
   // [[dust::param(exp_noise, required = FALSE)]]
   real_t exp_noise = with_default(1e6, pars["exp_noise"]);
 
-  sir::shared_t shared{S0, I0, R0, beta, gamma, dt, freq, exp_noise};
+  sir::shared_type shared{S0, I0, R0, beta, gamma, dt, freq, exp_noise};
   return dust::pars_type<sir>(shared);
 }
 

@@ -2,10 +2,10 @@ class variable {
 public:
   typedef double real_t;
   typedef dust::no_data data_t;
-  typedef dust::no_internal internal_t;
+  typedef dust::no_internal internal_type;
   typedef dust::random::xoshiro256starstar_state rng_state_type;
 
-  struct shared_t {
+  struct shared_type {
     size_t len;
     real_t mean;
     real_t sd;
@@ -55,7 +55,7 @@ dust::pars_type<variable> dust_pars<variable>(cpp11::list pars) {
     sd = cpp11::as_cpp<real_t>(r_sd);
   }
 
-  variable::shared_t shared{len, mean, sd};
+  variable::shared_type shared{len, mean, sd};
   return dust::pars_type<variable>(shared);
 }
 

@@ -122,8 +122,8 @@ This is definitely a bit fiddly!  If using `odin.dust`, then this would be somew
 template <typename T>
 typename T::real_t compare(const typename T::real_t * state,
                            const typename T::data_t& data,
-                           const typename T::internal_t internal,
-                           std::shared_ptr<const typename T::shared_t> shared,
+                           const typename T::internal_type internal,
+                           std::shared_ptr<const typename T::shared_type> shared,
                            typename T::rng_state_type& rng_state) {
   return dust::dnorm(data.observed, odin(gamma) * odin(value), odin(tau), true);
 }

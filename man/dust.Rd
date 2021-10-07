@@ -63,15 +63,15 @@ Your input dust model must satisfy a few requirements.
 \itemize{
 \item Define some class that implements your model (below \code{model} is
 assumed to be the class name)
-\item That class must define a type \code{internal_t} (so
-\code{model::internal_t}) that contains its internal data that the
+\item That class must define a type \code{internal_type} (so
+\code{model::internal_type}) that contains its internal data that the
 model may change during execution (i.e., that is not shared
 between particles). If no such data is needed, you can do
-\verb{typedef dust::no_internal internal_t} to indicate this.
-\item We also need a type \code{shared_t} that contains \emph{constant} internal
+\verb{typedef dust::no_internal internal_type} to indicate this.
+\item We also need a type \code{shared_type} that contains \emph{constant} internal
 data is shared between particles (e.g., dimensions, arrays that
 are read but not written). If no such data is needed, you can do
-\verb{typedef dust::no_shared shared_t} to indicate this.
+\verb{typedef dust::no_shared shared_type} to indicate this.
 \item That class must also include a typedef that describes the
 model's floating point type, \code{real_t}. Most models can include
 \verb{typedef double real_t;} in their public section.
@@ -123,7 +123,7 @@ dust::pars_type<model> dust_pars<model>(cpp11::list pars) \{
 }
 
 With the body interacting with \code{pars} to create an object of type
-\code{model::shared_t} and \code{model::internal_t} before returning the
+\code{model::shared_type} and \code{model::internal_type} before returning the
 \code{dust::pars_type} object.  This function will be called in serial
 and may use anything in the cpp11 API.  All elements of the
 returned object must be standard C/C++ (e.g., STL) types and

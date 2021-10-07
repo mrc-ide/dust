@@ -69,10 +69,10 @@ public:
   struct data_t {
     real_t observed;
   };
-  typedef dust::no_internal internal_t;
+  typedef dust::no_internal internal_type;
   typedef dust::random::xoshiro256starstar_state rng_state_type;
 
-  struct shared_t {
+  struct shared_type {
     real_t alpha;
     real_t sigma;
     real_t gamma;
@@ -126,7 +126,7 @@ dust::pars_type<volatility> dust_pars<volatility>(cpp11::list pars) {
   real_t gamma = with_default(1, pars["gamma"]);
   real_t tau = with_default(1, pars["tau"]);
 
-  volatility::shared_t shared{alpha, sigma, gamma, tau, x0};
+  volatility::shared_type shared{alpha, sigma, gamma, tau, x0};
   return dust::pars_type<volatility>(shared);
 }
 
