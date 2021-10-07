@@ -449,13 +449,13 @@ cpp11::sexp save_snapshots(const filter_state& snapshots, const Dust<T> *obj,
   return(r_snapshots);
 }
 
-template <typename T, typename state_t>
+template <typename T, typename state_type>
 cpp11::writable::doubles run_filter(Dust<T> * obj,
                                     cpp11::sexp& r_trajectories,
                                     cpp11::sexp& r_snapshots,
                                     std::vector<size_t>& step_snapshot,
                                     bool save_trajectories) {
-  state_t filter_state;
+  state_type filter_state;
   cpp11::writable::doubles log_likelihood =
     dust::filter::filter(obj, filter_state,
                          save_trajectories, step_snapshot);
