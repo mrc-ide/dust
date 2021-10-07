@@ -2,7 +2,7 @@ class sirs {
 public:
   typedef double real_t;
   typedef dust::no_internal internal_t;
-  typedef dust::random::xoshiro256starstar_state rng_state_t;
+  typedef dust::random::xoshiro256starstar_state rng_state_type;
 
   // ALIGN(16) is required before the data_t definition when using NVCC
   // This is so when loaded into shared memory it is aligned correctly
@@ -38,7 +38,7 @@ public:
     return state;
   }
 
-  void update(size_t step, const real_t * state, rng_state_t& rng_state,
+  void update(size_t step, const real_t * state, rng_state_type& rng_state,
               real_t * state_next) {
     real_t S = state[0];
     real_t I = state[1];
@@ -61,7 +61,7 @@ public:
   }
 
   real_t compare_data(const real_t * state, const data_t& data,
-                      rng_state_t& rng_state) {
+                      rng_state_type& rng_state) {
     const real_t incidence_modelled = state[3];
     const real_t incidence_observed = data.incidence;
     const real_t lambda = incidence_modelled +
@@ -148,7 +148,7 @@ void update_device<sirs>(size_t step,
                          dust::cuda::interleaved<sirs::real_t> internal_real,
                          const int * shared_int,
                          const sirs::real_t * shared_real,
-                         sirs::rng_state_t& rng_state,
+                         sirs::rng_state_type& rng_state,
                          dust::cuda::interleaved<sirs::real_t> state_next) {
   typedef sirs::real_t real_t;
   const real_t alpha = shared_real[0];
@@ -180,7 +180,7 @@ sirs::real_t compare_device<sirs>(const dust::cuda::interleaved<sirs::real_t> st
                                   dust::cuda::interleaved<sirs::real_t> internal_real,
                                   const int * shared_int,
                                   const sirs::real_t * shared_real,
-                                  sirs::rng_state_t& rng_state) {
+                                  sirs::rng_state_type& rng_state) {
   typedef sirs::real_t real_t;
   const real_t exp_noise = shared_real[4];
   const real_t incidence_modelled = state[3];

@@ -5,7 +5,7 @@ public:
     real_t observed;
   };
   typedef dust::no_internal internal_t;
-  typedef dust::random::xoshiro256starstar_state rng_state_t;
+  typedef dust::random::xoshiro256starstar_state rng_state_type;
 
   struct shared_t {
     real_t alpha;
@@ -29,14 +29,14 @@ public:
   }
 
   void update(size_t step, const real_t * state,
-              rng_state_t& rng_state, real_t * state_next) {
+              rng_state_type& rng_state, real_t * state_next) {
     const real_t x = state[0];
     state_next[0] = shared->alpha * x +
       shared->sigma * dust::random::normal<real_t>(rng_state, 0, 1);
   }
 
   real_t compare_data(const real_t * state, const data_t& data,
-                      rng_state_t& rng_state) {
+                      rng_state_type& rng_state) {
     return dust::density::normal(data.observed, shared->gamma * state[0],
                                  shared->tau, true);
   }

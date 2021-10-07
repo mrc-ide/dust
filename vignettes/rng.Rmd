@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 We provide an interface to the "Xoshiro256" generators (Xoshiro is derived from XOR/shift/rotate). These are designed to allow use in parallel by "jumping ahead" in the sequence and we use this below to interleave generators. The stream is unrelated to and unaffected by R's random number generation. `set.seed` has no effect, for example. **The random numbers are not cryptographically secure**; for that see the excellent [sodium](https://cran.r-project.org/package=sodium) package.
 
-Ordinarily this is used from C++; the model as discussed in `vignette("dust")` uses `rng_state_t` and a function from `dust::random` to interact with the generator. However, an R interface is provided for debugging and testing purposes.
+Ordinarily this is used from C++; the model as discussed in `vignette("dust")` uses `rng_state_type` and a function from `dust::random` to interact with the generator. However, an R interface is provided for debugging and testing purposes.
 
 ```{r}
 rng <- dust::dust_rng$new(seed = 1)

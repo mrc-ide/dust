@@ -5,7 +5,7 @@ public:
     real_t incidence;
   };
   typedef dust::no_internal internal_t;
-  typedef dust::random::xoshiro256starstar_state rng_state_t;
+  typedef dust::random::xoshiro256starstar_state rng_state_type;
 
   struct shared_t {
     real_t S0;
@@ -31,7 +31,7 @@ public:
     return ret;
   }
 
-  void update(size_t step, const real_t * state, rng_state_t& rng_state,
+  void update(size_t step, const real_t * state, rng_state_type& rng_state,
               real_t * state_next) {
     real_t S = state[0];
     real_t I = state[1];
@@ -57,7 +57,7 @@ public:
   }
 
   real_t compare_data(const real_t * state, const data_t& data,
-                      rng_state_t& rng_state) {
+                      rng_state_type& rng_state) {
     const real_t incidence_modelled = state[4];
     const real_t incidence_observed = data.incidence;
     const real_t lambda = incidence_modelled +

@@ -85,7 +85,7 @@ The comparison is implemented by the method `compare_data`, which has a standard
 
 ```cc
   real_t compare_data(const real_t * state, const data_t& data,
-                      rng_state_t& rng_state) {
+                      rng_state_type& rng_state) {
     return dust::dnorm(data.observed, shared->gamma * state[0],
                        shared->tau, true);
   }
@@ -124,7 +124,7 @@ typename T::real_t compare(const typename T::real_t * state,
                            const typename T::data_t& data,
                            const typename T::internal_t internal,
                            std::shared_ptr<const typename T::shared_t> shared,
-                           dust::rng_state_t<typename T::real_t>& rng_state) {
+                           typename T::rng_state_type& rng_state) {
   return dust::dnorm(data.observed, odin(gamma) * odin(value), odin(tau), true);
 }
 ```

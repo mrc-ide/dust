@@ -8,8 +8,8 @@ namespace dust {
 namespace random {
 
 __nv_exec_check_disable__
-template <typename real_t, typename rng_state_t>
-HOSTDEVICE real_t poisson_knuth(rng_state_t& rng_state, real_t lambda) {
+template <typename real_t, typename rng_state_type>
+HOSTDEVICE real_t poisson_knuth(rng_state_type& rng_state, real_t lambda) {
   int x = 0;
   // Knuth's algorithm for generating Poisson random variates.
   // Given a Poisson process, the time between events is exponentially
@@ -37,8 +37,8 @@ HOSTDEVICE real_t poisson_knuth(rng_state_t& rng_state, real_t lambda) {
 }
 
 __nv_exec_check_disable__
-template <typename real_t, typename rng_state_t>
-HOSTDEVICE real_t poisson_hormann(rng_state_t& rng_state, real_t lambda) {
+template <typename real_t, typename rng_state_type>
+HOSTDEVICE real_t poisson_hormann(rng_state_type& rng_state, real_t lambda) {
   // Transformed rejection due to Hormann.
   //
   // Given a CDF F(x), and G(x), a dominating distribution chosen such
@@ -117,8 +117,8 @@ HOSTDEVICE real_t poisson_hormann(rng_state_t& rng_state, real_t lambda) {
 // NOTE: we return a real, not an int, as with deterministic mode this
 // will not necessarily be an integer
 __nv_exec_check_disable__
-template <typename real_t, typename rng_state_t>
-HOSTDEVICE real_t poisson(rng_state_t& rng_state, real_t lambda) {
+template <typename real_t, typename rng_state_type>
+HOSTDEVICE real_t poisson(rng_state_type& rng_state, real_t lambda) {
   static_assert(std::is_floating_point<real_t>::value,
                 "Only valid for floating-point types; use poisson<real_t>()");
   real_t x = 0;

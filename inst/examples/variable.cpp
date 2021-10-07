@@ -3,7 +3,7 @@ public:
   typedef double real_t;
   typedef dust::no_data data_t;
   typedef dust::no_internal internal_t;
-  typedef dust::random::xoshiro256starstar_state rng_state_t;
+  typedef dust::random::xoshiro256starstar_state rng_state_type;
 
   struct shared_t {
     size_t len;
@@ -26,7 +26,7 @@ public:
     return ret;
   }
 
-  void update(size_t step, const real_t * state, rng_state_t& rng_state,
+  void update(size_t step, const real_t * state, rng_state_type& rng_state,
               real_t * state_next) {
     for (size_t i = 0; i < shared->len; ++i) {
       state_next[i] = state[i] +
@@ -93,7 +93,7 @@ void update_device<variable>(size_t step,
                              dust::cuda::interleaved<variable::real_t> internal_real,
                              const int * shared_int,
                              const variable::real_t * shared_real,
-                             variable::rng_state_t& rng_state,
+                             variable::rng_state_type& rng_state,
                              dust::cuda::interleaved<variable::real_t> state_next) {
   typedef variable::real_t real_t;
   const size_t len = shared_int[0];

@@ -33,8 +33,8 @@ public:
   typedef dust::pars_t<T> pars_t;
   typedef typename T::real_t real_t;
   typedef typename T::data_t data_t;
-  typedef typename T::rng_state_t rng_state_t;
-  typedef typename rng_state_t::int_type rng_int_type;
+  typedef typename T::rng_state_type rng_state_type;
+  typedef typename rng_state_type::int_type rng_int_type;
 
   Dust(const pars_t& pars, const size_t step, const size_t n_particles,
        const size_t n_threads, const std::vector<rng_int_type>& seed,
@@ -661,7 +661,7 @@ private:
   std::vector<size_t> shape_; // shape of output
   size_t n_threads_;
   cuda::device_config device_config_;
-  dust::random::prng<rng_state_t> rng_;
+  dust::random::prng<rng_state_type> rng_;
   std::map<size_t, std::vector<data_t>> data_;
   dust::utils::openmp_errors errors_;
 
@@ -671,7 +671,7 @@ private:
 
   // Device support
   dust::cuda::launch_control_dust cuda_pars_;
-  dust::cuda::device_state<real_t, rng_state_t> device_state_;
+  dust::cuda::device_state<real_t, rng_state_type> device_state_;
   dust::cuda::device_array<data_t> device_data_;
   std::map<size_t, size_t> device_data_offsets_;
   dust::cuda::cuda_stream kernel_stream_;
@@ -882,7 +882,7 @@ private:
     }
     if (stale_device_) {
       const size_t np = n_particles(), ny = n_state_full();
-      const size_t rng_len = rng_state_t::size();
+      const size_t rng_len = rng_state_type::size();
       std::vector<real_t> y_tmp(ny); // Individual particle state
       std::vector<real_t> y(np * ny); // Interleaved state of all particles
       std::vector<rng_int_type> rng(np * rng_len); // Interleaved RNG state
@@ -895,7 +895,7 @@ private:
         dust::utils::stride_copy(y.data(), y_tmp, i, np);
 
         // Interleave RNG state
-        rng_state_t p_rng = rng_.state(i);
+        rng_state_type p_rng = rng_.state(i);
         size_t rng_offset = i;
         for (size_t j = 0; j < rng_len; ++j) {
           rng_offset = dust::utils::stride_copy(rng.data(), p_rng[j],
@@ -916,7 +916,7 @@ private:
   refresh_host() {
     if (stale_host_) {
       const size_t np = n_particles(), ny = n_state_full();
-      const size_t rng_len = rng_state_t::size();
+      const size_t rng_len = rng_state_type::size();
       std::vector<real_t> y_tmp(ny); // Individual particle state
       std::vector<real_t> y(np * ny); // Interleaved state of all particles
       std::vector<rng_int_type> rngi(np * rng_len); // Interleaved RNG state

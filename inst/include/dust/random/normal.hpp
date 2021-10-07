@@ -10,9 +10,9 @@ namespace random {
 namespace {
 
 __nv_exec_check_disable__
-template <typename real_t, typename rng_state_t>
+template <typename real_t, typename rng_state_type>
 HOSTDEVICE
-real_t box_muller(rng_state_t& rng_state) {
+real_t box_muller(rng_state_type& rng_state) {
   // This function implements the Box-Muller transform:
   // https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform#Basic_form
   // Do not send a really small number to log().
@@ -32,9 +32,9 @@ real_t box_muller(rng_state_t& rng_state) {
 }
 
 __nv_exec_check_disable__
-template <typename real_t, typename rng_state_t>
+template <typename real_t, typename rng_state_type>
 HOSTDEVICE
-real_t normal(rng_state_t& rng_state, real_t mean, real_t sd) {
+real_t normal(rng_state_type& rng_state, real_t mean, real_t sd) {
   static_assert(std::is_floating_point<real_t>::value,
                 "Only valid for floating-point types; use normal<real_t>()");
 #ifdef __CUDA_ARCH__

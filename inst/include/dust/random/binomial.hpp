@@ -59,8 +59,8 @@ real_t HOSTDEVICE binomial_inversion_calc(real_t u, int n, real_t p) {
 // random number from U(0, 1) and find the 'n' up the distribution
 // (given p) that corresponds to this
 __nv_exec_check_disable__
-template <typename real_t, typename rng_state_t>
-real_t HOSTDEVICE binomial_inversion(rng_state_t& rng_state, int n,
+template <typename real_t, typename rng_state_type>
+real_t HOSTDEVICE binomial_inversion(rng_state_type& rng_state, int n,
                                      real_t p) {
   real_t k = -1;
   do {
@@ -107,8 +107,8 @@ HOSTDEVICE inline double stirling_approx_tail(double k) {
 
 // https://www.tandfonline.com/doi/abs/10.1080/00949659308811496
 __nv_exec_check_disable__
-template <typename real_t, typename rng_state_t>
-inline HOSTDEVICE real_t btrs(rng_state_t& rng_state, int n_int, real_t p) {
+template <typename real_t, typename rng_state_type>
+inline HOSTDEVICE real_t btrs(rng_state_type& rng_state, int n_int, real_t p) {
   const real_t n = static_cast<real_t>(n_int);
   const real_t one = 1.0;
   const real_t half = 0.5;
@@ -200,9 +200,9 @@ HOST real_t binomial_deterministic(real_t n, real_t p) {
 
 // NOTE: we return a real, not an int, as with deterministic mode this
 // will not necessarily be an integer
-template <typename real_t, typename rng_state_t>
-HOSTDEVICE real_t binomial_stochastic(rng_state_t& rng_state, int n,
-                                    real_t p) {
+template <typename real_t, typename rng_state_type>
+HOSTDEVICE real_t binomial_stochastic(rng_state_type& rng_state, int n,
+                                      real_t p) {
   binomial_validate(n, p);
   real_t draw;
 
@@ -231,8 +231,8 @@ HOSTDEVICE real_t binomial_stochastic(rng_state_t& rng_state, int n,
   return draw;
 }
 
-template <typename real_t, typename rng_state_t>
-HOSTDEVICE real_t binomial(rng_state_t& rng_state, real_t n, real_t p) {
+template <typename real_t, typename rng_state_type>
+HOSTDEVICE real_t binomial(rng_state_type& rng_state, real_t n, real_t p) {
   static_assert(std::is_floating_point<real_t>::value,
                 "Only valid for floating-point types; use binomial<real_t>()");
 #ifndef __CUDA_ARCH__

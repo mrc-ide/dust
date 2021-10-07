@@ -9,15 +9,15 @@ namespace dust {
 
 namespace filter {
 
-template <typename real_t, typename rng_state_t>
+template <typename real_t, typename rng_state_type>
 void run_device_resample(const size_t n_particles,
                          const size_t n_pars,
                          const size_t n_state,
                          const dust::cuda::launch_control_dust& cuda_pars,
                          dust::cuda::cuda_stream& kernel_stream,
                          dust::cuda::cuda_stream& resample_stream,
-                         rng_state_t& resample_rng,
-                         dust::cuda::device_state<real_t, rng_state_t>& device_state,
+                         rng_state_type& resample_rng,
+                         dust::cuda::device_state<real_t, rng_state_type>& device_state,
                          dust::cuda::device_array<real_t>& weights,
                          dust::cuda::device_scan_state<real_t>& scan) {
 #ifdef __NVCC__

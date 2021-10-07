@@ -300,7 +300,7 @@ private:
   size_t size_;
 };
 
-template <typename real_t, typename rng_state_t>
+template <typename real_t, typename rng_state_type>
 struct device_state {
   void initialise(size_t n_particles, size_t n_state, size_t n_pars,
                   size_t n_shared_len_,
@@ -309,14 +309,14 @@ struct device_state {
     n_shared_len = n_shared_len_;
     n_shared_int = n_shared_int_;
     n_shared_real = n_shared_real_;
-    const size_t n_rng = rng_state_t::size();
+    const size_t n_rng = rng_state_type::size();
     y = device_array<real_t>(n_state * n_particles);
     y_next = device_array<real_t>(n_state * n_particles);
     internal_int = device_array<int>(n_internal_int * n_particles);
     internal_real = device_array<real_t>(n_internal_real * n_particles);
     shared_int = device_array<int>(n_shared_int * n_shared_len);
     shared_real = device_array<real_t>(n_shared_real * n_shared_len);
-    rng = device_array<typename rng_state_t::int_type>(n_rng * n_particles);
+    rng = device_array<typename rng_state_type::int_type>(n_rng * n_particles);
     index = device_array<char>(n_state * n_particles);
     n_selected = device_array<int>(1);
     scatter_index = device_array<size_t>(n_particles);
@@ -382,7 +382,7 @@ struct device_state {
   device_array<real_t> internal_real;
   device_array<int> shared_int;
   device_array<real_t> shared_real;
-  device_array<typename rng_state_t::int_type> rng;
+  device_array<typename rng_state_type::int_type> rng;
   device_array<char> index;
   device_array<size_t> index_state_scatter;
   device_array<int> n_selected;
@@ -655,10 +655,10 @@ struct device_ptrs {
   const typename T::data_t * data;
 };
 
-template <typename rng_state_t>
+template <typename rng_state_type>
 DEVICE
-rng_state_t get_rng_state(const interleaved<typename rng_state_t::int_type>& full_rng_state) {
-  rng_state_t rng_state;
+rng_state_type get_rng_state(const interleaved<typename rng_state_type::int_type>& full_rng_state) {
+  rng_state_type rng_state;
   for (size_t i = 0; i < rng_state.size(); i++) {
     rng_state.state[i] = full_rng_state[i];
   }
@@ -666,10 +666,10 @@ rng_state_t get_rng_state(const interleaved<typename rng_state_t::int_type>& ful
 }
 
 // Write state into global memory
-template <typename rng_state_t>
+template <typename rng_state_type>
 DEVICE
-void put_rng_state(rng_state_t& rng_state,
-                   interleaved<typename rng_state_t::int_type>& full_rng_state) {
+void put_rng_state(rng_state_type& rng_state,
+                   interleaved<typename rng_state_type::int_type>& full_rng_state) {
   for (size_t i = 0; i < rng_state.size(); i++) {
     full_rng_state[i] = rng_state.state[i];
   }
