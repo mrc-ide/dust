@@ -74,7 +74,7 @@ public:
     real_t sd;
   };
 
-  walk(const dust::pars_t<walk>& pars) : shared(pars.shared) {
+  walk(const dust::pars_type<walk>& pars) : shared(pars.shared) {
   }
 
   size_t size() const {
@@ -99,9 +99,9 @@ private:
 namespace dust {
 
 template <>
-dust::pars_t<walk> dust_pars<walk>(cpp11::list pars) {
+dust::pars_type<walk> dust_pars<walk>(cpp11::list pars) {
   walk::real_t sd = cpp11::as_cpp<walk::real_t>(pars["sd"]);
-  return dust::pars_t<walk>(walk::shared_t{sd});
+  return dust::pars_type<walk>(walk::shared_t{sd});
 }
 
 }

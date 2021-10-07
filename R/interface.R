@@ -32,7 +32,7 @@
 ##'   `compare_data` and `set_data` methods.
 ##'
 ##' * The class must have a constructor that accepts `const
-##'   dust::pars_t<model>& pars` for your type `model`. This will have
+##'   dust::pars_type<model>& pars` for your type `model`. This will have
 ##'   elements `shared` and `internal` which you can assign into your
 ##'   model if needed.
 ##'
@@ -64,27 +64,27 @@
 ##'   parallel.
 ##'
 ##' You must also provide a data/parameter-wrangling function for
-##'   producing an object of type `dust::pars_t<model>` from an R list.  We
+##'   producing an object of type `dust::pars_type<model>` from an R list.  We
 ##'   use cpp11 for this.  Your function will look like:
 ##'
 ##' ```
 ##' namespace dust {
 ##' template <>
-##' dust::pars_t<model> dust_pars<model>(cpp11::list pars) {
+##' dust::pars_type<model> dust_pars<model>(cpp11::list pars) {
 ##'   // ...
-##'   return dust::pars_t<model>(shared, internal);
+##'   return dust::pars_type<model>(shared, internal);
 ##' }
 ##' }
 ##' ```
 ##'
 ##' With the body interacting with `pars` to create an object of type
 ##'   `model::shared_t` and `model::internal_t` before returning the
-##'   `dust::pars_t` object.  This function will be called in serial
+##'   `dust::pars_type` object.  This function will be called in serial
 ##'   and may use anything in the cpp11 API.  All elements of the
 ##'   returned object must be standard C/C++ (e.g., STL) types and
 ##'   *not* cpp11/R types. If your model uses only shared or internal,
 ##'   you may use the single-argument constructor overload to
-##'   `dust::pars_t` which is equivalent to using `dust::no_shared` or
+##'   `dust::pars_type` which is equivalent to using `dust::no_shared` or
 ##'   `dust::no_internal` for the missing argument.
 ##'
 ##' Your model *may* provided a template specialisation
@@ -94,7 +94,7 @@
 ##' ```
 ##' namespace dust {
 ##' template <>
-##' cpp11::sexp dust_info<model>(const dust::pars_t<sir>& pars) {
+##' cpp11::sexp dust_info<model>(const dust::pars_type<sir>& pars) {
 ##'   return cpp11::wrap(...);
 ##' }
 ##' }

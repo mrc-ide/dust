@@ -76,7 +76,7 @@ public:
     real_t sd;
   };
 
-  variable(const dust::pars_t<variable>& pars) : shared(pars.shared) {
+  variable(const dust::pars_type<variable>& pars) : shared(pars.shared) {
   }
 
   size_t size() const {
@@ -105,7 +105,7 @@ private:
 
 namespace dust {
 template <>
-dust::pars_t<variable> dust_pars<variable>(cpp11::list pars) {
+dust::pars_type<variable> dust_pars<variable>(cpp11::list pars) {
   typedef variable::real_t real_t;
   const size_t len = cpp11::as_cpp<int>(pars["len"]);
   real_t mean = 0, sd = 1;
@@ -121,7 +121,7 @@ dust::pars_t<variable> dust_pars<variable>(cpp11::list pars) {
   }
 
   variable::shared_t shared{len, mean, sd};
-  return dust::pars_t<variable>(shared);
+  return dust::pars_type<variable>(shared);
 }
 
 template <>

@@ -19,7 +19,7 @@ public:
     real_t exp_noise;
   };
 
-  sir(const dust::pars_t<sir>& pars) : shared(pars.shared) {
+  sir(const dust::pars_type<sir>& pars) : shared(pars.shared) {
   }
 
   size_t size() const {
@@ -77,7 +77,7 @@ inline double with_default(double default_value, cpp11::sexp value) {
 namespace dust {
 
 template <>
-dust::pars_t<sir> dust_pars<sir>(cpp11::list pars) {
+dust::pars_type<sir> dust_pars<sir>(cpp11::list pars) {
   typedef sir::real_t real_t;
   // Initial state values
   // [[dust::param(I0, required = FALSE)]]
@@ -100,11 +100,11 @@ dust::pars_t<sir> dust_pars<sir>(cpp11::list pars) {
   real_t exp_noise = with_default(1e6, pars["exp_noise"]);
 
   sir::shared_t shared{S0, I0, R0, beta, gamma, dt, freq, exp_noise};
-  return dust::pars_t<sir>(shared);
+  return dust::pars_type<sir>(shared);
 }
 
 template <>
-cpp11::sexp dust_info<sir>(const dust::pars_t<sir>& pars) {
+cpp11::sexp dust_info<sir>(const dust::pars_type<sir>& pars) {
   using namespace cpp11::literals;
   // Information about state order
   cpp11::writable::strings vars({"S", "I", "R", "cases_cumul", "cases_inc"});

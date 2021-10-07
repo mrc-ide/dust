@@ -6,12 +6,12 @@ namespace dust {
 template <typename T>
 class Particle {
 public:
-  typedef dust::pars_t<T> pars_t;
+  typedef dust::pars_type<T> pars_type;
   typedef typename T::real_t real_t;
   typedef typename T::data_t data_t;
   typedef typename T::rng_state_type rng_state_type;
 
-  Particle(pars_t pars, size_t step) :
+  Particle(pars_type pars, size_t step) :
     model_(pars),
     step_(step),
     y_(model_.initial(step_)),

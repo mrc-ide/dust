@@ -164,12 +164,12 @@ T median(U& v) {
 this takes advantage of some internal space of the correct size in internal memory. This might be configured with
 
 ```c++
-dust::pars_t<model> dust_pars<model>(cpp11::list user) {
+dust::pars_type<model> dust_pars<model>(cpp11::list user) {
   typedef typename model::real_t real_t;
   auto shared = std::make_shared<model::shared_t>();
   shared->n = 10;
   model::internal_t internal{std::vector<model::real_t>(shared->n)};
-  return dust::pars_t<model>(shared, internal);
+  return dust::pars_type<model>(shared, internal);
 }
 ```
 
@@ -215,7 +215,7 @@ public:
   };
   struct internal_t {
   };
-  odin(const dust::pars_t<odin>& pars) :
+  odin(const dust::pars_type<odin>& pars) :
     shared(pars.shared), internal(pars.internal) {
   }
   size_t size() {
@@ -237,14 +237,14 @@ private:
 
 // ...
 template<>
-dust::pars_t<odin> dust_pars<odin>(cpp11::list user) {
+dust::pars_type<odin> dust_pars<odin>(cpp11::list user) {
   typedef typename odin::real_t real_t;
   auto shared = std::make_shared<odin::shared_t>();
   odin::internal_t internal;
   shared->initial_y = 0;
   shared->sd = NA_REAL;
   shared->sd = user_get_scalar<real_t>(user, "sd", shared->sd, NA_REAL, NA_REAL);
-  return dust::pars_t<odin>(shared, internal);
+  return dust::pars_type<odin>(shared, internal);
 }
 ```
 

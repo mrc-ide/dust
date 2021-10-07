@@ -20,13 +20,13 @@
 namespace dust {
 
 template <typename T>
-typename dust::pars_t<T> dust_pars(cpp11::list pars);
+typename dust::pars_type<T> dust_pars(cpp11::list pars);
 
 template <typename T>
 typename T::data_t dust_data(cpp11::list data);
 
 template <typename T>
-cpp11::sexp dust_info(const dust::pars_t<T>& pars) {
+cpp11::sexp dust_info(const dust::pars_type<T>& pars) {
   return R_NilValue;
 }
 
@@ -50,7 +50,7 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
   cpp11::sexp info;
   if (pars_multi) {
     dust::interface::check_pars_multi(r_pars);
-    std::vector<dust::pars_t<T>> pars;
+    std::vector<dust::pars_type<T>> pars;
     cpp11::writable::list info_list = cpp11::writable::list(r_pars.size());
     for (int i = 0; i < r_pars.size(); ++i) {
       pars.push_back(dust_pars<T>(r_pars[i]));
@@ -77,7 +77,7 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
   } else {
     size_t n_particles = cpp11::as_cpp<int>(r_n_particles);
     dust::interface::validate_positive(n_particles, "n_particles");
-    dust::pars_t<T> pars = dust_pars<T>(r_pars);
+    dust::pars_type<T> pars = dust_pars<T>(r_pars);
     d = new Dust<T>(pars, step, n_particles, n_threads, seed, deterministic,
                     device_config);
     info = dust_info<T>(pars);
@@ -107,13 +107,13 @@ cpp11::sexp dust_update_state_set_pars(Dust<T> *obj, cpp11::list r_pars,
                                        bool set_initial_state) {
   cpp11::sexp ret = R_NilValue;
   if (obj->n_pars() == 0) {
-    dust::pars_t<T> pars = dust_pars<T>(r_pars);
+    dust::pars_type<T> pars = dust_pars<T>(r_pars);
     obj->set_pars(pars, set_initial_state);
     ret = dust_info<T>(pars);
   } else {
     dust::interface::check_pars_multi(r_pars, obj->shape(),
                                       obj->pars_are_shared());
-    std::vector<dust::pars_t<T>> pars;
+    std::vector<dust::pars_type<T>> pars;
     pars.reserve(obj->n_pars());
     cpp11::writable::list info_list =
       cpp11::writable::list(r_pars.size());

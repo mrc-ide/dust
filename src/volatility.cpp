@@ -80,7 +80,7 @@ public:
     real_t x0;
   };
 
-  volatility(const dust::pars_t<volatility>& pars) : shared(pars.shared) {
+  volatility(const dust::pars_type<volatility>& pars) : shared(pars.shared) {
   }
 
   size_t size() {
@@ -118,7 +118,7 @@ inline double with_default(double default_value, cpp11::sexp value) {
 namespace dust {
 
 template <>
-dust::pars_t<volatility> dust_pars<volatility>(cpp11::list pars) {
+dust::pars_type<volatility> dust_pars<volatility>(cpp11::list pars) {
   typedef volatility::real_t real_t;
   real_t x0 = 0;
   real_t alpha = with_default(0.91, pars["alpha"]);
@@ -127,7 +127,7 @@ dust::pars_t<volatility> dust_pars<volatility>(cpp11::list pars) {
   real_t tau = with_default(1, pars["tau"]);
 
   volatility::shared_t shared{alpha, sigma, gamma, tau, x0};
-  return dust::pars_t<volatility>(shared);
+  return dust::pars_type<volatility>(shared);
 }
 
 template <>

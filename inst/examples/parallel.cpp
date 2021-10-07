@@ -13,7 +13,7 @@ public:
     real_t sd;
   };
 
-  parallel(const dust::pars_t<parallel>& pars) : shared(pars.shared) {
+  parallel(const dust::pars_type<parallel>& pars) : shared(pars.shared) {
   }
 
   size_t size() const {
@@ -47,9 +47,9 @@ private:
 
 namespace dust {
 template <>
-dust::pars_t<parallel> dust_pars<parallel>(cpp11::list pars) {
+dust::pars_type<parallel> dust_pars<parallel>(cpp11::list pars) {
   parallel::real_t sd = cpp11::as_cpp<parallel::real_t>(pars["sd"]);
   parallel::shared_t shared{sd};
-  return dust::pars_t<parallel>(shared);
+  return dust::pars_type<parallel>(shared);
 }
 }

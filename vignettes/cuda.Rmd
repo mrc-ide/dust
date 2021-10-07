@@ -165,7 +165,7 @@ public:
     real_t exp_noise;
   };
 
-  sirs(const dust::pars_t<sirs>& pars): shared(pars.shared) {
+  sirs(const dust::pars_type<sirs>& pars): shared(pars.shared) {
   }
 
   size_t size() {
@@ -222,7 +222,7 @@ inline double with_default(double default_value, cpp11::sexp value) {
 
 namespace dust {
 template <>
-dust::pars_t<sirs> dust_pars<sirs>(cpp11::list pars) {
+dust::pars_type<sirs> dust_pars<sirs>(cpp11::list pars) {
   // Initial state values
   sirs::real_t I0 = 10.0;
   sirs::real_t S0 = 1000.0;
@@ -245,7 +245,7 @@ dust::pars_t<sirs> dust_pars<sirs>(cpp11::list pars) {
   sirs::real_t gamma = with_default(0.1, pars["gamma"]);
 
   sirs::shared_t shared{S0, I0, R0, alpha, beta, gamma, dt, freq, exp_noise};
-  return dust::pars_t<sirs>(shared);
+  return dust::pars_type<sirs>(shared);
 }
 
 template <>

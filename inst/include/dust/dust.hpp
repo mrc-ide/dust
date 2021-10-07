@@ -30,13 +30,13 @@ namespace dust {
 template <typename T>
 class Dust {
 public:
-  typedef dust::pars_t<T> pars_t;
+  typedef dust::pars_type<T> pars_type;
   typedef typename T::real_t real_t;
   typedef typename T::data_t data_t;
   typedef typename T::rng_state_type rng_state_type;
   typedef typename rng_state_type::int_type rng_int_type;
 
-  Dust(const pars_t& pars, const size_t step, const size_t n_particles,
+  Dust(const pars_type& pars, const size_t step, const size_t n_particles,
        const size_t n_threads, const std::vector<rng_int_type>& seed,
        const bool deterministic, const cuda::device_config& device_config) :
     n_pars_(0),
@@ -59,7 +59,7 @@ public:
 #endif
   }
 
-  Dust(const std::vector<pars_t>& pars, const size_t step,
+  Dust(const std::vector<pars_type>& pars, const size_t step,
        const size_t n_particles, const size_t n_threads,
        const std::vector<rng_int_type>& seed,
        const bool deterministic, const cuda::device_config& device_config,
@@ -99,12 +99,12 @@ public:
   }
 #endif
 
-  void set_pars(const pars_t& pars, bool set_state) {
+  void set_pars(const pars_type& pars, bool set_state) {
     const size_t n_particles = particles_.size();
     initialise(pars, step(), n_particles, set_state);
   }
 
-  void set_pars(const std::vector<pars_t>& pars, bool set_state) {
+  void set_pars(const std::vector<pars_type>& pars, bool set_state) {
     const size_t n_particles = particles_.size();
     initialise(pars, step(), n_particles / pars.size(), set_state);
   }
@@ -683,7 +683,7 @@ private:
   bool select_scatter_;
   size_t device_step_;
 
-  void initialise(const pars_t& pars, const size_t step,
+  void initialise(const pars_type& pars, const size_t step,
                   const size_t n_particles, bool set_state) {
     const size_t n = particles_.size() == 0 ? 0 : n_state_full();
     dust::Particle<T> p(pars, step);
@@ -722,7 +722,7 @@ private:
     select_needed_ = true;
   }
 
-  void initialise(const std::vector<pars_t>& pars, const size_t step,
+  void initialise(const std::vector<pars_type>& pars, const size_t step,
                   const size_t n_particles, bool set_state) {
     size_t n = particles_.size() == 0 ? 0 : n_state_full();
     std::vector<dust::Particle<T>> p;
