@@ -395,7 +395,7 @@ dust_generator <- R6::R6Class(
     ##' @description
     ##' Set "data" into the model for use with the `$compare_data()` method.
     ##' This is not supported by all models, depending on if they define a
-    ##' `data_t` type.  See [dust::dust_data()] for a helper function to
+    ##' `data_type` type.  See [dust::dust_data()] for a helper function to
     ##' construct suitable data and a description of the required format. You
     ##' will probably want to use that here, and definitely if using multiple
     ##' parameter sets.

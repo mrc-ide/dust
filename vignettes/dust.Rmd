@@ -48,7 +48,7 @@ There are two main parts here; the class (`walk`) and an interface function (`du
 The class is what does most of the work. It is important that this does not use anything in the R api as it may be called in parallel. Therefore use only C++ standard library types.  It has to provide every public type or method as the example above:
 
 * the type `real_type` has to exist and indicate what sort of numeric type you use for "real numbers". Typically this will be `double`,but if you need a different type (longer or shorter) you can use it here.
-* the type `data_t` which for now should match exactly the construction `typedef dust::no_data data_t` until we stabilise and document this interface
+* the type `data_type` which for now should match exactly the construction `typedef dust::no_data data_type` until we stabilise and document this interface
 * the type `shared_type` is whatever data your model needs that is shared across a number of particles, and unmodified during the model update (most likely parameters), and an object of this type will be passed to your constructor as the `.shared` field to `pars` (see `dust::dust_pars` below, and see `vignette("multi")` for more on parameters)
 * the type `internal_type` is whatever internal data your model needs (most likely scratch space used for intermediate calculations), and an object of this type will be passed to your constructor as the `.internal` field to `pars` (see `dust::dust_pars` below)
 * the type `rng_state_type` is one of the valid RNG types. For now leave this as `dust::random::xoshiro256starstar_state`
@@ -160,7 +160,7 @@ There a few changes here compared to the version that was shown before for the w
 * the `initial` method is slightly more complicated as we initialise a 3-element vector
 * our `shared_type` object has significantly more elements
 * the `dust_pars` function is much more complicated
-* there is a `compare_data` method and a nontrivial `data_t` definition, but ignore these for now
+* there is a `compare_data` method and a nontrivial `data_type` definition, but ignore these for now
 
 The other difference is a new template specialisation of `dust_info` - this is optional but can be used to report back to R information about the model based on the input parameters. Here it returns information about variable order and core parameters.
 

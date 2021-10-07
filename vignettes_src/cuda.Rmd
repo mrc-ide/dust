@@ -283,12 +283,12 @@ Finally, if running a particle filter on the GPU, a version of the `compare_data
 template <>
 DEVICE
 sirs::real_type compare_device<sirs>(const dust::cuda::interleaved<sirs::real_type> state,
-                                  const sirs::data_t& data,
-                                  dust::cuda::interleaved<int> internal_int,
-                                  dust::cuda::interleaved<sirs::real_type> internal_real,
-                                  const int * shared_int,
-                                  const sirs::real_type * shared_real,
-                                  sirs::rng_state_type& rng_state) {
+                                     const sirs::data_type& data,
+                                     dust::cuda::interleaved<int> internal_int,
+                                     dust::cuda::interleaved<sirs::real_type> internal_real,
+                                     const int * shared_int,
+                                     const sirs::real_type * shared_real,
+                                     sirs::rng_state_type& rng_state) {
   typedef sirs::real_type real_type;
   const real_type exp_noise = shared_real[4];
   const real_type incidence_modelled = state[3];
@@ -302,8 +302,8 @@ sirs::real_type compare_device<sirs>(const dust::cuda::interleaved<sirs::real_ty
 This is very similar to the CPU version
 
 ```cc
-  real_type compare_data(const real_type * state, const data_t& data,
-                      rng_state_type& rng_state) {
+  real_type compare_data(const real_type * state, const data_type& data,
+                         rng_state_type& rng_state) {
     const real_type incidence_modelled = state[3];
     const real_type incidence_observed = data.incidence;
     const real_type lambda = incidence_modelled +

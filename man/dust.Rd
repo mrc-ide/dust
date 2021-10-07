@@ -9,7 +9,7 @@ dust(
   quiet = FALSE,
   workdir = NULL,
   gpu = FALSE,
-  real_t = NULL,
+  real_type = NULL,
   skip_cache = FALSE
 )
 }
@@ -33,10 +33,10 @@ that function and pass the value here (e.g, \code{gpu = dust::dust_cuda_options(
 use of the \verb{__syncwarp()} primitive this may require a GPU with
 compute version 70 or higher.}
 
-\item{real_t}{Optionally, a string indicating a substitute type to
-swap in for your model's \code{real_t} declaration. If given, then we
-replace the string \verb{typedef (double|float) real_t} with the
-given type. This is primarily intended to be used as \verb{gpu = TRUE, real_t = "float"} in order to create model for the GPU
+\item{real_type}{Optionally, a string indicating a substitute type to
+swap in for your model's \code{real_type} declaration. If given, then we
+replace the string \verb{typedef (double|float) real_type} with the
+given type. This is primarily intended to be used as \verb{gpu = TRUE, real_type = "float"} in order to create model for the GPU
 that will use 32 bit \code{floats} (rather than 64 bit doubles, which
 are much slower). For CPU models decreasing precision of your
 real type will typically just decrease precision for no
@@ -73,11 +73,11 @@ data is shared between particles (e.g., dimensions, arrays that
 are read but not written). If no such data is needed, you can do
 \verb{typedef dust::no_shared shared_type} to indicate this.
 \item That class must also include a typedef that describes the
-model's floating point type, \code{real_t}. Most models can include
-\verb{typedef double real_t;} in their public section.
+model's floating point type, \code{real_type}. Most models can include
+\verb{typedef double real_type;} in their public section.
 \item The class must also include a typedef that describes the model's
 \emph{data} type. This interface is subject to change, and for now
-you should include \verb{typedef dust::no_data data_t} which marks
+you should include \verb{typedef dust::no_data data_type} which marks
 your class as not supporting data, which disables the
 \code{compare_data} and \code{set_data} methods.
 \item The class must have a constructor that accepts \verb{const dust::pars_type<model>& pars} for your type \code{model}. This will have
@@ -89,13 +89,13 @@ in your initialisation object but is constant within a model
 run.
 \item The model must have a method \code{initial} (which may not be
 \code{const}), taking a step number (\code{size_t}) and returning a
-\verb{std::vector<real_t>} of initial state for the model.
+\verb{std::vector<real_type>} of initial state for the model.
 \item The model must have a method \code{update} taking arguments:
 \itemize{
 \item \verb{size_t step}: the step number
 \item \verb{const double * state}: the state at the beginning of the
 step
-\item \verb{dust::rng_state_type<real_t>& rng_state}: the dust random number
+\item \verb{dust::rng_state_type<real_type>& rng_state}: the dust random number
 generator state - this \emph{must} be a reference, as it will be modified
 as random numbers are drawn
 \item \code{double *state_next}: the end state of the model

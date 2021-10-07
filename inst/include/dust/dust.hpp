@@ -32,7 +32,7 @@ class Dust {
 public:
   typedef dust::pars_type<T> pars_type;
   typedef typename T::real_type real_type;
-  typedef typename T::data_t data_t;
+  typedef typename T::data_type data_type;
   typedef typename T::rng_state_type rng_state_type;
   typedef typename rng_state_type::int_type rng_int_type;
 
@@ -505,7 +505,7 @@ public:
     return data_.size();
   }
 
-  const std::map<size_t, std::vector<data_t>>& data() const {
+  const std::map<size_t, std::vector<data_type>>& data() const {
     return data_;
   }
 
@@ -554,7 +554,7 @@ public:
     stale_device_ = true;
   }
 
-  void set_data(std::map<size_t, std::vector<data_t>> data) {
+  void set_data(std::map<size_t, std::vector<data_type>> data) {
     if (rng_.deterministic()) {
       throw std::runtime_error("Can't use data with deterministic models");
     }
@@ -574,7 +574,7 @@ public:
     return res;
   }
 
-  void compare_data(std::vector<real_type>& res, const std::vector<data_t>& data) {
+  void compare_data(std::vector<real_type>& res, const std::vector<data_type>& data) {
     const size_t np = particles_.size() / n_pars_effective();
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
@@ -662,7 +662,7 @@ private:
   size_t n_threads_;
   cuda::device_config device_config_;
   dust::random::prng<rng_state_type> rng_;
-  std::map<size_t, std::vector<data_t>> data_;
+  std::map<size_t, std::vector<data_type>> data_;
   dust::utils::openmp_errors errors_;
 
   std::vector<size_t> index_;
@@ -672,7 +672,7 @@ private:
   // Device support
   dust::cuda::launch_control_dust cuda_pars_;
   dust::cuda::device_state<real_type, rng_state_type> device_state_;
-  dust::cuda::device_array<data_t> device_data_;
+  dust::cuda::device_array<data_type> device_data_;
   std::map<size_t, size_t> device_data_offsets_;
   dust::cuda::cuda_stream kernel_stream_;
   dust::cuda::cuda_stream resample_stream_;
@@ -796,7 +796,7 @@ private:
     if (!device_config_.enabled_) {
       return;
     }
-    std::vector<data_t> flattened_data;
+    std::vector<data_type> flattened_data;
     std::vector<size_t> data_offsets(n_data());
     size_t i = 0;
     for (auto & d_step : data()) {
@@ -806,7 +806,7 @@ private:
         i++;
       }
     }
-    device_data_ = dust::cuda::device_array<data_t>(flattened_data.size());
+    device_data_ = dust::cuda::device_array<data_type>(flattened_data.size());
     device_data_.set_array(flattened_data);
   }
 
@@ -1011,7 +1011,7 @@ private:
                                                  device_state_.n_shared_int,
                                                  device_state_.n_shared_real,
                                                  sizeof(real_type),
-                                                 sizeof(data_t));
+                                                 sizeof(data_type));
   }
 };
 

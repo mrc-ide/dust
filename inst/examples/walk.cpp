@@ -1,7 +1,7 @@
 class walk {
 public:
   typedef double real_type;
-  typedef dust::no_data data_t;
+  typedef dust::no_data data_type;
   typedef dust::no_internal internal_type;
   typedef dust::random::xoshiro256starstar_state rng_state_type;
 

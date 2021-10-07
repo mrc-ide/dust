@@ -147,9 +147,9 @@ public:
   typedef double real_type;
   typedef dust::no_internal internal_type;
 
-  // ALIGN(16) is required before the data_t definition when using NVCC
+  // ALIGN(16) is required before the data_type definition when using NVCC
   // This is so when loaded into shared memory it is aligned correctly
-  struct ALIGN(16) data_t {
+  struct ALIGN(16) data_type {
     double incidence;
   };
 
@@ -202,7 +202,7 @@ public:
     state_next[3] = (step % shared->freq == 0) ? n_SI : state[3] + n_SI;
   }
 
-  real_type compare_data(const real_type * state, const data_t& data,
+  real_type compare_data(const real_type * state, const data_type& data,
                       rng_state_type& rng_state) {
     const real_type incidence_modelled = state[3];
     const real_type incidence_observed = data.incidence;
@@ -249,8 +249,8 @@ dust::pars_type<sirs> dust_pars<sirs>(cpp11::list pars) {
 }
 
 template <>
-sirs::data_t dust_data<sirs>(cpp11::list data) {
-  return sirs::data_t{cpp11::as_cpp<double>(data["incidence"])};
+sirs::data_type dust_data<sirs>(cpp11::list data) {
+  return sirs::data_type{cpp11::as_cpp<double>(data["incidence"])};
 }
 
 template <>
@@ -312,7 +312,7 @@ DEVICE void update_device<sirs>(size_t step,
 
 template <>
 DEVICE sirs::real_type compare_device<sirs>(const dust::interleaved<sirs::real_type> state,
-                           const sirs::data_t& data,
+                           const sirs::data_type& data,
                            dust::interleaved<int> internal_int,
                            dust::interleaved<sirs::real_type> internal_real,
                            const int * shared_int,
@@ -488,7 +488,7 @@ Finally, if running a particle filter on the GPU, a version of the `compare_data
 ```cc
 template <>
 DEVICE sirs::real_type compare_device<sirs>(const dust::interleaved<sirs::real_type> state,
-                           const sirs::data_t& data,
+                           const sirs::data_type& data,
                            dust::interleaved<int> internal_int,
                            dust::interleaved<sirs::real_type> internal_real,
                            const int * shared_int,
@@ -507,7 +507,7 @@ DEVICE sirs::real_type compare_device<sirs>(const dust::interleaved<sirs::real_t
 This is very similar to the CPU version
 
 ```cc
-  real_type compare_data(const real_type * state, const data_t& data,
+  real_type compare_data(const real_type * state, const data_type& data,
                       rng_state_type& rng_state) {
     const real_type incidence_modelled = state[3];
     const real_type incidence_observed = data.incidence;

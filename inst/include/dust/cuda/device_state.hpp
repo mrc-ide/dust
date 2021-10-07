@@ -27,7 +27,7 @@ device_ptrs<T> load_shared_state(const int pars_idx,
                                  const size_t n_shared_real,
                                  const int * shared_int,
                                  const typename T::real_type * shared_real,
-                                 const typename T::data_t * data,
+                                 const typename T::data_type * data,
                                  bool use_shared_int,
                                  bool use_shared_real) {
   device_ptrs<T> ptrs;
@@ -39,7 +39,7 @@ device_ptrs<T> load_shared_state(const int pars_idx,
 
 #ifdef __NVCC__
   typedef typename T::real_type real_type;
-  typedef typename T::data_t data_t;
+  typedef typename T::data_type data_type;
 
   // If we're using it, use the first warp in the block to load the shared pars
   // into __shared__ L1
@@ -69,12 +69,12 @@ device_ptrs<T> load_shared_state(const int pars_idx,
     ptrs.shared_real = shared_block_real;
 
     // Copy data in, which is aligned to 16-bytes
-    if (data != nullptr && sizeof(data_t) > 0) {
+    if (data != nullptr && sizeof(data_type) > 0) {
       size_t data_ptr_start = n_shared_real +
         utils::align_padding(real_ptr_start * sizeof(int) +
                              n_shared_real * sizeof(real_type), 16) /
         sizeof(real_type);
-      data_t * shared_block_data = (data_t*)&shared_block_real[data_ptr_start];
+      data_type * shared_block_data = (data_type*)&shared_block_real[data_ptr_start];
       shared_mem_cpy(block, shared_block_data, ptrs.data, 1);
       ptrs.data = shared_block_data;
     } else {

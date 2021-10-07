@@ -8,7 +8,7 @@ class Particle {
 public:
   typedef dust::pars_type<T> pars_type;
   typedef typename T::real_type real_type;
-  typedef typename T::data_t data_t;
+  typedef typename T::data_type data_type;
   typedef typename T::rng_state_type rng_state_type;
 
   Particle(pars_type pars, size_t step) :
@@ -73,7 +73,7 @@ public:
     }
   }
 
-  real_type compare_data(const data_t& data, rng_state_type& rng_state) {
+  real_type compare_data(const data_type& data, rng_state_type& rng_state) {
     return model_.compare_data(y_.data(), data, rng_state);
   }
 

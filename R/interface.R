@@ -27,7 +27,7 @@
 ##'
 ##' * The class must also include a typedef that describes the model's
 ##'   *data* type. This interface is subject to change, and for now
-##'   you should include `typedef dust::no_data data_t` which marks
+##'   you should include `typedef dust::no_data data_type` which marks
 ##'   your class as not supporting data, which disables the
 ##'   `compare_data` and `set_data` methods.
 ##'

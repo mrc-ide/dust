@@ -66,7 +66,7 @@ cpp11::sexp dust_sir_device_info();
 class sir {
 public:
   typedef double real_type;
-  struct data_t {
+  struct data_type {
     real_type incidence;
   };
   typedef dust::no_internal internal_type;
@@ -121,7 +121,7 @@ public:
     state_next[4] = (step % shared->freq == 0) ? n_SI : state[4] + n_SI;
   }
 
-  real_type compare_data(const real_type * state, const data_t& data,
+  real_type compare_data(const real_type * state, const data_type& data,
                          rng_state_type& rng_state) {
     const real_type incidence_modelled = state[4];
     const real_type incidence_observed = data.incidence;
@@ -185,8 +185,8 @@ cpp11::sexp dust_info<sir>(const dust::pars_type<sir>& pars) {
 // that in here. Then this function will be called once per data
 // element to create the struct that will be used for future work.
 template <>
-sir::data_t dust_data<sir>(cpp11::list data) {
-  return sir::data_t{cpp11::as_cpp<sir::real_type>(data["incidence"])};
+sir::data_type dust_data<sir>(cpp11::list data) {
+  return sir::data_type{cpp11::as_cpp<sir::real_type>(data["incidence"])};
 }
 
 }

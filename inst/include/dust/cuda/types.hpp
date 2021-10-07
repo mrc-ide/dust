@@ -653,7 +653,7 @@ template <typename T>
 struct device_ptrs {
   const int * shared_int;
   const typename T::real_type * shared_real;
-  const typename T::data_t * data;
+  const typename T::data_type * data;
 };
 
 template <typename rng_state_type>

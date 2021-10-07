@@ -638,7 +638,7 @@ as \code{dust_generator$public_methods$has_compare()}
 \subsection{Method \code{set_data()}}{
 Set "data" into the model for use with the \verb{$compare_data()} method.
 This is not supported by all models, depending on if they define a
-\code{data_t} type.  See \code{\link[=dust_data]{dust_data()}} for a helper function to
+\code{data_type} type.  See \code{\link[=dust_data]{dust_data()}} for a helper function to
 construct suitable data and a description of the required format. You
 will probably want to use that here, and definitely if using multiple
 parameter sets.

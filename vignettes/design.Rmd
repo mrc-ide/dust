@@ -208,7 +208,7 @@ which will compile a dust model:
 class odin {
 public:
   typedef double real_type;
-  typedef dust::no_data data_t;
+  typedef dust::no_data data_type;
   struct shared_type {
     real_type initial_y;
     real_type sd;

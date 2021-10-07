@@ -24,7 +24,7 @@ DEVICE void update_device(size_t step,
 template <typename T>
 DEVICE typename T::real_type compare_device(
                    const interleaved<typename T::real_type> state,
-                   const typename T::data_t& data,
+                   const typename T::data_type& data,
                    interleaved<int> internal_int,
                    interleaved<typename T::real_type> internal_real,
                    const int * shared_int,
@@ -171,7 +171,7 @@ KERNEL void compare_particles(size_t n_particles,
                               size_t n_shared_real,
                               const int * shared_int,
                               const typename T::real_type * shared_real,
-                              const typename T::data_t * data,
+                              const typename T::data_type * data,
                               typename T::rng_state_type::int_type * rng_state,
                               bool use_shared_int,
                               bool use_shared_real) {

@@ -23,7 +23,7 @@ template <typename T>
 typename dust::pars_type<T> dust_pars(cpp11::list pars);
 
 template <typename T>
-typename T::data_t dust_data(cpp11::list data);
+typename T::data_type dust_data(cpp11::list data);
 
 template <typename T>
 cpp11::sexp dust_info(const dust::pars_type<T>& pars) {
@@ -374,14 +374,14 @@ void dust_set_n_threads(SEXP ptr, int n_threads) {
   obj->set_n_threads(n_threads);
 }
 
-template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
+template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
 void dust_set_data(SEXP ptr, cpp11::list r_data) {
-  typedef typename T::data_t data_t;
+  typedef typename T::data_type data_type;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   const size_t n_pars = obj->n_pars_effective();
 
   const size_t len = r_data.size();
-  std::map<size_t, std::vector<data_t>> data;
+  std::map<size_t, std::vector<data_type>> data;
 
   for (size_t i = 0; i < len; ++i) {
     cpp11::list el = r_data[i];
@@ -390,7 +390,7 @@ void dust_set_data(SEXP ptr, cpp11::list r_data) {
                   n_pars + 1, i + 1);
     }
     const size_t step_i = cpp11::as_cpp<int>(el[0]);
-    std::vector<data_t> data_i;
+    std::vector<data_type> data_i;
     data_i.reserve(n_pars);
     for (size_t j = 0; j < n_pars; ++j) {
       data_i.push_back(dust_data<T>(cpp11::as_cpp<cpp11::list>(el[j + 1])));
@@ -400,7 +400,7 @@ void dust_set_data(SEXP ptr, cpp11::list r_data) {
   obj->set_data(data);
 }
 
-template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
+template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
 cpp11::sexp dust_compare_data(SEXP ptr, bool device) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
@@ -468,7 +468,7 @@ cpp11::writable::doubles run_filter(Dust<T> * obj,
   return log_likelihood;
 }
 
-template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
+template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
 cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
                         cpp11::sexp r_step_snapshot,
                         bool device) {
@@ -499,7 +499,7 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
                                 "snapshots"_nm = r_snapshots});
 }
 
-// Based on the value of the data_t in the underlying model class we
+// Based on the value of the data_type in the underlying model class we
 // might use these functions for set_data and compare_data which give
 // reasonable errors back to R, as we can't use the full versions
 // above.
@@ -507,18 +507,18 @@ inline void disable_method(const char * name) {
   cpp11::stop("The '%s' method is not supported for this class", name);
 }
 
-template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
+template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
 void dust_set_data(SEXP ptr, cpp11::list r_data) {
   disable_method("set_data");
 }
 
-template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
+template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
 cpp11::sexp dust_compare_data(SEXP ptr, bool device) {
   disable_method("compare_data");
   return R_NilValue; // #nocov never gets here
 }
 
-template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_t>::value, int>::type = 0>
+template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
 cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
                         cpp11::sexp step_snapshot, bool device) {
   disable_method("filter");
@@ -538,7 +538,7 @@ cpp11::sexp dust_capabilities() {
 #else
   bool cuda = false;
 #endif
-  bool compare = !std::is_same<dust::no_data, typename T::data_t>::value;
+  bool compare = !std::is_same<dust::no_data, typename T::data_type>::value;
   return cpp11::writable::list({"openmp"_nm = openmp,
                                 "compare"_nm = compare,
                                 "cuda"_nm = cuda});

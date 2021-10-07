@@ -69,9 +69,9 @@ public:
   typedef dust::no_internal internal_type;
   typedef dust::random::xoshiro256starstar_state rng_state_type;
 
-  // ALIGN(16) is required before the data_t definition when using NVCC
+  // ALIGN(16) is required before the data_type definition when using NVCC
   // This is so when loaded into shared memory it is aligned correctly
-  struct ALIGN(16) data_t {
+  struct ALIGN(16) data_type {
     double incidence;
   };
 
@@ -125,7 +125,7 @@ public:
     state_next[3] = (step % shared->freq == 0) ? n_SI : state[3] + n_SI;
   }
 
-  real_type compare_data(const real_type * state, const data_t& data,
+  real_type compare_data(const real_type * state, const data_type& data,
                       rng_state_type& rng_state) {
     const real_type incidence_modelled = state[3];
     const real_type incidence_observed = data.incidence;
@@ -172,8 +172,8 @@ dust::pars_type<sirs> dust_pars<sirs>(cpp11::list pars) {
 }
 
 template <>
-sirs::data_t dust_data<sirs>(cpp11::list data) {
-  return sirs::data_t{cpp11::as_cpp<double>(data["incidence"])};
+sirs::data_type dust_data<sirs>(cpp11::list data) {
+  return sirs::data_type{cpp11::as_cpp<double>(data["incidence"])};
 }
 
 template <>
@@ -240,12 +240,12 @@ void update_device<sirs>(size_t step,
 template <>
 DEVICE
 sirs::real_type compare_device<sirs>(const dust::cuda::interleaved<sirs::real_type> state,
-                                  const sirs::data_t& data,
-                                  dust::cuda::interleaved<int> internal_int,
-                                  dust::cuda::interleaved<sirs::real_type> internal_real,
-                                  const int * shared_int,
-                                  const sirs::real_type * shared_real,
-                                  sirs::rng_state_type& rng_state) {
+                                     const sirs::data_type& data,
+                                     dust::cuda::interleaved<int> internal_int,
+                                     dust::cuda::interleaved<sirs::real_type> internal_real,
+                                     const int * shared_int,
+                                     const sirs::real_type * shared_real,
+                                     sirs::rng_state_type& rng_state) {
   typedef sirs::real_type real_type;
   const real_type exp_noise = shared_real[4];
   const real_type incidence_modelled = state[3];

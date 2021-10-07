@@ -66,7 +66,7 @@ cpp11::sexp dust_volatility_device_info();
 class volatility {
 public:
   typedef double real_type;
-  struct data_t {
+  struct data_type {
     real_type observed;
   };
   typedef dust::no_internal internal_type;
@@ -100,7 +100,7 @@ public:
       shared->sigma * dust::random::normal<real_type>(rng_state, 0, 1);
   }
 
-  real_type compare_data(const real_type * state, const data_t& data,
+  real_type compare_data(const real_type * state, const data_type& data,
                          rng_state_type& rng_state) {
     return dust::density::normal(data.observed, shared->gamma * state[0],
                                  shared->tau, true);
@@ -131,8 +131,8 @@ dust::pars_type<volatility> dust_pars<volatility>(cpp11::list pars) {
 }
 
 template <>
-volatility::data_t dust_data<volatility>(cpp11::list data) {
-  return volatility::data_t{cpp11::as_cpp<double>(data["observed"])};
+volatility::data_type dust_data<volatility>(cpp11::list data) {
+  return volatility::data_type{cpp11::as_cpp<double>(data["observed"])};
 }
 
 }
