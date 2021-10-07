@@ -28,6 +28,12 @@ double int_to_real(uint64_t x) {
 template <>
 inline HOSTDEVICE
 float int_to_real(uint64_t x) {
+  return (x >> 11) * TWOPOW32_INV_DOUBLE + (TWOPOW32_INV_DOUBLE / 2.0);
+}
+
+template <>
+inline HOSTDEVICE
+float int_to_real(uint64_t x) {
   uint32_t t = (uint32_t)(x >> 32);
   return t * TWOPOW32_INV + (TWOPOW32_INV / 2.0f);
 }
