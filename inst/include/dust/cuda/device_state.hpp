@@ -26,7 +26,7 @@ device_ptrs<T> load_shared_state(const int pars_idx,
                                  const size_t n_shared_int,
                                  const size_t n_shared_real,
                                  const int * shared_int,
-                                 const typename T::real_t * shared_real,
+                                 const typename T::real_type * shared_real,
                                  const typename T::data_t * data,
                                  bool use_shared_int,
                                  bool use_shared_real) {
@@ -38,15 +38,15 @@ device_ptrs<T> load_shared_state(const int pars_idx,
   ptrs.data = data + pars_idx;
 
 #ifdef __NVCC__
-  typedef typename T::real_t real_t;
+  typedef typename T::real_type real_type;
   typedef typename T::data_t data_t;
 
   // If we're using it, use the first warp in the block to load the shared pars
   // into __shared__ L1
   extern __shared__ int shared_block[];
   auto block = cooperative_groups::this_thread_block();
-  static_assert(sizeof(real_t) >= sizeof(int),
-                "real_t and int shared memory not alignable");
+  static_assert(sizeof(real_type) >= sizeof(int),
+                "real_type and int shared memory not alignable");
   if (use_shared_int) {
     int * shared_block_int = shared_block;
     shared_mem_cpy(block, shared_block_int, ptrs.shared_int,
@@ -62,8 +62,8 @@ device_ptrs<T> load_shared_state(const int pars_idx,
     // 8-byte word)
     size_t real_ptr_start = n_shared_int +
       utils::align_padding(n_shared_int * sizeof(int),
-                           sizeof(real_t)) / sizeof(int);
-    real_t * shared_block_real = (real_t*)&shared_block[real_ptr_start];
+                           sizeof(real_type)) / sizeof(int);
+    real_type * shared_block_real = (real_type*)&shared_block[real_ptr_start];
     shared_mem_cpy(block, shared_block_real, ptrs.shared_real,
                                n_shared_real);
     ptrs.shared_real = shared_block_real;
@@ -72,8 +72,8 @@ device_ptrs<T> load_shared_state(const int pars_idx,
     if (data != nullptr && sizeof(data_t) > 0) {
       size_t data_ptr_start = n_shared_real +
         utils::align_padding(real_ptr_start * sizeof(int) +
-                             n_shared_real * sizeof(real_t), 16) /
-        sizeof(real_t);
+                             n_shared_real * sizeof(real_type), 16) /
+        sizeof(real_type);
       data_t * shared_block_data = (data_t*)&shared_block_real[data_ptr_start];
       shared_mem_cpy(block, shared_block_data, ptrs.data, 1);
       ptrs.data = shared_block_data;

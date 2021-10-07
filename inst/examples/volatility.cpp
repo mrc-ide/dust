@@ -1,18 +1,18 @@
 class volatility {
 public:
-  typedef double real_t;
+  typedef double real_type;
   struct data_t {
-    real_t observed;
+    real_type observed;
   };
   typedef dust::no_internal internal_type;
   typedef dust::random::xoshiro256starstar_state rng_state_type;
 
   struct shared_type {
-    real_t alpha;
-    real_t sigma;
-    real_t gamma;
-    real_t tau;
-    real_t x0;
+    real_type alpha;
+    real_type sigma;
+    real_type gamma;
+    real_type tau;
+    real_type x0;
   };
 
   volatility(const dust::pars_type<volatility>& pars) : shared(pars.shared) {
@@ -22,21 +22,21 @@ public:
     return 1;
   }
 
-  std::vector<real_t> initial(size_t step) {
-    std::vector<real_t> state(1);
+  std::vector<real_type> initial(size_t step) {
+    std::vector<real_type> state(1);
     state[0] = shared->x0;
     return state;
   }
 
-  void update(size_t step, const real_t * state,
-              rng_state_type& rng_state, real_t * state_next) {
-    const real_t x = state[0];
+  void update(size_t step, const real_type * state,
+              rng_state_type& rng_state, real_type * state_next) {
+    const real_type x = state[0];
     state_next[0] = shared->alpha * x +
-      shared->sigma * dust::random::normal<real_t>(rng_state, 0, 1);
+      shared->sigma * dust::random::normal<real_type>(rng_state, 0, 1);
   }
 
-  real_t compare_data(const real_t * state, const data_t& data,
-                      rng_state_type& rng_state) {
+  real_type compare_data(const real_type * state, const data_t& data,
+                         rng_state_type& rng_state) {
     return dust::density::normal(data.observed, shared->gamma * state[0],
                                  shared->tau, true);
   }
@@ -54,12 +54,12 @@ namespace dust {
 
 template <>
 dust::pars_type<volatility> dust_pars<volatility>(cpp11::list pars) {
-  typedef volatility::real_t real_t;
-  real_t x0 = 0;
-  real_t alpha = with_default(0.91, pars["alpha"]);
-  real_t sigma = with_default(1, pars["sigma"]);
-  real_t gamma = with_default(1, pars["gamma"]);
-  real_t tau = with_default(1, pars["tau"]);
+  typedef volatility::real_type real_type;
+  real_type x0 = 0;
+  real_type alpha = with_default(0.91, pars["alpha"]);
+  real_type sigma = with_default(1, pars["sigma"]);
+  real_type gamma = with_default(1, pars["gamma"]);
+  real_type tau = with_default(1, pars["tau"]);
 
   volatility::shared_type shared{alpha, sigma, gamma, tau, x0};
   return dust::pars_type<volatility>(shared);

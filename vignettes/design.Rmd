@@ -138,11 +138,11 @@ The internal state is the the hardest to understand in this set. Suppose that we
 
 ```c++
   struct internal_type {
-    std::vector<real_t> samples;
+    std::vector<real_type> samples;
   };
   // ...
-  void update(size_t step, const real_t * state, rng_state_type& rng_state,
-              real_t * state_next) {
+  void update(size_t step, const real_type * state, rng_state_type& rng_state,
+              real_type * state_next) {
     for (size_t i = 0; i < shared->n; ++i) {
       internal.samples[i] = dust::random::uniform(rng_state, 0, 1)
     }
@@ -165,10 +165,10 @@ this takes advantage of some internal space of the correct size in internal memo
 
 ```c++
 dust::pars_type<model> dust_pars<model>(cpp11::list user) {
-  typedef typename model::real_t real_t;
+  typedef typename model::real_type real_type;
   auto shared = std::make_shared<model::shared_type>();
   shared->n = 10;
-  model::internal_type internal{std::vector<model::real_t>(shared->n)};
+  model::internal_type internal{std::vector<model::real_type>(shared->n)};
   return dust::pars_type<model>(shared, internal);
 }
 ```
@@ -207,11 +207,11 @@ which will compile a dust model:
 // [[dust::param(sd, has_default = FALSE, default_value = NULL, rank = 0, min = -Inf, max = Inf, integer = FALSE)]]
 class odin {
 public:
-  typedef double real_t;
+  typedef double real_type;
   typedef dust::no_data data_t;
   struct shared_type {
-    real_t initial_y;
-    real_t sd;
+    real_type initial_y;
+    real_type sd;
   };
   struct internal_type {
   };
@@ -221,13 +221,13 @@ public:
   size_t size() {
     return 1;
   }
-  std::vector<real_t> initial(size_t step) {
-    std::vector<real_t> state(1);
+  std::vector<real_type> initial(size_t step) {
+    std::vector<real_type> state(1);
     state[0] = shared->initial_y;
     return state;
   }
-  void update(size_t step, const real_t * state, rng_state_type& rng_state, real_t * state_next) {
-    const real_t y = state[0];
+  void update(size_t step, const real_type * state, rng_state_type& rng_state, real_type * state_next) {
+    const real_type y = state[0];
     state_next[0] = dust::random::normal(rng_state, y, shared->sd);
   }
 private:
@@ -238,12 +238,12 @@ private:
 // ...
 template<>
 dust::pars_type<odin> dust_pars<odin>(cpp11::list user) {
-  typedef typename odin::real_t real_t;
+  typedef typename odin::real_type real_type;
   auto shared = std::make_shared<odin::shared_type>();
   odin::internal_type internal;
   shared->initial_y = 0;
   shared->sd = NA_REAL;
-  shared->sd = user_get_scalar<real_t>(user, "sd", shared->sd, NA_REAL, NA_REAL);
+  shared->sd = user_get_scalar<real_type>(user, "sd", shared->sd, NA_REAL, NA_REAL);
   return dust::pars_type<odin>(shared, internal);
 }
 ```

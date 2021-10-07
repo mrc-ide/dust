@@ -16,8 +16,8 @@ CONSTANT double m_ln_sqrt_2pi_dbl = 0.918938533204672741780329736406;
 CONSTANT float m_ln_sqrt_2pi_flt = 0.918938533204672741780329736406f;
 
 // Returns m_ln_sqrt_2pi
-template <typename real_t>
-HOSTDEVICE real_t norm_integral();
+template <typename real_type>
+HOSTDEVICE real_type norm_integral();
 
 template<>
 HOSTDEVICE inline double norm_integral() {

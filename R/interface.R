@@ -22,8 +22,8 @@
 ##'   `typedef dust::no_shared shared_type` to indicate this.
 ##'
 ##' * That class must also include a typedef that describes the
-##'   model's floating point type, `real_t`. Most models can include
-##'   `typedef double real_t;` in their public section.
+##'   model's floating point type, `real_type`. Most models can include
+##'   `typedef double real_type;` in their public section.
 ##'
 ##' * The class must also include a typedef that describes the model's
 ##'   *data* type. This interface is subject to change, and for now
@@ -43,13 +43,13 @@
 ##'
 ##' * The model must have a method `initial` (which may not be
 ##'   `const`), taking a step number (`size_t`) and returning a
-##'   `std::vector<real_t>` of initial state for the model.
+##'   `std::vector<real_type>` of initial state for the model.
 ##'
 ##' * The model must have a method `update` taking arguments:
 ##'   - `size_t step`: the step number
 ##'   - `const double * state`: the state at the beginning of the
 ##'      step
-##'   - `dust::rng_state_type<real_t>& rng_state`: the dust random number
+##'   - `dust::rng_state_type<real_type>& rng_state`: the dust random number
 ##'     generator state - this *must* be a reference, as it will be modified
 ##'     as random numbers are drawn
 ##'   - `double *state_next`: the end state of the model
@@ -168,11 +168,11 @@
 ##'   use of the `__syncwarp()` primitive this may require a GPU with
 ##'   compute version 70 or higher.
 ##'
-##' @param real_t Optionally, a string indicating a substitute type to
-##'   swap in for your model's `real_t` declaration. If given, then we
-##'   replace the string `typedef (double|float) real_t` with the
+##' @param real_type Optionally, a string indicating a substitute type to
+##'   swap in for your model's `real_type` declaration. If given, then we
+##'   replace the string `typedef (double|float) real_type` with the
 ##'   given type. This is primarily intended to be used as `gpu =
-##'   TRUE, real_t = "float"` in order to create model for the GPU
+##'   TRUE, real_type = "float"` in order to create model for the GPU
 ##'   that will use 32 bit `floats` (rather than 64 bit doubles, which
 ##'   are much slower). For CPU models decreasing precision of your
 ##'   real type will typically just decrease precision for no
@@ -228,8 +228,8 @@
 ##' # See the state again
 ##' obj$state()
 dust <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
-                 real_t = NULL, skip_cache = FALSE) {
-  filename <- dust_prepare(filename, real_t)
+                 real_type = NULL, skip_cache = FALSE) {
+  filename <- dust_prepare(filename, real_type)
   compile_and_load(filename, quiet, workdir, cuda_check(gpu),
                    skip_cache)
 }
@@ -265,18 +265,18 @@ dust <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
 ##' dir(file.path(path, "R"))
 ##' dir(file.path(path, "src"))
 dust_generate <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
-                          real_t = NULL, mangle = FALSE) {
-  filename <- dust_prepare(filename, real_t)
+                          real_type = NULL, mangle = FALSE) {
+  filename <- dust_prepare(filename, real_type)
   res <- generate_dust(filename, quiet, workdir, cuda_check(gpu), TRUE, mangle)
   cpp11::cpp_register(res$path, quiet = quiet)
   res$path
 }
 
 
-dust_prepare <- function(filename, real_t) {
+dust_prepare <- function(filename, real_type) {
   assert_file_exists(filename)
-  if (!is.null(real_t)) {
-    filename <- dust_rewrite_real(filename, real_t)
+  if (!is.null(real_type)) {
+    filename <- dust_rewrite_real(filename, real_type)
   }
   filename
 }
@@ -310,15 +310,15 @@ dust_workdir <- function(path) {
 }
 
 
-dust_rewrite_real <- function(filename, real_t) {
+dust_rewrite_real <- function(filename, real_type) {
   dest <- tempfile(fileext = ".cpp")
-  re <- "^(\\s*typedef\\s+)([_a-zA-Z0-9]+)(\\s+real_t.*)"
+  re <- "^(\\s*typedef\\s+)([_a-zA-Z0-9]+)(\\s+real_type.*)"
   code <- readLines(filename)
   i <- grep(re, code)
   if (length(i) == 0) {
-    stop(sprintf("did not find real_t declaration in '%s'", filename))
+    stop(sprintf("did not find real_type declaration in '%s'", filename))
   }
-  code[i] <- sub(re, sprintf("\\1%s\\3", real_t), code[i])
+  code[i] <- sub(re, sprintf("\\1%s\\3", real_type), code[i])
   writeLines(code, dest)
   dest
 }

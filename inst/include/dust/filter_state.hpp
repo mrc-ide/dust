@@ -14,7 +14,7 @@ inline void assert_has_storage(size_t n_state, size_t n_particles, size_t n_step
   }
 }
 
-template <typename real_t>
+template <typename real_type>
 class filter_trajectories_host {
 public:
   filter_trajectories_host() {
@@ -42,7 +42,7 @@ public:
     offset_++;
   }
 
-  typename std::vector<real_t>::iterator value_iterator() {
+  typename std::vector<real_type>::iterator value_iterator() {
     return history_value.begin() + offset_ * n_state_ * n_particles_;
   }
 
@@ -50,8 +50,8 @@ public:
     return history_order.begin() + offset_ * n_particles_;
   }
 
-  std::vector<real_t> history() const {
-    std::vector<real_t> ret(size());
+  std::vector<real_type> history() const {
+    std::vector<real_type> ret(size());
     history(ret.begin());
     return ret;
   }
@@ -109,12 +109,12 @@ protected:
   size_t n_data_;
   size_t offset_;
 
-  std::vector<real_t> history_value;
+  std::vector<real_type> history_value;
   std::vector<size_t> history_order;
 };
 
-template <typename real_t>
-class filter_trajectories_device : public filter_trajectories_host<real_t> {
+template <typename real_type>
+class filter_trajectories_device : public filter_trajectories_host<real_type> {
 public:
   filter_trajectories_device() : page_locked(false) {
   }
@@ -139,16 +139,16 @@ public:
       this->history_order[i] = i;
     }
 
-    history_value_swap = dust::cuda::device_array<real_t>(this->n_state_ * this->n_particles_);
+    history_value_swap = dust::cuda::device_array<real_type>(this->n_state_ * this->n_particles_);
     history_order_swap = dust::cuda::device_array<size_t>(this->n_particles_);
 
 #ifdef __NVCC__
     // Page lock memory on host
     CUDA_CALL(cudaHostRegister(this->history_value.data(),
-                               this->history_value.size() * sizeof(real_t),
+                               this->history_value.size() * sizeof(real_type),
                                cudaHostRegisterDefault));
     CUDA_CALL(cudaHostRegister(this->history_order.data(),
-                               this->history_order.size() * sizeof(real_t),
+                               this->history_order.size() * sizeof(real_type),
                                cudaHostRegisterDefault));
 #endif
     page_locked = true;
@@ -162,7 +162,7 @@ public:
     return this->offset_ * this->n_particles_;
   }
 
-  void store_values(dust::cuda::device_array<real_t>& state) {
+  void store_values(dust::cuda::device_array<real_type>& state) {
     host_memory_stream_.sync();
     state.get_array(history_value_swap.data(), device_memory_stream_, true);
     device_memory_stream_.sync();
@@ -180,7 +180,7 @@ public:
 
   template <typename Iterator>
   void history(Iterator ret) const {
-    std::vector<real_t> host_history = destride_history();
+    std::vector<real_type> host_history = destride_history();
     this->particle_ancestry(ret, host_history.cbegin(), this->history_order.cbegin());
   }
 
@@ -188,7 +188,7 @@ private:
   filter_trajectories_device ( const filter_trajectories_device & ) = delete;
   filter_trajectories_device ( filter_trajectories_device && ) = delete;
 
-  dust::cuda::device_array<real_t> history_value_swap;
+  dust::cuda::device_array<real_type> history_value_swap;
   dust::cuda::device_array<size_t> history_order_swap;
 
   dust::cuda::cuda_stream device_memory_stream_;
@@ -196,8 +196,8 @@ private:
 
   bool page_locked;
 
-  std::vector<real_t> destride_history() const {
-    std::vector<real_t> blocked_history(this->size());
+  std::vector<real_type> destride_history() const {
+    std::vector<real_type> blocked_history(this->size());
     // Destride and copy into iterator
     // TODO openmp here?
     for (size_t i = 0; i < this->n_data_ + 1; ++i) {
@@ -226,7 +226,7 @@ private:
   }
 };
 
-template <typename real_t>
+template <typename real_type>
 class filter_snapshots_host {
 public:
   filter_snapshots_host() {
@@ -255,7 +255,7 @@ public:
     return state_.size();
   }
 
-  typename std::vector<real_t>::iterator value_iterator() {
+  typename std::vector<real_type>::iterator value_iterator() {
     return state_.begin() + offset_ * n_state_ * n_particles_;
   }
 
@@ -270,11 +270,11 @@ protected:
   size_t n_steps_;
   size_t offset_;
   std::vector<size_t> steps_;
-  std::vector<real_t> state_;
+  std::vector<real_type> state_;
 };
 
-template <typename real_t>
-class filter_snapshots_device : public filter_snapshots_host<real_t> {
+template <typename real_type>
+class filter_snapshots_device : public filter_snapshots_host<real_type> {
 public:
   filter_snapshots_device() : page_locked(false) {
   }
@@ -296,12 +296,12 @@ public:
     assert_has_storage(this->n_state_ , this->n_particles_, this->n_steps_);
     this->state_.resize(this->n_state_ * this->n_particles_ * this->n_steps_);
 
-    state_swap = dust::cuda::device_array<real_t>(this->n_state_ * this->n_particles_);
+    state_swap = dust::cuda::device_array<real_type>(this->n_state_ * this->n_particles_);
 
 #ifdef __NVCC__
     // Page lock memory on host
     CUDA_CALL(cudaHostRegister(this->state_.data(),
-                               this->state_.size() * sizeof(real_t),
+                               this->state_.size() * sizeof(real_type),
                                cudaHostRegisterDefault));
 #endif
     page_locked = true;
@@ -311,7 +311,7 @@ public:
     return this->offset_ * this->n_state_ * this->n_particles_;
   }
 
-  void store(dust::cuda::device_array<real_t>& state) {
+  void store(dust::cuda::device_array<real_type>& state) {
     host_memory_stream_.sync();
     state.get_array(state_swap.data(), device_memory_stream_, true);
     device_memory_stream_.sync();
@@ -341,7 +341,7 @@ private:
   filter_snapshots_device ( const filter_snapshots_device & ) = delete;
   filter_snapshots_device ( filter_snapshots_device && ) = delete;
 
-  dust::cuda::device_array<real_t> state_swap;
+  dust::cuda::device_array<real_type> state_swap;
 
   dust::cuda::cuda_stream device_memory_stream_;
   dust::cuda::cuda_stream host_memory_stream_;
@@ -359,16 +359,16 @@ private:
   }
 };
 
-template <typename real_t>
+template <typename real_type>
 struct filter_state_host {
-  filter_trajectories_host<real_t> trajectories;
-  filter_snapshots_host<real_t> snapshots;
+  filter_trajectories_host<real_type> trajectories;
+  filter_snapshots_host<real_type> snapshots;
 };
 
-template <typename real_t>
+template <typename real_type>
 struct filter_state_device {
-  filter_trajectories_device<real_t> trajectories;
-  filter_snapshots_device<real_t> snapshots;
+  filter_trajectories_device<real_type> trajectories;
+  filter_snapshots_device<real_type> snapshots;
 };
 
 }

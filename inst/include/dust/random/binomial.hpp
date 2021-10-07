@@ -11,9 +11,9 @@ namespace random {
 // Faster version of pow(x, n) for integer 'n' by using
 // "exponentiation by squaring"
 // https://en.wikipedia.org/wiki/Exponentiation_by_squaring
-template <typename real_t>
-HOSTDEVICE real_t fast_pow(real_t x, int n) {
-  real_t pow = 1.0;
+template <typename real_type>
+HOSTDEVICE real_type fast_pow(real_type x, int n) {
+  real_type pow = 1.0;
   if (n != 0) {
     while (true) {
       if(n & 01) {
@@ -30,15 +30,15 @@ HOSTDEVICE real_t fast_pow(real_t x, int n) {
 }
 
 __nv_exec_check_disable__
-template <typename real_t>
-real_t HOSTDEVICE binomial_inversion_calc(real_t u, int n, real_t p) {
-  const real_t q = 1 - p;
-  const real_t r = p / q;
-  const real_t g = r * (n + 1);
-  real_t f = fast_pow(q, n);
+template <typename real_type>
+real_type HOSTDEVICE binomial_inversion_calc(real_type u, int n, real_type p) {
+  const real_type q = 1 - p;
+  const real_type r = p / q;
+  const real_type g = r * (n + 1);
+  real_type f = fast_pow(q, n);
   int k = 0;
 
-  real_t f_prev = f;
+  real_type f_prev = f;
   while (u >= f) {
     u -= f;
     k++;
@@ -59,24 +59,24 @@ real_t HOSTDEVICE binomial_inversion_calc(real_t u, int n, real_t p) {
 // random number from U(0, 1) and find the 'n' up the distribution
 // (given p) that corresponds to this
 __nv_exec_check_disable__
-template <typename real_t, typename rng_state_type>
-real_t HOSTDEVICE binomial_inversion(rng_state_type& rng_state, int n,
-                                     real_t p) {
-  real_t k = -1;
+template <typename real_type, typename rng_state_type>
+real_type HOSTDEVICE binomial_inversion(rng_state_type& rng_state, int n,
+                                     real_type p) {
+  real_type k = -1;
   do {
-    real_t u = random_real<real_t>(rng_state);
+    real_type u = random_real<real_type>(rng_state);
     k = binomial_inversion_calc(u, n, p);
   } while (k < 0);
   return k;
 }
 
-template <typename real_t>
-HOSTDEVICE real_t stirling_approx_tail(real_t k);
+template <typename real_type>
+HOSTDEVICE real_type stirling_approx_tail(real_type k);
 
-template <typename real_t>
-HOSTDEVICE inline real_t stirling_approx_tail_calc(real_t k) {
-  const real_t one = 1;
-  real_t kp1sq = (k + 1) * (k + 1);
+template <typename real_type>
+HOSTDEVICE inline real_type stirling_approx_tail_calc(real_type k) {
+  const real_type one = 1;
+  real_type kp1sq = (k + 1) * (k + 1);
   return (one / 12 - (one / 360 - one / 1260 / kp1sq) / kp1sq) / (k + 1);
 }
 
@@ -107,39 +107,39 @@ HOSTDEVICE inline double stirling_approx_tail(double k) {
 
 // https://www.tandfonline.com/doi/abs/10.1080/00949659308811496
 __nv_exec_check_disable__
-template <typename real_t, typename rng_state_type>
-inline HOSTDEVICE real_t btrs(rng_state_type& rng_state, int n_int, real_t p) {
-  const real_t n = static_cast<real_t>(n_int);
-  const real_t one = 1.0;
-  const real_t half = 0.5;
+template <typename real_type, typename rng_state_type>
+inline HOSTDEVICE real_type btrs(rng_state_type& rng_state, int n_int, real_type p) {
+  const real_type n = static_cast<real_type>(n_int);
+  const real_type one = 1.0;
+  const real_type half = 0.5;
 
   // This is spq in the paper.
-  const real_t stddev = std::sqrt(n * p * (1 - p));
+  const real_type stddev = std::sqrt(n * p * (1 - p));
 
   // Other coefficients for Transformed Rejection sampling.
-  const real_t b = static_cast<real_t>(1.15) + static_cast<real_t>(2.53) * stddev;
-  const real_t a = static_cast<real_t>(-0.0873) + static_cast<real_t>(0.0248) * b + static_cast<real_t>(0.01) * p;
-  const real_t c = n * p + half;
-  const real_t v_r = static_cast<real_t>(0.92) - static_cast<real_t>(4.2) / b;
-  const real_t r = p / (1 - p);
+  const real_type b = static_cast<real_type>(1.15) + static_cast<real_type>(2.53) * stddev;
+  const real_type a = static_cast<real_type>(-0.0873) + static_cast<real_type>(0.0248) * b + static_cast<real_type>(0.01) * p;
+  const real_type c = n * p + half;
+  const real_type v_r = static_cast<real_type>(0.92) - static_cast<real_type>(4.2) / b;
+  const real_type r = p / (1 - p);
 
-  const real_t alpha = (static_cast<real_t>(2.83) + static_cast<real_t>(5.1) / b) * stddev;
-  const real_t m = std::floor((n + 1) * p);
+  const real_type alpha = (static_cast<real_type>(2.83) + static_cast<real_type>(5.1) / b) * stddev;
+  const real_type m = std::floor((n + 1) * p);
 
-  real_t draw;
+  real_type draw;
   while (true) {
-    real_t u = random_real<real_t>(rng_state);
-    real_t v = random_real<real_t>(rng_state);
+    real_type u = random_real<real_type>(rng_state);
+    real_type v = random_real<real_type>(rng_state);
     u -= half;
-    real_t us = half - std::fabs(u);
-    real_t k = std::floor((2 * a / us + b) * u + c);
+    real_type us = half - std::fabs(u);
+    real_type k = std::floor((2 * a / us + b) * u + c);
 
     // Region for which the box is tight, and we
     // can return our calculated value This should happen
     // 0.86 * v_r times. In the limit as n * p is large,
     // the acceptance rate converges to ~79% (and in the lower
     // regime it is ~24%).
-    if (us >= static_cast<real_t>(0.07) && v <= v_r) {
+    if (us >= static_cast<real_type>(0.07) && v <= v_r) {
       draw = k;
       break;
     }
@@ -152,7 +152,7 @@ inline HOSTDEVICE real_t btrs(rng_state_type& rng_state, int n_int, real_t p) {
     // For all (u, v) pairs outside of the bounding box, this calculates the
     // transformed-reject ratio.
     v = std::log(v * alpha / (a / (us * us) + b));
-    real_t upperbound =
+    real_type upperbound =
       ((m + half) * std::log((m + 1) / (r * (n - m + 1))) +
        (n + one) * std::log((n - m + 1) / (n - k + 1)) +
        (k + half) * std::log(r * (n - k + 1) / (k + 1)) +
@@ -166,8 +166,8 @@ inline HOSTDEVICE real_t btrs(rng_state_type& rng_state, int n_int, real_t p) {
   return draw;
 }
 
-template <typename real_t>
-HOSTDEVICE void binomial_validate(int n, real_t p) {
+template <typename real_type>
+HOSTDEVICE void binomial_validate(int n, real_type p) {
   if (n < 0 || p < 0 || p > 1) {
 #ifdef __CUDA_ARCH__
     // This is unrecoverable
@@ -182,10 +182,10 @@ HOSTDEVICE void binomial_validate(int n, real_t p) {
   }
 }
 
-template <typename real_t>
-HOST real_t binomial_deterministic(real_t n, real_t p) {
+template <typename real_type>
+HOST real_type binomial_deterministic(real_type n, real_type p) {
   if (n < 0) {
-    if (n * n < std::numeric_limits<real_t>::epsilon()) {
+    if (n * n < std::numeric_limits<real_type>::epsilon()) {
       // Avoid small round-off errors here
       n = std::round(n);
     } else {
@@ -200,19 +200,19 @@ HOST real_t binomial_deterministic(real_t n, real_t p) {
 
 // NOTE: we return a real, not an int, as with deterministic mode this
 // will not necessarily be an integer
-template <typename real_t, typename rng_state_type>
-HOSTDEVICE real_t binomial_stochastic(rng_state_type& rng_state, int n,
-                                      real_t p) {
+template <typename real_type, typename rng_state_type>
+HOSTDEVICE real_type binomial_stochastic(rng_state_type& rng_state, int n,
+                                      real_type p) {
   binomial_validate(n, p);
-  real_t draw;
+  real_type draw;
 
   if (n == 0 || p == 0) {
     draw = 0;
   } else if (p == 1) {
     draw = n;
   } else {
-    real_t q = p;
-    if (p > static_cast<real_t>(0.5)) {
+    real_type q = p;
+    if (p > static_cast<real_type>(0.5)) {
       q = 1 - q;
     }
 
@@ -222,7 +222,7 @@ HOSTDEVICE real_t binomial_stochastic(rng_state_type& rng_state, int n,
       draw = binomial_inversion(rng_state, n, q);
     }
 
-    if (p > static_cast<real_t>(0.5)) {
+    if (p > static_cast<real_type>(0.5)) {
       draw = n - draw;
     }
   }
@@ -231,20 +231,20 @@ HOSTDEVICE real_t binomial_stochastic(rng_state_type& rng_state, int n,
   return draw;
 }
 
-template <typename real_t, typename rng_state_type>
-HOSTDEVICE real_t binomial(rng_state_type& rng_state, real_t n, real_t p) {
-  static_assert(std::is_floating_point<real_t>::value,
-                "Only valid for floating-point types; use binomial<real_t>()");
+template <typename real_type, typename rng_state_type>
+HOSTDEVICE real_type binomial(rng_state_type& rng_state, real_type n, real_type p) {
+  static_assert(std::is_floating_point<real_type>::value,
+                "Only valid for floating-point types; use binomial<real_type>()");
 #ifndef __CUDA_ARCH__
   if (rng_state.deterministic) {
-    return binomial_deterministic<real_t>(n, p);
+    return binomial_deterministic<real_type>(n, p);
   }
 #endif
   // Avoid integer truncation (which a cast to int would cause) in
   // case of numerical error, instead taking the slightly lower but
   // more accurate round route. This means that `n - eps` becomes
   // `n` not `n - 1`.
-  return binomial_stochastic<real_t>(rng_state, std::round(n), p);
+  return binomial_stochastic<real_type>(rng_state, std::round(n), p);
 }
 
 }

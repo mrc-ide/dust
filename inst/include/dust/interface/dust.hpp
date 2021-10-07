@@ -132,7 +132,7 @@ cpp11::sexp dust_update_state_set_pars(Dust<T> *obj, cpp11::list r_pars,
 // pars, (2) state, (3) step
 template <typename T>
 cpp11::sexp dust_update_state_set(Dust<T> *obj, SEXP r_pars,
-                                  const std::vector<typename T::real_t>& state,
+                                  const std::vector<typename T::real_type>& state,
                                   const std::vector<size_t>& step,
                                   bool set_initial_state) {
   cpp11::sexp ret = R_NilValue;
@@ -163,7 +163,7 @@ cpp11::sexp dust_update_state_set(Dust<T> *obj, SEXP r_pars,
 template <typename T>
 SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
                        SEXP r_set_initial_state) {
-  typedef typename T::real_t real_t;
+  typedef typename T::real_type real_type;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
 
   bool set_initial_state = false;
@@ -186,7 +186,7 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
   // step after succeeding on state).
 
   std::vector<size_t> step;
-  std::vector<real_t> state;
+  std::vector<real_type> state;
 
   if (r_step != R_NilValue) {
     // TODO: what about the length and dimensions here? What is the
@@ -200,10 +200,10 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
   }
 
   if (r_state != R_NilValue) {
-    state = dust::interface::check_state<real_t>(r_state,
-                                                 obj->n_state_full(),
-                                                 obj->shape(),
-                                                 obj->pars_are_shared());
+    state = dust::interface::check_state<real_type>(r_state,
+                                                    obj->n_state_full(),
+                                                    obj->shape(),
+                                                    obj->pars_are_shared());
   }
 
   return dust_update_state_set(obj, r_pars, state, step, set_initial_state);
@@ -223,7 +223,7 @@ cpp11::sexp dust_run(SEXP ptr, int step_end, bool device) {
   // TODO: the allocation should come from the dust object, *or* we
   // should be able to do this with a pointer to the C array. The
   // current version helps noone.
-  std::vector<typename T::real_t> dat(obj->n_state() * obj->n_particles());
+  std::vector<typename T::real_type> dat(obj->n_state() * obj->n_particles());
   if (obj->n_state() > 0) {
     obj->state(dat);
   }
@@ -251,7 +251,7 @@ cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end, bool device) {
     }
   }
 
-  std::vector<typename T::real_t> dat;
+  std::vector<typename T::real_type> dat;
   if (device) {
     dat = obj->simulate_device(step_end);
   } else {
@@ -266,7 +266,7 @@ SEXP dust_state_full(Dust<T> *obj) {
   const size_t n_state_full = obj->n_state_full();
   const size_t len = n_state_full * obj->n_particles();
 
-  std::vector<typename T::real_t> dat(len);
+  std::vector<typename T::real_type> dat(len);
   obj->state_full(dat);
 
   return dust::interface::state_array(dat, n_state_full, obj->shape());
@@ -280,7 +280,7 @@ SEXP dust_state_select(Dust<T> *obj, cpp11::sexp r_index) {
   const size_t n_state = static_cast<size_t>(index.size());
   const size_t len = n_state * obj->n_particles();
 
-  std::vector<typename T::real_t> dat(len);
+  std::vector<typename T::real_type> dat(len);
   obj->state(index, dat);
 
   return dust::interface::state_array(dat, n_state, obj->shape());
@@ -313,15 +313,15 @@ void dust_reorder(SEXP ptr, cpp11::sexp r_index) {
 
 template <typename T>
 SEXP dust_resample(SEXP ptr, cpp11::doubles r_weights) {
-  typedef typename T::real_t real_t;
+  typedef typename T::real_type real_type;
 
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   size_t n_particles = obj->n_particles();
   size_t n_pars = obj->n_pars_effective();
   size_t n_particles_each = n_particles / n_pars;
 
-  std::vector<real_t> weights =
-    dust::interface::check_resample_weights<real_t>(r_weights, obj->shape());
+  std::vector<real_type> weights =
+    dust::interface::check_resample_weights<real_type>(r_weights, obj->shape());
   std::vector<size_t> idx = obj->resample(weights);
 
   cpp11::writable::integers ret(n_particles);
@@ -405,7 +405,7 @@ cpp11::sexp dust_compare_data(SEXP ptr, bool device) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
 
-  std::vector<typename T::real_t> ret;
+  std::vector<typename T::real_type> ret;
   if (device) {
     ret = obj->compare_data_device();
   } else {
@@ -472,7 +472,7 @@ template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typen
 cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
                         cpp11::sexp r_step_snapshot,
                         bool device) {
-  typedef typename T::real_t real_t;
+  typedef typename T::real_type real_type;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
 
@@ -486,10 +486,10 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
   cpp11::writable::doubles log_likelihood;
   cpp11::sexp r_trajectories, r_snapshots;
   if (device) {
-    log_likelihood = run_filter<T, dust::filter::filter_state_device<real_t>>
+    log_likelihood = run_filter<T, dust::filter::filter_state_device<real_type>>
                       (obj, r_trajectories, r_snapshots, step_snapshot, save_trajectories);
   } else {
-    log_likelihood = run_filter<T, dust::filter::filter_state_host<real_t>>
+    log_likelihood = run_filter<T, dust::filter::filter_state_host<real_type>>
                       (obj, r_trajectories, r_snapshots, step_snapshot, save_trajectories);
   }
 

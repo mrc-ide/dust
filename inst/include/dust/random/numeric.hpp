@@ -28,8 +28,8 @@ inline HOSTDEVICE int integer_max() {
 
 // We need this for the lgamma in rpois to work
 #ifdef __NVCC__
-template <typename real_t>
-real_t lgamma_nvcc(real_t x);
+template <typename real_type>
+real_type lgamma_nvcc(real_type x);
 
 template <>
 inline DEVICE float lgamma_nvcc(float x) {
@@ -42,20 +42,20 @@ inline DEVICE double lgamma_nvcc(double x) {
 }
 #endif
 
-template <typename real_t>
-HOSTDEVICE real_t lgamma(real_t x) {
+template <typename real_type>
+HOSTDEVICE real_type lgamma(real_type x) {
 #ifdef __CUDA_ARCH__
   return lgamma_nvcc(x);
 #else
-  static_assert(std::is_floating_point<real_t>::value,
+  static_assert(std::is_floating_point<real_type>::value,
                 "lgamma should only be used with real types");
   return std::lgamma(x);
 #endif
 }
 
 #ifdef __NVCC__
-template <typename real_t>
-real_t infinity_nvcc();
+template <typename real_type>
+real_type infinity_nvcc();
 
 template <>
 inline DEVICE float infinity_nvcc() {
@@ -68,12 +68,12 @@ inline DEVICE double infinity_nvcc() {
 }
 #endif
 
-template <typename real_t>
-HOSTDEVICE real_t infinity() {
+template <typename real_type>
+HOSTDEVICE real_type infinity() {
 #ifdef __CUDA_ARCH__
-  return infinity_nvcc<real_t>();
+  return infinity_nvcc<real_type>();
 #else
-  return std::numeric_limits<real_t>::infinity();
+  return std::numeric_limits<real_type>::infinity();
 #endif
 }
 

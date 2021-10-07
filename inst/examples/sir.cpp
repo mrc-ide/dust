@@ -1,22 +1,22 @@
 class sir {
 public:
-  typedef double real_t;
+  typedef double real_type;
   struct data_t {
-    real_t incidence;
+    real_type incidence;
   };
   typedef dust::no_internal internal_type;
   typedef dust::random::xoshiro256starstar_state rng_state_type;
 
   struct shared_type {
-    real_t S0;
-    real_t I0;
-    real_t R0;
-    real_t beta;
-    real_t gamma;
-    real_t dt;
+    real_type S0;
+    real_type I0;
+    real_type R0;
+    real_type beta;
+    real_type gamma;
+    real_type dt;
     size_t freq;
     // Observation parameters
-    real_t exp_noise;
+    real_type exp_noise;
   };
 
   sir(const dust::pars_type<sir>& pars) : shared(pars.shared) {
@@ -26,26 +26,26 @@ public:
     return 5;
   }
 
-  std::vector<real_t> initial(size_t step) {
-    std::vector<real_t> ret = {shared->S0, shared->I0, shared->R0, 0, 0};
+  std::vector<real_type> initial(size_t step) {
+    std::vector<real_type> ret = {shared->S0, shared->I0, shared->R0, 0, 0};
     return ret;
   }
 
-  void update(size_t step, const real_t * state, rng_state_type& rng_state,
-              real_t * state_next) {
-    real_t S = state[0];
-    real_t I = state[1];
-    real_t R = state[2];
-    real_t cumulative_incidence = state[3];
+  void update(size_t step, const real_type * state, rng_state_type& rng_state,
+              real_type * state_next) {
+    real_type S = state[0];
+    real_type I = state[1];
+    real_type R = state[2];
+    real_type cumulative_incidence = state[3];
 
-    real_t N = S + I + R;
+    real_type N = S + I + R;
 
-    real_t p_SI = 1 - std::exp(-(shared->beta) * I / N);
-    real_t p_IR = 1 - std::exp(-(shared->gamma));
-    real_t n_IR = dust::random::binomial<real_t>(rng_state, I,
-                                                 p_IR * shared->dt);
-    real_t n_SI = dust::random::binomial<real_t>(rng_state, S,
-                                                 p_SI * shared->dt);
+    real_type p_SI = 1 - std::exp(-(shared->beta) * I / N);
+    real_type p_IR = 1 - std::exp(-(shared->gamma));
+    real_type n_IR = dust::random::binomial<real_type>(rng_state, I,
+                                                       p_IR * shared->dt);
+    real_type n_SI = dust::random::binomial<real_type>(rng_state, S,
+                                                       p_SI * shared->dt);
 
     state_next[0] = S - n_SI;
     state_next[1] = I + n_SI - n_IR;
@@ -56,11 +56,11 @@ public:
     state_next[4] = (step % shared->freq == 0) ? n_SI : state[4] + n_SI;
   }
 
-  real_t compare_data(const real_t * state, const data_t& data,
-                      rng_state_type& rng_state) {
-    const real_t incidence_modelled = state[4];
-    const real_t incidence_observed = data.incidence;
-    const real_t lambda = incidence_modelled +
+  real_type compare_data(const real_type * state, const data_t& data,
+                         rng_state_type& rng_state) {
+    const real_type incidence_modelled = state[4];
+    const real_type incidence_observed = data.incidence;
+    const real_type lambda = incidence_modelled +
       dust::random::exponential(rng_state, shared->exp_noise);
     return dust::density::poisson(incidence_observed, lambda, true);
   }
@@ -78,26 +78,26 @@ namespace dust {
 
 template <>
 dust::pars_type<sir> dust_pars<sir>(cpp11::list pars) {
-  typedef sir::real_t real_t;
+  typedef sir::real_type real_type;
   // Initial state values
   // [[dust::param(I0, required = FALSE)]]
-  real_t I0 = with_default(10, pars["I0"]);
-  real_t S0 = 1000.0;
-  real_t R0 = 0.0;
+  real_type I0 = with_default(10, pars["I0"]);
+  real_type S0 = 1000.0;
+  real_type R0 = 0.0;
 
   // Rates, which can be set based on the provided pars
   // [[dust::param(beta, required = FALSE)]]
-  real_t beta = with_default(0.2, pars["beta"]);
+  real_type beta = with_default(0.2, pars["beta"]);
   // [[dust::param(gamma, required = FALSE)]]
-  real_t gamma = with_default(0.1, pars["gamma"]);
+  real_type gamma = with_default(0.1, pars["gamma"]);
 
   // Time scaling
   size_t freq = 4;
-  real_t dt = 1.0 / static_cast<real_t>(freq);
+  real_type dt = 1.0 / static_cast<real_type>(freq);
 
   // Compare function
   // [[dust::param(exp_noise, required = FALSE)]]
-  real_t exp_noise = with_default(1e6, pars["exp_noise"]);
+  real_type exp_noise = with_default(1e6, pars["exp_noise"]);
 
   sir::shared_type shared{S0, I0, R0, beta, gamma, dt, freq, exp_noise};
   return dust::pars_type<sir>(shared);
@@ -121,7 +121,7 @@ cpp11::sexp dust_info<sir>(const dust::pars_type<sir>& pars) {
 // element to create the struct that will be used for future work.
 template <>
 sir::data_t dust_data<sir>(cpp11::list data) {
-  return sir::data_t{cpp11::as_cpp<sir::real_t>(data["incidence"])};
+  return sir::data_t{cpp11::as_cpp<sir::real_type>(data["incidence"])};
 }
 
 }
