@@ -317,9 +317,9 @@ test_that("can change pars", {
   y2 <- obj$run(2)
 
   ## Then the comparison:
-  cmp <- dust_rng$new(seed = 1, 10)
-  expect_equal(cmp$normal(10, 0, 1), drop(y1))
-  expect_equal(y1 + cmp$normal(10, 0, 2), y2)
+  cmp <- dust_rng$new(1, 10)
+  expect_equal(drop(cmp$normal(1, 0, 1)), drop(y1))
+  expect_equal(y1 + cmp$normal(1, 0, 2), y2)
 })
 
 
