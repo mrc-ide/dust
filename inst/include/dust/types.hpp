@@ -17,27 +17,27 @@ template <typename T>
 struct has_gpu_support : std::false_type {};
 
 template <typename T>
-using shared_ptr = std::shared_ptr<const typename T::shared_t>;
+using shared_ptr = std::shared_ptr<const typename T::shared_type>;
 
 template <typename T>
-struct pars_t {
-  std::shared_ptr<const typename T::shared_t> shared;
-  typename T::internal_t internal;
+struct pars_type {
+  std::shared_ptr<const typename T::shared_type> shared;
+  typename T::internal_type internal;
 
-  pars_t(std::shared_ptr<const typename T::shared_t> shared_,
-         typename T::internal_t internal_) :
+  pars_type(std::shared_ptr<const typename T::shared_type> shared_,
+         typename T::internal_type internal_) :
     shared(shared_), internal(internal_) {
   }
-  pars_t(typename T::shared_t shared_,
-         typename T::internal_t internal_) :
-    shared(std::make_shared<const typename T::shared_t>(shared_)),
+  pars_type(typename T::shared_type shared_,
+         typename T::internal_type internal_) :
+    shared(std::make_shared<const typename T::shared_type>(shared_)),
     internal(internal_) {
   }
-  pars_t(typename T::shared_t shared_) :
-    pars_t(shared_, dust::nothing()) {
+  pars_type(typename T::shared_type shared_) :
+    pars_type(shared_, dust::nothing()) {
   }
-  pars_t(typename T::internal_t internal_) :
-    pars_t(dust::nothing(), internal_) {
+  pars_type(typename T::internal_type internal_) :
+    pars_type(dust::nothing(), internal_) {
   }
 };
 

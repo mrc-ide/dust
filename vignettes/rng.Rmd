@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 We provide an interface to the "Xoshiro256" generators (Xoshiro is derived from XOR/shift/rotate). These are designed to allow use in parallel by "jumping ahead" in the sequence and we use this below to interleave generators. The stream is unrelated to and unaffected by R's random number generation. `set.seed` has no effect, for example. **The random numbers are not cryptographically secure**; for that see the excellent [sodium](https://cran.r-project.org/package=sodium) package.
 
-Ordinarily this is used from C++; the model as discussed in `vignette("dust")` uses `rng_state_t` and a function from `dust::random` to interact with the generator. However, an R interface is provided for debugging and testing purposes.
+Ordinarily this is used from C++; the model as discussed in `vignette("dust")` uses `rng_state_type` and a function from `dust::random` to interact with the generator. However, an R interface is provided for debugging and testing purposes.
 
 ```{r}
 rng <- dust::dust_rng$new(seed = 1)
@@ -64,7 +64,7 @@ rng$uniform(10, 3, 6)
 From C++
 
 ```cc
-real_t u = rng.unif(3, 6);
+real_type u = rng.uniform<real_type>(3, 6);
 ```
 
 **Normal distribution** with parameters `mean` and `sd`
@@ -74,7 +74,7 @@ rng$normal(10, 3, 6)
 ```
 
 ```cc
-real_t z = rng.normal<real>(3, 6);
+real_type z = rng.normal<real_type>(3, 6);
 ```
 
 **Poisson distribution** with mean `lambda`
@@ -84,7 +84,7 @@ rng$poisson(10, 4.5)
 ```
 
 ```cc
-int n = rng.poisson<real_t>(4.5);
+int n = rng.poisson<real_type>(4.5);
 ```
 
 **Binomial distribution** with mean `size` and `prob`
@@ -94,7 +94,7 @@ rng$binomial(10L, 10, 0.3)
 ```
 
 ```cc
-int n = rng.binomial<real_t>(10, 0.3);
+int n = rng.binomial<real_type>(10, 0.3);
 ```
 
 There are also helpers for some common special case distributions:
@@ -106,7 +106,7 @@ rng$unif_rand(10)
 ```
 
 ```cc
-real_t u = rng.unif_rand();
+real_type u = rng.unif_rand();
 ```
 
 ## Performance

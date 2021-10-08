@@ -247,7 +247,8 @@ test_that("validate reorder vector is in correct range", {
 test_that("run in float mode", {
   skip_for_compilation()
   res_d <- dust_example("walk")
-  res_f <- dust(dust_file("examples/walk.cpp"), real_t = "float", quiet = TRUE)
+  res_f <- dust(dust_file("examples/walk.cpp"), real_type = "float",
+                quiet = TRUE)
 
   n <- 1000
   obj_d <- res_d$new(list(sd = 10), 0, n, seed = 1L)

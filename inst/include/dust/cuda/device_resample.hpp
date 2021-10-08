@@ -9,17 +9,17 @@ namespace dust {
 
 namespace filter {
 
-template <typename real_t, typename rng_state_t>
+template <typename real_type, typename rng_state_type>
 void run_device_resample(const size_t n_particles,
                          const size_t n_pars,
                          const size_t n_state,
                          const dust::cuda::launch_control_dust& cuda_pars,
                          dust::cuda::cuda_stream& kernel_stream,
                          dust::cuda::cuda_stream& resample_stream,
-                         rng_state_t& resample_rng,
-                         dust::cuda::device_state<real_t, rng_state_t>& device_state,
-                         dust::cuda::device_array<real_t>& weights,
-                         dust::cuda::device_scan_state<real_t>& scan) {
+                         rng_state_type& resample_rng,
+                         dust::cuda::device_state<real_type, rng_state_type>& device_state,
+                         dust::cuda::device_array<real_type>& weights,
+                         dust::cuda::device_scan_state<real_type>& scan) {
 #ifdef __NVCC__
     // Cumulative sum
     // Note this is over all parameters, this is fixed with a
@@ -33,8 +33,8 @@ void run_device_resample(const size_t n_particles,
     // Don't sync yet, as this can run while the u draws are made and copied
     // to the device
 #else
-    std::vector<real_t> host_w(weights.size());
-    std::vector<real_t> host_cum_weights(weights.size());
+    std::vector<real_type> host_w(weights.size());
+    std::vector<real_type> host_cum_weights(weights.size());
     weights.get_array(host_w);
     host_cum_weights[0] = host_w[0];
     for (size_t i = 1; i < n_particles; ++i) {
@@ -44,9 +44,9 @@ void run_device_resample(const size_t n_particles,
 #endif
 
     // Generate random numbers for each parameter set
-    std::vector<real_t> shuffle_draws(n_pars);
+    std::vector<real_type> shuffle_draws(n_pars);
     for (size_t i = 0; i < n_pars; ++i) {
-      shuffle_draws[i] = dust::random::uniform<real_t>(resample_rng, 0, 1);
+      shuffle_draws[i] = dust::random::uniform<real_type>(resample_rng, 0, 1);
     }
     device_state.resample_u.set_array(shuffle_draws.data(),
                                       resample_stream, true);
@@ -57,7 +57,7 @@ void run_device_resample(const size_t n_particles,
 
     // Generate the scatter indices
 #ifdef __NVCC__
-    dust::cuda::find_intervals<real_t><<<cuda_pars.interval.block_count,
+    dust::cuda::find_intervals<real_type><<<cuda_pars.interval.block_count,
                                          cuda_pars.interval.block_size,
                                          0,
                                          kernel_stream.stream()>>>(
@@ -69,7 +69,7 @@ void run_device_resample(const size_t n_particles,
     );
     kernel_stream.sync();
 #else
-    dust::cuda::find_intervals<real_t>(
+    dust::cuda::find_intervals<real_type>(
       scan.cum_weights.data(),
       n_particles,
       n_pars,
@@ -80,7 +80,7 @@ void run_device_resample(const size_t n_particles,
 
     // Shuffle the particles
 #ifdef __NVCC__
-    dust::cuda::scatter_device<real_t><<<cuda_pars.scatter.block_count,
+    dust::cuda::scatter_device<real_type><<<cuda_pars.scatter.block_count,
                                    cuda_pars.scatter.block_size,
                                    0,
                                    kernel_stream.stream()>>>(
@@ -92,7 +92,7 @@ void run_device_resample(const size_t n_particles,
         false);
     kernel_stream.sync();
 #else
-    dust::cuda::scatter_device<real_t>(
+    dust::cuda::scatter_device<real_type>(
         device_state.scatter_index.data(),
         device_state.y.data(),
         device_state.y_next.data(),

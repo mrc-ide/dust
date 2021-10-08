@@ -300,7 +300,7 @@ private:
   size_t size_;
 };
 
-template <typename real_t, typename rng_state_t>
+template <typename real_type, typename rng_state_type>
 struct device_state {
   void initialise(size_t n_particles, size_t n_state, size_t n_pars,
                   size_t n_shared_len_,
@@ -309,19 +309,19 @@ struct device_state {
     n_shared_len = n_shared_len_;
     n_shared_int = n_shared_int_;
     n_shared_real = n_shared_real_;
-    const size_t n_rng = rng_state_t::size();
-    y = device_array<real_t>(n_state * n_particles);
-    y_next = device_array<real_t>(n_state * n_particles);
+    const size_t n_rng = rng_state_type::size();
+    y = device_array<real_type>(n_state * n_particles);
+    y_next = device_array<real_type>(n_state * n_particles);
     internal_int = device_array<int>(n_internal_int * n_particles);
-    internal_real = device_array<real_t>(n_internal_real * n_particles);
+    internal_real = device_array<real_type>(n_internal_real * n_particles);
     shared_int = device_array<int>(n_shared_int * n_shared_len);
-    shared_real = device_array<real_t>(n_shared_real * n_shared_len);
-    rng = device_array<typename rng_state_t::int_type>(n_rng * n_particles);
+    shared_real = device_array<real_type>(n_shared_real * n_shared_len);
+    rng = device_array<typename rng_state_type::int_type>(n_rng * n_particles);
     index = device_array<char>(n_state * n_particles);
     n_selected = device_array<int>(1);
     scatter_index = device_array<size_t>(n_particles);
-    compare_res = device_array<real_t>(n_particles);
-    resample_u = device_array<real_t>(n_pars);
+    compare_res = device_array<real_type>(n_particles);
+    resample_u = device_array<real_type>(n_pars);
     set_cub_tmp();
   }
   void swap() {
@@ -349,8 +349,8 @@ struct device_state {
                         const size_t n_particles,
                         const size_t n_state_full) {
     const size_t n_state = host_index.size();
-    y_selected = device_array<real_t>(n_state * n_particles);
-    y_selected_swap = device_array<real_t>(n_state * n_particles);
+    y_selected = device_array<real_type>(n_state * n_particles);
+    y_selected_swap = device_array<real_type>(n_state * n_particles);
 
     // e.g. 4 particles with 3 states ABC stored on device as
     // [1_A, 2_A, 3_A, 4_A, 1_B, 2_B, 3_B, 4_B, 1_C, 2_C, 3_C, 4_C]
@@ -374,33 +374,33 @@ struct device_state {
   size_t n_shared_len;
   size_t n_shared_int;
   size_t n_shared_real;
-  device_array<real_t> y;
-  device_array<real_t> y_next;
-  device_array<real_t> y_selected;
-  device_array<real_t> y_selected_swap;
+  device_array<real_type> y;
+  device_array<real_type> y_next;
+  device_array<real_type> y_selected;
+  device_array<real_type> y_selected_swap;
   device_array<int> internal_int;
-  device_array<real_t> internal_real;
+  device_array<real_type> internal_real;
   device_array<int> shared_int;
-  device_array<real_t> shared_real;
-  device_array<typename rng_state_t::int_type> rng;
+  device_array<real_type> shared_real;
+  device_array<typename rng_state_type::int_type> rng;
   device_array<char> index;
   device_array<size_t> index_state_scatter;
   device_array<int> n_selected;
   device_array<void> select_tmp;
   device_array<size_t> scatter_index;
-  device_array<real_t> compare_res;
-  device_array<real_t> resample_u;
+  device_array<real_type> compare_res;
+  device_array<real_type> resample_u;
 };
 
-template <typename real_t>
+template <typename real_type>
 struct device_scan_state {
   void initialise(const size_t n_particles,
-                  device_array<real_t>& weights) {
-    cum_weights = device_array<real_t>(n_particles);
+                  device_array<real_type>& weights) {
+    cum_weights = device_array<real_type>(n_particles);
     set_cub_tmp(weights);
   }
 
-  void set_cub_tmp(device_array<real_t>& weights) {
+  void set_cub_tmp(device_array<real_type>& weights) {
 #ifdef __NVCC__
     tmp_bytes = 0;
     scan_tmp.set_size(tmp_bytes);
@@ -414,11 +414,11 @@ struct device_scan_state {
   }
 
   size_t tmp_bytes;
-  device_array<real_t> cum_weights;
+  device_array<real_type> cum_weights;
   device_array<void> scan_tmp;
 };
 
-template <typename real_t>
+template <typename real_type>
 class device_weights {
 public:
   device_weights(const size_t n_particles, const size_t n_pars)
@@ -429,10 +429,10 @@ public:
       weight_blockSize(64),
       weight_blockCount((n_pars + weight_blockSize - 1) / weight_blockSize) {
   // Set up storage
-  weights_ = device_array<real_t>(n_particles_);
-  cum_weights_ = device_array<real_t>(n_particles_);
-  weights_max_ = device_array<real_t>(n_pars_);
-  log_likelihood_step_ = device_array<real_t>(n_pars_);
+  weights_ = device_array<real_type>(n_particles_);
+  cum_weights_ = device_array<real_type>(n_particles_);
+  weights_max_ = device_array<real_type>(n_pars_);
+  log_likelihood_step_ = device_array<real_type>(n_pars_);
 
   pars_offsets_ = device_array<int>(n_pars_ + 1);
   std::vector<int> offsets(n_pars_ + 1);
@@ -480,7 +480,7 @@ public:
   }
 
   // CUDA version of log-sum-exp trick
-  void scale_log_weights(device_array<real_t>& log_likelihood) {
+  void scale_log_weights(device_array<real_type>& log_likelihood) {
 #ifdef __NVCC__
     // Scale log-weights. First calculate the max
     if (n_pars_ > 1) {
@@ -502,7 +502,7 @@ public:
     }
     kernel_stream_.sync();
     // Then exp
-    dust::exp_weights<real_t><<<exp_blockCount,
+    dust::exp_weights<real_type><<<exp_blockCount,
                                 exp_blockSize,
                                 0,
                                 kernel_stream_.stream()>>>(
@@ -532,10 +532,10 @@ public:
     }
     kernel_stream_.sync();
     // Finally log and add max
-    dust::weight_log_likelihood<real_t><<<weight_blockCount,
-                                          weight_blockSize,
-                                          0,
-                                          kernel_stream_.stream()>>>(
+    dust::weight_log_likelihood<real_type><<<weight_blockCount,
+                                             weight_blockSize,
+                                             0,
+                                             kernel_stream_.stream()>>>(
       n_pars_,
       n_particles_each_,
       log_likelihood.data(),
@@ -544,8 +544,9 @@ public:
     );
     kernel_stream_.sync();
 #else
-    std::vector<real_t> max_w(n_pars_, -dust::random::utils::infinity<real_t>());
-    std::vector<real_t> host_w(n_particles_);
+    std::vector<real_type> max_w(n_pars_,
+                                 -dust::random::utils::infinity<real_type>());
+    std::vector<real_type> host_w(n_particles_);
     weights_.get_array(host_w);
     for (size_t i = 0; i < n_pars_; ++i) {
       for (size_t j = 0; j < n_particles_each_; j++) {
@@ -553,13 +554,13 @@ public:
       }
     }
     weights_max_.set_array(max_w);
-    dust::exp_weights<real_t>(
+    dust::exp_weights<real_type>(
       n_particles_,
       n_pars_,
       weights_.data(),
       weights_max_.data()
     );
-    std::vector<real_t> sum_w(n_pars_, 0);
+    std::vector<real_type> sum_w(n_pars_, 0);
     weights_.get_array(host_w);
     for (size_t i = 0; i < n_pars_; ++i) {
       for (size_t j = 0; j < n_particles_each_; j++) {
@@ -567,7 +568,7 @@ public:
       }
     }
     log_likelihood_step_.set_array(sum_w);
-    dust::weight_log_likelihood<real_t>(
+    dust::weight_log_likelihood<real_type>(
       n_pars_,
       n_particles_each_,
       log_likelihood.data(),
@@ -577,7 +578,7 @@ public:
 #endif
   }
 
-  device_array<real_t>& weights() {
+  device_array<real_type>& weights() {
     return weights_;
   }
 
@@ -590,10 +591,10 @@ private:
   const size_t weight_blockSize, weight_blockCount;
 
   size_t max_tmp_bytes, sum_tmp_bytes;
-  device_array<real_t> weights_;
-  device_array<real_t> cum_weights_;
-  device_array<real_t> weights_max_;
-  device_array<real_t> log_likelihood_step_;
+  device_array<real_type> weights_;
+  device_array<real_type> cum_weights_;
+  device_array<real_type> weights_max_;
+  device_array<real_type> log_likelihood_step_;
   device_array<int> pars_offsets_;
   device_array<void> max_tmp_;
   device_array<void> sum_tmp_;
@@ -633,7 +634,7 @@ size_t device_shared_real_size(typename dust::shared_ptr<T> shared) {
 template <typename T>
 void device_shared_copy(typename dust::shared_ptr<T> shared,
                         int * shared_int,
-                        typename T::real_t * shared_real) {
+                        typename T::real_type * shared_real) {
 }
 
 template <typename T>
@@ -651,14 +652,14 @@ T* shared_copy(T* dest, const T src) {
 template <typename T>
 struct device_ptrs {
   const int * shared_int;
-  const typename T::real_t * shared_real;
-  const typename T::data_t * data;
+  const typename T::real_type * shared_real;
+  const typename T::data_type * data;
 };
 
-template <typename rng_state_t>
+template <typename rng_state_type>
 DEVICE
-rng_state_t get_rng_state(const interleaved<typename rng_state_t::int_type>& full_rng_state) {
-  rng_state_t rng_state;
+rng_state_type get_rng_state(const interleaved<typename rng_state_type::int_type>& full_rng_state) {
+  rng_state_type rng_state;
   for (size_t i = 0; i < rng_state.size(); i++) {
     rng_state.state[i] = full_rng_state[i];
   }
@@ -666,10 +667,10 @@ rng_state_t get_rng_state(const interleaved<typename rng_state_t::int_type>& ful
 }
 
 // Write state into global memory
-template <typename rng_state_t>
+template <typename rng_state_type>
 DEVICE
-void put_rng_state(rng_state_t& rng_state,
-                   interleaved<typename rng_state_t::int_type>& full_rng_state) {
+void put_rng_state(rng_state_type& rng_state,
+                   interleaved<typename rng_state_type::int_type>& full_rng_state) {
   for (size_t i = 0; i < rng_state.size(); i++) {
     full_rng_state[i] = rng_state.state[i];
   }

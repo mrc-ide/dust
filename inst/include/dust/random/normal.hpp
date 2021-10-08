@@ -10,19 +10,19 @@ namespace random {
 namespace {
 
 __nv_exec_check_disable__
-template <typename real_t, typename rng_state_t>
+template <typename real_type, typename rng_state_type>
 HOSTDEVICE
-real_t box_muller(rng_state_t& rng_state) {
+real_type box_muller(rng_state_type& rng_state) {
   // This function implements the Box-Muller transform:
   // https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform#Basic_form
   // Do not send a really small number to log().
-  const real_t epsilon = utils::epsilon<real_t>();
-  const real_t two_pi = 2 * M_PI;
+  const real_type epsilon = utils::epsilon<real_type>();
+  const real_type two_pi = 2 * M_PI;
 
-  real_t u1, u2;
+  real_type u1, u2;
   do {
-    u1 = random_real<real_t>(rng_state);
-    u2 = random_real<real_t>(rng_state);
+    u1 = random_real<real_type>(rng_state);
+    u2 = random_real<real_type>(rng_state);
   } while (u1 <= epsilon);
 
   SYNCWARP
@@ -32,15 +32,15 @@ real_t box_muller(rng_state_t& rng_state) {
 }
 
 __nv_exec_check_disable__
-template <typename real_t, typename rng_state_t>
+template <typename real_type, typename rng_state_type>
 HOSTDEVICE
-real_t normal(rng_state_t& rng_state, real_t mean, real_t sd) {
-  static_assert(std::is_floating_point<real_t>::value,
-                "Only valid for floating-point types; use normal<real_t>()");
+real_type normal(rng_state_type& rng_state, real_type mean, real_type sd) {
+  static_assert(std::is_floating_point<real_type>::value,
+                "Only valid for floating-point types; use normal<real_type>()");
 #ifdef __CUDA_ARCH__
-  real_t z = box_muller<real_t>(rng_state);
+  real_type z = box_muller<real_type>(rng_state);
 #else
-  real_t z = rng_state.deterministic ? 0 : box_muller<real_t>(rng_state);
+  real_type z = rng_state.deterministic ? 0 : box_muller<real_type>(rng_state);
 #endif
   return z * sd + mean;
 }

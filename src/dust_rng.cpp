@@ -28,7 +28,7 @@ void dust_rng_long_jump(SEXP ptr) {
   rng->long_jump();
 }
 
-template <typename real_t, typename T>
+template <typename real_type, typename T>
 cpp11::writable::doubles dust_rng_random_real(SEXP ptr, int n) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const size_t n_generators = rng->size();
@@ -37,13 +37,13 @@ cpp11::writable::doubles dust_rng_random_real(SEXP ptr, int n) {
   double * y = REAL(ret);
 
   for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::random::random_real<real_t>(rng->state(i % n_generators));
+    y[i] = dust::random::random_real<real_type>(rng->state(i % n_generators));
   }
 
   return ret;
 }
 
-template <typename real_t, typename T>
+template <typename real_type, typename T>
 cpp11::writable::doubles dust_rng_uniform(SEXP ptr, int n,
                                           cpp11::doubles r_min,
                                           cpp11::doubles r_max) {
@@ -56,14 +56,14 @@ cpp11::writable::doubles dust_rng_uniform(SEXP ptr, int n,
   double * y = REAL(ret);
 
   for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::random::uniform<real_t>(rng->state(i % n_generators),
-                                         min[i], max[i]);
+    y[i] = dust::random::uniform<real_type>(rng->state(i % n_generators),
+                                            min[i], max[i]);
   }
 
   return ret;
 }
 
-template <typename real_t, typename T>
+template <typename real_type, typename T>
 cpp11::writable::doubles dust_rng_exponential(SEXP ptr, int n,
                                               cpp11::doubles r_rate) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
@@ -74,14 +74,14 @@ cpp11::writable::doubles dust_rng_exponential(SEXP ptr, int n,
   double * y = REAL(ret);
 
   for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::random::exponential<real_t>(rng->state(i % n_generators),
-                                             rate[i]);
+    y[i] = dust::random::exponential<real_type>(rng->state(i % n_generators),
+                                                rate[i]);
   }
 
   return ret;
 }
 
-template <typename real_t, typename T>
+template <typename real_type, typename T>
 cpp11::writable::doubles dust_rng_normal(SEXP ptr, int n,
                                          cpp11::doubles r_mean,
                                          cpp11::doubles r_sd) {
@@ -94,14 +94,14 @@ cpp11::writable::doubles dust_rng_normal(SEXP ptr, int n,
   double * y = REAL(ret);
 
   for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::random::normal<real_t>(rng->state(i % n_generators),
-                                        mean[i], sd[i]);
+    y[i] = dust::random::normal<real_type>(rng->state(i % n_generators),
+                                           mean[i], sd[i]);
   }
 
   return ret;
 }
 
-template <typename real_t, typename T>
+template <typename real_type, typename T>
 cpp11::writable::doubles dust_rng_binomial(SEXP ptr, int n,
                                            cpp11::doubles r_size,
                                            cpp11::doubles r_prob) {
@@ -114,14 +114,14 @@ cpp11::writable::doubles dust_rng_binomial(SEXP ptr, int n,
 
   const size_t n_generators = rng->size();
   for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::random::binomial<real_t>(rng->state(i % n_generators),
-                                          size[i], prob[i]);
+    y[i] = dust::random::binomial<real_type>(rng->state(i % n_generators),
+                                             size[i], prob[i]);
   }
 
   return ret;
 }
 
-template <typename real_t, typename T>
+template <typename real_type, typename T>
 cpp11::writable::doubles dust_rng_poisson(SEXP ptr, int n,
                                           cpp11::doubles r_lambda) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
@@ -132,8 +132,8 @@ cpp11::writable::doubles dust_rng_poisson(SEXP ptr, int n,
   double * y = REAL(ret);
 
   for (size_t i = 0; i < (size_t)n; ++i) {
-    y[i] = dust::random::poisson<real_t>(rng->state(i % n_generators),
-                                         lambda[i]);
+    y[i] = dust::random::poisson<real_type>(rng->state(i % n_generators),
+                                            lambda[i]);
   }
 
   return ret;
@@ -221,8 +221,8 @@ cpp11::writable::doubles dust_rng_binomial(SEXP ptr, int n,
 
 [[cpp11::register]]
 cpp11::writable::doubles dust_rng_poisson(SEXP ptr, int n,
-                                        cpp11::doubles r_lambda,
-                                        bool is_float) {
+                                          cpp11::doubles r_lambda,
+                                          bool is_float) {
   return is_float ?
     dust_rng_poisson<float, dust_rng32>(ptr, n, r_lambda) :
     dust_rng_poisson<double, dust_rng64>(ptr, n, r_lambda);

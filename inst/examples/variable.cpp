@@ -1,36 +1,36 @@
 class variable {
 public:
-  typedef double real_t;
-  typedef dust::no_data data_t;
-  typedef dust::no_internal internal_t;
-  typedef dust::random::xoshiro256starstar_state rng_state_t;
+  typedef double real_type;
+  typedef dust::no_data data_type;
+  typedef dust::no_internal internal_type;
+  typedef dust::random::xoshiro256starstar_state rng_state_type;
 
-  struct shared_t {
+  struct shared_type {
     size_t len;
-    real_t mean;
-    real_t sd;
+    real_type mean;
+    real_type sd;
   };
 
-  variable(const dust::pars_t<variable>& pars) : shared(pars.shared) {
+  variable(const dust::pars_type<variable>& pars) : shared(pars.shared) {
   }
 
   size_t size() const {
     return shared->len;
   }
 
-  std::vector<real_t> initial(size_t step) {
-    std::vector<real_t> ret;
+  std::vector<real_type> initial(size_t step) {
+    std::vector<real_type> ret;
     for (size_t i = 0; i < shared->len; ++i) {
       ret.push_back(i + 1);
     }
     return ret;
   }
 
-  void update(size_t step, const real_t * state, rng_state_t& rng_state,
-              real_t * state_next) {
+  void update(size_t step, const real_type * state, rng_state_type& rng_state,
+              real_type * state_next) {
     for (size_t i = 0; i < shared->len; ++i) {
       state_next[i] = state[i] +
-        dust::random::normal<real_t>(rng_state, shared->mean, shared->sd);
+        dust::random::normal<real_type>(rng_state, shared->mean, shared->sd);
     }
   }
 
@@ -40,23 +40,23 @@ private:
 
 namespace dust {
 template <>
-dust::pars_t<variable> dust_pars<variable>(cpp11::list pars) {
-  typedef variable::real_t real_t;
+dust::pars_type<variable> dust_pars<variable>(cpp11::list pars) {
+  typedef variable::real_type real_type;
   const size_t len = cpp11::as_cpp<int>(pars["len"]);
-  real_t mean = 0, sd = 1;
+  real_type mean = 0, sd = 1;
 
   SEXP r_mean = pars["mean"];
   if (r_mean != R_NilValue) {
-    mean = cpp11::as_cpp<real_t>(r_mean);
+    mean = cpp11::as_cpp<real_type>(r_mean);
   }
 
   SEXP r_sd = pars["sd"];
   if (r_sd != R_NilValue) {
-    sd = cpp11::as_cpp<real_t>(r_sd);
+    sd = cpp11::as_cpp<real_type>(r_sd);
   }
 
-  variable::shared_t shared{len, mean, sd};
-  return dust::pars_t<variable>(shared);
+  variable::shared_type shared{len, mean, sd};
+  return dust::pars_type<variable>(shared);
 }
 
 template <>
@@ -77,31 +77,31 @@ size_t device_shared_real_size<variable>(dust::shared_ptr<variable> shared) {
 template <>
 void device_shared_copy<variable>(dust::shared_ptr<variable> shared,
                                   int * shared_int,
-                                  variable::real_t * shared_real) {
+                                  variable::real_type * shared_real) {
   using dust::cuda::shared_copy;
-  typedef variable::real_t real_t;
+  typedef variable::real_type real_type;
   shared_int = shared_copy<int>(shared_int, shared->len);
-  shared_real = shared_copy<real_t>(shared_real, shared->mean);
-  shared_real = shared_copy<real_t>(shared_real, shared->sd);
+  shared_real = shared_copy<real_type>(shared_real, shared->mean);
+  shared_real = shared_copy<real_type>(shared_real, shared->sd);
 }
 
 template <>
 DEVICE
 void update_device<variable>(size_t step,
-                             const dust::cuda::interleaved<variable::real_t> state,
+                             const dust::cuda::interleaved<variable::real_type> state,
                              dust::cuda::interleaved<int> internal_int,
-                             dust::cuda::interleaved<variable::real_t> internal_real,
+                             dust::cuda::interleaved<variable::real_type> internal_real,
                              const int * shared_int,
-                             const variable::real_t * shared_real,
-                             variable::rng_state_t& rng_state,
-                             dust::cuda::interleaved<variable::real_t> state_next) {
-  typedef variable::real_t real_t;
+                             const variable::real_type * shared_real,
+                             variable::rng_state_type& rng_state,
+                             dust::cuda::interleaved<variable::real_type> state_next) {
+  typedef variable::real_type real_type;
   const size_t len = shared_int[0];
-  const real_t mean = shared_real[0];
-  const real_t sd = shared_real[1];
+  const real_type mean = shared_real[0];
+  const real_type sd = shared_real[1];
   for (size_t i = 0; i < len; ++i) {
     state_next[i] = state[i] +
-      dust::random::normal<real_t>(rng_state, mean, sd);
+      dust::random::normal<real_type>(rng_state, mean, sd);
   }
 }
 

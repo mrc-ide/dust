@@ -9,7 +9,7 @@ dust(
   quiet = FALSE,
   workdir = NULL,
   gpu = FALSE,
-  real_t = NULL,
+  real_type = NULL,
   skip_cache = FALSE
 )
 }
@@ -33,10 +33,10 @@ that function and pass the value here (e.g, \code{gpu = dust::dust_cuda_options(
 use of the \verb{__syncwarp()} primitive this may require a GPU with
 compute version 70 or higher.}
 
-\item{real_t}{Optionally, a string indicating a substitute type to
-swap in for your model's \code{real_t} declaration. If given, then we
-replace the string \verb{typedef (double|float) real_t} with the
-given type. This is primarily intended to be used as \verb{gpu = TRUE, real_t = "float"} in order to create model for the GPU
+\item{real_type}{Optionally, a string indicating a substitute type to
+swap in for your model's \code{real_type} declaration. If given, then we
+replace the string \verb{typedef (double|float) real_type} with the
+given type. This is primarily intended to be used as \verb{gpu = TRUE, real_type = "float"} in order to create model for the GPU
 that will use 32 bit \code{floats} (rather than 64 bit doubles, which
 are much slower). For CPU models decreasing precision of your
 real type will typically just decrease precision for no
@@ -63,24 +63,24 @@ Your input dust model must satisfy a few requirements.
 \itemize{
 \item Define some class that implements your model (below \code{model} is
 assumed to be the class name)
-\item That class must define a type \code{internal_t} (so
-\code{model::internal_t}) that contains its internal data that the
+\item That class must define a type \code{internal_type} (so
+\code{model::internal_type}) that contains its internal data that the
 model may change during execution (i.e., that is not shared
 between particles). If no such data is needed, you can do
-\verb{typedef dust::no_internal internal_t} to indicate this.
-\item We also need a type \code{shared_t} that contains \emph{constant} internal
+\verb{typedef dust::no_internal internal_type} to indicate this.
+\item We also need a type \code{shared_type} that contains \emph{constant} internal
 data is shared between particles (e.g., dimensions, arrays that
 are read but not written). If no such data is needed, you can do
-\verb{typedef dust::no_shared shared_t} to indicate this.
+\verb{typedef dust::no_shared shared_type} to indicate this.
 \item That class must also include a typedef that describes the
-model's floating point type, \code{real_t}. Most models can include
-\verb{typedef double real_t;} in their public section.
+model's floating point type, \code{real_type}. Most models can include
+\verb{typedef double real_type;} in their public section.
 \item The class must also include a typedef that describes the model's
 \emph{data} type. This interface is subject to change, and for now
-you should include \verb{typedef dust::no_data data_t} which marks
+you should include \verb{typedef dust::no_data data_type} which marks
 your class as not supporting data, which disables the
 \code{compare_data} and \code{set_data} methods.
-\item The class must have a constructor that accepts \verb{const dust::pars_t<model>& pars} for your type \code{model}. This will have
+\item The class must have a constructor that accepts \verb{const dust::pars_type<model>& pars} for your type \code{model}. This will have
 elements \code{shared} and \code{internal} which you can assign into your
 model if needed.
 \item The model must have a method \code{size()} returning \code{size_t} which
@@ -89,13 +89,13 @@ in your initialisation object but is constant within a model
 run.
 \item The model must have a method \code{initial} (which may not be
 \code{const}), taking a step number (\code{size_t}) and returning a
-\verb{std::vector<real_t>} of initial state for the model.
+\verb{std::vector<real_type>} of initial state for the model.
 \item The model must have a method \code{update} taking arguments:
 \itemize{
 \item \verb{size_t step}: the step number
 \item \verb{const double * state}: the state at the beginning of the
 step
-\item \verb{dust::rng_state_t<real_t>& rng_state}: the dust random number
+\item \verb{dust::rng_state_type<real_type>& rng_state}: the dust random number
 generator state - this \emph{must} be a reference, as it will be modified
 as random numbers are drawn
 \item \code{double *state_next}: the end state of the model
@@ -112,31 +112,31 @@ the R API in any way as these functions will be called in
 parallel.
 
 You must also provide a data/parameter-wrangling function for
-producing an object of type \verb{dust::pars_t<model>} from an R list.  We
+producing an object of type \verb{dust::pars_type<model>} from an R list.  We
 use cpp11 for this.  Your function will look like:\preformatted{namespace dust \{
 template <>
-dust::pars_t<model> dust_pars<model>(cpp11::list pars) \{
+dust::pars_type<model> dust_pars<model>(cpp11::list pars) \{
   // ...
-  return dust::pars_t<model>(shared, internal);
+  return dust::pars_type<model>(shared, internal);
 \}
 \}
 }
 
 With the body interacting with \code{pars} to create an object of type
-\code{model::shared_t} and \code{model::internal_t} before returning the
-\code{dust::pars_t} object.  This function will be called in serial
+\code{model::shared_type} and \code{model::internal_type} before returning the
+\code{dust::pars_type} object.  This function will be called in serial
 and may use anything in the cpp11 API.  All elements of the
 returned object must be standard C/C++ (e.g., STL) types and
 \emph{not} cpp11/R types. If your model uses only shared or internal,
 you may use the single-argument constructor overload to
-\code{dust::pars_t} which is equivalent to using \code{dust::no_shared} or
+\code{dust::pars_type} which is equivalent to using \code{dust::no_shared} or
 \code{dust::no_internal} for the missing argument.
 
 Your model \emph{may} provided a template specialisation
 \verb{dust::dust_info<model>()} returning a \code{cpp11::sexp} for
 returning arbitrary information back to the R session:\preformatted{namespace dust \{
 template <>
-cpp11::sexp dust_info<model>(const dust::pars_t<sir>& pars) \{
+cpp11::sexp dust_info<model>(const dust::pars_type<sir>& pars) \{
   return cpp11::wrap(...);
 \}
 \}

@@ -6,19 +6,19 @@ namespace dust {
 template <typename T>
 class Particle {
 public:
-  typedef dust::pars_t<T> pars_t;
-  typedef typename T::real_t real_t;
-  typedef typename T::data_t data_t;
-  typedef typename T::rng_state_t rng_state_t;
+  typedef dust::pars_type<T> pars_type;
+  typedef typename T::real_type real_type;
+  typedef typename T::data_type data_type;
+  typedef typename T::rng_state_type rng_state_type;
 
-  Particle(pars_t pars, size_t step) :
+  Particle(pars_type pars, size_t step) :
     model_(pars),
     step_(step),
     y_(model_.initial(step_)),
     y_swap_(model_.size()) {
   }
 
-  void run(const size_t step_end, rng_state_t& rng_state) {
+  void run(const size_t step_end, rng_state_type& rng_state) {
     while (step_ < step_end) {
       model_.update(step_, y_.data(), rng_state, y_swap_.data());
       step_++;
@@ -27,13 +27,13 @@ public:
   }
 
   void state(const std::vector<size_t>& index,
-             typename std::vector<real_t>::iterator end_state) const {
+             typename std::vector<real_type>::iterator end_state) const {
     for (size_t i = 0; i < index.size(); ++i) {
       *(end_state + i) = y_[index[i]];
     }
   }
 
-  void state_full(typename std::vector<real_t>::iterator end_state) const {
+  void state_full(typename std::vector<real_type>::iterator end_state) const {
     for (size_t i = 0; i < y_.size(); ++i) {
       *(end_state + i) = y_[i];
     }
@@ -67,13 +67,13 @@ public:
     }
   }
 
-  void set_state(typename std::vector<real_t>::const_iterator state) {
+  void set_state(typename std::vector<real_type>::const_iterator state) {
     for (size_t i = 0; i < y_.size(); ++i, ++state) {
       y_[i] = *state;
     }
   }
 
-  real_t compare_data(const data_t& data, rng_state_t& rng_state) {
+  real_type compare_data(const data_type& data, rng_state_type& rng_state) {
     return model_.compare_data(y_.data(), data, rng_state);
   }
 
@@ -81,8 +81,8 @@ private:
   T model_;
   size_t step_;
 
-  std::vector<real_t> y_;
-  std::vector<real_t> y_swap_;
+  std::vector<real_type> y_;
+  std::vector<real_type> y_swap_;
 };
 
 }

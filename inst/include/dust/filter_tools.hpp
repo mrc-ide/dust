@@ -7,18 +7,18 @@
 namespace dust {
 namespace filter {
 
-template <typename real_t>
-void resample_weight(typename std::vector<real_t>::const_iterator w,
-                     size_t n, real_t u, size_t offset,
+template <typename real_type>
+void resample_weight(typename std::vector<real_type>::const_iterator w,
+                     size_t n, real_type u, size_t offset,
                      typename std::vector<size_t>::iterator idx) {
-  const real_t tot = std::accumulate(w, w + n, static_cast<real_t>(0));
-  real_t ww = 0.0, uu0 = tot * u / n, du = tot / n;
+  const real_type tot = std::accumulate(w, w + n, static_cast<real_type>(0));
+  real_type ww = 0.0, uu0 = tot * u / n, du = tot / n;
   size_t j = offset;
   const size_t end = n + offset;
   for (size_t i = 0; i < n; ++i) {
     // We could accumulate uu by adding du at each iteration but that
     // suffers roundoff error here with floats.
-    const real_t uu = uu0 + i * du;
+    const real_type uu = uu0 + i * du;
     // The second clause (i.e., j - offset < n) should never be hit
     // but prevents any invalid read if we have pathalogical 'u' that
     // is within floating point eps of 1
@@ -43,18 +43,18 @@ void resample_weight(typename std::vector<real_t>::const_iterator w,
 //
 // Returns scaled weights by modifying 'w' and returns the single
 // value of the average log weight.
-template <typename real_t>
-real_t scale_log_weights(typename std::vector<real_t>::iterator w, size_t n) {
-  real_t max_w = -std::numeric_limits<real_t>::infinity();
+template <typename real_type>
+real_type scale_log_weights(typename std::vector<real_type>::iterator w, size_t n) {
+  real_type max_w = -std::numeric_limits<real_type>::infinity();
   auto wi = w;
   for (size_t i = 0; i < n; ++i, ++wi) {
     if (std::isnan(*wi)) {
-      *wi = -std::numeric_limits<real_t>::infinity();
+      *wi = -std::numeric_limits<real_type>::infinity();
     } else {
       max_w = std::max(max_w, *wi);
     }
   }
-  real_t tot = 0.0;
+  real_type tot = 0.0;
   wi = w;
   for (size_t i = 0; i < n; ++i, ++wi) {
     *wi = std::exp(*wi - max_w);

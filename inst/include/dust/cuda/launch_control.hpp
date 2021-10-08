@@ -165,7 +165,7 @@ inline launch_control launch_control_model(size_t n_particles,
       ret.block_size;
   } else {
     // If not enough particles per pars to make a whole block use
-    // shared, or if shared_t too big for L1, turn it off, and run
+    // shared, or if shared_type too big for L1, turn it off, and run
     // in 'classic' mode where each particle is totally independent
     set_block_size(ret, block_size, n_particles);
   }
