@@ -19,14 +19,13 @@ else
 fi
 
 if [[ -z "$1" || "$1" == "--find-dust" ]]; then
-    PATH_DUST=`Rscript -e 'cat(find.package("dust"))'`
+    PATH_DUST=$(Rscript -e 'cat(find.package("dust"))')
     echo "Found dust at '$PATH_DUST'"
 else
     PATH_DUST=$1
     echo "Using provided dust '$PATH_DUST'"
 fi
 
-cat Makefile.in | \
-    sed -e "s|@path_dust@|$PATH_DUST|" | \
+sed -e "s|@path_dust@|$PATH_DUST|" Makefile.in | \
     sed -e "s|@openmp_flags@|$OPENMP_FLAGS|" > \
         Makefile
