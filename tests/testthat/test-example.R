@@ -246,22 +246,17 @@ test_that("validate reorder vector is in correct range", {
 
 test_that("run in float mode", {
   skip_for_compilation()
-  res_d <- dust_example("walk")
-  res_f <- dust(dust_file("examples/walk.cpp"), real_type = "float",
-                quiet = TRUE)
+  res <- dust(dust_file("examples/walk.cpp"), real_type = "float",
+              quiet = TRUE)
 
-  n <- 1000
-  obj_d <- res_d$new(list(sd = 10), 0, n, seed = 1L)
-  obj_f <- res_f$new(list(sd = 10), 0, n, seed = 1L)
+  obj <- res$new(list(sd = 10), 0, 5, seed = 1L)
 
-  expect_equal(obj_d$device_info()$real_bits, 64)
-  expect_equal(obj_f$device_info()$real_bits, 32)
+  expect_equal(obj$device_info()$real_bits, 32)
 
-  y_d <- obj_d$run(10)
-  y_f <- obj_f$run(10)
+  y <- drop(obj$simulate(1:7))
 
-  expect_equal(y_d, y_f, tolerance = 1e-5)
-  expect_false(identical(y_d, y_f))
+  cmp <- dust_rng$new(1L, 5, "float")$normal(7, 0, 10)
+  expect_equal(y, t(apply(cmp, 2, cumsum)), tolerance = 1e-5)
 })
 
 

@@ -119,10 +119,10 @@ dust_rng <- R6::R6Class(
 
       if (real_type == "float") {
         size_int_bits <- 32L
-        name <- "xoshiro128starstar"
+        name <- "xoshiro128plus"
       } else {
         size_int_bits <- 64L
-        name <- "xoshiro256starstar"
+        name <- "xoshiro256plus"
       }
       size_int_bits <- if (real_type == "float") 32L else 64L
       self$info <- list(

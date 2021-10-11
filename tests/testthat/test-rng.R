@@ -102,7 +102,7 @@ test_that("binomial numbers run the short circuit path", {
 
 
 test_that("binomial numbers on the 'small' path", {
-  m <- 100000
+  m <- 500000
   n <- 20
   p <- 0.2
 
@@ -499,7 +499,7 @@ test_that("normal random numbers from floats have correct distribution", {
 
 test_that("std uniform random numbers from floats have correct distribution", {
   n <- 100000
-  yf <- dust_rng$new(1, real_type = "float")$random_real(n)
+  yf <- dust_rng$new(42, real_type = "float")$random_real(n)
   expect_equal(mean(yf), 0.5, tolerance = 1e-3)
   expect_equal(var(yf), 1 / 12, tolerance = 1e-2)
 })
