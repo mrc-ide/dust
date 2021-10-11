@@ -1,3 +1,12 @@
+# dust 0.10.0
+
+* Improved and generalised RNG interface, with more algorithms and more control
+  - Expand set of included generators to 12 with different storage types, period and precision (#281)
+  - Faster random number generation with single precision, using `xoshiro128plus` (#282)
+  - Slightly faster real number generation for all generators by avoiding division (#280)
+  - The `dust_rng` object has been refactored with methods changing names, a new behaviour when using multiple generators, and parallelisation (#279)
+* Type names have been standarised and we now avoid `_t` in favour of `_type` in line with the POSIX standard; this impacts all existing dust-using code (#278)
+
 # dust 0.9.21
 
 * Deprecate the previous state update methods (`$reset()`, `$set_pars()` and `$set_state()`) in favour of a single method that can update any or all of parameters, model state and time, `$update_state()` (#180)
