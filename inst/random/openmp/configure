@@ -1,13 +1,29 @@
 #!/bin/bash
-PATH_DUST=`Rscript -e 'cat(find.package("dust"))'`
 
-echo "Found dust at '$PATH_DUST'"
-if [[ "$1" == "--no-openmp" ]]; then
+# Not intended to be a real configure script, just enough to let us
+# turn openmp on and off and to find dust (working around the issue
+# that we can't use Rscript from with R CMD check)
+
+USAGE="Usage:
+./configure [(<path_dust> | --find-dust) [(--openmp | --no-openmp)]]"
+
+if [[ "$2" == "--no-openmp" ]]; then
     echo "Disabling openmp"
     OPENMP_FLAGS=-DNO_OPENMP
-else
+elif [[ -z "$2" || "$2" == "--openmp" ]]; then
     echo "Enabling openmp"
     OPENMP_FLAGS=-fopenmp
+else
+    echo "$USAGE"
+    exit 1
+fi
+
+if [[ -z "$1" || "$1" == "--find-dust" ]]; then
+    PATH_DUST=`Rscript -e 'cat(find.package("dust"))'`
+    echo "Found dust at '$PATH_DUST'"
+else
+    PATH_DUST=$1
+    echo "Using provided dust '$PATH_DUST'"
 fi
 
 cat Makefile.in | \

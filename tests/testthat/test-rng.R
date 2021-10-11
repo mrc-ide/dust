@@ -722,9 +722,15 @@ test_that("We can compile the standalone program", {
   tmp <- tempfile()
   copy_directory(path_src, tmp)
 
-  withr::with_dir(tmp, system2("./configure", "--no-openmp",
-                               stdout = FALSE, stderr = FALSE))
-  code <- withr::with_dir(tmp, system2("make", stdout = FALSE, stderr = FALSE))
+  args <- c(dirname(dust_file("include")), "--no-openmp")
+
+  code <- withr::with_dir(
+    tmp,
+    system2("./configure", args, stdout = FALSE, stderr = FALSE))
+  expect_equal(code, 0)
+  code <- withr::with_dir(
+    tmp,
+    system2("make", stdout = FALSE, stderr = FALSE))
   expect_equal(code, 0)
 
   res <- system2(file.path(tmp, "rnguse"), c("10", "5", "42"),

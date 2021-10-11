@@ -199,14 +199,14 @@ Our random number library can be reused in other projects without using anything
 A minimal package looks like
 
 ```{r pkg_tree, echo = FALSE}
-path_pkg <- dust:::dust_file("examples/random/package")
-withr::with_dir(path_pg, fs::dir_tree())
+path_pkg <- dust:::dust_file("random/package")
+withr::with_dir(path_pkg, fs::dir_tree())
 ```
 
 with the core of the C++ file containing a small program that uses the dust random number generator to draw a series of normally distributed random number with a single mean and standard deviation.
 
 ```{r echo = FALSE, results = "asis"}
-code <- readLines(file.path(path_pkg, "src/userng.cpp"))
+code <- readLines(file.path(path_pkg, "src/rnguse.cpp"))
 cc_output(code[!grepl("^//", code)])
 ```
 
@@ -235,7 +235,7 @@ The simplest way to get started is to copy the contents of `inst/include/dust/ra
 For example, below is a small program that computes the sum of a series of random numbers, in parallel using OpenMP to parallelise across a set of generators.
 
 ```{r echo = FALSE, results = "asis"}
-cc_output(readLines(dust:::dust_file("examples/random/openmp/userng.cpp")))
+cc_output(readLines(dust:::dust_file("random/openmp/rnguse.cpp")))
 ```
 
 This program can be compiled with
