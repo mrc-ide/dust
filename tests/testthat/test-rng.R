@@ -684,4 +684,14 @@ test_that("Parameter expansion", {
   m1 <- m[1, , drop = FALSE]
   expect_equal(floor(rng$uniform(3, m1, m1 + 1)),
                m1[c(1, 1, 1), ])
+
+  expect_error(
+    rng$uniform(3, c(1, 2, 3, 4), 10),
+    "If 'min' is a vector, it must have 1 or 3 elements")
+  expect_error(
+    rng$uniform(3, m[, 1:2], 10),
+    "If 'min' is a matrix, it must have 10 columns")
+  expect_error(
+    rng$uniform(3, m[1:2, ], 10),
+    "If 'min' is a matrix, it must have 1 or 3 rows")
 })

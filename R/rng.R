@@ -160,7 +160,7 @@ dust_rng <- R6::R6Class(
 
     ##' Generate `n` numbers from a standard uniform distribution
     ##'
-    ##' @param n Number of samples to draw
+    ##' @param n Number of samples to draw (per generator)
     ##'
     ##' @param n_threads Number of threads to use; see Details
     random_real = function(n, n_threads = 1L) {
@@ -169,7 +169,7 @@ dust_rng <- R6::R6Class(
 
     ##' Generate `n` numbers from a uniform distribution
     ##'
-    ##' @param n Number of samples to draw
+    ##' @param n Number of samples to draw (per generator)
     ##'
     ##' @param min The minimum of the distribution (length 1 or n)
     ##'
@@ -182,7 +182,7 @@ dust_rng <- R6::R6Class(
 
     ##' Generate `n` numbers from a normal distribution
     ##'
-    ##' @param n Number of samples to draw
+    ##' @param n Number of samples to draw (per generator)
     ##'
     ##' @param mean The mean of the distribution (length 1 or n)
     ##'
@@ -195,7 +195,7 @@ dust_rng <- R6::R6Class(
 
     ##' Generate `n` numbers from a binomial distribution
     ##'
-    ##' @param n Number of samples to draw
+    ##' @param n Number of samples to draw (per generator)
     ##'
     ##' @param size The number of trials (zero or more, length 1 or n)
     ##'
@@ -209,7 +209,7 @@ dust_rng <- R6::R6Class(
 
     ##' Generate `n` numbers from a Poisson distribution
     ##'
-    ##' @param n Number of samples to draw
+    ##' @param n Number of samples to draw (per generator)
     ##'
     ##' @param lambda The mean (zero or more, length 1 or n)
     ##'
@@ -220,7 +220,7 @@ dust_rng <- R6::R6Class(
 
     ##' Generate `n` numbers from a exponential distribution
     ##'
-    ##' @param n Number of samples to draw
+    ##' @param n Number of samples to draw (per generator)
     ##'
     ##' @param rate The rate of the exponential
     ##'

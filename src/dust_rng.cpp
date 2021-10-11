@@ -33,7 +33,15 @@ void dust_rng_long_jump(SEXP ptr) {
   rng->long_jump();
 }
 
-// this one is not that hard as we take no pars
+// Little helper for returning x as a vector (m == 1) or matrix (n * m)
+cpp11::writable::doubles double_matrix(cpp11::writable::doubles x,
+                                       int n, int m) {
+  if (m > 1) {
+    x.attr("dim") = cpp11::writable::integers{n, m};
+  }
+  return x;
+}
+
 template <typename real_type, typename T>
 cpp11::writable::doubles dust_rng_random_real(SEXP ptr, int n, int n_threads) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
@@ -53,11 +61,7 @@ cpp11::writable::doubles dust_rng_random_real(SEXP ptr, int n, int n_threads) {
     }
   }
 
-  if (n_generators > 1) {
-    ret.attr("dim") = cpp11::writable::integers{n, (int)n_generators};
-  }
-
-  return ret;
+  return double_matrix(ret, n, n_generators);
 }
 
 struct input_vary {
@@ -66,23 +70,24 @@ struct input_vary {
   bool generator;
 };
                   
-input_vary check_input_type(cpp11::doubles x, int n, int m) {
+input_vary check_input_type(cpp11::doubles x, int n, int m, const char *name) {
   input_vary ret {1, false, false};
   if (Rf_isMatrix(x)) {
     if (Rf_ncols(x) != m) {
-      cpp11::stop("If input is a matrix, it must have %d columns", m);
+      cpp11::stop("If '%s' is a matrix, it must have %d columns", name, m);
     }
     ret.generator = true;
     if (Rf_nrows(x) == n) {
       ret.draw = true;
     } else if (Rf_nrows(x) != 1) {
-      cpp11::stop("If input is a matrix, it must have 1 or %d rows", n);
+      cpp11::stop("If '%s' is a matrix, it must have 1 or %d rows", name, n);
     }
   } else {
     if (x.size() == n) {
       ret.draw = true;
     } else if (x.size() != 1) {
-      cpp11::stop("If input is a vector, it must have 1 or %d elements", n);
+      cpp11::stop("If '%s' is a vector, it must have 1 or %d elements",
+                  name, n);
     }
   }
 
@@ -109,8 +114,8 @@ cpp11::writable::doubles dust_rng_uniform(SEXP ptr, int n,
 
   const double * min = REAL(r_min);
   const double * max = REAL(r_max);
-  auto min_vary = check_input_type(r_min, n, n_generators);
-  auto max_vary = check_input_type(r_max, n, n_generators);
+  auto min_vary = check_input_type(r_min, n, n_generators, "min");
+  auto max_vary = check_input_type(r_max, n, n_generators, "max");
 
 #ifdef _OPENMP
   #pragma omp parallel for schedule(static) num_threads(n_threads)
@@ -127,11 +132,7 @@ cpp11::writable::doubles dust_rng_uniform(SEXP ptr, int n,
     }
   }
 
-  if (n_generators > 1) {
-    ret.attr("dim") = cpp11::writable::integers{n, n_generators};
-  }
-
-  return ret;
+  return double_matrix(ret, n, n_generators);
 }
 
 template <typename real_type, typename T>
@@ -144,7 +145,7 @@ cpp11::writable::doubles dust_rng_exponential(SEXP ptr, int n,
   double * y = REAL(ret);
 
   const double * rate = REAL(r_rate);
-  auto rate_vary = check_input_type(r_rate, n, n_generators);
+  auto rate_vary = check_input_type(r_rate, n, n_generators, "rate");
 
 #ifdef _OPENMP
   #pragma omp parallel for schedule(static) num_threads(n_threads)
@@ -159,11 +160,7 @@ cpp11::writable::doubles dust_rng_exponential(SEXP ptr, int n,
     }
   }
 
-  if (n_generators > 1) {
-    ret.attr("dim") = cpp11::writable::integers{n, n_generators};
-  }
-
-  return ret;
+  return double_matrix(ret, n, n_generators);
 }
 
 
@@ -179,8 +176,8 @@ cpp11::writable::doubles dust_rng_normal(SEXP ptr, int n,
 
   const double * mean = REAL(r_mean);
   const double * sd = REAL(r_sd);
-  auto mean_vary = check_input_type(r_mean, n, n_generators);
-  auto sd_vary = check_input_type(r_sd, n, n_generators);
+  auto mean_vary = check_input_type(r_mean, n, n_generators, "mean");
+  auto sd_vary = check_input_type(r_sd, n, n_generators, "sd");
 
 #ifdef _OPENMP
   #pragma omp parallel for schedule(static) num_threads(n_threads)
@@ -197,11 +194,7 @@ cpp11::writable::doubles dust_rng_normal(SEXP ptr, int n,
     }
   }
 
-  if (n_generators > 1) {
-    ret.attr("dim") = cpp11::writable::integers{n, n_generators};
-  }
-
-  return ret;
+  return double_matrix(ret, n, n_generators);
 }
 
 template <typename real_type, typename T>
@@ -216,8 +209,8 @@ cpp11::writable::doubles dust_rng_binomial(SEXP ptr, int n,
 
   const double * size = REAL(r_size);
   const double * prob = REAL(r_prob);
-  auto size_vary = check_input_type(r_size, n, n_generators);
-  auto prob_vary = check_input_type(r_prob, n, n_generators);
+  auto size_vary = check_input_type(r_size, n, n_generators, "size");
+  auto prob_vary = check_input_type(r_prob, n, n_generators, "prob");
 
 #ifdef _OPENMP
   #pragma omp parallel for schedule(static) num_threads(n_threads)
@@ -234,11 +227,7 @@ cpp11::writable::doubles dust_rng_binomial(SEXP ptr, int n,
     }
   }
 
-  if (n_generators > 1) {
-    ret.attr("dim") = cpp11::writable::integers{n, n_generators};
-  }
-
-  return ret;
+  return double_matrix(ret, n, n_generators);
 }
 
 template <typename real_type, typename T>
@@ -251,7 +240,7 @@ cpp11::writable::doubles dust_rng_poisson(SEXP ptr, int n,
   double * y = REAL(ret);
 
   const double * lambda = REAL(r_lambda);
-  auto lambda_vary = check_input_type(r_lambda, n, n_generators);
+  auto lambda_vary = check_input_type(r_lambda, n, n_generators, "lambda");
 
 #ifdef _OPENMP
   #pragma omp parallel for schedule(static) num_threads(n_threads)
@@ -267,11 +256,7 @@ cpp11::writable::doubles dust_rng_poisson(SEXP ptr, int n,
     }
   }
 
-  if (n_generators > 1) {
-    ret.attr("dim") = cpp11::writable::integers{n, n_generators};
-  }
-
-  return ret;
+  return double_matrix(ret, n, n_generators);
 }
 
 template <typename T>
