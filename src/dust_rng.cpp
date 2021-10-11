@@ -10,6 +10,7 @@
 
 #include <dust/random/random.hpp>
 #include <dust/interface/random.hpp>
+#include <dust/utils.hpp>
 
 using dust_rng64 = dust::random::prng<dust::random::generator<double>>;
 using dust_rng32 = dust::random::prng<dust::random::generator<float>>;
@@ -45,15 +46,15 @@ cpp11::writable::doubles double_matrix(cpp11::writable::doubles x,
 template <typename real_type, typename T>
 cpp11::writable::doubles dust_rng_random_real(SEXP ptr, int n, int n_threads) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
-  const size_t n_generators = rng->size();
+  const int n_generators = rng->size();
 
   cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_generators);
   double * y = REAL(ret);
 
 #ifdef _OPENMP
-  #pragma omp parallel for schedule(static) num_threads(n_threads)
+   #pragma omp parallel for schedule(static) num_threads(n_threads)
 #endif
-  for (size_t i = 0; i < n_generators; ++i) {
+  for (int i = 0; i < n_generators; ++i) {
     auto &state = rng->state(i);
     auto y_i = y + n * i;
     for (size_t j = 0; j < (size_t)n; ++j) {
@@ -120,7 +121,7 @@ cpp11::writable::doubles dust_rng_uniform(SEXP ptr, int n,
 #ifdef _OPENMP
   #pragma omp parallel for schedule(static) num_threads(n_threads)
 #endif
-  for (size_t i = 0; i < n_generators; ++i) {
+  for (int i = 0; i < n_generators; ++i) {
     auto &state = rng->state(i);
     auto y_i = y + n * i;
     auto min_i = min_vary.generator ? min + min_vary.offset * i : min;
@@ -150,7 +151,7 @@ cpp11::writable::doubles dust_rng_exponential(SEXP ptr, int n,
 #ifdef _OPENMP
   #pragma omp parallel for schedule(static) num_threads(n_threads)
 #endif
-  for (size_t i = 0; i < n_generators; ++i) {
+  for (int i = 0; i < n_generators; ++i) {
     auto &state = rng->state(i);
     auto y_i = y + n * i;
     auto rate_i = rate_vary.generator ? rate + rate_vary.offset * i : rate;
@@ -182,7 +183,7 @@ cpp11::writable::doubles dust_rng_normal(SEXP ptr, int n,
 #ifdef _OPENMP
   #pragma omp parallel for schedule(static) num_threads(n_threads)
 #endif
-  for (size_t i = 0; i < n_generators; ++i) {
+  for (int i = 0; i < n_generators; ++i) {
     auto &state = rng->state(i);
     auto y_i = y + n * i;
     auto mean_i = mean_vary.generator ? mean + mean_vary.offset * i : mean;
@@ -212,20 +213,28 @@ cpp11::writable::doubles dust_rng_binomial(SEXP ptr, int n,
   auto size_vary = check_input_type(r_size, n, n_generators, "size");
   auto prob_vary = check_input_type(r_prob, n, n_generators, "prob");
 
+  dust::utils::openmp_errors errors(n_generators);
+
 #ifdef _OPENMP
   #pragma omp parallel for schedule(static) num_threads(n_threads)
 #endif
-  for (size_t i = 0; i < n_generators; ++i) {
-    auto &state = rng->state(i);
-    auto y_i = y + n * i;
-    auto size_i = size_vary.generator ? size + size_vary.offset * i : size;
-    auto prob_i = prob_vary.generator ? prob + prob_vary.offset * i : prob;
-    for (size_t j = 0; j < (size_t)n; ++j) {
-      auto size_ij = size_vary.draw ? size_i[j] : size_i[0];
-      auto prob_ij = prob_vary.draw ? prob_i[j] : prob_i[0];
-      y_i[j] = dust::random::binomial<real_type>(state, size_ij, prob_ij);
+  for (int i = 0; i < n_generators; ++i) {
+    try {
+      auto &state = rng->state(i);
+      auto y_i = y + n * i;
+      auto size_i = size_vary.generator ? size + size_vary.offset * i : size;
+      auto prob_i = prob_vary.generator ? prob + prob_vary.offset * i : prob;
+      for (size_t j = 0; j < (size_t)n; ++j) {
+        auto size_ij = size_vary.draw ? size_i[j] : size_i[0];
+        auto prob_ij = prob_vary.draw ? prob_i[j] : prob_i[0];
+        y_i[j] = dust::random::binomial<real_type>(state, size_ij, prob_ij);
+      }
+    } catch (std::exception const& e) {
+      errors.capture(e, i);
     }
   }
+
+  errors.report("generators");
 
   return double_matrix(ret, n, n_generators);
 }
@@ -245,7 +254,7 @@ cpp11::writable::doubles dust_rng_poisson(SEXP ptr, int n,
 #ifdef _OPENMP
   #pragma omp parallel for schedule(static) num_threads(n_threads)
 #endif
-  for (size_t i = 0; i < n_generators; ++i) {
+  for (int i = 0; i < n_generators; ++i) {
     auto &state = rng->state(i);
     auto y_i = y + n * i;
     auto lambda_i = lambda_vary.generator ? lambda + lambda_vary.offset * i :

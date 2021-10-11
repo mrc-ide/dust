@@ -22,6 +22,7 @@
 // * dust::random::jump and dust::random::long_jump which "jump" the
 //   generator state forward, a key part of the parallel generators.
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <cstddef>

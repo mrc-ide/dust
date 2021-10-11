@@ -1,7 +1,9 @@
 #ifndef DUST_RANDOM_PRNG_HPP
 #define DUST_RANDOM_PRNG_HPP
 
+#include <algorithm>
 #include <vector>
+
 #include <dust/random/generator.hpp>
 
 namespace dust {
