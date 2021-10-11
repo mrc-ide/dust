@@ -695,3 +695,42 @@ test_that("Parameter expansion", {
     rng$uniform(3, m[1:2, ], 10),
     "If 'min' is a matrix, it must have 1 or 3 rows")
 })
+
+
+test_that("We can load the example rng package", {
+  skip_for_compilation()
+
+  path_src <- dust_file("random/package")
+  tmp <- tempfile()
+  copy_directory(path_src, tmp)
+  cpp11::cpp_register(tmp, quiet = TRUE)
+
+  pkg <- pkgload::load_all(tmp, export_all = FALSE, quiet = TRUE)
+  ans <- pkg$env$random_normal(10, 0, 1, 42)
+  cmp <- dust_rng$new(42)$normal(10, 0, 1)
+  expect_equal(ans, cmp)
+
+  pkgload::unload("rnguse")
+  unlink(tmp, recursive = TRUE)
+})
+
+
+test_that("We can compile the standalone program", {
+  skip_for_compilation()
+
+  path_src <- dust_file("random/openmp")
+  tmp <- tempfile()
+  copy_directory(path_src, tmp)
+
+  withr::with_dir(tmp, system2("./configure", "--no-openmp",
+                               stdout = FALSE, stderr = FALSE))
+  code <- withr::with_dir(tmp, system2("make", stdout = FALSE, stderr = FALSE))
+  expect_equal(code, 0)
+
+  res <- system2(file.path(tmp, "rnguse"), c("10", "5", "42"),
+                 stdout = TRUE)
+  ans <- as.numeric(sub("[0-9]: ", "", res))
+
+  cmp <- colSums(dust_rng$new(42, 5)$uniform(10, 0, 1))
+  expect_equal(ans, cmp)
+})

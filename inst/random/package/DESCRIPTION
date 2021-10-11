@@ -8,3 +8,4 @@ Description: Simple example package showing how to use dust's random
 License: CC0
 Encoding: UTF-8
 LinkingTo: cpp11, dust
+SystemRequirements: C++11

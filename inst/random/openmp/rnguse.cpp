@@ -1,6 +1,11 @@
 #include <iostream>
+#include <iomanip>
 #include <vector>
-// #include <omp.h>
+
+#ifndef NO_OPENMP
+#include <omp.h>
+#endif
+
 #include <dust/random/random.hpp>
 
 template <typename real_type>
@@ -36,6 +41,7 @@ int main(int argc, char* argv[]) {
 
   auto ans = random_sum<double>(n_generators, n_draws, seed, n_threads);
 
+  std::cout << std::setprecision(10);
   for (int i = 0; i < n_generators; ++i) {
     std::cout << i << ": " << ans[i] << std::endl;
   }
