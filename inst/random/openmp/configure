@@ -1,0 +1,4 @@
+#!/bin/bash
+PATH_DUST=`Rscript -e 'cat(find.package("dust"))'`
+echo "Found dust at '$PATH_DUST'"
+sed -e "s|@path_dust@|$PATH_DUST|" Makefile.in > Makefile

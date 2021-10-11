@@ -1,0 +1,10 @@
+Package: rnguse
+Title: Use 'dust' RNG From Elsewhere
+Version: 0.1.0
+Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
+                    email = "rich.fitzjohn@gmail.com"))
+Description: Simple example package showing how to use dust's random
+    number library from your R package's C++ code.
+License: CC0
+Encoding: UTF-8
+LinkingTo: cpp11, dust
