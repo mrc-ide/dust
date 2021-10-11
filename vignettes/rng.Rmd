@@ -163,7 +163,7 @@ Under the hood, the random number generators work by first creating a random int
 [random integer] -> [random real] -> [random draw from a distribution]
 ```
 
-We include 12 different algoithms for creating the underlying random integer, from the [same family of generators](https://prng.di.unimi.it/).  These provide different undering storage types (either 32 bit or 64 bit integers) and different state types.
+We include 12 different algorithms for creating the underlying random integer, from the [same family of generators](https://prng.di.unimi.it/).  These provide different underlying storage types (either 32 bit or 64 bit integers) and different state types.
 
 Normally you do not need to worry about these details and declaring
 
@@ -192,7 +192,7 @@ The "starstar", "plusplus" or "plus" refers to the final scrambling operation (t
 
 ## Reusing the random random number generator
 
-Our random number library can be reused in other projects without using anything else from dust; either in an R package or in a standlone project.
+Our random number library can be reused in other projects without using anything else from dust; either in an R package or in a standalone project.
 
 ### In a package
 
@@ -267,4 +267,4 @@ Why does this package exist?  We had a set of needs that meant using the a
 
 On this last point; we noticed that many distribution packages, including Boost.Random (and to a degree R's random functions) assume that you want to sample many random numbers from a distribution with fixed parameters.  This is probably reasonable in many cases, but in the use case we had (stochastic simulation models) we expected that all parameters were likely to change at every iteration.  These different approaches have important tradeoffs - if you will take many samples from a single distribution you might compute tables of coefficients once and use them many times which will make the sampling faster, but this will be wasteful if only a single sample is taken before the parameters change.
 
-The situation is slightly more complex on a GPU where we need to make sure that different threads within a block do not get needlessly onto different branches of conditional logic.  Things like early exits need to be avoided and we have carefully profiled to make sure that threads within a warp end up re-syncronised at the optimal spot (see for example [this blog post on `__syncwarp`](https://developer.nvidia.com/blog/using-cuda-warp-level-primitives/)).
+The situation is slightly more complex on a GPU where we need to make sure that different threads within a block do not get needlessly onto different branches of conditional logic.  Things like early exits need to be avoided and we have carefully profiled to make sure that threads within a warp end up re-synchronised at the optimal spot (see for example [this blog post on `__syncwarp`](https://developer.nvidia.com/blog/using-cuda-warp-level-primitives/)).

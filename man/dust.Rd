@@ -43,7 +43,7 @@ real type will typically just decrease precision for no
 additional performance.}
 
 \item{skip_cache}{Logical, indicating if the cache of previously
-compiled moels should be skipped. If \code{TRUE} then your model will
+compiled models should be skipped. If \code{TRUE} then your model will
 not be looked for in the cache, nor will it be added to the
 cache after compilation.}
 }

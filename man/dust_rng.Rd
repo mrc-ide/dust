@@ -11,7 +11,7 @@ numbers from dust's distributions.
 Create an object that can be used to generate random
 numbers with the same RNG as dust uses internally.  This is
 primarily meant for debugging and testing the underlying C++
-rather than a source of random nubmers from R
+rather than a source of random numbers from R.
 }
 \section{Running multiple streams, perhaps in parallel}{
 

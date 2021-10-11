@@ -179,7 +179,7 @@
 ##'   additional performance.
 ##'
 ##' @param skip_cache Logical, indicating if the cache of previously
-##'   compiled moels should be skipped. If `TRUE` then your model will
+##'   compiled models should be skipped. If `TRUE` then your model will
 ##'   not be looked for in the cache, nor will it be added to the
 ##'   cache after compilation.
 ##'
@@ -237,7 +237,7 @@ dust <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
 
 ##' Generate a package out of a dust model. The resulting package can
 ##' be installed or loaded via `pkgload::load_all()` though it
-##' contains minimal metadata and if you want to create a persistant
+##' contains minimal metadata and if you want to create a persistent
 ##' package you should use [dust::dust_package()].  This function is
 ##' intended for cases where you either want to inspect the code or
 ##' generate it once and load multiple times (useful in some workflows

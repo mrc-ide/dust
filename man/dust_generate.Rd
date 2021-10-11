@@ -54,7 +54,7 @@ that was provided, otherwise a temporary directory).
 \description{
 Generate a package out of a dust model. The resulting package can
 be installed or loaded via \code{pkgload::load_all()} though it
-contains minimal metadata and if you want to create a persistant
+contains minimal metadata and if you want to create a persistent
 package you should use \code{\link[=dust_package]{dust_package()}}.  This function is
 intended for cases where you either want to inspect the code or
 generate it once and load multiple times (useful in some workflows
