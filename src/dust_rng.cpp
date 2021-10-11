@@ -11,8 +11,8 @@
 #include <dust/random/random.hpp>
 #include <dust/interface/random.hpp>
 
-using dust_rng64 = dust::random::prng<dust::random::xoshiro256starstar_state>;
-using dust_rng32 = dust::random::prng<dust::random::xoshiro128starstar_state>;
+using dust_rng64 = dust::random::prng<dust::random::generator<double>>;
+using dust_rng32 = dust::random::prng<dust::random::generator<float>>;
 
 template <typename T>
 SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators, bool deterministic) {

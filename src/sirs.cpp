@@ -67,7 +67,7 @@ class sirs {
 public:
   typedef double real_type;
   typedef dust::no_internal internal_type;
-  typedef dust::random::xoshiro256starstar_state rng_state_type;
+  typedef dust::random::generator<real_type> rng_state_type;
 
   // ALIGN(16) is required before the data_type definition when using NVCC
   // This is so when loaded into shared memory it is aligned correctly
