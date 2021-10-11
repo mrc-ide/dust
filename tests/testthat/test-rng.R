@@ -699,6 +699,7 @@ test_that("Parameter expansion", {
 
 test_that("We can load the example rng package", {
   skip_for_compilation()
+  skip_on_os("windows")
 
   path_src <- dust_file("random/package")
   tmp <- tempfile()
@@ -717,6 +718,7 @@ test_that("We can load the example rng package", {
 
 test_that("We can compile the standalone program", {
   skip_for_compilation()
+  skip_on_os("windows")
 
   path_src <- dust_file("random/openmp")
   tmp <- tempfile()
