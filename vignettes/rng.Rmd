@@ -186,7 +186,7 @@ The supported types are:
 * `xoshiro256starstar`, `xoshiro256plusplus`, `xoshiro256plus` (4 x 64 bit state)
 * `xoroshiro128starstar`, `xoroshiro128plusplus`, `xoroshiro128plus` (2 x 64 bit state)
 * `xoshiro128starstar`, `xoshiro128plusplus`, `xoshiro128plus` (4 x 32 bit state)
-* `xoshiro256starstar`, `xoshiro256plusplus`, `xoshiro256plus` (8 x 64 bit state; this is far more state space than typically needed)
+* `xoshiro512starstar`, `xoshiro512plusplus`, `xoshiro512plus` (8 x 64 bit state; this is far more state space than typically needed)
 
 The "starstar", "plusplus" or "plus" refers to the final scrambling operation (two multiplications, two additions or one addition, respectively); the speeds of these might vary depending on your platform.  The "plus" version will be the fastest but produces slightly less randomness in the the lower bits of the underlying integers, which theoretically is not a problem when converting to a real number.
 

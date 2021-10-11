@@ -154,7 +154,7 @@ jobs:
           asset_name: ${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}_oldrel.zip
           asset_content_type: application/zip
 
-      - name: Build random library
+      - name: Create archive of random library
         shell: bash
         run: |
           tar -zcvf dust-random.tar.gz -C inst/include dust/random
