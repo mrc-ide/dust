@@ -138,4 +138,7 @@ T random_real(U& state) {
 // 32 bit generators, 4 * uint32_t
 #include "xoshiro128.hpp"
 
+// 64 bit generators, 8 * uint64_t
+#include "xoshiro512.hpp"
+
 #endif
