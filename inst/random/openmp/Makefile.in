@@ -1,0 +1,12 @@
+PATH_DUST_INCLUDE=@path_dust@/include
+OPENMP_FLAGS=@openmp_flags@
+
+all: rnguse
+
+rnguse: rnguse.cpp
+	$(CXX) -I$(PATH_DUST_INCLUDE) $(OPENMP_FLAGS) -O2 -std=c++11 -o rnguse rnguse.cpp
+
+clean:
+	$(RM) rnguse
+
+.PHONY: all clean

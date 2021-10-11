@@ -36,28 +36,28 @@ dust_rng_long_jump <- function(ptr, is_float) {
   invisible(.Call(`_dust_dust_rng_long_jump`, ptr, is_float))
 }
 
-dust_rng_random_real <- function(ptr, n, is_float) {
-  .Call(`_dust_dust_rng_random_real`, ptr, n, is_float)
+dust_rng_random_real <- function(ptr, n, n_threads, is_float) {
+  .Call(`_dust_dust_rng_random_real`, ptr, n, n_threads, is_float)
 }
 
-dust_rng_uniform <- function(ptr, n, r_min, r_max, is_float) {
-  .Call(`_dust_dust_rng_uniform`, ptr, n, r_min, r_max, is_float)
+dust_rng_uniform <- function(ptr, n, r_min, r_max, n_threads, is_float) {
+  .Call(`_dust_dust_rng_uniform`, ptr, n, r_min, r_max, n_threads, is_float)
 }
 
-dust_rng_exponential <- function(ptr, n, r_rate, is_float) {
-  .Call(`_dust_dust_rng_exponential`, ptr, n, r_rate, is_float)
+dust_rng_exponential <- function(ptr, n, r_rate, n_threads, is_float) {
+  .Call(`_dust_dust_rng_exponential`, ptr, n, r_rate, n_threads, is_float)
 }
 
-dust_rng_normal <- function(ptr, n, r_mean, r_sd, is_float) {
-  .Call(`_dust_dust_rng_normal`, ptr, n, r_mean, r_sd, is_float)
+dust_rng_normal <- function(ptr, n, r_mean, r_sd, n_threads, is_float) {
+  .Call(`_dust_dust_rng_normal`, ptr, n, r_mean, r_sd, n_threads, is_float)
 }
 
-dust_rng_binomial <- function(ptr, n, r_size, r_prob, is_float) {
-  .Call(`_dust_dust_rng_binomial`, ptr, n, r_size, r_prob, is_float)
+dust_rng_binomial <- function(ptr, n, r_size, r_prob, n_threads, is_float) {
+  .Call(`_dust_dust_rng_binomial`, ptr, n, r_size, r_prob, n_threads, is_float)
 }
 
-dust_rng_poisson <- function(ptr, n, r_lambda, is_float) {
-  .Call(`_dust_dust_rng_poisson`, ptr, n, r_lambda, is_float)
+dust_rng_poisson <- function(ptr, n, r_lambda, n_threads, is_float) {
+  .Call(`_dust_dust_rng_poisson`, ptr, n, r_lambda, n_threads, is_float)
 }
 
 dust_rng_state <- function(ptr, is_float) {

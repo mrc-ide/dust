@@ -24,3 +24,5 @@
 ^vignettes_src$
 ^developing\.md$
 ^extra$
+^inst/random/openmp/rnguse$
+^inst/random/openmp/Makefile$

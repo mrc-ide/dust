@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <numeric>
+#include <sstream>
 #include <vector>
 
 namespace dust {
@@ -62,14 +63,14 @@ public:
     seen[i] = true;
   }
 
-  void report(size_t n_max = 4) {
+  void report(const char *title = "particles", size_t n_max = 4) {
     count = std::accumulate(std::begin(seen), std::end(seen), 0);
     if (count == 0) {
       return;
     }
 
     std::stringstream msg;
-    msg << count << " particles reported errors.";
+    msg << count << " " << title << " reported errors.";
 
     const size_t n_report = std::min(n_max, count);
     for (size_t i = 0, j = 0; i < seen.size() && j < n_report; ++i) {

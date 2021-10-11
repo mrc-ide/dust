@@ -10,13 +10,61 @@ numbers from dust's distributions.
 \description{
 Create an object that can be used to generate random
 numbers with the same RNG as dust uses internally.  This is
-primarily meant for debugging and testing.
+primarily meant for debugging and testing the underlying C++
+rather than a source of random numbers from R.
 }
+\section{Running multiple streams, perhaps in parallel}{
+
+
+The underlying random number generators are designed to work in
+parallel, and with random access to parameters (see
+\code{vignette("rng")} for more details).  However, this is usually
+done within the context of running a model where each generator
+sees its own stream of numbers.  We provide some support for
+running random number generators in parallel, but any speed
+gains from parallelisation are likely to be somewhat eroded by
+the overhead of copying around a large number of random numbers.
+
+All the random distribution functions support an argument
+\code{n_threads} which controls the number of threads used.  This
+argument will \emph{silently} have no effect if your installation
+does not support OpenMP (see \link{dust_openmp_support}).
+
+Parallelisation will be performed at the level of the generator,
+with \emph{each} generator drawing \code{n} numbers for a total of \code{n * n_generators} random numbers.  Setting \code{n_threads} to be higher
+than \code{n_generators} will therefore have no effect. If running on
+somebody else's system (e.g., an HPC, CRAN) you must respect the
+various environment variables that control the maximum allowable
+number of threads; consider using \link{dust_openmp_threads} to
+select a safe number.
+
+With the exception of \code{random_real}, each random number
+distribution accepts parameters; the interpretations of these
+will depend on \code{n}, \code{n_generators} and their rank.
+\itemize{
+\item If a scalar then we will use the same parameter value for every draw
+from every stream
+\item If a vector with length \code{n} then we will draw \code{n} random
+numbers per stream, and every stream will use the same parameter
+value for every generator for each draw (but a different,
+shared, parameter value for subsequent draws).
+\item If a matrix is provided with one row and \code{n_generators}
+columns then we use different parameters for each generator, but
+the same parameter for each draw.
+\item If a matrix is provided with \code{n} rows and \code{n_generators}
+columns then we use a parameter value \verb{[i, j]} for the \code{i}th
+draw on the \code{j}th stream.
+}
+
+The output will not differ based on the number of threads used,
+only on the number of generators.
+}
+
 \examples{
 rng <- dust::dust_rng$new(42)
 
 # Shorthand for Uniform(0, 1)
-rng$unif_rand(5)
+rng$random_real(5)
 
 # Uniform random numbers between min and max
 rng$uniform(5, -2, 6)
@@ -47,7 +95,7 @@ rng$exponential(5, 2)
 \item \href{#method-size}{\code{dust_rng$size()}}
 \item \href{#method-jump}{\code{dust_rng$jump()}}
 \item \href{#method-long_jump}{\code{dust_rng$long_jump()}}
-\item \href{#method-unif_rand}{\code{dust_rng$unif_rand()}}
+\item \href{#method-random_real}{\code{dust_rng$random_real()}}
 \item \href{#method-uniform}{\code{dust_rng$uniform()}}
 \item \href{#method-normal}{\code{dust_rng$normal()}}
 \item \href{#method-binomial}{\code{dust_rng$binomial()}}
@@ -125,17 +173,19 @@ Generate \code{n} numbers from a standard uniform distribution
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-unif_rand"></a>}}
-\if{latex}{\out{\hypertarget{method-unif_rand}{}}}
-\subsection{Method \code{unif_rand()}}{
+\if{html}{\out{<a id="method-random_real"></a>}}
+\if{latex}{\out{\hypertarget{method-random_real}{}}}
+\subsection{Method \code{random_real()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$unif_rand(n)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$random_real(n, n_threads = 1L)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n}}{Number of samples to draw
+\item{\code{n}}{Number of samples to draw (per generator)}
+
+\item{\code{n_threads}}{Number of threads to use; see Details
 Generate \code{n} numbers from a uniform distribution}
 }
 \if{html}{\out{</div>}}
@@ -146,17 +196,19 @@ Generate \code{n} numbers from a uniform distribution}
 \if{latex}{\out{\hypertarget{method-uniform}{}}}
 \subsection{Method \code{uniform()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$uniform(n, min, max)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$uniform(n, min, max, n_threads = 1L)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n}}{Number of samples to draw}
+\item{\code{n}}{Number of samples to draw (per generator)}
 
 \item{\code{min}}{The minimum of the distribution (length 1 or n)}
 
-\item{\code{max}}{The maximum of the distribution (length 1 or n)
+\item{\code{max}}{The maximum of the distribution (length 1 or n)}
+
+\item{\code{n_threads}}{Number of threads to use; see Details
 Generate \code{n} numbers from a normal distribution}
 }
 \if{html}{\out{</div>}}
@@ -167,17 +219,19 @@ Generate \code{n} numbers from a normal distribution}
 \if{latex}{\out{\hypertarget{method-normal}{}}}
 \subsection{Method \code{normal()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$normal(n, mean, sd)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$normal(n, mean, sd, n_threads = 1L)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n}}{Number of samples to draw}
+\item{\code{n}}{Number of samples to draw (per generator)}
 
 \item{\code{mean}}{The mean of the distribution (length 1 or n)}
 
-\item{\code{sd}}{The standard deviation of the distribution (length 1 or n)
+\item{\code{sd}}{The standard deviation of the distribution (length 1 or n)}
+
+\item{\code{n_threads}}{Number of threads to use; see Details
 Generate \code{n} numbers from a binomial distribution}
 }
 \if{html}{\out{</div>}}
@@ -188,18 +242,20 @@ Generate \code{n} numbers from a binomial distribution}
 \if{latex}{\out{\hypertarget{method-binomial}{}}}
 \subsection{Method \code{binomial()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$binomial(n, size, prob)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$binomial(n, size, prob, n_threads = 1L)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n}}{Number of samples to draw}
+\item{\code{n}}{Number of samples to draw (per generator)}
 
 \item{\code{size}}{The number of trials (zero or more, length 1 or n)}
 
 \item{\code{prob}}{The probability of success on each trial
-(between 0 and 1, length 1 or n)
+(between 0 and 1, length 1 or n)}
+
+\item{\code{n_threads}}{Number of threads to use; see Details
 Generate \code{n} numbers from a Poisson distribution}
 }
 \if{html}{\out{</div>}}
@@ -210,15 +266,17 @@ Generate \code{n} numbers from a Poisson distribution}
 \if{latex}{\out{\hypertarget{method-poisson}{}}}
 \subsection{Method \code{poisson()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$poisson(n, lambda)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$poisson(n, lambda, n_threads = 1L)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n}}{Number of samples to draw}
+\item{\code{n}}{Number of samples to draw (per generator)}
 
-\item{\code{lambda}}{The mean (zero or more, length 1 or n)
+\item{\code{lambda}}{The mean (zero or more, length 1 or n)}
+
+\item{\code{n_threads}}{Number of threads to use; see Details
 Generate \code{n} numbers from a exponential distribution}
 }
 \if{html}{\out{</div>}}
@@ -229,15 +287,17 @@ Generate \code{n} numbers from a exponential distribution}
 \if{latex}{\out{\hypertarget{method-exponential}{}}}
 \subsection{Method \code{exponential()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$exponential(n, rate)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$exponential(n, rate, n_threads = 1L)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n}}{Number of samples to draw}
+\item{\code{n}}{Number of samples to draw (per generator)}
 
 \item{\code{rate}}{The rate of the exponential}
+
+\item{\code{n_threads}}{Number of threads to use; see Details}
 }
 \if{html}{\out{</div>}}
 }

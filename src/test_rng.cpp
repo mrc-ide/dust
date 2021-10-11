@@ -53,6 +53,12 @@ std::vector<std::string> test_xoshiro_run(std::string name) {
     ret = test_xoshiro_run1<dust::random::xoroshiro128plusplus_state>();
   } else if (name == "xoroshiro128plus") {
     ret = test_xoshiro_run1<dust::random::xoroshiro128plus_state>();
+  } else if (name == "xoshiro512starstar") {
+    ret = test_xoshiro_run1<dust::random::xoshiro512starstar_state>();
+  } else if (name == "xoshiro512plusplus") {
+    ret = test_xoshiro_run1<dust::random::xoshiro512plusplus_state>();
+  } else if (name == "xoshiro512plus") {
+    ret = test_xoshiro_run1<dust::random::xoshiro512plus_state>();
   }
 
   return ret;

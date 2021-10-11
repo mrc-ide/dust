@@ -4,8 +4,8 @@ test_that("create walk, stepping for one step", {
   expect_null(obj$info())
 
   y <- obj$run(1)
-  cmp <- dust_rng$new(1, 10)$normal(10, 0, 1)
-  expect_identical(drop(y), cmp)
+  cmp <- dust_rng$new(1, 10)$normal(1, 0, 1)
+  expect_identical(y, cmp)
 })
 
 
@@ -14,8 +14,8 @@ test_that("walk agrees with random number stream", {
   obj <- res$new(list(sd = 1), 0, 10, seed = 1L)
   y <- obj$run(5)
 
-  cmp <- dust_rng$new(1, 10)$normal(50, 0, 1)
-  expect_equal(drop(y), colSums(matrix(cmp, 5, 10, byrow = TRUE)))
+  cmp <- dust_rng$new(1, 10)$normal(5, 0, 1)
+  expect_equal(drop(y), colSums(cmp))
   expect_identical(obj$state(), y)
 })
 
@@ -37,9 +37,9 @@ test_that("Update particle state and resume continues with rng", {
   expect_equal(obj$step(), 5)
 
   ## Then draw the random numbers:
-  cmp <- dust_rng$new(1, 10)$normal(100, 0, 1)
-  m1 <- matrix(cmp[1:50], 5, 10, byrow = TRUE)
-  m2 <- matrix(cmp[51:100], 5, 10, byrow = TRUE)
+  cmp <- dust_rng$new(1, 10)$normal(10, 0, 1)
+  m1 <- cmp[1:5, ]
+  m2 <- cmp[6:10, ]
 
   expect_equal(drop(y1), colSums(m1) * sd1)
   expect_equal(drop(y2), colSums(m2) * sd2)
@@ -179,10 +179,10 @@ test_that("reorder", {
 
   y3 <- obj$run(10)
 
-  cmp <- dust_rng$new(1, 10)$normal(100, 0, 1)
-  m1 <- matrix(cmp[1:50], 5, 10, byrow = TRUE)
+  cmp <- dust_rng$new(1, 10)$normal(10, 0, 1)
+  m1 <- cmp[1:5, ]
   m2 <- m1[, index]
-  m3 <- matrix(cmp[51:100], 5, 10, byrow = TRUE)
+  m3 <- cmp[6:10, ]
 
   expect_equal(drop(y1), colSums(m1))
   expect_equal(drop(y2), colSums(m2))
@@ -204,10 +204,10 @@ test_that("reorder and duplicate", {
 
   y3 <- obj$run(10)
 
-  cmp <- dust_rng$new(1, 10)$normal(100, 0, 1)
-  m1 <- matrix(cmp[1:50], 5, 10, byrow = TRUE)
+  cmp <- dust_rng$new(1, 10)$normal(10, 0, 1)
+  m1 <- cmp[1:5, ]
   m2 <- m1[, index]
-  m3 <- matrix(cmp[51:100], 5, 10, byrow = TRUE)
+  m3 <- cmp[6:10, ]
 
   expect_equal(drop(y1), colSums(m1))
   expect_equal(drop(y2), colSums(m2))
@@ -246,22 +246,17 @@ test_that("validate reorder vector is in correct range", {
 
 test_that("run in float mode", {
   skip_for_compilation()
-  res_d <- dust_example("walk")
-  res_f <- dust(dust_file("examples/walk.cpp"), real_type = "float",
-                quiet = TRUE)
+  res <- dust(dust_file("examples/walk.cpp"), real_type = "float",
+              quiet = TRUE)
 
-  n <- 1000
-  obj_d <- res_d$new(list(sd = 10), 0, n, seed = 1L)
-  obj_f <- res_f$new(list(sd = 10), 0, n, seed = 1L)
+  obj <- res$new(list(sd = 10), 0, 5, seed = 1L)
 
-  expect_equal(obj_d$device_info()$real_bits, 64)
-  expect_equal(obj_f$device_info()$real_bits, 32)
+  expect_equal(obj$device_info()$real_bits, 32)
 
-  y_d <- obj_d$run(10)
-  y_f <- obj_f$run(10)
+  y <- drop(obj$simulate(1:7))
 
-  expect_equal(y_d, y_f, tolerance = 1e-5)
-  expect_false(identical(y_d, y_f))
+  cmp <- dust_rng$new(1L, 5, "float")$normal(7, 0, 10)
+  expect_equal(y, t(apply(cmp, 2, cumsum)), tolerance = 1e-5)
 })
 
 
@@ -515,7 +510,7 @@ test_that("resample", {
   m <- matrix(as.numeric(1:35), 5, 7)
   obj$update_state(state = m)
   rng <- dust_rng$new(obj$rng_state(last_only = TRUE))
-  u <- rng$unif_rand(1)
+  u <- rng$random_real(1)
   w <- runif(obj$n_particles())
 
   idx <- obj$resample(w)
@@ -530,7 +525,7 @@ test_that("resample error cases", {
   m <- matrix(as.numeric(1:35), 5, 7)
   obj$update_state(state = m)
   rng <- dust_rng$new(obj$rng_state(last_only = TRUE))
-  u <- rng$unif_rand(1)
+  u <- rng$random_real(1)
   w <- runif(obj$n_particles())
 
   expect_error(obj$resample(w[-1]),

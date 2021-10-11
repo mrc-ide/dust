@@ -19,3 +19,6 @@ inst/include/cub
 vignettes_src/cuda.md
 
 .vscode/
+
+inst/random/openmp/rnguse
+inst/random/openmp/Makefile

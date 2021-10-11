@@ -22,6 +22,7 @@
 // * dust::random::jump and dust::random::long_jump which "jump" the
 //   generator state forward, a key part of the parallel generators.
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <cstddef>
@@ -137,5 +138,8 @@ T random_real(U& state) {
 
 // 32 bit generators, 4 * uint32_t
 #include "xoshiro128.hpp"
+
+// 64 bit generators, 8 * uint64_t
+#include "xoshiro512.hpp"
 
 #endif

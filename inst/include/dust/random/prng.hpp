@@ -1,7 +1,9 @@
 #ifndef DUST_RANDOM_PRNG_HPP
 #define DUST_RANDOM_PRNG_HPP
 
+#include <algorithm>
 #include <vector>
+
 #include <dust/random/generator.hpp>
 
 namespace dust {
@@ -12,8 +14,13 @@ class prng {
 public:
   typedef T rng_state;
   typedef typename rng_state::int_type int_type;
+
+  prng(const size_t n, const int seed, const bool deterministic = false) :
+    prng(n, seed_data<T>(seed), deterministic) {
+  }
+
   prng(const size_t n, const std::vector<int_type>& seed,
-       const bool deterministic) {
+       const bool deterministic = false) {
     rng_state s;
     s.deterministic = deterministic;
 

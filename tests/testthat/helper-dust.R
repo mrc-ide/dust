@@ -44,3 +44,13 @@ resample_index <- function(w, u) {
   cw <- cumsum(w / sum(w))
   findInterval(uu, cw) + 1L
 }
+
+
+copy_directory <- function(src, as) {
+  files <- dir(src, all.files = TRUE, no.. = TRUE, full.names = TRUE)
+  dir.create(as, FALSE, TRUE)
+  ok <- file.copy(files, as, recursive = TRUE)
+  if (!all(ok)) {
+    stop("Error copying files")
+  }
+}
