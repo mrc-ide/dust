@@ -14,9 +14,15 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.width = 7,
   fig.height = 5)
+lang_output <- function(x, lang) {
+  cat(c(sprintf("```%s", lang), x, "```"), sep = "\n")
+}
+cc_output <- function(x) lang_output(x, "cc")
+r_output <- function(x) lang_output(x, "r")
+plain_output <- function(x) lang_output(x, "plain")
 ```
 
-We provide an interface to the "Xoshiro256" generators (Xoshiro is derived from XOR/shift/rotate). These are designed to allow use in parallel by "jumping ahead" in the sequence and we use this below to interleave generators. The stream is unrelated to and unaffected by R's random number generation. `set.seed` has no effect, for example. **The random numbers are not cryptographically secure**; for that see the excellent [sodium](https://cran.r-project.org/package=sodium) package.
+We provide an interface to the "Xoshiro" family of generators (Xoshiro is derived from XOR/shift/rotate). These are designed to allow use in parallel by "jumping ahead" in the sequence and we use this below to interleave generators. The stream is unrelated to and unaffected by R's random number generation. `set.seed` has no effect, for example. **The random numbers are not cryptographically secure**; for that see the excellent [sodium](https://cran.r-project.org/package=sodium) package.
 
 Ordinarily this is used from C++; the model as discussed in `vignette("dust")` uses `rng_state_type` and a function from `dust::random` to interact with the generator. However, an R interface is provided for debugging and testing purposes.
 
@@ -64,7 +70,7 @@ rng$uniform(10, 3, 6)
 From C++
 
 ```cc
-real_type u = rng.uniform<real_type>(3, 6);
+real_type u = dust::random::uniform<real_type>(state, 3, 6);
 ```
 
 **Normal distribution** with parameters `mean` and `sd`
@@ -74,7 +80,7 @@ rng$normal(10, 3, 6)
 ```
 
 ```cc
-real_type z = rng.normal<real_type>(3, 6);
+real_type z = dust::random::normal<real_type>(state, 3, 6);
 ```
 
 **Poisson distribution** with mean `lambda`
@@ -84,7 +90,7 @@ rng$poisson(10, 4.5)
 ```
 
 ```cc
-int n = rng.poisson<real_type>(4.5);
+int n = dust::random::poisson<real_type>(state, 4.5);
 ```
 
 **Binomial distribution** with mean `size` and `prob`
@@ -94,7 +100,7 @@ rng$binomial(10L, 10, 0.3)
 ```
 
 ```cc
-int n = rng.binomial<real_type>(10, 0.3);
+int n = dust::random::binomial<real_type>(state, 10, 0.3);
 ```
 
 There is also one special case distribution, the **Standard uniform distribution** (between 0 and 1) - faster than using `$uniform(n, 0, 1)`:
@@ -104,7 +110,7 @@ rng$random_real(10)
 ```
 
 ```cc
-real_type u = rng.unif_rand();
+real_type u = dust::random::random_real<real_type>(state);
 ```
 
 ## Performance
@@ -120,7 +126,7 @@ bench::mark(
   check = FALSE)
 ```
 
-The difference between `unif_rand` and `runif` here is the cost of recycling the parameters, not the actual generation!
+The difference between `random_real` and `uniform` here is the cost of recycling the parameters, not the actual generation!
 
 Binomial distribution, small `n * p`, which uses an inversion algorithm
 
@@ -148,3 +154,117 @@ bench::mark(
 ```
 
 Practically, performance will vary based on the parameters of the distributions and the underlying algorithms, and the principle performance gain we hope to get here is driven by the ability to parallelise safely rather than the speed of the draws themselves.
+
+## Underlying random number engine
+
+Under the hood, the random number generators work by first creating a random integer, which we then convert to a floating point number, then for the distributions above we apply algorithms that convert one or more uniformly distributed (U[0, 1]) floating point numbers to a given distribution through techniques such as inversion (for a random exponential) or rejection sampling (for a random binomial).
+
+```
+[random integer] -> [random real] -> [random draw from a distribution]
+```
+
+We include 12 different algoithms for creating the underlying random integer, from the [same family of generators](https://prng.di.unimi.it/).  These provide different undering storage types (either 32 bit or 64 bit integers) and different state types.
+
+Normally you do not need to worry about these details and declaring
+
+```cc
+typedef dust::random::generator<real_type> rng_state_type;
+```
+
+in your model will select a reasonable generator.
+
+If for some reason you want to try a different generator you can directly specify one of the types, for example
+
+```cc
+typedef dust::random::xoshiro256starstar_state rng_state_type;
+```
+
+which means that whatever real type you use, you want to use the Xoshiro256** generator.
+
+The supported types are:
+
+* `xoshiro256starstar`, `xoshiro256plusplus`, `xoshiro256plus` (4 x 64 bit state)
+* `xoroshiro128starstar`, `xoroshiro128plusplus`, `xoroshiro128plus` (2 x 64 bit state)
+* `xoshiro128starstar`, `xoshiro128plusplus`, `xoshiro128plus` (4 x 32 bit state)
+* `xoshiro256starstar`, `xoshiro256plusplus`, `xoshiro256plus` (8 x 64 bit state; this is far more state space than typically needed)
+
+The "starstar", "plusplus" or "plus" refers to the final scrambling operation (two multiplications, two additions or one addition, respectively); the speeds of these might vary depending on your platform.  The "plus" version will be the fastest but produces slightly less randomness in the the lower bits of the underlying integers, which theoretically is not a problem when converting to a real number.
+
+## Reusing the random random number generator
+
+Our random number library can be reused in other projects without using anything else from dust; either in an R package or in a standlone project.
+
+### In a package
+
+A minimal package looks like
+
+```{r pkg_tree, echo = FALSE}
+path_pkg <- dust:::dust_file("examples/random/package")
+withr::with_dir(path_pg, fs::dir_tree())
+```
+
+with the core of the C++ file containing a small program that uses the dust random number generator to draw a series of normally distributed random number with a single mean and standard deviation.
+
+```{r echo = FALSE, results = "asis"}
+code <- readLines(file.path(path_pkg, "src/userng.cpp"))
+cc_output(code[!grepl("^//", code)])
+```
+
+To complete the package, the `DESCRIPTION` includes `dust` and `cpp11` in the `LinkingTo` section:
+
+```{r echo = FALSE, results = "asis"}
+plain_output(readLines(file.path(path_pkg, "DESCRIPTION")))
+```
+
+You must remember to update your `NAMESPACE` to include `useDynLib` (either directly or via roxygen)
+
+```{r echo = FALSE, results = "asis"}
+plain_output(readLines(file.path(path_pkg, "NAMESPACE")))
+```
+
+Finally, run `cpp11::cpp_register()` before compiling your package so that the relevant interfaces are created (`R/cpp11.R` and `cpp11/cpp11.cpp`).  A similar process would likely work with Rcpp.
+
+### Standalone, parallel with OpenMP
+
+*This is somewhat more experimental, so let us know if you have success using the library this way.*
+
+It is possible to include the dust random library in a standalone C++ program (or one embedded from another language) without using any R support.  The library is a header only library and `<dust/random/random.hpp>` is the main file to include.
+
+The simplest way to get started is to copy the contents of `inst/include/dust/random` into your project.  Then after including `<dust/random/random.hpp>` you can use the contents of the random number library.
+
+For example, below is a small program that computes the sum of a series of random numbers, in parallel using OpenMP to parallelise across a set of generators.
+
+```{r echo = FALSE, results = "asis"}
+cc_output(readLines(dust:::dust_file("examples/random/openmp/userng.cpp")))
+```
+
+This program can be compiled with
+
+```
+g++ -I$(PATH_DUST_INCLUDE) -O2 -std=c++11 -fopenmp -o rnguse rnguse.cpp
+```
+
+where `$PATH_DUST_INCLUDE` is the path to the header only library.
+
+## Other packages with similar functionality
+
+There are many packages offering similar functionality to this
+
+* sitmo offers several modern RNGs for U(0, 1)
+* dqrng offers an overlapping set and generators for N and E
+* rTRNG was unusable from packages
+* https://cran.r-project.org/web/packages/rlecuyer/index.html
+* [`miranda`](https://coolbutuseless.github.io/2020/07/09/introducing-miranda-a-package-of-fast-modern-uniform-pseudo-random-number-generators/)
+
+Why does this package exist?  We had a set of needs that meant using the a
+
+* generation of single precision `float` numbers with the same interface
+* absolutely no global state
+* nice interface for reproducible parallel random number generation where the generated number does not depend on the number of threads used
+* possible to use on GPUs; this exposes some exotic issues around what types of structures can be used
+* minimal dependencies and impact on the C++ code (e.g., no boost/BH) and header-only in order to satisfy the above
+* support for additional distributions, especially binomial, in a thread-safe way, optimised for rapidly changing parameters
+
+On this last point; we noticed that many distribution packages, including Boost.Random (and to a degree R's random functions) assume that you want to sample many random numbers from a distribution with fixed parameters.  This is probably reasonable in many cases, but in the use case we had (stochastic simulation models) we expected that all parameters were likely to change at every iteration.  These different approaches have important tradeoffs - if you will take many samples from a single distribution you might compute tables of coefficients once and use them many times which will make the sampling faster, but this will be wasteful if only a single sample is taken before the parameters change.
+
+The situation is slightly more complex on a GPU where we need to make sure that different threads within a block do not get needlessly onto different branches of conditional logic.  Things like early exits need to be avoided and we have carefully profiled to make sure that threads within a warp end up re-syncronised at the optimal spot (see for example [this blog post on `__syncwarp`](https://developer.nvidia.com/blog/using-cuda-warp-level-primitives/)).
