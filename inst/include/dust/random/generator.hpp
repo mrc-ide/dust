@@ -38,7 +38,7 @@ namespace random {
 template <typename T, size_t N, xoshiro_mode M>
 struct xoshiro_state {
   typedef T int_type;
-  static HOSTDEVICE size_t size() {
+  HOSTDEVICE static constexpr size_t size() {
     return N;
   }
   int_type state[N];
@@ -91,7 +91,7 @@ void rng_jump_state(xoshiro_state<T, N, M>& state, std::array<T, N> coef) {
 template <typename T>
 HOST
 void seed(T& state, uint64_t seed) {
-  const size_t n = T::size();
+  constexpr size_t n = T::size();
   using int_type = typename T::int_type;
   for (size_t i = 0; i < n; ++i) {
     seed = splitmix64(seed);

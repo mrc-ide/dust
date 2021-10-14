@@ -18,7 +18,7 @@ std::vector<typename rng_state_type::int_type> as_rng_seed(cpp11::sexp r_seed) {
     seed = dust::random::seed_data<rng_state_type>(seed_int);
   } else if (seed_type == RAWSXP) {
     cpp11::raws seed_data = cpp11::as_cpp<cpp11::raws>(r_seed);
-    const size_t len = sizeof(int_type) * rng_state_type::size();
+    constexpr size_t len = sizeof(int_type) * rng_state_type::size();
     if (seed_data.size() == 0 || seed_data.size() % len != 0) {
       cpp11::stop("Expected raw vector of length as multiple of %d for 'seed'",
                   len);

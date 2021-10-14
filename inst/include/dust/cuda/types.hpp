@@ -309,7 +309,7 @@ struct device_state {
     n_shared_len = n_shared_len_;
     n_shared_int = n_shared_int_;
     n_shared_real = n_shared_real_;
-    const size_t n_rng = rng_state_type::size();
+    constexpr size_t n_rng = rng_state_type::size();
     y = device_array<real_type>(n_state * n_particles);
     y_next = device_array<real_type>(n_state * n_particles);
     internal_int = device_array<int>(n_internal_int * n_particles);

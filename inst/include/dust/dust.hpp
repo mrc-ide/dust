@@ -882,7 +882,7 @@ private:
     }
     if (stale_device_) {
       const size_t np = n_particles(), ny = n_state_full();
-      const size_t rng_len = rng_state_type::size();
+      constexpr size_t rng_len = rng_state_type::size();
       std::vector<real_type> y_tmp(ny); // Individual particle state
       std::vector<real_type> y(np * ny); // Interleaved state of all particles
       std::vector<rng_int_type> rng(np * rng_len); // Interleaved RNG state
@@ -916,7 +916,7 @@ private:
   refresh_host() {
     if (stale_host_) {
       const size_t np = n_particles(), ny = n_state_full();
-      const size_t rng_len = rng_state_type::size();
+      constexpr size_t rng_len = rng_state_type::size();
       std::vector<real_type> y_tmp(ny); // Individual particle state
       std::vector<real_type> y(np * ny); // Interleaved state of all particles
       std::vector<rng_int_type> rngi(np * rng_len); // Interleaved RNG state

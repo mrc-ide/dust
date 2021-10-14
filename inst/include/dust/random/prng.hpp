@@ -24,7 +24,7 @@ public:
     rng_state s;
     s.deterministic = deterministic;
 
-    const size_t len = rng_state::size();
+    constexpr size_t len = rng_state::size();
     auto n_seed = seed.size() / len;
     for (size_t i = 0; i < n; ++i) {
       if (i < n_seed) {
@@ -57,7 +57,7 @@ public:
   }
 
   std::vector<int_type> export_state() {
-    const size_t n = rng_state::size();
+    constexpr size_t n = rng_state::size();
     std::vector<int_type> state;
     state.resize(size() * n);
     for (size_t i = 0, k = 0; i < size(); ++i) {
@@ -70,7 +70,7 @@ public:
 
   void import_state(const std::vector<int_type>& state, const size_t len) {
     auto it = state.begin();
-    const size_t n = rng_state::size();
+    constexpr size_t n = rng_state::size();
     for (size_t i = 0; i < len; ++i) {
       for (size_t j = 0; j < n; ++j) {
         state_[i][j] = *it;
