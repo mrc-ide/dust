@@ -6,6 +6,7 @@
   - Slightly faster real number generation for all generators by avoiding division (#280)
   - The `dust_rng` object has been refactored with methods changing names, a new behaviour when using multiple generators, and parallelisation (#279)
 * Type names have been standarised and we now avoid `_t` in favour of `_type` in line with the POSIX standard; this impacts all existing dust-using code (#278)
+* Density function names have changed from `dust::dbinom` to `dust::density::binomial` (and so on, #291)
 
 # dust 0.9.21
 

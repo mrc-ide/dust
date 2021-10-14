@@ -3,8 +3,8 @@
 #include <cpp11/integers.hpp>
 
 [[cpp11::register]]
-SEXP dust_dbinom(cpp11::integers x, cpp11::integers size, cpp11::doubles prob,
-                 bool log) {
+SEXP density_binomial(cpp11::integers x, cpp11::integers size,
+                      cpp11::doubles prob, bool log) {
   const size_t n = x.size();
   cpp11::writable::doubles ret(x.size());
   for (size_t i = 0; i < n; ++i) {
@@ -14,8 +14,8 @@ SEXP dust_dbinom(cpp11::integers x, cpp11::integers size, cpp11::doubles prob,
 }
 
 [[cpp11::register]]
-SEXP dust_dnorm(cpp11::doubles x, cpp11::doubles mu, cpp11::doubles sd,
-                bool log) {
+SEXP density_normal(cpp11::doubles x, cpp11::doubles mu, cpp11::doubles sd,
+                    bool log) {
   const size_t n = x.size();
   cpp11::writable::doubles ret(x.size());
   for (size_t i = 0; i < n; ++i) {
@@ -25,8 +25,8 @@ SEXP dust_dnorm(cpp11::doubles x, cpp11::doubles mu, cpp11::doubles sd,
 }
 
 template <typename T>
-SEXP dust_dnbinom_mu_(cpp11::integers x, cpp11::doubles size, cpp11::doubles mu,
-                      bool log) {
+SEXP density_negative_binomial_mu_(cpp11::integers x, cpp11::doubles size,
+                                   cpp11::doubles mu, bool log) {
   const size_t n = x.size();
   cpp11::writable::doubles ret(x.size());
   for (size_t i = 0; i < n; ++i) {
@@ -36,16 +36,16 @@ SEXP dust_dnbinom_mu_(cpp11::integers x, cpp11::doubles size, cpp11::doubles mu,
 }
 
 [[cpp11::register]]
-SEXP dust_dnbinom_mu(cpp11::integers x, cpp11::doubles size, cpp11::doubles mu,
-                     bool log, bool is_float) {
+SEXP density_negative_binomial_mu(cpp11::integers x, cpp11::doubles size,
+                                  cpp11::doubles mu, bool log, bool is_float) {
   return is_float ?
-    dust_dnbinom_mu_<float>(x, size, mu, log) :
-    dust_dnbinom_mu_<double>(x, size, mu, log);
+    density_negative_binomial_mu_<float>(x, size, mu, log) :
+    density_negative_binomial_mu_<double>(x, size, mu, log);
 }
 
 [[cpp11::register]]
-SEXP dust_dnbinom_prob(cpp11::integers x, cpp11::doubles size,
-                       cpp11::doubles prob, bool log) {
+SEXP density_negative_binomial_prob(cpp11::integers x, cpp11::doubles size,
+                                    cpp11::doubles prob, bool log) {
   const size_t n = x.size();
   cpp11::writable::doubles ret(x.size());
   for (size_t i = 0; i < n; ++i) {
@@ -56,8 +56,8 @@ SEXP dust_dnbinom_prob(cpp11::integers x, cpp11::doubles size,
 }
 
 [[cpp11::register]]
-SEXP dust_dbetabinom(cpp11::integers x, cpp11::integers size,
-                     cpp11::doubles prob, cpp11::doubles rho, bool log) {
+SEXP density_beta_binomial(cpp11::integers x, cpp11::integers size,
+                           cpp11::doubles prob, cpp11::doubles rho, bool log) {
   const size_t n = x.size();
   cpp11::writable::doubles ret(x.size());
   for (size_t i = 0; i < n; ++i) {
@@ -68,7 +68,7 @@ SEXP dust_dbetabinom(cpp11::integers x, cpp11::integers size,
 }
 
 [[cpp11::register]]
-SEXP dust_dpois(cpp11::integers x, cpp11::doubles lambda, bool log) {
+SEXP density_poisson(cpp11::integers x, cpp11::doubles lambda, bool log) {
   const size_t n = x.size();
   cpp11::writable::doubles ret(x.size());
   for (size_t i = 0; i < n; ++i) {
