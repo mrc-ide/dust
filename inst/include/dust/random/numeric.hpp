@@ -9,6 +9,21 @@ namespace dust {
 namespace random {
 namespace utils {
 
+#ifdef __NVCC__
+template <typename T>
+HOSTDEVICE T epsilon_nvcc();
+
+template <>
+inline DEVICE float epsilon_nvcc() {
+  return FLT_EPSILON;
+}
+
+template <>
+inline DEVICE double epsilon_nvcc() {
+  return DBL_EPSILON;
+}
+#endif
+
 template <typename T>
 HOSTDEVICE T epsilon() {
 #ifdef __CUDA_ARCH__
