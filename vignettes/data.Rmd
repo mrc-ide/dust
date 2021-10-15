@@ -1,8 +1,8 @@
 ---
-title: "dust: Comparing models and data"
+title: "Comparing models and data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{dust: Comparing models and data}
+  %\VignetteIndexEntry{Comparing models and data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -57,7 +57,7 @@ volatility_compare <- function(state, observed, pars) {
 
 i.e., the probability is normally distributed with mean of the equal to `gamma` multiplied by the modelled value, standard deviation of `tau` and evaluated at the observed value.  Our aim here is to adapt this so that it is implemented as part of the C++ model. This requires:
 
-* describing the types of the observed data at each time point in a C++ struct (here it will be a single numeric value, but the data could be arbitrarily complicated)
+* describing the types of the observed data at each time point in a C++ struct (here it will be a single floating-point value, but the data could be arbitrarily complicated)
 * implementing a method to do the comparison
 * describe how to marshal the data from R into this C++ structure
 
@@ -86,14 +86,14 @@ The comparison is implemented by the method `compare_data`, which has a standard
 ```cc
   real_type compare_data(const real_type * state, const data_type& data,
                          rng_state_type& rng_state) {
-    return dust::dnorm(data.observed, shared->gamma * state[0],
-                       shared->tau, true);
+    return dust::density::normal(data.observed, shared->gamma * state[0],
+                                 shared->tau, true);
   }
 ```
 
 This looks very much like the R version above:
 
-* `dnorm` is replaced with the dust function `dust::dnorm` (do not use R API functions here, as this will be evaluated in a multi-threaded context)
+* `dnorm` is replaced with the dust function `dust::density::normal` (do not use R API functions here, as this will be evaluated in a multi-threaded context)
 * the random number generator is available here, if your comparison is itself stochastic
 * unlike the R version where the comparison returns a vector across all particles, the C++ comparison is done for each particle
 
@@ -125,7 +125,8 @@ typename T::real_type compare(const typename T::real_type * state,
                               const typename T::internal_type internal,
                               std::shared_ptr<const typename T::shared_type> shared,
                               typename T::rng_state_type& rng_state) {
-  return dust::dnorm(data.observed, odin(gamma) * odin(value), odin(tau), true);
+  return dust::density::normal(data.observed, odin(gamma) * odin(value), 
+                               odin(tau), true);
 }
 ```
 

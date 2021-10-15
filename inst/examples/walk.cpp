@@ -23,8 +23,8 @@ public:
 
   void update(size_t step, const real_type * state, rng_state_type& rng_state,
               real_type * state_next) {
-    real_type mean = state[0];
-    state_next[0] = dust::random::normal<real_type>(rng_state, mean, shared->sd);
+    state_next[0] = state[0] +
+      dust::random::normal<real_type>(rng_state, 0, shared->sd);
   }
 
 private:

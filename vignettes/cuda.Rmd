@@ -1,8 +1,8 @@
 ---
-title: "dust: Running models on GPUs with CUDA"
+title: "Running models on GPUs with CUDA"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{dust: Running models on GPUs with CUDA}
+  %\VignetteIndexEntry{Running models on GPUs with CUDA}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
