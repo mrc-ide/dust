@@ -33,7 +33,7 @@ sir <- R6::R6Class(
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
-      private$device_config_ <- res[[4L]]
+      # private$device_config_ <- res[[4L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -51,13 +51,13 @@ sir <- R6::R6Class(
     },
 
     run = function(step_end, device = FALSE) {
-      m <- dust_sir_run(private$ptr_, step_end, device)
+      m <- dust_sir_run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
     simulate = function(step_end, device = FALSE) {
-      m <- dust_sir_simulate(private$ptr_, step_end, device)
+      m <- dust_sir_simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
@@ -191,13 +191,13 @@ sir <- R6::R6Class(
     },
 
     compare_data = function(device = FALSE) {
-      dust_sir_compare_data(private$ptr_, device)
+      dust_sir_compare_data(private$ptr_)
     },
 
     filter = function(save_trajectories = FALSE, step_snapshot = NULL,
                       device = FALSE) {
       dust_sir_filter(private$ptr_, save_trajectories,
-                           step_snapshot, device)
+                           step_snapshot)
     },
 
     device_info = function() {
@@ -244,7 +244,7 @@ sirs <- R6::R6Class(
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
-      private$device_config_ <- res[[4L]]
+      # private$device_config_ <- res[[4L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -262,13 +262,13 @@ sirs <- R6::R6Class(
     },
 
     run = function(step_end, device = FALSE) {
-      m <- dust_sirs_run(private$ptr_, step_end, device)
+      m <- dust_sirs_run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
     simulate = function(step_end, device = FALSE) {
-      m <- dust_sirs_simulate(private$ptr_, step_end, device)
+      m <- dust_sirs_simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
@@ -402,13 +402,13 @@ sirs <- R6::R6Class(
     },
 
     compare_data = function(device = FALSE) {
-      dust_sirs_compare_data(private$ptr_, device)
+      dust_sirs_compare_data(private$ptr_)
     },
 
     filter = function(save_trajectories = FALSE, step_snapshot = NULL,
                       device = FALSE) {
       dust_sirs_filter(private$ptr_, save_trajectories,
-                           step_snapshot, device)
+                           step_snapshot)
     },
 
     device_info = function() {
@@ -452,7 +452,7 @@ variable <- R6::R6Class(
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
-      private$device_config_ <- res[[4L]]
+      # private$device_config_ <- res[[4L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -470,13 +470,13 @@ variable <- R6::R6Class(
     },
 
     run = function(step_end, device = FALSE) {
-      m <- dust_variable_run(private$ptr_, step_end, device)
+      m <- dust_variable_run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
     simulate = function(step_end, device = FALSE) {
-      m <- dust_variable_simulate(private$ptr_, step_end, device)
+      m <- dust_variable_simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
@@ -610,13 +610,13 @@ variable <- R6::R6Class(
     },
 
     compare_data = function(device = FALSE) {
-      dust_variable_compare_data(private$ptr_, device)
+      dust_variable_compare_data(private$ptr_)
     },
 
     filter = function(save_trajectories = FALSE, step_snapshot = NULL,
                       device = FALSE) {
       dust_variable_filter(private$ptr_, save_trajectories,
-                           step_snapshot, device)
+                           step_snapshot)
     },
 
     device_info = function() {
@@ -660,7 +660,7 @@ volatility <- R6::R6Class(
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
-      private$device_config_ <- res[[4L]]
+      # private$device_config_ <- res[[4L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -678,13 +678,13 @@ volatility <- R6::R6Class(
     },
 
     run = function(step_end, device = FALSE) {
-      m <- dust_volatility_run(private$ptr_, step_end, device)
+      m <- dust_volatility_run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
     simulate = function(step_end, device = FALSE) {
-      m <- dust_volatility_simulate(private$ptr_, step_end, device)
+      m <- dust_volatility_simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
@@ -818,13 +818,13 @@ volatility <- R6::R6Class(
     },
 
     compare_data = function(device = FALSE) {
-      dust_volatility_compare_data(private$ptr_, device)
+      dust_volatility_compare_data(private$ptr_)
     },
 
     filter = function(save_trajectories = FALSE, step_snapshot = NULL,
                       device = FALSE) {
       dust_volatility_filter(private$ptr_, save_trajectories,
-                           step_snapshot, device)
+                           step_snapshot)
     },
 
     device_info = function() {
@@ -868,7 +868,7 @@ walk <- R6::R6Class(
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
-      private$device_config_ <- res[[4L]]
+      # private$device_config_ <- res[[4L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -886,13 +886,13 @@ walk <- R6::R6Class(
     },
 
     run = function(step_end, device = FALSE) {
-      m <- dust_walk_run(private$ptr_, step_end, device)
+      m <- dust_walk_run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
     simulate = function(step_end, device = FALSE) {
-      m <- dust_walk_simulate(private$ptr_, step_end, device)
+      m <- dust_walk_simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
@@ -1026,13 +1026,13 @@ walk <- R6::R6Class(
     },
 
     compare_data = function(device = FALSE) {
-      dust_walk_compare_data(private$ptr_, device)
+      dust_walk_compare_data(private$ptr_)
     },
 
     filter = function(save_trajectories = FALSE, step_snapshot = NULL,
                       device = FALSE) {
       dust_walk_filter(private$ptr_, save_trajectories,
-                           step_snapshot, device)
+                           step_snapshot)
     },
 
     device_info = function() {

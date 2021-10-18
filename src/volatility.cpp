@@ -7,10 +7,10 @@ SEXP dust_volatility_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                          cpp11::sexp device_config);
 
 [[cpp11::register]]
-SEXP dust_volatility_run(SEXP ptr, size_t step_end, bool device);
+SEXP dust_volatility_run(SEXP ptr, size_t step_end);
 
 [[cpp11::register]]
-SEXP dust_volatility_simulate(SEXP ptr, cpp11::sexp step_end, bool device);
+SEXP dust_volatility_simulate(SEXP ptr, cpp11::sexp step_end);
 
 [[cpp11::register]]
 SEXP dust_volatility_set_index(SEXP ptr, cpp11::sexp r_index);
@@ -41,12 +41,11 @@ SEXP dust_volatility_set_rng_state(SEXP ptr, cpp11::raws rng_state);
 SEXP dust_volatility_set_data(SEXP ptr, cpp11::list data);
 
 [[cpp11::register]]
-SEXP dust_volatility_compare_data(SEXP ptr, bool device);
+SEXP dust_volatility_compare_data(SEXP ptr);
 
 [[cpp11::register]]
 SEXP dust_volatility_filter(SEXP ptr, bool save_trajectories,
-                          cpp11::sexp step_snapshot,
-                          bool device);
+                          cpp11::sexp step_snapshot);
 
 [[cpp11::register]]
 cpp11::sexp dust_volatility_capabilities();
@@ -57,8 +56,8 @@ void dust_volatility_set_n_threads(SEXP ptr, int n_threads);
 [[cpp11::register]]
 int dust_volatility_n_state(SEXP ptr);
 
-[[cpp11::register]]
-cpp11::sexp dust_volatility_device_info();
+// [[cpp11::register]]
+// cpp11::sexp dust_volatility_device_info();
 
 #include <dust/dust.hpp>
 #include <dust/interface/dust.hpp>
@@ -146,12 +145,12 @@ SEXP dust_volatility_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                                         device_config);
 }
 
-SEXP dust_volatility_run(SEXP ptr, size_t step_end, bool device) {
-  return dust::r::dust_run<volatility>(ptr, step_end, device);
+SEXP dust_volatility_run(SEXP ptr, size_t step_end) {
+  return dust::r::dust_run<volatility>(ptr, step_end);
 }
 
-SEXP dust_volatility_simulate(SEXP ptr, cpp11::sexp step_end, bool device) {
-  return dust::r::dust_simulate<volatility>(ptr, step_end, device);
+SEXP dust_volatility_simulate(SEXP ptr, cpp11::sexp step_end) {
+  return dust::r::dust_simulate<volatility>(ptr, step_end);
 }
 
 SEXP dust_volatility_set_index(SEXP ptr, cpp11::sexp r_index) {
@@ -195,14 +194,13 @@ SEXP dust_volatility_set_data(SEXP ptr, cpp11::list data) {
   return R_NilValue;
 }
 
-SEXP dust_volatility_compare_data(SEXP ptr, bool device) {
-  return dust::r::dust_compare_data<volatility>(ptr, device);
+SEXP dust_volatility_compare_data(SEXP ptr) {
+  return dust::r::dust_compare_data<volatility>(ptr);
 }
 
 SEXP dust_volatility_filter(SEXP ptr, bool save_trajectories,
-                          cpp11::sexp step_snapshot,
-                          bool device) {
-  return dust::r::dust_filter<volatility>(ptr, save_trajectories, step_snapshot, device);
+                          cpp11::sexp step_snapshot) {
+  return dust::r::dust_filter<volatility>(ptr, save_trajectories, step_snapshot);
 }
 
 cpp11::sexp dust_volatility_capabilities() {
@@ -217,6 +215,6 @@ int dust_volatility_n_state(SEXP ptr) {
   return dust::r::dust_n_state<volatility>(ptr);
 }
 
-cpp11::sexp dust_volatility_device_info() {
-  return dust::cuda::device_info<volatility::real_type>();
-}
+// cpp11::sexp dust_volatility_device_info() {
+//   return dust::cuda::device_info<volatility::real_type>();
+// }

@@ -13,9 +13,7 @@
 
 #include <dust/interface/random.hpp>
 #include <dust/interface/helpers.hpp>
-#include <dust/cuda/device_info.hpp>
 #include <dust/filter.hpp>
-#include <dust/cuda/launch_control.hpp>
 
 namespace dust {
 
@@ -36,15 +34,16 @@ template <typename T>
 cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
                        cpp11::sexp r_n_particles, int n_threads,
                        cpp11::sexp r_seed, bool deterministic,
-                       cpp11::sexp r_device_config) {
+                       cpp11::sexp device_config) {
   typedef typename T::rng_state_type rng_state_type;
   dust::interface::validate_size(step, "step");
   dust::interface::validate_positive(n_threads, "n_threads");
   std::vector<typename rng_state_type::int_type> seed =
     dust::interface::as_rng_seed<rng_state_type>(r_seed);
 
-  const dust::cuda::device_config device_config =
-    dust::interface::device_config(r_device_config);
+  if (device_config != R_NilValue) {
+    cpp11::stop("device_config currently disabled");
+  }
 
   Dust<T> *d = nullptr;
   cpp11::sexp info;
@@ -73,13 +72,12 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
       dust::interface::validate_size(n_particles, "n_particles");
     }
     d = new Dust<T>(pars, step, n_particles, n_threads, seed, deterministic,
-                    device_config, shape);
+                    shape);
   } else {
     size_t n_particles = cpp11::as_cpp<int>(r_n_particles);
     dust::interface::validate_positive(n_particles, "n_particles");
     dust::pars_type<T> pars = dust_pars<T>(r_pars);
-    d = new Dust<T>(pars, step, n_particles, n_threads, seed, deterministic,
-                    device_config);
+    d = new Dust<T>(pars, step, n_particles, n_threads, seed, deterministic);
     info = dust_info<T>(pars);
   }
   cpp11::external_pointer<Dust<T>> ptr(d, true, false);
@@ -87,10 +85,7 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
   cpp11::writable::integers r_shape =
     dust::interface::vector_size_to_int(d->shape());
 
-  cpp11::sexp ret_r_device_config =
-    dust::interface::device_config_as_sexp(device_config);
-
-  return cpp11::writable::list({ptr, info, r_shape, ret_r_device_config});
+  return cpp11::writable::list({ptr, info, r_shape});
 }
 
 template <typename T>
@@ -210,15 +205,11 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
 }
 
 template <typename T>
-cpp11::sexp dust_run(SEXP ptr, int step_end, bool device) {
+cpp11::sexp dust_run(SEXP ptr, int step_end) {
   dust::interface::validate_size(step_end, "step_end");
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
-  if (device) {
-    obj->run_device(step_end);
-  } else {
-    obj->run(step_end);
-  }
+  obj->run(step_end);
 
   // TODO: the allocation should come from the dust object, *or* we
   // should be able to do this with a pointer to the C array. The
@@ -232,7 +223,7 @@ cpp11::sexp dust_run(SEXP ptr, int step_end, bool device) {
 }
 
 template <typename T>
-cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end, bool device) {
+cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
   const std::vector<size_t> step_end =
@@ -251,12 +242,8 @@ cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end, bool device) {
     }
   }
 
-  std::vector<typename T::real_type> dat;
-  if (device) {
-    dat = obj->simulate_device(step_end);
-  } else {
-    dat = obj->simulate(step_end);
-  }
+  std::vector<typename T::real_type> dat = obj->simulate(step_end);
+
   return dust::interface::state_array(dat, obj->n_state(), obj->shape(),
                                       n_time);
 }
@@ -401,16 +388,11 @@ void dust_set_data(SEXP ptr, cpp11::list r_data) {
 }
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
-cpp11::sexp dust_compare_data(SEXP ptr, bool device) {
+cpp11::sexp dust_compare_data(SEXP ptr) {
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
 
-  std::vector<typename T::real_type> ret;
-  if (device) {
-    ret = obj->compare_data_device();
-  } else {
-    ret = obj->compare_data();
-  }
+  std::vector<typename T::real_type> ret = obj->compare_data();
 
   if (ret.size() == 0) {
     return R_NilValue;
@@ -449,6 +431,8 @@ cpp11::sexp save_snapshots(const filter_state& snapshots, const Dust<T> *obj,
   return(r_snapshots);
 }
 
+// TODO: this should be rewritten to return a list of 3 cpp1::sexp not
+// passing two as references.
 template <typename T, typename state_type>
 cpp11::writable::doubles run_filter(Dust<T> * obj,
                                     cpp11::sexp& r_trajectories,
@@ -470,8 +454,7 @@ cpp11::writable::doubles run_filter(Dust<T> * obj,
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
 cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
-                        cpp11::sexp r_step_snapshot,
-                        bool device) {
+                        cpp11::sexp r_step_snapshot) {
   typedef typename T::real_type real_type;
   Dust<T> *obj = cpp11::as_cpp<cpp11::external_pointer<Dust<T>>>(ptr).get();
   obj->check_errors();
@@ -483,15 +466,10 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
   std::vector<size_t> step_snapshot =
       dust::interface::check_step_snapshot(r_step_snapshot, obj->data());
 
-  cpp11::writable::doubles log_likelihood;
   cpp11::sexp r_trajectories, r_snapshots;
-  if (device) {
-    log_likelihood = run_filter<T, dust::filter::filter_state_device<real_type>>
-                      (obj, r_trajectories, r_snapshots, step_snapshot, save_trajectories);
-  } else {
-    log_likelihood = run_filter<T, dust::filter::filter_state_host<real_type>>
-                      (obj, r_trajectories, r_snapshots, step_snapshot, save_trajectories);
-  }
+  cpp11::writable::doubles log_likelihood =
+    run_filter<T, dust::filter::filter_state_host<real_type>>
+    (obj, r_trajectories, r_snapshots, step_snapshot, save_trajectories);
 
   using namespace cpp11::literals;
   return cpp11::writable::list({"log_likelihood"_nm = log_likelihood,
@@ -513,14 +491,14 @@ void dust_set_data(SEXP ptr, cpp11::list r_data) {
 }
 
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
-cpp11::sexp dust_compare_data(SEXP ptr, bool device) {
+cpp11::sexp dust_compare_data(SEXP ptr) {
   disable_method("compare_data");
   return R_NilValue; // #nocov never gets here
 }
 
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
 cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
-                        cpp11::sexp step_snapshot, bool device) {
+                        cpp11::sexp step_snapshot) {
   disable_method("filter");
   return R_NilValue; // #nocov never gets here
 }

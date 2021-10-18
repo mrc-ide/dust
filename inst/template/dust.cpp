@@ -13,12 +13,12 @@ SEXP dust_{{name}}_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                                         device_config);
 }
 
-SEXP dust_{{name}}_run(SEXP ptr, size_t step_end, bool device) {
-  return dust::r::dust_run<{{class}}>(ptr, step_end, device);
+SEXP dust_{{name}}_run(SEXP ptr, size_t step_end) {
+  return dust::r::dust_run<{{class}}>(ptr, step_end);
 }
 
-SEXP dust_{{name}}_simulate(SEXP ptr, cpp11::sexp step_end, bool device) {
-  return dust::r::dust_simulate<{{class}}>(ptr, step_end, device);
+SEXP dust_{{name}}_simulate(SEXP ptr, cpp11::sexp step_end) {
+  return dust::r::dust_simulate<{{class}}>(ptr, step_end);
 }
 
 SEXP dust_{{name}}_set_index(SEXP ptr, cpp11::sexp r_index) {
@@ -62,14 +62,13 @@ SEXP dust_{{name}}_set_data(SEXP ptr, cpp11::list data) {
   return R_NilValue;
 }
 
-SEXP dust_{{name}}_compare_data(SEXP ptr, bool device) {
-  return dust::r::dust_compare_data<{{class}}>(ptr, device);
+SEXP dust_{{name}}_compare_data(SEXP ptr) {
+  return dust::r::dust_compare_data<{{class}}>(ptr);
 }
 
 SEXP dust_{{name}}_filter(SEXP ptr, bool save_trajectories,
-                          cpp11::sexp step_snapshot,
-                          bool device) {
-  return dust::r::dust_filter<{{class}}>(ptr, save_trajectories, step_snapshot, device);
+                          cpp11::sexp step_snapshot) {
+  return dust::r::dust_filter<{{class}}>(ptr, save_trajectories, step_snapshot);
 }
 
 cpp11::sexp dust_{{name}}_capabilities() {
@@ -84,6 +83,6 @@ int dust_{{name}}_n_state(SEXP ptr) {
   return dust::r::dust_n_state<{{class}}>(ptr);
 }
 
-cpp11::sexp dust_{{name}}_device_info() {
-  return dust::cuda::device_info<{{class}}::real_type>();
-}
+// cpp11::sexp dust_{{name}}_device_info() {
+//   return dust::cuda::device_info<{{class}}::real_type>();
+// }

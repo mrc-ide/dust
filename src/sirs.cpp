@@ -7,10 +7,10 @@ SEXP dust_sirs_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                          cpp11::sexp device_config);
 
 [[cpp11::register]]
-SEXP dust_sirs_run(SEXP ptr, size_t step_end, bool device);
+SEXP dust_sirs_run(SEXP ptr, size_t step_end);
 
 [[cpp11::register]]
-SEXP dust_sirs_simulate(SEXP ptr, cpp11::sexp step_end, bool device);
+SEXP dust_sirs_simulate(SEXP ptr, cpp11::sexp step_end);
 
 [[cpp11::register]]
 SEXP dust_sirs_set_index(SEXP ptr, cpp11::sexp r_index);
@@ -41,12 +41,11 @@ SEXP dust_sirs_set_rng_state(SEXP ptr, cpp11::raws rng_state);
 SEXP dust_sirs_set_data(SEXP ptr, cpp11::list data);
 
 [[cpp11::register]]
-SEXP dust_sirs_compare_data(SEXP ptr, bool device);
+SEXP dust_sirs_compare_data(SEXP ptr);
 
 [[cpp11::register]]
 SEXP dust_sirs_filter(SEXP ptr, bool save_trajectories,
-                          cpp11::sexp step_snapshot,
-                          bool device);
+                          cpp11::sexp step_snapshot);
 
 [[cpp11::register]]
 cpp11::sexp dust_sirs_capabilities();
@@ -57,8 +56,8 @@ void dust_sirs_set_n_threads(SEXP ptr, int n_threads);
 [[cpp11::register]]
 int dust_sirs_n_state(SEXP ptr);
 
-[[cpp11::register]]
-cpp11::sexp dust_sirs_device_info();
+// [[cpp11::register]]
+// cpp11::sexp dust_sirs_device_info();
 
 #include <dust/dust.hpp>
 #include <dust/interface/dust.hpp>
@@ -176,6 +175,7 @@ sirs::data_type dust_data<sirs>(cpp11::list data) {
   return sirs::data_type{cpp11::as_cpp<double>(data["incidence"])};
 }
 
+/*
 template <>
 struct has_gpu_support<sirs> : std::true_type {};
 
@@ -256,6 +256,8 @@ sirs::real_type compare_device<sirs>(const dust::cuda::interleaved<sirs::real_ty
 }
 
 }
+
+*/
 }
 
 SEXP dust_sirs_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
@@ -267,12 +269,12 @@ SEXP dust_sirs_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                                         device_config);
 }
 
-SEXP dust_sirs_run(SEXP ptr, size_t step_end, bool device) {
-  return dust::r::dust_run<sirs>(ptr, step_end, device);
+SEXP dust_sirs_run(SEXP ptr, size_t step_end) {
+  return dust::r::dust_run<sirs>(ptr, step_end);
 }
 
-SEXP dust_sirs_simulate(SEXP ptr, cpp11::sexp step_end, bool device) {
-  return dust::r::dust_simulate<sirs>(ptr, step_end, device);
+SEXP dust_sirs_simulate(SEXP ptr, cpp11::sexp step_end) {
+  return dust::r::dust_simulate<sirs>(ptr, step_end);
 }
 
 SEXP dust_sirs_set_index(SEXP ptr, cpp11::sexp r_index) {
@@ -316,14 +318,13 @@ SEXP dust_sirs_set_data(SEXP ptr, cpp11::list data) {
   return R_NilValue;
 }
 
-SEXP dust_sirs_compare_data(SEXP ptr, bool device) {
-  return dust::r::dust_compare_data<sirs>(ptr, device);
+SEXP dust_sirs_compare_data(SEXP ptr) {
+  return dust::r::dust_compare_data<sirs>(ptr);
 }
 
 SEXP dust_sirs_filter(SEXP ptr, bool save_trajectories,
-                          cpp11::sexp step_snapshot,
-                          bool device) {
-  return dust::r::dust_filter<sirs>(ptr, save_trajectories, step_snapshot, device);
+                          cpp11::sexp step_snapshot) {
+  return dust::r::dust_filter<sirs>(ptr, save_trajectories, step_snapshot);
 }
 
 cpp11::sexp dust_sirs_capabilities() {
@@ -338,6 +339,6 @@ int dust_sirs_n_state(SEXP ptr) {
   return dust::r::dust_n_state<sirs>(ptr);
 }
 
-cpp11::sexp dust_sirs_device_info() {
-  return dust::cuda::device_info<sirs::real_type>();
-}
+// cpp11::sexp dust_sirs_device_info() {
+//   return dust::cuda::device_info<sirs::real_type>();
+// }

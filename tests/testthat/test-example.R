@@ -245,6 +245,7 @@ test_that("validate reorder vector is in correct range", {
 
 
 test_that("run in float mode", {
+  skip("redesign api")
   skip_for_compilation()
   res <- dust(dust_file("examples/walk.cpp"), real_type = "float",
               quiet = TRUE)
@@ -610,6 +611,7 @@ test_that("validate simulate steps", {
 
 
 test_that("no device info by default", {
+  skip("rework gpu")
   no_cuda <- list(has_cuda = FALSE,
                   cuda_version = NULL,
                   devices = data.frame(id = integer(0),

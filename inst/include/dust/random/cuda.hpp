@@ -7,7 +7,8 @@
 #define HOSTDEVICE
 #define DEVICE
 #define SYNCWARP
-#define CONSTANT
+#define CONSTANT const
+#define ALIGN(n)
 #define __nv_exec_check_disable__
 #endif
 

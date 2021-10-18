@@ -111,6 +111,7 @@ sirs::data_type dust_data<sirs>(cpp11::list data) {
   return sirs::data_type{cpp11::as_cpp<double>(data["incidence"])};
 }
 
+/*
 template <>
 struct has_gpu_support<sirs> : std::true_type {};
 
@@ -191,4 +192,6 @@ sirs::real_type compare_device<sirs>(const dust::cuda::interleaved<sirs::real_ty
 }
 
 }
+
+*/
 }

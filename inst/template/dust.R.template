@@ -112,7 +112,7 @@
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
-      private$device_config_ <- res[[4L]]
+      # private$device_config_ <- res[[4L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -148,7 +148,7 @@
     ##'   was compiled with this enabled, and you have a suitable GPU
     ##'   available (see `vignette("cuda")`).
     run = function(step_end, device = FALSE) {
-      m <- dust_{{name}}_run(private$ptr_, step_end, device)
+      m <- dust_{{name}}_run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
@@ -175,7 +175,7 @@
     ##' @param device Logical, indicating if the model should be run on
     ##'   the GPU device. See `$run()` for more information.
     simulate = function(step_end, device = FALSE) {
-      m <- dust_{{name}}_simulate(private$ptr_, step_end, device)
+      m <- dust_{{name}}_simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
@@ -485,7 +485,7 @@
     ##' @param device Logical, indicating if the model should be run on
     ##'   the GPU device. See `$run()` for more information.
     compare_data = function(device = FALSE) {
-      dust_{{name}}_compare_data(private$ptr_, device)
+      dust_{{name}}_compare_data(private$ptr_)
     },
 
     ##' @description
@@ -512,7 +512,7 @@
     filter = function(save_trajectories = FALSE, step_snapshot = NULL,
                       device = FALSE) {
       dust_{{name}}_filter(private$ptr_, save_trajectories,
-                           step_snapshot, device)
+                           step_snapshot)
     },
 
     ##' @description

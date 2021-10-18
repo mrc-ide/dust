@@ -1,4 +1,5 @@
 test_that("Can run device version of model on cpu", {
+  skip("rework gpu")
   np <- 100
   len <- 20
   gen <- dust_example("variable")
@@ -15,6 +16,7 @@ test_that("Can run device version of model on cpu", {
 
 
 test_that("Can use both device and cpu run functions", {
+  skip("rework gpu")
   np <- 100
   len <- 20
   gen <- dust_example("variable")
@@ -38,6 +40,7 @@ test_that("Can use both device and cpu run functions", {
 
 
 test_that("Raise suitable errors if models do not support GPU", {
+  skip("rework gpu")
   gen <- dust_example("walk")
   mod <- gen$new(list(sd = 1), 0, 100, seed = 1L)
   expect_error(
@@ -57,6 +60,7 @@ test_that("Raise suitable errors if models do not support GPU", {
 
 
 test_that("Can run multiple parameter sets", {
+  skip("rework gpu")
   res <- dust_example("variable")
   p <- list(list(len = 10, sd = 1), list(len = 10, sd = 10))
   mod1 <- res$new(p, 0, 10, seed = 1L, pars_multi = TRUE)
@@ -71,6 +75,7 @@ test_that("Can run multiple parameter sets", {
 
 
 test_that("Can reorder on the device", {
+  skip("rework gpu")
   res <- dust_example("variable")
   p <- list(list(len = 10, sd = 1), list(len = 10, sd = 10))
 
@@ -98,6 +103,7 @@ test_that("Can reorder on the device", {
 
 
 test_that("Can generate cuda compatible code", {
+  skip("rework gpu")
   info <- list(
     has_cuda = TRUE,
     cuda_version = numeric_version("10.1.0"),
@@ -400,6 +406,7 @@ test_that("high level interface to cuda options", {
 
 
 test_that("Can provide device id", {
+  skip("rework gpu")
   np <- 100
   len <- 20
   gen <- dust_example("variable")
@@ -416,6 +423,7 @@ test_that("Can provide device id", {
 
 
 test_that("Can control device run block size", {
+  skip("rework gpu")
   np <- 100
   len <- 20
   gen <- dust_example("variable")
@@ -430,6 +438,7 @@ test_that("Can control device run block size", {
 
 
 test_that("Error if using gpu features without device", {
+  skip("rework gpu")
   np <- 100
   len <- 20
   gen <- dust_example("variable")
@@ -441,6 +450,7 @@ test_that("Error if using gpu features without device", {
 
 
 test_that("Can provide device id to non-gpu model with no effect", {
+  skip("rework gpu")
   np <- 10
   gen <- dust_example("sir")
   expect_error(
@@ -456,6 +466,7 @@ test_that("Can provide device id to non-gpu model with no effect", {
 
 
 test_that("Can use sirs gpu model", {
+  skip("rework gpu")
   gen <- dust_example("sirs")
   np <- 100
   len <- 20
@@ -482,6 +493,7 @@ test_that("Can use sirs gpu model", {
 })
 
 test_that("Can simulate sirs gpu model", {
+  skip("rework gpu")
   res <- dust_example("sirs")
 
   steps <- seq(0, 100, by = 10)
@@ -496,6 +508,7 @@ test_that("Can simulate sirs gpu model", {
 })
 
 test_that("Missing GPU comparison function errors", {
+  skip("rework gpu")
   dat <- example_volatility()
   gen <- dust_example("volatility")
   mod <- gen$new(list(sd = 1), 0, 100, seed = 1L)
@@ -507,6 +520,7 @@ test_that("Missing GPU comparison function errors", {
 })
 
 test_that("Comparison function can be run on the GPU", {
+  skip("rework gpu")
   dat <- example_sirs()
 
   np <- 10
@@ -525,6 +539,7 @@ test_that("Comparison function can be run on the GPU", {
 })
 
 test_that("Can run a single particle filter on the GPU", {
+  skip("rework gpu")
   dat <- example_sirs()
 
   np <- 10
@@ -546,6 +561,7 @@ test_that("Can run a single particle filter on the GPU", {
 })
 
 test_that("Can run particle filter without collecting state on GPU", {
+  skip("rework gpu")
   dat <- example_sirs()
 
   np <- 10
@@ -562,6 +578,7 @@ test_that("Can run particle filter without collecting state on GPU", {
 })
 
 test_that("Can run GPU kernels using shared memory", {
+  skip("rework gpu")
   dat <- example_sirs()
 
   # Larger particle size makes multiple blocks be used
@@ -584,6 +601,7 @@ test_that("Can run GPU kernels using shared memory", {
 })
 
 test_that("Can run multiple particle filters on the GPU", {
+  skip("rework gpu")
   dat <- example_sirs()
 
   np <- 10
@@ -608,6 +626,7 @@ test_that("Can run multiple particle filters on the GPU", {
 
 
 test_that("Can run and simulate with nontrivial index", {
+  skip("rework gpu")
   np <- 100
   len <- 20
   gen <- dust_example("variable")
@@ -645,6 +664,7 @@ test_that("Can run and simulate with nontrivial index", {
 
 
 test_that("shared, with no device, is default initialised", {
+  skip("rework gpu")
   res <- test_cuda_pars(-1, 2000, 2000, 100, 200, 0, 20, 30, 40000)
   empty <- create_launch_control(0, 0)
   expected <- list(run = empty,
@@ -658,6 +678,7 @@ test_that("shared, with no device, is default initialised", {
 
 
 test_that("Can fit a small model into shared", {
+  skip("rework gpu")
   n_state <- 100
   n_state_full <- 202
   res <- test_cuda_pars(0, 2000, 2000,
@@ -685,6 +706,7 @@ test_that("Can fit a small model into shared", {
 
 
 test_that("Can fit a small model into shared, with data", {
+  skip("rework gpu")
   n_state_full <- n_state <- 100
   res <- test_cuda_pars(0, 2000, 2000,
                         n_state, n_state_full,
@@ -703,6 +725,7 @@ test_that("Can fit a small model into shared, with data", {
 
 
 test_that("Will spill a large model out of shared, but keep ints", {
+  skip("rework gpu")
   n_state_full <- n_state <- 100
   res <- test_cuda_pars(0, 2000, 2000,
                         n_state, n_state_full,
@@ -733,6 +756,7 @@ test_that("Will spill a really large model out of shared", {
 
 
 test_that("Can tune block size", {
+  skip("rework gpu")
   n_state <- 100
   n_state_full <- 202
   config <- list(device_id = 0, run_block_size = 512)
@@ -761,6 +785,7 @@ test_that("Can tune block size", {
 
 
 test_that("Can validate block size", {
+  skip("rework gpu")
   n_state <- 100
   n_state_full <- 202
   config <- list(device_id = 0, run_block_size = -512)
@@ -784,6 +809,7 @@ test_that("Can validate block size", {
 
 
 test_that("Can't run deterministically on the device", {
+  skip("rework gpu")
   np <- 100
   len <- 20
   gen <- dust_example("variable")
