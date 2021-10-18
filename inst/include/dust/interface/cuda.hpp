@@ -1,6 +1,8 @@
 #ifndef DUST_INTERFACE_CUDA_HPP
 #define DUST_INTERFACE_CUDA_HPP
 
+#include <dust/cuda/launch_control.hpp>
+
 namespace dust {
 namespace cuda {
 namespace interface {

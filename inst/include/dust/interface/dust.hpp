@@ -29,7 +29,10 @@ cpp11::sexp dust_info(const dust::pars_type<T>& pars) {
 
 #include <dust/interface/random.hpp>
 #include <dust/interface/helpers.hpp>
+#include <dust/interface/cuda.hpp>
 #include <dust/filter.hpp>
+
+#include <dust/cuda/dust_device.hpp>
 
 namespace dust {
 
@@ -70,7 +73,7 @@ typename std::enable_if<!dust::has_gpu_support<T>::value, cpp11::list>::type
 dust_alloc_device(cpp11::list r_pars, bool pars_multi, int step,
                   cpp11::sexp r_n_particles, int n_threads,
                   cpp11::sexp r_seed, bool deterministic,
-                  cpp11::sexp device_info) {
+                  cpp11::sexp r_device_config) {
   cpp11::stop("This model does not have GPU support");
   return R_NilValue; // #nocov - can't get here
 }
@@ -80,26 +83,31 @@ typename std::enable_if<dust::has_gpu_support<T>::value, cpp11::list>::type
 dust_alloc_device(cpp11::list r_pars, bool pars_multi, int step,
                   cpp11::sexp r_n_particles, int n_threads,
                   cpp11::sexp r_seed, bool deterministic,
-                  cpp11::sexp device_info) {
-  Dust<T> *d = nullptr;
+                  cpp11::sexp r_device_config) {
+  if (deterministic) {
+    cpp11::stop("Deterministic models not supported on gpu");
+  }
+  DustDevice<T> *d = nullptr;
   cpp11::sexp info;
+  const dust::cuda::device_config device_config =
+    dust::cuda::interface::device_config(r_device_config);
   if (pars_multi) {
     auto inputs =
       dust::interface::process_inputs_multi<T>(r_pars, step, r_n_particles,
                                                n_threads, r_seed);
-    d = new Dust<T>(inputs.pars, inputs.step, inputs.n_particles,
-                    inputs.n_threads, inputs.seed, deterministic,
-                    inputs.shape);
+    d = new DustDevice<T>(inputs.pars, inputs.step, inputs.n_particles,
+                          inputs.n_threads, inputs.seed,
+                          inputs.shape, device_config);
     info = inputs.info;
   } else {
     auto inputs =
       dust::interface::process_inputs_single<T>(r_pars, step, r_n_particles,
                                                 n_threads, r_seed);
-    d = new Dust<T>(inputs.pars[0], inputs.step, inputs.n_particles,
-                    inputs.n_threads, inputs.seed, deterministic);
+    d = new DustDevice<T>(inputs.pars[0], inputs.step, inputs.n_particles,
+                          inputs.n_threads, inputs.seed, device_config);
     info = inputs.info;
   }
-  cpp11::external_pointer<Dust<T>> ptr(d, true, false);
+  cpp11::external_pointer<DustDevice<T>> ptr(d, true, false);
 
   cpp11::writable::integers r_shape =
     dust::interface::vector_size_to_int(d->shape());
@@ -111,14 +119,14 @@ template <typename T>
 cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
                        cpp11::sexp r_n_particles, int n_threads,
                        cpp11::sexp r_seed, bool deterministic,
-                       cpp11::sexp device_config) {
-  if (device_config == R_NilValue) {
+                       cpp11::sexp r_device_config) {
+  if (r_device_config == R_NilValue) {
     return dust_alloc_cpu<T>(r_pars, pars_multi, step, r_n_particles,
                              n_threads, r_seed, deterministic);
   } else {
     return dust_alloc_device<T>(r_pars, pars_multi, step, r_n_particles,
                                 n_threads, r_seed, deterministic,
-                                device_config);
+                                r_device_config);
   }
 }
 
