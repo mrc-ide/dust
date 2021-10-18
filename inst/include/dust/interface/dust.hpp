@@ -11,10 +11,7 @@
 #include <cpp11/raws.hpp>
 #include <cpp11/strings.hpp>
 
-#include <dust/interface/random.hpp>
-#include <dust/interface/helpers.hpp>
-#include <dust/filter.hpp>
-
+// TODO; this would be neater elsewhere!
 namespace dust {
 
 template <typename T>
@@ -28,52 +25,37 @@ cpp11::sexp dust_info(const dust::pars_type<T>& pars) {
   return R_NilValue;
 }
 
+}
+
+#include <dust/interface/random.hpp>
+#include <dust/interface/helpers.hpp>
+#include <dust/filter.hpp>
+
+namespace dust {
+
 namespace r {
 
 template <typename T>
 cpp11::list dust_alloc_cpu(cpp11::list r_pars, bool pars_multi, int step,
                            cpp11::sexp r_n_particles, int n_threads,
                            cpp11::sexp r_seed, bool deterministic) {
-  typedef typename T::rng_state_type rng_state_type;
-  dust::interface::validate_size(step, "step");
-  dust::interface::validate_positive(n_threads, "n_threads");
-  std::vector<typename rng_state_type::int_type> seed =
-    dust::interface::as_rng_seed<rng_state_type>(r_seed);
-
   Dust<T> *d = nullptr;
   cpp11::sexp info;
   if (pars_multi) {
-    dust::interface::check_pars_multi(r_pars);
-    std::vector<dust::pars_type<T>> pars;
-    cpp11::writable::list info_list = cpp11::writable::list(r_pars.size());
-    for (int i = 0; i < r_pars.size(); ++i) {
-      pars.push_back(dust_pars<T>(r_pars[i]));
-      info_list[i] = dust_info<T>(pars[i]);
-    }
-    info = info_list;
-    cpp11::sexp dim_pars = r_pars.attr("dim");
-    std::vector<size_t> shape;
-    if (dim_pars == R_NilValue) {
-      shape.push_back(pars.size());
-    } else {
-      cpp11::integers dim_pars_int = cpp11::as_cpp<cpp11::integers>(dim_pars);
-      for (int i = 0; i < dim_pars_int.size(); ++i) {
-        shape.push_back(dim_pars_int[i]);
-      }
-    }
-    size_t n_particles = 0;
-    if (r_n_particles != R_NilValue) {
-      n_particles = cpp11::as_cpp<int>(r_n_particles);
-      dust::interface::validate_size(n_particles, "n_particles");
-    }
-    d = new Dust<T>(pars, step, n_particles, n_threads, seed, deterministic,
-                    shape);
+    auto inputs =
+      dust::interface::process_inputs_multi<T>(r_pars, step, r_n_particles,
+                                               n_threads, r_seed);
+    d = new Dust<T>(inputs.pars, inputs.step, inputs.n_particles,
+                    inputs.n_threads, inputs.seed, deterministic,
+                    inputs.shape);
+    info = inputs.info;
   } else {
-    size_t n_particles = cpp11::as_cpp<int>(r_n_particles);
-    dust::interface::validate_positive(n_particles, "n_particles");
-    dust::pars_type<T> pars = dust_pars<T>(r_pars);
-    d = new Dust<T>(pars, step, n_particles, n_threads, seed, deterministic);
-    info = dust_info<T>(pars);
+    auto inputs =
+      dust::interface::process_inputs_single<T>(r_pars, step, r_n_particles,
+                                                n_threads, r_seed);
+    d = new Dust<T>(inputs.pars[0], inputs.step, inputs.n_particles,
+                    inputs.n_threads, inputs.seed, deterministic);
+    info = inputs.info;
   }
   cpp11::external_pointer<Dust<T>> ptr(d, true, false);
 
@@ -99,8 +81,30 @@ dust_alloc_device(cpp11::list r_pars, bool pars_multi, int step,
                   cpp11::sexp r_n_particles, int n_threads,
                   cpp11::sexp r_seed, bool deterministic,
                   cpp11::sexp device_info) {
-  cpp11::stop("Still need to implement this");
-  return R_NilValue;
+  Dust<T> *d = nullptr;
+  cpp11::sexp info;
+  if (pars_multi) {
+    auto inputs =
+      dust::interface::process_inputs_multi<T>(r_pars, step, r_n_particles,
+                                               n_threads, r_seed);
+    d = new Dust<T>(inputs.pars, inputs.step, inputs.n_particles,
+                    inputs.n_threads, inputs.seed, deterministic,
+                    inputs.shape);
+    info = inputs.info;
+  } else {
+    auto inputs =
+      dust::interface::process_inputs_single<T>(r_pars, step, r_n_particles,
+                                                n_threads, r_seed);
+    d = new Dust<T>(inputs.pars[0], inputs.step, inputs.n_particles,
+                    inputs.n_threads, inputs.seed, deterministic);
+    info = inputs.info;
+  }
+  cpp11::external_pointer<Dust<T>> ptr(d, true, false);
+
+  cpp11::writable::integers r_shape =
+    dust::interface::vector_size_to_int(d->shape());
+
+  return cpp11::writable::list({ptr, info, r_shape});
 }
 
 template <typename T>
