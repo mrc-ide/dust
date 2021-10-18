@@ -31,19 +31,14 @@ cpp11::sexp dust_info(const dust::pars_type<T>& pars) {
 namespace r {
 
 template <typename T>
-cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
-                       cpp11::sexp r_n_particles, int n_threads,
-                       cpp11::sexp r_seed, bool deterministic,
-                       cpp11::sexp device_config) {
+cpp11::list dust_alloc_cpu(cpp11::list r_pars, bool pars_multi, int step,
+                           cpp11::sexp r_n_particles, int n_threads,
+                           cpp11::sexp r_seed, bool deterministic) {
   typedef typename T::rng_state_type rng_state_type;
   dust::interface::validate_size(step, "step");
   dust::interface::validate_positive(n_threads, "n_threads");
   std::vector<typename rng_state_type::int_type> seed =
     dust::interface::as_rng_seed<rng_state_type>(r_seed);
-
-  if (device_config != R_NilValue) {
-    cpp11::stop("device_config currently disabled");
-  }
 
   Dust<T> *d = nullptr;
   cpp11::sexp info;
@@ -86,6 +81,41 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
     dust::interface::vector_size_to_int(d->shape());
 
   return cpp11::writable::list({ptr, info, r_shape});
+}
+
+template <typename T>
+typename std::enable_if<!dust::has_gpu_support<T>::value, cpp11::list>::type
+dust_alloc_device(cpp11::list r_pars, bool pars_multi, int step,
+                  cpp11::sexp r_n_particles, int n_threads,
+                  cpp11::sexp r_seed, bool deterministic,
+                  cpp11::sexp device_info) {
+  cpp11::stop("This model does not have GPU support");
+  return R_NilValue; // #nocov - can't get here
+}
+
+template <typename T>
+typename std::enable_if<dust::has_gpu_support<T>::value, cpp11::list>::type
+dust_alloc_device(cpp11::list r_pars, bool pars_multi, int step,
+                  cpp11::sexp r_n_particles, int n_threads,
+                  cpp11::sexp r_seed, bool deterministic,
+                  cpp11::sexp device_info) {
+  cpp11::stop("Still need to implement this");
+  return R_NilValue;
+}
+
+template <typename T>
+cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
+                       cpp11::sexp r_n_particles, int n_threads,
+                       cpp11::sexp r_seed, bool deterministic,
+                       cpp11::sexp device_config) {
+  if (device_config == R_NilValue) {
+    return dust_alloc_cpu<T>(r_pars, pars_multi, step, r_n_particles,
+                             n_threads, r_seed, deterministic);
+  } else {
+    return dust_alloc_device<T>(r_pars, pars_multi, step, r_n_particles,
+                                n_threads, r_seed, deterministic,
+                                device_config);
+  }
 }
 
 template <typename T>

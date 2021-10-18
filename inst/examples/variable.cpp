@@ -59,9 +59,10 @@ dust::pars_type<variable> dust_pars<variable>(cpp11::list pars) {
   return dust::pars_type<variable>(shared);
 }
 
-/*
 template <>
 struct has_gpu_support<variable> : std::true_type {};
+
+/*
 
 namespace cuda {
 

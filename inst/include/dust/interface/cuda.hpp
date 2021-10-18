@@ -1,5 +1,5 @@
-#ifndef DUST_CUDA_INTERFACE_HPP
-#define DUST_CUDA_INTERFACE_HPP
+#ifndef DUST_INTERFACE_CUDA_HPP
+#define DUST_INTERFACE_CUDA_HPP
 
 namespace dust {
 namespace cuda {
