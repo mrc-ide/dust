@@ -317,9 +317,9 @@ test_that("can change pars", {
   y2 <- obj$run(2)
 
   ## Then the comparison:
-  cmp <- dust_rng$new(seed = 1, 10)
-  expect_equal(cmp$rnorm(10, 0, 1), drop(y1))
-  expect_equal(y1 + cmp$rnorm(10, 0, 2), y2)
+  cmp <- dust_rng$new(1, 10)
+  expect_equal(drop(cmp$normal(1, 0, 1)), drop(y1))
+  expect_equal(y1 + cmp$normal(1, 0, 2), y2)
 })
 
 
@@ -346,7 +346,7 @@ test_that("Validate changing pars leaves particles in sensible state", {
 test_that("rewrite types", {
   res <- dust_rewrite_real(dust_file("examples/sir.cpp"), "float")
   expect_equal(tools::file_ext(res), "cpp")
-  expect_length(grep("^  typedef float real_t;$", readLines(res)), 1)
+  expect_length(grep("^  typedef float real_type;$", readLines(res)), 1)
 })
 
 
@@ -355,7 +355,7 @@ test_that("informative error message if expected string not found", {
   tmp <- dust_rewrite_real(dust_file("examples/sir.cpp"), "++float++")
   expect_error(
     dust_rewrite_real(tmp, "float"),
-    "did not find real_t declaration in '.+\\.cpp'")
+    "did not find real_type declaration in '.+\\.cpp'")
 })
 
 

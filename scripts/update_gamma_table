@@ -37,7 +37,7 @@ data <- list(
 
 root <- here::here()
 
-dest <- file.path(root, "inst/include/dust/distr/gamma_table.hpp")
+dest <- file.path(root, "inst/include/dust/random/gamma_table.hpp")
 template <- paste(
   readLines(file.path(root, "inst/template/gamma_table.hpp")),
   collapse = "\n")

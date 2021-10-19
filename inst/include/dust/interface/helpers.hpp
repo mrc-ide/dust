@@ -169,8 +169,8 @@ cpp11::writable::integers state_array_dim(size_t n_state,
   return dim;
 }
 
-template <typename real_t>
-cpp11::sexp state_array(const std::vector<real_t>& dat, size_t n_state,
+template <typename real_type>
+cpp11::sexp state_array(const std::vector<real_type>& dat, size_t n_state,
                         const std::vector<size_t>& shape) {
   cpp11::writable::doubles ret(dat.size());
   std::copy(dat.begin(), dat.end(), REAL(ret));
@@ -180,8 +180,8 @@ cpp11::sexp state_array(const std::vector<real_t>& dat, size_t n_state,
   return ret;
 }
 
-template <typename real_t>
-cpp11::sexp state_array(const std::vector<real_t>& dat, size_t n_state,
+template <typename real_type>
+cpp11::sexp state_array(const std::vector<real_type>& dat, size_t n_state,
                         const std::vector<size_t>& shape, size_t n_time) {
   cpp11::writable::doubles ret(dat.size());
   std::copy(dat.begin(), dat.end(), REAL(ret));
@@ -238,8 +238,8 @@ inline void check_pars_multi(cpp11::list r_pars) {
 // with pars: shape = {n_particles_each, n_a, n_b}
 //   matrix of n_state x n_a x n_b => shared per parameter
 //   array of n_state x n_particles_each x n_a x n_b => individual
-template <typename real_t>
-std::vector<real_t> check_state(cpp11::sexp r_state, size_t n_state,
+template <typename real_type>
+std::vector<real_type> check_state(cpp11::sexp r_state, size_t n_state,
                                 const std::vector<size_t>& shape,
                                 const bool is_shared) {
   cpp11::doubles r_state_data = cpp11::as_cpp<cpp11::doubles>(r_state);
@@ -262,7 +262,7 @@ std::vector<real_t> check_state(cpp11::sexp r_state, size_t n_state,
   }
   check_dimensions(r_state, state_len, shape_check, false, "state");
 
-  std::vector<real_t> ret(state_len);
+  std::vector<real_type> ret(state_len);
   std::copy_n(REAL(r_state_data.data()), state_len, ret.begin());
   return ret;
 }
@@ -297,15 +297,15 @@ std::vector<size_t> check_reorder_index(cpp11::sexp r_index,
   return index;
 }
 
-template <typename real_t>
-std::vector<real_t> check_resample_weights(cpp11::doubles r_weights,
+template <typename real_type>
+std::vector<real_type> check_resample_weights(cpp11::doubles r_weights,
                                            const std::vector<size_t>& shape) {
   const size_t len = r_weights.size();
   check_dimensions(r_weights, len, shape, false, "weights");
   if (*std::min_element(r_weights.begin(), r_weights.end()) < 0) {
     cpp11::stop("All weights must be positive");
   }
-  const std::vector<real_t>
+  const std::vector<real_type>
     weights(r_weights.begin(), r_weights.end());
   return weights;
 }

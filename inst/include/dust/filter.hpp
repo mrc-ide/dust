@@ -9,19 +9,20 @@ namespace filter {
 
 // Host version
 template <typename T>
-std::vector<typename T::real_t> filter(Dust<T> * obj,
-                                       filter_state_host<typename T::real_t>& state,
-                                       bool save_trajectories,
-                                       std::vector<size_t> step_snapshot) {
-  typedef typename T::real_t real_t;
+std::vector<typename T::real_type>
+filter(Dust<T> * obj,
+       filter_state_host<typename T::real_type>& state,
+       bool save_trajectories,
+       std::vector<size_t> step_snapshot) {
+  typedef typename T::real_type real_type;
 
   const size_t n_particles = obj->n_particles();
   const size_t n_data = obj->n_data();
   const size_t n_pars = obj->n_pars_effective();
   const size_t n_particles_each = n_particles / n_pars;
-  std::vector<real_t> log_likelihood(n_pars);
-  std::vector<real_t> log_likelihood_step(n_pars);
-  std::vector<real_t> weights(n_particles);
+  std::vector<real_type> log_likelihood(n_pars);
+  std::vector<real_type> log_likelihood_step(n_pars);
+  std::vector<real_type> weights(n_particles);
   std::vector<size_t> kappa(n_particles);
 
   if (save_trajectories) {
@@ -48,7 +49,7 @@ std::vector<typename T::real_t> filter(Dust<T> * obj,
     // has become impossible but others continue, but that's hard!
     auto wi = weights.begin();
     for (size_t i = 0; i < n_pars; ++i) {
-      log_likelihood_step[i] = scale_log_weights<real_t>(wi, n_particles_each);
+      log_likelihood_step[i] = scale_log_weights<real_type>(wi, n_particles_each);
       log_likelihood[i] += log_likelihood_step[i];
       wi += n_particles_each;
     }
@@ -78,9 +79,9 @@ std::vector<typename T::real_t> filter(Dust<T> * obj,
 }
 
 template <typename T>
-typename std::enable_if<!dust::has_gpu_support<T>::value, std::vector<typename T::real_t>>::type
+typename std::enable_if<!dust::has_gpu_support<T>::value, std::vector<typename T::real_type>>::type
 filter(Dust<T> * obj,
-       filter_state_device<typename T::real_t>& state,
+       filter_state_device<typename T::real_type>& state,
        bool save_trajectories,
        std::vector<size_t> step_snapshot) {
   throw std::invalid_argument("GPU support not enabled for this object");
@@ -88,21 +89,21 @@ filter(Dust<T> * obj,
 
 // Device version
 template <typename T>
-typename std::enable_if<dust::has_gpu_support<T>::value, std::vector<typename T::real_t>>::type
+typename std::enable_if<dust::has_gpu_support<T>::value, std::vector<typename T::real_type>>::type
 filter(Dust<T> * obj,
-       filter_state_device<typename T::real_t>& state,
+       filter_state_device<typename T::real_type>& state,
        bool save_trajectories,
        std::vector<size_t> step_snapshot) {
-  typedef typename T::real_t real_t;
+  typedef typename T::real_type real_type;
 
   const size_t n_particles = obj->n_particles();
   const size_t n_data = obj->n_data();
   const size_t n_pars = obj->n_pars_effective();
 
-  std::vector<real_t> ll_host(n_pars, 0);
-  dust::device_array<real_t> log_likelihood(ll_host);
-  dust::device_weights<real_t> weights(n_particles, n_pars);
-  dust::device_scan_state<real_t> scan;
+  std::vector<real_type> ll_host(n_pars, 0);
+  dust::cuda::device_array<real_type> log_likelihood(ll_host);
+  dust::cuda::device_weights<real_type> weights(n_particles, n_pars);
+  dust::cuda::device_scan_state<real_type> scan;
   scan.initialise(n_particles, weights.weights());
 
   if (save_trajectories) {

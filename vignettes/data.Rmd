@@ -68,24 +68,24 @@ cc_output(readLines(system.file("examples/volatility.cpp", package = "dust")))
 The first part, the data definition, is the definition
 
 ```cc
-  struct data_t {
-    real_t observed;
+  struct data_type {
+    real_type observed;
   };
 ```
 
 which replaces the usual
 
 ```cc
-  typedef dust::no_data data_t;
+  typedef dust::no_data data_type;
 ```
 
-This structure can contain whatever you want, including things like a `std::vector` of values. In our use we've typically only had `real_t` and `int` though, even for complex models.
+This structure can contain whatever you want, including things like a `std::vector` of values. In our use we've typically only had `real_type` and `int` though, even for complex models.
 
 The comparison is implemented by the method `compare_data`, which has a standard signature for the function which takes the current state, the data at the current time point, and the RNG state:
 
 ```cc
-  real_t compare_data(const real_t * state, const data_t& data,
-                      dust::rng_state_t<real_t>& rng_state) {
+  real_type compare_data(const real_type * state, const data_type& data,
+                         rng_state_type& rng_state) {
     return dust::dnorm(data.observed, shared->gamma * state[0],
                        shared->tau, true);
   }
@@ -102,8 +102,8 @@ Finally, the data marshalling is done by the `dust_data` template, within the `d
 ```cc
 namespace dust {
 template <>
-volatility::data_t dust_data<volatility>(cpp11::list data) {
-  return volatility::data_t{cpp11::as_cpp<double>(data["observed"])};
+volatility::data_type dust_data<volatility>(cpp11::list data) {
+  return volatility::data_type{cpp11::as_cpp<double>(data["observed"])};
 }
 }
 ```
@@ -117,14 +117,14 @@ head(dust::dust_data(data), 3)
 This is definitely a bit fiddly!  If using `odin.dust`, then this would be somewhat simplified as you could provide a single C++ file containing something like
 
 ```cc
-// [[odin.dust::compare_data(observed = real_t)]]
+// [[odin.dust::compare_data(observed = real_type)]]
 // [[odin.dust::compare_function]]
 template <typename T>
-typename T::real_t compare(const typename T::real_t * state,
-                           const typename T::data_t& data,
-                           const typename T::internal_t internal,
-                           std::shared_ptr<const typename T::shared_t> shared,
-                           dust::rng_state_t<typename T::real_t>& rng_state) {
+typename T::real_type compare(const typename T::real_type * state,
+                              const typename T::data_type& data,
+                              const typename T::internal_type internal,
+                              std::shared_ptr<const typename T::shared_type> shared,
+                              typename T::rng_state_type& rng_state) {
   return dust::dnorm(data.observed, odin(gamma) * odin(value), odin(tau), true);
 }
 ```

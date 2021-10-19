@@ -2,7 +2,56 @@
 ##'
 ##' @description Create an object that can be used to generate random
 ##'   numbers with the same RNG as dust uses internally.  This is
-##'   primarily meant for debugging and testing.
+##'   primarily meant for debugging and testing the underlying C++
+##'   rather than a source of random numbers from R.
+##'
+##' @section Running multiple streams, perhaps in parallel:
+##'
+##' The underlying random number generators are designed to work in
+##'   parallel, and with random access to parameters (see
+##'   `vignette("rng")` for more details).  However, this is usually
+##'   done within the context of running a model where each generator
+##'   sees its own stream of numbers.  We provide some support for
+##'   running random number generators in parallel, but any speed
+##'   gains from parallelisation are likely to be somewhat eroded by
+##'   the overhead of copying around a large number of random numbers.
+##'
+##' All the random distribution functions support an argument
+##'   `n_threads` which controls the number of threads used.  This
+##'   argument will *silently* have no effect if your installation
+##'   does not support OpenMP (see [dust::dust_openmp_support]).
+##'
+##' Parallelisation will be performed at the level of the generator,
+##'   with *each* generator drawing `n` numbers for a total of `n *
+##'   n_generators` random numbers.  Setting `n_threads` to be higher
+##'   than `n_generators` will therefore have no effect. If running on
+##'   somebody else's system (e.g., an HPC, CRAN) you must respect the
+##'   various environment variables that control the maximum allowable
+##'   number of threads; consider using [dust::dust_openmp_threads] to
+##'   select a safe number.
+##'
+##' With the exception of `random_real`, each random number
+##'   distribution accepts parameters; the interpretations of these
+##'   will depend on `n`, `n_generators` and their rank.
+##'
+##'   * If a scalar then we will use the same parameter value for every draw
+##'     from every stream
+##'
+##'   * If a vector with length `n` then we will draw `n` random
+##'     numbers per stream, and every stream will use the same parameter
+##'     value for every generator for each draw (but a different,
+##'     shared, parameter value for subsequent draws).
+##'
+##'   * If a matrix is provided with one row and `n_generators`
+##'     columns then we use different parameters for each generator, but
+##'     the same parameter for each draw.
+##'
+##'   * If a matrix is provided with `n` rows and `n_generators`
+##'     columns then we use a parameter value `[i, j]` for the `i`th
+##'     draw on the `j`th stream.
+##'
+##' The output will not differ based on the number of threads used,
+##'   only on the number of generators.
 ##'
 ##' @return A `dust_rng` object, which can be used to drawn random
 ##'   numbers from dust's distributions.
@@ -12,22 +61,22 @@
 ##' rng <- dust::dust_rng$new(42)
 ##'
 ##' # Shorthand for Uniform(0, 1)
-##' rng$unif_rand(5)
-##'
-##' # Shorthand for Normal(0, 1)
-##' rng$norm_rand(5)
+##' rng$random_real(5)
 ##'
 ##' # Uniform random numbers between min and max
-##' rng$runif(5, -2, 6)
+##' rng$uniform(5, -2, 6)
 ##'
 ##' # Normally distributed random numbers with mean and sd
-##' rng$rnorm(5, 4, 2)
+##' rng$normal(5, 4, 2)
 ##'
 ##' # Binomially distributed random numbers with size and prob
-##' rng$rbinom(5, 10, 0.3)
+##' rng$binomial(5, 10, 0.3)
 ##'
 ##' # Poisson distributed random numbers with mean lambda
-##' rng$rpois(5, 2)
+##' rng$poisson(5, 2)
+##'
+##' # Exponentially distributed random numbers with rate
+##' rng$exponential(5, 2)
 dust_rng <- R6::R6Class(
   "dust_rng",
   cloneable = FALSE,
@@ -35,11 +84,13 @@ dust_rng <- R6::R6Class(
   private = list(
     ptr = NULL,
     n_generators = NULL,
-    float = NULL,
-    real_t = NULL
+    float = NULL
   ),
 
   public = list(
+    ##' @field info Information about the generator (read-only)
+    info = NULL,
+
     ##' @description Create a `dust_rng` object
     ##'
     ##' @param seed The seed, as an integer or as a raw vector.
@@ -52,24 +103,45 @@ dust_rng <- R6::R6Class(
     ##'   only `float` and `double` are supported (with `double` being
     ##'   the default). This will have no (or negligible) impact on speed,
     ##'   but exists to test the low-precision generators.
-    initialize = function(seed, n_generators = 1L, real_type = "double") {
+    ##'
+    ##' @param deterministic Logical, indicating if we should use
+    ##'   "deterministic" mode where distributions return their
+    ##'   expectations and the state is never changed.
+    initialize = function(seed, n_generators = 1L, real_type = "double",
+                          deterministic = FALSE) {
       if (!(real_type %in% c("double", "float"))) {
         stop("Invalid value for 'real_type': must be 'double' or 'float'")
       }
       private$float <- real_type == "float"
-      private$ptr <- dust_rng_alloc(seed, n_generators, private$float)
+      private$ptr <- dust_rng_alloc(seed, n_generators, deterministic,
+                                    private$float)
       private$n_generators <- n_generators
-      private$real_t <- real_type
+
+      if (real_type == "float") {
+        size_int_bits <- 32L
+        name <- "xoshiro128plus"
+      } else {
+        size_int_bits <- 64L
+        name <- "xoshiro256plus"
+      }
+      size_int_bits <- if (real_type == "float") 32L else 64L
+      self$info <- list(
+        real_type = real_type,
+        int_type = sprintf("uint%s_t", size_int_bits),
+        name = name,
+        deterministic = deterministic,
+        ## Size, in bits, of the underlying integer
+        size_int_bits = size_int_bits,
+        ## Number of integers used for state
+        size_state_ints = 4L,
+        ## Total size in bytes of the state
+        size_state_bytes = 4L * size_int_bits / 8L)
+      lockBinding("info", self)
     },
 
     ##' @description Number of generators available
     size = function() {
       private$n_generators
-    },
-
-    ##' @description Indicates the floating point type
-    real_type = function() {
-      if (private$float) "float" else "double"
     },
 
     ##' @description The jump function for the generator, equivalent to
@@ -88,72 +160,73 @@ dust_rng <- R6::R6Class(
 
     ##' Generate `n` numbers from a standard uniform distribution
     ##'
-    ##' @param n Number of samples to draw
-    unif_rand = function(n) {
-      dust_rng_unif_rand(private$ptr, n, private$float)
-    },
-
-    ##' Generate `n` numbers from a standard normal distribution
+    ##' @param n Number of samples to draw (per generator)
     ##'
-    ##' @param n Number of samples to draw
-    norm_rand = function(n) {
-      dust_rng_norm_rand(private$ptr, n, private$float)
+    ##' @param n_threads Number of threads to use; see Details
+    random_real = function(n, n_threads = 1L) {
+      dust_rng_random_real(private$ptr, n, n_threads, private$float)
     },
 
     ##' Generate `n` numbers from a uniform distribution
     ##'
-    ##' @param n Number of samples to draw
+    ##' @param n Number of samples to draw (per generator)
     ##'
     ##' @param min The minimum of the distribution (length 1 or n)
     ##'
     ##' @param max The maximum of the distribution (length 1 or n)
-    runif = function(n, min, max) {
-      dust_rng_runif(private$ptr, n, recycle(min, n), recycle(max, n),
-                     private$float)
+    ##'
+    ##' @param n_threads Number of threads to use; see Details
+    uniform = function(n, min, max, n_threads = 1L) {
+      dust_rng_uniform(private$ptr, n, min, max, n_threads, private$float)
     },
 
     ##' Generate `n` numbers from a normal distribution
     ##'
-    ##' @param n Number of samples to draw
+    ##' @param n Number of samples to draw (per generator)
     ##'
     ##' @param mean The mean of the distribution (length 1 or n)
     ##'
     ##' @param sd The standard deviation of the distribution (length 1 or n)
-    rnorm = function(n, mean, sd) {
-      dust_rng_rnorm(private$ptr, n, recycle(mean, n), recycle(sd, n),
-                     private$float)
+    ##'
+    ##' @param n_threads Number of threads to use; see Details
+    normal = function(n, mean, sd, n_threads = 1L) {
+      dust_rng_normal(private$ptr, n, mean, sd, n_threads, private$float)
     },
 
     ##' Generate `n` numbers from a binomial distribution
     ##'
-    ##' @param n Number of samples to draw
+    ##' @param n Number of samples to draw (per generator)
     ##'
     ##' @param size The number of trials (zero or more, length 1 or n)
     ##'
     ##' @param prob The probability of success on each trial
     ##'   (between 0 and 1, length 1 or n)
-    rbinom = function(n, size, prob) {
-      dust_rng_rbinom(private$ptr, n, recycle(size, n), recycle(prob, n),
-                      private$float)
+    ##'
+    ##' @param n_threads Number of threads to use; see Details
+    binomial = function(n, size, prob, n_threads = 1L) {
+      dust_rng_binomial(private$ptr, n, size, prob, n_threads, private$float)
     },
 
     ##' Generate `n` numbers from a Poisson distribution
     ##'
-    ##' @param n Number of samples to draw
+    ##' @param n Number of samples to draw (per generator)
     ##'
     ##' @param lambda The mean (zero or more, length 1 or n)
-    rpois = function(n, lambda) {
-      dust_rng_rpois(private$ptr, n, recycle(lambda, n),
-                     private$float)
+    ##'
+    ##' @param n_threads Number of threads to use; see Details
+    poisson = function(n, lambda, n_threads = 1L) {
+      dust_rng_poisson(private$ptr, n, lambda, n_threads, private$float)
     },
 
     ##' Generate `n` numbers from a exponential distribution
     ##'
-    ##' @param n Number of samples to draw
+    ##' @param n Number of samples to draw (per generator)
     ##'
     ##' @param rate The rate of the exponential
-    rexp = function(n, rate) {
-      dust_rng_rexp(private$ptr, n, recycle(rate, n), private$float)
+    ##'
+    ##' @param n_threads Number of threads to use; see Details
+    exponential = function(n, rate, n_threads = 1L) {
+      dust_rng_exponential(private$ptr, n, rate, n_threads, private$float)
     },
 
     ##' @description
@@ -163,15 +236,6 @@ dust_rng <- R6::R6Class(
     ##' state.
     state = function() {
       dust_rng_state(private$ptr, private$float)
-    },
-
-    ##' @description
-    ##' Toggle the RNG into/out of deterministic mode
-    ##'
-    ##' @param value Logical, `TRUE` if the RNG should run in deterministic
-    ##'   mode.
-    set_deterministic = function(value) {
-      invisible(dust_rng_set_deterministic(private$ptr, value, private$float))
     }
   ))
 
@@ -214,21 +278,12 @@ dust_rng <- R6::R6Class(
 ##' # Multiple jumps can be taken by using the "times" argument
 ##' dust::dust_rng_state_long_jump(state, 2)
 dust_rng_state_long_jump <- function(state, times = 1L) {
+  ## TODO: I don't think this behaves if given state that is longer
+  ## than one rng, nor for floats.
   assert_is(state, "raw")
   rng <- dust_rng$new(state)
   for (i in seq_len(times)) {
     rng$long_jump()
   }
   rng$state()
-}
-
-
-recycle <- function(x, n, name = deparse(substitute(x))) {
-  if (length(x) == n) {
-    x
-  } else if (length(x) == 1L) {
-    rep_len(x, n)
-  } else {
-    stop(sprintf("Invalid length for '%s', expected 1 or %d", name, n))
-  }
 }

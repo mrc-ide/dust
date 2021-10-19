@@ -9,7 +9,7 @@ dust_generate(
   quiet = FALSE,
   workdir = NULL,
   gpu = FALSE,
-  real_t = NULL,
+  real_type = NULL,
   mangle = FALSE
 )
 }
@@ -33,10 +33,10 @@ that function and pass the value here (e.g, \code{gpu = dust::dust_cuda_options(
 use of the \verb{__syncwarp()} primitive this may require a GPU with
 compute version 70 or higher.}
 
-\item{real_t}{Optionally, a string indicating a substitute type to
-swap in for your model's \code{real_t} declaration. If given, then we
-replace the string \verb{typedef (double|float) real_t} with the
-given type. This is primarily intended to be used as \verb{gpu = TRUE, real_t = "float"} in order to create model for the GPU
+\item{real_type}{Optionally, a string indicating a substitute type to
+swap in for your model's \code{real_type} declaration. If given, then we
+replace the string \verb{typedef (double|float) real_type} with the
+given type. This is primarily intended to be used as \verb{gpu = TRUE, real_type = "float"} in order to create model for the GPU
 that will use 32 bit \code{floats} (rather than 64 bit doubles, which
 are much slower). For CPU models decreasing precision of your
 real type will typically just decrease precision for no
@@ -54,7 +54,7 @@ that was provided, otherwise a temporary directory).
 \description{
 Generate a package out of a dust model. The resulting package can
 be installed or loaded via \code{pkgload::load_all()} though it
-contains minimal metadata and if you want to create a persistant
+contains minimal metadata and if you want to create a persistent
 package you should use \code{\link[=dust_package]{dust_package()}}.  This function is
 intended for cases where you either want to inspect the code or
 generate it once and load multiple times (useful in some workflows

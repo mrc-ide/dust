@@ -2,9 +2,9 @@
 #define DUST_CUDA_LAUNCH_CONTROL_HPP
 
 #include <dust/cuda/types.hpp>
+#include <dust/cuda/utils.hpp>
 
 namespace dust {
-
 namespace cuda {
 
 struct launch_control {
@@ -105,15 +105,15 @@ inline launch_control launch_control_model(size_t n_particles,
   const size_t warp_block_size =
     warp_size * (n_particles_each + warp_size - 1) / warp_size;
   const size_t n_shared_int_effective = n_shared_int +
-    dust::utils::align_padding(n_shared_int * int_size,
-                               real_size) / int_size;
+    dust::cuda::utils::align_padding(n_shared_int * int_size,
+                                     real_size) / int_size;
   const size_t shared_size_int_bytes = n_shared_int_effective * int_size;
 
   const size_t real_align = data_size == 0 ? real_size : 16;
   const size_t n_shared_real_effective = n_shared_real +
-    dust::utils::align_padding(shared_size_int_bytes +
-                               n_shared_real * real_size,
-                               real_align) / real_size;
+    dust::cuda::utils::align_padding(shared_size_int_bytes +
+                                     n_shared_real * real_size,
+                                     real_align) / real_size;
 
   const size_t shared_size_both_bytes =
     shared_size_int_bytes +
@@ -165,7 +165,7 @@ inline launch_control launch_control_model(size_t n_particles,
       ret.block_size;
   } else {
     // If not enough particles per pars to make a whole block use
-    // shared, or if shared_t too big for L1, turn it off, and run
+    // shared, or if shared_type too big for L1, turn it off, and run
     // in 'classic' mode where each particle is totally independent
     set_block_size(ret, block_size, n_particles);
   }

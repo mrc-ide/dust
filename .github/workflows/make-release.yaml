@@ -153,3 +153,18 @@ jobs:
           asset_path: pkg/pkg-windows-latest-oldrel/${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}.zip
           asset_name: ${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}_oldrel.zip
           asset_content_type: application/zip
+
+      - name: Create archive of random library
+        shell: bash
+        run: |
+          tar -zcvf dust-random.tar.gz -C inst/include dust/random
+
+      - name: Upload random binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dust-random.tar.gz
+          asset_name: dust-random.tar.gz
+          asset_content_type: application/gzip

@@ -1,6 +1,6 @@
 /// IMPORTANT; changes here must be reflected into inst/template/dust.hpp
 #include <dust/dust.hpp>
-#include <dust/interface.hpp>
+#include <dust/interface/dust.hpp>
 
 {{model}}
 
@@ -85,5 +85,5 @@ int dust_{{name}}_n_state(SEXP ptr) {
 }
 
 cpp11::sexp dust_{{name}}_device_info() {
-  return dust::cuda::device_info<{{class}}::real_t>();
+  return dust::cuda::device_info<{{class}}::real_type>();
 }

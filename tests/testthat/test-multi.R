@@ -72,17 +72,17 @@ test_that("Can reset particles and resume continues with rng", {
   expect_equal(obj$step(), ns)
 
   ## Then draw the random numbers:
-  rng <- dust_rng$new(1, 20)
-  m1 <- array(rng$rnorm(ns * nd * np, 0, 1), c(np, nd, ns))
-  m2 <- array(rng$rnorm(ns * nd * np, 0, 1), c(np, nd, ns))
+  rng <- dust_rng$new(1, nd * np)
+  m1 <- array(rng$normal(ns, 0, 1), c(ns, np, nd))
+  m2 <- array(rng$normal(ns, 0, 1), c(ns, np, nd))
 
   expect_equal(
-    array(y1, c(np, nd)),
-    apply(m1, 1:2, sum) * rep(c(sd1, sd2), each = np))
+    matrix(y1, np, nd),
+    apply(m1, 2:3, sum) * rep(c(sd1, sd2), each = np))
 
   expect_equal(
-    array(y2, c(np, nd)),
-    apply(m2, 1:2, sum) * rep(c(sd2, sd3), each = np))
+    matrix(y2, np, nd),
+    apply(m2, 2:3, sum) * rep(c(sd2, sd3), each = np))
 })
 
 
@@ -464,7 +464,7 @@ test_that("resample multi", {
   expect_equal(s[, , 2], m[, idx[, 2], 2])
 
   ## Index is expected:
-  u <- rng$unif_rand(30)[c(15, 30)]
+  u <- rng$random_real(30)[, 15]
   expect_equal(
     idx,
     cbind(resample_index(w[, 1], u[1]), resample_index(w[, 2], u[2])))
@@ -572,9 +572,9 @@ test_that("Can set pars into unreplicated multiparameter model", {
 
   y <- mod$run(1)
 
-  cmp <- dust_rng$new(1L, 10)$norm_rand(7 * 10)
+  cmp <- dust_rng$new(1L, 10)$normal(7, 0, 1)
   expect_equal(y,
-               matrix(cmp * vapply(p2, "[[", 1, "sd"), 7, 10, TRUE))
+               matrix(t(cmp) * vapply(p2, "[[", 1, "sd"), 7, 10, TRUE))
 
   reshape <- function(p) {
     structure(p, dim = c(5, 2))

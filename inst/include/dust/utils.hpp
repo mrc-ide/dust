@@ -3,32 +3,11 @@
 
 #include <algorithm>
 #include <numeric>
+#include <sstream>
 #include <vector>
 
 namespace dust {
 namespace utils {
-
-// Translates index in y (full state) to index in y_selected
-// Maps: 3 4 5 10 9 1 -> 1 2 3 5 4 0
-template <typename T>
-std::vector<size_t> sort_indexes(const T &v) {
-  // initialize original index locations
-  std::vector<size_t> idx(v.size());
-  std::iota(idx.begin(), idx.end(), 0);
-  std::vector<size_t> idx_offset = idx;
-
-  // Find the idx order so that v[idx] is sort(v)
-  // in the example this gives 5 0 1 2 4 3
-  std::stable_sort(
-    idx.begin(), idx.end(),
-    [&v](size_t i1, size_t i2) { return v[i1] < v[i2]; });
-  // Now sort these idx, as we want to these indices in the original order
-  // in the example this gives 1 2 3 5 4 0
-  std::stable_sort(
-    idx_offset.begin(), idx_offset.end(),
-    [&idx](size_t i1, size_t i2) { return idx[i1] < idx[i2]; });
-  return idx_offset;
-}
 
 template <typename T, typename U, typename Enable = void>
 size_t destride_copy(T dest, U& src, size_t at, size_t stride) {
@@ -60,94 +39,58 @@ size_t stride_copy(T dest, const std::vector<U>& src, size_t at,
   return at;
 }
 
-template <typename T, typename U = T>
-inline HOSTDEVICE T align_padding(const T offset, const U align) {
-  T remainder = offset % align;
-  return remainder ? align - remainder : 0;
-}
+class openmp_errors {
+public:
+  openmp_errors() : openmp_errors(0) {
+  }
+  openmp_errors(size_t len) :
+    count(0), err(len), seen(len) {
+  }
 
-#ifdef __NVCC__
-template <typename T>
-HOSTDEVICE T epsilon_nvcc();
+  void reset() {
+    count = 0;
+    std::fill(seen.begin(), seen.end(), false);
+    std::fill(err.begin(), err.end(), "");
+  }
 
-template <>
-inline DEVICE float epsilon_nvcc() {
-  return FLT_EPSILON;
-}
+  bool unresolved() const {
+    return count > 0;
+  }
 
-template <>
-inline DEVICE double epsilon_nvcc() {
-  return DBL_EPSILON;
-}
-#endif
+  template <typename T>
+  void capture(const T& e, size_t i) {
+    err[i] = e.what();
+    seen[i] = true;
+  }
 
-template <typename T>
-HOSTDEVICE T epsilon() {
-#ifdef __CUDA_ARCH__
-  return epsilon_nvcc<T>();
-#else
-  return std::numeric_limits<T>::epsilon();
-#endif
-}
+  void report(const char *title = "particles", size_t n_max = 4) {
+    count = std::accumulate(std::begin(seen), std::end(seen), 0);
+    if (count == 0) {
+      return;
+    }
 
-inline HOSTDEVICE int integer_max() {
-#ifdef __CUDA_ARCH__
-  return INT_MAX;
-#else
-  return std::numeric_limits<int>::max();
-#endif
-}
+    std::stringstream msg;
+    msg << count << " " << title << " reported errors.";
 
-#ifdef __NVCC__
-template <typename real_t>
-real_t infinity_nvcc();
+    const size_t n_report = std::min(n_max, count);
+    for (size_t i = 0, j = 0; i < seen.size() && j < n_report; ++i) {
+      if (seen[i]) {
+        msg << std::endl << "  - " << i + 1 << ": " << err[i];
+        ++j;
+      }
+    }
+    if (n_report < count) {
+      msg << std::endl << "  - (and " << (count - n_report) << " more)";
+    }
 
-template <>
-inline DEVICE float infinity_nvcc() {
-  return HUGE_VALF;
-}
+    throw std::runtime_error(msg.str());
+  }
 
-template <>
-inline DEVICE double infinity_nvcc() {
-  return HUGE_VAL;
-}
-#endif
-
-template <typename real_t>
-HOSTDEVICE real_t infinity() {
-#ifdef __CUDA_ARCH__
-  return infinity_nvcc<real_t>();
-#else
-  return std::numeric_limits<real_t>::infinity();
-#endif
-}
-
-// We need this for the lgamma in rpois to work
-#ifdef __NVCC__
-template <typename real_t>
-real_t lgamma_nvcc(real_t x);
-
-template <>
-inline DEVICE float lgamma_nvcc(float x) {
-  return ::lgammaf(x);
-}
-
-template <>
-inline DEVICE double lgamma_nvcc(double x) {
-  return ::lgamma(x);
-}
-#endif
-
-template <typename real_t>
-HOSTDEVICE real_t lgamma(real_t x) {
-#ifdef __CUDA_ARCH__
-  return lgamma_nvcc(x);
-#else
-  static_assert(std::is_floating_point<real_t>::value,
-                "lgamma should only be used with real types");
-  return std::lgamma(x);
-#endif
-}
+private:
+  size_t count;
+  std::vector<std::string> err;
+  std::vector<bool> seen;
+};
 
 }
 }
