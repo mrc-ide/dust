@@ -265,7 +265,7 @@ Finally, run `cpp11::cpp_register()` before compiling your package so that the r
 
 It is possible to include the dust random library in a standalone C++ program (or one embedded from another language) without using any R support.  The library is a header only library and `<dust/random/random.hpp>` is the main file to include.
 
-The simplest way to get started is to copy the contents of `inst/include/dust/random` into your project.  Then after including `<dust/random/random.hpp>` you can use the contents of the random number library.
+The simplest way to get started is to copy the contents of `inst/include/dust/random` into your project.  You can do this by downloading and unpacking [the latest release of dust-random](https://github.com/mrc-ide/dust/releases/latest/download/dust-random.tar.gz).  Then after including `<dust/random/random.hpp>` you can use the contents of the random number library.
 
 For example, below is a small program that computes the sum of a series of random numbers, in parallel using OpenMP to parallelise across a set of generators.
 
