@@ -57,7 +57,7 @@ The class is what does most of the work. It is important that this does not use 
 
 **The method `size()`** must return the "size" of the system - how many state variables it has. Here we're considering a single individual moving randomly so the size is always 1.  Many models will have a size that depends on their parameters, though the size cannot be changed after construction.
 
-There are other forms of the `dust::pars_type` constructor which would allow specifying the internal data; typically this is used to create scratch space (allocating vectors as needed) rather than compute values because the scratch space and model state can become separated from each other (by direct setting of state, or by shuffling model state beween particles).
+There are other forms of the `dust::pars_type` constructor which would allow specifying the internal data; typically this is used to create scratch space (allocating vectors as needed) rather than compute values because the scratch space and model state can become separated from each other (by direct setting of state, or by shuffling model state between particles).
 
 ### Constructing a model
 
@@ -316,7 +316,7 @@ When this reordering happens, only the model state is copied around; the `intern
 
 ### Set particle state
 
-A particle state is determinied by three mutable things; `pars`, `state` and `step`; these can all be updated for a model after it has been created.  We have found setting one or more of these at a time important;
+A particle state is determined by three mutable things; `pars`, `state` and `step`; these can all be updated for a model after it has been created.  We have found setting one or more of these at a time important;
 
 * Resetting the model with a new set of parameters (`pars`), initial conditions (`state`) and times (`step`)
 * Changing `pars` at some point in the simulation to introduce some new aspect of the model
@@ -393,7 +393,7 @@ model$state()
 
 ### Reset the model
 
-One particulary common case is to "reset" the model in order to run it again. you should not simply recreate the model from its constructor as that will re-seed a new set of random state -- it would be preferable continue with the genreator state in your old model.
+One particularly common case is to "reset" the model in order to run it again. you should not simply recreate the model from its constructor as that will re-seed a new set of random state -- it would be preferable continue with the generator state in your old model.
 
 Suppose we run our model with sd of 1 for 100 steps
 
