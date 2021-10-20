@@ -1,8 +1,8 @@
 ---
-title: "dust: Principles and design"
+title: "Principles and design of dust"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{dust: Principles and design}
+  %\VignetteIndexEntry{Principles and design of dust}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -54,13 +54,13 @@ It's very rare that one might want to run a single stochastic simulation; normal
 * In addition to the above, run for many parameter sets at once possibly with one particle per parameter, possibly with many per parameter
 * In addition to the above, the parameters themselves are grouped into blocks
 
-There book-keeping for this can get tedious and error prone if done by hand. In dust, we try and restrict concern about this to a few points, and for the simulation itself -- the interaction that we expect to take the longest in any interesting model -- we just run a big loop over time and all particles no matter what type of structure they might represent from the above.
+There book-keeping for this can get tedious and error prone if done by hand. In `dust`, we try and restrict concern about this to a few points, and for the simulation itself -- the interaction that we expect to take the longest in any interesting model -- we just run a big loop over time and all particles no matter what type of structure they might represent from the above.
 
 See `vignette("multi")` for details of interacting with different ways that you might want to structure your simulations.
 
 ## Parallelisation
 
-Once we're running multiple simulations at once, things will get slower and we might look to parallelism to try and speed up our simulations.
+Once we're running multiple simulations at once, even a simple simulation might start taking a long time and because they are independent we might look to parallelism to try and speed up the simulations.
 
 However, one cannot just draw multiple numbers from a single random number generator at once. That is, given a generator like those built into R, there is no parallel equivalent to
 
@@ -70,18 +70,20 @@ runif(10)
 
 that would draw the 10 numbers in parallel rather than in series. When drawing a random number there is a "[side effect](https://en.wikipedia.org/wiki/Side_effect_(computer_science))" of updating the random number state. That is because the random number stream is *also* a Markov chain!
 
-As such it makes sense (to us at least) to store the state of each stream's random number generator separately, so if we have `n` particles within a `dust` object we have `n` separate streams, and we might think of the model state as being the state that is declared by the user as a vector of doubles alongside the random number state. During each model step, the model state is updated and so is the random number state.
+As such it makes sense (to us at least) to store the state of each stream's random number generator separately, so if we have `n` particles within a `dust` object we have `n` separate streams, and we might think of the model state as being the state that is declared by the user as a vector of floating point numbers alongside the random number state. During each model step, the model state is updated and so is the random number state.
 
-This might seem wasteful, and if we used the popular [Mersenne Twister](https://en.wikipedia.org/wiki/Mersenne_Twister) it would be to some degree as each particle would require 2560 bytes of additional state. In contrast the newer [xoshiro](https://prng.di.unimi.it/) generators that we use require only 256 bytes of state; the same as 4 double-precision floating point numbers. So for any nontrivial simulation it's not a very large overhead.
+This might seem wasteful, and if we used the popular [Mersenne Twister](https://en.wikipedia.org/wiki/Mersenne_Twister) it would be to some degree as each particle would require 2560 bytes of additional state. In contrast the newer [xoshiro](https://prng.di.unimi.it/) generators that we use require only 32 or 16 bytes of state; the same as 4 double- or single-precision floating point numbers respectively. So for any nontrivial simulation it's not a very large overhead.
 
 Setting the seed for these runs is not trivial, particularly as the number of simultaneous particles increase. If you've used random numbers with the [future](https://cran.r-project.org/package=future) package you may have seen it raise a warning if you do not configure it to use a "L'Ecuyer-CMRG" which adapts R's native random number seeds to be safe in parallel.
 
-The reason for this is that if different streams start from seeds that are set via poor heuristics (e.g., system time) they might be exactly the same. If they were set randomly, then they might collide (see [John Cook's description of the birthday paradox here](https://www.johndcook.com/blog/2016/01/29/random-number-generator-seed-mistakes/)) and if they are picked sequentially there's no guarantee that these streams might not be correlated.
+The reason for this is that if different streams start from seeds that are set via poor heuristics (e.g., system time and thread id) they might be exactly the same. If they were set randomly, then they might collide (see [John Cook's description of the birthday paradox here](https://www.johndcook.com/blog/2016/01/29/random-number-generator-seed-mistakes/)) and if they are picked sequentially there's no guarantee that these streams might not be correlated.
 
-Ideally we want a similar set of properties to R's `set.seed` method; the user provides an arbitrary integer and we seed _all_ the random number streams using this in a way that is reproducible and also statistically robust. We also want the streams to be reproducible even when the number of particles changes, for particle indices that are shared. To do this we take two steps:
+Ideally we want a similar set of properties to R's `set.seed` method; the user provides an arbitrary integer and we seed _all_ the random number streams using this in a way that is reproducible and also statistically robust. We also want the streams to be reproducible even when the number of particles changes, for particle indices that are shared.  The random number generators we use (the xoshiro family, a.k.a. Blackmann-Vigna generators) support these properties and are described more fully in `vignette("rng")`.
 
-* First, we seed the first stream using the `splitmix64` RNG, following the xoshiro docs. This expands a single 64-bit integer into the 256-bits of RNG state, while ensuring that the resulting full xoshiro random number seed does not contain all zeros.
-* Then, for each subsequent chain we take a "jump" in the sequence. This is a special move implemented by the RNG that is equivalent to 2^128 draws (about 10^38). Note that the period of the xoshiro generator used in 2^256.
+To initialise our system with a potentially very large number of particles we take two steps:
+
+* First, we seed the first stream using the `splitmix64` RNG, following the xoshiro docs. This expands a single 64-bit integer into the 256-bits of RNG state, while ensuring that the resulting full random number seed does not contain all zeros.
+* Then, for each subsequent chain we take a "jump" in the sequence. This is a special move implemented by the RNG that is equivalent to a very large number of draws from the generator (e.g., about 2^128 for the default generator used for double-precision models) ensuring that each particles state occupies a non-overlapping section of the underling random number stream (see `vignette("rng")` for details).
 
 With this setup we are free to parallelise the system as each realisation is completely independent of each other; the problem has become "[embarrassingly parallel](https://en.wikipedia.org/wiki/Embarrassingly_parallel)". In practice we do this using [OpenMP](https://www.openmp.org/) where available as this is well supported from R and gracefully falls back on serial operation where not available.  See `dust::dust_openmp_support` for information on your system's OpenMP configuration as seen by R:
 
@@ -90,6 +92,8 @@ dust::dust_openmp_support()
 ```
 
 As the number of threads changes, the results will not change; the same calculations will be carried out and the same random numbers drawn. The number of threads used can even be changed for a model while it is running if the computational resources available change during a model run, using the `$set_n_threads()` method.
+
+Sometimes we might parallelise beyond one computer (e.g., when using a cluster), in which case we cannot use OpenMP.  We call this case "distributed parallelism" and cope by having each process take a "long jump" (an even larger jump in the random number space), then within the process proceed as above. This is the approach taken in our [`mcstate`](https://mrc-ide.github.io/mcstate/) package for organising running MCMC chains in parallel, each of which works with a dust model.
 
 The properties of the random number generator are discussed further in `vignette("rng")`.
 
@@ -103,7 +107,7 @@ For nontrivial systems, we often want to record a subset of states - potentially
 
 Reducing the number of state variables returned at different points in the process has several advantages:
 
-* Saving space: if you run a model with 2000 states, 1000 replicates and record their trajectories over 100 timesteps, that represents 100 million double precision numbers, or 1.6 GB of memory or disk (before compression). These are not unrealistic numbers, but would make even a simple sensitivity analysis all-but impossible to work with.
+* Saving space: if you run a model with 2000 states, 1000 replicates and record their trajectories over 100 timesteps, that represents 100 million floating point numbers, or 1.6 GB of memory or disk if using double-precision numbers. These are not unrealistic numbers, but would make even a simple sensitivity analysis all-but impossible to work with.
 * Saving time: copying data around is surprisingly slow.
 
 To enable this, you can restrict the state returned by most methods; some by default and others when you call them.
@@ -117,9 +121,9 @@ The ordering of the state is important; we always have dimensions that will cont
 
 1. the model states within a single particle
 2. the particles within a time-step (may be several dimensions; see `vignette("multi")`)
-3. the time dimension if using
+3. the time dimension if using `simulate`
 
-This is to minimise repeatedly moving around data during writing, and to help with concatenation. Multiple particles data is stored consecutively and read and written in order. Each time step is written at once. And you can append states from different times easily. The `aperm()` function will be useful for reshaping this output to a different dimension order if you require one.
+This is to minimise repeatedly moving around data during writing, and to help with concatenation. Multiple particles data is stored consecutively and read and written in order. Each time step is written at once. And you can append states from different times easily. The base-R `aperm()` function will be useful for reshaping this output to a different dimension order if you require one, but it can be very slow.
 
 In order to pull all of this off, we allocate all our memory up front, in C++ and pass back to R a "pointer" to this memory, which will live for as long as your model object. This means that even if your model requires GBs of memory to run, it is never copied back and forth into R (where it would be subject to R's [copy-on-write semantics](https://en.wikipedia.org/wiki/Copy-on-write) but instead accessed only when needed, and written to in place following C++ reference semantics.
 
@@ -129,10 +133,10 @@ We try and provide verbs that are useful, given that the model presents a largel
 
 Normally we have in the object several things:
 
-* the random number state: this is effectively a matrix of 64-bit integers
-* the model state: this is effectively a matrix of floating point numbers, typically `double`s
+* the random number state: this is effectively a matrix of integers (either `uint32_t` or `uint64_t`)
+* the model state: this is effectively a matrix of floating point numbers, (typically either `float` or `double`)
 * the model parameters: this is specific to the model in question (and these are likely shared across multiple particles). This is presented to all particles within a group as an immutable pointer, which allows safe simultaneous access by multiple threads
-* the model _internal state_: this is also specific to the model and dust has no control over this. Because each particle has its own state they can safely write to it when running parallel (compare with parameters). Typically this space is *allocated* at model construction. For models that come from [odin.dust](https://mrc-ide.github.io/odin.dust/) this is used as "scratch" space that we write to during an update but which does not conceptually persist between steps.
+* the model _internal state_: this is also specific to the model and dust has no control over this. Because each particle has its own state they can safely write to it when running parallel (compare with parameters). Typically this space is *allocated* at model construction. For models that come from [odin.dust](https://mrc-ide.github.io/odin.dust/) this is used as "scratch" space that we write to during an update but which does not conceptually persist between steps. Importantly, this space is assumed to be unimportant to specifying model state (i.e., we can shuffle or reset thee model state while leaving the "internal" data behind).
 
 The internal state is the the hardest to understand in this set. Suppose that we had a model that each time step we wanted to do something like take the median value found in a set of random number draws. We might want to write the update function like
 
@@ -164,7 +168,7 @@ T median(U& v) {
 this takes advantage of some internal space of the correct size in internal memory. This might be configured with
 
 ```c++
-dust::pars_type<model> dust_pars<model>(cpp11::list user) {
+dust::pars_type<model> dust_pars<model>(cpp11::list pars) {
   typedef typename model::real_type real_type;
   auto shared = std::make_shared<model::shared_type>();
   shared->n = 10;
@@ -181,8 +185,7 @@ Given this, the sorts of verbs that we need include:
 
 * Running the model up to a time point (`$run`) - runs the model's `update` method as many times as required to reach the new time point, returning the model state at this time point. This is useful where you might want to change the system at this time point, then continue.
 * Running the model and collecting history (`$simulate`) - as for `$run` but also collects partial state at a number of times along the way. This always has one more dimension than `$run` (being time) and the two functions coexist so that dimensionality is easy to program against.
-* Setting model state (`$update_state`) - leaves RNG state and parameters untouched but replaces model state for all particles. This is useful for model initialisation and for performing arbitrary model state changes.
-* More generally reset particles and the components of their state (`$update_state`) which includes parameters, state vectors and time.
+* Setting model state (`$update_state`) - leaves RNG state and parameters untouched but replaces model state for all particles. This is useful for model initialisation and for performing arbitrary model state and/or parameter changes.
 
 In addition, we have more specific methods oriented towards [particle filtering](https://en.wikipedia.org/wiki/Particle_filter):
 
@@ -208,6 +211,7 @@ which will compile a dust model:
 class odin {
 public:
   typedef double real_type;
+  typedef dust::random::generator<real_type> rng_state_type;
   typedef dust::no_data data_type;
   struct shared_type {
     real_type initial_y;
@@ -226,17 +230,17 @@ public:
     state[0] = shared->initial_y;
     return state;
   }
-  void update(size_t step, const real_type * state, rng_state_type& rng_state, real_type * state_next) {
+  HOST void update(size_t step, const real_type * state, rng_state_type& rng_state, real_type * state_next) {
     const real_type y = state[0];
-    state_next[0] = dust::random::normal(rng_state, y, shared->sd);
+    state_next[0] = dust::random::uniform<real_type>(rng_state, y, shared->sd);
   }
 private:
   std::shared_ptr<const shared_type> shared;
   internal_type internal;
 };
+};
 
-// ...
-template<>
+// ...[some utility code excluded]
 dust::pars_type<odin> dust_pars<odin>(cpp11::list user) {
   typedef typename odin::real_type real_type;
   auto shared = std::make_shared<odin::shared_type>();

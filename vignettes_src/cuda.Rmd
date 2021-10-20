@@ -1,8 +1,8 @@
 ---
-title: "dust: Running models on GPUs with CUDA"
+title: "Running models on GPUs with CUDA"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{dust: Running models on GPUs with CUDA}
+  %\VignetteIndexEntry{Running models on GPUs with CUDA}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -31,8 +31,8 @@ This vignette is written in reverse-order, starting with how to run a model on a
 
 * A GPU model can be run on the CPU, and vice-versa.
 * The same random number generator sequence will be used in both cases.
-* Differences in results, if they exist, come from different precision/rounding between devices. When using `real_type = double` we get the same results.
-* Just the model update can be defined for the GPU, and comparisons and shuffling will still happen on the CPU. Defining a comparison function is also possible, allowing a full particle filter run on a GPU.
+* Differences in results, if they exist, come from different precision/rounding between devices. When using `real_type = double` we want to get the same results.
+* Just the model update can be defined for the GPU, and comparisons and shuffling could still happen on the CPU. Defining a comparison function is also possible, allowing a full particle filter run on a GPU.
 
 ## Running a model with GPU support
 
@@ -57,7 +57,7 @@ path <- system.file("examples/sirs.cpp", package = "dust")
 sirs <- dust::dust(path, gpu = TRUE, real_type = "float")
 ```
 
-Notice in compilation that `nvcc` is used to compile the model, rather than `g++`.  The additional option `-gencode=arch=compute_XX,code=sm_XX` was added by `dust` and will include the CUDA compute version supported by the graphics cards found on the current system. You can use `dust::dust_cuda_options` to set additional options, passing in the return value for the `gpu` argument above.
+Notice in compilation that `nvcc` is used to compile the model, rather than `g++` or `clang++`.  The additional option `-gencode=arch=compute_XX,code=sm_XX` was added by `dust` and will include the CUDA compute version supported by the graphics cards found on the current system. You can use `dust::dust_cuda_options` to set additional options, passing in the return value for the `gpu` argument above.
 
 Once compiled with GPU support, the static method `has_cuda` will report `TRUE`:
 
@@ -75,7 +75,7 @@ If you have more than one GPU, the `id` in the `devices` section will be useful 
 
 The object is initialised as usual but with slight differences:
 
-* you will probably want a (much) larger number of particles to take advantage of your device. As a rule of thumb we would suggest at least 10000, but depending on model and card 10-100x this may improve performance (relative to the same on a multicore CPU). See below for more discussion of this.
+* you will probably want a (much) larger number of particles to take advantage of your device. As a rule of thumb we would suggest at least 10,000, but depending on model and card you may still see per-particle increases in compute speed as you use up to 1,000,000 particles. See below for more discussion of this.
 * the `device_config` argument needs to be provided to indicate which device we are running on (or additional configuration)
 
 ```{r}

@@ -1,8 +1,8 @@
 ---
-title: "dust: Multiple parameter sets"
+title: "Multiple parameter sets"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{dust: Multiple parameter sets}
+  %\VignetteIndexEntry{Multiple parameter sets}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -23,7 +23,7 @@ plain_output <- function(x) lang_output(x, "plain")
 set.seed(1)
 ```
 
-dust provides support for simulating lots of particles at once. But sometimes we want to structure these simulations in some way.
+dust provides support for simulating lots of particles at once. Sometimes that will be with a single parameter set and many traces to capture stochastic variability, but other times different particles will need different parameter sets too.
 
 To allow this, dust supports creating a model and indicating that the parameters represents some group of parameter sets. Consider our SIR example from `vignette("dust")`:
 

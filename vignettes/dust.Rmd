@@ -1,8 +1,8 @@
 ---
-title: "dust: Introduction"
+title: "Introduction to dust"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{dust: Introduction}
+  %\VignetteIndexEntry{Introduction to dust}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -22,7 +22,7 @@ r_output <- function(x) lang_output(x, "r")
 plain_output <- function(x) lang_output(x, "plain")
 ```
 
-Stochastic models can be used in statistical inference via methods such as [particle filtering](https://en.wikipedia.org/wiki/Particle_filter) but doing so requires that the models can be run over and over again very quickly. While R has excellent support for sampling from distributions, it is not necessarily well suited for this sort of problem because R is single threaded, so we are forced to evaluate realisations of the stochastic process in series (one after another) rather than in parallel.
+Stochastic models can be used in statistical inference via methods such as [particle filtering](https://en.wikipedia.org/wiki/Particle_filter) but in practice doing so requires that the models can be run over and over again very quickly. While R has excellent support for sampling from distributions, it is not necessarily well suited for this sort of problem because R is single threaded, so we are forced to evaluate realisations of the stochastic process in series (one after another) rather than in parallel.
 
 The `dust` package provides tools to help write stochastic models that can be evaluated in parallel. It does not directly provide statistical methods; see the [mcstate](https://mrc-ide.github.io/mcstate/) package for that. Instead, it focuses on providing:
 
@@ -45,35 +45,27 @@ cc_output(readLines(dust:::dust_file("examples/walk.cpp")))
 
 There are two main parts here; the class (`walk`) and an interface function (`dust::dust_pars`).
 
-The class is what does most of the work. It is important that this does not use anything in the R api as it may be called in parallel. Therefore use only C++ standard library types.  It has to provide every public type or method as the example above:
+The class is what does most of the work. It is important that this does not use anything in the R API as it may be called in parallel. Therefore use only C++ standard library types.  It has to provide every public type or method as the example above. First, the five types:
 
-* the type `real_type` has to exist and indicate what sort of numeric type you use for "real numbers". Typically this will be `double`,but if you need a different type (longer or shorter) you can use it here.
-* the type `data_type` which for now should match exactly the construction `typedef dust::no_data data_type` until we stabilise and document this interface
-* the type `shared_type` is whatever data your model needs that is shared across a number of particles, and unmodified during the model update (most likely parameters), and an object of this type will be passed to your constructor as the `.shared` field to `pars` (see `dust::dust_pars` below, and see `vignette("multi")` for more on parameters)
-* the type `internal_type` is whatever internal data your model needs (most likely scratch space used for intermediate calculations), and an object of this type will be passed to your constructor as the `.internal` field to `pars` (see `dust::dust_pars` below)
-* the type `rng_state_type` is one of the valid RNG types. Typically `typedef dust::random::generator<real_type> rng_state_type;` will select a reasonable choice (see `vignette("rng")`)
-* the constructor must take only one argument, being `const dust::dust_pars<model>&`. You can do what you want in the constructor - here we just copy `shared` (containing parameters) into the object with the `pars` argument (we use the private member `shared` here but this can be anything you want, though the type is important)
-* the method `size()` must return the "size" of the system - how many state variables it has. Here we're considering a single individual moving randomly so the size is always 1
-* the method `initial()` returns the initial state of the model system. It must have length `size()` and it can vary based on the "step" of the system
-* the method `update()` is the core of the system and specifies how the state changes from one step to another. It will always have the signature as above with arguments `size_t step` (the current step), `const double * state` (a read-only copy of the state when entering this step), `rng_state_type& rng` (a reference to the random number state) and `double * state_next` (a reference to the state to be updated). Your method reads from `state` and writes to `state_next`. Here, we unpack the mean and draw a new normally distributed random number - note how the standard deviation is retrieved from the `pars_` object.
+* the type `real_type` has to exist and indicate what sort of numeric type you use for "real numbers". Typically this will be `double`, but if you need a different type (typically `float`) you can use it here.
+* the type `data_type` describes data that the model may be compared with as it runs. Here we use `dust::no_data` as the model has no such data but see `vignette("data")` for the interface here.
+* the type `shared_type` is whatever read-only data your model needs that is shared across particles. Typically these reflect *parameters* of the model (see `dust::dust_pars` below), and while these will typically be shared across all particles that is is not always the case (see `vignette("multi")`)
+* the type `internal_type` is whatever internal data or space your model needs to run. This is read-write and per-particle (in contrast with `shared_type` above)
+* the type `rng_state_type` is one of the valid RNG types. Typically `typedef dust::random::generator<real_type> rng_state_type;` will select a reasonable choice, but you could also force a specific generator such as `dust::random::xoshiro256starstar_state` here (see `vignette("rng")`)
 
-The function below the class is a template specialisation of a dust function `dust_pars`; it is used to create your `dust::pars_type<model>` object from an R list (`cpp11::list`). You can include `cpp11.hpp` (or more narrowly scoped cpp11 headers) at this point and can use any cpp11 function that you need. Avoid direct use of the R's C API as this is not always safe to call from C++. In particular, use `cpp11::stop()` rather than `Rf_error()`.
+**The constructor** must take only one argument, being `const dust::pars_type<model>&`. You can do what you want in the constructor - here we just copy `shared` (containing parameters) into the object with the `pars` argument (we use the private member `shared` here but this can be anything you want, though the type is important). The `dust::pars_type<>` template is a wrapper that contains two fields `shared` (as `dust::shared_ptr<walk>`) and `internal` (as `internal_type`).
 
-Here we retrieve the `sd` element of the list and convert it to a "real number" type. This roughly equivalent to writing
+**The method `size()`** must return the "size" of the system - how many state variables it has. Here we're considering a single individual moving randomly so the size is always 1.  Many models will have a size that depends on their parameters, though the size cannot be changed after construction.
 
-```r
-sd <- as.numeric(pars[["sd"]])
-```
-
-in R, except that it will throw an error if `sd` is not present in the list `pars`.  Then we construct the struct and return it.
+There are other forms of the `dust::pars_type` constructor which would allow specifying the internal data; typically this is used to create scratch space (allocating vectors as needed) rather than compute values because the scratch space and model state can become separated from each other (by direct setting of state, or by shuffling model state between particles).
 
 ### Constructing a model
 
 The function `dust::dust` will "compile" a model for us to use:
 
-```{r walk_compile, eval = FALSE}
+```r
 path_walk <- system.file("examples/walk.cpp", package = "dust")
-walk <- dust::dust(path_walk, quiet = TRUE)
+walk <- dust::dust(path_walk)
 ```
 
 However, this is also bundled into the package and can be loaded with:
@@ -105,6 +97,8 @@ This returns an R6 object that can be used to simulate from or interact with the
 model$state()
 ```
 
+Here there is one row per model state variable (there is only one here) and one column per particle (there are 20)
+
 and we can run the model for 100 steps, which returns the state at the end of the walk (and not at any intermediate steps):
 
 ```{r walk_run_1}
@@ -117,7 +111,7 @@ We can also directly retrieve the state from our object
 model$state()
 ```
 
-At this point our particles have been run for 100 steps with standard deviation 1 at each step so they [will be distributed following Normal(0, 10)](https://en.wikipedia.org/wiki/Random_walk#Gaussian_random_walk).  This is easier to see if we simulate a lot of particles:
+At this point our particles have been run for 100 steps with standard deviation 1 at each step so they [will be distributed following Normal(0, 10)](https://en.wikipedia.org/wiki/Random_walk#Gaussian_random_walk).  This is easier to see if we simulate a lot of particles, here 20,000:
 
 ```{r walk_simulate_many}
 model <- walk$new(list(sd = 1), 0, 20000)
@@ -147,6 +141,14 @@ model$run(100)
 
 We use as many random number generators as there are particles, so if you run fewer particles or more, increase the threads or decrease, the results will be the same (see `vignette("design")` for more on this).
 
+You should be careful when selecting the number of threads.  `dust` will never use more than one thread at a time without it being requested, but avoid using `parallel::detectCores()` to work out how many threads you have available as it will often return an overestimate. This is particularly the case in a shared-use system such as a cluster or CRAN's servers.  We provide a helper function `dust::dust_openmp_threads` which can be used to try and find a safe number of threads available to you while respecting various environment variables which seek to control this (`MC_CORES`, `OMP_THREAD_LIMIT`, etc).
+
+For example,
+
+```{r}
+dust::dust_openmp_threads(100, "fix")
+```
+
 ## A more interesting example
 
 Consider now an SIR model (Susceptible - Infected - Recovered). This sort of model is common in epidemiology, and is often extended to add additional compartments (e.g., SEIR which adds an Exposed compartment) or by structuring each compartment based on properties such as age.  Here, we show a simple example with just 3 compartments:
@@ -160,7 +162,7 @@ There a few changes here compared to the version that was shown before for the w
 * the `initial` method is slightly more complicated as we initialise a 3-element vector
 * our `shared_type` object has significantly more elements
 * the `dust_pars` function is much more complicated
-* there is a `compare_data` method and a nontrivial `data_type` definition, but ignore these for now
+* there is a `compare_data` method and a nontrivial `data_type` definition, but ignore these for now (see `vignette("data")`)
 
 The other difference is a new template specialisation of `dust_info` - this is optional but can be used to report back to R information about the model based on the input parameters. Here it returns information about variable order and core parameters.
 
@@ -195,6 +197,8 @@ and get its state as before:
 ```{r sir_initial_state}
 model$state()
 ```
+
+Because we have 5 states per particle, this is a 5 x 20 matrix.
 
 Suppose that as we run the model we mostly want information on the "I" compartment. So we'll run the model for a bit and retrieve the number of infected individuals, then continue, etc.  To do this we use the `$set_index()` method to indicate which state elements should be returned after using `$run()`:
 
@@ -266,7 +270,7 @@ lines(time, rowMeans(traces), col = "red", lwd = 2)
 
 ## Other methods
 
-There are a few other methods on the walk objects that may be useful.
+There are a few other methods on the dust objects that may be useful.
 
 ### Reordering particles
 
@@ -308,7 +312,18 @@ model$state()
 
 This is not terribly useful on its own but is a key part of a particle filter.
 
-### Set initial state
+When this reordering happens, only the model state is copied around; the `internal` data and random number state are left behind.
+
+### Set particle state
+
+A particle state is determined by three mutable things; `pars`, `state` and `step`; these can all be updated for a model after it has been created.  We have found setting one or more of these at a time important;
+
+* Resetting the model with a new set of parameters (`pars`), initial conditions (`state`) and times (`step`)
+* Changing `pars` at some point in the simulation to introduce some new aspect of the model
+* Changing `state` to manually move around some individuals within a model
+* Setting `step` along with `state` when initialising the model from a previously saved state
+
+The `update_state` method allows setting any or all of these components.
 
 By default every particle starts from the initial condition specified by your model classes `initial()` method. However, you can specify a state directly using the `$update_state()` method. Here, we initialise our SIR model with only 1 infected individual rather than 10:
 
@@ -378,25 +393,27 @@ model$state()
 
 ### Reset the model
 
-After running model once, we need to "reset" it to run again. You should not create a new model as that will re-seed a new set of random state, but continue with the state in your old model.
+One particularly common case is to "reset" the model in order to run it again. you should not simply recreate the model from its constructor as that will re-seed a new set of random state -- it would be preferable continue with the generator state in your old model.
 
-Suppose we run our model with sd of 1 for 200 steps
+Suppose we run our model with sd of 1 for 100 steps
 
 ```{r}
-model <- walk$new(list(sd = 1), 0, 200, seed = 1L)
+model <- walk$new(list(sd = 1), 0, 10, seed = 1L)
 y1 <- model$run(100)
 ```
 
 we then use `reset` to set new parameters into the model and set the time back to zero and can run again
 
 ```{r}
-model <- walk$new(list(sd = 2), 0, 200)
+model$update_state(pars = list(sd = 2), step = 0)
 y2 <- model$run(100)
 ```
 
+The state created in `y2` will have started from our new starting point and time zero, but have used the same random number state through both simulations, which is generally what we want.
+
 ## Use within a package
 
-You should not use `dust::dust()` within a package, because that would cause the model to compile each time you use it, rather than when the package builds. Instead you should use `dust::dust_package()` which will generate appropriate code for you.
+You should not use `dust::dust()` within a package, because that would cause the model to compile each time you use it, rather than when the package builds.  It may also cause issues when trying to use the model in parallel (e.g., with the `parallel` package).  Instead you should use `dust::dust_package()` which will generate appropriate code for you.
 
 To use dust in a package, put your dust models in `inst/dust` and run `dust::dust_package()` on the package's root directory.
 
@@ -439,13 +456,19 @@ The important things here are:
 * including [`cpp11`](https://github.com/r-lib/cpp11) and `dust` in `LinkingTo`, which allows package compilation to find their respective header files
 * a `useDynLib` call to your package in the `NAMESPACE` file
 
+Our `NAMESPACE` file contains:
+
+```{r pkg_ns, echo = FALSE, results = "asis"}
+plain_output(readLines(file.path(path, "NAMESPACE")))
+```
+
 The files in `inst/dust` are the same files as seen above, with `walk.cpp` containing
 
 ```{r pkg_walk, echo = FALSE, results = "asis"}
 cc_output(readLines(file.path(path, "inst/dust/walk.cpp")))
 ```
 
-There can be as many of these files as you want.
+There can be as many of these files as you want within the directory `inst/dust`.
 
 To prepare the package, run `dust::dust_package()`:
 
