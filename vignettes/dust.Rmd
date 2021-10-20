@@ -45,7 +45,7 @@ cc_output(readLines(dust:::dust_file("examples/walk.cpp")))
 
 There are two main parts here; the class (`walk`) and an interface function (`dust::dust_pars`).
 
-The class is what does most of the work. It is important that this does not use anything in the R api as it may be called in parallel. Therefore use only C++ standard library types.  It has to provide every public type or method as the example above. First, the four types:
+The class is what does most of the work. It is important that this does not use anything in the R API as it may be called in parallel. Therefore use only C++ standard library types.  It has to provide every public type or method as the example above. First, the five types:
 
 * the type `real_type` has to exist and indicate what sort of numeric type you use for "real numbers". Typically this will be `double`, but if you need a different type (typically `float`) you can use it here.
 * the type `data_type` describes data that the model may be compared with as it runs. Here we use `dust::no_data` as the model has no such data but see `vignette("data")` for the interface here.
@@ -111,7 +111,7 @@ We can also directly retrieve the state from our object
 model$state()
 ```
 
-At this point our particles have been run for 100 steps with standard deviation 1 at each step so they [will be distributed following Normal(0, 10)](https://en.wikipedia.org/wiki/Random_walk#Gaussian_random_walk).  This is easier to see if we simulate a lot of particles, here 20 thousand:
+At this point our particles have been run for 100 steps with standard deviation 1 at each step so they [will be distributed following Normal(0, 10)](https://en.wikipedia.org/wiki/Random_walk#Gaussian_random_walk).  This is easier to see if we simulate a lot of particles, here 20,000:
 
 ```{r walk_simulate_many}
 model <- walk$new(list(sd = 1), 0, 20000)
@@ -468,7 +468,7 @@ The files in `inst/dust` are the same files as seen above, with `walk.cpp` conta
 cc_output(readLines(file.path(path, "inst/dust/walk.cpp")))
 ```
 
-There can be as many of these files as you want within the directory `inst/dust`
+There can be as many of these files as you want within the directory `inst/dust`.
 
 To prepare the package, run `dust::dust_package()`:
 

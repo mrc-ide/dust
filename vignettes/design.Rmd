@@ -107,7 +107,7 @@ For nontrivial systems, we often want to record a subset of states - potentially
 
 Reducing the number of state variables returned at different points in the process has several advantages:
 
-* Saving space: if you run a model with 2000 states, 1000 replicates and record their trajectories over 100 timesteps, that represents 100 million floating point  numbers, or 1.6 GB of memory or disk if using double-precision numbers. These are not unrealistic numbers, but would make even a simple sensitivity analysis all-but impossible to work with.
+* Saving space: if you run a model with 2000 states, 1000 replicates and record their trajectories over 100 timesteps, that represents 100 million floating point numbers, or 1.6 GB of memory or disk if using double-precision numbers. These are not unrealistic numbers, but would make even a simple sensitivity analysis all-but impossible to work with.
 * Saving time: copying data around is surprisingly slow.
 
 To enable this, you can restrict the state returned by most methods; some by default and others when you call them.

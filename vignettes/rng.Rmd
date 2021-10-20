@@ -286,8 +286,8 @@ where `$PATH_DUST_INCLUDE` is the path to the header only library.
 There are many packages offering similar functionality to this
 
 * [`sitmo`](https://cran.r-project.org/package=sitmo) offers several modern RNGs (sitmo, threefry, vandercorput) for generating standard uniform numbers (U(0, 1)), designed to be usable from an Rcpp-using package.
-* [`dqrng`](https://cran.r-project.org/package=dqrng) offers an overlapping set and generators for normal and exponential random numbers, also designed to be used with Rcpp and BH
-* [`rTRNG`](https://cran.r-project.org/package=rTRNG) exposes "Tina’s Random Number Generator", among others, and support for several distributions. It can be used from other packages but requires linking (i.e., not header only) which does not work on macOS.
+* [`dqrng`](https://cran.r-project.org/package=dqrng) offers an overlapping set and generators for normal and exponential random numbers, also designed to be used with Rcpp and BH.
+* [`rTRNG`](https://cran.r-project.org/package=rTRNG) exposes "Tina’s Random Number Generator", among others, and support for several distributions. It can be used from other packages but requires linking (i.e., not header only) which does not work on macOS. Generator jumps typically require a known number of draws per thread.
 * [`miranda`](https://coolbutuseless.github.io/2020/07/09/introducing-miranda-a-package-of-fast-modern-uniform-pseudo-random-number-generators/) includes support for several underlying generators (including `xoshiro256+`) but with a single global state and no support for use from other packages' compiled code.
 
 Why does this package exist?  We had a set of needs that meant using the a
