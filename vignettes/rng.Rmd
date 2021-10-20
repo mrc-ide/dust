@@ -130,7 +130,7 @@ bench::mark(
   check = FALSE)
 ```
 
-On good hardware (new 10 i9 3GHz) we see throughput of ~1 billion U(0, 1) draws per second (1ns/draw) scaling linearly to 10 cores if the numbers are immediately discarded.  Doing anything with the numbers or trying to store them comes with a non-trivial overhead.
+On reasonable hardware (10-core i9 at 2.8 GHz) we see throughput of ~1 billion U(0, 1) draws per second (1ns/draw) scaling linearly to 10 cores if the numbers are immediately discarded.  Doing anything with the numbers or trying to store them comes with a non-trivial overhead.
 
 The difference between `random_real` and `uniform` here is the cost of recycling the parameters, not the actual generation!
 
