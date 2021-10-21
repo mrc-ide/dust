@@ -431,6 +431,8 @@ private:
       }
       n = p.back().size(); // ensures all particles have same size
     }
+    // TODO: I think that we should disalow this bit of logic and
+    // number of particles should be surely fixed at initial creation?
     if (particles_.size() == n_particles_total_) {
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
