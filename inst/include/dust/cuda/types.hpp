@@ -302,10 +302,11 @@ private:
 
 template <typename real_type, typename rng_state_type>
 struct device_state {
-  void initialise(size_t n_particles, size_t n_state, size_t n_pars,
+  void initialise(size_t n_particles_, size_t n_state, size_t n_pars,
                   size_t n_shared_len_,
                   size_t n_internal_int, size_t n_internal_real,
                   size_t n_shared_int_, size_t n_shared_real_) {
+    n_particles = n_particles_;
     n_shared_len = n_shared_len_;
     n_shared_int = n_shared_int_;
     n_shared_real = n_shared_real_;
@@ -371,6 +372,7 @@ struct device_state {
     set_cub_tmp();
   }
 
+  size_t n_particles;
   size_t n_shared_len;
   size_t n_shared_int;
   size_t n_shared_real;
@@ -632,7 +634,7 @@ size_t device_shared_real_size(typename dust::shared_ptr<T> shared) {
 }
 
 template <typename T>
-void device_shared_copy(typename dust::shared_ptr<T> shared,
+void device_shared_copy(typename T::shared_type& shared,
                         int * shared_int,
                         typename T::real_type * shared_real) {
 }

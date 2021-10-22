@@ -83,6 +83,10 @@ public:
     import_state(state, size());
   }
 
+  void import_state(const rng_state& state, size_t idx) {
+    state_[idx] = state;
+  }
+
   bool deterministic() const {
     return state_[0].deterministic;
   }
