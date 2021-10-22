@@ -154,6 +154,7 @@ public:
   void run(const size_t step_end) {
     if (step_end > device_step_) {
       const size_t step_start = device_step_;
+#ifdef __NVCC__
       dust::cuda::run_particles<T><<<cuda_pars_.run.block_count,
                                      cuda_pars_.run.block_size,
                                      cuda_pars_.run.shared_size_bytes,
@@ -171,6 +172,20 @@ public:
                       cuda_pars_.run.shared_int,
                       cuda_pars_.run.shared_real);
       kernel_stream_.sync();
+#else
+      dust::cuda::run_particles<T>(step_start, step_end, particles_.size(),
+                      n_pars_effective(),
+                      device_state_.y.data(), device_state_.y_next.data(),
+                      device_state_.internal_int.data(),
+                      device_state_.internal_real.data(),
+                      device_state_.n_shared_int,
+                      device_state_.n_shared_real,
+                      device_state_.shared_int.data(),
+                      device_state_.shared_real.data(),
+                      device_state_.rng.data(),
+                      false,
+                      false);
+#endif
 
       // In the inner loop, the swap will keep the locally scoped
       // interleaved variables updated, but the interleaved variables
@@ -274,6 +289,7 @@ public:
     size_t n_particles = particles_.size();
     size_t n_state = n_state_full();
     device_state_.scatter_index.set_array(index);
+#ifdef __NVCC__
     dust::cuda::scatter_device<real_type><<<cuda_pars_.reorder.block_count,
                                           cuda_pars_.reorder.block_size,
                                           0,
@@ -285,6 +301,15 @@ public:
       n_particles,
       false);
     kernel_stream_.sync();
+#else
+    dust::cuda::scatter_device<real_type>(
+      device_state_.scatter_index.data(),
+      device_state_.y.data(),
+      device_state_.y_next.data(),
+      n_state,
+      n_particles,
+      false);
+#endif
 
     device_state_.swap();
     select_needed_ = true;
@@ -424,6 +449,7 @@ public:
 
   void compare_data(dust::cuda::device_array<real_type>& res,
                       const size_t data_offset) {
+#ifdef __NVCC__
     dust::cuda::compare_particles<T><<<cuda_pars_.compare.block_count,
                                        cuda_pars_.compare.block_size,
                                        cuda_pars_.compare.shared_size_bytes,
@@ -443,6 +469,23 @@ public:
                      cuda_pars_.compare.shared_int,
                      cuda_pars_.compare.shared_real);
     kernel_stream_.sync();
+#else
+    dust::cuda::compare_particles<T>(
+                     particles_.size(),
+                     n_pars_effective(),
+                     device_state_.y.data(),
+                     res.data(),
+                     device_state_.internal_int.data(),
+                     device_state_.internal_real.data(),
+                     device_state_.n_shared_int,
+                     device_state_.n_shared_real,
+                     device_state_.shared_int.data(),
+                     device_state_.shared_real.data(),
+                     device_data_.data() + data_offset,
+                     device_state_.rng.data(),
+                     false,
+                     false);
+#endif
   }
 
 private:
@@ -716,6 +759,7 @@ private:
     if (!select_needed_) {
       return;
     }
+#ifdef __NVCC__
     size_t size_select_tmp = device_state_.select_tmp.size();
     cub::DeviceSelect::Flagged(device_state_.select_tmp.data(),
                                 size_select_tmp,
@@ -740,6 +784,26 @@ private:
       kernel_stream_.sync();
       device_state_.swap_selected();
     }
+#else
+    size_t selected_idx = 0;
+    for (size_t i = 0; i < device_state_.y.size(); i++) {
+      if (device_state_.index.data()[i] == 1) {
+        device_state_.y_selected.data()[selected_idx] =
+          device_state_.y.data()[i];
+        selected_idx++;
+      }
+    }
+    if (select_scatter_) {
+      dust::cuda::scatter_device<real_type>(
+        device_state_.index_state_scatter.data(),
+        device_state_.y_selected.data(),
+        device_state_.y_selected_swap.data(),
+        n_state(),
+        n_particles(),
+        true);
+      device_state_.swap_selected();
+    }
+#endif
     select_needed_ = false;
   }
 
