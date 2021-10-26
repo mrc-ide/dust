@@ -1,7 +1,7 @@
 #ifndef DUST_INTERFACE_CUDA_HPP
 #define DUST_INTERFACE_CUDA_HPP
 
-#include <dust/cuda/cuda.hpp>
+#include <dust/cuda/device_info.hpp>
 #include <dust/cuda/launch_control.hpp>
 
 namespace dust {

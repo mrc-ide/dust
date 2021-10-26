@@ -64,8 +64,8 @@ public:
   DustDevice(const std::vector<pars_type>& pars, const size_t step,
        const size_t n_particles, const size_t n_threads,
        const std::vector<rng_int_type>& seed,
-       const bool deterministic, const cuda::device_config& device_config,
-       const std::vector<size_t>& shape) :
+       const std::vector<size_t>& shape,
+       const cuda::device_config& device_config) :
     n_pars_(pars.size()),
     n_particles_each_(n_particles == 0 ? 1 : n_particles),
     n_particles_total_(n_particles_each_ * pars.size()),
@@ -188,6 +188,8 @@ public:
                       cuda_pars_.run.shared_real);
       kernel_stream_.sync();
 #else
+      const bool use_shared_int = false;
+      const bool use_shared_real = false;
       dust::cuda::run_particles<T>(step_start, step_end, particles_.size(),
                       n_pars_effective(),
                       device_state_.y.data(), device_state_.y_next.data(),
@@ -198,8 +200,8 @@ public:
                       device_state_.shared_int.data(),
                       device_state_.shared_real.data(),
                       device_state_.rng.data(),
-                      false,
-                      false);
+                      use_shared_int,
+                      use_shared_real);
 #endif
 
       // In the inner loop, the swap will keep the locally scoped
@@ -290,6 +292,7 @@ public:
     size_t n_particles = particles_.size();
     size_t n_state = n_state_full();
     device_state_.scatter_index.set_array(index);
+    bool select_kernel = false;
 #ifdef __NVCC__
     dust::cuda::scatter_device<real_type><<<cuda_pars_.reorder.block_count,
                                           cuda_pars_.reorder.block_size,
@@ -300,7 +303,7 @@ public:
       device_state_.y_next.data(),
       n_state,
       n_particles,
-      false);
+      select_kernel);
     kernel_stream_.sync();
 #else
     dust::cuda::scatter_device<real_type>(
@@ -309,7 +312,7 @@ public:
       device_state_.y_next.data(),
       n_state,
       n_particles,
-      false);
+      select_kernel);
 #endif
 
     device_state_.swap();
@@ -451,6 +454,8 @@ public:
                      cuda_pars_.compare.shared_real);
     kernel_stream_.sync();
 #else
+    const bool use_shared_int = false;
+    const bool use_shared_real = false;
     dust::cuda::compare_particles<T>(
                      particles_.size(),
                      n_pars_effective(),
@@ -464,8 +469,8 @@ public:
                      device_state_.shared_real.data(),
                      device_data_.data() + data_offset,
                      device_state_.rng.data(),
-                     false,
-                     false);
+                     use_shared_int,
+                     use_shared_real);
 #endif
   }
 
@@ -635,11 +640,11 @@ private:
 
   // Sets state from model + pars
   void initialise_device_state(const pars_type& pars) {
-    std::vector<std::vector<real_type>> state_host(n_particles);
+    std::vector<std::vector<real_type>> state_host(n_particles());
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
-    for (size_t i = 0; i < n_particles; ++i) {
+    for (size_t i = 0; i < n_particles(); ++i) {
       dust::Particle<T> p_tmp(pars, step);
       p_tmp.state_full(state_host[i].begin());
     }
@@ -659,7 +664,7 @@ private:
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
     for (size_t i = 0; i < n_pars_; ++i) {
-      for (size_t j = 0; j < n_particles; ++j) {
+      for (size_t j = 0; j < n_particles(); ++j) {
         dust::Particle<T> p_tmp(pars[i], step);
         p_tmp.state_full(state_host[i].begin());
       }
@@ -690,6 +695,7 @@ private:
     if (!select_needed_) {
       return;
     }
+    const bool select_kernel = true;
 #ifdef __NVCC__
     size_t size_select_tmp = device_state_.select_tmp.size();
     cub::DeviceSelect::Flagged(device_state_.select_tmp.data(),
@@ -711,7 +717,7 @@ private:
         device_state_.y_selected_swap.data(),
         n_state(),
         n_particles(),
-        true);
+        select_kernel);
       kernel_stream_.sync();
       device_state_.swap_selected();
     }
@@ -731,7 +737,7 @@ private:
         device_state_.y_selected_swap.data(),
         n_state(),
         n_particles(),
-        true);
+        select_kernel);
       device_state_.swap_selected();
     }
 #endif
