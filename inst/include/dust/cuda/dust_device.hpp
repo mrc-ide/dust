@@ -42,17 +42,16 @@ public:
     n_pars_(0),
     n_particles_each_(n_particles),
     n_particles_total_(n_particles),
-    n_state_full_(dust::Particle<T>(pars, step).size()), // needed for malloc size
-    n_state_(n_state_full_),
+    n_state_full_(0),
+    n_state_(0),
     pars_are_shared_(true),
     n_threads_(n_threads),
     resample_rng_(1, seed.back()),
     device_config_(device_config),
     select_needed_(true),
     select_scatter_(false),
-    device_step_(step) {
-    initialise_device_state(pars.shared); // this needs n_particles_total_, n_state_full, n_pars_effective all set
-    set_device_state(pars);
+    step_(step) {
+    initialise_device_state(pars);
     set_device_shared(pars);
     set_device_rng(n_particles, seed);
     set_cuda_launch();
@@ -70,17 +69,16 @@ public:
     n_pars_(pars.size()),
     n_particles_each_(n_particles == 0 ? 1 : n_particles),
     n_particles_total_(n_particles_each_ * pars.size()),
-    n_state_full_(dust::Particle<T>(pars, step).size()), // needed for malloc size
-    n_state_(n_state_full_),
+    n_state_full_(0), // needed for malloc size
+    n_state_(0),
     pars_are_shared_(n_particles != 0),
     n_threads_(n_threads),
     resample_rng_(1, seed.back()),
     device_config_(device_config),
     select_needed_(true),
     select_scatter_(false),
-    device_step_(step) {
-    initialise_device_state(pars.shared); // this needs n_particles_total_, n_state_full, n_pars_effective all set
-    set_device_state(pars);
+    step_(step) {
+    initialise_device_state(pars);
     set_device_shared(pars);
     set_device_rng(n_particles, seed);
     set_cuda_launch();
@@ -146,7 +144,7 @@ public:
   }
 
   void set_step(const size_t step) {
-    device_step_ = step;
+    step_ = step;
   }
 
   // It's the callee's responsibility to ensure that index is in
@@ -169,8 +167,8 @@ public:
   }
 
   void run(const size_t step_end) {
-    if (step_end > device_step_) {
-      const size_t step_start = device_step_;
+    if (step_end > step_) {
+      const size_t step_start = step_;
 #ifdef __NVCC__
       dust::cuda::run_particles<T><<<cuda_pars_.run.block_count,
                                      cuda_pars_.run.block_size,
@@ -215,7 +213,7 @@ public:
       }
 
       select_needed_ = true;
-      device_step_ = step_end;
+      step_ = step_end;
     }
   }
 
@@ -236,11 +234,11 @@ public:
     return ret;
   }
 
-  // D->H transfer
   void state(std::vector<real_type>& end_state) {
     return state(end_state.begin());
   }
 
+  // D->H transfer
   void state(typename std::vector<real_type>::iterator end_state) {
     size_t np = particles_.size();
     size_t index_size = n_state_;
@@ -287,6 +285,7 @@ public:
                            device_state_.y.size(), dst_offset);
   }
 
+  // TODO: make false const with a useful name
   void reorder(const std::vector<size_t>& index) {
     size_t n_particles = particles_.size();
     size_t n_state = n_state_full();
@@ -377,7 +376,7 @@ public:
   }
 
   size_t step() const {
-    return device_step_;
+    return step_;
   }
 
   const std::vector<size_t>& shape() const {
@@ -398,15 +397,6 @@ public:
 
   void set_n_threads(size_t n_threads) {
     n_threads_ = n_threads;
-  }
-
-  // TODO - make un update RNG method and call it here
-  // see note above
-  void rng_long_jump() {
-    dust::random::prng<rng_state_type> rng(n_particles_total_ + 1);
-    get_device_rng(rng);
-    rng.long_jump();
-    set_device_rng(rng);
   }
 
   void set_data(std::map<size_t, std::vector<data_type>>& data) {
@@ -503,7 +493,7 @@ private:
 
   bool select_needed_;
   bool select_scatter_;
-  size_t device_step_;
+  size_t step_;
 
   // Naming of functions:
   // Initialise called once, to malloc on device
@@ -511,7 +501,7 @@ private:
 
   // This only gets called on construction; the size of these never
   // changes.
-  void initialise_device_state(typename T::shared_type s) {
+  void initialise_device_memory(typename T::shared_type s) {
     const size_t n_internal_int = dust::cuda::device_internal_int_size<T>(s);
     const size_t n_internal_real = dust::cuda::device_internal_real_size<T>(s);
     const size_t n_shared_int = dust::cuda::device_shared_int_size<T>(s);
@@ -523,6 +513,20 @@ private:
   }
 
   void set_device_shared(const std::vector<pars_type>& pars) {
+    size_t n = n_particles() == 0 ? 0 : n_state_full();
+    std::vector<dust::Particle<T>> p;
+    for (size_t i = 0; i < n_pars_effective(); ++i) {
+      p.push_back(dust::Particle<T>(pars[i], step));
+      if (n > 0 && p.back().size() != n) {
+        std::stringstream msg;
+        msg << "'pars' created inconsistent state size: " <<
+          "expected length " << n << " but parameter set " << i + 1 <<
+          " created length " << p.back().size();
+        throw std::invalid_argument(msg.str());
+      }
+      n = p.back().size(); // ensures all particles have same size
+    }
+
     const size_t n_shared_int = device_state_.n_shared_int;
     const size_t n_shared_real = device_state_.n_shared_real;
     std::vector<int> shared_int(n_shared_int * n_pars_effective());
@@ -610,7 +614,7 @@ private:
   }
 
     // Interleaves and copies a 1D state vector
-  void set_device_state(std::vector<eal_type>>& state_full) {
+  void set_device_state(std::vector<real_type>& state_full) {
     const size_t np = n_particles(), ny = n_state_full();
     std::vector<real_type> y(np * ny); // Interleaved state of all particles
 #ifdef _OPENMP
@@ -626,17 +630,8 @@ private:
   }
 
   // Sets state from model + pars
-  void set_device_state(const pars_type& pars) {
-    // TODO fix this block
-    const size_t n = n_particles() == 0 ? 0 : n_state_full();
-    dust::Particle<T> p(pars, step);
-    if (n > 0 && p.size() != n) {
-      std::stringstream msg;
-      msg << "'pars' created inconsistent state size: " <<
-        "expected length " << n << " but created length " <<
-        p.size();
-      throw std::invalid_argument(msg.str());
-    }
+  void initialise_device_state(const pars_type& pars) {
+    
 
     std::vector<std::vector<real_type>> state_host(n_particles);
 #ifdef _OPENMP
@@ -646,26 +641,18 @@ private:
       dust::Particle<T> p_tmp(pars, step);
       p_tmp.state_full(state_host[i].begin());
     }
+
+    n_state_full_ = state_host.front().size();
+    n_state_ = n_state_full_;
+    initialise_device_memory(pars.shared);
+
     set_device_state(state_host);
     select_needed_ = true;
   }
 
   // Set state from model + vector of pars
-  void set_device_state(const std::vector<pars_type>& pars) {
-    // TODO fix this block
-    size_t n = n_particles() == 0 ? 0 : n_state_full();
-    std::vector<dust::Particle<T>> p;
-    for (size_t i = 0; i < n_pars_; ++i) {
-      p.push_back(dust::Particle<T>(pars[i], step));
-      if (n > 0 && p.back().size() != n) {
-        std::stringstream msg;
-        msg << "'pars' created inconsistent state size: " <<
-          "expected length " << n << " but parameter set " << i + 1 <<
-          " created length " << p.back().size();
-        throw std::invalid_argument(msg.str());
-      }
-      n = p.back().size(); // ensures all particles have same size
-    }
+  void initialise_device_state(const std::vector<pars_type>& pars) {
+
     std::vector<std::vector<real_type>> state_host(n_particles() * n_pars_);
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
@@ -677,8 +664,11 @@ private:
       }
     }
 
-    set_device_state(state_host);
+    n_state_full_ = state_host.front().size();
+    n_state_ = n_state_full_;
+    initialise_device_memory(pars[0].shared);
 
+    set_device_state(state_host);
     select_needed_ = true;
   }
 
