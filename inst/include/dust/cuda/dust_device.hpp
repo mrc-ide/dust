@@ -30,7 +30,6 @@ namespace dust {
 template <typename T>
 class DustDevice {
 public:
-  // TODO
   typedef dust::pars_type<T> pars_type;
   typedef typename T::real_type real_type;
   typedef typename T::data_type data_type;
@@ -44,6 +43,7 @@ public:
     n_particles_each_(n_particles),
     n_particles_total_(n_particles),
     n_state_full_(dust::Particle<T>(pars, step).size()), // needed for malloc size
+    n_state_(n_state_full_),
     pars_are_shared_(true),
     n_threads_(n_threads),
     resample_rng_(1, seed.back()),
@@ -71,6 +71,7 @@ public:
     n_particles_each_(n_particles == 0 ? 1 : n_particles),
     n_particles_total_(n_particles_each_ * pars.size()),
     n_state_full_(dust::Particle<T>(pars, step).size()), // needed for malloc size
+    n_state_(n_state_full_),
     pars_are_shared_(n_particles != 0),
     n_threads_(n_threads),
     resample_rng_(1, seed.back()),
@@ -118,7 +119,6 @@ public:
     }
   }
 
-  // TODO
   // It's the callee's responsibility to ensure this is the correct length:
   //
   // * if is_matrix is false then state must be length n_state_full()
@@ -131,13 +131,18 @@ public:
     const bool individual = state.size() == n_state * n_particles;
     const size_t n = individual ? 1 : n_particles_each_;
     auto it = state.begin();
+    std::vector<real_type> y(np * ny); // Interleaved state of all particles
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
     for (size_t i = 0; i < n_particles; ++i) {
-      particles_[i].set_state(it + (i / n) * n_state);
+      size_t at = i;
+      for (size_t j = 0; j < n_state; ++j) {
+        at = dust::utils::stride_copy(y.data(), it + (i / n) * n_state + j, at, np);
+      }
     }
-    stale_device_ = true;
+    device_state_.y.set_array(y);
+    select_needed_ = true;
   }
 
   void set_step(const size_t step) {
@@ -148,6 +153,7 @@ public:
   // range [0, n-1]
   void set_index(const std::vector<size_t>& index) {
     const size_t n_particles = n_particles();
+    n_state_ = index.size();
     device_state_.set_device_index(index, n_particles, n_state_full());
 
     select_needed_ = true;
@@ -230,41 +236,32 @@ public:
     return ret;
   }
 
-  // TODO - work out which of these are needed. They'll need a
   // D->H transfer
   void state(std::vector<real_type>& end_state) {
     return state(end_state.begin());
   }
 
-  // TODO
   void state(typename std::vector<real_type>::iterator end_state) {
     size_t np = particles_.size();
-    size_t index_size = index_.size();
-    if (stale_host_) {
-      // Run the selection and copy items back
-      run_device_select();
-      std::vector<real_type> y_selected(np * index_size);
-      device_state_.y_selected.get_array(y_selected);
+    size_t index_size = n_state_;
+
+    // Run the selection and copy items back
+    run_device_select();
+    std::vector<real_type> y_selected(np * index_size);
+    device_state_.y_selected.get_array(y_selected);
 
 #ifdef _OPENMP
-      #pragma omp parallel for schedule(static) num_threads(n_threads_)
+    #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
-      for (size_t i = 0; i < np; ++i) {
-        dust::utils::destride_copy(end_state + i * index_size, y_selected, i,
-                                   np);
-      }
-    } else {
-#ifdef _OPENMP
-      #pragma omp parallel for schedule(static) num_threads(n_threads_)
-#endif
-      for (size_t i = 0; i < np; ++i) {
-        particles_[i].state(index_, end_state + i * index_size);
-      }
+    for (size_t i = 0; i < np; ++i) {
+      dust::utils::destride_copy(end_state + i * index_size, y_selected, i,
+                                  np);
     }
   }
 
-  // TODO: this does not use device_select. But if index is being provided
-  // may not matter much
+  // I hope we can remove this one, but leaving code for now
+  // in case we get a confusing compile error
+  /*
   void state(std::vector<size_t> index,
              std::vector<real_type>& end_state) {
     refresh_host();
@@ -275,21 +272,14 @@ public:
       particles_[i].state(index, end_state.begin() + i * index.size());
     }
   }
+  */
 
   void state_full(std::vector<real_type>& end_state) {
     state_full(end_state.begin());
   }
 
-  // TODO
   void state_full(typename std::vector<real_type>::iterator end_state) {
-    refresh_host();
-    const size_t n = n_state_full();
-#ifdef _OPENMP
-    #pragma omp parallel for schedule(static) num_threads(n_threads_)
-#endif
-    for (size_t i = 0; i < particles_.size(); ++i) {
-      particles_[i].state_full(end_state + i * n);
-    }
+    get_device_state(end_state);
   }
 
   void state_full(dust::cuda::device_array<real_type>& device_state, size_t dst_offset) {
@@ -358,9 +348,8 @@ public:
     return n_particles_total_;
   }
 
-  // TODO
   size_t n_state() const {
-    return index_.size();
+    return n_state_;
   }
 
   size_t n_state_full() const {
@@ -395,19 +384,16 @@ public:
     return shape_;
   }
 
-  // TODO
   std::vector<rng_int_type> rng_state() {
-    refresh_host();
+    dust::random::prng<rng_state_type> rng(n_particles_total_ + 1);
+    get_device_rng(rng);
     return rng_.export_state();
   }
 
-  // TODO - make un update RNG method and call it here
-  // Will need to do D->H then H->D?
-  // Or just make it all run on the device might be best!
   void set_rng_state(const std::vector<rng_int_type>& rng_state) {
-    refresh_host();
-    rng_.import_state(rng_state);
-    stale_device_ = true;
+    dust::random::prng<rng_state_type> rng(n_particles_total_ + 1);
+    rng.import_state(rng_state);
+    set_device_rng(rng);
   }
 
   void set_n_threads(size_t n_threads) {
@@ -417,9 +403,10 @@ public:
   // TODO - make un update RNG method and call it here
   // see note above
   void rng_long_jump() {
-    refresh_host();
-    rng_.long_jump();
-    stale_device_ = true;
+    dust::random::prng<rng_state_type> rng(n_particles_total_ + 1);
+    get_device_rng(rng);
+    rng.long_jump();
+    set_device_rng(rng);
   }
 
   void set_data(std::map<size_t, std::vector<data_type>>& data) {
@@ -448,7 +435,7 @@ public:
   }
 
   void compare_data(dust::cuda::device_array<real_type>& res,
-                      const size_t data_offset) {
+                    const size_t data_offset) {
 #ifdef __NVCC__
     dust::cuda::compare_particles<T><<<cuda_pars_.compare.block_count,
                                        cuda_pars_.compare.block_size,
@@ -493,11 +480,14 @@ private:
   DustDevice ( const DustDevice & ) = delete;
   DustDevice ( DustDevice && ) = delete;
 
+  // Host quantities
   const size_t n_pars_; // 0 in the "single" case, >=1 otherwise
   const size_t n_particles_each_; // Particles per parameter set
   const size_t n_particles_total_; // Total number of particles
   const size_t n_state_full_; // State size of a particle
+  size_t n_state_; // State size of a particle with an index
   const bool pars_are_shared_; // Does the n_particles dimension exist in shape?
+
   std::vector<size_t> shape_; // shape of output
   size_t n_threads_;
   dust::random::prng<rng_state_type> resample_rng_; // for the filter
@@ -550,13 +540,8 @@ private:
     set_device_shared(std::vector<pars_type>(1, pars));
   }
 
-  template <typename rng_state_type>
-  void set_device_rng(size_t n_generators, const std::vector<rng_int_type>& seed) {
-    dust::random::prng<rng_state_type> prng_host(n_particles_total_ + 1, seed, false)
-    // Set the filter RNG
-    // TODO - check this is the right place to be setting this
-    resample_rng_.import_state(prng_host.state(n_particles_total_), 0);
-    // Set the device RNG
+  // Interleave and copy RNG state to GPU
+  void set_device_rng(dust::random::prng<rng_state_type>& host_rng) {
     const size_t np = n_particles();
     constexpr size_t rng_len = rng_state_type::size();
     std::vector<rng_state_type::rng_int_type> rng(np * rng_len); // Interleaved RNG state
@@ -565,7 +550,7 @@ private:
 #endif
     for (size_t i = 0; i < np; ++i) {
       // Interleave RNG state
-      rng_state_type p_rng = rng.state(i);
+      rng_state_type p_rng = host_rng.state(i);
       size_t rng_offset = i;
       for (size_t j = 0; j < rng_len; ++j) {
         rng_offset = dust::utils::stride_copy(rng.data(), p_rng[j],
@@ -574,14 +559,21 @@ private:
     }
     // H -> D copy
     device_state_.rng.set_array(rng);
+    // This also imports the resample RNG, which is on the host
+    resample_rng_.import_state(host_rng.state(n_particles_total_), 0);
   }
 
-  template <typename rng_state_type>
+  // Set GPU RNG from a seed
+  void set_device_rng(size_t n_generators, const std::vector<rng_int_type>& seed) {
+    dust::random::prng<rng_state_type> prng_host(n_particles_total_ + 1, seed, false)
+    set_device_rng(prng_host);
+  }
+
   void get_device_rng(dust::random::prng<rng_state_type>& rng) {
     const size_t np = n_particles();
     constexpr size_t rng_len = rng_state_type::size();
     std::vector<rng_int_type> rngi(np * rng_len); // Interleaved RNG state
-    std::vector<rng_int_type> rngd(np * rng_len); // Deinterleaved RNG state
+    std::vector<rng_int_type> rngd((np + 1) * rng_len); // Deinterleaved RNG state
     // D -> H copy
     device_state_.rng.get_array(rngi);
 #ifdef _OPENMP
@@ -593,11 +585,32 @@ private:
         rngd[i * rng_len + j] = rngi[i + j * np];
       }
     }
-    rng.import_state(rngd, np);
+    // Add the (host) resample state on the end
+    std::vector<rng_int_type> resample_state = resample_rng_.export_state();
+    for (size_t j = 0; j < rng_len; ++j) {
+      rngd[np + j] = resample_state[j];
+    }
+    rng.import_state(rngd, np + 1);
   }
 
-  // Interleaves and copies a 1D state vector
+  // Interleaves and copies a 2D state vector
   void set_device_state(std::vector<std::vector<real_type>>& state_full) {
+    const size_t np = n_particles(), ny = n_state_full();
+    std::vector<real_type> y(np * ny); // Interleaved state of all particles
+#ifdef _OPENMP
+    #pragma omp parallel for schedule(static) num_threads(n_threads_)
+#endif
+    for (size_t i = 0; i < np; ++i) {
+      // Interleave state
+      dust::utils::stride_copy(y.data(), state_full[i], i, np);
+    }
+    // H -> D copy
+    device_state_.y.set_array(y);
+    select_needed_ = true;
+  }
+
+    // Interleaves and copies a 1D state vector
+  void set_device_state(std::vector<eal_type>>& state_full) {
     const size_t np = n_particles(), ny = n_state_full();
     std::vector<real_type> y(np * ny); // Interleaved state of all particles
 #ifdef _OPENMP
@@ -633,9 +646,7 @@ private:
       dust::Particle<T> p_tmp(pars, step);
       p_tmp.state_full(state_host[i].begin());
     }
-
     set_device_state(state_host);
-
     select_needed_ = true;
   }
 
@@ -671,9 +682,8 @@ private:
     select_needed_ = true;
   }
 
-  void get_device_state(std::vector<std::vector<real_type>>& state_full) {
+  void get_device_state(typename std::vector<real_type>::iterator state_full) {
     const size_t np = n_particles(), ny = n_state_full();
-    std::vector<real_type> y_tmp(ny); // Individual particle state
     std::vector<real_type> y(np * ny); // Interleaved state of all particles
     // D -> H copy
     device_state_.y.get_array(y);
@@ -681,7 +691,7 @@ private:
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
     for (size_t i = 0; i < np; ++i) {
-      dust::utils::destride_copy(state_full[i], y, i, np);
+      dust::utils::destride_copy(state_full + i * ny, y, i, np);
     }
   }
 

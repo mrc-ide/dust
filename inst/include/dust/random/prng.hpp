@@ -15,6 +15,9 @@ public:
   typedef T rng_state;
   typedef typename rng_state::int_type int_type;
 
+  // Unset state for importing into
+  prng(const size_t n) : state_(n) {}
+
   prng(const size_t n, const int seed, const bool deterministic = false) :
     prng(n, seed_data<T>(seed), deterministic) {
   }
