@@ -631,8 +631,6 @@ private:
 
   // Sets state from model + pars
   void initialise_device_state(const pars_type& pars) {
-    
-
     std::vector<std::vector<real_type>> state_host(n_particles);
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
@@ -652,7 +650,6 @@ private:
 
   // Set state from model + vector of pars
   void initialise_device_state(const std::vector<pars_type>& pars) {
-
     std::vector<std::vector<real_type>> state_host(n_particles() * n_pars_);
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
