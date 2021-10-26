@@ -4,6 +4,8 @@
 #include <dust/filter_state.hpp>
 #include <dust/filter_tools.hpp>
 
+#include <dust/cuda/incoming.hpp>
+
 namespace dust {
 namespace filter {
 

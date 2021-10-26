@@ -75,21 +75,6 @@ cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
 }
 
 template <typename T>
-cpp11::list dust_alloc(cpp11::list r_pars, bool pars_multi, int step,
-                       cpp11::sexp r_n_particles, int n_threads,
-                       cpp11::sexp r_seed, bool deterministic,
-                       cpp11::sexp r_device_config) {
-  if (r_device_config == R_NilValue) {
-    return dust_alloc_cpu<T>(r_pars, pars_multi, step, r_n_particles,
-                             n_threads, r_seed, deterministic);
-  } else {
-    return dust_alloc_device<T>(r_pars, pars_multi, step, r_n_particles,
-                                n_threads, r_seed, deterministic,
-                                r_device_config);
-  }
-}
-
-template <typename T>
 void dust_set_index(SEXP ptr, cpp11::sexp r_index) {
   DustDevice<T> *obj = cpp11::as_cpp<cpp11::external_pointer<DustDevice<T>>>(ptr).get();
   const size_t index_max = obj->n_state_full();

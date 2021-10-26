@@ -174,7 +174,7 @@ public:
                                      cuda_pars_.run.block_size,
                                      cuda_pars_.run.shared_size_bytes,
                                      kernel_stream_.stream()>>>(
-                      step_start, step_end, particles_.size(),
+                      step_start, step_end, n_particles_total_,
                       n_pars_effective(),
                       device_state_.y.data(), device_state_.y_next.data(),
                       device_state_.internal_int.data(),
@@ -240,7 +240,7 @@ public:
 
   // D->H transfer
   void state(typename std::vector<real_type>::iterator end_state) {
-    size_t np = particles_.size();
+    size_t np = n_particles_total_;
     size_t index_size = n_state_;
 
     // Run the selection and copy items back
@@ -381,6 +381,10 @@ public:
 
   const std::vector<size_t>& shape() const {
     return shape_;
+  }
+
+  void check_errors() {
+    dust::cuda::throw_cuda_error(__FILE__, __LINE__, cudaPeekAtLastError());
   }
 
   std::vector<rng_int_type> rng_state() {
