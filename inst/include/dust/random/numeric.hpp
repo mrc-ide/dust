@@ -2,6 +2,7 @@
 #define DUST_RANDOM_NUMERIC_HPP
 
 #include <cmath>
+#include <cfloat>
 #include <cstdint>
 #include <limits>
 

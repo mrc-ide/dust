@@ -27,12 +27,12 @@ cpp11::sexp dust_info(const dust::pars_type<T>& pars) {
 
 }
 
+#include <dust/cuda/dust_device.hpp>
 #include <dust/interface/random.hpp>
 #include <dust/interface/helpers.hpp>
 #include <dust/interface/cuda.hpp>
 #include <dust/filter.hpp>
 
-#include <dust/cuda/dust_device.hpp>
 
 namespace dust {
 

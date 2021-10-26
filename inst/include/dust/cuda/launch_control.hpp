@@ -52,17 +52,13 @@ public:
 
 inline void cuda_profiler_start(const device_config& config) {
 #ifdef DUST_USING_CUDA_PROFILER
-  if (config.enabled_) {
-      CUDA_CALL(cudaProfilerStart());
-  }
+  CUDA_CALL(cudaProfilerStart());
 #endif
 }
 
 inline void cuda_profiler_stop(const device_config& config) {
 #ifdef DUST_USING_CUDA_PROFILER
-  if (config.enabled_) {
-      CUDA_CALL(cudaProfilerStop());
-  }
+  CUDA_CALL(cudaProfilerStop());
 #endif
 }
 
@@ -198,28 +194,19 @@ inline launch_control_dust::launch_control_dust(const device_config& config,
                                                 size_t n_shared_real,
                                                 size_t real_size,
                                                 size_t data_size) {
-  if (config.enabled_) {
-    const size_t shared_size = config.shared_size_;
-    const size_t run_block_size = config.run_block_size_;
-    run = launch_control_model(n_particles, n_particles_each,
-                               n_shared_int, n_shared_real,
-                               real_size, 0, shared_size, run_block_size);
-    compare = launch_control_model(n_particles, n_particles_each,
-                                   n_shared_int, n_shared_real,
-                                   real_size, data_size, shared_size, 128);
+  const size_t shared_size = config.shared_size_;
+  const size_t run_block_size = config.run_block_size_;
+  run = launch_control_model(n_particles, n_particles_each,
+                              n_shared_int, n_shared_real,
+                              real_size, 0, shared_size, run_block_size);
+  compare = launch_control_model(n_particles, n_particles_each,
+                                  n_shared_int, n_shared_real,
+                                  real_size, data_size, shared_size, 128);
 
-    reorder       = launch_control_simple(128, n_particles * n_state_full);
-    scatter       = launch_control_simple( 64, n_particles * n_state_full);
-    index_scatter = launch_control_simple( 64, n_particles * n_state);
-    interval      = launch_control_simple(128, n_particles);
-  } else {
-    run = launch_control{};
-    compare = launch_control{};
-    reorder = launch_control{};
-    scatter = launch_control{};
-    index_scatter = launch_control{};
-    interval = launch_control{};
-  }
+  reorder       = launch_control_simple(128, n_particles * n_state_full);
+  scatter       = launch_control_simple( 64, n_particles * n_state_full);
+  index_scatter = launch_control_simple( 64, n_particles * n_state);
+  interval      = launch_control_simple(128, n_particles);
 }
 
 }
