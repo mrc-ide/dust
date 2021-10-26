@@ -244,7 +244,7 @@ public:
     size_t index_size = n_state_;
 
     // Run the selection and copy items back
-    run_device_select();
+    run_select();
     std::vector<real_type> y_selected(np * index_size);
     device_state_.y_selected.get_array(y_selected);
 
@@ -335,7 +335,7 @@ public:
   }
 
   dust::cuda::device_array<real_type>& device_state_selected() {
-    run_device_select();
+    run_select();
     return device_state_.y_selected;
   }
 

@@ -1,3 +1,8 @@
+
+namespace dust {
+
+namespace filter {
+
 template <typename real_type>
 class filter_trajectories_device : public filter_trajectories_host<real_type> {
 public:
@@ -203,3 +208,5 @@ struct filter_state_device {
   filter_snapshots_device<real_type> snapshots;
 };
 
+}
+}
