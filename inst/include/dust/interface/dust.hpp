@@ -455,7 +455,7 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
 
   cpp11::sexp r_trajectories, r_snapshots;
   cpp11::writable::doubles log_likelihood =
-    run_filter<T, dust::filter::filter_state_host<real_type>>
+    run_filter<T, dust::filter::filter_state_device<real_type>>
     (obj, r_trajectories, r_snapshots, step_snapshot, save_trajectories);
 
   using namespace cpp11::literals;

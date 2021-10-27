@@ -380,7 +380,7 @@ size_t n_threads() const {
 
     dust::cuda::device_scan_state<real_type> scan;
     scan.initialise(n_particles_total_, device_weights.weights());
-    resample(device_weights, scan);
+    resample(device_weights.weights(), scan);
 
     // TODO: check this is actually the index
     std::vector<size_t> index(n_particles());
