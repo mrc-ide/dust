@@ -31,6 +31,7 @@ cpp11::sexp dust_info(const dust::pars_type<T>& pars) {
 #include <dust/interface/helpers.hpp>
 #include <dust/interface/cuda.hpp>
 #include <dust/filter.hpp>
+#include <dust/cuda/filter.hpp>
 
 
 namespace dust {
@@ -444,12 +445,13 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
   DustDevice<T> *obj = cpp11::as_cpp<cpp11::external_pointer<DustDevice<T>>>(ptr).get();
   obj->check_errors();
 
-  if (obj->data().empty()) {
+  if (obj->n_data() == 0) {
     cpp11::stop("Data has not been set for this object");
   }
 
+  // TODO: obj->data() for dust; obj->data_offsets() for dustdevice
   std::vector<size_t> step_snapshot =
-      dust::interface::check_step_snapshot(r_step_snapshot, obj->data());
+      dust::interface::check_step_snapshot(r_step_snapshot, obj->data_offsets());
 
   cpp11::sexp r_trajectories, r_snapshots;
   cpp11::writable::doubles log_likelihood =

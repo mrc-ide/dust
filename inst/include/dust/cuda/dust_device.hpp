@@ -103,6 +103,58 @@ public:
   }
 #endif
 
+size_t n_threads() const {
+    return n_threads_;
+  }
+
+  size_t n_particles() const {
+    return n_particles_total_;
+  }
+
+  size_t n_state() const {
+    return n_state_;
+  }
+
+  size_t n_state_full() const {
+    return n_state_full_;
+  }
+
+  size_t n_pars() const {
+    return n_pars_;
+  }
+
+  size_t n_pars_effective() const {
+    return n_pars_ == 0 ? 1 : n_pars_;
+  }
+
+  bool pars_are_shared() const {
+    return pars_are_shared_;
+  }
+
+  size_t n_data() const {
+    return device_data_offsets_.size();
+  }
+
+  const std::map<size_t, size_t>& data_offsets() const {
+    return device_data_offsets_;
+  }
+
+  size_t step() const {
+    return step_;
+  }
+
+  const std::vector<size_t>& shape() const {
+    return shape_;
+  }
+
+  void check_errors() {
+    dust::cuda::throw_cuda_error(__FILE__, __LINE__, cudaPeekAtLastError());
+  }
+
+  void reset_errors() {
+    cudaGetLastError();
+  }
+
   void set_pars(const pars_type& pars, bool set_state) {
     set_device_shared(pars);
     if (set_state) {
@@ -136,7 +188,7 @@ public:
     for (size_t i = 0; i < n_particles; ++i) {
       size_t at = i;
       for (size_t j = 0; j < n_state; ++j) {
-        at = dust::utils::stride_copy(y.data(), *(it + (i / n) * n_state + j), at, np);
+        at = dust::utils::stride_copy(y.data(), *(it + (i / n) * n_state + j), at, n_particles);
       }
     }
     device_state_.y.set_array(y);
@@ -190,7 +242,7 @@ public:
 #else
       const bool use_shared_int = false;
       const bool use_shared_real = false;
-      dust::cuda::run_particles<T>(step_start, step_end, particles_.size(),
+      dust::cuda::run_particles<T>(step_start, step_end, n_particles_total_,
                       n_pars_effective(),
                       device_state_.y.data(), device_state_.y_next.data(),
                       device_state_.internal_int.data(),
@@ -262,14 +314,14 @@ public:
   void state(std::vector<size_t> index,
              std::vector<real_type>& end_state) {
     std::vector<real_type> full_state(n_state_full_ * n_particles_total_);
-    get_device_state(full_state);
+    get_device_state(full_state.begin());
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
     for (int i = 0; i < n_particles_total_; ++i) {
-      auto particle_state = end_state + i * index.size();
+      size_t particle_start = i * index.size();
       for (size_t j = 0; j < index.size(); ++j) {
-        *(particle_state + j) = full_state[index[j]];
+        end_state[particle_start + j] = full_state[index[j]];
       }
     }
   }
@@ -288,7 +340,7 @@ public:
   }
 
   void reorder(const std::vector<size_t>& index) {
-    size_t n_particles = n_particles();
+    size_t n_particles = n_particles_total_;
     size_t n_state = n_state_full();
     device_state_.scatter_index.set_array(index);
     bool select_kernel = false;
@@ -324,14 +376,14 @@ public:
     dust::cuda::device_array<real_type> weight_sum(n_pars_effective());
     dust::cuda::device_weights<real_type> device_weights(n_particles(), n_pars_effective());
     device_weights.weights() = weights;
-    weights.scale_log_weights(weight_sum);
+    device_weights.scale_log_weights(weight_sum);
 
     dust::cuda::device_scan_state<real_type> scan;
-    scan.initialise(n_particles_total_, weights.weights());
-    resample(weights, scan);
+    scan.initialise(n_particles_total_, device_weights.weights());
+    resample(device_weights, scan);
 
     // TODO: check this is actually the index
-    std::vector<real_type> index(n_particles());
+    std::vector<size_t> index(n_particles());
     device_state_.scatter_index.get_array(index);
     return index;
   }
@@ -357,58 +409,6 @@ public:
   dust::cuda::device_array<real_type>& device_state_selected() {
     run_select();
     return device_state_.y_selected;
-  }
-
-  size_t n_threads() const {
-    return n_threads_;
-  }
-
-  size_t n_particles() const {
-    return n_particles_total_;
-  }
-
-  size_t n_state() const {
-    return n_state_;
-  }
-
-  size_t n_state_full() const {
-    return n_state_full_;
-  }
-
-  size_t n_pars() const {
-    return n_pars_;
-  }
-
-  size_t n_pars_effective() const {
-    return n_pars_ == 0 ? 1 : n_pars_;
-  }
-
-  bool pars_are_shared() const {
-    return pars_are_shared_;
-  }
-
-  size_t n_data() const {
-    return device_data_offsets_.size();
-  }
-
-  const std::map<size_t, size_t>& data_offsets() const {
-    return device_data_offsets_;
-  }
-
-  size_t step() const {
-    return step_;
-  }
-
-  const std::vector<size_t>& shape() const {
-    return shape_;
-  }
-
-  void check_errors() {
-    dust::cuda::throw_cuda_error(__FILE__, __LINE__, cudaPeekAtLastError());
-  }
-
-  void reset_errors() {
-    cudaGetLastError();
   }
 
   std::vector<rng_int_type> rng_state() {
@@ -445,7 +445,7 @@ public:
     std::vector<real_type> res;
     auto d = device_data_offsets_.find(step());
     if (d != device_data_offsets_.end()) {
-      res.resize(particles_.size());
+      res.resize(n_particles());
       compare_data(device_state_.compare_res, d->second);
       device_state_.compare_res.get_array(res);
     }
@@ -459,7 +459,7 @@ public:
                                        cuda_pars_.compare.block_size,
                                        cuda_pars_.compare.shared_size_bytes,
                                        kernel_stream_.stream()>>>(
-                     particles_.size(),
+                     n_particles(),
                      n_pars_effective(),
                      device_state_.y.data(),
                      res.data(),
@@ -478,7 +478,7 @@ public:
     const bool use_shared_int = false;
     const bool use_shared_real = false;
     dust::cuda::compare_particles<T>(
-                     particles_.size(),
+                     n_particles(),
                      n_pars_effective(),
                      device_state_.y.data(),
                      res.data(),
