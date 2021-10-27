@@ -483,7 +483,7 @@ private:
   const size_t n_pars_; // 0 in the "single" case, >=1 otherwise
   const size_t n_particles_each_; // Particles per parameter set
   const size_t n_particles_total_; // Total number of particles
-  const size_t n_state_full_; // State size of a particle
+  size_t n_state_full_; // State size of a particle
   size_t n_state_; // State size of a particle with an index
   const bool pars_are_shared_; // Does the n_particles dimension exist in shape?
 
@@ -510,7 +510,7 @@ private:
 
   // This only gets called on construction; the size of these never
   // changes.
-  void initialise_device_memory(typename T::shared_type s) {
+  void initialise_device_memory(typename dust::shared_ptr<T> s) {
     const size_t n_internal_int = dust::cuda::device_internal_int_size<T>(s);
     const size_t n_internal_real = dust::cuda::device_internal_real_size<T>(s);
     const size_t n_shared_int = dust::cuda::device_shared_int_size<T>(s);
@@ -525,7 +525,7 @@ private:
     size_t n = n_particles() == 0 ? 0 : n_state_full();
     std::vector<dust::Particle<T>> p;
     for (size_t i = 0; i < n_pars_effective(); ++i) {
-      p.push_back(dust::Particle<T>(pars[i], step));
+      p.push_back(dust::Particle<T>(pars[i], step_));
       if (n > 0 && p.back().size() != n) {
         std::stringstream msg;
         msg << "'pars' created inconsistent state size: " <<
@@ -645,7 +645,7 @@ private:
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
     for (size_t i = 0; i < n_particles(); ++i) {
-      dust::Particle<T> p_tmp(pars, step);
+      dust::Particle<T> p_tmp(pars, step_);
       p_tmp.state_full(state_host[i].begin());
     }
 
@@ -665,7 +665,7 @@ private:
 #endif
     for (size_t i = 0; i < n_pars_; ++i) {
       for (size_t j = 0; j < n_particles(); ++j) {
-        dust::Particle<T> p_tmp(pars[i], step);
+        dust::Particle<T> p_tmp(pars[i], step_);
         p_tmp.state_full(state_host[i].begin());
       }
     }
