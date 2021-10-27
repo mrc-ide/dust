@@ -48,8 +48,9 @@ void run_device_resample(const size_t n_particles,
     for (size_t i = 0; i < n_pars; ++i) {
       shuffle_draws[i] = dust::random::uniform<real_type>(resample_rng, 0, 1);
     }
+    const bool async_copy = true;
     device_state.resample_u.set_array(shuffle_draws.data(),
-                                      resample_stream, true);
+                                      resample_stream, async_copy);
 
     // Now sync the streams
     kernel_stream.sync();
@@ -79,6 +80,7 @@ void run_device_resample(const size_t n_particles,
 #endif
 
     // Shuffle the particles
+    const bool select_kernel = false;
 #ifdef __NVCC__
     dust::cuda::scatter_device<real_type><<<cuda_pars.scatter.block_count,
                                    cuda_pars.scatter.block_size,
@@ -89,7 +91,7 @@ void run_device_resample(const size_t n_particles,
         device_state.y_next.data(),
         n_state,
         n_particles,
-        false);
+        select_kernel);
     kernel_stream.sync();
 #else
     dust::cuda::scatter_device<real_type>(
@@ -98,7 +100,7 @@ void run_device_resample(const size_t n_particles,
         device_state.y_next.data(),
         n_state,
         n_particles,
-        false);
+        select_kernel);
 #endif
     device_state.swap();
 }

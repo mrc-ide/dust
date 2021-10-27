@@ -15,7 +15,6 @@
 
 #include <dust/random/prng.hpp>
 #include <dust/random/density.hpp>
-#include <dust/cuda/filter_state.hpp>
 #include <dust/filter_tools.hpp>
 #include <dust/cuda/types.hpp>
 #include <dust/utils.hpp>
@@ -24,6 +23,7 @@
 #include <dust/cuda/kernels.hpp>
 #include <dust/cuda/device_resample.hpp>
 #include <dust/cuda/launch_control.hpp>
+#include <dust/cuda/filter_state.hpp>
 
 namespace dust {
 
@@ -330,6 +330,7 @@ public:
     scan.initialise(n_particles_total_, weights.weights());
     resample(weights, scan);
 
+    // TODO: check this is actually the index
     std::vector<real_type> index(n_particles());
     device_state_.scatter_index.get_array(index);
     return index;
@@ -577,7 +578,7 @@ private:
   void set_device_rng(dust::random::prng<rng_state_type>& host_rng) {
     const size_t np = n_particles();
     constexpr size_t rng_len = rng_state_type::size();
-    std::vector<rng_state_type::rng_int_type> rng(np * rng_len); // Interleaved RNG state
+    std::vector<rng_int_type> rng(np * rng_len); // Interleaved RNG state
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
