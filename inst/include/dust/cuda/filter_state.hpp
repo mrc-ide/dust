@@ -1,6 +1,8 @@
 #ifndef DUST_CUDA_FILTER_STATE_HPP
 #define DUST_CUDA_FILTER_STATE_HPP
 
+#include <dust/filter_state.hpp>
+
 namespace dust {
 namespace filter {
 
