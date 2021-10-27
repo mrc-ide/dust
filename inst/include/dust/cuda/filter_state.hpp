@@ -1,6 +1,7 @@
+#ifndef DUST_CUDA_FILTER_STATE_HPP
+#define DUST_CUDA_FILTER_STATE_HPP
 
 namespace dust {
-
 namespace filter {
 
 template <typename real_type>
@@ -210,3 +211,5 @@ struct filter_state_device {
 
 }
 }
+
+#endif

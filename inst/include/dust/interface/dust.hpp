@@ -128,7 +128,7 @@ cpp11::sexp dust_update_state_set(DustDevice<T> *obj, SEXP r_pars,
   if (step.size() == 1) {
     obj->set_step(step[0]);
   } else if (step.size() > 1) {
-    obj->set_step(step);
+    cpp11::stop("GPU doesn't support multiple steps");
   }
 
   // If we set both initial conditions and step then we're safe to

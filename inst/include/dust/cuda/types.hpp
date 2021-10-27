@@ -634,7 +634,7 @@ size_t device_shared_real_size(typename dust::shared_ptr<T> shared) {
 }
 
 template <typename T>
-void device_shared_copy(typename T::shared_type& shared,
+void device_shared_copy(typename dust::shared_ptr<T> shared,
                         int * shared_int,
                         typename T::real_type * shared_real) {
 }
