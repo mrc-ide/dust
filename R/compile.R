@@ -138,8 +138,10 @@ dust_template_data <- function(model, config, cuda) {
   methods_cpu <- methods("cpu")
 
   if (is.null(cuda)) {
-    methods_gpu <-
-      'list(alloc = function(...) stop("no gpu support"))'
+    methods_gpu <- paste(
+      "list(alloc = function(...) {",
+      '          stop("GPU support not enabled for this object")',
+      "        })", sep = "\n")
   } else {
     methods_gpu <- methods("gpu")
   }
