@@ -65,7 +65,7 @@ cpp11::list dust_cpu_alloc(cpp11::list r_pars, bool pars_multi, int step,
   cpp11::writable::integers r_shape =
     dust::interface::vector_size_to_int(d->shape());
 
-  return cpp11::writable::list({ptr, info, r_shape});
+  return cpp11::writable::list({ptr, info, r_shape, R_NilValue});
 }
 
 /*
@@ -103,7 +103,10 @@ cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi, int step,
   cpp11::writable::integers r_shape =
     dust::interface::vector_size_to_int(d->shape());
 
-  return cpp11::writable::list({ptr, info, r_shape});
+  cpp11::sexp ret_r_device_config =
+    dust::interface::device_config_as_sexp(device_config);
+
+  return cpp11::writable::list({ptr, info, r_shape, ret_r_device_config});
 }
 */
 
