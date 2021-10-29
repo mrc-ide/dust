@@ -24,9 +24,12 @@ namespace dust {
 template <typename T>
 class Dust {
 public:
+  typedef T model_type;
   typedef dust::pars_type<T> pars_type;
   typedef typename T::real_type real_type;
   typedef typename T::data_type data_type;
+  typedef typename T::internal_type internal_type;
+  typedef typename T::shared_type shared_type;
   typedef typename T::rng_state_type rng_state_type;
   typedef typename rng_state_type::int_type rng_int_type;
 

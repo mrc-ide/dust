@@ -38,6 +38,7 @@
     shape_ = NULL,
     ptr_ = NULL,
     device_config_ = NULL,
+    methods_ = NULL,
     param_ = {{param}}
   ),
 
@@ -104,7 +105,12 @@
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
                           device_config = NULL) {
-      res <- dust_{{name}}_alloc(pars, pars_multi, step, n_particles,
+      if (is.null(device_config)) {
+        private$methods_ <- {{methods_cpu}}
+      } else {
+        private$methods_ <- {{methods_gpu}}
+      }
+      res <- private$methods_$alloc(pars, pars_multi, step, n_particles,
                         n_threads, seed, deterministic, device_config)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
@@ -112,7 +118,7 @@
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
-      # private$device_config_ <- res[[4L]]
+      private$device_config_ <- res[[4L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -148,7 +154,7 @@
     ##'   was compiled with this enabled, and you have a suitable GPU
     ##'   available (see `vignette("cuda")`).
     run = function(step_end, device = FALSE) {
-      m <- dust_{{name}}_run(private$ptr_, step_end)
+      m <- private$methods_$run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
@@ -175,7 +181,7 @@
     ##' @param device Logical, indicating if the model should be run on
     ##'   the GPU device. See `$run()` for more information.
     simulate = function(step_end, device = FALSE) {
-      m <- dust_{{name}}_simulate(private$ptr_, step_end)
+      m <- private$methods_$simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
@@ -190,7 +196,7 @@
     ##' elements between 1 and the length of the state (this will be
     ##' validated, and an error thrown if an invalid index is given).
     set_index = function(index) {
-      dust_{{name}}_set_index(private$ptr_, index)
+      private$methods_$set_index(private$ptr_, index)
       private$index_ <- index
       invisible()
     },
@@ -210,7 +216,7 @@
     ##' @description
     ##' Returns the length of the per-particle state
     n_state = function() {
-      dust_{{name}}_n_state(private$ptr_)
+      private$methods_$n_state(private$ptr_)
     },
 
     ##' @description
@@ -311,8 +317,8 @@
     ##'   is non-`NULL`.
     update_state = function(pars = NULL, state = NULL, step = NULL,
                             set_initial_state = NULL) {
-      info <- dust_{{name}}_update_state(private$ptr_, pars, state, step,
-                                         set_initial_state)
+      info <- private$methods_$update_state(private$ptr_, pars, state, step,
+                                          set_initial_state)
       if (!is.null(pars)) {
         private$info_ <- info
         private$pars_ <- pars
@@ -324,7 +330,7 @@
     ##' Return full model state
     ##' @param index Optional index to select state using
     state = function(index = NULL) {
-      m <- dust_{{name}}_state(private$ptr_, index)
+      m <- private$methods_$state(private$ptr_, index)
       rownames(m) <- names(index)
       m
     },
@@ -332,7 +338,7 @@
     ##' @description
     ##' Return current model step
     step = function() {
-      dust_{{name}}_step(private$ptr_)
+      private$methods_$step(private$ptr_)
     },
 
     ##' @description
@@ -342,7 +348,7 @@
     ##' take.
     reorder = function(index) {
       storage.mode(index) <- "integer"
-      dust_{{name}}_reorder(private$ptr_, index)
+      private$methods_$reorder(private$ptr_, index)
       invisible()
     },
 
@@ -356,7 +362,7 @@
     ##' parameter sets.
     ##' long as all particles or be a matrix.
     resample = function(weights) {
-      invisible(dust_{{name}}_resample(private$ptr_, weights))
+      invisible(private$methods_$resample(private$ptr_, weights))
     },
 
     ##' @description
@@ -388,7 +394,7 @@
     ##' @param last_only Logical, indicating if we should return only the
     ##' *last* random number state, which does not belong to a particle.
     rng_state = function(first_only = FALSE, last_only = FALSE) {
-      dust_{{name}}_rng_state(private$ptr_, first_only, last_only)
+      private$methods_$rng_state(private$ptr_, first_only, last_only)
     },
 
     ##' @description Set the random number state for this model. This
@@ -402,7 +408,7 @@
     ##' `$rng_state()` method. Note that unlike `seed` as passed to the
     ##' constructor, this *must* be a raw vector of the expected length.
     set_rng_state = function(rng_state) {
-      dust_{{name}}_set_rng_state(private$ptr_, rng_state)
+      private$methods_$set_rng_state(private$ptr_, rng_state)
       invisible()
     },
 
@@ -446,7 +452,7 @@
     ##'   requested (based on environment variables and OpenMP support).
     set_n_threads = function(n_threads) {
       prev <- private$n_threads_
-      dust_{{name}}_set_n_threads(private$ptr_, n_threads)
+      private$methods_$set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
     },
@@ -471,7 +477,7 @@
     ##'
     ##' @param data A list of data to set.
     set_data = function(data) {
-      dust_{{name}}_set_data(private$ptr_, data)
+      private$methods_$set_data(private$ptr_, data)
     },
 
     ##' @description
@@ -485,7 +491,7 @@
     ##' @param device Logical, indicating if the model should be run on
     ##'   the GPU device. See `$run()` for more information.
     compare_data = function(device = FALSE) {
-      dust_{{name}}_compare_data(private$ptr_)
+      private$methods_$compare_data(private$ptr_)
     },
 
     ##' @description
@@ -511,8 +517,7 @@
     ##'   the GPU device. See `$run()` for more information.
     filter = function(save_trajectories = FALSE, step_snapshot = NULL,
                       device = FALSE) {
-      dust_{{name}}_filter(private$ptr_, save_trajectories,
-                           step_snapshot)
+      private$methods_$filter(private$ptr_, save_trajectories, step_snapshot)
     },
 
     ##' @description

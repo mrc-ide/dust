@@ -213,10 +213,13 @@ package_generate <- function(filename) {
   template_r <- drop_roxygen(template_r)
   code_r <- glue_whisker(template_r, data)
 
-  template_hpp <- drop_internal_comments(
-    readLines(dust_file("template/dust.hpp")))
   template_cpp <- drop_internal_comments(
-    readLines(dust_file("template/dust.cpp")))
+    c(readLines(dust_file("template/dust.cpp")),
+      readLines(dust_file("template/dust_methods.cpp"))))
+  template_hpp <- drop_internal_comments(
+    c(readLines(dust_file("template/dust.hpp")),
+      readLines(dust_file("template/dust_methods.hpp"))))
+
   code_hpp <- glue_whisker(template_hpp, data)
   code_cpp <- glue_whisker(template_cpp, data)
   src <- set_names(paste(code_hpp, code_cpp, sep = "\n\n"), basename(filename))
