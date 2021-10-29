@@ -515,6 +515,19 @@ test_that("exponential random numbers from floats have correct distribution", {
 })
 
 
+## TODO: validate against the algo (exact)
+## TODO: validate against expectation
+## TODO: make provding prob more flexible
+test_that("multinomial algorithm is correct", {
+  p <- runif(10)
+  p <- p / sum(p)
+  n <- 100
+  res <- dust_rng$new(1, seed = 1L)$multinomial(n, 20, p)
+  expect_equal(dim(res), c(10, n))
+  expect_equal(colSums(res), rep(20, n))
+})
+
+
 test_that("long jump", {
   seed <- 1
   rng1 <- dust_rng$new(seed, real_type = "float")

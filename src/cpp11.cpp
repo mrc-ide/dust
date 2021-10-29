@@ -113,6 +113,13 @@ extern "C" SEXP _dust_dust_rng_poisson(SEXP ptr, SEXP n, SEXP r_lambda, SEXP n_t
   END_CPP11
 }
 // dust_rng.cpp
+cpp11::writable::doubles dust_rng_multinomial(SEXP ptr, int n, cpp11::doubles r_size, cpp11::doubles r_prob, int n_threads, bool is_float);
+extern "C" SEXP _dust_dust_rng_multinomial(SEXP ptr, SEXP n, SEXP r_size, SEXP r_prob, SEXP n_threads, SEXP is_float) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_rng_multinomial(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_size), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_prob), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
+  END_CPP11
+}
+// dust_rng.cpp
 cpp11::writable::raws dust_rng_state(SEXP ptr, bool is_float);
 extern "C" SEXP _dust_dust_rng_state(SEXP ptr, SEXP is_float) {
   BEGIN_CPP11
@@ -1143,6 +1150,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_rng_exponential",              (DL_FUNC) &_dust_dust_rng_exponential,              5},
     {"_dust_dust_rng_jump",                     (DL_FUNC) &_dust_dust_rng_jump,                     2},
     {"_dust_dust_rng_long_jump",                (DL_FUNC) &_dust_dust_rng_long_jump,                2},
+    {"_dust_dust_rng_multinomial",              (DL_FUNC) &_dust_dust_rng_multinomial,              6},
     {"_dust_dust_rng_normal",                   (DL_FUNC) &_dust_dust_rng_normal,                   6},
     {"_dust_dust_rng_poisson",                  (DL_FUNC) &_dust_dust_rng_poisson,                  5},
     {"_dust_dust_rng_random_real",              (DL_FUNC) &_dust_dust_rng_random_real,              4},

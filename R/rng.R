@@ -229,6 +229,11 @@ dust_rng <- R6::R6Class(
       dust_rng_exponential(private$ptr, n, rate, n_threads, private$float)
     },
 
+    multinomial = function(n, size, prob, n_threads = 1L) {
+      dust_rng_multinomial(private$ptr, n, size, prob, n_threads,
+                           private$float)
+    },
+
     ##' @description
     ##' Returns the state of the random number generator. This returns a
     ##' raw vector of length 32 * n_generators. It is primarily intended for
