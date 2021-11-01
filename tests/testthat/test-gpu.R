@@ -400,7 +400,6 @@ test_that("Can control device run block size", {
 
 
 test_that("Can use sirs gpu model", {
-  skip("rework gpu")
   gen <- dust_example("sirs")
   np <- 100
   len <- 20
@@ -410,31 +409,30 @@ test_that("Can use sirs gpu model", {
 
   expect_identical(
     mod1$run(10),
-    mod2$run(10, TRUE))
+    mod2$run(10))
   expect_identical(
     mod1$run(13),
-    mod2$run(13, TRUE))
+    mod2$run(13))
 
   # Test that device_select run is cached
   mod1$set_index(1L)
   mod2$set_index(1L)
   expect_identical(
     mod1$run(15),
-    mod2$run(15, TRUE))
+    mod2$run(15))
   expect_identical(
     mod1$run(15),
-    mod2$run(15, TRUE))
+    mod2$run(15))
 })
 
 test_that("Can simulate sirs gpu model", {
-  skip("rework gpu")
   res <- dust_example("sirs")
 
   steps <- seq(0, 100, by = 10)
   np <- 20
   mod_d <- res$new(list(), 0, np, seed = 1L, device_config = 0L)
   mod_d$set_index(c(1, 3))
-  y <- mod_d$simulate(steps, TRUE)
+  y <- mod_d$simulate(steps)
   expect_equal(dim(y), c(2, np, length(steps)))
 
   mod_h <- res$new(list(), 0, np, seed = 1L)
@@ -442,7 +440,6 @@ test_that("Can simulate sirs gpu model", {
 })
 
 test_that("Comparison function can be run on the GPU", {
-  skip("rework gpu")
   dat <- example_sirs()
 
   np <- 10
@@ -455,7 +452,7 @@ test_that("Comparison function can be run on the GPU", {
   mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_config = 0L)
   mod_d$set_data(dat$dat_dust)
   mod_d$run(4)
-  weights_d <- mod_d$compare_data(TRUE)
+  weights_d <- mod_d$compare_data()
 
   expect_identical(weights_h, weights_d)
 })
