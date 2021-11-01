@@ -729,3 +729,148 @@ test_that("Can't run deterministically on the device", {
             device_config = 0L),
     "Deterministic models not supported on gpu")
 })
+
+
+test_that("can update parameters, leaving state alone", {
+  np <- 100
+  len <- 20
+  gen <- dust_example("variable")
+  pa <- list(len = len, sd = 1)
+  pb <- list(len = len, sd = 2)
+
+  mod1 <- gen$new(pa, 0, np, seed = 1L, device_config = NULL)
+  mod2 <- gen$new(pa, 0, np, seed = 1L, device_config = 0L)
+
+  mod1$run(5)
+  mod2$run(5)
+
+  mod1$update_state(pars = pb)
+  mod2$update_state(pars = pb)
+  expect_identical(mod1$state(), mod2$state())
+
+  y1 <- mod1$run(10)
+  y2 <- mod2$run(10)
+  expect_identical(y1, y2)
+})
+
+
+test_that("can update parameters and time, resetting state", {
+  skip("FIXME: broken")
+  ## This one is broken with the model not advancing after setting
+  ## state this way.
+  np <- 5
+  len <- 3
+  gen <- dust_example("variable")
+  pa <- list(len = len, sd = 1)
+  pb <- list(len = len, sd = 2)
+  mod1 <- gen$new(pa, 0, np, seed = 1L, device_config = NULL)
+  mod2 <- gen$new(pa, 0, np, seed = 1L, device_config = 0L)
+  invisible(mod1$run(5))
+  invisible(mod2$run(5))
+  ## Doing this totally breaks the stepping...
+  mod1$update_state(pars = pb, step = 0)
+  mod2$update_state(pars = pb, step = 0)
+  expect_identical(mod1$state(), mod2$state())
+  expect_equal(mod2$step(), 0)
+  y1 <- mod1$run(20)
+  y2 <- mod2$run(20)
+  expect_identical(y1, y2)
+})
+
+
+test_that("Can set state", {
+  np <- 5
+  len <- 3
+  gen <- dust_example("variable")
+
+  mod1 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = NULL)
+  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
+
+  s1 <- matrix(runif(len * np), len, np)
+  mod1$update_state(state = s1)
+  mod2$update_state(state = s1)
+  expect_equal(mod2$state(), s1)
+  y1 <- mod1$run(10)
+  y2 <- mod2$run(10)
+  expect_equal(y1, y2)
+
+  s2 <- matrix(runif(len * np), len, np)
+  mod1$update_state(state = s2)
+  mod2$update_state(state = s2)
+  expect_equal(mod2$state(), s2)
+  y1 <- mod1$run(19)
+  y2 <- mod2$run(19)
+  expect_equal(y1, y2)
+})
+
+
+test_that("Can extract partial state", {
+  skip("FIXME: broken")
+  ## This one is broken with the first particle's state being copied
+  ## out every time.
+  np <- 5
+  len <- 20
+  gen <- dust_example("variable")
+  mod <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
+  m <- matrix(as.numeric(seq_len(np * len)), len)
+  mod$update_state(state = m)
+  expect_equal(mod$state(idx), m[idx, ])
+})
+
+
+test_that("can extract and reset rng state", {
+  np <- 5
+  len <- 20
+  gen <- dust_example("variable")
+  mod1 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = NULL)
+  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
+
+  r1 <- mod1$rng_state()
+  r2 <- mod2$rng_state()
+  expect_identical(r1, r2)
+
+  y1 <- mod1$run(10)
+  y2 <- mod2$run(10)
+  expect_identical(y1, y2)
+
+  expect_identical(mod1$rng_state(), mod1$rng_state())
+
+  mod1$set_rng_state(rev(r1))
+  mod2$set_rng_state(rev(r1))
+
+  y1 <- mod1$run(20)
+  y2 <- mod2$run(20)
+  expect_identical(y1, y2)
+
+  expect_identical(mod1$rng_state(), mod1$rng_state())
+})
+
+
+test_that("Can update number of threads", {
+  np <- 100
+  len <- 20
+  gen <- dust_example("variable")
+  mod <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
+  expect_equal(mod$set_n_threads(2), 1)
+  expect_equal(mod$n_threads(), 2)
+})
+
+
+test_that("Can resample particles", {
+  skip("FIXME")
+  ## This one suggests a bug in how we're doing the fiddly index
+  ## calculation (actual resample does look correct though)
+  res <- dust_example("variable")
+  obj <- res$new(list(len = 5), 0, 7, seed = 1L, device_config = 0L)
+  m <- matrix(as.numeric(1:35), 5, 7)
+  obj$update_state(state = m)
+  rng <- dust_rng$new(obj$rng_state(last_only = TRUE))
+  u <- rng$random_real(1)
+  w <- runif(obj$n_particles())
+
+  idx <- obj$resample(w)
+
+  expect_equal(idx, resample_index(w, u))
+  expect_equal(obj$state(), m[, idx])
+  expect_equal(rng$state(), obj$rng_state(last_only = TRUE))
+})
