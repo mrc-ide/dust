@@ -739,6 +739,27 @@ test_that("can update parameters, leaving state alone", {
 })
 
 
+test_that("Can reset time", {
+  np <- 100
+  len <- 20
+  gen <- dust_example("variable")
+  mod1 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = NULL)
+  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
+
+  y1 <- mod1$run(5)
+  y2 <- mod2$run(5)
+
+  mod1$update_state(step = 0)
+  mod2$update_state(step = 0)
+  expect_identical(mod1$state(), mod2$state())
+  expect_identical(mod2$step(), 0L)
+
+  y1 <- mod1$run(10)
+  y2 <- mod2$run(10)
+  expect_identical(y1, y2)
+})
+
+
 test_that("can update parameters and time, resetting state", {
   skip("FIXME: broken")
   ## This one is broken with the model not advancing after setting
