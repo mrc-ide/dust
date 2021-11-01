@@ -337,6 +337,7 @@ size_t n_threads() const {
     }
   }
 
+  // TODO: we should really do this via a kernel I think?
   void state(std::vector<size_t> index,
              std::vector<real_type>& end_state) {
     std::vector<real_type> full_state(n_state_full_ * n_particles_total_);
@@ -347,7 +348,8 @@ size_t n_threads() const {
     for (size_t i = 0; i < n_particles_total_; ++i) {
       size_t particle_start = i * index.size();
       for (size_t j = 0; j < index.size(); ++j) {
-        end_state[particle_start + j] = full_state[index[j]];
+        end_state[particle_start + j] =
+          full_state[i * n_state_full_ + index[j]];
       }
     }
   }

@@ -790,7 +790,6 @@ test_that("Can set state", {
 
 
 test_that("Can extract partial state", {
-  skip("FIXME: broken")
   ## This one is broken with the first particle's state being copied
   ## out every time.
   np <- 5
@@ -799,6 +798,7 @@ test_that("Can extract partial state", {
   mod <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
   m <- matrix(as.numeric(seq_len(np * len)), len)
   mod$update_state(state = m)
+  idx <- sample(len, 8)
   expect_equal(mod$state(idx), m[idx, ])
 })
 
