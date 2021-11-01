@@ -219,6 +219,11 @@ size_t n_threads() const {
     step_ = step;
   }
 
+  void set_step(const std::vector<size_t>& step) {
+    // Theoretically this could be done.
+    cpp11::stop("GPU doesn't support multiple steps");
+  }
+
   // It's the callee's responsibility to ensure that index is in
   // range [0, n-1]
   void set_index(const std::vector<size_t>& index) {
