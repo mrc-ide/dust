@@ -58,7 +58,6 @@ void dust_cpu_sir_set_n_threads(SEXP ptr, int n_threads);
 
 [[cpp11::register]]
 int dust_cpu_sir_n_state(SEXP ptr);
-
 // #include <dust/cuda/dust_device.hpp> // should this only be used when device is needed?
 #include <dust/dust.hpp>
 #include <dust/interface/dust.hpp>

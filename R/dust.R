@@ -524,9 +524,23 @@ variable <- R6::R6Class(
            compare_data = dust_cpu_variable_compare_data,
            filter = dust_cpu_variable_filter)
       } else {
-        private$methods_ <- list(alloc = function(...) {
-          stop("GPU support not enabled for this object")
-        })
+        private$methods_ <- list(
+           alloc = dust_gpu_variable_alloc,
+           run = dust_gpu_variable_run,
+           simulate = dust_gpu_variable_simulate,
+           set_index = dust_gpu_variable_set_index,
+           n_state = dust_gpu_variable_n_state,
+           update_state = dust_gpu_variable_update_state,
+           state = dust_gpu_variable_state,
+           step = dust_gpu_variable_step,
+           reorder = dust_gpu_variable_reorder,
+           resample = dust_gpu_variable_resample,
+           rng_state = dust_gpu_variable_rng_state,
+           set_rng_state = dust_gpu_variable_set_rng_state,
+           set_n_threads = dust_gpu_variable_set_n_threads,
+           set_data = dust_gpu_variable_set_data,
+           compare_data = dust_gpu_variable_compare_data,
+           filter = dust_gpu_variable_filter)
       }
       res <- private$methods_$alloc(pars, pars_multi, step, n_particles,
                         n_threads, seed, deterministic, device_config)

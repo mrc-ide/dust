@@ -212,6 +212,70 @@ dust_cpu_sirs_n_state <- function(ptr) {
   .Call(`_dust_dust_cpu_sirs_n_state`, ptr)
 }
 
+dust_gpu_sirs_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {
+  .Call(`_dust_dust_gpu_sirs_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config)
+}
+
+dust_gpu_sirs_run <- function(ptr, step_end) {
+  .Call(`_dust_dust_gpu_sirs_run`, ptr, step_end)
+}
+
+dust_gpu_sirs_simulate <- function(ptr, step_end) {
+  .Call(`_dust_dust_gpu_sirs_simulate`, ptr, step_end)
+}
+
+dust_gpu_sirs_set_index <- function(ptr, r_index) {
+  .Call(`_dust_dust_gpu_sirs_set_index`, ptr, r_index)
+}
+
+dust_gpu_sirs_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state) {
+  .Call(`_dust_dust_gpu_sirs_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state)
+}
+
+dust_gpu_sirs_state <- function(ptr, r_index) {
+  .Call(`_dust_dust_gpu_sirs_state`, ptr, r_index)
+}
+
+dust_gpu_sirs_step <- function(ptr) {
+  .Call(`_dust_dust_gpu_sirs_step`, ptr)
+}
+
+dust_gpu_sirs_reorder <- function(ptr, r_index) {
+  invisible(.Call(`_dust_dust_gpu_sirs_reorder`, ptr, r_index))
+}
+
+dust_gpu_sirs_resample <- function(ptr, r_weights) {
+  .Call(`_dust_dust_gpu_sirs_resample`, ptr, r_weights)
+}
+
+dust_gpu_sirs_rng_state <- function(ptr, first_only, last_only) {
+  .Call(`_dust_dust_gpu_sirs_rng_state`, ptr, first_only, last_only)
+}
+
+dust_gpu_sirs_set_rng_state <- function(ptr, rng_state) {
+  .Call(`_dust_dust_gpu_sirs_set_rng_state`, ptr, rng_state)
+}
+
+dust_gpu_sirs_set_data <- function(ptr, data) {
+  .Call(`_dust_dust_gpu_sirs_set_data`, ptr, data)
+}
+
+dust_gpu_sirs_compare_data <- function(ptr) {
+  .Call(`_dust_dust_gpu_sirs_compare_data`, ptr)
+}
+
+dust_gpu_sirs_filter <- function(ptr, save_trajectories, step_snapshot) {
+  .Call(`_dust_dust_gpu_sirs_filter`, ptr, save_trajectories, step_snapshot)
+}
+
+dust_gpu_sirs_set_n_threads <- function(ptr, n_threads) {
+  invisible(.Call(`_dust_dust_gpu_sirs_set_n_threads`, ptr, n_threads))
+}
+
+dust_gpu_sirs_n_state <- function(ptr) {
+  .Call(`_dust_dust_gpu_sirs_n_state`, ptr)
+}
+
 test_cuda_pars <- function(r_device_config, n_particles, n_particles_each, n_state, n_state_full, n_shared_int, n_shared_real, data_size, shared_size) {
   .Call(`_dust_test_cuda_pars`, r_device_config, n_particles, n_particles_each, n_state, n_state_full, n_shared_int, n_shared_real, data_size, shared_size)
 }
@@ -294,6 +358,70 @@ dust_cpu_variable_set_n_threads <- function(ptr, n_threads) {
 
 dust_cpu_variable_n_state <- function(ptr) {
   .Call(`_dust_dust_cpu_variable_n_state`, ptr)
+}
+
+dust_gpu_variable_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {
+  .Call(`_dust_dust_gpu_variable_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config)
+}
+
+dust_gpu_variable_run <- function(ptr, step_end) {
+  .Call(`_dust_dust_gpu_variable_run`, ptr, step_end)
+}
+
+dust_gpu_variable_simulate <- function(ptr, step_end) {
+  .Call(`_dust_dust_gpu_variable_simulate`, ptr, step_end)
+}
+
+dust_gpu_variable_set_index <- function(ptr, r_index) {
+  .Call(`_dust_dust_gpu_variable_set_index`, ptr, r_index)
+}
+
+dust_gpu_variable_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state) {
+  .Call(`_dust_dust_gpu_variable_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state)
+}
+
+dust_gpu_variable_state <- function(ptr, r_index) {
+  .Call(`_dust_dust_gpu_variable_state`, ptr, r_index)
+}
+
+dust_gpu_variable_step <- function(ptr) {
+  .Call(`_dust_dust_gpu_variable_step`, ptr)
+}
+
+dust_gpu_variable_reorder <- function(ptr, r_index) {
+  invisible(.Call(`_dust_dust_gpu_variable_reorder`, ptr, r_index))
+}
+
+dust_gpu_variable_resample <- function(ptr, r_weights) {
+  .Call(`_dust_dust_gpu_variable_resample`, ptr, r_weights)
+}
+
+dust_gpu_variable_rng_state <- function(ptr, first_only, last_only) {
+  .Call(`_dust_dust_gpu_variable_rng_state`, ptr, first_only, last_only)
+}
+
+dust_gpu_variable_set_rng_state <- function(ptr, rng_state) {
+  .Call(`_dust_dust_gpu_variable_set_rng_state`, ptr, rng_state)
+}
+
+dust_gpu_variable_set_data <- function(ptr, data) {
+  .Call(`_dust_dust_gpu_variable_set_data`, ptr, data)
+}
+
+dust_gpu_variable_compare_data <- function(ptr) {
+  .Call(`_dust_dust_gpu_variable_compare_data`, ptr)
+}
+
+dust_gpu_variable_filter <- function(ptr, save_trajectories, step_snapshot) {
+  .Call(`_dust_dust_gpu_variable_filter`, ptr, save_trajectories, step_snapshot)
+}
+
+dust_gpu_variable_set_n_threads <- function(ptr, n_threads) {
+  invisible(.Call(`_dust_dust_gpu_variable_set_n_threads`, ptr, n_threads))
+}
+
+dust_gpu_variable_n_state <- function(ptr) {
+  .Call(`_dust_dust_gpu_variable_n_state`, ptr)
 }
 
 dust_volatility_capabilities <- function() {

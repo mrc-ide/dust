@@ -1,11 +1,11 @@
 #!/usr/bin/env Rscript
-examples <- c("sir.cpp", "sirs.cpp", "variable.cpp", "volatility.cpp", "walk.cpp")
+examples <- c("sir.cpp", "sirs.cpp", "variable.cpp", "volatility.cpp",
+              "walk.cpp")
 
 setwd(here::here())
 unlink(file.path("src", examples))
 
 pkgload::load_all()
-path <- dust_file("examples/volatility.cpp")
 path <- withr::with_dir("tests/testthat",
                         create_test_package(examples = examples))
 path <- dust_package(path, quiet = TRUE)

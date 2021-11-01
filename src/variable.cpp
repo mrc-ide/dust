@@ -58,7 +58,58 @@ void dust_cpu_variable_set_n_threads(SEXP ptr, int n_threads);
 
 [[cpp11::register]]
 int dust_cpu_variable_n_state(SEXP ptr);
+[[cpp11::register]]
+SEXP dust_gpu_variable_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
+                         cpp11::sexp r_n_particles, size_t n_threads,
+                         cpp11::sexp r_seed, bool deterministic,
+                         cpp11::sexp device_config);
 
+[[cpp11::register]]
+SEXP dust_gpu_variable_run(SEXP ptr, size_t step_end);
+
+[[cpp11::register]]
+SEXP dust_gpu_variable_simulate(SEXP ptr, cpp11::sexp step_end);
+
+[[cpp11::register]]
+SEXP dust_gpu_variable_set_index(SEXP ptr, cpp11::sexp r_index);
+
+[[cpp11::register]]
+SEXP dust_gpu_variable_update_state(SEXP ptr, SEXP r_pars, SEXP r_state,
+                                SEXP r_step, SEXP r_set_initial_state);
+
+[[cpp11::register]]
+SEXP dust_gpu_variable_state(SEXP ptr, SEXP r_index);
+
+[[cpp11::register]]
+size_t dust_gpu_variable_step(SEXP ptr);
+
+[[cpp11::register]]
+void dust_gpu_variable_reorder(SEXP ptr, cpp11::sexp r_index);
+
+[[cpp11::register]]
+SEXP dust_gpu_variable_resample(SEXP ptr, cpp11::doubles r_weights);
+
+[[cpp11::register]]
+SEXP dust_gpu_variable_rng_state(SEXP ptr, bool first_only, bool last_only);
+
+[[cpp11::register]]
+SEXP dust_gpu_variable_set_rng_state(SEXP ptr, cpp11::raws rng_state);
+
+[[cpp11::register]]
+SEXP dust_gpu_variable_set_data(SEXP ptr, cpp11::list data);
+
+[[cpp11::register]]
+SEXP dust_gpu_variable_compare_data(SEXP ptr);
+
+[[cpp11::register]]
+SEXP dust_gpu_variable_filter(SEXP ptr, bool save_trajectories,
+                          cpp11::sexp step_snapshot);
+
+[[cpp11::register]]
+void dust_gpu_variable_set_n_threads(SEXP ptr, int n_threads);
+
+[[cpp11::register]]
+int dust_gpu_variable_n_state(SEXP ptr);
 // #include <dust/cuda/dust_device.hpp> // should this only be used when device is needed?
 #include <dust/dust.hpp>
 #include <dust/interface/dust.hpp>
@@ -256,4 +307,80 @@ void dust_cpu_variable_set_n_threads(SEXP ptr, int n_threads) {
 
 int dust_cpu_variable_n_state(SEXP ptr) {
   return dust::r::dust_n_state<model_cpu>(ptr);
+}
+using model_gpu = dust::DustDevice<variable>;
+
+SEXP dust_gpu_variable_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
+                             cpp11::sexp r_n_particles, size_t n_threads,
+                             cpp11::sexp r_seed, bool deterministic,
+                             cpp11::sexp device_config) {
+  return dust::r::dust_gpu_alloc<variable>(r_pars, pars_multi, step, r_n_particles,
+                                        n_threads, r_seed, deterministic,
+                                        device_config);
+}
+
+SEXP dust_gpu_variable_run(SEXP ptr, size_t step_end) {
+  return dust::r::dust_run<model_gpu>(ptr, step_end);
+}
+
+SEXP dust_gpu_variable_simulate(SEXP ptr, cpp11::sexp step_end) {
+  return dust::r::dust_simulate<model_gpu>(ptr, step_end);
+}
+
+SEXP dust_gpu_variable_set_index(SEXP ptr, cpp11::sexp r_index) {
+  dust::r::dust_set_index<model_gpu>(ptr, r_index);
+  return R_NilValue;
+}
+
+SEXP dust_gpu_variable_update_state(SEXP ptr, SEXP r_pars, SEXP r_state,
+                                SEXP r_step, SEXP r_set_initial_state) {
+  return dust::r::dust_update_state<model_gpu>(ptr, r_pars, r_state, r_step,
+                                               r_set_initial_state);
+}
+
+SEXP dust_gpu_variable_state(SEXP ptr, SEXP r_index) {
+  return dust::r::dust_state<model_gpu>(ptr, r_index);
+}
+
+size_t dust_gpu_variable_step(SEXP ptr) {
+  return dust::r::dust_step<model_gpu>(ptr);
+}
+
+void dust_gpu_variable_reorder(SEXP ptr, cpp11::sexp r_index) {
+  return dust::r::dust_reorder<model_gpu>(ptr, r_index);
+}
+
+SEXP dust_gpu_variable_resample(SEXP ptr, cpp11::doubles r_weights) {
+  return dust::r::dust_resample<model_gpu>(ptr, r_weights);
+}
+
+SEXP dust_gpu_variable_rng_state(SEXP ptr, bool first_only, bool last_only) {
+  return dust::r::dust_rng_state<model_gpu>(ptr, first_only, last_only);
+}
+
+SEXP dust_gpu_variable_set_rng_state(SEXP ptr, cpp11::raws rng_state) {
+  dust::r::dust_set_rng_state<model_gpu>(ptr, rng_state);
+  return R_NilValue;
+}
+
+SEXP dust_gpu_variable_set_data(SEXP ptr, cpp11::list data) {
+  dust::r::dust_set_data<model_gpu>(ptr, data);
+  return R_NilValue;
+}
+
+SEXP dust_gpu_variable_compare_data(SEXP ptr) {
+  return dust::r::dust_compare_data<model_gpu>(ptr);
+}
+
+SEXP dust_gpu_variable_filter(SEXP ptr, bool save_trajectories,
+                          cpp11::sexp step_snapshot) {
+  return dust::r::dust_filter<model_gpu>(ptr, save_trajectories, step_snapshot);
+}
+
+void dust_gpu_variable_set_n_threads(SEXP ptr, int n_threads) {
+  return dust::r::dust_set_n_threads<model_gpu>(ptr, n_threads);
+}
+
+int dust_gpu_variable_n_state(SEXP ptr) {
+  return dust::r::dust_n_state<model_gpu>(ptr);
 }

@@ -114,8 +114,6 @@ sirs::data_type dust_data<sirs>(cpp11::list data) {
 template <>
 struct has_gpu_support<sirs> : std::true_type {};
 
-/*
-
 namespace cuda {
 
 template <>
@@ -194,5 +192,4 @@ sirs::real_type compare_device<sirs>(const dust::cuda::interleaved<sirs::real_ty
 
 }
 
-*/
 }
