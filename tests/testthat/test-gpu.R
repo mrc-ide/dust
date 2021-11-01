@@ -381,8 +381,9 @@ test_that("Can provide device id", {
   expect_error(
     gen$new(list(len = len), 0, np, device_config = 2),
     "Invalid 'device_id' 2, must be at most 0")
-  mod <- gen$new(list(len = len), 0, np, device_config = -10)
-  expect_equal(r6_private(mod)$device_config_$device_id, -10)
+  expect_error(
+    gen$new(list(len = len), 0, np, device_config = -1),
+    "Invalid 'device_id' -1, must be positive")
   mod <- gen$new(list(len = len), 0, np, device_config = NULL)
   expect_equal(r6_private(mod)$device_config_$device_id, NULL)
   mod <- gen$new(list(len = len), 0, np, device_config = 0L)
@@ -395,10 +396,10 @@ test_that("Can control device run block size", {
   len <- 20
   gen <- dust_example("variable")
   mod <- gen$new(list(len = len), 0, np,
-                 device_config = list(device_id = -10, run_block_size = 512))
+                 device_config = list(device_id = 0, run_block_size = 512))
   expect_equal(r6_private(mod)$device_config_,
                list(real_gpu = FALSE,
-                    device_id = -10,
+                    device_id = 0,
                     shared_size = 0,
                     run_block_size = 512))
 })

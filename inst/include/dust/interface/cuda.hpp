@@ -10,25 +10,24 @@ namespace interface {
 
 inline int check_device_id(cpp11::sexp r_device_id) {
 #ifdef __NVCC__
-  const int n_devices = dust::cuda::devices_count();
+  const int device_id_max = dust::cuda::devices_count() - 1;
 #else
   // We allow a device_id set to 0 to allow us to test the device
   // storage. However, if compiling with nvcc the device id must be
   // valid.
-  const int n_devices = 1;
+  const int device_id_max = 0;
 #endif
-  const int device_id_max = n_devices - 1;
-  int device_id = -1;
-  if (r_device_id == R_NilValue) {
-    device_id = device_id_max > 0 ? 0 : -1;
-  } else {
-    device_id = cpp11::as_cpp<int>(r_device_id);
-    if (device_id > device_id_max) {
-      cpp11::stop("Invalid 'device_id' %d, must be at most %d",
-                  device_id, device_id_max);
-    }
+  int device_id = cpp11::as_cpp<int>(r_device_id);
+  // TODO: would be nice to use validate_size here, but helpers.hpp
+  // can't be include because the headers are still in a tangle.
+  if (device_id < 0) {
+    cpp11::stop("Invalid 'device_id' %d, must be positive",
+                device_id);
   }
-
+  if (device_id > device_id_max) {
+    cpp11::stop("Invalid 'device_id' %d, must be at most %d",
+                device_id, device_id_max);
+  }
   return device_id;
 }
 
