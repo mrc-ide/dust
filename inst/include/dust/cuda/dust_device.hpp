@@ -53,7 +53,6 @@ public:
     n_state_(0),
     pars_are_shared_(true),
     n_threads_(n_threads),
-    resample_rng_(1, seed.back()),
     device_config_(device_config),
     select_needed_(true),
     select_scatter_(false),
@@ -80,7 +79,6 @@ public:
     n_state_(0),
     pars_are_shared_(n_particles != 0),
     n_threads_(n_threads),
-    resample_rng_(1, seed.back()),
     device_config_(device_config),
     select_needed_(true),
     select_scatter_(false),
@@ -419,10 +417,16 @@ size_t n_threads() const {
   // Functions used in the device filter
   void resample(dust::cuda::device_array<real_type>& weights,
                 dust::cuda::device_scan_state<real_type>& scan) {
-    dust::filter::run_device_resample(n_particles(), n_pars_effective(), n_state_full(),
-                                      cuda_pars_, kernel_stream_, resample_stream_,
-                                      resample_rng_.state(0),
-                                      device_state_, weights, scan);
+    dust::filter::run_device_resample(n_particles(),
+                                      n_pars_effective(),
+                                      n_state_full(),
+                                      cuda_pars_,
+                                      kernel_stream_,
+                                      resample_stream_,
+                                      resample_rng_,
+                                      device_state_,
+                                      weights,
+                                      scan);
   }
 
   dust::cuda::device_array<size_t>& kappa() {
@@ -538,7 +542,7 @@ private:
 
   std::vector<size_t> shape_; // shape of output
   size_t n_threads_;
-  dust::random::prng<rng_state_type> resample_rng_; // for the filter
+  rng_state_type resample_rng_; // for the filter
   cuda::device_config device_config_;
 
   // GPU support
@@ -621,38 +625,45 @@ private:
     }
     // H -> D copy
     device_state_.rng.set_array(rng);
+    
     // This also imports the resample RNG, which is on the host
-    resample_rng_.import_state(host_rng.state(n_particles_total_), 0);
+    resample_rng_ = host_rng.state(n_particles_total_);
   }
 
-  // Set GPU RNG from a seed
-  void set_device_rng(size_t n_generators, const std::vector<rng_int_type>& seed) {
-    const bool deterministic = false;
-    dust::random::prng<rng_state_type> prng_host(n_particles_total_ + 1, seed, deterministic);
-    set_device_rng(prng_host);
+  // Set GPU RNG from a seed; primary reason for this function is to
+  // expand out seed correctly.
+  void set_device_rng(size_t n_generators,
+                      const std::vector<rng_int_type>& seed) {
+    dust::random::prng<rng_state_type> rng(n_particles_total_ + 1, seed);
+    set_device_rng(rng);
   }
 
   void get_device_rng(dust::random::prng<rng_state_type>& rng) {
     const size_t np = n_particles();
     constexpr size_t rng_len = rng_state_type::size();
-    std::vector<rng_int_type> rngi(np * rng_len); // Interleaved RNG state
-    std::vector<rng_int_type> rngd((np + 1) * rng_len); // Deinterleaved RNG state
-    // D -> H copy
+
+    // Interleaved rng state:
+    std::vector<rng_int_type> rngi(np * rng_len);
+    // De-interleaved RNG state
+    std::vector<rng_int_type> rngd((np + 1) * rng_len);
+    // Device to host copy
     device_state_.rng.get_array(rngi);
+
+    // Destride the copy into rngd
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
     for (size_t i = 0; i < np; ++i) {
-      // Destride RNG
       for (size_t j = 0; j < rng_len; ++j) {
         rngd[i * rng_len + j] = rngi[i + j * np];
       }
     }
+
     // Add the (host) resample state on the end
-    std::vector<rng_int_type> resample_state = resample_rng_.export_state();
     for (size_t j = 0; j < rng_len; ++j) {
-      rngd[np + j] = resample_state[j];
+      rngd[np * rng_len + j] = resample_rng_[j];
     }
+
     rng.import_state(rngd, np + 1);
   }
 
