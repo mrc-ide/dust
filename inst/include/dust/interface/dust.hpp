@@ -489,8 +489,8 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
   }
 
   // TODO: obj->data() for dust; obj->data_offsets() for dustdevice
-  std::vector<size_t> step_snapshot =
-      dust::interface::check_step_snapshot(r_step_snapshot, obj->data_offsets());
+  // std::vector<size_t> step_snapshot =
+  //     dust::interface::check_step_snapshot(r_step_snapshot, obj->data_offsets());
 
   cpp11::sexp r_trajectories, r_snapshots;
   // TODO: this bit needs much work!
