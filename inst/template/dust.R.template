@@ -148,12 +148,7 @@
     ##'
     ##' @param step_end Step to run to (if less than or equal to the current
     ##'   step(), silently nothing will happen)
-    ##'
-    ##' @param device Logical, indicating if the model should be run on
-    ##'   the GPU device. This is only possible if your model supports it,
-    ##'   was compiled with this enabled, and you have a suitable GPU
-    ##'   available (see `vignette("cuda")`).
-    run = function(step_end, device = FALSE) {
+    run = function(step_end) {
       m <- private$methods_$run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
@@ -177,10 +172,7 @@
     ##'   as the current time, and every subsequent time must be equal or
     ##'   greater than those before it (ties are allowed though probably
     ##'   not wanted).
-    ##'
-    ##' @param device Logical, indicating if the model should be run on
-    ##'   the GPU device. See `$run()` for more information.
-    simulate = function(step_end, device = FALSE) {
+    simulate = function(step_end) {
       m <- private$methods_$simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
@@ -487,10 +479,7 @@
     ##' the same length as the number of particles is returned. If model's
     ##' underlying `compare_data` function is stochastic, then each call to
     ##' this function may be result in a different answer.
-    ##'
-    ##' @param device Logical, indicating if the model should be run on
-    ##'   the GPU device. See `$run()` for more information.
-    compare_data = function(device = FALSE) {
+    compare_data = function() {
       private$methods_$compare_data(private$ptr_)
     },
 
@@ -512,11 +501,7 @@
     ##' match steps given in the `data` object. The return value with be
     ##' a multidimensional array (`state x <shape> x step_snapshot`)
     ##' containing full state values at the requested steps.
-    ##'
-    ##' @param device Logical, indicating if the model should be run on
-    ##'   the GPU device. See `$run()` for more information.
-    filter = function(save_trajectories = FALSE, step_snapshot = NULL,
-                      device = FALSE) {
+    filter = function(save_trajectories = FALSE, step_snapshot = NULL) {
       private$methods_$filter(private$ptr_, save_trajectories, step_snapshot)
     },
 

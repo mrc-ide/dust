@@ -33,7 +33,7 @@ cpp11::sexp dust_info(const dust::pars_type<T>& pars) {
 #include <dust/cuda/dust_device.hpp>
 #include <dust/interface/cuda.hpp>
 #include <dust/filter.hpp>
-// #include <dust/cuda/filter.hpp>
+#include <dust/cuda/filter.hpp>
 
 namespace dust {
 
@@ -458,16 +458,15 @@ cpp11::sexp save_snapshots(const filter_state& snapshots, const T *obj,
 
 // TODO: this should be rewritten to return a list of 3 cpp1::sexp not
 // passing two as references.
-template <typename T, typename state_type>
+template <typename T>
 cpp11::writable::doubles run_filter(T * obj,
                                     cpp11::sexp& r_trajectories,
                                     cpp11::sexp& r_snapshots,
                                     std::vector<size_t>& step_snapshot,
                                     bool save_trajectories) {
-  state_type filter_state;
+  typename T::filter_state_type filter_state;
   cpp11::writable::doubles log_likelihood =
-    dust::filter::filter(obj, filter_state,
-                         save_trajectories, step_snapshot);
+    dust::filter::filter(obj, filter_state, save_trajectories, step_snapshot);
   if (save_trajectories) {
     r_trajectories = dust::r::save_trajectories(filter_state.trajectories, obj);
   }
@@ -488,16 +487,13 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
     cpp11::stop("Data has not been set for this object");
   }
 
-  // TODO: obj->data() for dust; obj->data_offsets() for dustdevice
-  // std::vector<size_t> step_snapshot =
-  //     dust::interface::check_step_snapshot(r_step_snapshot, obj->data_offsets());
+  std::vector<size_t> step_snapshot =
+      dust::interface::check_step_snapshot(r_step_snapshot, obj->data());
 
   cpp11::sexp r_trajectories, r_snapshots;
-  // TODO: this bit needs much work!
-  // cpp11::writable::doubles log_likelihood =
-  //   run_filter<T, dust::filter::filter_state_device<real_type>>
-  //   (obj, r_trajectories, r_snapshots, step_snapshot, save_trajectories);
-  cpp11::writable::doubles log_likelihood;
+  cpp11::writable::doubles log_likelihood =
+    run_filter<T>(obj, r_trajectories, r_snapshots, step_snapshot,
+                  save_trajectories);
 
   using namespace cpp11::literals;
   return cpp11::writable::list({"log_likelihood"_nm = log_likelihood,

@@ -74,13 +74,13 @@ sir <- R6::R6Class(
       private$param_
     },
 
-    run = function(step_end, device = FALSE) {
+    run = function(step_end) {
       m <- private$methods_$run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
-    simulate = function(step_end, device = FALSE) {
+    simulate = function(step_end) {
       m <- private$methods_$simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
@@ -214,12 +214,11 @@ sir <- R6::R6Class(
       private$methods_$set_data(private$ptr_, data)
     },
 
-    compare_data = function(device = FALSE) {
+    compare_data = function() {
       private$methods_$compare_data(private$ptr_)
     },
 
-    filter = function(save_trajectories = FALSE, step_snapshot = NULL,
-                      device = FALSE) {
+    filter = function(save_trajectories = FALSE, step_snapshot = NULL) {
       private$methods_$filter(private$ptr_, save_trajectories, step_snapshot)
     },
 
@@ -322,13 +321,13 @@ sirs <- R6::R6Class(
       private$param_
     },
 
-    run = function(step_end, device = FALSE) {
+    run = function(step_end) {
       m <- private$methods_$run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
-    simulate = function(step_end, device = FALSE) {
+    simulate = function(step_end) {
       m <- private$methods_$simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
@@ -462,12 +461,11 @@ sirs <- R6::R6Class(
       private$methods_$set_data(private$ptr_, data)
     },
 
-    compare_data = function(device = FALSE) {
+    compare_data = function() {
       private$methods_$compare_data(private$ptr_)
     },
 
-    filter = function(save_trajectories = FALSE, step_snapshot = NULL,
-                      device = FALSE) {
+    filter = function(save_trajectories = FALSE, step_snapshot = NULL) {
       private$methods_$filter(private$ptr_, save_trajectories, step_snapshot)
     },
 
@@ -567,13 +565,13 @@ variable <- R6::R6Class(
       private$param_
     },
 
-    run = function(step_end, device = FALSE) {
+    run = function(step_end) {
       m <- private$methods_$run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
-    simulate = function(step_end, device = FALSE) {
+    simulate = function(step_end) {
       m <- private$methods_$simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
@@ -707,12 +705,11 @@ variable <- R6::R6Class(
       private$methods_$set_data(private$ptr_, data)
     },
 
-    compare_data = function(device = FALSE) {
+    compare_data = function() {
       private$methods_$compare_data(private$ptr_)
     },
 
-    filter = function(save_trajectories = FALSE, step_snapshot = NULL,
-                      device = FALSE) {
+    filter = function(save_trajectories = FALSE, step_snapshot = NULL) {
       private$methods_$filter(private$ptr_, save_trajectories, step_snapshot)
     },
 
@@ -798,13 +795,13 @@ volatility <- R6::R6Class(
       private$param_
     },
 
-    run = function(step_end, device = FALSE) {
+    run = function(step_end) {
       m <- private$methods_$run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
-    simulate = function(step_end, device = FALSE) {
+    simulate = function(step_end) {
       m <- private$methods_$simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
@@ -938,12 +935,11 @@ volatility <- R6::R6Class(
       private$methods_$set_data(private$ptr_, data)
     },
 
-    compare_data = function(device = FALSE) {
+    compare_data = function() {
       private$methods_$compare_data(private$ptr_)
     },
 
-    filter = function(save_trajectories = FALSE, step_snapshot = NULL,
-                      device = FALSE) {
+    filter = function(save_trajectories = FALSE, step_snapshot = NULL) {
       private$methods_$filter(private$ptr_, save_trajectories, step_snapshot)
     },
 
@@ -1029,13 +1025,13 @@ walk <- R6::R6Class(
       private$param_
     },
 
-    run = function(step_end, device = FALSE) {
+    run = function(step_end) {
       m <- private$methods_$run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
-    simulate = function(step_end, device = FALSE) {
+    simulate = function(step_end) {
       m <- private$methods_$simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
@@ -1169,12 +1165,11 @@ walk <- R6::R6Class(
       private$methods_$set_data(private$ptr_, data)
     },
 
-    compare_data = function(device = FALSE) {
+    compare_data = function() {
       private$methods_$compare_data(private$ptr_)
     },
 
-    filter = function(save_trajectories = FALSE, step_snapshot = NULL,
-                      device = FALSE) {
+    filter = function(save_trajectories = FALSE, step_snapshot = NULL) {
       private$methods_$filter(private$ptr_, save_trajectories, step_snapshot)
     },
 

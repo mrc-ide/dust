@@ -40,6 +40,9 @@ public:
   typedef typename T::rng_state_type rng_state_type;
   typedef typename rng_state_type::int_type rng_int_type;
 
+  // TODO: fix this elsewhere, perhaps (see also dust/dust.hpp)
+  typedef dust::filter::filter_state_device<real_type> filter_state_type;
+
   DustDevice(const pars_type& pars, const size_t step, const size_t n_particles,
        const size_t n_threads, const std::vector<rng_int_type>& seed,
        const cuda::device_config& device_config) :
@@ -139,7 +142,8 @@ size_t n_threads() const {
     return device_data_offsets_.size();
   }
 
-  const std::map<size_t, size_t>& data_offsets() const {
+  // NOTE: this is _just_ the offsets, but conforms to the interface we need.
+  const std::map<size_t, size_t>& data() const {
     return device_data_offsets_;
   }
 

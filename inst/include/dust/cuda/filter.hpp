@@ -38,7 +38,7 @@ filter(DustDevice<T> * obj,
     state.snapshots.resize(obj->n_state_full(), n_particles, step_snapshot);
   }
 
-  for (auto & d : obj->data_offsets()) {
+  for (auto & d : obj->data()) {
     // MODEL UPDATE
     obj->run(d.first);
 

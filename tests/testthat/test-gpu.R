@@ -458,7 +458,6 @@ test_that("Comparison function can be run on the GPU", {
 })
 
 test_that("Can run a single particle filter on the GPU", {
-  skip("rework gpu")
   dat <- example_sirs()
 
   np <- 10
@@ -470,8 +469,7 @@ test_that("Can run a single particle filter on the GPU", {
 
   mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_config = 0L)
   mod_d$set_data(dat$dat_dust)
-  ans_d <- mod_d$filter(device = TRUE,
-                        save_trajectories = TRUE,
+  ans_d <- mod_d$filter(save_trajectories = TRUE,
                         step_snapshot = c(4, 16))
 
   expect_equal(ans_h$log_likelihood, ans_d$log_likelihood)
@@ -480,7 +478,6 @@ test_that("Can run a single particle filter on the GPU", {
 })
 
 test_that("Can run particle filter without collecting state on GPU", {
-  skip("rework gpu")
   dat <- example_sirs()
 
   np <- 10
@@ -491,13 +488,12 @@ test_that("Can run particle filter without collecting state on GPU", {
 
   mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_config = 0L)
   mod_d$set_data(dat$dat_dust)
-  ans_d <- mod_d$filter(device = TRUE)
+  ans_d <- mod_d$filter()
 
   expect_equal(ans_h$log_likelihood, ans_d$log_likelihood)
 })
 
 test_that("Can run GPU kernels using shared memory", {
-  skip("rework gpu")
   dat <- example_sirs()
 
   # Larger particle size makes multiple blocks be used
@@ -510,8 +506,7 @@ test_that("Can run GPU kernels using shared memory", {
 
   mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_config = 0L)
   mod_d$set_data(dat$dat_dust)
-  ans_d <- mod_d$filter(device = TRUE,
-                        save_trajectories = TRUE,
+  ans_d <- mod_d$filter(save_trajectories = TRUE,
                         step_snapshot = c(4, 16))
 
   expect_equal(ans_h$log_likelihood, ans_d$log_likelihood)
@@ -520,7 +515,6 @@ test_that("Can run GPU kernels using shared memory", {
 })
 
 test_that("Can run multiple particle filters on the GPU", {
-  skip("rework gpu")
   dat <- example_sirs()
 
   np <- 10
@@ -534,8 +528,7 @@ test_that("Can run multiple particle filters on the GPU", {
   mod_d <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE,
                          device_config = 0L)
   mod_d$set_data(dust_data(dat$dat, multi = 2))
-  ans_d <- mod_d$filter(device = TRUE,
-                        save_trajectories = TRUE,
+  ans_d <- mod_d$filter(save_trajectories = TRUE,
                         step_snapshot = c(4, 16))
 
   expect_equal(ans_h$log_likelihood, ans_d$log_likelihood)

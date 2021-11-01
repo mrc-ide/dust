@@ -33,6 +33,9 @@ public:
   typedef typename T::rng_state_type rng_state_type;
   typedef typename rng_state_type::int_type rng_int_type;
 
+  // TODO: fix this elsewhere, perhaps (see also cuda/dust_device.hpp)
+  typedef dust::filter::filter_state_host<real_type> filter_state_type;
+
   Dust(const pars_type& pars, const size_t step, const size_t n_particles,
        const size_t n_threads, const std::vector<rng_int_type>& seed,
        const bool deterministic) :
