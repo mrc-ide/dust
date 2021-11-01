@@ -9,7 +9,7 @@ r6_private <- function(x) {
 
 
 create_test_package <- function(name = "pkg", path = tempfile(),
-                                examples = c("walk.cpp", "sir.cpp")) {
+                                examples = c("walk.cpp", "sirs.cpp")) {
   dir.create(path, FALSE, TRUE)
   dir.create(file.path(path, "inst/dust"), FALSE, TRUE)
   dir.create(file.path(path, "R"), FALSE, TRUE)
