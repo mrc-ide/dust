@@ -702,6 +702,7 @@ private:
 
   // Set state from model + vector of pars
   void initialise_device_state(const std::vector<pars_type>& pars) {
+    // TODO: this is wildly inefficient
     std::vector<std::vector<real_type>> state_host(n_particles() * n_pars_);
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
@@ -709,7 +710,9 @@ private:
     for (size_t i = 0; i < n_pars_; ++i) {
       for (size_t j = 0; j < n_particles(); ++j) {
         dust::Particle<T> p_tmp(pars[i], step_);
-        p_tmp.state_full(state_host[i].begin());
+        std::vector<real_type> y(p_tmp.size());
+        p_tmp.state_full(y.begin());
+        state_host[i * n_particles() + j] = y;
       }
     }
 
