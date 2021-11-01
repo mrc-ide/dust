@@ -324,6 +324,10 @@ struct device_state {
     compare_res = device_array<real_type>(n_particles);
     resample_u = device_array<real_type>(n_pars);
     set_cub_tmp();
+    // TODO: throughout there is room to simplify here as we have
+    // these methods that require being given n_state, n_pars,
+    // n_particles etc which are fixed.
+    set_device_index(n_particles, n_state);
   }
   void swap() {
     std::swap(y, y_next);
@@ -346,6 +350,18 @@ struct device_state {
     select_tmp.set_size(tmp_bytes);
 #endif
   }
+
+  // TODO: as noted in the constructor, we have all the bits for this
+  // already in the object.
+  void set_device_index(const size_t n_particles,
+                        const size_t n_state_full) {
+    std::vector<size_t> index(n_state_full);
+    for (size_t i = 0; i < n_state_full; ++i) {
+      index[i] = i;
+    }
+    set_device_index(index, n_particles, n_state_full);
+  }
+
   void set_device_index(const std::vector<size_t>& host_index,
                         const size_t n_particles,
                         const size_t n_state_full) {

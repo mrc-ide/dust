@@ -244,7 +244,8 @@ size_t n_threads() const {
                                      kernel_stream_.stream()>>>(
                       step_start, step_end, n_particles_total_,
                       n_pars_effective(),
-                      device_state_.y.data(), device_state_.y_next.data(),
+                      device_state_.y.data(),
+                      device_state_.y_next.data(),
                       device_state_.internal_int.data(),
                       device_state_.internal_real.data(),
                       device_state_.n_shared_int,
@@ -260,7 +261,8 @@ size_t n_threads() const {
       const bool use_shared_real = false;
       dust::cuda::run_particles<T>(step_start, step_end, n_particles_total_,
                       n_pars_effective(),
-                      device_state_.y.data(), device_state_.y_next.data(),
+                      device_state_.y.data(),
+                      device_state_.y_next.data(),
                       device_state_.internal_int.data(),
                       device_state_.internal_real.data(),
                       device_state_.n_shared_int,
