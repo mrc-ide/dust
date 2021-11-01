@@ -40,7 +40,7 @@ generate_dust <- function(filename, quiet, workdir, cuda, skip_cache, mangle) {
   dust_hpp <- c(substitute_dust_template(data, "dust.hpp", NULL),
                 substitute_dust_template(data, "dust_methods.hpp", NULL))
 
-  if (config$gpu_support) {
+  if (config$has_gpu_support) {
     data_gpu <- data
     data_gpu$target <- "gpu"
     data_gpu$container <- "DustDevice"
@@ -140,7 +140,7 @@ dust_template_data <- function(model, config, cuda) {
   }
   methods_cpu <- methods("cpu")
 
-  if (config$gpu_support) {
+  if (config$has_gpu_support) {
     methods_gpu <- methods("gpu")
   } else {
     methods_gpu <- paste(
