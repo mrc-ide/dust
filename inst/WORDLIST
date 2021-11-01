@@ -2,8 +2,10 @@ AppVeyor
 BH
 Baguelin
 Bhatia
+Blackmann
 CMRG
 COVID
+CRAN's
 CUDA
 CUDA
 CUDA's
@@ -45,6 +47,7 @@ dqrng
 etc
 io
 ip
+macOS
 mcstate
 memcpy
 multiparameter
@@ -70,11 +73,14 @@ starstar
 stochasticity
 struct
 th
+threefry
 timesteps
 tradeoffs
 typedef
 typedefs
+uint
 uncoalesced
 unitless
+vandercorput
 wellcomeopenres
 xoshiro
