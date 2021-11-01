@@ -14,6 +14,7 @@ sir <- R6::R6Class(
     shape_ = NULL,
     ptr_ = NULL,
     device_config_ = NULL,
+    methods_ = NULL,
     param_ = list(I0 = list(required = FALSE),
      beta = list(required = FALSE),
      gamma = list(required = FALSE),
@@ -25,7 +26,30 @@ sir <- R6::R6Class(
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
                           device_config = NULL) {
-      res <- dust_sir_alloc(pars, pars_multi, step, n_particles,
+      if (is.null(device_config)) {
+        private$methods_ <- list(
+           alloc = dust_cpu_sir_alloc,
+           run = dust_cpu_sir_run,
+           simulate = dust_cpu_sir_simulate,
+           set_index = dust_cpu_sir_set_index,
+           n_state = dust_cpu_sir_n_state,
+           update_state = dust_cpu_sir_update_state,
+           state = dust_cpu_sir_state,
+           step = dust_cpu_sir_step,
+           reorder = dust_cpu_sir_reorder,
+           resample = dust_cpu_sir_resample,
+           rng_state = dust_cpu_sir_rng_state,
+           set_rng_state = dust_cpu_sir_set_rng_state,
+           set_n_threads = dust_cpu_sir_set_n_threads,
+           set_data = dust_cpu_sir_set_data,
+           compare_data = dust_cpu_sir_compare_data,
+           filter = dust_cpu_sir_filter)
+      } else {
+        private$methods_ <- list(alloc = function(...) {
+          stop("GPU support not enabled for this object")
+        })
+      }
+      res <- private$methods_$alloc(pars, pars_multi, step, n_particles,
                         n_threads, seed, deterministic, device_config)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
@@ -33,7 +57,7 @@ sir <- R6::R6Class(
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
-      # private$device_config_ <- res[[4L]]
+      private$device_config_ <- res[[4L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -51,19 +75,19 @@ sir <- R6::R6Class(
     },
 
     run = function(step_end, device = FALSE) {
-      m <- dust_sir_run(private$ptr_, step_end)
+      m <- private$methods_$run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
     simulate = function(step_end, device = FALSE) {
-      m <- dust_sir_simulate(private$ptr_, step_end)
+      m <- private$methods_$simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
     set_index = function(index) {
-      dust_sir_set_index(private$ptr_, index)
+      private$methods_$set_index(private$ptr_, index)
       private$index_ <- index
       invisible()
     },
@@ -77,7 +101,7 @@ sir <- R6::R6Class(
     },
 
     n_state = function() {
-      dust_sir_n_state(private$ptr_)
+      private$methods_$n_state(private$ptr_)
     },
 
     n_particles = function() {
@@ -117,8 +141,8 @@ sir <- R6::R6Class(
 
     update_state = function(pars = NULL, state = NULL, step = NULL,
                             set_initial_state = NULL) {
-      info <- dust_sir_update_state(private$ptr_, pars, state, step,
-                                         set_initial_state)
+      info <- private$methods_$update_state(private$ptr_, pars, state, step,
+                                          set_initial_state)
       if (!is.null(pars)) {
         private$info_ <- info
         private$pars_ <- pars
@@ -127,23 +151,23 @@ sir <- R6::R6Class(
     },
 
     state = function(index = NULL) {
-      m <- dust_sir_state(private$ptr_, index)
+      m <- private$methods_$state(private$ptr_, index)
       rownames(m) <- names(index)
       m
     },
 
     step = function() {
-      dust_sir_step(private$ptr_)
+      private$methods_$step(private$ptr_)
     },
 
     reorder = function(index) {
       storage.mode(index) <- "integer"
-      dust_sir_reorder(private$ptr_, index)
+      private$methods_$reorder(private$ptr_, index)
       invisible()
     },
 
     resample = function(weights) {
-      invisible(dust_sir_resample(private$ptr_, weights))
+      invisible(private$methods_$resample(private$ptr_, weights))
     },
 
     info = function() {
@@ -155,11 +179,11 @@ sir <- R6::R6Class(
     },
 
     rng_state = function(first_only = FALSE, last_only = FALSE) {
-      dust_sir_rng_state(private$ptr_, first_only, last_only)
+      private$methods_$rng_state(private$ptr_, first_only, last_only)
     },
 
     set_rng_state = function(rng_state) {
-      dust_sir_set_rng_state(private$ptr_, rng_state)
+      private$methods_$set_rng_state(private$ptr_, rng_state)
       invisible()
     },
 
@@ -177,7 +201,7 @@ sir <- R6::R6Class(
 
     set_n_threads = function(n_threads) {
       prev <- private$n_threads_
-      dust_sir_set_n_threads(private$ptr_, n_threads)
+      private$methods_$set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
     },
@@ -187,17 +211,16 @@ sir <- R6::R6Class(
     },
 
     set_data = function(data) {
-      dust_sir_set_data(private$ptr_, data)
+      private$methods_$set_data(private$ptr_, data)
     },
 
     compare_data = function(device = FALSE) {
-      dust_sir_compare_data(private$ptr_)
+      private$methods_$compare_data(private$ptr_)
     },
 
     filter = function(save_trajectories = FALSE, step_snapshot = NULL,
                       device = FALSE) {
-      dust_sir_filter(private$ptr_, save_trajectories,
-                           step_snapshot)
+      private$methods_$filter(private$ptr_, save_trajectories, step_snapshot)
     },
 
     device_info = function() {
@@ -225,6 +248,7 @@ sirs <- R6::R6Class(
     shape_ = NULL,
     ptr_ = NULL,
     device_config_ = NULL,
+    methods_ = NULL,
     param_ = list(freq = list(required = FALSE, default = 1),
      alpha = list(required = FALSE, default = 0.1),
      beta = list(required = FALSE, default = 0.2),
@@ -236,7 +260,44 @@ sirs <- R6::R6Class(
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
                           device_config = NULL) {
-      res <- dust_sirs_alloc(pars, pars_multi, step, n_particles,
+      if (is.null(device_config)) {
+        private$methods_ <- list(
+           alloc = dust_cpu_sirs_alloc,
+           run = dust_cpu_sirs_run,
+           simulate = dust_cpu_sirs_simulate,
+           set_index = dust_cpu_sirs_set_index,
+           n_state = dust_cpu_sirs_n_state,
+           update_state = dust_cpu_sirs_update_state,
+           state = dust_cpu_sirs_state,
+           step = dust_cpu_sirs_step,
+           reorder = dust_cpu_sirs_reorder,
+           resample = dust_cpu_sirs_resample,
+           rng_state = dust_cpu_sirs_rng_state,
+           set_rng_state = dust_cpu_sirs_set_rng_state,
+           set_n_threads = dust_cpu_sirs_set_n_threads,
+           set_data = dust_cpu_sirs_set_data,
+           compare_data = dust_cpu_sirs_compare_data,
+           filter = dust_cpu_sirs_filter)
+      } else {
+        private$methods_ <- list(
+           alloc = dust_gpu_sirs_alloc,
+           run = dust_gpu_sirs_run,
+           simulate = dust_gpu_sirs_simulate,
+           set_index = dust_gpu_sirs_set_index,
+           n_state = dust_gpu_sirs_n_state,
+           update_state = dust_gpu_sirs_update_state,
+           state = dust_gpu_sirs_state,
+           step = dust_gpu_sirs_step,
+           reorder = dust_gpu_sirs_reorder,
+           resample = dust_gpu_sirs_resample,
+           rng_state = dust_gpu_sirs_rng_state,
+           set_rng_state = dust_gpu_sirs_set_rng_state,
+           set_n_threads = dust_gpu_sirs_set_n_threads,
+           set_data = dust_gpu_sirs_set_data,
+           compare_data = dust_gpu_sirs_compare_data,
+           filter = dust_gpu_sirs_filter)
+      }
+      res <- private$methods_$alloc(pars, pars_multi, step, n_particles,
                         n_threads, seed, deterministic, device_config)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
@@ -244,7 +305,7 @@ sirs <- R6::R6Class(
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
-      # private$device_config_ <- res[[4L]]
+      private$device_config_ <- res[[4L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -262,19 +323,19 @@ sirs <- R6::R6Class(
     },
 
     run = function(step_end, device = FALSE) {
-      m <- dust_sirs_run(private$ptr_, step_end)
+      m <- private$methods_$run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
     simulate = function(step_end, device = FALSE) {
-      m <- dust_sirs_simulate(private$ptr_, step_end)
+      m <- private$methods_$simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
     set_index = function(index) {
-      dust_sirs_set_index(private$ptr_, index)
+      private$methods_$set_index(private$ptr_, index)
       private$index_ <- index
       invisible()
     },
@@ -288,7 +349,7 @@ sirs <- R6::R6Class(
     },
 
     n_state = function() {
-      dust_sirs_n_state(private$ptr_)
+      private$methods_$n_state(private$ptr_)
     },
 
     n_particles = function() {
@@ -328,8 +389,8 @@ sirs <- R6::R6Class(
 
     update_state = function(pars = NULL, state = NULL, step = NULL,
                             set_initial_state = NULL) {
-      info <- dust_sirs_update_state(private$ptr_, pars, state, step,
-                                         set_initial_state)
+      info <- private$methods_$update_state(private$ptr_, pars, state, step,
+                                          set_initial_state)
       if (!is.null(pars)) {
         private$info_ <- info
         private$pars_ <- pars
@@ -338,23 +399,23 @@ sirs <- R6::R6Class(
     },
 
     state = function(index = NULL) {
-      m <- dust_sirs_state(private$ptr_, index)
+      m <- private$methods_$state(private$ptr_, index)
       rownames(m) <- names(index)
       m
     },
 
     step = function() {
-      dust_sirs_step(private$ptr_)
+      private$methods_$step(private$ptr_)
     },
 
     reorder = function(index) {
       storage.mode(index) <- "integer"
-      dust_sirs_reorder(private$ptr_, index)
+      private$methods_$reorder(private$ptr_, index)
       invisible()
     },
 
     resample = function(weights) {
-      invisible(dust_sirs_resample(private$ptr_, weights))
+      invisible(private$methods_$resample(private$ptr_, weights))
     },
 
     info = function() {
@@ -366,11 +427,11 @@ sirs <- R6::R6Class(
     },
 
     rng_state = function(first_only = FALSE, last_only = FALSE) {
-      dust_sirs_rng_state(private$ptr_, first_only, last_only)
+      private$methods_$rng_state(private$ptr_, first_only, last_only)
     },
 
     set_rng_state = function(rng_state) {
-      dust_sirs_set_rng_state(private$ptr_, rng_state)
+      private$methods_$set_rng_state(private$ptr_, rng_state)
       invisible()
     },
 
@@ -388,7 +449,7 @@ sirs <- R6::R6Class(
 
     set_n_threads = function(n_threads) {
       prev <- private$n_threads_
-      dust_sirs_set_n_threads(private$ptr_, n_threads)
+      private$methods_$set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
     },
@@ -398,17 +459,16 @@ sirs <- R6::R6Class(
     },
 
     set_data = function(data) {
-      dust_sirs_set_data(private$ptr_, data)
+      private$methods_$set_data(private$ptr_, data)
     },
 
     compare_data = function(device = FALSE) {
-      dust_sirs_compare_data(private$ptr_)
+      private$methods_$compare_data(private$ptr_)
     },
 
     filter = function(save_trajectories = FALSE, step_snapshot = NULL,
                       device = FALSE) {
-      dust_sirs_filter(private$ptr_, save_trajectories,
-                           step_snapshot)
+      private$methods_$filter(private$ptr_, save_trajectories, step_snapshot)
     },
 
     device_info = function() {
@@ -436,6 +496,7 @@ variable <- R6::R6Class(
     shape_ = NULL,
     ptr_ = NULL,
     device_config_ = NULL,
+    methods_ = NULL,
     param_ = NULL
   ),
 
@@ -444,7 +505,30 @@ variable <- R6::R6Class(
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
                           device_config = NULL) {
-      res <- dust_variable_alloc(pars, pars_multi, step, n_particles,
+      if (is.null(device_config)) {
+        private$methods_ <- list(
+           alloc = dust_cpu_variable_alloc,
+           run = dust_cpu_variable_run,
+           simulate = dust_cpu_variable_simulate,
+           set_index = dust_cpu_variable_set_index,
+           n_state = dust_cpu_variable_n_state,
+           update_state = dust_cpu_variable_update_state,
+           state = dust_cpu_variable_state,
+           step = dust_cpu_variable_step,
+           reorder = dust_cpu_variable_reorder,
+           resample = dust_cpu_variable_resample,
+           rng_state = dust_cpu_variable_rng_state,
+           set_rng_state = dust_cpu_variable_set_rng_state,
+           set_n_threads = dust_cpu_variable_set_n_threads,
+           set_data = dust_cpu_variable_set_data,
+           compare_data = dust_cpu_variable_compare_data,
+           filter = dust_cpu_variable_filter)
+      } else {
+        private$methods_ <- list(alloc = function(...) {
+          stop("GPU support not enabled for this object")
+        })
+      }
+      res <- private$methods_$alloc(pars, pars_multi, step, n_particles,
                         n_threads, seed, deterministic, device_config)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
@@ -452,7 +536,7 @@ variable <- R6::R6Class(
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
-      # private$device_config_ <- res[[4L]]
+      private$device_config_ <- res[[4L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -470,19 +554,19 @@ variable <- R6::R6Class(
     },
 
     run = function(step_end, device = FALSE) {
-      m <- dust_variable_run(private$ptr_, step_end)
+      m <- private$methods_$run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
     simulate = function(step_end, device = FALSE) {
-      m <- dust_variable_simulate(private$ptr_, step_end)
+      m <- private$methods_$simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
     set_index = function(index) {
-      dust_variable_set_index(private$ptr_, index)
+      private$methods_$set_index(private$ptr_, index)
       private$index_ <- index
       invisible()
     },
@@ -496,7 +580,7 @@ variable <- R6::R6Class(
     },
 
     n_state = function() {
-      dust_variable_n_state(private$ptr_)
+      private$methods_$n_state(private$ptr_)
     },
 
     n_particles = function() {
@@ -536,8 +620,8 @@ variable <- R6::R6Class(
 
     update_state = function(pars = NULL, state = NULL, step = NULL,
                             set_initial_state = NULL) {
-      info <- dust_variable_update_state(private$ptr_, pars, state, step,
-                                         set_initial_state)
+      info <- private$methods_$update_state(private$ptr_, pars, state, step,
+                                          set_initial_state)
       if (!is.null(pars)) {
         private$info_ <- info
         private$pars_ <- pars
@@ -546,23 +630,23 @@ variable <- R6::R6Class(
     },
 
     state = function(index = NULL) {
-      m <- dust_variable_state(private$ptr_, index)
+      m <- private$methods_$state(private$ptr_, index)
       rownames(m) <- names(index)
       m
     },
 
     step = function() {
-      dust_variable_step(private$ptr_)
+      private$methods_$step(private$ptr_)
     },
 
     reorder = function(index) {
       storage.mode(index) <- "integer"
-      dust_variable_reorder(private$ptr_, index)
+      private$methods_$reorder(private$ptr_, index)
       invisible()
     },
 
     resample = function(weights) {
-      invisible(dust_variable_resample(private$ptr_, weights))
+      invisible(private$methods_$resample(private$ptr_, weights))
     },
 
     info = function() {
@@ -574,11 +658,11 @@ variable <- R6::R6Class(
     },
 
     rng_state = function(first_only = FALSE, last_only = FALSE) {
-      dust_variable_rng_state(private$ptr_, first_only, last_only)
+      private$methods_$rng_state(private$ptr_, first_only, last_only)
     },
 
     set_rng_state = function(rng_state) {
-      dust_variable_set_rng_state(private$ptr_, rng_state)
+      private$methods_$set_rng_state(private$ptr_, rng_state)
       invisible()
     },
 
@@ -596,7 +680,7 @@ variable <- R6::R6Class(
 
     set_n_threads = function(n_threads) {
       prev <- private$n_threads_
-      dust_variable_set_n_threads(private$ptr_, n_threads)
+      private$methods_$set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
     },
@@ -606,17 +690,16 @@ variable <- R6::R6Class(
     },
 
     set_data = function(data) {
-      dust_variable_set_data(private$ptr_, data)
+      private$methods_$set_data(private$ptr_, data)
     },
 
     compare_data = function(device = FALSE) {
-      dust_variable_compare_data(private$ptr_)
+      private$methods_$compare_data(private$ptr_)
     },
 
     filter = function(save_trajectories = FALSE, step_snapshot = NULL,
                       device = FALSE) {
-      dust_variable_filter(private$ptr_, save_trajectories,
-                           step_snapshot)
+      private$methods_$filter(private$ptr_, save_trajectories, step_snapshot)
     },
 
     device_info = function() {
@@ -644,6 +727,7 @@ volatility <- R6::R6Class(
     shape_ = NULL,
     ptr_ = NULL,
     device_config_ = NULL,
+    methods_ = NULL,
     param_ = NULL
   ),
 
@@ -652,7 +736,30 @@ volatility <- R6::R6Class(
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
                           device_config = NULL) {
-      res <- dust_volatility_alloc(pars, pars_multi, step, n_particles,
+      if (is.null(device_config)) {
+        private$methods_ <- list(
+           alloc = dust_cpu_volatility_alloc,
+           run = dust_cpu_volatility_run,
+           simulate = dust_cpu_volatility_simulate,
+           set_index = dust_cpu_volatility_set_index,
+           n_state = dust_cpu_volatility_n_state,
+           update_state = dust_cpu_volatility_update_state,
+           state = dust_cpu_volatility_state,
+           step = dust_cpu_volatility_step,
+           reorder = dust_cpu_volatility_reorder,
+           resample = dust_cpu_volatility_resample,
+           rng_state = dust_cpu_volatility_rng_state,
+           set_rng_state = dust_cpu_volatility_set_rng_state,
+           set_n_threads = dust_cpu_volatility_set_n_threads,
+           set_data = dust_cpu_volatility_set_data,
+           compare_data = dust_cpu_volatility_compare_data,
+           filter = dust_cpu_volatility_filter)
+      } else {
+        private$methods_ <- list(alloc = function(...) {
+          stop("GPU support not enabled for this object")
+        })
+      }
+      res <- private$methods_$alloc(pars, pars_multi, step, n_particles,
                         n_threads, seed, deterministic, device_config)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
@@ -660,7 +767,7 @@ volatility <- R6::R6Class(
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
-      # private$device_config_ <- res[[4L]]
+      private$device_config_ <- res[[4L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -678,19 +785,19 @@ volatility <- R6::R6Class(
     },
 
     run = function(step_end, device = FALSE) {
-      m <- dust_volatility_run(private$ptr_, step_end)
+      m <- private$methods_$run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
     simulate = function(step_end, device = FALSE) {
-      m <- dust_volatility_simulate(private$ptr_, step_end)
+      m <- private$methods_$simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
     set_index = function(index) {
-      dust_volatility_set_index(private$ptr_, index)
+      private$methods_$set_index(private$ptr_, index)
       private$index_ <- index
       invisible()
     },
@@ -704,7 +811,7 @@ volatility <- R6::R6Class(
     },
 
     n_state = function() {
-      dust_volatility_n_state(private$ptr_)
+      private$methods_$n_state(private$ptr_)
     },
 
     n_particles = function() {
@@ -744,8 +851,8 @@ volatility <- R6::R6Class(
 
     update_state = function(pars = NULL, state = NULL, step = NULL,
                             set_initial_state = NULL) {
-      info <- dust_volatility_update_state(private$ptr_, pars, state, step,
-                                         set_initial_state)
+      info <- private$methods_$update_state(private$ptr_, pars, state, step,
+                                          set_initial_state)
       if (!is.null(pars)) {
         private$info_ <- info
         private$pars_ <- pars
@@ -754,23 +861,23 @@ volatility <- R6::R6Class(
     },
 
     state = function(index = NULL) {
-      m <- dust_volatility_state(private$ptr_, index)
+      m <- private$methods_$state(private$ptr_, index)
       rownames(m) <- names(index)
       m
     },
 
     step = function() {
-      dust_volatility_step(private$ptr_)
+      private$methods_$step(private$ptr_)
     },
 
     reorder = function(index) {
       storage.mode(index) <- "integer"
-      dust_volatility_reorder(private$ptr_, index)
+      private$methods_$reorder(private$ptr_, index)
       invisible()
     },
 
     resample = function(weights) {
-      invisible(dust_volatility_resample(private$ptr_, weights))
+      invisible(private$methods_$resample(private$ptr_, weights))
     },
 
     info = function() {
@@ -782,11 +889,11 @@ volatility <- R6::R6Class(
     },
 
     rng_state = function(first_only = FALSE, last_only = FALSE) {
-      dust_volatility_rng_state(private$ptr_, first_only, last_only)
+      private$methods_$rng_state(private$ptr_, first_only, last_only)
     },
 
     set_rng_state = function(rng_state) {
-      dust_volatility_set_rng_state(private$ptr_, rng_state)
+      private$methods_$set_rng_state(private$ptr_, rng_state)
       invisible()
     },
 
@@ -804,7 +911,7 @@ volatility <- R6::R6Class(
 
     set_n_threads = function(n_threads) {
       prev <- private$n_threads_
-      dust_volatility_set_n_threads(private$ptr_, n_threads)
+      private$methods_$set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
     },
@@ -814,17 +921,16 @@ volatility <- R6::R6Class(
     },
 
     set_data = function(data) {
-      dust_volatility_set_data(private$ptr_, data)
+      private$methods_$set_data(private$ptr_, data)
     },
 
     compare_data = function(device = FALSE) {
-      dust_volatility_compare_data(private$ptr_)
+      private$methods_$compare_data(private$ptr_)
     },
 
     filter = function(save_trajectories = FALSE, step_snapshot = NULL,
                       device = FALSE) {
-      dust_volatility_filter(private$ptr_, save_trajectories,
-                           step_snapshot)
+      private$methods_$filter(private$ptr_, save_trajectories, step_snapshot)
     },
 
     device_info = function() {
@@ -852,6 +958,7 @@ walk <- R6::R6Class(
     shape_ = NULL,
     ptr_ = NULL,
     device_config_ = NULL,
+    methods_ = NULL,
     param_ = NULL
   ),
 
@@ -860,7 +967,30 @@ walk <- R6::R6Class(
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
                           device_config = NULL) {
-      res <- dust_walk_alloc(pars, pars_multi, step, n_particles,
+      if (is.null(device_config)) {
+        private$methods_ <- list(
+           alloc = dust_cpu_walk_alloc,
+           run = dust_cpu_walk_run,
+           simulate = dust_cpu_walk_simulate,
+           set_index = dust_cpu_walk_set_index,
+           n_state = dust_cpu_walk_n_state,
+           update_state = dust_cpu_walk_update_state,
+           state = dust_cpu_walk_state,
+           step = dust_cpu_walk_step,
+           reorder = dust_cpu_walk_reorder,
+           resample = dust_cpu_walk_resample,
+           rng_state = dust_cpu_walk_rng_state,
+           set_rng_state = dust_cpu_walk_set_rng_state,
+           set_n_threads = dust_cpu_walk_set_n_threads,
+           set_data = dust_cpu_walk_set_data,
+           compare_data = dust_cpu_walk_compare_data,
+           filter = dust_cpu_walk_filter)
+      } else {
+        private$methods_ <- list(alloc = function(...) {
+          stop("GPU support not enabled for this object")
+        })
+      }
+      res <- private$methods_$alloc(pars, pars_multi, step, n_particles,
                         n_threads, seed, deterministic, device_config)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
@@ -868,7 +998,7 @@ walk <- R6::R6Class(
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
-      # private$device_config_ <- res[[4L]]
+      private$device_config_ <- res[[4L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -886,19 +1016,19 @@ walk <- R6::R6Class(
     },
 
     run = function(step_end, device = FALSE) {
-      m <- dust_walk_run(private$ptr_, step_end)
+      m <- private$methods_$run(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
     simulate = function(step_end, device = FALSE) {
-      m <- dust_walk_simulate(private$ptr_, step_end)
+      m <- private$methods_$simulate(private$ptr_, step_end)
       rownames(m) <- names(private$index_)
       m
     },
 
     set_index = function(index) {
-      dust_walk_set_index(private$ptr_, index)
+      private$methods_$set_index(private$ptr_, index)
       private$index_ <- index
       invisible()
     },
@@ -912,7 +1042,7 @@ walk <- R6::R6Class(
     },
 
     n_state = function() {
-      dust_walk_n_state(private$ptr_)
+      private$methods_$n_state(private$ptr_)
     },
 
     n_particles = function() {
@@ -952,8 +1082,8 @@ walk <- R6::R6Class(
 
     update_state = function(pars = NULL, state = NULL, step = NULL,
                             set_initial_state = NULL) {
-      info <- dust_walk_update_state(private$ptr_, pars, state, step,
-                                         set_initial_state)
+      info <- private$methods_$update_state(private$ptr_, pars, state, step,
+                                          set_initial_state)
       if (!is.null(pars)) {
         private$info_ <- info
         private$pars_ <- pars
@@ -962,23 +1092,23 @@ walk <- R6::R6Class(
     },
 
     state = function(index = NULL) {
-      m <- dust_walk_state(private$ptr_, index)
+      m <- private$methods_$state(private$ptr_, index)
       rownames(m) <- names(index)
       m
     },
 
     step = function() {
-      dust_walk_step(private$ptr_)
+      private$methods_$step(private$ptr_)
     },
 
     reorder = function(index) {
       storage.mode(index) <- "integer"
-      dust_walk_reorder(private$ptr_, index)
+      private$methods_$reorder(private$ptr_, index)
       invisible()
     },
 
     resample = function(weights) {
-      invisible(dust_walk_resample(private$ptr_, weights))
+      invisible(private$methods_$resample(private$ptr_, weights))
     },
 
     info = function() {
@@ -990,11 +1120,11 @@ walk <- R6::R6Class(
     },
 
     rng_state = function(first_only = FALSE, last_only = FALSE) {
-      dust_walk_rng_state(private$ptr_, first_only, last_only)
+      private$methods_$rng_state(private$ptr_, first_only, last_only)
     },
 
     set_rng_state = function(rng_state) {
-      dust_walk_set_rng_state(private$ptr_, rng_state)
+      private$methods_$set_rng_state(private$ptr_, rng_state)
       invisible()
     },
 
@@ -1012,7 +1142,7 @@ walk <- R6::R6Class(
 
     set_n_threads = function(n_threads) {
       prev <- private$n_threads_
-      dust_walk_set_n_threads(private$ptr_, n_threads)
+      private$methods_$set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
     },
@@ -1022,17 +1152,16 @@ walk <- R6::R6Class(
     },
 
     set_data = function(data) {
-      dust_walk_set_data(private$ptr_, data)
+      private$methods_$set_data(private$ptr_, data)
     },
 
     compare_data = function(device = FALSE) {
-      dust_walk_compare_data(private$ptr_)
+      private$methods_$compare_data(private$ptr_)
     },
 
     filter = function(save_trajectories = FALSE, step_snapshot = NULL,
                       device = FALSE) {
-      dust_walk_filter(private$ptr_, save_trajectories,
-                           step_snapshot)
+      private$methods_$filter(private$ptr_, save_trajectories, step_snapshot)
     },
 
     device_info = function() {
