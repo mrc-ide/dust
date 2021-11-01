@@ -12,6 +12,7 @@
 #endif
 
 
+#include <dust/cuda/cuda.hpp>
 #include <dust/random/random.hpp>
 #include <dust/random/density.hpp>
 #include <dust/filter_state.hpp>

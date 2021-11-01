@@ -157,7 +157,8 @@ size_t n_threads() const {
 
   void check_errors() {
 #ifdef __NVCC__
-    dust::cuda::throw_cuda_error(__FILE__, __LINE__, cudaPeekAtLastError());
+    // TODO: John added this, but that is definitely wrong!
+    // dust::cuda::throw_cuda_error(__FILE__, __LINE__, cudaPeekAtLastError());
 #else
     // TODO: we need to add this back in
     // if (errors_.unresolved()) {
