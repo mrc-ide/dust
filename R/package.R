@@ -213,16 +213,26 @@ package_generate <- function(filename) {
   template_r <- drop_roxygen(template_r)
   code_r <- glue_whisker(template_r, data)
 
-  template_cpp <- drop_internal_comments(
-    c(readLines(dust_file("template/dust.cpp")),
-      readLines(dust_file("template/dust_methods.cpp"))))
-  template_hpp <- drop_internal_comments(
-    c(readLines(dust_file("template/dust.hpp")),
-      readLines(dust_file("template/dust_methods.hpp"))))
+  ## TODO: this now merges with compile.R, should be identical now?
+  dust_cpp <- c(substitute_dust_template(data, "dust.cpp", NULL),
+                substitute_dust_template(data, "dust_methods.cpp", NULL))
+  dust_hpp <- c(substitute_dust_template(data, "dust.hpp", NULL),
+                substitute_dust_template(data, "dust_methods.hpp", NULL))
 
-  code_hpp <- glue_whisker(template_hpp, data)
-  code_cpp <- glue_whisker(template_cpp, data)
-  src <- set_names(paste(code_hpp, code_cpp, sep = "\n\n"), basename(filename))
+  if (config$has_gpu_support) {
+    data_gpu <- data
+    data_gpu$target <- "gpu"
+    data_gpu$container <- "DustDevice"
+    dust_cpp <- c(dust_cpp,
+                  substitute_dust_template(data_gpu, "dust_methods.cpp", NULL))
+    dust_hpp <- c(dust_hpp,
+                  substitute_dust_template(data_gpu, "dust_methods.hpp", NULL))
+  }
+
+  src <- set_names(
+    paste(drop_internal_comments(c(dust_hpp, dust_cpp)), collapse = "\n"),
+    basename(filename))
+
   list(src = src, r = code_r)
 }
 

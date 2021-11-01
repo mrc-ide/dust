@@ -14,7 +14,7 @@ parse_metadata <- function(filename) {
   }
 
   if (is.null(ret$has_gpu_support)) {
-    ret$has_gpu_support <- parse_metadata_has_gpu_support(readLines(filename))
+    ret$has_gpu_support <- parse_code_has_gpu_support(readLines(filename))
   }
 
   assert_valid_name(ret$name)
@@ -134,7 +134,7 @@ parse_metadata_guess_class <- function(txt) {
 }
 
 
-parse_metadata_has_gpu_support <- function(txt) {
+parse_code_has_gpu_support <- function(txt) {
   re <- "void\\s+update_device\\s*<\\s*"
   any(grepl(re, txt))
 }
