@@ -580,21 +580,6 @@ test_that("Can run and simulate with nontrivial index", {
 })
 
 
-test_that("shared, with no device, is default initialised", {
-  ## It's possible this now OK?
-  skip("FIXME: incorrect")
-  res <- test_cuda_pars(-1, 2000, 2000, 100, 200, 0, 20, 30, 40000)
-  empty <- create_launch_control(0, 0)
-  expected <- list(run = empty,
-                   compare = empty,
-                   reorder = empty,
-                   scatter = empty,
-                   index_scatter = empty,
-                   interval = empty)
-  expect_equal(res, expected)
-})
-
-
 test_that("Can fit a small model into shared", {
   n_state <- 100
   n_state_full <- 202
