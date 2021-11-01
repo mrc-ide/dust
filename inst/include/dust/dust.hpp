@@ -471,7 +471,6 @@ private:
       index_.push_back(i);
     }
   }
-
 };
 
 }
