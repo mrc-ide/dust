@@ -35,18 +35,23 @@ public:
   device_config(int device_id, int run_block_size) :
     device_id_(device_id),
     run_block_size_(run_block_size),
-    shared_size_(device_shared_size(device_id_)){
+    shared_size_(device_shared_size(device_id_)),
 #ifdef __NVCC__
-    if (device_id_ >= 0) {
-      CUDA_CALL(cudaSetDevice(device_id_));
-      CUDA_CALL(cudaDeviceSetCacheConfig(cudaFuncCachePreferL1));
-    }
+    real_gpu_(true)
+#else
+    real_gpu_(false)
+#endif
+  {
+#ifdef __NVCC__
+    CUDA_CALL(cudaSetDevice(device_id_));
+    CUDA_CALL(cudaDeviceSetCacheConfig(cudaFuncCachePreferL1));
 #endif
   }
 
   const int device_id_;
   const size_t run_block_size_;
   size_t shared_size_;
+  const bool real_gpu_;
 };
 
 

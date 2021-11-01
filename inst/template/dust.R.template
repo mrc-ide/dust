@@ -425,6 +425,16 @@
     },
 
     ##' @description
+    ##' Check if the model is running on a gpu
+    ##' @param fake_gpu Logical, indicating if we count as `TRUE`
+    ##'   models that run on the "fake" GPU (i.e., using the GPU
+    ##'   version of the model but running on the CPU)
+    uses_gpu = function(fake_gpu = FALSE) {
+      real_gpu <- private$device_config_$real_gpu
+      !is.null(real_gpu) && (fake_gpu || real_gpu)
+    },
+
+    ##' @description
     ##' Returns the number of distinct pars elements required. This is `0`
     ##' where the object was initialised with `pars_multi = FALSE` and
     ##' an integer otherwise.  For multi-pars dust objects, Where `pars`

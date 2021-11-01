@@ -195,6 +195,11 @@ sir <- R6::R6Class(
       dust_sir_capabilities()[["cuda"]]
     },
 
+    uses_gpu = function(fake_gpu = FALSE) {
+      real_gpu <- private$device_config_$real_gpu
+      !is.null(real_gpu) && (fake_gpu || real_gpu)
+    },
+
     n_pars = function() {
       if (private$pars_multi_) length(private$pars_) else 0L
     },
@@ -442,6 +447,11 @@ sirs <- R6::R6Class(
       dust_sirs_capabilities()[["cuda"]]
     },
 
+    uses_gpu = function(fake_gpu = FALSE) {
+      real_gpu <- private$device_config_$real_gpu
+      !is.null(real_gpu) && (fake_gpu || real_gpu)
+    },
+
     n_pars = function() {
       if (private$pars_multi_) length(private$pars_) else 0L
     },
@@ -686,6 +696,11 @@ variable <- R6::R6Class(
       dust_variable_capabilities()[["cuda"]]
     },
 
+    uses_gpu = function(fake_gpu = FALSE) {
+      real_gpu <- private$device_config_$real_gpu
+      !is.null(real_gpu) && (fake_gpu || real_gpu)
+    },
+
     n_pars = function() {
       if (private$pars_multi_) length(private$pars_) else 0L
     },
@@ -916,6 +931,11 @@ volatility <- R6::R6Class(
       dust_volatility_capabilities()[["cuda"]]
     },
 
+    uses_gpu = function(fake_gpu = FALSE) {
+      real_gpu <- private$device_config_$real_gpu
+      !is.null(real_gpu) && (fake_gpu || real_gpu)
+    },
+
     n_pars = function() {
       if (private$pars_multi_) length(private$pars_) else 0L
     },
@@ -1144,6 +1164,11 @@ walk <- R6::R6Class(
 
     has_cuda = function() {
       dust_walk_capabilities()[["cuda"]]
+    },
+
+    uses_gpu = function(fake_gpu = FALSE) {
+      real_gpu <- private$device_config_$real_gpu
+      !is.null(real_gpu) && (fake_gpu || real_gpu)
     },
 
     n_pars = function() {

@@ -5,6 +5,10 @@ test_that("Can run device version of model on cpu", {
   mod1 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = NULL)
   mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
 
+  expect_false(mod1$uses_gpu())
+  expect_false(mod2$uses_gpu())
+  expect_true(mod2$uses_gpu(TRUE))
+
   expect_identical(
     mod1$run(10),
     mod2$run(10))
@@ -393,7 +397,8 @@ test_that("Can control device run block size", {
   mod <- gen$new(list(len = len), 0, np,
                  device_config = list(device_id = -10, run_block_size = 512))
   expect_equal(r6_private(mod)$device_config_,
-               list(device_id = -10,
+               list(read_gpu = FALSE,
+                    device_id = -10,
                     shared_size = 0,
                     run_block_size = 512))
 })
