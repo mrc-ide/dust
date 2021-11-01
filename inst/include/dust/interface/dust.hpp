@@ -29,6 +29,8 @@ cpp11::sexp dust_info(const dust::pars_type<T>& pars) {
 
 #include <dust/interface/random.hpp>
 #include <dust/interface/helpers.hpp>
+
+#include <dust/cuda/dust_device.hpp>
 #include <dust/interface/cuda.hpp>
 #include <dust/filter.hpp>
 // #include <dust/cuda/filter.hpp>
@@ -68,7 +70,6 @@ cpp11::list dust_cpu_alloc(cpp11::list r_pars, bool pars_multi, int step,
   return cpp11::writable::list({ptr, info, r_shape, R_NilValue});
 }
 
-/*
 template <typename T>
 cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi, int step,
                            cpp11::sexp r_n_particles, int n_threads,
@@ -104,11 +105,10 @@ cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi, int step,
     dust::interface::vector_size_to_int(d->shape());
 
   cpp11::sexp ret_r_device_config =
-    dust::interface::device_config_as_sexp(device_config);
+    dust::cuda::interface::device_config_as_sexp(device_config);
 
   return cpp11::writable::list({ptr, info, r_shape, ret_r_device_config});
 }
-*/
 
 template <typename T>
 void dust_set_index(SEXP ptr, cpp11::sexp r_index) {

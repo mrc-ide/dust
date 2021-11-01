@@ -11,6 +11,7 @@
 #include <omp.h>
 #endif
 
+#include <dust/cuda/call.hpp>
 #include <dust/cuda/cuda.hpp>
 
 #include <dust/random/prng.hpp>
@@ -30,9 +31,12 @@ namespace dust {
 template <typename T>
 class DustDevice {
 public:
+  typedef T model_type;
   typedef dust::pars_type<T> pars_type;
   typedef typename T::real_type real_type;
   typedef typename T::data_type data_type;
+  typedef typename T::internal_type internal_type;
+  typedef typename T::shared_type shared_type;
   typedef typename T::rng_state_type rng_state_type;
   typedef typename rng_state_type::int_type rng_int_type;
 
@@ -148,11 +152,23 @@ size_t n_threads() const {
   }
 
   void check_errors() {
+#ifdef __NVCC__
     dust::cuda::throw_cuda_error(__FILE__, __LINE__, cudaPeekAtLastError());
+#else
+    // TODO: we need to add this back in
+    // if (errors_.unresolved()) {
+    //   throw std::runtime_error("Errors pending; reset required");
+    // }
+#endif
   }
 
   void reset_errors() {
+#ifdef __NVCC__
     cudaGetLastError();
+#else
+    // TODO: Re-enable
+    // errors_.reset();
+#endif
   }
 
   void set_pars(const pars_type& pars, bool set_state) {
@@ -318,7 +334,7 @@ size_t n_threads() const {
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
-    for (int i = 0; i < n_particles_total_; ++i) {
+    for (size_t i = 0; i < n_particles_total_; ++i) {
       size_t particle_start = i * index.size();
       for (size_t j = 0; j < index.size(); ++j) {
         end_state[particle_start + j] = full_state[index[j]];
@@ -662,17 +678,20 @@ private:
 
   // Sets state from model + pars
   void initialise_device_state(const pars_type& pars) {
-    std::vector<std::vector<real_type>> state_host(n_particles());
-#ifdef _OPENMP
-      #pragma omp parallel for schedule(static) num_threads(n_threads_)
-#endif
-    for (size_t i = 0; i < n_particles(); ++i) {
-      dust::Particle<T> p_tmp(pars, step_);
-      p_tmp.state_full(state_host[i].begin());
-    }
-
-    n_state_full_ = state_host.front().size();
+    // No real way around this, we need to create a single particle to
+    // get the size, but that's ok.
+    const dust::Particle<T> p_tmp(pars, step_);
+    n_state_full_ = p_tmp.size();
     n_state_ = n_state_full_;
+
+    // TODO: probably more efficient as single vector than vector of
+    // vectors, needs total size n_particles() * n_state_full_ but the
+    // interleaving would then need changing.  It might even be worth
+    // a specialised interleaved-but-identical method?
+    std::vector<real_type> y(n_state_full_);
+    p_tmp.state_full(y.begin());
+    std::vector<std::vector<real_type>> state_host(n_particles(), y);
+
     initialise_device_memory(pars.shared);
 
     set_device_state(state_host);

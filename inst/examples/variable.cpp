@@ -62,8 +62,6 @@ dust::pars_type<variable> dust_pars<variable>(cpp11::list pars) {
 template <>
 struct has_gpu_support<variable> : std::true_type {};
 
-/*
-
 namespace cuda {
 
 template <>
@@ -109,5 +107,4 @@ void update_device<variable>(size_t step,
 
 }
 
-*/
 }

@@ -34,16 +34,13 @@ generate_dust <- function(filename, quiet, workdir, cuda, skip_cache, mangle) {
   substitute_dust_template(data, "dust.hpp",
                            file.path(path, "src", "dust.hpp"))
 
+  ## TODO: this big chunk shared with package
   dust_cpp <- c(substitute_dust_template(data, "dust.cpp", NULL),
                 substitute_dust_template(data, "dust_methods.cpp", NULL))
   dust_hpp <- c(substitute_dust_template(data, "dust.hpp", NULL),
                 substitute_dust_template(data, "dust_methods.hpp", NULL))
 
-  if (is.null(cuda)) {
-    path_dust_cpp <- file.path(path, "src", "dust.cpp")
-    substitute_dust_template(data, "Makevars",
-                             file.path(path, "src", "Makevars"))
-  } else {
+  if (config$gpu_support) {
     data_gpu <- data
     data_gpu$target <- "gpu"
     data_gpu$container <- "DustDevice"
@@ -51,7 +48,13 @@ generate_dust <- function(filename, quiet, workdir, cuda, skip_cache, mangle) {
                   substitute_dust_template(data_gpu, "dust_methods.cpp", NULL))
     dust_hpp <- c(dust_hpp,
                   substitute_dust_template(data_gpu, "dust_methods.hpp", NULL))
+  }
 
+  if (is.null(cuda)) {
+    path_dust_cpp <- file.path(path, "src", "dust.cpp")
+    substitute_dust_template(data, "Makevars",
+                             file.path(path, "src", "Makevars"))
+  } else {
     path_dust_cpp <- file.path(path, "src", "dust.cu")
     substitute_dust_template(data, "Makevars.cuda",
                              file.path(path, "src", "Makevars"))
@@ -137,13 +140,13 @@ dust_template_data <- function(model, config, cuda) {
   }
   methods_cpu <- methods("cpu")
 
-  if (is.null(cuda)) {
+  if (config$gpu_support) {
+    methods_gpu <- methods("gpu")
+  } else {
     methods_gpu <- paste(
       "list(alloc = function(...) {",
       '          stop("GPU support not enabled for this object")',
       "        })", sep = "\n")
-  } else {
-    methods_gpu <- methods("gpu")
   }
 
   list(model = model,
