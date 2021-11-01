@@ -111,9 +111,6 @@ sirs::data_type dust_data<sirs>(cpp11::list data) {
   return sirs::data_type{cpp11::as_cpp<double>(data["incidence"])};
 }
 
-template <>
-struct has_gpu_support<sirs> : std::true_type {};
-
 namespace cuda {
 
 template <>
