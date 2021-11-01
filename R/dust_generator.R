@@ -46,6 +46,7 @@ dust_generator <- R6::R6Class(
     shape_ = NULL,
     ptr_ = NULL,
     device_config_ = NULL,
+    methods_ = NULL,
     param_ = NULL
   ),
 
@@ -133,12 +134,7 @@ dust_generator <- R6::R6Class(
     ##'
     ##' @param step_end Step to run to (if less than or equal to the current
     ##'   step(), silently nothing will happen)
-    ##'
-    ##' @param device Logical, indicating if the model should be run on
-    ##'   the GPU device. This is only possible if your model supports it,
-    ##'   was compiled with this enabled, and you have a suitable GPU
-    ##'   available (see `vignette("cuda")`).
-    run = function(step_end, device = FALSE) {
+    run = function(step_end) {
     },
 
     ##' @description
@@ -159,10 +155,7 @@ dust_generator <- R6::R6Class(
     ##'   as the current time, and every subsequent time must be equal or
     ##'   greater than those before it (ties are allowed though probably
     ##'   not wanted).
-    ##'
-    ##' @param device Logical, indicating if the model should be run on
-    ##'   the GPU device. See `$run()` for more information.
-    simulate = function(step_end, device = FALSE) {
+    simulate = function(step_end) {
     },
 
     ##' @description
@@ -364,6 +357,14 @@ dust_generator <- R6::R6Class(
     },
 
     ##' @description
+    ##' Check if the model is running on a gpu
+    ##' @param fake_gpu Logical, indicating if we count as `TRUE`
+    ##'   models that run on the "fake" GPU (i.e., using the GPU
+    ##'   version of the model but running on the CPU)
+    uses_gpu = function(fake_gpu = FALSE) {
+    },
+
+    ##' @description
     ##' Returns the number of distinct pars elements required. This is `0`
     ##' where the object was initialised with `pars_multi = FALSE` and
     ##' an integer otherwise.  For multi-pars dust objects, Where `pars`
@@ -411,10 +412,7 @@ dust_generator <- R6::R6Class(
     ##' the same length as the number of particles is returned. If model's
     ##' underlying `compare_data` function is stochastic, then each call to
     ##' this function may be result in a different answer.
-    ##'
-    ##' @param device Logical, indicating if the model should be run on
-    ##'   the GPU device. See `$run()` for more information.
-    compare_data = function(device = FALSE) {
+    compare_data = function() {
     },
 
     ##' @description
@@ -435,11 +433,7 @@ dust_generator <- R6::R6Class(
     ##' match steps given in the `data` object. The return value with be
     ##' a multidimensional array (`state x <shape> x step_snapshot`)
     ##' containing full state values at the requested steps.
-    ##'
-    ##' @param device Logical, indicating if the model should be run on
-    ##'   the GPU device. See `$run()` for more information.
-    filter = function(save_trajectories = FALSE, step_snapshot = NULL,
-                      device = FALSE) {
+    filter = function(save_trajectories = FALSE, step_snapshot = NULL) {
     },
 
     ##' @description

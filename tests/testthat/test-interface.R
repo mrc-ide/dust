@@ -108,7 +108,10 @@ test_that("validate interface", {
 test_that("validate package interface", {
   tmp <- tempfile(fileext = ".R")
   template <- read_lines(dust_file("template/dust.R.template"))
-  writeLines(glue_whisker(template, list(name = "testing", param = "NULL")),
+  writeLines(glue_whisker(template,
+                          list(name = "testing", param = "NULL",
+                               methods_cpu = "list()",
+                               methods_gpu = "list()")),
              tmp)
   env <- new.env()
   sys.source(tmp, env)

@@ -397,7 +397,7 @@ test_that("Can control device run block size", {
   mod <- gen$new(list(len = len), 0, np,
                  device_config = list(device_id = -10, run_block_size = 512))
   expect_equal(r6_private(mod)$device_config_,
-               list(read_gpu = FALSE,
+               list(real_gpu = FALSE,
                     device_id = -10,
                     shared_size = 0,
                     run_block_size = 512))
