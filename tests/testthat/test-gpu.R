@@ -741,9 +741,6 @@ test_that("can update parameters, leaving state alone", {
   mod2$update_state(pars = pb)
   expect_identical(mod1$state(), mod2$state())
 
-  ## break dust_device.hpp:290
-  ## print *(
-
   y1 <- mod1$run(10)
   y2 <- mod2$run(10)
   expect_identical(y1, y2)
@@ -872,7 +869,6 @@ test_that("Can update number of threads", {
 
 
 test_that("Can resample particles", {
-  skip("FIXME")
   ## This one suggests a bug in how we're doing the fiddly index
   ## calculation (actual resample does look correct though)
   res <- dust_example("variable")
@@ -913,4 +909,54 @@ test_that("Can't set vector of times into gpu object", {
   expect_error(
     mod$update_state(step = seq_len(np)),
     "GPU doesn't support setting vector of steps")
+})
+
+
+test_that("Set parameters in multiparameter object without updating state", {
+  np <- 100
+  len <- 20
+  gen <- dust_example("variable")
+  pa <- list(list(len = len, sd = 1), list(len = len, sd = 10))
+  pb <- list(list(len = len, sd = 2), list(len = len, sd = 20))
+
+  mod1 <- gen$new(pa, 0, np, seed = 1L, pars_multi = TRUE, device_config = NULL)
+  mod2 <- gen$new(pa, 0, np, seed = 1L, pars_multi = TRUE, device_config = 0L)
+
+  y1 <- mod1$run(5)
+  y2 <- mod2$run(5)
+  expect_equal(y1, y1)
+
+  mod1$update_state(pars = pb)
+  mod2$update_state(pars = pb)
+  expect_identical(mod2$state(), y2)
+
+  y1 <- mod1$run(10)
+  y2 <- mod2$run(10)
+  expect_identical(y1, y2)
+})
+
+
+test_that("can update parameters and time, resetting state", {
+  np <- 5
+  len <- 3
+  gen <- dust_example("variable")
+  pa <- list(list(len = len, sd = 1), list(len = len, sd = 10))
+  pb <- list(list(len = len, sd = 2), list(len = len, sd = 20))
+
+  mod1 <- gen$new(pa, 0, np, seed = 1L, pars_multi = TRUE, device_config = NULL)
+  mod2 <- gen$new(pa, 0, np, seed = 1L, pars_multi = TRUE, device_config = 0L)
+
+  y1 <- mod1$run(5)
+  y2 <- mod2$run(5)
+  expect_equal(y1, y2)
+
+  ## Doing this totally breaks the stepping...
+  mod1$update_state(pars = pb, step = 0)
+  mod2$update_state(pars = pb, step = 0)
+
+  expect_identical(mod1$state(), mod2$state())
+  expect_equal(mod2$step(), 0)
+  y1 <- mod1$run(20)
+  y2 <- mod2$run(20)
+  expect_identical(y1, y2)
 })
