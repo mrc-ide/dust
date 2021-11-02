@@ -388,19 +388,17 @@ public:
     select_needed_ = true;
   }
 
-  // TODO if this is actually expected to be used, we should make the device_weights
-  // a class member
+  // NOTE: this is only used for debugging/testing, otherwise we would
+  // make device_weights a class member.
   std::vector<size_t> resample(const std::vector<real_type>& weights) {
-    dust::cuda::device_array<real_type> weight_sum(n_pars_effective());
-    dust::cuda::device_weights<real_type> device_weights(n_particles(), n_pars_effective());
+    dust::cuda::device_weights<real_type>
+      device_weights(n_particles(), n_pars_effective());
     device_weights.weights() = weights;
-    device_weights.scale_log_weights(weight_sum);
 
     dust::cuda::device_scan_state<real_type> scan;
     scan.initialise(n_particles_total_, device_weights.weights());
     resample(device_weights.weights(), scan);
 
-    // TODO: check this is actually the index
     std::vector<size_t> index(n_particles());
     device_state_.scatter_index.get_array(index);
     return index;
