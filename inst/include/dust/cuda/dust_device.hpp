@@ -327,7 +327,9 @@ public:
     }
   }
 
-  // TODO: we should really do this via a kernel I think?
+  // TODO: we should really do this via a kernel I think? Currently we
+  // grab the whole state back from the device to the host, then
+  // filter through it.
   void state(std::vector<size_t> index,
              std::vector<real_type>& end_state) {
     std::vector<real_type> full_state(n_state_full_ * n_particles_total_);
@@ -434,12 +436,34 @@ public:
   }
 
   std::vector<rng_int_type> rng_state() {
-    dust::random::prng<rng_state_type> rng(n_particles_total_ + 1);
-    get_device_rng(rng);
-    return rng.export_state();
+    const size_t np = n_particles();
+    constexpr size_t rng_len = rng_state_type::size();
+
+    // Interleaved rng state:
+    std::vector<rng_int_type> rngi(np * rng_len);
+    // Device to host copy
+    device_state_.rng.get_array(rngi);
+
+    // De-interleaved RNG state, copied from rngi
+    std::vector<rng_int_type> rngd((np + 1) * rng_len);
+#ifdef _OPENMP
+    #pragma omp parallel for schedule(static) num_threads(n_threads_)
+#endif
+    for (size_t i = 0; i < np; ++i) {
+      for (size_t j = 0; j < rng_len; ++j) {
+        rngd[i * rng_len + j] = rngi[i + j * np];
+      }
+    }
+
+    // Add the (host) resample state on the end
+    for (size_t j = 0; j < rng_len; ++j) {
+      rngd[np * rng_len + j] = resample_rng_[j];
+    }
+
+    return rngd;
   }
 
-  // TODO: I think that this and get_device_rng can be merged.
+  // TODO: I think that this and set_device_rng can be merged.
   void set_rng_state(const std::vector<rng_int_type>& rng_state) {
     dust::random::prng<rng_state_type> rng(n_particles_total_ + 1);
     rng.import_state(rng_state);
@@ -629,35 +653,6 @@ private:
                       const std::vector<rng_int_type>& seed) {
     dust::random::prng<rng_state_type> rng(n_particles_total_ + 1, seed);
     set_device_rng(rng);
-  }
-
-  void get_device_rng(dust::random::prng<rng_state_type>& rng) {
-    const size_t np = n_particles();
-    constexpr size_t rng_len = rng_state_type::size();
-
-    // Interleaved rng state:
-    std::vector<rng_int_type> rngi(np * rng_len);
-    // De-interleaved RNG state
-    std::vector<rng_int_type> rngd((np + 1) * rng_len);
-    // Device to host copy
-    device_state_.rng.get_array(rngi);
-
-    // Destride the copy into rngd
-#ifdef _OPENMP
-    #pragma omp parallel for schedule(static) num_threads(n_threads_)
-#endif
-    for (size_t i = 0; i < np; ++i) {
-      for (size_t j = 0; j < rng_len; ++j) {
-        rngd[i * rng_len + j] = rngi[i + j * np];
-      }
-    }
-
-    // Add the (host) resample state on the end
-    for (size_t j = 0; j < rng_len; ++j) {
-      rngd[np * rng_len + j] = resample_rng_[j];
-    }
-
-    rng.import_state(rngd, np + 1);
   }
 
   // Interleaves and copies a 2D state vector
