@@ -444,7 +444,7 @@ public:
     // Device to host copy
     device_state_.rng.get_array(rngi);
 
-    // De-interleaved RNG state, copied from rngi
+    // De-interleaved RNG state, copied from rngi, +1 is host rng
     std::vector<rng_int_type> rngd((np + 1) * rng_len);
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
@@ -463,7 +463,6 @@ public:
     return rngd;
   }
 
-  // TODO: I think that this and set_device_rng can be merged.
   void set_rng_state(const std::vector<rng_int_type>& rng_state) {
     dust::random::prng<rng_state_type> rng(n_particles_total_ + 1);
     rng.import_state(rng_state);
@@ -830,10 +829,9 @@ private:
   }
 
   void set_state_from_pars(const std::vector<pars_type>& pars) {
-    // TODO: can initialise these with the correct size already
-    std::vector<std::vector<real_type>> state_host(n_particles() * n_pars_);
-    // std::vector<std::vector<real_type>>
-    //   state_host(n_particles() * n_pars_, std::vector<double>(n_state_full_));
+    std::vector<std::vector<real_type>>
+      state_host(n_particles() * n_pars_,
+                 std::vector<real_type>(n_state_full_));
     // TODO: this is wildly inefficient
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
@@ -841,9 +839,7 @@ private:
     for (size_t i = 0; i < n_pars_; ++i) {
       for (size_t j = 0; j < n_particles(); ++j) {
         dust::Particle<T> p(pars[i], step_);
-        std::vector<real_type> y(n_state_full_);
-        p.state_full(y.begin());
-        state_host[i * n_particles() + j] = y;
+        p.state_full(state_host[i * n_particles() + j].begin());
       }
     }
 
