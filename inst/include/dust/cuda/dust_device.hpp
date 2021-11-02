@@ -57,7 +57,7 @@ public:
     select_needed_(true),
     select_scatter_(false),
     step_(step) {
-    initialise_device_state(pars);
+    initialise_device_state(std::vector<pars_type>(1, pars));
     set_device_rng(n_particles, seed);
     set_cuda_launch();
     shape_ = {n_particles};
@@ -161,10 +161,7 @@ public:
   }
 
   void set_pars(const pars_type& pars, bool set_state) {
-    set_device_shared(pars);
-    if (set_state) {
-      set_state_from_pars(pars);
-    }
+    set_pars(std::vector<pars_type>(1, pars), set_state);
   }
 
   void set_pars(const std::vector<pars_type>& pars, bool set_state) {
@@ -616,10 +613,6 @@ private:
     device_state_.shared_real.set_array(shared_real);
   }
 
-  void set_device_shared(const pars_type& pars) {
-    set_device_shared(std::vector<pars_type>(1, pars));
-  }
-
   // Interleave and copy RNG state to GPU
   void set_device_rng(dust::random::prng<rng_state_type>& host_rng) {
     const size_t np = n_particles();
@@ -685,27 +678,6 @@ private:
   }
 
   // Sets state from model + pars
-  void initialise_device_state(const pars_type& pars) {
-    // No real way around this, we need to create a single particle to
-    // get the size, but that's ok.
-    //
-    // TODO: we should be able to pull this from elsewhere I think?
-    // set_device_shared can return size_t
-    if (n_state_full_ == 0) {
-      const dust::Particle<T> p(pars, step_);
-      n_state_full_ = p.size();
-      n_state_ = n_state_full_;
-    }
-
-    initialise_device_memory(pars.shared);
-    set_device_shared(pars);
-    set_state_from_pars(pars);
-
-    select_needed_ = true;
-  }
-
-
-  // Set state from model + vector of pars
   void initialise_device_state(const std::vector<pars_type>& pars) {
     if (n_state_full_ == 0) {
       const dust::Particle<T> p(pars[0], step_);
@@ -713,15 +685,8 @@ private:
       n_state_ = n_state_full_;
     }
 
-    // NOTE: initialise_device_memory requires n_state_full_ set
-    // above, also n_pars_effective() which is known at construction.
     initialise_device_memory(pars[0].shared);
-
-    // These two can be done in either order
     set_device_shared(pars);
-
-    // TODO: does this really require step too? Seems like it does for
-    // full odin support. This affects the Dust object too.
     set_state_from_pars(pars);
 
     // TODO: should do (in both of these)
@@ -812,27 +777,18 @@ private:
                                                  sizeof(data_type));
   }
 
-  // TODO: Both these update functions are wildly inefficient; we
-  // should probably support things like "copy one state to all the
-  // particles of that parameter index", possibly as a kernel.
-  void set_state_from_pars(const pars_type& pars) {
-    const dust::Particle<T> p(pars, step_);
-
-    std::vector<real_type> y(n_state_full_);
-    p.state_full(y.begin());
-    std::vector<std::vector<real_type>> state_host(n_particles(), y);
-
-    set_device_state(state_host);
-  }
-
+  // TODO: This update function is wildly inefficient; we should
+  // probably support things like "copy one state to all the particles
+  // of that parameter index", possibly as a kernel.
   void set_state_from_pars(const std::vector<pars_type>& pars) {
+    const size_t n_pars = pars.size(); // or n_pars_effective();
     std::vector<std::vector<real_type>>
-      state_host(n_particles() * n_pars_,
+      state_host(n_particles() * n_pars,
                  std::vector<real_type>(n_state_full_));
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
-    for (size_t i = 0; i < n_pars_; ++i) {
+    for (size_t i = 0; i < n_pars; ++i) {
       for (size_t j = 0; j < n_particles(); ++j) {
         dust::Particle<T> p(pars[i], step_);
         p.state_full(state_host[i * n_particles() + j].begin());
