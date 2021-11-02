@@ -153,25 +153,13 @@ public:
     return shape_;
   }
 
+  // These two (check_errors, reset_errors) don't really exist for
+  // this model because we always (currently) run particles serially
+  // on the cpu (and errors on the gpu are unrecoverable)
   void check_errors() {
-#ifdef __NVCC__
-    // TODO: John added this, but that is definitely wrong!
-    // dust::cuda::throw_cuda_error(__FILE__, __LINE__, cudaPeekAtLastError());
-#else
-    // TODO: we need to add this back in
-    // if (errors_.unresolved()) {
-    //   throw std::runtime_error("Errors pending; reset required");
-    // }
-#endif
   }
 
   void reset_errors() {
-#ifdef __NVCC__
-    cudaGetLastError();
-#else
-    // TODO: Re-enable
-    // errors_.reset();
-#endif
   }
 
   void set_pars(const pars_type& pars, bool set_state) {
