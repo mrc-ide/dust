@@ -451,9 +451,8 @@ public:
   }
 
   void set_rng_state(const std::vector<rng_int_type>& rng_state) {
-    dust::random::prng<rng_state_type> rng(n_particles_total_ + 1);
-    rng.import_state(rng_state);
-    set_device_rng(rng);
+    // TODO: pull definition up here now.
+    set_device_rng(rng_state);
   }
 
   void set_n_threads(size_t n_threads) {
@@ -604,7 +603,7 @@ private:
   }
 
   // Interleave and copy RNG state to GPU
-  void set_device_rng(dust::random::prng<rng_state_type>& host_rng) {
+  void set_device_rng(const std::vector<rng_int_type>& rng_state) {
     const size_t np = n_particles();
     constexpr size_t rng_len = rng_state_type::size();
     std::vector<rng_int_type> rng(np * rng_len); // Interleaved RNG state
@@ -612,27 +611,17 @@ private:
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
     for (size_t i = 0; i < np; ++i) {
-      // Interleave RNG state
-      rng_state_type p_rng = host_rng.state(i);
-      size_t rng_offset = i;
       for (size_t j = 0; j < rng_len; ++j) {
-        rng_offset = dust::utils::stride_copy(rng.data(), p_rng[j],
-                                              rng_offset, np);
+        rng[i + j * np] = rng_state[j + i * rng_len];
       }
     }
     // H -> D copy
     device_state_.rng.set_array(rng);
 
     // This also imports the resample RNG, which is on the host
-    resample_rng_ = host_rng.state(n_particles_total_);
-  }
-
-  // Set GPU RNG from a seed; primary reason for this function is to
-  // expand out seed correctly.
-  void set_device_rng(size_t n_generators,
-                      const std::vector<rng_int_type>& seed) {
-    dust::random::prng<rng_state_type> rng(n_particles_total_ + 1, seed);
-    set_device_rng(rng);
+    for (size_t j = 0; j < rng_len; ++j) {
+      resample_rng_[j] = rng_state[j + np * rng_len];
+    }
   }
 
   // Interleaves and copies a 2D state vector
@@ -668,6 +657,7 @@ private:
   }
 
   // Sets state from model + pars
+  // TODO: at this point n_particles_total_ is set I think, so not needed.
   void initialise_device_state(const std::vector<pars_type>& pars,
                                const size_t n_particles,
                                const std::vector<rng_int_type>& seed) {
@@ -681,7 +671,12 @@ private:
     set_device_shared(pars);
     set_state_from_pars(pars);
 
-    set_device_rng(n_particles, seed);
+    // Set GPU RNG from a seed; primary reason for this construction
+    // is to expand out seed correctly (e.g., it might be a 4-element
+    // vector on first creation).
+    dust::random::prng<rng_state_type> rng(n_particles + 1, seed);
+    set_device_rng(rng.export_state());
+
     set_cuda_launch();
 
     select_needed_ = true;

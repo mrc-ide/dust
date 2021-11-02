@@ -376,9 +376,9 @@ void dust_set_rng_state(SEXP ptr, cpp11::raws rng_state) {
     cpp11::stop("'rng_state' must be a raw vector of length %d (but was %d)",
                 len, rng_state.size());
   }
-  std::vector<int_type> pars(prev_state.size());
-  std::memcpy(pars.data(), RAW(rng_state), len);
-  obj->set_rng_state(pars);
+  std::vector<int_type> state(prev_state.size());
+  std::memcpy(state.data(), RAW(rng_state), len);
+  obj->set_rng_state(state);
 }
 
 template <typename T>
