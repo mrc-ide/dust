@@ -188,5 +188,4 @@ sirs::real_type compare_device<sirs>(const dust::cuda::interleaved<sirs::real_ty
 }
 
 }
-
 }

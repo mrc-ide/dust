@@ -467,8 +467,6 @@ test_that("Comparison function can be run on the GPU", {
 
 
 test_that("Can run a single particle filter on the GPU", {
-  ## TODO: Very confused how this can work but the resample bug
-  ## remains live.
   dat <- example_sirs()
 
   np <- 10

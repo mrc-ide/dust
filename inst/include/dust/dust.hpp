@@ -323,7 +323,6 @@ public:
     }
   }
 
-// whty not private?
   void reset_errors() {
     errors_.reset();
   }
@@ -440,6 +439,7 @@ private:
     }
     // TODO: I think that we should disalow this bit of logic and
     // number of particles should be surely fixed at initial creation?
+    // See #305
     if (particles_.size() == n_particles_total_) {
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)

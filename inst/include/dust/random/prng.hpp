@@ -15,9 +15,6 @@ public:
   typedef T rng_state;
   typedef typename rng_state::int_type int_type;
 
-  // Unset state for importing into, used in DustDevice:rng_state
-  prng(const size_t n) : state_(n) {}
-
   prng(const size_t n, const int seed, const bool deterministic = false) :
     prng(n, seed_data<T>(seed), deterministic) {
   }
@@ -84,10 +81,6 @@ public:
 
   void import_state(const std::vector<int_type>& state) {
     import_state(state, size());
-  }
-
-  void import_state(const rng_state& state, size_t idx) {
-    state_[idx] = state;
   }
 
   bool deterministic() const {

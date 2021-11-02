@@ -155,11 +155,13 @@ cpp11::sexp dust_update_state_set(T *obj, SEXP r_pars,
                                   bool set_initial_state) {
   cpp11::sexp ret = R_NilValue;
   if (r_pars != R_NilValue) {
+    // TODO: if initial state is step dependent, this will not work
+    // correctly; we must pass step through here.
     ret = dust_update_state_set_pars(obj, cpp11::as_cpp<cpp11::list>(r_pars),
-                               set_initial_state);
+                                     set_initial_state);
   }
 
-  if (state.size() > 0) {
+  if (state.size() > 0) { // && !set_initial_state, though that is implied
     obj->set_state(state);
   }
 

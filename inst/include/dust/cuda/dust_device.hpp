@@ -218,9 +218,9 @@ public:
     select_needed_ = true;
     select_scatter_ = !std::is_sorted(index.cbegin(), index.cend());
 
-    // TODO: get this 64 from the original configuration, if possible.
+    const auto block_size = cuda_pars_.index_scatter.block_size;
     cuda_pars_.index_scatter =
-      dust::cuda::launch_control_simple(64, n_particles * n_state());
+      dust::cuda::launch_control_simple(block_size, n_particles * n_state());
   }
 
   void run(const size_t step_end) {

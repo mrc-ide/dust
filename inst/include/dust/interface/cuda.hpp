@@ -19,7 +19,7 @@ inline int check_device_id(cpp11::sexp r_device_id) {
 #endif
   int device_id = cpp11::as_cpp<int>(r_device_id);
   // TODO: would be nice to use validate_size here, but helpers.hpp
-  // can't be include because the headers are still in a tangle.
+  // can't be include because the headers are still in a tangle. See #306
   if (device_id < 0) {
     cpp11::stop("Invalid 'device_id' %d, must be positive",
                 device_id);

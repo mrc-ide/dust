@@ -1,5 +1,4 @@
 /// IMPORTANT; changes here must be reflected into inst/template/dust.hpp
-// #include <dust/cuda/dust_device.hpp> // should this only be used when device is needed?
 #include <dust/dust.hpp>
 #include <dust/interface/dust.hpp>
 

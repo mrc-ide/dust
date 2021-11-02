@@ -202,11 +202,11 @@ inline launch_control_dust::launch_control_dust(const device_config& config,
   const size_t shared_size = config.shared_size_;
   const size_t run_block_size = config.run_block_size_;
   run = launch_control_model(n_particles, n_particles_each,
-                              n_shared_int, n_shared_real,
-                              real_size, 0, shared_size, run_block_size);
+                             n_shared_int, n_shared_real,
+                             real_size, 0, shared_size, run_block_size);
   compare = launch_control_model(n_particles, n_particles_each,
-                                  n_shared_int, n_shared_real,
-                                  real_size, data_size, shared_size, 128);
+                                 n_shared_int, n_shared_real,
+                                 real_size, data_size, shared_size, 128);
 
   reorder       = launch_control_simple(128, n_particles * n_state_full);
   scatter       = launch_control_simple( 64, n_particles * n_state_full);

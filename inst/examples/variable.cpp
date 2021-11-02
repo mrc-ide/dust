@@ -103,5 +103,4 @@ void update_device<variable>(size_t step,
 }
 
 }
-
 }
