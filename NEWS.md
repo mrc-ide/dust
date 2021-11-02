@@ -1,3 +1,7 @@
+# dust 0.11.0
+
+* Rationalised the GPU interface, now once created models can only be used on either the GPU or CPU which simplifies the internal bookkeeping (#292, #302)
+
 # dust 0.10.0
 
 * Improved and generalised RNG interface, with more algorithms and more control
