@@ -57,13 +57,8 @@ public:
     select_needed_(true),
     select_scatter_(false),
     step_(step) {
-    initialise_device_state(std::vector<pars_type>(1, pars));
-    set_device_rng(n_particles, seed);
-    set_cuda_launch();
+    initialise_device_state(std::vector<pars_type>(1, pars), n_particles, seed);
     shape_ = {n_particles};
-#ifdef DUST_USING_CUDA_PROFILER
-    cuda_profiler_start(device_config_);
-#endif
   }
 
   DustDevice(const std::vector<pars_type>& pars, const size_t step,
@@ -82,9 +77,7 @@ public:
     select_needed_(true),
     select_scatter_(false),
     step_(step) {
-    initialise_device_state(pars);
-    set_device_rng(n_particles, seed);
-    set_cuda_launch();
+    initialise_device_state(pars, n_particles, seed);
     // constructing the shape here is harder than above.
     if (n_particles > 0) {
       shape_.push_back(n_particles);
@@ -92,9 +85,6 @@ public:
     for (auto i : shape) {
       shape_.push_back(i);
     }
-#ifdef DUST_USING_CUDA_PROFILER
-    cuda_profiler_start(device_config_);
-#endif
   }
 
   // We only need a destructor when running with cuda profiling; don't
@@ -678,7 +668,9 @@ private:
   }
 
   // Sets state from model + pars
-  void initialise_device_state(const std::vector<pars_type>& pars) {
+  void initialise_device_state(const std::vector<pars_type>& pars,
+                               const size_t n_particles,
+                               const std::vector<rng_int_type>& seed) {
     if (n_state_full_ == 0) {
       const dust::Particle<T> p(pars[0], step_);
       n_state_full_ = p.size();
@@ -689,13 +681,14 @@ private:
     set_device_shared(pars);
     set_state_from_pars(pars);
 
-    // TODO: should do (in both of these)
-    // set_device_rng(n_particles, seed)
-    // set_cuda_launch()
-    // consider setting shape too
-    // consider starting profiler
+    set_device_rng(n_particles, seed);
+    set_cuda_launch();
 
     select_needed_ = true;
+
+#ifdef DUST_USING_CUDA_PROFILER
+    cuda_profiler_start(device_config_);
+#endif
   }
 
   void get_device_state(typename std::vector<real_type>::iterator state_full) {
