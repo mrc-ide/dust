@@ -123,9 +123,7 @@ substitute_dust_template <- function(data, src, dest) {
 
 
 glue_whisker <- function(template, data) {
-  if (length(template) > 1L) {
-    template <- paste(template, collapse = "\n")
-  }
+  stopifnot(length(template) == 1L)
   glue::glue(template, .envir = data, .open = "{{", .close = "}}",
              .trim = FALSE)
 }
