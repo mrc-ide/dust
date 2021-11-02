@@ -412,8 +412,8 @@ public:
                                       scan);
   }
 
-  // TODO: can be deleted?
-  dust::cuda::device_array<size_t>& kappa() {
+  // For the particle filter only
+  dust::cuda::device_array<size_t>& filter_kappa() {
     return device_state_.scatter_index;
   }
 

@@ -59,7 +59,7 @@ filter(DustDevice<T> * obj,
 
     // SAVE HISTORY ORDER
     if (save_trajectories) {
-      state.trajectories.store_order(obj->kappa());
+      state.trajectories.store_order(obj->filter_kappa());
       state.trajectories.advance();
     }
 
