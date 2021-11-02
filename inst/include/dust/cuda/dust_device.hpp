@@ -583,9 +583,7 @@ private:
     const size_t n_internal_real = dust::cuda::device_internal_real_size<T>(s);
     const size_t n_shared_int = dust::cuda::device_shared_int_size<T>(s);
     const size_t n_shared_real = dust::cuda::device_shared_real_size<T>(s);
-    device_state_.initialise(n_particles_total_, n_state_full_,
-                             // TODO: can merge n_shared_len and n_pars here
-                             n_pars, n_pars,
+    device_state_.initialise(n_particles_total_, n_state_full_, n_pars,
                              n_internal_int, n_internal_real,
                              n_shared_int, n_shared_real);
   }
@@ -814,13 +812,12 @@ private:
                                                  sizeof(data_type));
   }
 
+  // TODO: Both these update functions are wildly inefficient; we
+  // should probably support things like "copy one state to all the
+  // particles of that parameter index", possibly as a kernel.
   void set_state_from_pars(const pars_type& pars) {
     const dust::Particle<T> p(pars, step_);
 
-    // TODO: probably more efficient as single vector than vector of
-    // vectors, needs total size n_particles() * n_state_full_ but the
-    // interleaving would then need changing.  It might even be worth
-    // a specialised interleaved-but-identical method?
     std::vector<real_type> y(n_state_full_);
     p.state_full(y.begin());
     std::vector<std::vector<real_type>> state_host(n_particles(), y);
@@ -832,7 +829,6 @@ private:
     std::vector<std::vector<real_type>>
       state_host(n_particles() * n_pars_,
                  std::vector<real_type>(n_state_full_));
-    // TODO: this is wildly inefficient
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif

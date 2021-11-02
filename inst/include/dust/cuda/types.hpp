@@ -302,12 +302,12 @@ private:
 
 template <typename real_type, typename rng_state_type>
 struct device_state {
-  void initialise(size_t n_particles_, size_t n_state, size_t n_pars,
-                  size_t n_shared_len_,
+  void initialise(size_t n_particles_, size_t n_state, size_t n_pars_,
                   size_t n_internal_int, size_t n_internal_real,
                   size_t n_shared_int_, size_t n_shared_real_) {
     n_particles = n_particles_;
-    n_shared_len = n_shared_len_;
+    // NOTE: this is never read
+    n_pars = n_pars_;
     n_shared_int = n_shared_int_;
     n_shared_real = n_shared_real_;
     constexpr size_t n_rng = rng_state_type::size();
@@ -315,8 +315,8 @@ struct device_state {
     y_next = device_array<real_type>(n_state * n_particles);
     internal_int = device_array<int>(n_internal_int * n_particles);
     internal_real = device_array<real_type>(n_internal_real * n_particles);
-    shared_int = device_array<int>(n_shared_int * n_shared_len);
-    shared_real = device_array<real_type>(n_shared_real * n_shared_len);
+    shared_int = device_array<int>(n_shared_int * n_pars);
+    shared_real = device_array<real_type>(n_shared_real * n_pars);
     rng = device_array<typename rng_state_type::int_type>(n_rng * n_particles);
     index = device_array<char>(n_state * n_particles);
     n_selected = device_array<int>(1);
@@ -389,7 +389,7 @@ struct device_state {
   }
 
   size_t n_particles;
-  size_t n_shared_len;
+  size_t n_pars;
   size_t n_shared_int;
   size_t n_shared_real;
   device_array<real_type> y;
