@@ -555,9 +555,6 @@ private:
   // This only gets called on construction; the size of these never
   // changes.
   void initialise_device_memory(typename dust::shared_ptr<T> s) {
-    if (n_state_full_ == 0) {
-      throw std::runtime_error("n_state_full was 0 unexpectedly");
-    }
     const size_t n_pars = n_pars_effective();
     const size_t n_internal_int = dust::cuda::device_internal_int_size<T>(s);
     const size_t n_internal_real = dust::cuda::device_internal_real_size<T>(s);
@@ -824,10 +821,6 @@ private:
   }
 
   void set_state_from_pars(const pars_type& pars) {
-    if (n_state_full_ == 0) {
-      throw std::runtime_error("n_state_full was 0 unexpectedly");
-    }
-
     const dust::Particle<T> p(pars, step_);
 
     // TODO: probably more efficient as single vector than vector of
@@ -842,9 +835,6 @@ private:
   }
 
   void set_state_from_pars(const std::vector<pars_type>& pars) {
-    if (n_state_full_ == 0) {
-      throw std::runtime_error("n_state_full was 0 unexpectedly");
-    }
     // TODO: can initialise these with the correct size already
     std::vector<std::vector<real_type>> state_host(n_particles() * n_pars_);
     // std::vector<std::vector<real_type>>
