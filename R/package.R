@@ -203,37 +203,13 @@ package_generate <- function(filename) {
   model <- read_lines(filename)
   data <- dust_template_data(model, config, NULL)
 
-  template_r <- drop_internal_comments(
-    readLines(dust_file("template/dust.R.template")))
-  ## Drop all the roxygen comments here before writing out the R
-  ## code. The reasoning here is that we have no way of tying this to
-  ## the correct help page, and the user may not be using roxygen at
-  ## all, and they could just link to the help file ?dust to get the
-  ## same documentation.
-  template_r <- drop_roxygen(template_r)
-  code_r <- glue_whisker(template_r, data)
-
-  ## TODO: this now merges with compile.R, should be identical now?
-  dust_cpp <- c(substitute_dust_template(data, "dust.cpp", NULL),
-                substitute_dust_template(data, "dust_methods.cpp", NULL))
-  dust_hpp <- c(substitute_dust_template(data, "dust.hpp", NULL),
-                substitute_dust_template(data, "dust_methods.hpp", NULL))
-
-  if (config$has_gpu_support) {
-    data_gpu <- data
-    data_gpu$target <- "gpu"
-    data_gpu$container <- "DustDevice"
-    dust_cpp <- c(dust_cpp,
-                  substitute_dust_template(data_gpu, "dust_methods.cpp", NULL))
-    dust_hpp <- c(dust_hpp,
-                  substitute_dust_template(data_gpu, "dust_methods.hpp", NULL))
-  }
+  code <- dust_code(data, config)
 
   src <- set_names(
-    paste(drop_internal_comments(c(dust_hpp, dust_cpp)), collapse = "\n"),
+    paste(c(code$hpp, code$cpp), collapse = "\n"),
     basename(filename))
 
-  list(src = src, r = code_r)
+  list(src = src, r = paste(code$r, collapse = "\n"))
 }
 
 

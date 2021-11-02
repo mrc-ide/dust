@@ -29,12 +29,32 @@ generate_dust <- function(filename, quiet, workdir, cuda, skip_cache, mangle) {
                            file.path(path, "DESCRIPTION"))
   substitute_dust_template(data, "NAMESPACE",
                            file.path(path, "NAMESPACE"))
-  substitute_dust_template(data, "dust.R.template",
-                           file.path(path, "R/dust.R"))
-  substitute_dust_template(data, "dust.hpp",
-                           file.path(path, "src", "dust.hpp"))
 
-  ## TODO: this big chunk shared with package
+  if (is.null(cuda)) {
+    cpp_ext <- ".cpp"
+    substitute_dust_template(data, "Makevars",
+                             file.path(path, "src", "Makevars"))
+  } else {
+    cpp_ext <- ".cu"
+    substitute_dust_template(data, "Makevars.cuda",
+                             file.path(path, "src", "Makevars"))
+  }
+
+  code <- dust_code(data, config)
+  writeLines(code$r, file.path(path, "R/dust.R"))
+  writeLines(code$cpp, file.path(path, paste0("src/dust", cpp_ext)))
+  writeLines(code$hpp, file.path(path, "src/dust.hpp"))
+
+  res <- list(key = base, gpu = gpu, data = data, path = path)
+  cache$models$set(base, res, skip_cache)
+  res
+}
+
+
+dust_code <- function(data, config) {
+  dust_r <- drop_roxygen(
+    substitute_dust_template(data, "dust.R.template", NULL))
+
   dust_cpp <- c(substitute_dust_template(data, "dust.cpp", NULL),
                 substitute_dust_template(data, "dust_methods.cpp", NULL))
   dust_hpp <- c(substitute_dust_template(data, "dust.hpp", NULL),
@@ -50,29 +70,11 @@ generate_dust <- function(filename, quiet, workdir, cuda, skip_cache, mangle) {
                   substitute_dust_template(data_gpu, "dust_methods.hpp", NULL))
   }
 
-  if (is.null(cuda)) {
-    path_dust_cpp <- file.path(path, "src", "dust.cpp")
-    substitute_dust_template(data, "Makevars",
-                             file.path(path, "src", "Makevars"))
-  } else {
-    path_dust_cpp <- file.path(path, "src", "dust.cu")
-    substitute_dust_template(data, "Makevars.cuda",
-                             file.path(path, "src", "Makevars"))
-  }
+  ret <- list(r = dust_r,
+              hpp = dust_hpp,
+              cpp = dust_cpp)
 
-  ## Keep the generated dust files simple by dropping roxygen docs
-  ## which are used in making the interface docs (?dust_generator) and
-  ## internal comments which remind developers about next steps after
-  ## modifying files.
-  dust_r <- drop_internal_comments(readLines(file.path(path, "R/dust.R")))
-  writeLines(drop_roxygen(dust_r), file.path(path, "R/dust.R"))
-
-  writeLines(drop_internal_comments(dust_cpp), path_dust_cpp)
-  writeLines(drop_internal_comments(dust_hpp), file.path(path, "src/dust.hpp"))
-
-  res <- list(key = base, gpu = gpu, data = data, path = path)
-  cache$models$set(base, res, skip_cache)
-  res
+  lapply(ret, drop_internal_comments)
 }
 
 
