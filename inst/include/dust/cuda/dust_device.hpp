@@ -206,11 +206,12 @@ public:
     step_ = step;
   }
 
-  void set_step(const std::vector<size_t>& step) {
-    // This is prevented in interface.hpp so that we never make it
-    // here (part of requiring that state setting entirely succeeds or
-    // fails). We leave the same error message here though so that
-    // it's easy to locate the interface component.
+  // This is prevented in interface.hpp so that we never make it here
+  // (part of requiring that state setting entirely succeeds or
+  // fails). We leave the same error message here though so that it's
+  // easy to locate the interface component; the method must exist or
+  // compilation would fail.
+  void set_step(const std::vector<size_t>& step) {              // # nocov
     cpp11::stop("GPU doesn't support setting vector of steps"); // # nocov
   }
 
