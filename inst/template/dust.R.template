@@ -425,7 +425,7 @@
     },
 
     ##' @description
-    ##' Check if the model is running on a gpu
+    ##' Check if the model is running on a GPU
     ##' @param fake_gpu Logical, indicating if we count as `TRUE`
     ##'   models that run on the "fake" GPU (i.e., using the GPU
     ##'   version of the model but running on the CPU)

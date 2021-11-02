@@ -580,7 +580,7 @@ as \code{dust_generator$public_methods$has_cuda()}
 \if{html}{\out{<a id="method-uses_gpu"></a>}}
 \if{latex}{\out{\hypertarget{method-uses_gpu}{}}}
 \subsection{Method \code{uses_gpu()}}{
-Check if the model is running on a gpu
+Check if the model is running on a GPU
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$uses_gpu(fake_gpu = FALSE)}\if{html}{\out{</div>}}
 }
