@@ -171,7 +171,7 @@ cpp11::sexp dust_update_state_set(T *obj, SEXP r_pars,
 
   // If we set both initial conditions and step then we're safe to
   // continue here.
-  if (state.size() > 0 && step.size() > 0) {
+  if ((set_initial_state || state.size() > 0) && step.size() > 0) {
     obj->reset_errors();
   }
 
