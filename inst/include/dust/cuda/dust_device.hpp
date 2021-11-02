@@ -422,37 +422,57 @@ public:
     return device_state_.y_selected;
   }
 
+  // This function and set_rng_state are inverses of each other; the
+  // layout is purposefully similar.
   std::vector<rng_int_type> rng_state() {
     const size_t np = n_particles();
     constexpr size_t rng_len = rng_state_type::size();
 
-    // Interleaved rng state:
-    std::vector<rng_int_type> rngi(np * rng_len);
-    // Device to host copy
-    device_state_.rng.get_array(rngi);
+    std::vector<rng_int_type> rng_interleaved(np * rng_len);
+    // Pull from device
+    device_state_.rng.get_array(rng_interleaved);
 
-    // De-interleaved RNG state, copied from rngi, +1 is host rng
-    std::vector<rng_int_type> rngd((np + 1) * rng_len);
+    // De-interleaved RNG state, copied from rng_interleaved, +1 is host rng
+    std::vector<rng_int_type> rng_state((np + 1) * rng_len);
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
     for (size_t i = 0; i < np; ++i) {
       for (size_t j = 0; j < rng_len; ++j) {
-        rngd[i * rng_len + j] = rngi[i + j * np];
+        rng_state[j + i * rng_len] = rng_interleaved[i + j * np];
       }
     }
 
     // Add the (host) resample state on the end
     for (size_t j = 0; j < rng_len; ++j) {
-      rngd[np * rng_len + j] = resample_rng_[j];
+      rng_state[np * rng_len + j] = resample_rng_[j];
     }
 
-    return rngd;
+    return rng_state;
   }
 
   void set_rng_state(const std::vector<rng_int_type>& rng_state) {
-    // TODO: pull definition up here now.
-    set_device_rng(rng_state);
+    const size_t np = n_particles();
+    constexpr size_t rng_len = rng_state_type::size();
+
+    // Interleaved RNG state copied from rng_state
+    std::vector<rng_int_type> rng_interleaved(np * rng_len);
+#ifdef _OPENMP
+      #pragma omp parallel for schedule(static) num_threads(n_threads_)
+#endif
+    for (size_t i = 0; i < np; ++i) {
+      for (size_t j = 0; j < rng_len; ++j) {
+        rng_interleaved[i + j * np] = rng_state[j + i * rng_len];
+      }
+    }
+
+    // Push onto device
+    device_state_.rng.set_array(rng_interleaved);
+
+    // This also imports the resample RNG, which is on the host
+    for (size_t j = 0; j < rng_len; ++j) {
+      resample_rng_[j] = rng_state[np * rng_len + j];
+    }
   }
 
   void set_n_threads(size_t n_threads) {
@@ -602,28 +622,6 @@ private:
     device_state_.shared_real.set_array(shared_real);
   }
 
-  // Interleave and copy RNG state to GPU
-  void set_device_rng(const std::vector<rng_int_type>& rng_state) {
-    const size_t np = n_particles();
-    constexpr size_t rng_len = rng_state_type::size();
-    std::vector<rng_int_type> rng(np * rng_len); // Interleaved RNG state
-#ifdef _OPENMP
-      #pragma omp parallel for schedule(static) num_threads(n_threads_)
-#endif
-    for (size_t i = 0; i < np; ++i) {
-      for (size_t j = 0; j < rng_len; ++j) {
-        rng[i + j * np] = rng_state[j + i * rng_len];
-      }
-    }
-    // H -> D copy
-    device_state_.rng.set_array(rng);
-
-    // This also imports the resample RNG, which is on the host
-    for (size_t j = 0; j < rng_len; ++j) {
-      resample_rng_[j] = rng_state[j + np * rng_len];
-    }
-  }
-
   // Interleaves and copies a 2D state vector
   void set_device_state(std::vector<std::vector<real_type>>& state_full) {
     const size_t np = n_particles(), ny = n_state_full();
@@ -675,7 +673,7 @@ private:
     // is to expand out seed correctly (e.g., it might be a 4-element
     // vector on first creation).
     dust::random::prng<rng_state_type> rng(n_particles + 1, seed);
-    set_device_rng(rng.export_state());
+    set_rng_state(rng.export_state());
 
     set_cuda_launch();
 
