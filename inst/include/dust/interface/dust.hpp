@@ -211,9 +211,13 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
     // best thing to take for those? Possibly require an array to
     // disambiguate?
     step = dust::interface::validate_size(r_step, "step");
-    if (!(step.size() == 1 || step.size() == obj->n_particles())) {
+    const size_t len = step.size();
+    if (!(len == 1 || len == obj->n_particles())) {
       cpp11::stop("Expected 'step' to be scalar or length %d",
                   obj->n_particles());
+    }
+    if (!std::is_same<T, Dust<typename T::model_type>>::value && len != 1) {
+      cpp11::stop("GPU doesn't support setting vector of steps");
     }
   }
 

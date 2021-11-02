@@ -464,6 +464,8 @@ test_that("Comparison function can be run on the GPU", {
 })
 
 test_that("Can run a single particle filter on the GPU", {
+  ## TODO: Very confused how this can work but the resample bug
+  ## remains live.
   dat <- example_sirs()
 
   np <- 10
@@ -879,4 +881,29 @@ test_that("Can resample particles", {
   expect_equal(idx, resample_index(w, u))
   expect_equal(obj$state(), m[, idx])
   expect_equal(rng$state(), obj$rng_state(last_only = TRUE))
+})
+
+
+test_that("Detect inconsistent parameter set size", {
+  res <- dust_example("variable")
+  p <- list(list(len = 3, sd = 1), list(len = 10, sd = 1))
+  msg <- paste("'pars' created inconsistent state size:",
+               "expected length 3 but parameter set 2 created length 10")
+  expect_error(
+    res$new(p, 0, 5, seed = 1L, pars_multi = TRUE),
+    msg)
+  expect_error(
+    res$new(p, 0, 5, seed = 1L, pars_multi = TRUE, device_config = 0L),
+    msg)
+})
+
+
+test_that("Can't set vector of times into gpu object", {
+  np <- 100
+  len <- 20
+  gen <- dust_example("variable")
+  mod <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
+  expect_error(
+    mod$update_state(step = seq_len(np)),
+    "GPU doesn't support setting vector of steps")
 })

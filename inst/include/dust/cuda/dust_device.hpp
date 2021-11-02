@@ -108,7 +108,7 @@ public:
   }
 #endif
 
-size_t n_threads() const {
+  size_t n_threads() const {
     return n_threads_;
   }
 
@@ -219,8 +219,11 @@ size_t n_threads() const {
   }
 
   void set_step(const std::vector<size_t>& step) {
-    // Theoretically this could be done.
-    cpp11::stop("GPU doesn't support multiple steps");
+    // This is prevented in interface.hpp so that we never make it
+    // here (part of requiring that state setting entirely succeeds or
+    // fails). We leave the same error message here though so that
+    // it's easy to locate the interface component.
+    cpp11::stop("GPU doesn't support setting vector of steps"); // # nocov
   }
 
   // It's the callee's responsibility to ensure that index is in
