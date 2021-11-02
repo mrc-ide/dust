@@ -58,7 +58,6 @@ public:
     select_scatter_(false),
     step_(step) {
     initialise_device_state(pars);
-    set_device_shared(pars);
     set_device_rng(n_particles, seed);
     set_cuda_launch();
     shape_ = {n_particles};
@@ -84,7 +83,6 @@ public:
     select_scatter_(false),
     step_(step) {
     initialise_device_state(pars);
-    set_device_shared(pars);
     set_device_rng(n_particles, seed);
     set_cuda_launch();
     // constructing the shape here is harder than above.
@@ -165,14 +163,14 @@ public:
   void set_pars(const pars_type& pars, bool set_state) {
     set_device_shared(pars);
     if (set_state) {
-      initialise_device_state(pars);
+      set_state_from_pars(pars);
     }
   }
 
   void set_pars(const std::vector<pars_type>& pars, bool set_state) {
     set_device_shared(pars);
     if (set_state) {
-      initialise_device_state(pars);
+      set_state_from_pars(pars);
     }
   }
 
@@ -443,6 +441,7 @@ public:
     return rng.export_state();
   }
 
+  // TODO: I think that this and get_device_rng can be merged.
   void set_rng_state(const std::vector<rng_int_type>& rng_state) {
     dust::random::prng<rng_state_type> rng(n_particles_total_ + 1);
     rng.import_state(rng_state);
@@ -558,12 +557,17 @@ private:
   // This only gets called on construction; the size of these never
   // changes.
   void initialise_device_memory(typename dust::shared_ptr<T> s) {
+    if (n_state_full_ == 0) {
+      throw std::runtime_error("n_state_full was 0 unexpectedly");
+    }
+    const size_t n_pars = n_pars_effective();
     const size_t n_internal_int = dust::cuda::device_internal_int_size<T>(s);
     const size_t n_internal_real = dust::cuda::device_internal_real_size<T>(s);
     const size_t n_shared_int = dust::cuda::device_shared_int_size<T>(s);
     const size_t n_shared_real = dust::cuda::device_shared_real_size<T>(s);
-    device_state_.initialise(n_particles_total_, n_state_full(),
-                             n_pars_effective(), n_pars_effective(),
+    device_state_.initialise(n_particles_total_, n_state_full_,
+                             // TODO: can merge n_shared_len and n_pars here
+                             n_pars, n_pars,
                              n_internal_int, n_internal_real,
                              n_shared_int, n_shared_real);
   }
@@ -619,7 +623,7 @@ private:
     }
     // H -> D copy
     device_state_.rng.set_array(rng);
-    
+
     // This also imports the resample RNG, which is on the host
     resample_rng_ = host_rng.state(n_particles_total_);
   }
@@ -697,45 +701,48 @@ private:
   void initialise_device_state(const pars_type& pars) {
     // No real way around this, we need to create a single particle to
     // get the size, but that's ok.
-    const dust::Particle<T> p_tmp(pars, step_);
-    n_state_full_ = p_tmp.size();
-    n_state_ = n_state_full_;
-
-    // TODO: probably more efficient as single vector than vector of
-    // vectors, needs total size n_particles() * n_state_full_ but the
-    // interleaving would then need changing.  It might even be worth
-    // a specialised interleaved-but-identical method?
-    std::vector<real_type> y(n_state_full_);
-    p_tmp.state_full(y.begin());
-    std::vector<std::vector<real_type>> state_host(n_particles(), y);
+    //
+    // TODO: we should be able to pull this from elsewhere I think?
+    // set_device_shared can return size_t
+    if (n_state_full_ == 0) {
+      const dust::Particle<T> p(pars, step_);
+      n_state_full_ = p.size();
+      n_state_ = n_state_full_;
+    }
 
     initialise_device_memory(pars.shared);
+    set_device_shared(pars);
+    set_state_from_pars(pars);
 
-    set_device_state(state_host);
     select_needed_ = true;
   }
 
+
   // Set state from model + vector of pars
   void initialise_device_state(const std::vector<pars_type>& pars) {
-    // TODO: this is wildly inefficient
-    std::vector<std::vector<real_type>> state_host(n_particles() * n_pars_);
-#ifdef _OPENMP
-      #pragma omp parallel for schedule(static) num_threads(n_threads_)
-#endif
-    for (size_t i = 0; i < n_pars_; ++i) {
-      for (size_t j = 0; j < n_particles(); ++j) {
-        dust::Particle<T> p_tmp(pars[i], step_);
-        std::vector<real_type> y(p_tmp.size());
-        p_tmp.state_full(y.begin());
-        state_host[i * n_particles() + j] = y;
-      }
+    if (n_state_full_ == 0) {
+      const dust::Particle<T> p(pars[0], step_);
+      n_state_full_ = p.size();
+      n_state_ = n_state_full_;
     }
 
-    n_state_full_ = state_host.front().size();
-    n_state_ = n_state_full_;
+    // NOTE: initialise_device_memory requires n_state_full_ set
+    // above, also n_pars_effective() which is known at construction.
     initialise_device_memory(pars[0].shared);
 
-    set_device_state(state_host);
+    // These two can be done in either order
+    set_device_shared(pars);
+
+    // TODO: does this really require step too? Seems like it does for
+    // full odin support. This affects the Dust object too.
+    set_state_from_pars(pars);
+
+    // TODO: should do (in both of these)
+    // set_device_rng(n_particles, seed)
+    // set_cuda_launch()
+    // consider setting shape too
+    // consider starting profiler
+
     select_needed_ = true;
   }
 
@@ -816,6 +823,48 @@ private:
                                                  device_state_.n_shared_real,
                                                  sizeof(real_type),
                                                  sizeof(data_type));
+  }
+
+  void set_state_from_pars(const pars_type& pars) {
+    if (n_state_full_ == 0) {
+      throw std::runtime_error("n_state_full was 0 unexpectedly");
+    }
+
+    const dust::Particle<T> p(pars, step_);
+
+    // TODO: probably more efficient as single vector than vector of
+    // vectors, needs total size n_particles() * n_state_full_ but the
+    // interleaving would then need changing.  It might even be worth
+    // a specialised interleaved-but-identical method?
+    std::vector<real_type> y(n_state_full_);
+    p.state_full(y.begin());
+    std::vector<std::vector<real_type>> state_host(n_particles(), y);
+
+    set_device_state(state_host);
+  }
+
+  void set_state_from_pars(const std::vector<pars_type>& pars) {
+    if (n_state_full_ == 0) {
+      throw std::runtime_error("n_state_full was 0 unexpectedly");
+    }
+    // TODO: can initialise these with the correct size already
+    std::vector<std::vector<real_type>> state_host(n_particles() * n_pars_);
+    // std::vector<std::vector<real_type>>
+    //   state_host(n_particles() * n_pars_, std::vector<double>(n_state_full_));
+    // TODO: this is wildly inefficient
+#ifdef _OPENMP
+    #pragma omp parallel for schedule(static) num_threads(n_threads_)
+#endif
+    for (size_t i = 0; i < n_pars_; ++i) {
+      for (size_t j = 0; j < n_particles(); ++j) {
+        dust::Particle<T> p(pars[i], step_);
+        std::vector<real_type> y(n_state_full_);
+        p.state_full(y.begin());
+        state_host[i * n_particles() + j] = y;
+      }
+    }
+
+    set_device_state(state_host);
   }
 };
 

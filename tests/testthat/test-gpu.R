@@ -431,6 +431,7 @@ test_that("Can use sirs gpu model", {
     mod2$run(15))
 })
 
+
 test_that("Can simulate sirs gpu model", {
   res <- dust_example("sirs")
 
@@ -444,6 +445,7 @@ test_that("Can simulate sirs gpu model", {
   mod_h <- res$new(list(), 0, np, seed = 1L)
   expect_identical(mod_h$simulate(steps)[c(1, 3), , , drop = FALSE], y)
 })
+
 
 test_that("Comparison function can be run on the GPU", {
   dat <- example_sirs()
@@ -462,6 +464,7 @@ test_that("Comparison function can be run on the GPU", {
 
   expect_identical(weights_h, weights_d)
 })
+
 
 test_that("Can run a single particle filter on the GPU", {
   ## TODO: Very confused how this can work but the resample bug
@@ -485,6 +488,7 @@ test_that("Can run a single particle filter on the GPU", {
   expect_identical(ans_h$snapshots, ans_d$snapshots)
 })
 
+
 test_that("Can run particle filter without collecting state on GPU", {
   dat <- example_sirs()
 
@@ -500,6 +504,7 @@ test_that("Can run particle filter without collecting state on GPU", {
 
   expect_equal(ans_h$log_likelihood, ans_d$log_likelihood)
 })
+
 
 test_that("Can run GPU kernels using shared memory", {
   dat <- example_sirs()
@@ -521,6 +526,7 @@ test_that("Can run GPU kernels using shared memory", {
   expect_identical(ans_h$trajectories, ans_d$trajectories)
   expect_identical(ans_h$snapshots, ans_d$snapshots)
 })
+
 
 test_that("Can run multiple particle filters on the GPU", {
   dat <- example_sirs()
@@ -735,6 +741,9 @@ test_that("can update parameters, leaving state alone", {
   mod2$update_state(pars = pb)
   expect_identical(mod1$state(), mod2$state())
 
+  ## break dust_device.hpp:290
+  ## print *(
+
   y1 <- mod1$run(10)
   y2 <- mod2$run(10)
   expect_identical(y1, y2)
@@ -763,9 +772,6 @@ test_that("Can reset time", {
 
 
 test_that("can update parameters and time, resetting state", {
-  skip("FIXME: broken")
-  ## This one is broken with the model not advancing after setting
-  ## state this way.
   np <- 5
   len <- 3
   gen <- dust_example("variable")
@@ -773,11 +779,14 @@ test_that("can update parameters and time, resetting state", {
   pb <- list(len = len, sd = 2)
   mod1 <- gen$new(pa, 0, np, seed = 1L, device_config = NULL)
   mod2 <- gen$new(pa, 0, np, seed = 1L, device_config = 0L)
-  invisible(mod1$run(5))
-  invisible(mod2$run(5))
+  y1 <- mod1$run(5)
+  y2 <- mod2$run(5)
+  expect_equal(y1, y2)
+
   ## Doing this totally breaks the stepping...
   mod1$update_state(pars = pb, step = 0)
   mod2$update_state(pars = pb, step = 0)
+
   expect_identical(mod1$state(), mod2$state())
   expect_equal(mod2$step(), 0)
   y1 <- mod1$run(20)
@@ -813,8 +822,6 @@ test_that("Can set state", {
 
 
 test_that("Can extract partial state", {
-  ## This one is broken with the first particle's state being copied
-  ## out every time.
   np <- 5
   len <- 20
   gen <- dust_example("variable")
