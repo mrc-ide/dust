@@ -46,7 +46,7 @@ void multinomial(rng_state_type& rng_state,
                  int size,
                  const std::vector<real_type>& prob,
                  std::vector<real_type>& ret) {
-  multinomial<real_type>(rng_state, size, prob.data(), prob.size(), ret.data());
+  multinomial<real_type>(rng_state, size, prob, prob.size(), ret);
 }
 
 template <typename real_type, typename rng_state_type>

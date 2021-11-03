@@ -1,6 +1,8 @@
 #ifndef DUST_INTERFACE_RANDOM_HPP
 #define DUST_INTERFACE_RANDOM_HPP
 
+#include <cstring> // memcpy
+
 #include <dust/random/generator.hpp>
 #include <cpp11/raws.hpp>
 #include <R_ext/Random.h>
