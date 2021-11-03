@@ -125,14 +125,15 @@ input_vary check_input_type2(cpp11::doubles x, int n, int m, const char *name) {
   } else if (LENGTH(r_dim) == 2) { // matrix
     auto dim = cpp11::as_cpp<cpp11::integers>(r_dim);
     ret.len = dim[0];
-    if (dim[1] != n) {
-      cpp11::stop("If '%s' is a matrix, it must have %d columns", name, n);
+    if (dim[1] == n) {
+      ret.draw = true;
+    } else if (dim[1] != 1) {
+      cpp11::stop("If '%s' is a matrix, it must have 1 or %d columns",
+                  name, n);
     }
-    ret.draw = true;
   } else if (LENGTH(r_dim) == 3) {
     auto dim = cpp11::as_cpp<cpp11::integers>(r_dim);
     ret.len = dim[0];
-
     if (dim[1] == n) {
       ret.draw = true;
     } else if (dim[1] != 1) {
@@ -154,6 +155,8 @@ input_vary check_input_type2(cpp11::doubles x, int n, int m, const char *name) {
 
   if (ret.draw) {
     ret.offset = n * ret.len;
+  } else {
+    ret.offset = ret.len;
   }
 
   return ret;

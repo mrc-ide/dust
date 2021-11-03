@@ -554,7 +554,7 @@ test_that("multinomial expectation is correct", {
 })
 
 
-test_that("Can vary parameters for rmulitnom, single generator", {
+test_that("Can vary parameters for multinomial, single generator", {
   np <- 7L
   ng <- 1L
   size <- 13
@@ -570,7 +570,7 @@ test_that("Can vary parameters for rmulitnom, single generator", {
 
   expect_error(
     dust_rng$new(1, seed = 1L)$multinomial(n, size, prob[, -5]),
-    "If 'prob' is a matrix, it must have 17 columns")
+    "If 'prob' is a matrix, it must have 1 or 17 columns")
   expect_error(
     dust_rng$new(1, seed = 1L)$multinomial(n, size, prob[0, ]),
     "Input parameters imply length of 'prob' of only 0 (< 2)",
@@ -582,8 +582,26 @@ test_that("Can vary parameters for rmulitnom, single generator", {
 })
 
 
-test_that("Can vary parameters for rmulitnom, multiple generators", {
-  skip("WIP")
+test_that("Can vary parameters by generator for multinomial", {
+  np <- 7L
+  ng <- 3L
+  size <- 13
+  n <- 17L
+
+  prob <- array(runif(np * ng), c(np, 1, ng))
+  prob <- prob / rep(colSums(prob), each = np)
+
+  state <- matrix(dust_rng$new(ng, seed = 1L)$state(), ncol = ng)
+  cmp <- vapply(seq_len(ng), function(i)
+    dust_rng$new(1, seed = state[, i])$multinomial(n, size, prob[, , i]),
+    matrix(numeric(), np, n))
+
+  res <- dust_rng$new(ng, seed = 1L)$multinomial(n, size, prob)
+  expect_equal(res, cmp)
+})
+
+
+test_that("Can vary parameters for multinomial, multiple generators", {
   np <- 7L
   ng <- 3L
   size <- 13
@@ -591,23 +609,26 @@ test_that("Can vary parameters for rmulitnom, multiple generators", {
   prob <- array(runif(np * n * ng), c(np, n, ng))
   prob <- prob / rep(colSums(prob), each = np)
 
-  rng <- dust_rng$new(ng, seed = 1L)
-  cmp <- vapply(seq_len(n), function(i) rng$multinomial(1, size, prob[, i]),
-                array(numeric(), c(np, ng)))
+  ## Setting up the expectation here is not easy, we need a set of
+  ## generators. This test exploits the fact that we alredy worked out
+  ## we could vary a parameter over draws with a single generator.
+  state <- matrix(dust_rng$new(ng, seed = 1L)$state(), ncol = ng)
+  cmp <- vapply(seq_len(ng), function(i)
+    dust_rng$new(1, seed = state[, i])$multinomial(n, size, prob[, , i]),
+    matrix(numeric(), np, n))
 
-  res <- dust_rng$new(1, seed = 1L)$multinomial(n, size, prob)
+  res <- dust_rng$new(ng, seed = 1L)$multinomial(n, size, prob)
   expect_equal(res, cmp)
 
   expect_error(
-    dust_rng$new(1, seed = 1L)$multinomial(n, size, prob[, -5]),
-    "If 'prob' is a matrix, it must have 17 columns")
+    dust_rng$new(ng, seed = 1L)$multinomial(n, size, prob[, -5, ]),
+    "If 'prob' is a 3d array, it must have 1 or 17 columns")
   expect_error(
-    dust_rng$new(1, seed = 1L)$multinomial(n, size, prob[0, ]),
+    dust_rng$new(ng, seed = 1L)$multinomial(n, size, prob[, , -1]),
+    "If 'prob' is a 3d array, it must have 3 layers")
+  expect_error(
+    dust_rng$new(ng, seed = 1L)$multinomial(n, size, prob[0, , ]),
     "Input parameters imply length of 'prob' of only 0 (< 2)",
-    fixed = TRUE)
-  expect_error(
-    dust_rng$new(1, seed = 1L)$multinomial(n, size, prob[1, , drop = FALSE]),
-    "Input parameters imply length of 'prob' of only 1 (< 2)",
     fixed = TRUE)
 })
 
