@@ -1,4 +1,4 @@
-test_that("can generate random numbers", {
+stest_that("can generate random numbers", {
   ans1 <- dust_rng$new(1)$random_real(100)
   ans2 <- dust_rng$new(1)$random_real(100)
   ans3 <- dust_rng$new(2)$random_real(100)
@@ -515,7 +515,6 @@ test_that("exponential random numbers from floats have correct distribution", {
 })
 
 
-## TODO: make provding prob more flexible
 test_that("multinomial algorithm is correct", {
   set.seed(1)
   prob <- runif(10)
@@ -630,6 +629,19 @@ test_that("Can vary parameters for multinomial, multiple generators", {
     dust_rng$new(ng, seed = 1L)$multinomial(n, size, prob[0, , ]),
     "Input parameters imply length of 'prob' of only 0 (< 2)",
     fixed = TRUE)
+})
+
+
+test_that("multinomial random numbers from floats have correct distribution", {
+  n <- 100000
+  prob <- runif(7)
+  prob <- prob / sum(prob)
+  size <- 13
+  yf <- dust_rng$new(1, real_type = "float")$multinomial(n, size, prob)
+  expect_equal(dim(yf), c(length(prob), n))
+  expect_equal(colSums(yf), rep(size, n))
+  expect_equal(rowMeans(yf), size * prob,
+               tolerance = 1e-2)
 })
 
 
