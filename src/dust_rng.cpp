@@ -66,13 +66,14 @@ cpp11::writable::doubles dust_rng_random_real(SEXP ptr, int n, int n_threads) {
 }
 
 struct input_vary {
+  size_t len;
   size_t offset;
   bool draw;
   bool generator;
 };
                   
 input_vary check_input_type(cpp11::doubles x, int n, int m, const char *name) {
-  input_vary ret {1, false, false};
+  input_vary ret {1, 1, false, false};
   if (Rf_isMatrix(x)) {
     if (Rf_ncols(x) != m) {
       cpp11::stop("If '%s' is a matrix, it must have %d columns", name, m);
@@ -96,6 +97,65 @@ input_vary check_input_type(cpp11::doubles x, int n, int m, const char *name) {
     ret.offset = n;
   }
   
+  return ret;
+}
+
+// n = n draws
+// m = n generators
+
+// normally: scalar - don't vary
+// vector: length n, vary over draws, shared across draws
+// matrix:
+//   - n x m: vary over both
+//   - 1 x m: vary over generators, shared over draws
+
+// If we add a dimension to this, and letting 'len' be the number of classes,
+// we get:
+// normally: vector - don't vary
+// matrix len x n: vary over draws
+// array:
+//   len x n x m: vary over both
+//   len x 1 x m: vary over generators
+
+input_vary check_input_type2(cpp11::doubles x, int n, int m, const char *name) {
+  input_vary ret {1, 1, false, false};
+  cpp11::sexp r_dim = x.attr("dim");
+  if (r_dim == R_NilValue) {
+    ret.len = x.size();
+  } else if (LENGTH(r_dim) == 2) { // matrix
+    auto dim = cpp11::as_cpp<cpp11::integers>(r_dim);
+    ret.len = dim[0];
+    if (dim[1] != n) {
+      cpp11::stop("If '%s' is a matrix, it must have %d columns", name, n);
+    }
+    ret.draw = true;
+  } else if (LENGTH(r_dim) == 3) {
+    auto dim = cpp11::as_cpp<cpp11::integers>(r_dim);
+    ret.len = dim[0];
+
+    if (dim[1] == n) {
+      ret.draw = true;
+    } else if (dim[1] != 1) {
+      cpp11::stop("If '%s' is a 3d array, it must have 1 or %d columns",
+                  name, n);
+    }
+    if (dim[2] != m) {
+      cpp11::stop("If '%s' is a 3d array, it must have %d layers", name, m);
+    }
+    ret.generator = true;
+  } else {
+    cpp11::stop("'%s' must be a vector, matrix or 3d array");
+  }
+
+  if (ret.len < 2) {
+    cpp11::stop("Input parameters imply length of '%s' of only %d (< 2)",
+                name, ret.len);
+  }
+
+  if (ret.draw) {
+    ret.offset = n * ret.len;
+  }
+
   return ret;
 }
 
@@ -280,9 +340,9 @@ cpp11::writable::doubles dust_rng_multinomial(SEXP ptr, int n,
   // we will assume a single vector!
 
   const double * size = REAL(r_size);
-  auto size_vary = check_input_type(r_size, n, n_generators, "size");
-  // TODO: some work here required where we take floats.
   const double * prob = REAL(r_prob);
+  auto size_vary = check_input_type(r_size, n, n_generators, "size");
+  auto prob_vary = check_input_type2(r_prob, n, n_generators, "prob");
   const int len = LENGTH(r_prob);
 
   // Normally we return a block of doubles with the first 'n' entries
@@ -303,10 +363,10 @@ cpp11::writable::doubles dust_rng_multinomial(SEXP ptr, int n,
       auto &state = rng->state(i);
       auto y_i = y + len * n * i;
       auto size_i = size_vary.generator ? size + size_vary.offset * i : size;
-      // auto prob_i = prob; // unuse atm
+      auto prob_i = prob_vary.generator ? prob + prob_vary.offset * i : prob;
       for (size_t j = 0; j < (size_t)n; ++j) {
-        auto size_ij = size_vary.draw ? size_i[j] : size_i[0];
-        auto prob_ij = prob;
+        auto size_ij = size_vary.draw ? size_i[j]                  : size_i[0];
+        auto prob_ij = prob_vary.draw ? prob_i + j * prob_vary.len : prob;
         auto y_ij = y_i + j * len;
         dust::random::multinomial<real_type>(state, size_ij, prob_ij, len,
                                              y_ij);
