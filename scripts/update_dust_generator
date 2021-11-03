@@ -4,7 +4,10 @@ devtools::load_all()
 template_r <- drop_internal_comments(
   readLines("inst/template/dust.R.template"))
 
-txt <- glue_whisker(template_r, list(name = "dust_generator", param = "NULL"))
+txt <- glue_whisker(template_r, list(name = "dust_generator",
+                                     param = "NULL",
+                                     methods_cpu = "",
+                                     methods_gpu = ""))
 txt <- gsub(") \\{.+?\n    \\}", ") {\n    }", txt)
 
 header <- c(

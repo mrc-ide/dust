@@ -194,3 +194,18 @@ test_that("Create nice parameter strings", {
                                   b = list(x = 3, y = 4))),
                "list(a = list(x = 1, y = 2),\n     b = list(x = 3, y = 4))")
 })
+
+
+test_that("force gpu state", {
+  tmp1 <- helper_metadata(
+    "// [[dust::has_gpu_support(true)]]")
+  on.exit(unlink(tmp1), add = TRUE)
+  expect_true(parse_metadata(tmp1)$has_gpu_support)
+
+  tmp2 <- helper_metadata(
+    "// [[dust::has_gpu_support(sounds_good)]]")
+  on.exit(unlink(tmp2), add = TRUE)
+  expect_error(
+    parse_metadata(tmp2),
+    "Invalid value for dust::has_gpu_support, expected logical")
+})

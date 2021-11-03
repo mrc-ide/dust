@@ -2,7 +2,7 @@
 
 #include <dust/types.hpp>
 #include <dust/cuda/launch_control.hpp>
-#include <dust/interface/helpers.hpp>
+#include <dust/interface/cuda.hpp>
 
 cpp11::list launch_r_list(const dust::cuda::launch_control& p) {
   using namespace cpp11::literals;
@@ -21,7 +21,7 @@ SEXP test_cuda_pars(cpp11::sexp r_device_config, int n_particles,
                     int shared_size) {
   size_t real_size = sizeof(float);
   dust::cuda::device_config config =
-    dust::interface::device_config(r_device_config);
+    dust::cuda::interface::device_config(r_device_config);
   config.shared_size_ = shared_size; // this will be zero, add our own size!
 
   auto pars = dust::cuda::launch_control_dust(config,

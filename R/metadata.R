@@ -2,7 +2,8 @@ parse_metadata <- function(filename) {
   data <- decor::cpp_decorations(files = filename)
   ret <- list(name = parse_metadata_name(data),
               class = parse_metadata_class(data),
-              param = parse_metadata_param(data))
+              param = parse_metadata_param(data),
+              has_gpu_support = parse_metadata_has_gpu_support(data))
 
   if (is.null(ret$class)) {
     ret$class <- parse_metadata_guess_class(readLines(filename))
@@ -10,6 +11,10 @@ parse_metadata <- function(filename) {
 
   if (is.null(ret$name)) {
     ret$name <- ret$class
+  }
+
+  if (is.null(ret$has_gpu_support)) {
+    ret$has_gpu_support <- parse_code_has_gpu_support(readLines(filename))
   }
 
   assert_valid_name(ret$name)
@@ -28,7 +33,7 @@ parse_metadata_simple <- function(data, attribute) {
                  attribute, parse_metadata_describe(data, i)))
   }
   value <- data$params[[which(i)]]
-  if (length(value) != 1L) {
+  if (length(value) != 1L || value[[1]] == attribute) {
     stop(sprintf("Expected [[%s()]] to have one argument %s",
                  attribute, parse_metadata_describe(data, i)))
   }
@@ -47,6 +52,18 @@ parse_metadata_name <- function(data) {
 
 parse_metadata_class <- function(data) {
   parse_metadata_simple(data, "dust::class")
+}
+
+
+parse_metadata_has_gpu_support <- function(data) {
+  value <- parse_metadata_simple(data, "dust::has_gpu_support")
+  if (!is.null(value)) {
+    if (!grepl("^(true|false)$", value, ignore.case = TRUE)) {
+      stop("Invalid value for dust::has_gpu_support, expected logical")
+    }
+    value <- as.logical(toupper(value))
+  }
+  value
 }
 
 
@@ -114,6 +131,12 @@ parse_metadata_guess_class <- function(txt) {
     stop("Could not automatically detect class name; add [[dust::class()]]?")
   }
   sub(re, "\\1", txt[[i]])
+}
+
+
+parse_code_has_gpu_support <- function(txt) {
+  re <- "void\\s+update_device\\s*<\\s*"
+  any(grepl(re, txt))
 }
 
 

@@ -51,6 +51,7 @@ walk
 \item \href{#method-set_rng_state}{\code{dust_generator$set_rng_state()}}
 \item \href{#method-has_openmp}{\code{dust_generator$has_openmp()}}
 \item \href{#method-has_cuda}{\code{dust_generator$has_cuda()}}
+\item \href{#method-uses_gpu}{\code{dust_generator$uses_gpu()}}
 \item \href{#method-n_pars}{\code{dust_generator$n_pars()}}
 \item \href{#method-set_n_threads}{\code{dust_generator$set_n_threads()}}
 \item \href{#method-has_compare}{\code{dust_generator$has_compare()}}
@@ -170,7 +171,7 @@ on the model.
 Run the model up to a point in time, returning the filtered state
 at that point.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$run(step_end, device = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$run(step_end)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -178,11 +179,6 @@ at that point.
 \describe{
 \item{\code{step_end}}{Step to run to (if less than or equal to the current
 step(), silently nothing will happen)}
-
-\item{\code{device}}{Logical, indicating if the model should be run on
-the GPU device. This is only possible if your model supports it,
-was compiled with this enabled, and you have a suitable GPU
-available (see \code{vignette("cuda")}).}
 }
 \if{html}{\out{</div>}}
 }
@@ -203,7 +199,7 @@ the returned array is one less. For a scalar \code{step_end} you would
 ordinarily want to use \verb{$run()} but the resulting numbers would
 be identical.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$simulate(step_end, device = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$simulate(step_end)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -214,9 +210,6 @@ report output at. This the first time must be at least the same
 as the current time, and every subsequent time must be equal or
 greater than those before it (ties are allowed though probably
 not wanted).}
-
-\item{\code{device}}{Logical, indicating if the model should be run on
-the GPU device. See \verb{$run()} for more information.}
 }
 \if{html}{\out{</div>}}
 }
@@ -584,6 +577,25 @@ as \code{dust_generator$public_methods$has_cuda()}
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-uses_gpu"></a>}}
+\if{latex}{\out{\hypertarget{method-uses_gpu}{}}}
+\subsection{Method \code{uses_gpu()}}{
+Check if the model is running on a GPU
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$uses_gpu(fake_gpu = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{fake_gpu}}{Logical, indicating if we count as \code{TRUE}
+models that run on the "fake" GPU (i.e., using the GPU
+version of the model but running on the CPU)}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-n_pars"></a>}}
 \if{latex}{\out{\hypertarget{method-n_pars}{}}}
 \subsection{Method \code{n_pars()}}{
@@ -665,17 +677,9 @@ the same length as the number of particles is returned. If model's
 underlying \code{compare_data} function is stochastic, then each call to
 this function may be result in a different answer.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$compare_data(device = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$compare_data()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{device}}{Logical, indicating if the model should be run on
-the GPU device. See \verb{$run()} for more information.}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-filter"></a>}}
@@ -686,11 +690,7 @@ next few versions. You \emph{must} reset the dust object using
 \verb{$update_state(pars = ..., step = ...)} before using this method to
 get sensible values.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$filter(
-  save_trajectories = FALSE,
-  step_snapshot = NULL,
-  device = FALSE
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$filter(save_trajectories = FALSE, step_snapshot = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -708,9 +708,6 @@ If given it must be strictly increasing vector whose elements
 match steps given in the \code{data} object. The return value with be
 a multidimensional array (\verb{state x <shape> x step_snapshot})
 containing full state values at the requested steps.}
-
-\item{\code{device}}{Logical, indicating if the model should be run on
-the GPU device. See \verb{$run()} for more information.}
 }
 \if{html}{\out{</div>}}
 }

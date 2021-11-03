@@ -1,7 +1,6 @@
 #ifndef DUST_CUDA_KERNELS_HPP
 #define DUST_CUDA_KERNELS_HPP
 
-#include <assert.h>
 #include <dust/utils.hpp>
 #include <dust/cuda/device_state.hpp>
 

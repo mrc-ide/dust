@@ -2,8 +2,7 @@
 set -e
 
 mkdir -p bin out src
-cat targets | while read target
-do
+while read -r target; do
     file="${target}.c"
     src="src/${file}"
     if [[ ! -f $src ]]; then
@@ -17,7 +16,7 @@ do
     g++ -include $src -D$def -o$exe harness.cpp
     echo "Generating $dest"
     ./$exe > $dest
-done
+done < targets
 
 mkdir -p ../tests/testthat/xoshiro-ref
 cp -r out/* ../tests/testthat/xoshiro-ref

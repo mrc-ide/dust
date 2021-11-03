@@ -29,38 +29,52 @@ generate_dust <- function(filename, quiet, workdir, cuda, skip_cache, mangle) {
                            file.path(path, "DESCRIPTION"))
   substitute_dust_template(data, "NAMESPACE",
                            file.path(path, "NAMESPACE"))
-  substitute_dust_template(data, "dust.R.template",
-                           file.path(path, "R/dust.R"))
-  substitute_dust_template(data, "dust.hpp",
-                           file.path(path, "src", "dust.hpp"))
 
   if (is.null(cuda)) {
-    path_dust_cpp <- file.path(path, "src", "dust.cpp")
+    cpp_ext <- ".cpp"
     substitute_dust_template(data, "Makevars",
                              file.path(path, "src", "Makevars"))
   } else {
-    path_dust_cpp <- file.path(path, "src", "dust.cu")
+    cpp_ext <- ".cu"
     substitute_dust_template(data, "Makevars.cuda",
                              file.path(path, "src", "Makevars"))
   }
-  substitute_dust_template(data, "dust.cpp", path_dust_cpp)
 
-  ## Keep the generated dust files simple by dropping roxygen docs
-  ## which are used in making the interface docs (?dust_generator) and
-  ## internal comments which remind developers about next steps after
-  ## modifying files.
-  dust_r <- drop_internal_comments(readLines(file.path(path, "R/dust.R")))
-  writeLines(drop_roxygen(dust_r), file.path(path, "R/dust.R"))
-
-  dust_cpp <- drop_internal_comments(readLines(path_dust_cpp))
-  writeLines(dust_cpp, path_dust_cpp)
-
-  dust_hpp <- drop_internal_comments(readLines(file.path(path, "src/dust.hpp")))
-  writeLines(dust_hpp, file.path(path, "src/dust.hpp"))
+  code <- dust_code(data, config)
+  writeLines(code$r, file.path(path, "R/dust.R"))
+  writeLines(code$cpp, file.path(path, paste0("src/dust", cpp_ext)))
+  writeLines(code$hpp, file.path(path, "src/dust.hpp"))
 
   res <- list(key = base, gpu = gpu, data = data, path = path)
   cache$models$set(base, res, skip_cache)
   res
+}
+
+
+dust_code <- function(data, config) {
+  dust_r <- drop_roxygen(
+    substitute_dust_template(data, "dust.R.template", NULL))
+
+  dust_cpp <- c(substitute_dust_template(data, "dust.cpp", NULL),
+                substitute_dust_template(data, "dust_methods.cpp", NULL))
+  dust_hpp <- c(substitute_dust_template(data, "dust.hpp", NULL),
+                substitute_dust_template(data, "dust_methods.hpp", NULL))
+
+  if (config$has_gpu_support) {
+    data_gpu <- data
+    data_gpu$target <- "gpu"
+    data_gpu$container <- "DustDevice"
+    dust_cpp <- c(dust_cpp,
+                  substitute_dust_template(data_gpu, "dust_methods.cpp", NULL))
+    dust_hpp <- c(dust_hpp,
+                  substitute_dust_template(data_gpu, "dust_methods.hpp", NULL))
+  }
+
+  ret <- list(r = dust_r,
+              hpp = dust_hpp,
+              cpp = dust_cpp)
+
+  lapply(ret, drop_internal_comments)
 }
 
 
@@ -96,6 +110,9 @@ compile_and_load <- function(filename, quiet = FALSE, workdir = NULL,
 substitute_template <- function(data, src, dest) {
   template <- read_lines(src)
   txt <- glue_whisker(template, data)
+  if (is.null(dest)) {
+    return(txt)
+  }
   writelines_if_changed(txt, dest)
 }
 
@@ -106,18 +123,39 @@ substitute_dust_template <- function(data, src, dest) {
 
 
 glue_whisker <- function(template, data) {
-  if (length(template) > 1L) {
-    template <- paste(template, collapse = "\n")
-  }
+  stopifnot(length(template) == 1L)
   glue::glue(template, .envir = data, .open = "{{", .close = "}}",
              .trim = FALSE)
 }
 
 
 dust_template_data <- function(model, config, cuda) {
+  methods <- function(target) {
+    nms <- c("alloc", "run", "simulate", "set_index", "n_state",
+             "update_state", "state", "step", "reorder", "resample",
+             "rng_state", "set_rng_state", "set_n_threads",
+             "set_data", "compare_data", "filter")
+    m <- sprintf("%s = dust_%s_%s_%s", nms, target, config$name, nms)
+    sprintf("list(\n%s)",  paste("          ", m, collapse = ",\n"))
+  }
+  methods_cpu <- methods("cpu")
+
+  if (config$has_gpu_support) {
+    methods_gpu <- methods("gpu")
+  } else {
+    methods_gpu <- paste(
+      "list(alloc = function(...) {",
+      '          stop("GPU support not enabled for this object")',
+      "        })", sep = "\n")
+  }
+
   list(model = model,
        name = config$name,
        class = config$class,
        param = deparse_param(config$param),
-       cuda = cuda$flags)
+       cuda = cuda$flags,
+       target = "cpu",
+       container = "Dust",
+       methods_cpu = methods_cpu,
+       methods_gpu = methods_gpu)
 }

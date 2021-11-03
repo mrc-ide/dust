@@ -625,6 +625,8 @@ test_that("no device info by default", {
   mod <- res$new(list(), 0, 1)
   expect_false(mod$has_cuda())
   expect_equal(mod$device_info(), no_cuda)
+  expect_false(mod$uses_gpu())
+  expect_false(mod$uses_gpu(TRUE))
 })
 
 

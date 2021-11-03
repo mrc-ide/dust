@@ -302,11 +302,12 @@ private:
 
 template <typename real_type, typename rng_state_type>
 struct device_state {
-  void initialise(size_t n_particles, size_t n_state, size_t n_pars,
-                  size_t n_shared_len_,
+  void initialise(size_t n_particles_, size_t n_state, size_t n_pars_,
                   size_t n_internal_int, size_t n_internal_real,
                   size_t n_shared_int_, size_t n_shared_real_) {
-    n_shared_len = n_shared_len_;
+    n_particles = n_particles_;
+    // NOTE: this is never read
+    n_pars = n_pars_;
     n_shared_int = n_shared_int_;
     n_shared_real = n_shared_real_;
     constexpr size_t n_rng = rng_state_type::size();
@@ -314,8 +315,8 @@ struct device_state {
     y_next = device_array<real_type>(n_state * n_particles);
     internal_int = device_array<int>(n_internal_int * n_particles);
     internal_real = device_array<real_type>(n_internal_real * n_particles);
-    shared_int = device_array<int>(n_shared_int * n_shared_len);
-    shared_real = device_array<real_type>(n_shared_real * n_shared_len);
+    shared_int = device_array<int>(n_shared_int * n_pars);
+    shared_real = device_array<real_type>(n_shared_real * n_pars);
     rng = device_array<typename rng_state_type::int_type>(n_rng * n_particles);
     index = device_array<char>(n_state * n_particles);
     n_selected = device_array<int>(1);
@@ -323,6 +324,10 @@ struct device_state {
     compare_res = device_array<real_type>(n_particles);
     resample_u = device_array<real_type>(n_pars);
     set_cub_tmp();
+    // TODO: throughout there is room to simplify here as we have
+    // these methods that require being given n_state, n_pars,
+    // n_particles etc which are fixed.
+    set_device_index(n_particles, n_state);
   }
   void swap() {
     std::swap(y, y_next);
@@ -345,6 +350,18 @@ struct device_state {
     select_tmp.set_size(tmp_bytes);
 #endif
   }
+
+  // TODO: as noted in the constructor, we have all the bits for this
+  // already in the object.
+  void set_device_index(const size_t n_particles,
+                        const size_t n_state_full) {
+    std::vector<size_t> index(n_state_full);
+    for (size_t i = 0; i < n_state_full; ++i) {
+      index[i] = i;
+    }
+    set_device_index(index, n_particles, n_state_full);
+  }
+
   void set_device_index(const std::vector<size_t>& host_index,
                         const size_t n_particles,
                         const size_t n_state_full) {
@@ -371,7 +388,8 @@ struct device_state {
     set_cub_tmp();
   }
 
-  size_t n_shared_len;
+  size_t n_particles;
+  size_t n_pars;
   size_t n_shared_int;
   size_t n_shared_real;
   device_array<real_type> y;
