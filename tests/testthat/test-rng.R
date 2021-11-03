@@ -593,7 +593,7 @@ test_that("Can vary parameters for rmulitnom, multiple generators", {
 
   rng <- dust_rng$new(ng, seed = 1L)
   cmp <- vapply(seq_len(n), function(i) rng$multinomial(1, size, prob[, i]),
-                array(numeric(), c(np, ng))
+                array(numeric(), c(np, ng)))
 
   res <- dust_rng$new(1, seed = 1L)$multinomial(n, size, prob)
   expect_equal(res, cmp)
