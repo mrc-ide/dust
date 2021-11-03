@@ -238,8 +238,9 @@ dust_rng <- R6::R6Class(
     ##' @param size The number of trials (zero or more, length 1 or n)
     ##'
     ##' @param prob A vector of probabilities for the success of each
-    ##'   trial. Must sum to 1. More complex specification will be
-    ##'   supported soon.
+    ##'   trial. This does not need to sum to 1 (though all elements
+    ##'   must be non-negative), in which case we interpret `prob` as
+    ##'   weights and normalise so that they equal 1 before sampling.
     ##'
     ##' @param n_threads Number of threads to use; see Details
     multinomial = function(n, size, prob, n_threads = 1L) {

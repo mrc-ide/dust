@@ -553,6 +553,15 @@ test_that("multinomial expectation is correct", {
 })
 
 
+test_that("multinomial allows non-normalised prob", {
+  p <- runif(10, 0, 10)
+  n <- 50
+  res1 <- dust_rng$new(1, seed = 1L)$multinomial(n, 100, p)
+  res2 <- dust_rng$new(1, seed = 1L)$multinomial(n, 100, p / sum(p))
+  expect_equal(res1, res2)
+})
+
+
 test_that("Can vary parameters for multinomial, single generator", {
   np <- 7L
   ng <- 1L

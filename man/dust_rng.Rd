@@ -101,6 +101,7 @@ rng$exponential(5, 2)
 \item \href{#method-binomial}{\code{dust_rng$binomial()}}
 \item \href{#method-poisson}{\code{dust_rng$poisson()}}
 \item \href{#method-exponential}{\code{dust_rng$exponential()}}
+\item \href{#method-multinomial}{\code{dust_rng$multinomial()}}
 \item \href{#method-state}{\code{dust_rng$state()}}
 }
 }
@@ -166,7 +167,6 @@ The jump function for the generator, equivalent to
 \subsection{Method \code{long_jump()}}{
 The \code{long_jump} function for the generator, equivalent
 to 2^192 numbers drawn from the generator.
-Generate \code{n} numbers from a standard uniform distribution
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng$long_jump()}\if{html}{\out{</div>}}
 }
@@ -185,8 +185,7 @@ Generate \code{n} numbers from a standard uniform distribution
 \describe{
 \item{\code{n}}{Number of samples to draw (per generator)}
 
-\item{\code{n_threads}}{Number of threads to use; see Details
-Generate \code{n} numbers from a uniform distribution}
+\item{\code{n_threads}}{Number of threads to use; see Details}
 }
 \if{html}{\out{</div>}}
 }
@@ -195,6 +194,7 @@ Generate \code{n} numbers from a uniform distribution}
 \if{html}{\out{<a id="method-uniform"></a>}}
 \if{latex}{\out{\hypertarget{method-uniform}{}}}
 \subsection{Method \code{uniform()}}{
+Generate \code{n} numbers from a uniform distribution
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng$uniform(n, min, max, n_threads = 1L)}\if{html}{\out{</div>}}
 }
@@ -208,8 +208,7 @@ Generate \code{n} numbers from a uniform distribution}
 
 \item{\code{max}}{The maximum of the distribution (length 1 or n)}
 
-\item{\code{n_threads}}{Number of threads to use; see Details
-Generate \code{n} numbers from a normal distribution}
+\item{\code{n_threads}}{Number of threads to use; see Details}
 }
 \if{html}{\out{</div>}}
 }
@@ -218,6 +217,7 @@ Generate \code{n} numbers from a normal distribution}
 \if{html}{\out{<a id="method-normal"></a>}}
 \if{latex}{\out{\hypertarget{method-normal}{}}}
 \subsection{Method \code{normal()}}{
+Generate \code{n} numbers from a normal distribution
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng$normal(n, mean, sd, n_threads = 1L)}\if{html}{\out{</div>}}
 }
@@ -231,8 +231,7 @@ Generate \code{n} numbers from a normal distribution}
 
 \item{\code{sd}}{The standard deviation of the distribution (length 1 or n)}
 
-\item{\code{n_threads}}{Number of threads to use; see Details
-Generate \code{n} numbers from a binomial distribution}
+\item{\code{n_threads}}{Number of threads to use; see Details}
 }
 \if{html}{\out{</div>}}
 }
@@ -241,6 +240,7 @@ Generate \code{n} numbers from a binomial distribution}
 \if{html}{\out{<a id="method-binomial"></a>}}
 \if{latex}{\out{\hypertarget{method-binomial}{}}}
 \subsection{Method \code{binomial()}}{
+Generate \code{n} numbers from a binomial distribution
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng$binomial(n, size, prob, n_threads = 1L)}\if{html}{\out{</div>}}
 }
@@ -255,8 +255,7 @@ Generate \code{n} numbers from a binomial distribution}
 \item{\code{prob}}{The probability of success on each trial
 (between 0 and 1, length 1 or n)}
 
-\item{\code{n_threads}}{Number of threads to use; see Details
-Generate \code{n} numbers from a Poisson distribution}
+\item{\code{n_threads}}{Number of threads to use; see Details}
 }
 \if{html}{\out{</div>}}
 }
@@ -265,6 +264,7 @@ Generate \code{n} numbers from a Poisson distribution}
 \if{html}{\out{<a id="method-poisson"></a>}}
 \if{latex}{\out{\hypertarget{method-poisson}{}}}
 \subsection{Method \code{poisson()}}{
+Generate \code{n} numbers from a Poisson distribution
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng$poisson(n, lambda, n_threads = 1L)}\if{html}{\out{</div>}}
 }
@@ -276,8 +276,7 @@ Generate \code{n} numbers from a Poisson distribution}
 
 \item{\code{lambda}}{The mean (zero or more, length 1 or n)}
 
-\item{\code{n_threads}}{Number of threads to use; see Details
-Generate \code{n} numbers from a exponential distribution}
+\item{\code{n_threads}}{Number of threads to use; see Details}
 }
 \if{html}{\out{</div>}}
 }
@@ -286,6 +285,7 @@ Generate \code{n} numbers from a exponential distribution}
 \if{html}{\out{<a id="method-exponential"></a>}}
 \if{latex}{\out{\hypertarget{method-exponential}{}}}
 \subsection{Method \code{exponential()}}{
+Generate \code{n} numbers from a exponential distribution
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng$exponential(n, rate, n_threads = 1L)}\if{html}{\out{</div>}}
 }
@@ -296,6 +296,34 @@ Generate \code{n} numbers from a exponential distribution}
 \item{\code{n}}{Number of samples to draw (per generator)}
 
 \item{\code{rate}}{The rate of the exponential}
+
+\item{\code{n_threads}}{Number of threads to use; see Details}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-multinomial"></a>}}
+\if{latex}{\out{\hypertarget{method-multinomial}{}}}
+\subsection{Method \code{multinomial()}}{
+Generate \code{n} draws from a multinomial distribution.
+In contrast with most of the distributions here, each draw is a
+\emph{vector} with the same length as \code{prob}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$multinomial(n, size, prob, n_threads = 1L)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{n}}{The number of samples to draw (per generator)}
+
+\item{\code{size}}{The number of trials (zero or more, length 1 or n)}
+
+\item{\code{prob}}{A vector of probabilities for the success of each
+trial. This does not need to sum to 1 (though all elements
+must be non-negative), in which case we interpret \code{prob} as
+weights and normalise so that they equal 1 before sampling.}
 
 \item{\code{n_threads}}{Number of threads to use; see Details}
 }
