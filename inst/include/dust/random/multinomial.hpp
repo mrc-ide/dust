@@ -17,15 +17,19 @@ namespace random {
 //
 // TODO: A useful feature for later will be the concept of 'stride';
 // with this we have one of the required bits for proper odin support.
+//
+// That would be easiest to do if we nail down better container
+// support here so that we can add a "strided access" covering both
+// prob and ret; we might want to use this in the example even.
 template <typename real_type, typename rng_state_type, typename T>
 void multinomial(rng_state_type& rng_state, int size, const T * prob,
-                 int len, T * ret) {
+                 int prob_len, T * ret) {
   real_type p_tot = 0;
-  for (int i = 0; i < len; ++i) {
+  for (int i = 0; i < prob_len; ++i) {
     p_tot += prob[i];
   }
 
-  for (int i = 0; i < len - 1; ++i) {
+  for (int i = 0; i < prob_len - 1; ++i) {
     if (prob[i] > 0) {
       const real_type pi = std::min(static_cast<real_type>(prob[i]) / p_tot,
                                     static_cast<real_type>(1));
@@ -36,15 +40,17 @@ void multinomial(rng_state_type& rng_state, int size, const T * prob,
       ret[i] = 0;
     }
   }
-  ret[len - 1] = size;
+  ret[prob_len - 1] = size;
 }
 
+// These ones are designed for us within standalone programs and won't
+// actually be tested by default which is not great.
 template <typename real_type, typename rng_state_type>
 void multinomial(rng_state_type& rng_state,
                  int size,
                  const std::vector<real_type>& prob,
                  std::vector<real_type>& ret) {
-  multinomial(rng_state, prob.data(), size, ret.data());
+  multinomial<real_type>(rng_state, size, prob.data(), prob.size(), ret.data());
 }
 
 template <typename real_type, typename rng_state_type>
@@ -52,7 +58,7 @@ std::vector<real_type> multinomial(rng_state_type& rng_state,
                                    real_type size,
                                    const std::vector<real_type>& prob) {
   std::vector<real_type> ret(prob.size());
-  multinomial(rng_state, prob, size, ret);
+  multinomial(rng_state, size, prob, ret);
   return ret;
 }
 
