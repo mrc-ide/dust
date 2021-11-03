@@ -7,23 +7,19 @@
 namespace dust {
 namespace random {
 
-// should be able to write this pretty easily over container types but
-// for now doing it explictly over pointers.
+// This is written assuming tthat 'prob' and 'ret' are arbitrary
+// containers; they could be pointers, vectors or anything else that
+// supports random access.  We cold also do this with iterators but
+// they always feel a bit weird really.
 //
 // Note that 'prob' and 'ret' (T) will ordinarily be real_type but
 // that might not be the case, in particular when calling from R where
-// we want calculations to happen on reals but the inputs (and
+// we want calculations to happen on floats but the inputs (and
 // destination) are double precision.
-//
-// TODO: A useful feature for later will be the concept of 'stride';
-// with this we have one of the required bits for proper odin support.
-//
-// That would be easiest to do if we nail down better container
-// support here so that we can add a "strided access" covering both
-// prob and ret; we might want to use this in the example even.
-template <typename real_type, typename rng_state_type, typename T>
-void multinomial(rng_state_type& rng_state, int size, const T * prob,
-                 int prob_len, T * ret) {
+template <typename real_type, typename rng_state_type,
+          typename T, typename U>
+void multinomial(rng_state_type& rng_state, int size, const T& prob,
+                 int prob_len, U& ret) {
   real_type p_tot = 0;
   for (int i = 0; i < prob_len; ++i) {
     p_tot += prob[i];
