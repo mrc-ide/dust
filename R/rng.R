@@ -158,7 +158,7 @@ dust_rng <- R6::R6Class(
       invisible(self)
     },
 
-    ##' Generate `n` numbers from a standard uniform distribution
+    ##' @descripton Generate `n` numbers from a standard uniform distribution
     ##'
     ##' @param n Number of samples to draw (per generator)
     ##'
@@ -167,7 +167,7 @@ dust_rng <- R6::R6Class(
       dust_rng_random_real(private$ptr, n, n_threads, private$float)
     },
 
-    ##' Generate `n` numbers from a uniform distribution
+    ##' @description Generate `n` numbers from a uniform distribution
     ##'
     ##' @param n Number of samples to draw (per generator)
     ##'
@@ -180,7 +180,7 @@ dust_rng <- R6::R6Class(
       dust_rng_uniform(private$ptr, n, min, max, n_threads, private$float)
     },
 
-    ##' Generate `n` numbers from a normal distribution
+    ##' @description Generate `n` numbers from a normal distribution
     ##'
     ##' @param n Number of samples to draw (per generator)
     ##'
@@ -193,7 +193,7 @@ dust_rng <- R6::R6Class(
       dust_rng_normal(private$ptr, n, mean, sd, n_threads, private$float)
     },
 
-    ##' Generate `n` numbers from a binomial distribution
+    ##' @description Generate `n` numbers from a binomial distribution
     ##'
     ##' @param n Number of samples to draw (per generator)
     ##'
@@ -207,7 +207,7 @@ dust_rng <- R6::R6Class(
       dust_rng_binomial(private$ptr, n, size, prob, n_threads, private$float)
     },
 
-    ##' Generate `n` numbers from a Poisson distribution
+    ##' @description Generate `n` numbers from a Poisson distribution
     ##'
     ##' @param n Number of samples to draw (per generator)
     ##'
@@ -218,7 +218,7 @@ dust_rng <- R6::R6Class(
       dust_rng_poisson(private$ptr, n, lambda, n_threads, private$float)
     },
 
-    ##' Generate `n` numbers from a exponential distribution
+    ##' @description Generate `n` numbers from a exponential distribution
     ##'
     ##' @param n Number of samples to draw (per generator)
     ##'
@@ -229,6 +229,19 @@ dust_rng <- R6::R6Class(
       dust_rng_exponential(private$ptr, n, rate, n_threads, private$float)
     },
 
+    ##' @description Generate `n` draws from a multinomial distribution.
+    ##'   In contrast with most of the distributions here, each draw is a
+    ##'   *vector* with the same length as `prob`.
+    ##'
+    ##' @param n The number of samples to draw (per generator)
+    ##'
+    ##' @param size The number of trials (zero or more, length 1 or n)
+    ##'
+    ##' @param prob A vector of probabilities for the success of each
+    ##'   trial. Must sum to 1. More complex specification will be
+    ##'   supported soon.
+    ##'
+    ##' @param n_threads Number of threads to use; see Details
     multinomial = function(n, size, prob, n_threads = 1L) {
       dust_rng_multinomial(private$ptr, n, size, prob, n_threads,
                            private$float)
