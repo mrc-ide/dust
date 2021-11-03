@@ -1,4 +1,4 @@
-stest_that("can generate random numbers", {
+test_that("can generate random numbers", {
   ans1 <- dust_rng$new(1)$random_real(100)
   ans2 <- dust_rng$new(1)$random_real(100)
   ans3 <- dust_rng$new(2)$random_real(100)
@@ -559,6 +559,17 @@ test_that("multinomial allows non-normalised prob", {
   res1 <- dust_rng$new(1, seed = 1L)$multinomial(n, 100, p)
   res2 <- dust_rng$new(1, seed = 1L)$multinomial(n, 100, p / sum(p))
   expect_equal(res1, res2)
+})
+
+
+test_that("Invalid prob throws an error", {
+  r <- dust_rng$new(1, seed = 1L)
+  expect_error(
+    r$multinomial(1, 10, c(0, 0, 0)),
+    "No positive prob in call to multinomial")
+  expect_error(
+    r$multinomial(1, 10, c(-0.1, 0.6, 0.5)),
+    "Negative prob passed to multinomial")
 })
 
 

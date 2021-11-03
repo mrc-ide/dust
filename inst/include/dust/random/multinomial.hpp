@@ -22,7 +22,13 @@ void multinomial(rng_state_type& rng_state, int size, const T& prob,
                  int prob_len, U& ret) {
   real_type p_tot = 0;
   for (int i = 0; i < prob_len; ++i) {
+    if (prob[i] < 0) {
+      throw std::runtime_error("Negative prob passed to multinomial");
+    }
     p_tot += prob[i];
+  }
+  if (p_tot == 0) {
+    throw std::runtime_error("No positive prob in call to multinomial");
   }
 
   for (int i = 0; i < prob_len - 1; ++i) {
