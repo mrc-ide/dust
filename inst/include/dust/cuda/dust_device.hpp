@@ -282,7 +282,7 @@ public:
     const size_t n_time = step_end.size();
     // The filter snapshot class can be used to store the indexed state
     // (implements async copy, swap space, and deinterleaving)
-    // Filter trajctories not used as we don't need order here
+    // Filter trajectories not used as we don't need order here
     dust::filter::filter_snapshots_device<real_type> state_store;
     state_store.resize(n_state(), n_particles(), step_end);
     for (size_t t = 0; t < n_time; ++t) {
@@ -382,7 +382,7 @@ public:
   }
 
   // NOTE: this is only used for debugging/testing, otherwise we would
-  // make device_weights a class member.
+  // make device_weights and scan class members.
   std::vector<size_t> resample(const std::vector<real_type>& weights) {
     dust::cuda::device_weights<real_type>
       device_weights(n_particles(), n_pars_effective());
@@ -662,7 +662,10 @@ private:
 
   // TODO: This update function is wildly inefficient; we should
   // probably support things like "copy one state to all the particles
-  // of that parameter index", possibly as a kernel.
+  // of that parameter index", possibly as a kernel. Detecting when
+  // that is the case would be important as we're probably doing the
+  // wrong thing here sometimes:
+  // https://github.com/mrc-ide/dust/issues/310
   void set_state_from_pars(const std::vector<pars_type>& pars) {
     const size_t n_pars = pars.size(); // or n_pars_effective();
     std::vector<std::vector<real_type>>
