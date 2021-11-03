@@ -343,7 +343,7 @@ cpp11::writable::doubles dust_rng_multinomial(SEXP ptr, int n,
   const double * prob = REAL(r_prob);
   auto size_vary = check_input_type(r_size, n, n_generators, "size");
   auto prob_vary = check_input_type2(r_prob, n, n_generators, "prob");
-  const int len = LENGTH(r_prob);
+  const int len = prob_vary.len;
 
   // Normally we return a block of doubles with the first 'n' entries
   // being the results for the first generator, the second 'n' for the
@@ -365,8 +365,8 @@ cpp11::writable::doubles dust_rng_multinomial(SEXP ptr, int n,
       auto size_i = size_vary.generator ? size + size_vary.offset * i : size;
       auto prob_i = prob_vary.generator ? prob + prob_vary.offset * i : prob;
       for (size_t j = 0; j < (size_t)n; ++j) {
-        auto size_ij = size_vary.draw ? size_i[j]                  : size_i[0];
-        auto prob_ij = prob_vary.draw ? prob_i + j * prob_vary.len : prob;
+        auto size_ij = size_vary.draw ? size_i[j]        : size_i[0];
+        auto prob_ij = prob_vary.draw ? prob_i + j * len : prob_i;
         auto y_ij = y_i + j * len;
         dust::random::multinomial<real_type>(state, size_ij, prob_ij, len,
                                              y_ij);

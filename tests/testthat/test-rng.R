@@ -543,7 +543,7 @@ test_that("multinomial algorithm is correct", {
 })
 
 
-test_that("multinomial algorithm is correct", {
+test_that("multinomial expectation is correct", {
   p <- runif(10)
   p <- p / sum(p)
   n <- 10000
@@ -551,6 +551,64 @@ test_that("multinomial algorithm is correct", {
   expect_equal(dim(res), c(10, n))
   expect_equal(colSums(res), rep(100, n))
   expect_equal(rowMeans(res), p * 100, tolerance = 1e-2)
+})
+
+
+test_that("Can vary parameters for rmulitnom, single generator", {
+  np <- 7L
+  ng <- 1L
+  size <- 13
+  n <- 17L
+  prob <- matrix(runif(np * n), np, n)
+  prob <- prob / rep(colSums(prob), each = np)
+
+  rng <- dust_rng$new(1, seed = 1L)
+  cmp <- vapply(seq_len(n), function(i) rng$multinomial(1, size, prob[, i]),
+                numeric(np))
+  res <- dust_rng$new(1, seed = 1L)$multinomial(n, size, prob)
+  expect_equal(res, cmp)
+
+  expect_error(
+    dust_rng$new(1, seed = 1L)$multinomial(n, size, prob[, -5]),
+    "If 'prob' is a matrix, it must have 17 columns")
+  expect_error(
+    dust_rng$new(1, seed = 1L)$multinomial(n, size, prob[0, ]),
+    "Input parameters imply length of 'prob' of only 0 (< 2)",
+    fixed = TRUE)
+  expect_error(
+    dust_rng$new(1, seed = 1L)$multinomial(n, size, prob[1, , drop = FALSE]),
+    "Input parameters imply length of 'prob' of only 1 (< 2)",
+    fixed = TRUE)
+})
+
+
+test_that("Can vary parameters for rmulitnom, multiple generators", {
+  skip("WIP")
+  np <- 7L
+  ng <- 3L
+  size <- 13
+  n <- 17L
+  prob <- array(runif(np * n * ng), c(np, n, ng))
+  prob <- prob / rep(colSums(prob), each = np)
+
+  rng <- dust_rng$new(ng, seed = 1L)
+  cmp <- vapply(seq_len(n), function(i) rng$multinomial(1, size, prob[, i]),
+                array(numeric(), c(np, ng))
+
+  res <- dust_rng$new(1, seed = 1L)$multinomial(n, size, prob)
+  expect_equal(res, cmp)
+
+  expect_error(
+    dust_rng$new(1, seed = 1L)$multinomial(n, size, prob[, -5]),
+    "If 'prob' is a matrix, it must have 17 columns")
+  expect_error(
+    dust_rng$new(1, seed = 1L)$multinomial(n, size, prob[0, ]),
+    "Input parameters imply length of 'prob' of only 0 (< 2)",
+    fixed = TRUE)
+  expect_error(
+    dust_rng$new(1, seed = 1L)$multinomial(n, size, prob[1, , drop = FALSE]),
+    "Input parameters imply length of 'prob' of only 1 (< 2)",
+    fixed = TRUE)
 })
 
 
