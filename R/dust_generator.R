@@ -353,7 +353,11 @@ dust_generator <- R6::R6Class(
     ##' argument passed to the run method. This method can also be used
     ##' as a static method by running it directly
     ##' as `dust_generator$public_methods$has_cuda()`
-    has_cuda = function() {
+    ##'
+    ##' @param fake_gpu Logical, indicating if we count as `TRUE`
+    ##'   models that run on the "fake" GPU (i.e., using the GPU
+    ##'   version of the model but running on the CPU)
+    has_cuda = function(fake_gpu = FALSE) {
     },
 
     ##' @description

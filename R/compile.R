@@ -156,6 +156,7 @@ dust_template_data <- function(model, config, cuda) {
        cuda = cuda$flags,
        target = "cpu",
        container = "Dust",
+       has_gpu_support = as.character(config$has_gpu_support),
        methods_cpu = methods_cpu,
        methods_gpu = methods_gpu)
 }
