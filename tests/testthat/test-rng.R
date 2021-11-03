@@ -515,16 +515,42 @@ test_that("exponential random numbers from floats have correct distribution", {
 })
 
 
-## TODO: validate against the algo (exact)
-## TODO: validate against expectation
 ## TODO: make provding prob more flexible
+test_that("multinomial algorithm is correct", {
+  set.seed(1)
+  prob <- runif(10)
+  prob <- prob / sum(prob)
+  size <- 20
+  n <- 5
+
+  res <- dust_rng$new(1, seed = 1L)$multinomial(n, size, prob)
+
+  ## Separate implementation of the core algorithm:
+  cmp_multinomial <- function(rng, size, prob) {
+    p <- prob / (1 - cumsum(c(0, prob[-length(prob)])))
+    ret <- numeric(length(prob))
+    for (i in seq_len(length(prob) - 1L)) {
+      ret[i] <- rng$binomial(1, size, p[i])
+      size <- size - ret[i]
+    }
+    ret[length(ret)] <- size
+    ret
+  }
+
+  rng2 <- dust_rng$new(1, seed = 1L)
+  cmp <- replicate(n, cmp_multinomial(rng2, size, prob))
+  expect_equal(res, cmp)
+})
+
+
 test_that("multinomial algorithm is correct", {
   p <- runif(10)
   p <- p / sum(p)
-  n <- 100
-  res <- dust_rng$new(1, seed = 1L)$multinomial(n, 20, p)
+  n <- 10000
+  res <- dust_rng$new(1, seed = 1L)$multinomial(n, 100, p)
   expect_equal(dim(res), c(10, n))
-  expect_equal(colSums(res), rep(20, n))
+  expect_equal(colSums(res), rep(100, n))
+  expect_equal(rowMeans(res), p * 100, tolerance = 1e-2)
 })
 
 
