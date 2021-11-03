@@ -319,7 +319,7 @@ public:
 
   // TODO: we should really do this via a kernel I think? Currently we
   // grab the whole state back from the device to the host, then
-  // filter through it.
+  // filter through it. See https://github.com/mrc-ide/dust/pull/302
   void state(std::vector<size_t> index,
              std::vector<real_type>& end_state) {
     std::vector<real_type> full_state(n_state_full_ * n_particles_total_);
