@@ -798,3 +798,18 @@ test_that("update_state controls initial state", {
   expect_equal(mod$pars(), list(I0 = 6))
   expect_equal(mod$state(), rbind(1000, 7, 0, 0, 0))
 })
+
+
+test_that("sirs model has gpu support", {
+  gen <- dust_example("sirs")
+  expect_false(gen$public_methods$has_cuda())
+  expect_true(gen$public_methods$has_cuda(TRUE))
+
+  mod1 <- gen$new(list(), 0, 1, device_config = NULL)
+  expect_false(mod1$uses_gpu())
+  expect_false(mod1$uses_gpu(TRUE))
+
+  mod2 <- gen$new(list(), 0, 1, device_config = 0L)
+  expect_false(mod2$uses_gpu())
+  expect_true(mod2$uses_gpu(TRUE))
+})

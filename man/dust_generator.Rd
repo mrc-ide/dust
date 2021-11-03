@@ -572,9 +572,18 @@ argument passed to the run method. This method can also be used
 as a static method by running it directly
 as \code{dust_generator$public_methods$has_cuda()}
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$has_cuda()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$has_cuda(fake_gpu = FALSE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{fake_gpu}}{Logical, indicating if we count as \code{TRUE}
+models that run on the "fake" GPU (i.e., using the GPU
+version of the model but running on the CPU)}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-uses_gpu"></a>}}

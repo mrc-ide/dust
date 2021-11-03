@@ -420,8 +420,16 @@
     ##' argument passed to the run method. This method can also be used
     ##' as a static method by running it directly
     ##' as `{{name}}$public_methods$has_cuda()`
-    has_cuda = function() {
-      dust_{{name}}_capabilities()[["cuda"]]
+    ##'
+    ##' @param fake_gpu Logical, indicating if we count as `TRUE`
+    ##'   models that run on the "fake" GPU (i.e., using the GPU
+    ##'   version of the model but running on the CPU)
+    has_cuda = function(fake_gpu = FALSE) {
+      if (fake_gpu) {
+        {{has_gpu_support}}
+      } else {
+        dust_{{name}}_capabilities()[["cuda"]]
+      }
     },
 
     ##' @description

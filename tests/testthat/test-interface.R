@@ -110,6 +110,7 @@ test_that("validate package interface", {
   template <- read_lines(dust_file("template/dust.R.template"))
   writeLines(glue_whisker(template,
                           list(name = "testing", param = "NULL",
+                               has_gpu_support = "FALSE",
                                methods_cpu = "list()",
                                methods_gpu = "list()")),
              tmp)
