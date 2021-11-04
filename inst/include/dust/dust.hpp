@@ -2,23 +2,26 @@
 #define DUST_DUST_HPP
 
 #include <algorithm>
-#include <memory>
 #include <map>
-#include <stdexcept>
+#include <memory>
 #include <sstream>
+#include <stdexcept>
 #include <utility>
+
 #ifdef _OPENMP
 #include <omp.h>
 #endif
 
-
+// TODO(306): this is the target of some future simplifications,
+// making sure that this is going to be just the compatibility layer
 #include "dust/cuda/cuda.hpp"
-#include "dust/random/random.hpp"
-#include "dust/random/density.hpp"
+
 #include "dust/filter_state.hpp"
 #include "dust/filter_tools.hpp"
-#include "dust/utils.hpp"
 #include "dust/particle.hpp"
+#include "dust/random/density.hpp"
+#include "dust/random/random.hpp"
+#include "dust/utils.hpp"
 
 namespace dust {
 

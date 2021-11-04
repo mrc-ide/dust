@@ -1,6 +1,8 @@
 #ifndef DUST_INTERFACE_CUDA_HPP
 #define DUST_INTERFACE_CUDA_HPP
 
+#include <cpp11/strings.hpp>
+
 #include "dust/cuda/device_info.hpp"
 #include "dust/cuda/launch_control.hpp"
 

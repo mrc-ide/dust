@@ -2,7 +2,15 @@
 #define DUST_INTERFACE_HELPERS_HPP
 
 #include <map>
+#include <vector>
+
+#include <cpp11/doubles.hpp>
+#include <cpp11/integers.hpp>
+#include <cpp11/list.hpp>
 #include <cpp11/strings.hpp>
+
+#include "dust/interface/random.hpp"
+#include "dust/interface/utils.hpp"
 
 namespace dust {
 namespace interface {

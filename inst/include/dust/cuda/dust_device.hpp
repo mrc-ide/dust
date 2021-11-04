@@ -205,7 +205,7 @@ public:
   // easy to locate the interface component; the method must exist or
   // compilation would fail.
   void set_step(const std::vector<size_t>& step) {              // # nocov
-    cpp11::stop("GPU doesn't support setting vector of steps"); // # nocov
+    throw std::runtime_error("GPU doesn't support setting vector of steps"); // # nocov
   }
 
   // It's the callee's responsibility to ensure that index is in

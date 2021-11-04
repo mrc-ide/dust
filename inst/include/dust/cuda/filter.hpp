@@ -10,7 +10,7 @@ namespace filter {
 
 template <typename T>
 std::vector<typename T::real_type>
-filter(DustDevice<T> * obj,
+filter(T * obj,
        filter_state_device<typename T::real_type>& state,
        bool save_trajectories,
        std::vector<size_t> step_snapshot) {

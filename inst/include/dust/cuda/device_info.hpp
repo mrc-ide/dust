@@ -4,11 +4,13 @@
 #include <vector>
 #include <climits>
 
-#include <cpp11/integers.hpp>
-#include <cpp11/doubles.hpp>
-#include <cpp11/logicals.hpp>
-#include <cpp11/list.hpp>
+// TODO(306): this should go into an interface file
 #include <cpp11/data_frame.hpp>
+#include <cpp11/doubles.hpp>
+#include <cpp11/integers.hpp>
+#include <cpp11/list.hpp>
+#include <cpp11/logicals.hpp>
+#include <cpp11/strings.hpp>
 
 #include "dust/cuda/call.hpp"
 

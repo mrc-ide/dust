@@ -14,3 +14,9 @@ All PRs, no matter small, must increase the version number. This is enforced by 
 We keep the random number library in `inst/include/dust` so that it does not depend on anything else in the source tree so that it could be reused in other projects (R or otherwise).
 
 To update the underlying generator code with the reference implementations at https://prng.di.unimi.it/ you should run the script at `./extra/generate.sh` which will download, compile, and run small programs with the upstream implementation and write out reference output in the test directory.
+
+## Headers
+
+As the project has become more complex, keeping the headers under control has become harder. Basic principles here:
+
+* Every header must be self-contained (in that it can be included in any order and pulls in all its dependencies)

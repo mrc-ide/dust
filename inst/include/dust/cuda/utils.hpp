@@ -1,8 +1,11 @@
 #ifndef DUST_CUDA_UTILS_HPP
 #define DUST_CUDA_UTILS_HPP
 
+#include <algorithm>
 #include <numeric>
 #include <vector>
+
+#include "dust/cuda/cuda.hpp"
 
 namespace dust {
 namespace cuda {

@@ -1,6 +1,8 @@
 #ifndef DUST_PARTICLE_HPP
 #define DUST_PARTICLE_HPP
 
+#include <vector>
+
 #include "dust/types.hpp"
 
 namespace dust {
