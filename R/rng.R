@@ -50,6 +50,27 @@
 ##'     columns then we use a parameter value `[i, j]` for the `i`th
 ##'     draw on the `j`th stream.
 ##'
+##' The rules are slightly different for the `prob` argument to
+##'   `multinomial` as for that `prob` is a vector of values. As such
+##'   we shift all dimensions by one:
+##'
+##'   * If a vector we use same `prob` every draw from every stream
+##'     and there are `length(prob)` possible outcomes.
+##'
+##'   * If a matrix with `n` columns then vary over each draw (the
+##'     `i`th draw using vector `prob[, i]` but shared across all
+##'     generators. There are `nrow(prob)` possible outcomes.
+##'
+##'   * If a 3d array is provided with 1 column and `n_generators`
+##'     "layers" (the third dimension) then we use then we use different
+##'     parameters for each generator, but the same parameter for each
+##'     draw.
+##'
+##'   * If a 3d array is providec with `n` columns and `n_generators`
+##'     "layers" then we vary over both draws and generators so tha with
+##'     use vector `prob[, i, j]` for the `i`th draw on the `j`th
+##'     stream.
+##'
 ##' The output will not differ based on the number of threads used,
 ##'   only on the number of generators.
 ##'
@@ -162,7 +183,7 @@ dust_rng <- R6::R6Class(
       invisible(self)
     },
 
-    ##' @descripton Generate `n` numbers from a standard uniform distribution
+    ##' @description Generate `n` numbers from a standard uniform distribution
     ##'
     ##' @param n Number of samples to draw (per generator)
     ##'

@@ -7,7 +7,7 @@
 namespace dust {
 namespace random {
 
-// This is written assuming tthat 'prob' and 'ret' are arbitrary
+// This is written assuming that 'prob' and 'ret' are arbitrary
 // containers; they could be pointers, vectors or anything else that
 // supports random access.  We cold also do this with iterators but
 // they always feel a bit weird really.
@@ -16,6 +16,10 @@ namespace random {
 // that might not be the case, in particular when calling from R where
 // we want calculations to happen on floats but the inputs (and
 // destination) are double precision.
+//
+// Later we will provide some helpers (possibly via iterators!) that
+// will allow setting a stride over these containers; this will help
+// with use from odin code.
 template <typename real_type, typename rng_state_type,
           typename T, typename U>
 void multinomial(rng_state_type& rng_state, int size, const T& prob,

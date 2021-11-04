@@ -56,6 +56,25 @@ columns then we use a parameter value \verb{[i, j]} for the \code{i}th
 draw on the \code{j}th stream.
 }
 
+The rules are slightly different for the \code{prob} argument to
+\code{multinomial} as for that \code{prob} is a vector of values. As such
+we shift all dimensions by one:
+\itemize{
+\item If a vector we use same \code{prob} every draw from every stream
+and there are \code{length(prob)} possible outcomes.
+\item If a matrix with \code{n} columns then vary over each draw (the
+\code{i}th draw using vector \code{prob[, i]} but shared across all
+generators. There are \code{nrow(prob)} possible outcomes.
+\item If a 3d array is provided with 1 column and \code{n_generators}
+"layers" (the third dimension) then we use then we use different
+parameters for each generator, but the same parameter for each
+draw.
+\item If a 3d array is providec with \code{n} columns and \code{n_generators}
+"layers" then we vary over both draws and generators so tha with
+use vector \code{prob[, i, j]} for the \code{i}th draw on the \code{j}th
+stream.
+}
+
 The output will not differ based on the number of threads used,
 only on the number of generators.
 }
@@ -180,6 +199,7 @@ to 2^192 numbers drawn from the generator.
 \if{html}{\out{<a id="method-random_real"></a>}}
 \if{latex}{\out{\hypertarget{method-random_real}{}}}
 \subsection{Method \code{random_real()}}{
+Generate \code{n} numbers from a standard uniform distribution
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng$random_real(n, n_threads = 1L)}\if{html}{\out{</div>}}
 }

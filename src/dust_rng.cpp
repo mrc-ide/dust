@@ -71,7 +71,8 @@ struct input_vary {
   bool draw;
   bool generator;
 };
-                  
+
+// See notes in R/rng.R or ?rng
 input_vary check_input_type(cpp11::doubles x, int n, int m, const char *name) {
   input_vary ret {1, 1, false, false};
   if (Rf_isMatrix(x)) {
@@ -100,23 +101,7 @@ input_vary check_input_type(cpp11::doubles x, int n, int m, const char *name) {
   return ret;
 }
 
-// n = n draws
-// m = n generators
-
-// normally: scalar - don't vary
-// vector: length n, vary over draws, shared across draws
-// matrix:
-//   - n x m: vary over both
-//   - 1 x m: vary over generators, shared over draws
-
-// If we add a dimension to this, and letting 'len' be the number of classes,
-// we get:
-// normally: vector - don't vary
-// matrix len x n: vary over draws
-// array:
-//   len x n x m: vary over both
-//   len x 1 x m: vary over generators
-
+// See notes in R/rng.R or ?rng
 input_vary check_input_type2(cpp11::doubles x, int n, int m, const char *name) {
   input_vary ret {1, 1, false, false};
   cpp11::sexp r_dim = x.attr("dim");
@@ -338,9 +323,6 @@ cpp11::writable::doubles dust_rng_multinomial(SEXP ptr, int n,
                                               int n_threads) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const int n_generators = rng->size();
-  // What do we assume here about prob and size? We need to require
-  // that 'prob' has identical length for all cases I think.  For now
-  // we will assume a single vector!
 
   const double * size = REAL(r_size);
   const double * prob = REAL(r_prob);
