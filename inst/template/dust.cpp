@@ -1,5 +1,4 @@
 /// IMPORTANT; changes here must be reflected into inst/template/dust.hpp
-#include <dust/dust.hpp>
 #include <dust/interface/dust.hpp>
 
 /// Can we move this later? in that case we can simplify a little.

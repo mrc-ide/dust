@@ -63,7 +63,7 @@ dust_code <- function(data, config) {
   if (config$has_gpu_support) {
     data_gpu <- data
     data_gpu$target <- "gpu"
-    data_gpu$container <- "DustDevice"
+    data_gpu$container <- "dust_gpu"
     dust_cpp <- c(dust_cpp,
                   substitute_dust_template(data_gpu, "dust_methods.cpp", NULL))
     dust_hpp <- c(dust_hpp,
@@ -155,7 +155,7 @@ dust_template_data <- function(model, config, cuda) {
        param = deparse_param(config$param),
        cuda = cuda$flags,
        target = "cpu",
-       container = "Dust",
+       container = "dust_cpu",
        has_gpu_support = as.character(config$has_gpu_support),
        methods_cpu = methods_cpu,
        methods_gpu = methods_gpu)

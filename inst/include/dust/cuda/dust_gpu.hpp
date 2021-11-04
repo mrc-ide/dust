@@ -1,5 +1,5 @@
-#ifndef DUST_CUDA_DUST_DEVICE_HPP
-#define DUST_CUDA_DUST_DEVICE_HPP
+#ifndef DUST_CUDA_DUST_GPU_HPP
+#define DUST_CUDA_DUST_GPU_HPP
 
 #include <algorithm>
 #include <map>
@@ -28,7 +28,7 @@
 namespace dust {
 
 template <typename T>
-class DustDevice {
+class dust_gpu {
 public:
   typedef T model_type;
   typedef dust::pars_type<T> pars_type;
@@ -39,12 +39,12 @@ public:
   typedef typename T::rng_state_type rng_state_type;
   typedef typename rng_state_type::int_type rng_int_type;
 
-  // TODO: fix this elsewhere, perhaps (see also dust/dust.hpp)
+  // TODO: fix this elsewhere, perhaps (see also dust/dust_cpu.hpp)
   typedef dust::filter::filter_state_device<real_type> filter_state_type;
 
-  DustDevice(const pars_type& pars, const size_t step, const size_t n_particles,
-       const size_t n_threads, const std::vector<rng_int_type>& seed,
-       const cuda::device_config& device_config) :
+  dust_gpu(const pars_type& pars, const size_t step, const size_t n_particles,
+           const size_t n_threads, const std::vector<rng_int_type>& seed,
+           const cuda::device_config& device_config) :
     n_pars_(0),
     n_particles_each_(n_particles),
     n_particles_total_(n_particles),
@@ -60,11 +60,11 @@ public:
     shape_ = {n_particles};
   }
 
-  DustDevice(const std::vector<pars_type>& pars, const size_t step,
-       const size_t n_particles, const size_t n_threads,
-       const std::vector<rng_int_type>& seed,
-       const std::vector<size_t>& shape,
-       const cuda::device_config& device_config) :
+  dust_gpu(const std::vector<pars_type>& pars, const size_t step,
+           const size_t n_particles, const size_t n_threads,
+           const std::vector<rng_int_type>& seed,
+           const std::vector<size_t>& shape,
+           const cuda::device_config& device_config) :
     n_pars_(pars.size()),
     n_particles_each_(n_particles == 0 ? 1 : n_particles),
     n_particles_total_(n_particles_each_ * pars.size()),
@@ -90,7 +90,7 @@ public:
   // include ond otherwise because we don't actually follow the rule
   // of 3/5/0
 #ifdef DUST_ENABLE_CUDA_PROFILER
-  ~Dust() {
+  ~dust_gpu() {
     cuda_profiler_stop(device_config_);
   }
 #endif
@@ -146,7 +146,7 @@ public:
   // this model because we always (currently) run particles serially
   // on the cpu (and errors on the gpu are unrecoverable). If we ever
   // set up to do openmp running of the particles (and we probably
-  // should), then these need the same implementation as for Dust.
+  // should), then these need the same implementation as for dust_cpu.
   void check_errors() {
   }
 
@@ -553,8 +553,8 @@ public:
 
 private:
   // delete move and copy to avoid accidentally using them
-  DustDevice ( const DustDevice & ) = delete;
-  DustDevice ( DustDevice && ) = delete;
+  dust_gpu(const dust_gpu &) = delete;
+  dust_gpu(dust_gpu &&) = delete;
 
   // Host quantities
   const size_t n_pars_; // 0 in the "single" case, >=1 otherwise
@@ -594,7 +594,7 @@ private:
   void initialise_device_state(const std::vector<pars_type>& pars,
                                const std::vector<rng_int_type>& seed) {
     if (n_state_full_ == 0) {
-      const dust::Particle<T> p(pars[0], step_);
+      const dust::particle<T> p(pars[0], step_);
       n_state_full_ = p.size();
       n_state_ = n_state_full_;
     }
@@ -635,9 +635,9 @@ private:
 
   void set_device_shared(const std::vector<pars_type>& pars) {
     size_t n = n_particles() == 0 ? 0 : n_state_full();
-    std::vector<dust::Particle<T>> p;
+    std::vector<dust::particle<T>> p;
     for (size_t i = 0; i < n_pars_effective(); ++i) {
-      p.push_back(dust::Particle<T>(pars[i], step_));
+      p.push_back(dust::particle<T>(pars[i], step_));
       if (n > 0 && p.back().size() != n) {
         std::stringstream msg;
         msg << "'pars' created inconsistent state size: " <<
@@ -677,7 +677,7 @@ private:
 #endif
     for (size_t i = 0; i < n_pars; ++i) {
       for (size_t j = 0; j < n_particles(); ++j) {
-        dust::Particle<T> p(pars[i], step_);
+        dust::particle<T> p(pars[i], step_);
         p.state_full(state_host[i * n_particles() + j].begin());
       }
     }

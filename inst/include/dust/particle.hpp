@@ -8,14 +8,14 @@
 namespace dust {
 
 template <typename T>
-class Particle {
+class particle {
 public:
   typedef dust::pars_type<T> pars_type;
   typedef typename T::real_type real_type;
   typedef typename T::data_type data_type;
   typedef typename T::rng_state_type rng_state_type;
 
-  Particle(pars_type pars, size_t step) :
+  particle(pars_type pars, size_t step) :
     model_(pars),
     step_(step),
     y_(model_.initial(step_)),
@@ -59,11 +59,11 @@ public:
     step_ = step;
   }
 
-  void set_state(const Particle<T>& other) {
+  void set_state(const particle<T>& other) {
     y_swap_ = other.y_;
   }
 
-  void set_pars(const Particle<T>& other, bool set_state) {
+  void set_pars(const particle<T>& other, bool set_state) {
     model_ = other.model_;
     step_ = other.step_;
     if (set_state) {

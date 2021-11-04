@@ -12,9 +12,9 @@
 #include <cpp11/raws.hpp>
 #include <cpp11/strings.hpp>
 
-#include "dust/cuda/dust_device.hpp"
+#include "dust/cuda/dust_gpu.hpp"
 #include "dust/cuda/filter.hpp"
-#include "dust/dust.hpp"
+#include "dust/dust_cpu.hpp"
 #include "dust/filter.hpp"
 
 #include "dust/interface/cuda.hpp"
@@ -30,25 +30,25 @@ cpp11::list dust_cpu_alloc(cpp11::list r_pars, bool pars_multi, int step,
                            cpp11::sexp r_n_particles, int n_threads,
                            cpp11::sexp r_seed, bool deterministic,
                            cpp11::sexp r_device_config) {
-  Dust<T> *d = nullptr;
+  dust_cpu<T> *d = nullptr;
   cpp11::sexp info;
   if (pars_multi) {
     auto inputs =
       dust::interface::process_inputs_multi<T>(r_pars, step, r_n_particles,
                                                n_threads, r_seed);
     info = inputs.info;
-    d = new Dust<T>(inputs.pars, inputs.step, inputs.n_particles,
-                    inputs.n_threads, inputs.seed, deterministic,
-                    inputs.shape);
+    d = new dust_cpu<T>(inputs.pars, inputs.step, inputs.n_particles,
+                        inputs.n_threads, inputs.seed, deterministic,
+                        inputs.shape);
   } else {
     auto inputs =
       dust::interface::process_inputs_single<T>(r_pars, step, r_n_particles,
                                                 n_threads, r_seed);
     info = inputs.info;
-    d = new Dust<T>(inputs.pars[0], inputs.step, inputs.n_particles,
-                    inputs.n_threads, inputs.seed, deterministic);
+    d = new dust_cpu<T>(inputs.pars[0], inputs.step, inputs.n_particles,
+                        inputs.n_threads, inputs.seed, deterministic);
   }
-  cpp11::external_pointer<Dust<T>> ptr(d, true, false);
+  cpp11::external_pointer<dust_cpu<T>> ptr(d, true, false);
 
   cpp11::writable::integers r_shape =
     dust::interface::vector_size_to_int(d->shape());
@@ -67,25 +67,25 @@ cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi, int step,
     cpp11::stop("Deterministic models not supported on gpu");
   }
 
-  DustDevice<T> *d = nullptr;
+  dust_gpu<T> *d = nullptr;
   cpp11::sexp info;
   if (pars_multi) {
     auto inputs =
       dust::interface::process_inputs_multi<T>(r_pars, step, r_n_particles,
                                                n_threads, r_seed);
     info = inputs.info;
-    d = new DustDevice<T>(inputs.pars, inputs.step, inputs.n_particles,
-                          inputs.n_threads, inputs.seed,
-                          inputs.shape, device_config);
+    d = new dust_gpu<T>(inputs.pars, inputs.step, inputs.n_particles,
+                        inputs.n_threads, inputs.seed,
+                        inputs.shape, device_config);
   } else {
     auto inputs =
       dust::interface::process_inputs_single<T>(r_pars, step, r_n_particles,
                                                 n_threads, r_seed);
     info = inputs.info;
-    d = new DustDevice<T>(inputs.pars[0], inputs.step, inputs.n_particles,
-                          inputs.n_threads, inputs.seed, device_config);
+    d = new dust_gpu<T>(inputs.pars[0], inputs.step, inputs.n_particles,
+                        inputs.n_threads, inputs.seed, device_config);
   }
-  cpp11::external_pointer<DustDevice<T>> ptr(d, true, false);
+  cpp11::external_pointer<dust_gpu<T>> ptr(d, true, false);
 
   cpp11::writable::integers r_shape =
     dust::interface::vector_size_to_int(d->shape());
@@ -204,7 +204,7 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
       cpp11::stop("Expected 'step' to be scalar or length %d",
                   obj->n_particles());
     }
-    if (!std::is_same<T, Dust<typename T::model_type>>::value && len != 1) {
+    if (std::is_same<T, dust_gpu<typename T::model_type>>::value && len != 1) {
       cpp11::stop("GPU doesn't support setting vector of steps");
     }
   }
