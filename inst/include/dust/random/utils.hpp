@@ -1,12 +1,12 @@
 #ifndef DUST_RANDOM_UTILS_HPP
 #define DUST_RANDOM_UTILS_HPP
 
+#include <array>
+
 #include "dust/random/numeric.hpp"
 
 namespace dust {
 namespace random {
-
-enum xoshiro_mode {STARSTAR, PLUSPLUS, PLUS};
 
 // See for more background:
 // https://github.com/mrc-ide/dust/issues/280
@@ -69,12 +69,6 @@ inline HOST
 constexpr size_t bit_size<uint64_t>() {
   return 64;
 }
-
-template <typename T, size_t N, xoshiro_mode M>
-std::array<T, N> jump_constants();
-
-template <typename T, size_t N, xoshiro_mode M>
-std::array<T, N> long_jump_constants();
 
 inline HOST uint64_t splitmix64(uint64_t seed) {
   uint64_t z = (seed += 0x9e3779b97f4a7c15);

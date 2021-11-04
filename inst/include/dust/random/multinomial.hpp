@@ -2,7 +2,10 @@
 #define DUST_RANDOM_MULTINOMIAL_HPP
 
 #include <cmath>
+#include <vector>
 
+#include "dust/random/binomial.hpp"
+#include "dust/random/generator.hpp"
 #include "dust/random/numeric.hpp"
 
 namespace dust {

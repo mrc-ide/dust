@@ -3,8 +3,8 @@
 
 #include <cmath>
 
-#include "dust/random/numeric.hpp"
 #include "dust/random/gamma_table.hpp"
+#include "dust/random/generator.hpp"
 
 namespace dust {
 namespace random {

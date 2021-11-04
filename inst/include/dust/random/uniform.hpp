@@ -1,6 +1,8 @@
 #ifndef DUST_RANDOM_UNIFORM_HPP
 #define DUST_RANDOM_UNIFORM_HPP
 
+#include "dust/random/generator.hpp"
+
 namespace dust {
 namespace random {
 

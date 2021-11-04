@@ -3,6 +3,7 @@
 
 #include <cmath>
 
+#include "dust/random/generator.hpp"
 #include "dust/random/numeric.hpp"
 
 namespace dust {

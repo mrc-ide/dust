@@ -1,6 +1,9 @@
 #ifndef DUST_RANDOM_XOROSHIRO128_HPP
 #define DUST_RANDOM_XOROSHIRO128_HPP
 
+#include "dust/random/xoshiro_state.hpp"
+#include "dust/random/utils.hpp"
+
 // 64-bit generators, state is 2 * uint64_t
 //
 //  xoroshiro128**  | https://prng.di.unimi.it/xoroshiro128starstar.c
