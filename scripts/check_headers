@@ -17,6 +17,7 @@ include_r <- trimws(callr::rcmd_safe("config", "--cppflags")$stdout)
 include_dust <- paste0("-I", path_dust)
 include_cpp <- paste0("-I", path_cpp)
 
+ok <- TRUE
 files <- dir(path_dust, "\\.hpp$", recursive = TRUE)
 for (f in files) {
   message(crayon::bold(sprintf("%s...", f)), appendLF = FALSE)
@@ -29,6 +30,13 @@ for (f in files) {
   if (ans == 0) {
     message(crayon::bold(crayon::green("OK")))
   } else {
-    message(crayon::bold(crayon::green("FAIL")))
+    ok <- FALSE
+    message(crayon::bold(crayon::red("FAIL")))
   }
+}
+
+if (ok) {
+  message("All headers passed")
+} else {
+  stop("Some headers failed")
 }
