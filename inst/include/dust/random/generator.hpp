@@ -32,6 +32,18 @@
 #include "dust/random/utils.hpp"
 #include "dust/random/xoshiro_state.hpp"
 
+// 32 bit generators, 4 * uint32_t
+#include "dust/random/xoshiro128.hpp"
+
+// 64 bit generators, 2 * uint64_t
+#include "dust/random/xoroshiro128.hpp"
+
+// 64 bit generators, 4 * uint64_t
+#include "dust/random/xoshiro256.hpp"
+
+// 64 bit generators, 8 * uint64_t
+#include "dust/random/xoshiro512.hpp"
+
 namespace dust {
 namespace random {
 
@@ -108,19 +120,5 @@ T random_real(U& state) {
 
 }
 }
-
-// Implementations
-
-// 64 bit generators, 4 * uint64_t
-#include "xoshiro256.hpp"
-
-// 64 bit generators, 2 * uint64_t
-#include "xoroshiro128.hpp"
-
-// 32 bit generators, 4 * uint32_t
-#include "xoshiro128.hpp"
-
-// 64 bit generators, 8 * uint64_t
-#include "xoshiro512.hpp"
 
 #endif

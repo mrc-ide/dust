@@ -1,6 +1,7 @@
-#include <dust/random/density.hpp>
 #include <cpp11/doubles.hpp>
 #include <cpp11/integers.hpp>
+
+#include <dust/random/density.hpp>
 
 [[cpp11::register]]
 SEXP density_binomial(cpp11::integers x, cpp11::integers size,

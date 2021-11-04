@@ -20,3 +20,5 @@ To update the underlying generator code with the reference implementations at ht
 As the project has become more complex, keeping the headers under control has become harder. Basic principles here:
 
 * Every header must be self-contained (in that it can be included in any order and pulls in all its dependencies)
+* Includes should be grouped by (1) System (stdlib, omp etc), (2) cpp11 (if an interface file), (3) dust's includes. Each block should be alphabetical - any deviations required to support something compiled correctly should be removed.  There are exceptions to this: for example `random/random.hpp` imports all distributions alphabetically separately from the generators so that it's clearer.
+* Only include cpp11 (or R) files from files within `dust/interface/`; within these files throw errors only with `throw`, not with `cpp11::stop` (these errors will be correctly caught).

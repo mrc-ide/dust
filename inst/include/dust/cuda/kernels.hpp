@@ -1,8 +1,8 @@
 #ifndef DUST_CUDA_KERNELS_HPP
 #define DUST_CUDA_KERNELS_HPP
 
-#include "dust/utils.hpp"
 #include "dust/cuda/device_state.hpp"
+#include "dust/utils.hpp"
 
 namespace dust {
 namespace cuda {
@@ -117,7 +117,7 @@ KERNEL void run_particles(size_t step_start,
     i = blockIdx.x * blockDim.x + threadIdx.x;
     max_i = n_particles;
   }
-
+4
   if (i < max_i) {
 #else
   // omp here

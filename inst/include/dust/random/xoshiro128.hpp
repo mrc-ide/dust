@@ -1,8 +1,8 @@
 #ifndef DUST_RANDOM_XOSHIRO128_HPP
 #define DUST_RANDOM_XOSHIRO128_HPP
 
-#include "dust/random/xoshiro_state.hpp"
 #include "dust/random/utils.hpp"
+#include "dust/random/xoshiro_state.hpp"
 
 // 32-bit generators, state is 4 * uint32_t
 //

@@ -2,29 +2,29 @@
 #define DUST_CUDA_DUST_DEVICE_HPP
 
 #include <algorithm>
-#include <memory>
 #include <map>
-#include <stdexcept>
+#include <memory>
 #include <sstream>
+#include <stdexcept>
 #include <utility>
+
 #ifdef _OPENMP
 #include <omp.h>
 #endif
 
-#include "dust/cuda/call.hpp"
 #include "dust/cuda/cuda.hpp"
 
-#include "dust/random/prng.hpp"
-#include "dust/random/density.hpp"
-#include "dust/filter_tools.hpp"
-#include "dust/cuda/types.hpp"
-#include "dust/utils.hpp"
-#include "dust/particle.hpp"
-
-#include "dust/cuda/kernels.hpp"
+#include "dust/cuda/call.hpp"
 #include "dust/cuda/device_resample.hpp"
-#include "dust/cuda/launch_control.hpp"
 #include "dust/cuda/filter_state.hpp"
+#include "dust/cuda/kernels.hpp"
+#include "dust/cuda/launch_control.hpp"
+#include "dust/cuda/types.hpp"
+#include "dust/filter_tools.hpp"
+#include "dust/particle.hpp"
+#include "dust/random/density.hpp"
+#include "dust/random/prng.hpp"
+#include "dust/utils.hpp"
 
 namespace dust {
 

@@ -1,15 +1,16 @@
 #include <cstring>
-#include <cpp11/external_pointer.hpp>
-#include <cpp11/raws.hpp>
-#include <cpp11/doubles.hpp>
-#include <cpp11/integers.hpp>
 
 #ifdef _OPENMP
 #include <omp.h>
 #endif
 
-#include <dust/random/random.hpp>
+#include <cpp11/doubles.hpp>
+#include <cpp11/external_pointer.hpp>
+#include <cpp11/integers.hpp>
+#include <cpp11/raws.hpp>
+
 #include <dust/interface/random.hpp>
+#include <dust/random/random.hpp>
 #include <dust/utils.hpp>
 
 using dust_rng64 = dust::random::prng<dust::random::generator<double>>;

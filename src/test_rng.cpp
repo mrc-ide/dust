@@ -1,7 +1,8 @@
-#include <cpp11.hpp>
 #include <vector>
 #include <string>
 #include <sstream>
+
+#include <cpp11.hpp>
 
 #include <dust/random/generator.hpp>
 
