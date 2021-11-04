@@ -602,7 +602,7 @@ test_that("Can vary parameters for multinomial, single generator", {
 
   expect_error(
     dust_rng$new(1, seed = 1L)$multinomial(n, size, prob[, -5]),
-    "If 'prob' is a matrix, it must have 1 or 17 columns")
+    "If 'prob' is a matrix, it must have 17 columns")
   expect_error(
     dust_rng$new(1, seed = 1L)$multinomial(n, size, prob[0, ]),
     "Input parameters imply length of 'prob' of only 0 (< 2)",
