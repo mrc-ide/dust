@@ -16,8 +16,8 @@
 namespace dust {
 namespace cuda {
 
-// TODO(306): For historical reasons, this is not in the interface
-// namespace, will look into that later.
+// See #317, this is not in the interface namespace (moving it will
+// require recompiling all dust models)
 template <typename real_type>
 cpp11::sexp device_info() {
   using namespace cpp11::literals;
