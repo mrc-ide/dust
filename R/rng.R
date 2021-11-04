@@ -50,6 +50,27 @@
 ##'     columns then we use a parameter value `[i, j]` for the `i`th
 ##'     draw on the `j`th stream.
 ##'
+##' The rules are slightly different for the `prob` argument to
+##'   `multinomial` as for that `prob` is a vector of values. As such
+##'   we shift all dimensions by one:
+##'
+##'   * If a vector we use same `prob` every draw from every stream
+##'     and there are `length(prob)` possible outcomes.
+##'
+##'   * If a matrix with `n` columns then vary over each draw (the
+##'     `i`th draw using vector `prob[, i]` but shared across all
+##'     generators. There are `nrow(prob)` possible outcomes.
+##'
+##'   * If a 3d array is provided with 1 column and `n_generators`
+##'     "layers" (the third dimension) then we use then we use different
+##'     parameters for each generator, but the same parameter for each
+##'     draw.
+##'
+##'   * If a 3d array is provided with `n` columns and `n_generators`
+##'     "layers" then we vary over both draws and generators so tha with
+##'     use vector `prob[, i, j]` for the `i`th draw on the `j`th
+##'     stream.
+##'
 ##' The output will not differ based on the number of threads used,
 ##'   only on the number of generators.
 ##'
@@ -77,6 +98,10 @@
 ##'
 ##' # Exponentially distributed random numbers with rate
 ##' rng$exponential(5, 2)
+##'
+##' # Multinomial distributed random numbers with size and vector of
+##' # probabiltiies prob
+##' rng$multinomial(5, 10, c(0.1, 0.3, 0.5, 0.1))
 dust_rng <- R6::R6Class(
   "dust_rng",
   cloneable = FALSE,
@@ -158,7 +183,7 @@ dust_rng <- R6::R6Class(
       invisible(self)
     },
 
-    ##' Generate `n` numbers from a standard uniform distribution
+    ##' @description Generate `n` numbers from a standard uniform distribution
     ##'
     ##' @param n Number of samples to draw (per generator)
     ##'
@@ -167,7 +192,7 @@ dust_rng <- R6::R6Class(
       dust_rng_random_real(private$ptr, n, n_threads, private$float)
     },
 
-    ##' Generate `n` numbers from a uniform distribution
+    ##' @description Generate `n` numbers from a uniform distribution
     ##'
     ##' @param n Number of samples to draw (per generator)
     ##'
@@ -180,7 +205,7 @@ dust_rng <- R6::R6Class(
       dust_rng_uniform(private$ptr, n, min, max, n_threads, private$float)
     },
 
-    ##' Generate `n` numbers from a normal distribution
+    ##' @description Generate `n` numbers from a normal distribution
     ##'
     ##' @param n Number of samples to draw (per generator)
     ##'
@@ -193,7 +218,7 @@ dust_rng <- R6::R6Class(
       dust_rng_normal(private$ptr, n, mean, sd, n_threads, private$float)
     },
 
-    ##' Generate `n` numbers from a binomial distribution
+    ##' @description Generate `n` numbers from a binomial distribution
     ##'
     ##' @param n Number of samples to draw (per generator)
     ##'
@@ -207,7 +232,7 @@ dust_rng <- R6::R6Class(
       dust_rng_binomial(private$ptr, n, size, prob, n_threads, private$float)
     },
 
-    ##' Generate `n` numbers from a Poisson distribution
+    ##' @description Generate `n` numbers from a Poisson distribution
     ##'
     ##' @param n Number of samples to draw (per generator)
     ##'
@@ -218,7 +243,7 @@ dust_rng <- R6::R6Class(
       dust_rng_poisson(private$ptr, n, lambda, n_threads, private$float)
     },
 
-    ##' Generate `n` numbers from a exponential distribution
+    ##' @description Generate `n` numbers from a exponential distribution
     ##'
     ##' @param n Number of samples to draw (per generator)
     ##'
@@ -227,6 +252,25 @@ dust_rng <- R6::R6Class(
     ##' @param n_threads Number of threads to use; see Details
     exponential = function(n, rate, n_threads = 1L) {
       dust_rng_exponential(private$ptr, n, rate, n_threads, private$float)
+    },
+
+    ##' @description Generate `n` draws from a multinomial distribution.
+    ##'   In contrast with most of the distributions here, each draw is a
+    ##'   *vector* with the same length as `prob`.
+    ##'
+    ##' @param n The number of samples to draw (per generator)
+    ##'
+    ##' @param size The number of trials (zero or more, length 1 or n)
+    ##'
+    ##' @param prob A vector of probabilities for the success of each
+    ##'   trial. This does not need to sum to 1 (though all elements
+    ##'   must be non-negative), in which case we interpret `prob` as
+    ##'   weights and normalise so that they equal 1 before sampling.
+    ##'
+    ##' @param n_threads Number of threads to use; see Details
+    multinomial = function(n, size, prob, n_threads = 1L) {
+      dust_rng_multinomial(private$ptr, n, size, prob, n_threads,
+                           private$float)
     },
 
     ##' @description

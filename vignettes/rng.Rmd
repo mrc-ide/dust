@@ -107,6 +107,36 @@ rng$binomial(10L, 10, 0.3)
 real_type n = dust::random::binomial<real_type>(state, 10, 0.3);
 ```
 
+**Exponential distribution** with rate `rate`
+
+
+```{r}
+rng$exponential(10L, 4)
+```
+
+``cc
+real_type z = dust::random::exponential<real_type>(state, 4);
+``
+
+**Multinomial distribution** with parameters `size` and `prob`
+
+```{r}
+rng$multinomial(10L, 20, c(0.3, 0.5, 0.2))
+```
+
+Two main interfaces for this from C++
+
+```cc
+std::vector<real_type> prob{0.3, 0.5, 0.2};
+
+// allocating a new vector
+std::vector<real_type> dust::rng::multinomial<real_type>(state, 20, prob);
+
+// set into existing vector
+std::vector<real_type> dest(3);
+dust::rng::multinomial<real_type>(state, 20, prob, dest);
+```
+
 There is also one special case distribution, the **Standard uniform distribution** (between 0 and 1) - faster than using `$uniform(n, 0, 1)`:
 
 ```{r}

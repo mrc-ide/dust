@@ -515,6 +515,174 @@ test_that("exponential random numbers from floats have correct distribution", {
 })
 
 
+test_that("multinomial algorithm is correct", {
+  set.seed(1)
+  prob <- runif(10)
+  prob <- prob / sum(prob)
+  size <- 20
+  n <- 5
+
+  res <- dust_rng$new(1, seed = 1L)$multinomial(n, size, prob)
+
+  ## Separate implementation of the core algorithm:
+  cmp_multinomial <- function(rng, size, prob) {
+    p <- prob / (1 - cumsum(c(0, prob[-length(prob)])))
+    ret <- numeric(length(prob))
+    for (i in seq_len(length(prob) - 1L)) {
+      ret[i] <- rng$binomial(1, size, p[i])
+      size <- size - ret[i]
+    }
+    ret[length(ret)] <- size
+    ret
+  }
+
+  rng2 <- dust_rng$new(1, seed = 1L)
+  cmp <- replicate(n, cmp_multinomial(rng2, size, prob))
+  expect_equal(res, cmp)
+})
+
+
+test_that("multinomial expectation is correct", {
+  p <- runif(10)
+  p <- p / sum(p)
+  n <- 10000
+  res <- dust_rng$new(1, seed = 1L)$multinomial(n, 100, p)
+  expect_equal(dim(res), c(10, n))
+  expect_equal(colSums(res), rep(100, n))
+  expect_equal(rowMeans(res), p * 100, tolerance = 1e-2)
+})
+
+
+test_that("multinomial allows zero probs", {
+  p <- runif(10)
+  p[4] <- 0
+  p <- p / sum(p)
+  n <- 500
+  size <- 100
+  res <- dust_rng$new(1, seed = 1L)$multinomial(n, size, p)
+
+  expect_equal(res[4, ], rep(0, n))
+  expect_equal(colSums(res), rep(size, n))
+})
+
+
+test_that("multinomial allows non-normalised prob", {
+  p <- runif(10, 0, 10)
+  n <- 50
+  res1 <- dust_rng$new(1, seed = 1L)$multinomial(n, 100, p)
+  res2 <- dust_rng$new(1, seed = 1L)$multinomial(n, 100, p / sum(p))
+  expect_equal(res1, res2)
+})
+
+
+test_that("Invalid prob throws an error", {
+  r <- dust_rng$new(1, seed = 1L)
+  expect_error(
+    r$multinomial(1, 10, c(0, 0, 0)),
+    "No positive prob in call to multinomial")
+  expect_error(
+    r$multinomial(1, 10, c(-0.1, 0.6, 0.5)),
+    "Negative prob passed to multinomial")
+})
+
+
+test_that("Can vary parameters for multinomial, single generator", {
+  np <- 7L
+  ng <- 1L
+  size <- 13
+  n <- 17L
+  prob <- matrix(runif(np * n), np, n)
+  prob <- prob / rep(colSums(prob), each = np)
+
+  rng <- dust_rng$new(1, seed = 1L)
+  cmp <- vapply(seq_len(n), function(i) rng$multinomial(1, size, prob[, i]),
+                numeric(np))
+  res <- dust_rng$new(1, seed = 1L)$multinomial(n, size, prob)
+  expect_equal(res, cmp)
+
+  expect_error(
+    dust_rng$new(1, seed = 1L)$multinomial(n, size, prob[, -5]),
+    "If 'prob' is a matrix, it must have 17 columns")
+  expect_error(
+    dust_rng$new(1, seed = 1L)$multinomial(n, size, prob[0, ]),
+    "Input parameters imply length of 'prob' of only 0 (< 2)",
+    fixed = TRUE)
+  expect_error(
+    dust_rng$new(1, seed = 1L)$multinomial(n, size, prob[1, , drop = FALSE]),
+    "Input parameters imply length of 'prob' of only 1 (< 2)",
+    fixed = TRUE)
+})
+
+
+test_that("Can vary parameters by generator for multinomial", {
+  np <- 7L
+  ng <- 3L
+  size <- 13
+  n <- 17L
+
+  prob <- array(runif(np * ng), c(np, 1, ng))
+  prob <- prob / rep(colSums(prob), each = np)
+
+  state <- matrix(dust_rng$new(ng, seed = 1L)$state(), ncol = ng)
+  cmp <- vapply(seq_len(ng), function(i)
+    dust_rng$new(1, seed = state[, i])$multinomial(n, size, prob[, , i]),
+    matrix(numeric(), np, n))
+
+  res <- dust_rng$new(ng, seed = 1L)$multinomial(n, size, prob)
+  expect_equal(res, cmp)
+})
+
+
+test_that("Can vary parameters for multinomial, multiple generators", {
+  np <- 7L
+  ng <- 3L
+  size <- 13
+  n <- 17L
+  prob <- array(runif(np * n * ng), c(np, n, ng))
+  prob <- prob / rep(colSums(prob), each = np)
+
+  ## Setting up the expectation here is not easy, we need a set of
+  ## generators. This test exploits the fact that we alredy worked out
+  ## we could vary a parameter over draws with a single generator.
+  state <- matrix(dust_rng$new(ng, seed = 1L)$state(), ncol = ng)
+  cmp <- vapply(seq_len(ng), function(i)
+    dust_rng$new(1, seed = state[, i])$multinomial(n, size, prob[, , i]),
+    matrix(numeric(), np, n))
+
+  res <- dust_rng$new(ng, seed = 1L)$multinomial(n, size, prob)
+  expect_equal(res, cmp)
+
+  expect_error(
+    dust_rng$new(ng, seed = 1L)$multinomial(n, size, prob[, -5, ]),
+    "If 'prob' is a 3d array, it must have 1 or 17 columns")
+  expect_error(
+    dust_rng$new(ng, seed = 1L)$multinomial(n, size, prob[, , -1]),
+    "If 'prob' is a 3d array, it must have 3 layers")
+  expect_error(
+    dust_rng$new(ng, seed = 1L)$multinomial(n, size, prob[0, , ]),
+    "Input parameters imply length of 'prob' of only 0 (< 2)",
+    fixed = TRUE)
+  ## Final bad inputs:
+  p4 <- array(prob, c(dim(prob), 1))
+  expect_error(
+    dust_rng$new(ng, seed = 1L)$multinomial(n, size, p4),
+    "'prob' must be a vector, matrix or 3d array")
+})
+
+
+test_that("multinomial random numbers from floats have correct distribution", {
+  n <- 100000
+  prob <- runif(7)
+  prob <- prob / sum(prob)
+  size <- 13
+  yf <- dust_rng$new(1, real_type = "float")$multinomial(n, size, prob)
+  expect_equal(dim(yf), c(length(prob), n))
+  expect_equal(colSums(yf), rep(size, n))
+  expect_equal(rowMeans(yf), size * prob,
+               tolerance = 1e-2)
+})
+
+
 test_that("long jump", {
   seed <- 1
   rng1 <- dust_rng$new(seed, real_type = "float")

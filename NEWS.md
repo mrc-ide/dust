@@ -1,3 +1,7 @@
+# dust 0.11.1
+
+* Support for the multinomial distribution. This differs from most other random number support because it returns a *vector* of values not a single number (#307)
+
 # dust 0.11.0
 
 * Rationalised the GPU interface, now once created models can only be used on either the GPU or CPU which simplifies the internal bookkeeping (#292, #302)

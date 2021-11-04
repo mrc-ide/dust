@@ -60,6 +60,10 @@ dust_rng_poisson <- function(ptr, n, r_lambda, n_threads, is_float) {
   .Call(`_dust_dust_rng_poisson`, ptr, n, r_lambda, n_threads, is_float)
 }
 
+dust_rng_multinomial <- function(ptr, n, r_size, r_prob, n_threads, is_float) {
+  .Call(`_dust_dust_rng_multinomial`, ptr, n, r_size, r_prob, n_threads, is_float)
+}
+
 dust_rng_state <- function(ptr, is_float) {
   .Call(`_dust_dust_rng_state`, ptr, is_float)
 }

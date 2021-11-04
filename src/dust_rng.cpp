@@ -66,13 +66,15 @@ cpp11::writable::doubles dust_rng_random_real(SEXP ptr, int n, int n_threads) {
 }
 
 struct input_vary {
+  size_t len;
   size_t offset;
   bool draw;
   bool generator;
 };
-                  
+
+// See notes in R/rng.R or ?rng
 input_vary check_input_type(cpp11::doubles x, int n, int m, const char *name) {
-  input_vary ret {1, false, false};
+  input_vary ret {1, 1, false, false};
   if (Rf_isMatrix(x)) {
     if (Rf_ncols(x) != m) {
       cpp11::stop("If '%s' is a matrix, it must have %d columns", name, m);
@@ -96,6 +98,52 @@ input_vary check_input_type(cpp11::doubles x, int n, int m, const char *name) {
     ret.offset = n;
   }
   
+  return ret;
+}
+
+// See notes in R/rng.R or ?rng
+input_vary check_input_type2(cpp11::doubles x, int n, int m, const char *name) {
+  input_vary ret {1, 1, false, false};
+  cpp11::sexp r_dim = x.attr("dim");
+  if (r_dim == R_NilValue) {
+    ret.len = x.size();
+  } else if (LENGTH(r_dim) == 2) { // matrix
+    auto dim = cpp11::as_cpp<cpp11::integers>(r_dim);
+    ret.len = dim[0];
+    if (dim[1] == n) {
+      ret.draw = true;
+    } else {
+      // TODO: must be n, not 1 surely?
+      cpp11::stop("If '%s' is a matrix, it must have %d columns", name, n);
+    }
+  } else if (LENGTH(r_dim) == 3) {
+    auto dim = cpp11::as_cpp<cpp11::integers>(r_dim);
+    ret.len = dim[0];
+    if (dim[1] == n) {
+      ret.draw = true;
+    } else if (dim[1] != 1) {
+      cpp11::stop("If '%s' is a 3d array, it must have 1 or %d columns",
+                  name, n);
+    }
+    if (dim[2] != m) {
+      cpp11::stop("If '%s' is a 3d array, it must have %d layers", name, m);
+    }
+    ret.generator = true;
+  } else {
+    cpp11::stop("'%s' must be a vector, matrix or 3d array", name);
+  }
+
+  if (ret.len < 2) {
+    cpp11::stop("Input parameters imply length of '%s' of only %d (< 2)",
+                name, ret.len);
+  }
+
+  if (ret.draw) {
+    ret.offset = n * ret.len;
+  } else {
+    ret.offset = ret.len;
+  }
+
   return ret;
 }
 
@@ -200,9 +248,9 @@ cpp11::writable::doubles dust_rng_normal(SEXP ptr, int n,
 
 template <typename real_type, typename T>
 cpp11::writable::doubles dust_rng_binomial(SEXP ptr, int n,
-                                         cpp11::doubles r_size,
-                                         cpp11::doubles r_prob,
-                                         int n_threads) {
+                                           cpp11::doubles r_size,
+                                           cpp11::doubles r_prob,
+                                           int n_threads) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const int n_generators = rng->size();
   cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_generators);
@@ -266,6 +314,60 @@ cpp11::writable::doubles dust_rng_poisson(SEXP ptr, int n,
   }
 
   return double_matrix(ret, n, n_generators);
+}
+
+template <typename real_type, typename T>
+cpp11::writable::doubles dust_rng_multinomial(SEXP ptr, int n,
+                                              cpp11::doubles r_size,
+                                              cpp11::doubles r_prob,
+                                              int n_threads) {
+  T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
+  const int n_generators = rng->size();
+
+  const double * size = REAL(r_size);
+  const double * prob = REAL(r_prob);
+  auto size_vary = check_input_type(r_size, n, n_generators, "size");
+  auto prob_vary = check_input_type2(r_prob, n, n_generators, "prob");
+  const int len = prob_vary.len;
+
+  // Normally we return a block of doubles with the first 'n' entries
+  // being the results for the first generator, the second 'n' for the
+  // second, and so on. Here the first n * len are the first generator
+  // (with the first 'len' being the first sample.
+  cpp11::writable::doubles ret =
+    cpp11::writable::doubles(len * n * n_generators);
+  double * y = REAL(ret);
+
+  dust::utils::openmp_errors errors(n_generators);
+
+#ifdef _OPENMP
+  #pragma omp parallel for schedule(static) num_threads(n_threads)
+#endif
+  for (int i = 0; i < n_generators; ++i) {
+    try {
+      auto &state = rng->state(i);
+      auto y_i = y + len * n * i;
+      auto size_i = size_vary.generator ? size + size_vary.offset * i : size;
+      auto prob_i = prob_vary.generator ? prob + prob_vary.offset * i : prob;
+      for (size_t j = 0; j < (size_t)n; ++j) {
+        auto size_ij = size_vary.draw ? size_i[j]        : size_i[0];
+        auto prob_ij = prob_vary.draw ? prob_i + j * len : prob_i;
+        auto y_ij = y_i + j * len;
+        dust::random::multinomial<real_type>(state, size_ij, prob_ij, len,
+                                             y_ij);
+      }
+    } catch (std::exception const& e) {
+      errors.capture(e, i);
+    }
+  }
+  errors.report("generators");
+
+  if (n_generators == 1) {
+    ret.attr("dim") = cpp11::writable::integers{len, n};
+  } else {
+    ret.attr("dim") = cpp11::writable::integers{len, n, n_generators};
+  }
+  return ret;
 }
 
 template <typename T>
@@ -361,6 +463,17 @@ cpp11::writable::doubles dust_rng_poisson(SEXP ptr, int n,
   return is_float ?
     dust_rng_poisson<float, dust_rng32>(ptr, n, r_lambda, n_threads) :
     dust_rng_poisson<double, dust_rng64>(ptr, n, r_lambda, n_threads);
+}
+
+[[cpp11::register]]
+cpp11::writable::doubles dust_rng_multinomial(SEXP ptr, int n,
+                                              cpp11::doubles r_size,
+                                              cpp11::doubles r_prob,
+                                              int n_threads,
+                                              bool is_float) {
+  return is_float ?
+    dust_rng_multinomial<float, dust_rng32>(ptr, n, r_size, r_prob, n_threads) :
+    dust_rng_multinomial<double, dust_rng64>(ptr, n, r_size, r_prob, n_threads);
 }
 
 [[cpp11::register]]
