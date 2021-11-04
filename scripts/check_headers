@@ -1,5 +1,11 @@
 #!/usr/bin/env Rscript
-root <- here::here()
+if (requireNamespace("here", quietly = TRUE)) {
+  root <- here::here()
+} else if (file.exists("DESCRIPTION")) {
+  root <- getwd()
+} else {
+  stop("Could not determine package root")
+}
 
 path_dust <- file.path(root, "inst/include")
 path_cpp <- system.file("include", package = "cpp11", mustWork = TRUE)
