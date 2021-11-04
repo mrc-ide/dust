@@ -122,7 +122,7 @@ model_large <- sirs$new(list(), 0, 2^17, device_config = 0L, seed = 1L)
 ratio <- t_large[["elapsed"]] / t_cpu[["elapsed"]]
 ```
 
-This is **heaps** faster, the GPU model ran in `r round(ratio * 100, 1)`% of the time as the CPU model but simulated `r 2^17 / n_particles` as many particles (i.e., `r round(2^17 / n_particles / ratio)` as fast per particle). With the relatively low times here, much of this time is just moving the data around, and with over a hundred thousand particles this is nontrivial.  Of course, _doing_ anything quickly with all these particles is its own problem.
+This is **heaps** faster, the GPU model ran in `r round(ratio * 100, 1)`% of the time as the CPU model but simulated `r 2^17 / n_particles` as many particles (i.e., `r round(2^17 / n_particles / ratio)` times as fast per particle). With the relatively low times here, much of this time is just moving the data around, and with over a hundred thousand particles this is nontrivial.  Of course, _doing_ anything quickly with all these particles is its own problem.
 
 All methods will automatically run on the GPU; this includes `run`, `simulate`, `compare_data` and `filter`.  The last two are typically used from the [`mcstate` interface](https://mrc-ide.github.io/mcstate/reference/particle_filter.html).
 
