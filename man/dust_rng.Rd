@@ -69,8 +69,8 @@ generators. There are \code{nrow(prob)} possible outcomes.
 "layers" (the third dimension) then we use then we use different
 parameters for each generator, but the same parameter for each
 draw.
-\item If a 3d array is providec with \code{n} columns and \code{n_generators}
-"layers" then we vary over both draws and generators so tha with
+\item If a 3d array is provided with \code{n} columns and \code{n_generators}
+"layers" then we vary over both draws and generators so that with
 use vector \code{prob[, i, j]} for the \code{i}th draw on the \code{j}th
 stream.
 }
