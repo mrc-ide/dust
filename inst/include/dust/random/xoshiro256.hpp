@@ -13,48 +13,54 @@
 namespace dust {
 namespace random {
 
-using xoshiro256starstar_state = xoshiro_state<uint64_t, 4, STARSTAR>;
-using xoshiro256plusplus_state = xoshiro_state<uint64_t, 4, PLUSPLUS>;
-using xoshiro256plus_state     = xoshiro_state<uint64_t, 4, PLUS>;
+using xoshiro256starstar_state =
+  xoshiro_state<uint64_t, 4, scrambler::starstar>;
+using xoshiro256plusplus_state =
+  xoshiro_state<uint64_t, 4, scrambler::plusplus>;
+using xoshiro256plus_state =
+  xoshiro_state<uint64_t, 4, scrambler::plus>;
 
 // Jump coefficients.
 // * 2^128 calls to next
 // * 2^128 non-overlapping subsequences
 template <>
-constexpr std::array<uint64_t, 4> jump_constants<uint64_t, 4, STARSTAR>() {
+constexpr std::array<uint64_t, 4> jump_constants<xoshiro256starstar_state>() {
   return std::array<uint64_t, 4>{{
       0x180ec6d33cfd0aba, 0xd5a61266f0c9392c,
       0xa9582618e03fc9aa, 0x39abdc4529b1661c }};
 }
 
 template <>
-constexpr std::array<uint64_t, 4> jump_constants<uint64_t, 4, PLUSPLUS>() {
-  return jump_constants<uint64_t, 4, STARSTAR>();
+constexpr std::array<uint64_t, 4> jump_constants<xoshiro256plusplus_state>() {
+  return jump_constants<xoshiro256starstar_state>();
 }
 
 template <>
-constexpr std::array<uint64_t, 4> jump_constants<uint64_t, 4, PLUS>() {
-  return jump_constants<uint64_t, 4, STARSTAR>();
+constexpr std::array<uint64_t, 4> jump_constants<xoshiro256plus_state>() {
+  return jump_constants<xoshiro256starstar_state>();
 }
 
 // Long-jump coefficients
 // * 2^192 calls to next
 // * 2^64 starting points, each with 2^64 subsequences
 template <>
-constexpr std::array<uint64_t, 4> long_jump_constants<uint64_t, 4, STARSTAR>() {
+constexpr
+std::array<uint64_t, 4> long_jump_constants<xoshiro256starstar_state>() {
   return std::array<uint64_t, 4>{{
       0x76e15d3efefdcbbf, 0xc5004e441c522fb3,
       0x77710069854ee241, 0x39109bb02acbe635 }};
 }
 
 template <>
-constexpr std::array<uint64_t, 4> long_jump_constants<uint64_t, 4, PLUSPLUS>() {
-  return long_jump_constants<uint64_t, 4, STARSTAR>();
+constexpr
+std::array<uint64_t, 4> long_jump_constants<xoshiro256plusplus_state>() {
+  return long_jump_constants<xoshiro256starstar_state>();
 }
 
 template <>
-constexpr std::array<uint64_t, 4> long_jump_constants<uint64_t, 4, PLUS>() {
-  return long_jump_constants<uint64_t, 4, STARSTAR>();
+constexpr
+std::array<uint64_t, 4> long_jump_constants<xoshiro256plus_state>() {
+  return long_jump_constants<xoshiro256starstar_state>();
 }
 
 template <>

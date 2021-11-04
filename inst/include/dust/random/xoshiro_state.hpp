@@ -8,11 +8,10 @@
 namespace dust {
 namespace random {
 
-// TODO(#306): make this a class enum perhaps
-enum xoshiro_mode {STARSTAR, PLUSPLUS, PLUS};
+enum class scrambler {starstar, plusplus, plus};
 
 // Common storage for all generators
-template <typename T, size_t N, xoshiro_mode M>
+template <typename T, size_t N, scrambler X>
 struct xoshiro_state {
   typedef T int_type;
   HOSTDEVICE static constexpr size_t size() {
@@ -31,11 +30,11 @@ struct xoshiro_state {
 template <typename T>
 typename T::int_type next(T& state);
 
-template <typename T, size_t N, xoshiro_mode M>
-std::array<T, N> jump_constants();
+template <typename T>
+std::array<typename T::int_type, T::size()> jump_constants();
 
-template <typename T, size_t N, xoshiro_mode M>
-std::array<T, N> long_jump_constants();
+template <typename T>
+std::array<typename T::int_type, T::size()> long_jump_constants();
 
 }
 }
