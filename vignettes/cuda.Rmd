@@ -19,8 +19,8 @@ This vignette is written in reverse-order, starting with how to run a model on a
 
 * A GPU model can be run on the CPU, and vice-versa.
 * The same random number generator sequence will be used in both cases.
-* Differences in results, if they exist, come from different precision/rounding between devices. When using `real_type = double` we get the same results.
-* Just the model update can be defined for the GPU, and comparisons and shuffling will still happen on the CPU. Defining a comparison function is also possible, allowing a full particle filter run on a GPU.
+* Differences in results, if they exist, come from different precision/rounding between devices. When using `real_type = double` we want to get the same results.
+* Just the model update can be defined for the GPU, and comparisons and shuffling could still happen on the CPU. Defining a comparison function is also possible, allowing a full particle filter run on a GPU.
 
 ## Running a model with GPU support
 
@@ -44,24 +44,28 @@ So here, rather than using `dust::dust_example`, we compile the model and pass i
 ```r
 path <- system.file("examples/sirs.cpp", package = "dust")
 sirs <- dust::dust(path, gpu = TRUE, real_type = "float")
-#> ℹ 20 functions decorated with [[cpp11::register]]
+#> ℹ 34 functions decorated with [[cpp11::register]]
 #> ✔ generated file 'cpp11.R'
 #> ✔ generated file 'cpp11.cpp'
-#> Re-compiling sirsbe1444bcgpu
-#>   ─  installing *source* package ‘sirsbe1444bcgpu’ ...
+#> Re-compiling sirs92b8dbddgpu
+#>   ─  installing *source* package ‘sirs92b8dbddgpu’ ...
 #>      ** using staged installation
 #>      ** libs
-#>      g++ -std=gnu++14 -I"/usr/share/R/include" -DNDEBUG  -I'/home/rfitzjoh/lib/R/library/cpp11/include' -g -Wall -Wextra -pedantic -Wmaybe-uninitialized -Wno-unused-parameter -Wno-cast-function-type -Wno-missing-field-initializers -O2  -I/home/rfitzjoh/lib/R/library/dust/include -DHAVE_INLINE -fopenmp -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-QwogzP/r-base-4.1.1=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c cpp11.cpp -o cpp11.o
+#>      make[1]: Entering directory '/tmp/RtmpL01Ryi/file93d3c744b240b/src'
+#>      make[1]: Leaving directory '/tmp/RtmpL01Ryi/file93d3c744b240b/src'
+#>      make[1]: Entering directory '/tmp/RtmpL01Ryi/file93d3c744b240b/src'
+#>    g++ -std=gnu++14 -I"/usr/share/R/include" -DNDEBUG  -I'/home/rfitzjoh/lib/R/library/cpp11/include' -g -Wall -Wextra -pedantic -Wmaybe-uninitialized -Wno-unused-parameter -Wno-cast-function-type -Wno-missing-field-initializers -O2  -I/home/rfitzjoh/lib/R/library/dust/include -DHAVE_INLINE -fopenmp -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-QwogzP/r-base-4.1.1=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c cpp11.cpp -o cpp11.o
 #>      nvcc -std=c++14 -O2 -I. -I/usr/share/R/include -I/home/rfitzjoh/lib/R/library/dust/include -I/home/rfitzjoh/.local/share/R/dust/cub -I'/home/rfitzjoh/lib/R/library/cpp11/include' -gencode=arch=compute_75,code=sm_75 -Xcompiler -fPIC -Xcompiler -fopenmp -x cu -c dust.cu -o dust.o
-#>      g++ -std=gnu++14 -shared -L/usr/lib/R/lib -Wl,-Bsymbolic-functions -Wl,-z,relro -o sirsbe1444bcgpu.so cpp11.o dust.o -lcudart -fopenmp -L/usr/lib/R/lib -lR
-#>      installing to /tmp/RtmpAxVhQc/devtools_install_361656db9ff2/00LOCK-file36166de8373d/00new/sirsbe1444bcgpu/libs
+#>      g++ -std=gnu++14 -shared -L/usr/lib/R/lib -Wl,-Bsymbolic-functions -Wl,-z,relro -o sirs92b8dbddgpu.so cpp11.o dust.o -lcudart -fopenmp -L/usr/lib/R/lib -lR
+#>      make[1]: Leaving directory '/tmp/RtmpL01Ryi/file93d3c744b240b/src'
+#>      installing to /tmp/RtmpL01Ryi/devtools_install_93d3c29785e2d/00LOCK-file93d3c744b240b/00new/sirs92b8dbddgpu/libs
 #>      ** checking absolute paths in shared objects and dynamic libraries
-#>   ─  DONE (sirsbe1444bcgpu)
+#>   ─  DONE (sirs92b8dbddgpu)
 #>
-#> ℹ Loading sirsbe1444bcgpu
+#> ℹ Loading sirs92b8dbddgpu
 ```
 
-Notice in compilation that `nvcc` is used to compile the model, rather than `g++`.  The additional option `-gencode=arch=compute_XX,code=sm_XX` was added by `dust` and will include the CUDA compute version supported by the graphics cards found on the current system. You can use `dust::dust_cuda_options` to set additional options, passing in the return value for the `gpu` argument above.
+Notice in compilation that `nvcc` is used to compile the model, rather than `g++` or `clang++`.  The additional option `-gencode=arch=compute_XX,code=sm_XX` was added by `dust` and will include the CUDA compute version supported by the graphics cards found on the current system. You can use `dust::dust_cuda_options` to set additional options, passing in the return value for the `gpu` argument above.
 
 Once compiled with GPU support, the static method `has_cuda` will report `TRUE`:
 
@@ -94,48 +98,68 @@ If you have more than one GPU, the `id` in the `devices` section will be useful 
 
 The object is initialised as usual but with slight differences:
 
-* you will probably want a (much) larger number of particles to take advantage of your device. As a rule of thumb we would suggest at least 10000, but depending on model and card 10-100x this may improve performance (relative to the same on a multicore CPU). See below for more discussion of this.
-* the `device_config` argument needs to be provided to indicate which device we are running on (or additional configuration)
+* you will probably want a (much) larger number of particles to take advantage of your device. As a rule of thumb we would suggest at least 10,000, but depending on model and card you may still see per-particle increases in compute speed as you use up to 1,000,000 particles. See below for more discussion of this.
+* the `device_config` argument needs to be provided to indicate which device we are running on. Minimally this is an integer indicating the device that you want to run on (on this machine the only option is `0`), but you can also provide a list with elements `device_id` and `run_block_size`.
 
 
 ```r
-model <- sirs$new(list(), 0, 8192, device_config = 0L, seed = 1L)
+pars <- list()
+n_particles <- 8192
+model_gpu <- sirs$new(pars, 0, n_particles, device_config = 0L, seed = 1L)
 ```
 
-Above, we also set the index to show just the daily incidence (number of new infections).
-
-The model can be run on the CPU, as usual, and will be fairly slow here as this is a lot of particles:
+Once initialised, a model can only be run on either the GPU or CPU, so we'll create a CPU version here for comparison:
 
 
 ```r
-system.time(model$run(400))
+model_cpu <- sirs$new(pars, 0, n_particles, seed = 1L)
+```
+
+By leaving `device_config` as `NULL` we indicate that the model should run on the CPU.
+
+Once created, the `uses_gpu` method indicates if the model is set up to run on the GPU (rather than CPU):
+
+
+```r
+model_gpu$uses_gpu()
+#> [1] TRUE
+model_cpu$uses_gpu()
+#> [1] FALSE
+```
+
+Running the model on the CPU is fairly slow as this is a lot of particles and we're not running in parallel:
+
+
+```r
+(t_cpu <- system.time(model_cpu$run(400)))
 #>    user  system elapsed
-#>    0.51    0.00    0.51
+#>   0.456   0.000   0.455
 ```
 
-To run the model on the device, pass `device = TRUE` to `run()`:
+Running the model on the GPU however:
 
 
 ```r
-model$update_state(pars = list(), step = 0L)
-system.time(model$run(400, device = TRUE))
+(t_gpu <- system.time(model_gpu$run(400)))
 #>    user  system elapsed
-#>   0.009   0.000   0.009
+#>   0.007   0.000   0.008
 ```
 
-This is much faster! However, 8,000 particles is unlikely to saturate a modern GPU and (overhead-aside) this will run about as quickly for potentially a hundred thousand particles. For example running 2^16 (6.5536 &times; 10<sup>4</sup>) particles only takes a little longer
+This is much faster! However, ~8,000 particles is unlikely to saturate a modern GPU and (overhead-aside) this will run about as quickly for potentially a hundred thousand particles. For example running 2^17 (131,072) particles only takes a little longer
 
 
 ```r
 model_large <- sirs$new(list(), 0, 2^17, device_config = 0L, seed = 1L)
-system.time(model_large$run(400, device = TRUE))
+(t_large <- system.time(model_large$run(400)))
 #>    user  system elapsed
-#>   0.045   0.000   0.044
+#>   0.033   0.000   0.034
 ```
 
-Of course, _doing_ anything with all these particles is its own problem.
 
-The `run` and `simulate` methods both support a `device` function, which runs on the GPU if `TRUE`.  In addition, the `filter` method (for models with compare support - see `vignette("data")`) also supports a `device` argument, though this is typically used from the [`mcstate` interface](https://mrc-ide.github.io/mcstate/reference/particle_filter.html). The model step, internal state, parameters and rng state is automatically synchronised between the CPU and GPU version of the model.
+
+This is **heaps** faster, the GPU model ran in 7.5% of the time as the CPU model but simulated 16 as many particles (i.e., 214 times as fast per particle). With the relatively low times here, much of this time is just moving the data around, and with over a hundred thousand particles this is nontrivial.  Of course, _doing_ anything quickly with all these particles is its own problem.
+
+All methods will automatically run on the GPU; this includes `run`, `simulate`, `compare_data` and `filter`.  The last two are typically used from the [`mcstate` interface](https://mrc-ide.github.io/mcstate/reference/particle_filter.html).
 
 ## Writing a GPU-capable model
 
@@ -146,6 +170,7 @@ class sirs {
 public:
   typedef double real_type;
   typedef dust::no_internal internal_type;
+  typedef dust::random::generator<real_type> rng_state_type;
 
   // ALIGN(16) is required before the data_type definition when using NVCC
   // This is so when loaded into shared memory it is aligned correctly
@@ -192,9 +217,10 @@ public:
     real_type p_IR = 1 - exp(-(shared->gamma));
     real_type p_RS = 1 - exp(- shared->alpha);
 
-    real_type n_SI = dust::random::binomial(rng_state, S, p_SI * shared->dt);
-    real_type n_IR = dust::random::binomial(rng_state, I, p_IR * shared->dt);
-    real_type n_RS = dust::random::binomial(rng_state, R, p_RS * shared->dt);
+    real_type dt = shared->dt;
+    real_type n_SI = dust::random::binomial<real_type>(rng_state, S, p_SI * dt);
+    real_type n_IR = dust::random::binomial<real_type>(rng_state, I, p_IR * dt);
+    real_type n_RS = dust::random::binomial<real_type>(rng_state, R, p_RS * dt);
 
     state_next[0] = S - n_SI + n_RS;
     state_next[1] = I + n_SI - n_IR;
@@ -203,12 +229,12 @@ public:
   }
 
   real_type compare_data(const real_type * state, const data_type& data,
-                      rng_state_type& rng_state) {
+                         rng_state_type& rng_state) {
     const real_type incidence_modelled = state[3];
     const real_type incidence_observed = data.incidence;
     const real_type lambda = incidence_modelled +
-      dust::distr::rexp(rng_state, shared->exp_noise);
-    return dust::dpois(incidence_observed, lambda, true);
+      dust::random::exponential<real_type>(rng_state, shared->exp_noise);
+    return dust::density::poisson(incidence_observed, lambda, true);
   }
 
 private:
@@ -253,8 +279,7 @@ sirs::data_type dust_data<sirs>(cpp11::list data) {
   return sirs::data_type{cpp11::as_cpp<double>(data["incidence"])};
 }
 
-template <>
-struct has_gpu_support<sirs> : std::true_type {};
+namespace cuda {
 
 template <>
 size_t device_shared_int_size<sirs>(dust::shared_ptr<sirs> shared) {
@@ -271,23 +296,25 @@ void device_shared_copy<sirs>(dust::shared_ptr<sirs> shared,
                               int * shared_int,
                               sirs::real_type * shared_real) {
   typedef sirs::real_type real_type;
-  shared_real = dust::shared_copy<real_type>(shared_real, shared->alpha);
-  shared_real = dust::shared_copy<real_type>(shared_real, shared->beta);
-  shared_real = dust::shared_copy<real_type>(shared_real, shared->gamma);
-  shared_real = dust::shared_copy<real_type>(shared_real, shared->dt);
-  shared_real = dust::shared_copy<real_type>(shared_real, shared->exp_noise);
-  shared_int = dust::shared_copy<int>(shared_int, shared->freq);
+  using dust::cuda::shared_copy;
+  shared_real = shared_copy<real_type>(shared_real, shared->alpha);
+  shared_real = shared_copy<real_type>(shared_real, shared->beta);
+  shared_real = shared_copy<real_type>(shared_real, shared->gamma);
+  shared_real = shared_copy<real_type>(shared_real, shared->dt);
+  shared_real = shared_copy<real_type>(shared_real, shared->exp_noise);
+  shared_int = shared_copy<int>(shared_int, shared->freq);
 }
 
 template <>
-DEVICE void update_device<sirs>(size_t step,
-                                const dust::interleaved<sirs::real_type> state,
-                                dust::interleaved<int> internal_int,
-                                dust::interleaved<sirs::real_type> internal_real,
-                                const int * shared_int,
-                                const sirs::real_type * shared_real,
-                                sirs::rng_state_type& rng_state,
-                                dust::interleaved<sirs::real_type> state_next) {
+DEVICE
+void update_device<sirs>(size_t step,
+                         const dust::cuda::interleaved<sirs::real_type> state,
+                         dust::cuda::interleaved<int> internal_int,
+                         dust::cuda::interleaved<sirs::real_type> internal_real,
+                         const int * shared_int,
+                         const sirs::real_type * shared_real,
+                         sirs::rng_state_type& rng_state,
+                         dust::cuda::interleaved<sirs::real_type> state_next) {
   typedef sirs::real_type real_type;
   const real_type alpha = shared_real[0];
   const real_type beta = shared_real[1];
@@ -301,9 +328,9 @@ DEVICE void update_device<sirs>(size_t step,
   const real_type p_SI = 1 - exp(- beta * I / N);
   const real_type p_IR = 1 - exp(- gamma);
   const real_type p_RS = 1 - exp(- alpha);
-  const real_type n_SI = dust::random::binomial(rng_state, S, p_SI * dt);
-  const real_type n_IR = dust::random::binomial(rng_state, I, p_IR * dt);
-  const real_type n_RS = dust::random::binomial(rng_state, R, p_RS * dt);
+  const real_type n_SI = dust::random::binomial<real_type>(rng_state, S, p_SI * dt);
+  const real_type n_IR = dust::random::binomial<real_type>(rng_state, I, p_IR * dt);
+  const real_type n_RS = dust::random::binomial<real_type>(rng_state, R, p_RS * dt);
   state_next[0] = S - n_SI + n_RS;
   state_next[1] = I + n_SI - n_IR;
   state_next[2] = R + n_IR - n_RS;
@@ -311,40 +338,34 @@ DEVICE void update_device<sirs>(size_t step,
 }
 
 template <>
-DEVICE sirs::real_type compare_device<sirs>(const dust::interleaved<sirs::real_type> state,
-                           const sirs::data_type& data,
-                           dust::interleaved<int> internal_int,
-                           dust::interleaved<sirs::real_type> internal_real,
-                           const int * shared_int,
-                           const sirs::real_type * shared_real,
-                           sirs::rng_state_type& rng_state) {
+DEVICE
+sirs::real_type compare_device<sirs>(const dust::cuda::interleaved<sirs::real_type> state,
+                                     const sirs::data_type& data,
+                                     dust::cuda::interleaved<int> internal_int,
+                                     dust::cuda::interleaved<sirs::real_type> internal_real,
+                                     const int * shared_int,
+                                     const sirs::real_type * shared_real,
+                                     sirs::rng_state_type& rng_state) {
   typedef sirs::real_type real_type;
   const real_type exp_noise = shared_real[4];
   const real_type incidence_modelled = state[3];
   const real_type incidence_observed = data.incidence;
   const real_type lambda = incidence_modelled +
-    dust::distr::rexp(rng_state, exp_noise);
-  return dust::dpois(incidence_observed, lambda, true);
+    dust::random::exponential<real_type>(rng_state, exp_noise);
+  return dust::density::poisson(incidence_observed, lambda, true);
 }
 
+}
 }
 ```
 
 This is somewhat more complicated than the models described in `vignette("dust.Rmd")`. There are several important components required to run on the GPU.
 
-First, we need to specialise the `has_gpu_support` struct, within the `dust` namespace.
+Within the `dust::cuda` namespace, we declare the size of the *shared parameters* for the model. These are parameters that will be the same across all instances of a parameter set, as opposed to quantities that change between particles.
 
 ```cc
 namespace dust {
-template <>
-struct has_gpu_support<sirs> : std::true_type {};
-}
-```
-
-Next, within the dust namespace again, we declare the size of the *shared parameters* for the model. These are parameters that will be the same across all instances of a parameter set, as opposed to quantities that change between particles.
-
-```cc
-namespace dust {
+namespace cuda {
 template <>
 size_t device_shared_int_size<sirs>(dust::shared_ptr<sirs> shared) {
   return 1;
@@ -355,6 +376,7 @@ size_t device_shared_real_size<sirs>(dust::shared_ptr<sirs> shared) {
   return 5;
 }
 }
+}
 ```
 
 These can be omitted if your model has no such parameters.
@@ -363,17 +385,20 @@ The next definition makes the above a bit clearer, it defines the method for cop
 
 ```cc
 namespace dust {
+namespace cuda {
 template <>
 void device_shared_copy<sirs>(dust::shared_ptr<sirs> shared,
                               int * shared_int,
                               sirs::real_type * shared_real) {
   typedef sirs::real_type real_type;
-  shared_real = dust::shared_copy<real_type>(shared_real, shared->alpha);
-  shared_real = dust::shared_copy<real_type>(shared_real, shared->beta);
-  shared_real = dust::shared_copy<real_type>(shared_real, shared->gamma);
-  shared_real = dust::shared_copy<real_type>(shared_real, shared->dt);
-  shared_real = dust::shared_copy<real_type>(shared_real, shared->exp_noise);
-  shared_int = dust::shared_copy<int>(shared_int, shared->freq);
+  using dust::cuda::shared_copy;
+  shared_real = shared_copy<real_type>(shared_real, shared->alpha);
+  shared_real = shared_copy<real_type>(shared_real, shared->beta);
+  shared_real = shared_copy<real_type>(shared_real, shared->gamma);
+  shared_real = shared_copy<real_type>(shared_real, shared->dt);
+  shared_real = shared_copy<real_type>(shared_real, shared->exp_noise);
+  shared_int = shared_copy<int>(shared_int, shared->freq);
+}
 }
 }
 ```
@@ -403,6 +428,7 @@ There are two methods that are not used here, but could be included, to define t
 
 ```cc
 namespace dust {
+namespace cuda {
 template <>
 size_t dust::device_internal_real_size<sirs>(dust::shared_ptr<sirs> shared) {
   return 0;
@@ -412,20 +438,22 @@ size_t dust::device_internal_int_size<sirs>(dust::shared_ptr<sirs> shared) {
   return 0;
 }
 }
+}
 ```
 
 Most interestingly we have the `update_device` method that actually does the update on the device
 
 ```cc
 template <>
-DEVICE void update_device<sirs>(size_t step,
-                                const dust::interleaved<sirs::real_type> state,
-                                dust::interleaved<int> internal_int,
-                                dust::interleaved<sirs::real_type> internal_real,
-                                const int * shared_int,
-                                const sirs::real_type * shared_real,
-                                sirs::rng_state_type& rng_state,
-                                dust::interleaved<sirs::real_type> state_next) {
+DEVICE
+void update_device<sirs>(size_t step,
+                         const dust::cuda::interleaved<sirs::real_type> state,
+                         dust::cuda::interleaved<int> internal_int,
+                         dust::cuda::interleaved<sirs::real_type> internal_real,
+                         const int * shared_int,
+                         const sirs::real_type * shared_real,
+                         sirs::rng_state_type& rng_state,
+                         dust::cuda::interleaved<sirs::real_type> state_next) {
   typedef sirs::real_type real_type;
   const real_type alpha = shared_real[0];
   const real_type beta = shared_real[1];
@@ -439,9 +467,9 @@ DEVICE void update_device<sirs>(size_t step,
   const real_type p_SI = 1 - exp(- beta * I / N);
   const real_type p_IR = 1 - exp(- gamma);
   const real_type p_RS = 1 - exp(- alpha);
-  const real_type n_SI = dust::random::binomial(rng_state, S, p_SI * dt);
-  const real_type n_IR = dust::random::binomial(rng_state, I, p_IR * dt);
-  const real_type n_RS = dust::random::binomial(rng_state, R, p_RS * dt);
+  const real_type n_SI = dust::random::binomial<real_type>(rng_state, S, p_SI * dt);
+  const real_type n_IR = dust::random::binomial<real_type>(rng_state, I, p_IR * dt);
+  const real_type n_RS = dust::random::binomial<real_type>(rng_state, R, p_RS * dt);
   state_next[0] = S - n_SI + n_RS;
   state_next[1] = I + n_SI - n_IR;
   state_next[2] = R + n_IR - n_RS;
@@ -463,9 +491,10 @@ Note that this totally duplicates the logic from the CPU version (which was a me
     real_type p_IR = 1 - exp(-(shared->gamma));
     real_type p_RS = 1 - exp(- shared->alpha);
 
-    real_type n_SI = dust::random::binomial(rng_state, S, p_SI * shared->dt);
-    real_type n_IR = dust::random::binomial(rng_state, I, p_IR * shared->dt);
-    real_type n_RS = dust::random::binomial(rng_state, R, p_RS * shared->dt);
+    real_type dt = shared->dt;
+    real_type n_SI = dust::random::binomial<real_type>(rng_state, S, p_SI * dt);
+    real_type n_IR = dust::random::binomial<real_type>(rng_state, I, p_IR * dt);
+    real_type n_RS = dust::random::binomial<real_type>(rng_state, R, p_RS * dt);
 
     state_next[0] = S - n_SI + n_RS;
     state_next[1] = I + n_SI - n_IR;
@@ -477,7 +506,7 @@ Note that this totally duplicates the logic from the CPU version (which was a me
 Differences include:
 
 * the presence of the four auxiliary data elements (`internal_int`, `internal_real`, `shared_int` and `shared_real`)
-* the data types that vary across particles are a special `dust::interleaved<>` type, which prevents slow uncoalesced reads from global device memory
+* the data types that vary across particles are a special `dust::cuda::interleaved<>` type, which prevents slow uncoalesced reads from global device memory
 * All accesses into the `shared_int` and `shared_real` elements are now by position in the array, rather than the previous pointer/name based access
 * The `DEVICE` annotation, which compiles the function for use on the GPU
 
@@ -487,20 +516,21 @@ Finally, if running a particle filter on the GPU, a version of the `compare_data
 
 ```cc
 template <>
-DEVICE sirs::real_type compare_device<sirs>(const dust::interleaved<sirs::real_type> state,
-                           const sirs::data_type& data,
-                           dust::interleaved<int> internal_int,
-                           dust::interleaved<sirs::real_type> internal_real,
-                           const int * shared_int,
-                           const sirs::real_type * shared_real,
-                           sirs::rng_state_type& rng_state) {
+DEVICE
+sirs::real_type compare_device<sirs>(const dust::cuda::interleaved<sirs::real_type> state,
+                                     const sirs::data_type& data,
+                                     dust::cuda::interleaved<int> internal_int,
+                                     dust::cuda::interleaved<sirs::real_type> internal_real,
+                                     const int * shared_int,
+                                     const sirs::real_type * shared_real,
+                                     sirs::rng_state_type& rng_state) {
   typedef sirs::real_type real_type;
   const real_type exp_noise = shared_real[4];
   const real_type incidence_modelled = state[3];
   const real_type incidence_observed = data.incidence;
   const real_type lambda = incidence_modelled +
-    dust::distr::rexp(rng_state, exp_noise);
-  return dust::dpois(incidence_observed, lambda, true);
+    dust::random::exponential<real_type>(rng_state, exp_noise);
+  return dust::density::poisson(incidence_observed, lambda, true);
 }
 ```
 
@@ -508,12 +538,12 @@ This is very similar to the CPU version
 
 ```cc
   real_type compare_data(const real_type * state, const data_type& data,
-                      rng_state_type& rng_state) {
+                         rng_state_type& rng_state) {
     const real_type incidence_modelled = state[3];
     const real_type incidence_observed = data.incidence;
     const real_type lambda = incidence_modelled +
-      dust::distr::rexp(rng_state, shared->exp_noise);
-    return dust::dpois(incidence_observed, lambda, true);
+      dust::random::exponential<real_type>(rng_state, shared->exp_noise);
+    return dust::density::poisson(incidence_observed, lambda, true);
   }
 ```
 
@@ -532,47 +562,51 @@ To do this, compile the model with your preferred real type, but set the `gpu` a
 
 ```r
 sirs_cpu <- dust::dust(path, gpu = FALSE, real_type = "float")
-#> ℹ 20 functions decorated with [[cpp11::register]]
+#> ℹ 34 functions decorated with [[cpp11::register]]
 #> ✔ generated file 'cpp11.R'
 #> ✔ generated file 'cpp11.cpp'
-#> Re-compiling sirsbe1444bc
-#>   ─  installing *source* package ‘sirsbe1444bc’ ...
+#> Re-compiling sirs92b8dbdd
+#>   ─  installing *source* package ‘sirs92b8dbdd’ ...
 #>      ** using staged installation
 #>      ** libs
-#>      g++ -std=gnu++11 -I"/usr/share/R/include" -DNDEBUG  -I'/home/rfitzjoh/lib/R/library/cpp11/include' -g -Wall -Wextra -pedantic -Wmaybe-uninitialized -Wno-unused-parameter -Wno-cast-function-type -Wno-missing-field-initializers -O2  -I/home/rfitzjoh/lib/R/library/dust/include -DHAVE_INLINE -fopenmp -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-QwogzP/r-base-4.1.1=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c cpp11.cpp -o cpp11.o
+#>      make[1]: Entering directory '/tmp/RtmpL01Ryi/file93d3c29fcdbfd/src'
+#>      make[1]: Leaving directory '/tmp/RtmpL01Ryi/file93d3c29fcdbfd/src'
+#>      make[1]: Entering directory '/tmp/RtmpL01Ryi/file93d3c29fcdbfd/src'
+#>    g++ -std=gnu++11 -I"/usr/share/R/include" -DNDEBUG  -I'/home/rfitzjoh/lib/R/library/cpp11/include' -g -Wall -Wextra -pedantic -Wmaybe-uninitialized -Wno-unused-parameter -Wno-cast-function-type -Wno-missing-field-initializers -O2  -I/home/rfitzjoh/lib/R/library/dust/include -DHAVE_INLINE -fopenmp -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-QwogzP/r-base-4.1.1=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c cpp11.cpp -o cpp11.o
 #>      g++ -std=gnu++11 -I"/usr/share/R/include" -DNDEBUG  -I'/home/rfitzjoh/lib/R/library/cpp11/include' -g -Wall -Wextra -pedantic -Wmaybe-uninitialized -Wno-unused-parameter -Wno-cast-function-type -Wno-missing-field-initializers -O2  -I/home/rfitzjoh/lib/R/library/dust/include -DHAVE_INLINE -fopenmp -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-QwogzP/r-base-4.1.1=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c dust.cpp -o dust.o
-#>      g++ -std=gnu++11 -shared -L/usr/lib/R/lib -Wl,-Bsymbolic-functions -Wl,-z,relro -o sirsbe1444bc.so cpp11.o dust.o -fopenmp -L/usr/lib/R/lib -lR
-#>      installing to /tmp/RtmpAxVhQc/devtools_install_361647b61e24/00LOCK-file3616446bb195/00new/sirsbe1444bc/libs
+#>      g++ -std=gnu++11 -shared -L/usr/lib/R/lib -Wl,-Bsymbolic-functions -Wl,-z,relro -o sirs92b8dbdd.so cpp11.o dust.o -fopenmp -L/usr/lib/R/lib -lR
+#>      make[1]: Leaving directory '/tmp/RtmpL01Ryi/file93d3c29fcdbfd/src'
+#>      installing to /tmp/RtmpL01Ryi/devtools_install_93d3c3f7b2375/00LOCK-file93d3c29fcdbfd/00new/sirs92b8dbdd/libs
 #>      ** checking absolute paths in shared objects and dynamic libraries
-#>   ─  DONE (sirsbe1444bc)
+#>   ─  DONE (sirs92b8dbdd)
 #>
-#> ℹ Loading sirsbe1444bc
+#> ℹ Loading sirs92b8dbdd
 ```
 
 Note that above the model is compiled with `g++`, not `nvcc`. However, the "device" code is still compiled into the model.  We can then initialise this with and without a `device_config` argument
 
 
 ```r
-model1 <- sirs_cpu$new(list(), 0, 10, seed = 1L)
-model2 <- sirs_cpu$new(list(), 0, 10, device_config = 0L, seed = 1L)
+model1 <- sirs_cpu$new(pars, 0, 10, seed = 1L)
+model2 <- sirs_cpu$new(pars, 0, 10, device_config = 0L, seed = 1L)
 ```
 
 And run the models using the "device" code and the normal CPU code:
 
 
 ```r
-model1$run(10, device = FALSE)
+model1$run(10)
 #>      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10]
-#> [1,]  967  982  951  990  982  978  965  959  968   941
-#> [2,]   27   16   47   11   18   21   29   38   30    57
-#> [3,]   16   12   12    9   10   11   16   13   12    12
-#> [4,]    6    3    4    2    4    4    4    5    4     9
-model2$run(10, device = TRUE)
+#> [1,]  981  987  977  986  994  948  958  961  976   968
+#> [2,]   23   16   26   10    7   48   37   31   21    28
+#> [3,]    6    7    7   14    9   14   15   18   13    14
+#> [4,]    5    5    5    2    0   11    6    5    3     6
+model2$run(10)
 #>      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10]
-#> [1,]  967  982  951  990  982  978  965  959  968   941
-#> [2,]   27   16   47   11   18   21   29   38   30    57
-#> [3,]   16   12   12    9   10   11   16   13   12    12
-#> [4,]    6    3    4    2    4    4    4    5    4     9
+#> [1,]  981  987  977  986  994  948  958  961  976   968
+#> [2,]   23   16   26   10    7   48   37   31   21    28
+#> [3,]    6    7    7   14    9   14   15   18   13    14
+#> [4,]    5    5    5    2    0   11    6    5    3     6
 ```
 
 These should be exactly the same, and this can form the basis of tests. Note that using `float` rather than `double` can throw up a few issues with algorithms, so it's worth checking with single-precision in your tests.
