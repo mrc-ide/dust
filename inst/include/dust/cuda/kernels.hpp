@@ -117,7 +117,7 @@ KERNEL void run_particles(size_t step_start,
     i = blockIdx.x * blockDim.x + threadIdx.x;
     max_i = n_particles;
   }
-4
+
   if (i < max_i) {
 #else
   // omp here
