@@ -9,7 +9,7 @@ namespace random {
 
 // This is written assuming that 'prob' and 'ret' are arbitrary
 // containers; they could be pointers, vectors or anything else that
-// supports random access.  We cold also do this with iterators but
+// supports random access.  We could also do this with iterators but
 // they always feel a bit weird really.
 //
 // Note that 'prob' and 'ret' (T) will ordinarily be real_type but

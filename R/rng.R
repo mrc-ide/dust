@@ -66,7 +66,7 @@
 ##'     parameters for each generator, but the same parameter for each
 ##'     draw.
 ##'
-##'   * If a 3d array is providec with `n` columns and `n_generators`
+##'   * If a 3d array is provided with `n` columns and `n_generators`
 ##'     "layers" then we vary over both draws and generators so tha with
 ##'     use vector `prob[, i, j]` for the `i`th draw on the `j`th
 ##'     stream.
