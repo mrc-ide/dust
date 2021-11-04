@@ -10,6 +10,7 @@
 
 #include "dust/cuda/launch_control.hpp"
 #include "dust/interface/cuda_device_info.hpp"
+#include "dust/interface/helpers.hpp"
 
 namespace dust {
 namespace cuda {
@@ -25,12 +26,7 @@ inline int check_device_id(cpp11::sexp r_device_id) {
   const int device_id_max = 0;
 #endif
   int device_id = cpp11::as_cpp<int>(r_device_id);
-  // TODO: would be nice to use validate_size here, but helpers.hpp
-  // can't be include because the headers are still in a tangle. See #306
-  if (device_id < 0) {
-    cpp11::stop("Invalid 'device_id' %d, must be positive",
-                device_id);
-  }
+  dust::interface::validate_size(device_id, "device_id");
   if (device_id > device_id_max) {
     cpp11::stop("Invalid 'device_id' %d, must be at most %d",
                 device_id, device_id_max);
