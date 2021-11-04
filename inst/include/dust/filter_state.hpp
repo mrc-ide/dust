@@ -1,12 +1,16 @@
 #ifndef DUST_FILTER_STATE_HPP
 #define DUST_FILTER_STATE_HPP
 
+#include <algorithm>
 #include <cstddef>
+#include <stdexcept>
+#include <vector>
 
 namespace dust {
 namespace filter {
 
-inline void assert_has_storage(size_t n_state, size_t n_particles, size_t n_steps) {
+inline void assert_has_storage(size_t n_state, size_t n_particles,
+                               size_t n_steps) {
   if (n_state == 0 || n_particles == 0 || n_steps == 0) {
     throw std::runtime_error("Invalid size (zero) for filter state"); // #nocov
   }

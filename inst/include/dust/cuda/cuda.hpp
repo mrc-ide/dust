@@ -2,52 +2,23 @@
 #define DUST_CUDA_CUDA_HPP
 
 #ifdef __NVCC__
-#define DEVICE __device__
-#define HOST __host__
-#define HOSTDEVICE __host__ __device__
-#define KERNEL __global__
-#define ALIGN(n) __align__(n)
-
-#ifdef DUST_ENABLE_CUDA_PROFILER
-#define DUST_USING_CUDA_PROFILER
-#endif
-
-// This is necessary due to templates which are __host__ __device__;
-// whenever a HOSTDEVICE function is called from another HOSTDEVICE
-// function the compiler gets confused as it can't tell which one it's
-// going to use. This suppresses the warning as it is ok here.
-#define __nv_exec_check_disable__ _Pragma("nv_exec_check_disable")
-
-#include <dust/cuda/call.hpp>
-
 #include <device_launch_parameters.h>
-
 #include <cooperative_groups.h>
+#include <cub/cub.cuh>
+
 // CUDA 11 cooperative groups
 #if __CUDACC_VER_MAJOR__ >= 11
 #include <cooperative_groups/memcpy_async.h>
 #endif
 
-// cub functions (included with CUDA>=11)
-#include <cub/cub.cuh>
-
-#else
-#define DEVICE
-#define HOST
-#define HOSTDEVICE
-#define KERNEL
-#undef DUST_CUDA_ENABLE_PROFILER
-#define __nv_exec_check_disable__
-#define ALIGN(n)
 #endif
 
-// const definition depends on __host__/__device__
-#ifdef __CUDA_ARCH__
-#define CONSTANT __constant__
-#define SYNCWARP __syncwarp();
-#else
-#define CONSTANT const
-#define SYNCWARP
+#include "dust/cuda/call.hpp"
+#include "dust/random/cuda_compatibility.hpp"
+
+// Prevent accidentally enabling profiling on non-nvcc platforms
+#ifndef __NVCC__
+#undef DUST_CUDA_ENABLE_PROFILER
 #endif
 
 namespace dust {
@@ -141,6 +112,5 @@ private:
 
 }
 }
-
 
 #endif

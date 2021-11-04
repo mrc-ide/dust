@@ -1,16 +1,16 @@
 #ifndef DUST_CUDA_FILTER_HPP
 #define DUST_CUDA_FILTER_HPP
 
-#include <dust/filter_state.hpp>
-#include <dust/filter_tools.hpp>
-#include <dust/cuda/filter_state.hpp>
+#include "dust/cuda/filter_state.hpp"
+#include "dust/filter_state.hpp"
+#include "dust/filter_tools.hpp"
 
 namespace dust {
 namespace filter {
 
 template <typename T>
 std::vector<typename T::real_type>
-filter(DustDevice<T> * obj,
+filter(T * obj,
        filter_state_device<typename T::real_type>& state,
        bool save_trajectories,
        std::vector<size_t> step_snapshot) {

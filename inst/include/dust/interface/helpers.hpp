@@ -2,7 +2,15 @@
 #define DUST_INTERFACE_HELPERS_HPP
 
 #include <map>
+#include <vector>
+
+#include <cpp11/doubles.hpp>
+#include <cpp11/integers.hpp>
+#include <cpp11/list.hpp>
 #include <cpp11/strings.hpp>
+
+#include "dust/interface/random.hpp"
+#include "dust/interface/utils.hpp"
 
 namespace dust {
 namespace interface {
@@ -33,14 +41,14 @@ cpp11::integers as_integer(cpp11::sexp x, const char * name) {
 inline
 void validate_size(int x, const char * name) {
   if (x < 0) {
-    cpp11::stop("'%s' must be non-negative", name);
+    cpp11::stop("'%s' must be non-negative (was given %d)", name, x);
   }
 }
 
 inline
 void validate_positive(int x, const char *name) {
   if (x <= 0) {
-    cpp11::stop("'%s' must be positive", name);
+    cpp11::stop("'%s' must be positive (was given %d)", name, x);
   }
 }
 

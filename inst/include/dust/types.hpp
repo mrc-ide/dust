@@ -1,6 +1,8 @@
 #ifndef DUST_TYPES_HPP
 #define DUST_TYPES_HPP
 
+#include <memory>
+
 namespace dust {
 
 struct nothing {};

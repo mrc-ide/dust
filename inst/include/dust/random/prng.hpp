@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <vector>
 
-#include <dust/random/generator.hpp>
+#include "dust/random/generator.hpp"
 
 namespace dust {
 namespace random {

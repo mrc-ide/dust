@@ -1,8 +1,8 @@
 #ifndef DUST_CUDA_LAUNCH_CONTROL_HPP
 #define DUST_CUDA_LAUNCH_CONTROL_HPP
 
-#include <dust/cuda/types.hpp>
-#include <dust/cuda/utils.hpp>
+#include "dust/cuda/types.hpp"
+#include "dust/cuda/utils.hpp"
 
 namespace dust {
 namespace cuda {
@@ -56,13 +56,13 @@ public:
 
 
 inline void cuda_profiler_start(const device_config& config) {
-#ifdef DUST_USING_CUDA_PROFILER
+#ifdef DUST_ENABLE_CUDA_PROFILER
   CUDA_CALL(cudaProfilerStart());
 #endif
 }
 
 inline void cuda_profiler_stop(const device_config& config) {
-#ifdef DUST_USING_CUDA_PROFILER
+#ifdef DUST_ENABLE_CUDA_PROFILER
   CUDA_CALL(cudaProfilerStop());
 #endif
 }

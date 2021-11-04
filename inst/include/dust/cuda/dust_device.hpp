@@ -2,29 +2,28 @@
 #define DUST_CUDA_DUST_DEVICE_HPP
 
 #include <algorithm>
-#include <memory>
 #include <map>
-#include <stdexcept>
+#include <memory>
 #include <sstream>
+#include <stdexcept>
 #include <utility>
+
 #ifdef _OPENMP
 #include <omp.h>
 #endif
 
-#include <dust/cuda/call.hpp>
-#include <dust/cuda/cuda.hpp>
-
-#include <dust/random/prng.hpp>
-#include <dust/random/density.hpp>
-#include <dust/filter_tools.hpp>
-#include <dust/cuda/types.hpp>
-#include <dust/utils.hpp>
-#include <dust/particle.hpp>
-
-#include <dust/cuda/kernels.hpp>
-#include <dust/cuda/device_resample.hpp>
-#include <dust/cuda/launch_control.hpp>
-#include <dust/cuda/filter_state.hpp>
+#include "dust/cuda/call.hpp"
+#include "dust/cuda/cuda.hpp"
+#include "dust/cuda/device_resample.hpp"
+#include "dust/cuda/filter_state.hpp"
+#include "dust/cuda/kernels.hpp"
+#include "dust/cuda/launch_control.hpp"
+#include "dust/cuda/types.hpp"
+#include "dust/filter_tools.hpp"
+#include "dust/particle.hpp"
+#include "dust/random/density.hpp"
+#include "dust/random/prng.hpp"
+#include "dust/utils.hpp"
 
 namespace dust {
 
@@ -90,7 +89,7 @@ public:
   // We only need a destructor when running with cuda profiling; don't
   // include ond otherwise because we don't actually follow the rule
   // of 3/5/0
-#ifdef DUST_USING_CUDA_PROFILER
+#ifdef DUST_ENABLE_CUDA_PROFILER
   ~Dust() {
     cuda_profiler_stop(device_config_);
   }
@@ -205,7 +204,7 @@ public:
   // easy to locate the interface component; the method must exist or
   // compilation would fail.
   void set_step(const std::vector<size_t>& step) {              // # nocov
-    cpp11::stop("GPU doesn't support setting vector of steps"); // # nocov
+    throw std::runtime_error("GPU doesn't support setting vector of steps"); // # nocov
   }
 
   // It's the callee's responsibility to ensure that index is in
@@ -614,7 +613,9 @@ private:
 
     select_needed_ = true;
 
-#ifdef DUST_USING_CUDA_PROFILER
+    // ifdef guards not really needed here but helps guarantee
+    // symmetry with destructor.
+#ifdef DUST_ENABLE_CUDA_PROFILER
     cuda_profiler_start(device_config_);
 #endif
   }

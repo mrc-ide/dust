@@ -1,9 +1,9 @@
-#include "cpp11/list.hpp"
-#include "cpp11/list_of.hpp"
-
 #ifdef _OPENMP
 #include <omp.h>
 #endif
+
+#include <cpp11/list.hpp>
+#include <cpp11/list_of.hpp>
 
 [[cpp11::register]]
 cpp11::writable::list cpp_openmp_info() {

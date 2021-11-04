@@ -1,0 +1,42 @@
+#!/usr/bin/env Rscript
+if (requireNamespace("here", quietly = TRUE)) {
+  root <- here::here()
+} else if (file.exists("DESCRIPTION")) {
+  root <- getwd()
+} else {
+  stop("Could not determine package root")
+}
+
+path_dust <- file.path(root, "inst/include")
+path_cpp <- system.file("include", package = "cpp11", mustWork = TRUE)
+
+cxx <- strsplit(trimws(callr::rcmd_safe("config", "CXX")$stdout), " +")[[1]]
+cc <- cxx[[1]]
+cc_flags <- cxx[[2]]
+include_r <- trimws(callr::rcmd_safe("config", "--cppflags")$stdout)
+include_dust <- paste0("-I", path_dust)
+include_cpp <- paste0("-I", path_cpp)
+
+ok <- TRUE
+files <- dir(path_dust, "\\.hpp$", recursive = TRUE)
+for (f in files) {
+  message(crayon::bold(sprintf("%s...", f)), appendLF = FALSE)
+  include <- c(include_r, include_dust)
+  if (grepl("/interface/", f, fixed = TRUE)) {
+    include <- c(include, include_cpp)
+  }
+  ans <- system2(cc, c(cc_flags, "-O0", "-o/dev/null", "-c", include,
+                       file.path(path_dust, f)))
+  if (ans == 0) {
+    message(crayon::bold(crayon::green("OK")))
+  } else {
+    ok <- FALSE
+    message(crayon::bold(crayon::red("FAIL")))
+  }
+}
+
+if (ok) {
+  message("All headers passed")
+} else {
+  stop("Some headers failed")
+}

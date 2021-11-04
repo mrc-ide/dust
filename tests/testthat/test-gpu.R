@@ -383,7 +383,7 @@ test_that("Can provide device id", {
     "Invalid 'device_id' 2, must be at most 0")
   expect_error(
     gen$new(list(len = len), 0, np, device_config = -1),
-    "Invalid 'device_id' -1, must be positive")
+    "'device_id' must be non-negative")
   mod <- gen$new(list(len = len), 0, np, device_config = NULL)
   expect_equal(r6_private(mod)$device_config_$device_id, NULL)
   mod <- gen$new(list(len = len), 0, np, device_config = 0L)

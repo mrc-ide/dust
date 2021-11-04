@@ -5,6 +5,9 @@
 #include <cfloat>
 #include <cstdint>
 #include <limits>
+#include <type_traits>
+
+#include "dust/random/cuda_compatibility.hpp"
 
 namespace dust {
 namespace random {

@@ -1,8 +1,8 @@
 #ifndef DUST_FILTER_HPP
 #define DUST_FILTER_HPP
 
-#include <dust/filter_state.hpp>
-#include <dust/filter_tools.hpp>
+#include "dust/filter_state.hpp"
+#include "dust/filter_tools.hpp"
 
 namespace dust {
 namespace filter {
@@ -10,7 +10,7 @@ namespace filter {
 // Host version
 template <typename T>
 std::vector<typename T::real_type>
-filter(Dust<T> * obj,
+filter(T * obj,
        filter_state_host<typename T::real_type>& state,
        bool save_trajectories,
        std::vector<size_t> step_snapshot) {

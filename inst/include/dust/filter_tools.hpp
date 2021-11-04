@@ -2,7 +2,9 @@
 #define DUST_FILTER_TOOLS_HPP
 
 #include <algorithm>
+#include <cmath>
 #include <numeric>
+#include <vector>
 
 namespace dust {
 namespace filter {

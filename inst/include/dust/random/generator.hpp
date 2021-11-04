@@ -28,54 +28,54 @@
 #include <cstddef>
 #include <vector>
 
-#include <dust/random/cuda.hpp>
-#include <dust/random/utils.hpp>
+#include "dust/random/cuda_compatibility.hpp"
+#include "dust/random/utils.hpp"
+#include "dust/random/xoshiro_state.hpp"
+
+// 32 bit generators, 4 * uint32_t
+#include "dust/random/xoshiro128.hpp"
+
+// 64 bit generators, 2 * uint64_t
+#include "dust/random/xoroshiro128.hpp"
+
+// 64 bit generators, 4 * uint64_t
+#include "dust/random/xoshiro256.hpp"
+
+// 64 bit generators, 8 * uint64_t
+#include "dust/random/xoshiro512.hpp"
 
 namespace dust {
 namespace random {
 
-// Generic data storage, this is common
-template <typename T, size_t N, xoshiro_mode M>
-struct xoshiro_state {
-  typedef T int_type;
-  HOSTDEVICE static constexpr size_t size() {
-    return N;
-  }
-  int_type state[N];
-  // This flag indicates that the distributions should return the
-  // deterministic expectation of the draw, and not use any random
-  // numbers
-  bool deterministic = false;
-  HOSTDEVICE int_type& operator[](size_t i) {
-    return state[i];
-  }
-};
+template <typename T>
+inline HOST
+void jump(T& state) {
+  using int_type = typename T::int_type;
+  constexpr auto N = T::size();
+  constexpr std::array<int_type, N> jump = jump_constants<T>();
+  rng_jump_state(state, jump);
+}
 
 template <typename T>
-typename T::int_type next(T& state);
-
-template <typename T, size_t N, xoshiro_mode M>
 inline HOST
-void jump(xoshiro_state<T, N, M>& state) {
-  constexpr std::array<T, N> jump = jump_constants<T, N, M>();
+void long_jump(T& state) {
+  using int_type = typename T::int_type;
+  constexpr auto N = T::size();
+  constexpr std::array<int_type, N> jump = long_jump_constants<T>();
   rng_jump_state(state, jump);
 }
 
-template <typename T, size_t N, xoshiro_mode M>
+template <typename T>
 inline HOST
-void long_jump(xoshiro_state<T, N, M>& state) {
-  constexpr std::array<T, N> jump = long_jump_constants<T, N, M>();
-  rng_jump_state(state, jump);
-}
-
-template <typename T, size_t N, xoshiro_mode M>
-inline HOST
-void rng_jump_state(xoshiro_state<T, N, M>& state, std::array<T, N> coef) {
-  T work[N] = { }; // enforced zero-initialisation
-  constexpr int bits = bit_size<T>();
+void rng_jump_state(T& state,
+                    std::array<typename T::int_type, T::size()> coef) {
+  using int_type = typename T::int_type;
+  constexpr auto N = T::size();
+  int_type work[N] = { }; // enforced zero-initialisation
+  constexpr int bits = bit_size<int_type>();
   for (size_t i = 0; i < N; ++i) {
     for (int b = 0; b < bits; b++) {
-      if (coef[i] & static_cast<T>(1) << b) {
+      if (coef[i] & static_cast<int_type>(1) << b) {
         for (size_t j = 0; j < N; ++j) {
           work[j] ^= state[j];
         }
@@ -127,19 +127,5 @@ T random_real(U& state) {
 
 }
 }
-
-// Implementations
-
-// 64 bit generators, 4 * uint64_t
-#include "xoshiro256.hpp"
-
-// 64 bit generators, 2 * uint64_t
-#include "xoroshiro128.hpp"
-
-// 32 bit generators, 4 * uint32_t
-#include "xoshiro128.hpp"
-
-// 64 bit generators, 8 * uint64_t
-#include "xoshiro512.hpp"
 
 #endif

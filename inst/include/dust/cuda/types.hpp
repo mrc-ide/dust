@@ -6,12 +6,12 @@
 #include <sstream>
 #include <vector>
 
-#include <dust/types.hpp>
+#include "dust/types.hpp"
 
-#include <dust/cuda/filter_kernels.hpp>
-#include <dust/cuda/utils.hpp>
+#include "dust/cuda/filter_kernels.hpp"
+#include "dust/cuda/utils.hpp"
 
-#include <dust/random/numeric.hpp>
+#include "dust/random/numeric.hpp"
 
 namespace dust {
 namespace cuda {

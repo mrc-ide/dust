@@ -2,7 +2,9 @@
 #define DUST_RANDOM_POISSON_HPP
 
 #include <cmath>
-#include <dust/random/numeric.hpp>
+
+#include "dust/random/generator.hpp"
+#include "dust/random/numeric.hpp"
 
 namespace dust {
 namespace random {

@@ -4,8 +4,9 @@
 #include <cmath>
 #include <limits>
 #include <type_traits>
-#include <dust/random/cuda.hpp>
-#include <dust/random/numeric.hpp>
+
+#include "dust/random/cuda_compatibility.hpp"
+#include "dust/random/numeric.hpp"
 
 namespace dust {
 namespace density {
