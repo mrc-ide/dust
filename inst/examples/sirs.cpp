@@ -61,7 +61,7 @@ public:
   }
 
   real_type compare_data(const real_type * state, const data_type& data,
-                      rng_state_type& rng_state) {
+                         rng_state_type& rng_state) {
     const real_type incidence_modelled = state[3];
     const real_type incidence_observed = data.incidence;
     const real_type lambda = incidence_modelled +
