@@ -1,0 +1,28 @@
+#!/usr/bin/env Rscript
+root <- here::here()
+
+path_dust <- file.path(root, "inst/include")
+path_cpp <- system.file("include", package = "cpp11", mustWork = TRUE)
+
+cxx <- strsplit(trimws(callr::rcmd_safe("config", "CXX")$stdout), " +")[[1]]
+cc <- cxx[[1]]
+cc_flags <- cxx[[2]]
+include_r <- trimws(callr::rcmd_safe("config", "--cppflags")$stdout)
+include_dust <- paste0("-I", path_dust)
+include_cpp <- paste0("-I", path_cpp)
+
+files <- dir(path_dust, "\\.hpp$", recursive = TRUE)
+for (f in files) {
+  message(crayon::bold(sprintf("%s...", f)), appendLF = FALSE)
+  include <- c(include_r, include_dust)
+  if (grepl("/interface/", f, fixed = TRUE)) {
+    include <- c(include, include_cpp)
+  }
+  ans <- system2(cc, c(cc_flags, "-O0", "-o/dev/null", "-c", include,
+                       file.path(path_dust, f)))
+  if (ans == 0) {
+    message(crayon::bold(crayon::green("OK")))
+  } else {
+    message(crayon::bold(crayon::green("FAIL")))
+  }
+}
