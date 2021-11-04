@@ -145,7 +145,7 @@ input_vary check_input_type2(cpp11::doubles x, int n, int m, const char *name) {
     }
     ret.generator = true;
   } else {
-    cpp11::stop("'%s' must be a vector, matrix or 3d array");
+    cpp11::stop("'%s' must be a vector, matrix or 3d array", name);
   }
 
   if (ret.len < 2) {

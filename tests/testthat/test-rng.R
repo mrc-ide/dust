@@ -553,6 +553,19 @@ test_that("multinomial expectation is correct", {
 })
 
 
+test_that("multinomial allows zero probs", {
+  p <- runif(10)
+  p[4] <- 0
+  p <- p / sum(p)
+  n <- 500
+  size <- 100
+  res <- dust_rng$new(1, seed = 1L)$multinomial(n, size, p)
+
+  expect_equal(res[4, ], rep(0, n))
+  expect_equal(colSums(res), rep(size, n))
+})
+
+
 test_that("multinomial allows non-normalised prob", {
   p <- runif(10, 0, 10)
   n <- 50
@@ -649,6 +662,11 @@ test_that("Can vary parameters for multinomial, multiple generators", {
     dust_rng$new(ng, seed = 1L)$multinomial(n, size, prob[0, , ]),
     "Input parameters imply length of 'prob' of only 0 (< 2)",
     fixed = TRUE)
+  ## Final bad inputs:
+  p4 <- array(prob, c(dim(prob), 1))
+  expect_error(
+    dust_rng$new(ng, seed = 1L)$multinomial(n, size, p4),
+    "'prob' must be a vector, matrix or 3d array")
 })
 
 
