@@ -136,7 +136,7 @@ Running the model on the CPU is fairly slow as this is a lot of particles and we
 #>   0.456   0.000   0.455
 ```
 
-Running the model on the GPU is much quicker:
+Running the model on the GPU however:
 
 
 ```r

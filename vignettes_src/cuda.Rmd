@@ -105,7 +105,7 @@ Running the model on the CPU is fairly slow as this is a lot of particles and we
 (t_cpu <- system.time(model_cpu$run(400)))
 ```
 
-Running the model on the GPU is much quicker:
+Running the model on the GPU however:
 
 ```{r}
 (t_gpu <- system.time(model_gpu$run(400)))
