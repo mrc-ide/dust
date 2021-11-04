@@ -18,7 +18,9 @@
 // going to use. This suppresses the warning as it is ok here.
 #define __nv_exec_check_disable__ _Pragma("nv_exec_check_disable")
 
-#include <dust/cuda/call.hpp>
+// TODO(#306): this probably should be later, after system headers and
+// outside of this if/else
+#include "dust/cuda/call.hpp"
 
 #include <device_launch_parameters.h>
 

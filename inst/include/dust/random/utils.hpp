@@ -1,7 +1,7 @@
 #ifndef DUST_RANDOM_UTILS_HPP
 #define DUST_RANDOM_UTILS_HPP
 
-#include <dust/random/numeric.hpp>
+#include "dust/random/numeric.hpp"
 
 namespace dust {
 namespace random {

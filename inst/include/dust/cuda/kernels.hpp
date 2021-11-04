@@ -1,8 +1,8 @@
 #ifndef DUST_CUDA_KERNELS_HPP
 #define DUST_CUDA_KERNELS_HPP
 
-#include <dust/utils.hpp>
-#include <dust/cuda/device_state.hpp>
+#include "dust/utils.hpp"
+#include "dust/cuda/device_state.hpp"
 
 namespace dust {
 namespace cuda {

@@ -28,8 +28,8 @@
 #include <cstddef>
 #include <vector>
 
-#include <dust/random/cuda.hpp>
-#include <dust/random/utils.hpp>
+#include "dust/random/cuda.hpp"
+#include "dust/random/utils.hpp"
 
 namespace dust {
 namespace random {

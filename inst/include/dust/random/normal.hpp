@@ -2,7 +2,8 @@
 #define DUST_RANDOM_NORMAL_HPP
 
 #include <cmath>
-#include <dust/random/numeric.hpp>
+
+#include "dust/random/numeric.hpp"
 
 namespace dust {
 namespace random {

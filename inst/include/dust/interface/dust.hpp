@@ -11,7 +11,7 @@
 #include <cpp11/raws.hpp>
 #include <cpp11/strings.hpp>
 
-// TODO; this would be neater elsewhere!
+// TODO; this would be neater elsewhere! (fix in #306)
 namespace dust {
 
 template <typename T>
@@ -27,13 +27,13 @@ cpp11::sexp dust_info(const dust::pars_type<T>& pars) {
 
 }
 
-#include <dust/interface/random.hpp>
-#include <dust/interface/helpers.hpp>
+#include "dust/interface/random.hpp"
+#include "dust/interface/helpers.hpp"
 
-#include <dust/cuda/dust_device.hpp>
-#include <dust/interface/cuda.hpp>
-#include <dust/filter.hpp>
-#include <dust/cuda/filter.hpp>
+#include "dust/cuda/dust_device.hpp"
+#include "dust/interface/cuda.hpp"
+#include "dust/filter.hpp"
+#include "dust/cuda/filter.hpp"
 
 namespace dust {
 

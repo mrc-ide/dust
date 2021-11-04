@@ -9,7 +9,8 @@
 #include <cpp11/logicals.hpp>
 #include <cpp11/list.hpp>
 #include <cpp11/data_frame.hpp>
-#include <dust/cuda/call.hpp>
+
+#include "dust/cuda/call.hpp"
 
 namespace dust {
 namespace cuda {

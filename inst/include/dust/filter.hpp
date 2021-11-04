@@ -1,8 +1,8 @@
 #ifndef DUST_FILTER_HPP
 #define DUST_FILTER_HPP
 
-#include <dust/filter_state.hpp>
-#include <dust/filter_tools.hpp>
+#include "dust/filter_state.hpp"
+#include "dust/filter_tools.hpp"
 
 namespace dust {
 namespace filter {

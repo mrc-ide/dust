@@ -2,8 +2,9 @@
 #define DUST_RANDOM_BINOMIAL_HPP
 
 #include <cmath>
-#include <dust/random/numeric.hpp>
-#include <dust/random/gamma_table.hpp>
+
+#include "dust/random/numeric.hpp"
+#include "dust/random/gamma_table.hpp"
 
 namespace dust {
 namespace random {

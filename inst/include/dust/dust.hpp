@@ -12,13 +12,13 @@
 #endif
 
 
-#include <dust/cuda/cuda.hpp>
-#include <dust/random/random.hpp>
-#include <dust/random/density.hpp>
-#include <dust/filter_state.hpp>
-#include <dust/filter_tools.hpp>
-#include <dust/utils.hpp>
-#include <dust/particle.hpp>
+#include "dust/cuda/cuda.hpp"
+#include "dust/random/random.hpp"
+#include "dust/random/density.hpp"
+#include "dust/filter_state.hpp"
+#include "dust/filter_tools.hpp"
+#include "dust/utils.hpp"
+#include "dust/particle.hpp"
 
 namespace dust {
 

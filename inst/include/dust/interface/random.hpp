@@ -3,7 +3,8 @@
 
 #include <cstring> // memcpy
 
-#include <dust/random/generator.hpp>
+// TODO(#306): move after system headers
+#include "dust/random/generator.hpp"
 #include <cpp11/raws.hpp>
 #include <R_ext/Random.h>
 
