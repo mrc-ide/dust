@@ -80,6 +80,10 @@ rng$poisson(5, 2)
 
 # Exponentially distributed random numbers with rate
 rng$exponential(5, 2)
+
+# Multinomial distributed random numbers with size and vector of
+# probabiltiies prob
+rng$multinomial(5, 10, c(0.1, 0.3, 0.5, 0.1))
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

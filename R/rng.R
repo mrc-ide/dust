@@ -77,6 +77,10 @@
 ##'
 ##' # Exponentially distributed random numbers with rate
 ##' rng$exponential(5, 2)
+##'
+##' # Multinomial distributed random numbers with size and vector of
+##' # probabiltiies prob
+##' rng$multinomial(5, 10, c(0.1, 0.3, 0.5, 0.1))
 dust_rng <- R6::R6Class(
   "dust_rng",
   cloneable = FALSE,
