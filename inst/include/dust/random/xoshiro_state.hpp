@@ -3,7 +3,7 @@
 
 #include <array>
 
-#include "dust/random/cuda.hpp"
+#include "dust/random/cuda_compatibility.hpp"
 
 namespace dust {
 namespace random {

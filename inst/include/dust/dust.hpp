@@ -12,10 +12,7 @@
 #include <omp.h>
 #endif
 
-// TODO(306): this is the target of some future simplifications,
-// making sure that this is going to be just the compatibility layer
 #include "dust/cuda/cuda.hpp"
-
 #include "dust/filter_state.hpp"
 #include "dust/filter_tools.hpp"
 #include "dust/particle.hpp"

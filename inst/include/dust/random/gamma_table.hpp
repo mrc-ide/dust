@@ -2,7 +2,7 @@
 #ifndef DUST_RANDOM_GAMMA_TABLE_HPP
 #define DUST_RANDOM_GAMMA_TABLE_HPP
 
-#include "dust/random/cuda.hpp"
+#include "dust/random/cuda_compatibility.hpp"
 
 namespace dust {
 namespace random {

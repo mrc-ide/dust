@@ -12,9 +12,8 @@
 #include <omp.h>
 #endif
 
-#include "dust/cuda/cuda.hpp"
-
 #include "dust/cuda/call.hpp"
+#include "dust/cuda/cuda.hpp"
 #include "dust/cuda/device_resample.hpp"
 #include "dust/cuda/filter_state.hpp"
 #include "dust/cuda/kernels.hpp"
@@ -90,7 +89,7 @@ public:
   // We only need a destructor when running with cuda profiling; don't
   // include ond otherwise because we don't actually follow the rule
   // of 3/5/0
-#ifdef DUST_USING_CUDA_PROFILER
+#ifdef DUST_ENABLE_CUDA_PROFILER
   ~Dust() {
     cuda_profiler_stop(device_config_);
   }
@@ -614,7 +613,9 @@ private:
 
     select_needed_ = true;
 
-#ifdef DUST_USING_CUDA_PROFILER
+    // ifdef guards not really needed here but helps guarantee
+    // symmetry with destructor.
+#ifdef DUST_ENABLE_CUDA_PROFILER
     cuda_profiler_start(device_config_);
 #endif
   }
