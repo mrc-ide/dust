@@ -5,7 +5,7 @@
 cpp11::sexp dust_walk_capabilities();
 
 [[cpp11::register]]
-cpp11::sexp dust_walk_device_info();
+cpp11::sexp dust_walk_gpu_info();
 [[cpp11::register]]
 SEXP dust_cpu_walk_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                          cpp11::sexp r_n_particles, size_t n_threads,
@@ -107,8 +107,8 @@ cpp11::sexp dust_walk_capabilities() {
   return dust::r::dust_capabilities<walk>();
 }
 
-cpp11::sexp dust_walk_device_info() {
-  return dust::cuda::device_info<walk::real_type>();
+cpp11::sexp dust_walk_gpu_info() {
+  return dust::cuda::interface::gpu_info<walk::real_type>();
 }
 using model_cpu = dust::dust_cpu<walk>;
 

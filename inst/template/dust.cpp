@@ -8,6 +8,6 @@ cpp11::sexp dust_{{name}}_capabilities() {
   return dust::r::dust_capabilities<{{class}}>();
 }
 
-cpp11::sexp dust_{{name}}_device_info() {
-  return dust::cuda::device_info<{{class}}::real_type>();
+cpp11::sexp dust_{{name}}_gpu_info() {
+  return dust::cuda::interface::gpu_info<{{class}}::real_type>();
 }

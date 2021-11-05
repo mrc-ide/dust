@@ -104,8 +104,8 @@ dust_generator <- R6::R6Class(
     ##' device id given is larger than those reported to be available (note
     ##' that CUDA numbers devices from 0, so that '0' is the first device,
     ##' and so on). Negative values disable the use of a device. See the
-    ##' method `$device_info()` for available device ids; this can be called
-    ##' before object creation as `dust_generator$public_methods$device_info()`.
+    ##' method `$gpu_info()` for available device ids; this can be called
+    ##' before object creation as `dust_generator$public_methods$gpu_info()`.
     ##' For additional control, provide a list with elements `device_id`
     ##' and `run_block_size`. Further options (and validation) of this
     ##' list will be added in a future version!
@@ -443,12 +443,12 @@ dust_generator <- R6::R6Class(
     ##' @description
     ##' Return information about GPU devices, if the model
     ##' has been compiled with CUDA/GPU support. This can be called as a
-    ##' static method by running `dust_generator$public_methods$device_info()`.
+    ##' static method by running `dust_generator$public_methods$gpu_info()`.
     ##' If run from a GPU enabled object, it will also have an element
     ##' `config` containing the computed device configuration: the device
     ##' id, shared memory and the block size for the `run` method on the
     ##' device.
-    device_info = function() {
+    gpu_info = function() {
     }
   ))
 class(dust_generator) <- c("dust_generator", class(dust_generator))

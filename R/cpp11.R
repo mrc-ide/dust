@@ -76,8 +76,8 @@ dust_sir_capabilities <- function() {
   .Call(`_dust_dust_sir_capabilities`)
 }
 
-dust_sir_device_info <- function() {
-  .Call(`_dust_dust_sir_device_info`)
+dust_sir_gpu_info <- function() {
+  .Call(`_dust_dust_sir_gpu_info`)
 }
 
 dust_cpu_sir_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {
@@ -148,8 +148,8 @@ dust_sirs_capabilities <- function() {
   .Call(`_dust_dust_sirs_capabilities`)
 }
 
-dust_sirs_device_info <- function() {
-  .Call(`_dust_dust_sirs_device_info`)
+dust_sirs_gpu_info <- function() {
+  .Call(`_dust_dust_sirs_gpu_info`)
 }
 
 dust_cpu_sirs_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {
@@ -296,8 +296,8 @@ dust_variable_capabilities <- function() {
   .Call(`_dust_dust_variable_capabilities`)
 }
 
-dust_variable_device_info <- function() {
-  .Call(`_dust_dust_variable_device_info`)
+dust_variable_gpu_info <- function() {
+  .Call(`_dust_dust_variable_gpu_info`)
 }
 
 dust_cpu_variable_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {
@@ -432,8 +432,8 @@ dust_volatility_capabilities <- function() {
   .Call(`_dust_dust_volatility_capabilities`)
 }
 
-dust_volatility_device_info <- function() {
-  .Call(`_dust_dust_volatility_device_info`)
+dust_volatility_gpu_info <- function() {
+  .Call(`_dust_dust_volatility_gpu_info`)
 }
 
 dust_cpu_volatility_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {
@@ -504,8 +504,8 @@ dust_walk_capabilities <- function() {
   .Call(`_dust_dust_walk_capabilities`)
 }
 
-dust_walk_device_info <- function() {
-  .Call(`_dust_dust_walk_device_info`)
+dust_walk_gpu_info <- function() {
+  .Call(`_dust_dust_walk_gpu_info`)
 }
 
 dust_cpu_walk_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {

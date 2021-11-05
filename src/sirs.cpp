@@ -5,7 +5,7 @@
 cpp11::sexp dust_sirs_capabilities();
 
 [[cpp11::register]]
-cpp11::sexp dust_sirs_device_info();
+cpp11::sexp dust_sirs_gpu_info();
 [[cpp11::register]]
 SEXP dust_cpu_sirs_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                          cpp11::sexp r_n_particles, size_t n_threads,
@@ -308,8 +308,8 @@ cpp11::sexp dust_sirs_capabilities() {
   return dust::r::dust_capabilities<sirs>();
 }
 
-cpp11::sexp dust_sirs_device_info() {
-  return dust::cuda::device_info<sirs::real_type>();
+cpp11::sexp dust_sirs_gpu_info() {
+  return dust::cuda::interface::gpu_info<sirs::real_type>();
 }
 using model_cpu = dust::dust_cpu<sirs>;
 

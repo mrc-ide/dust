@@ -65,10 +65,10 @@ Once compiled with GPU support, the static method `has_cuda` will report `TRUE`:
 sirs$public_methods$has_cuda()
 ```
 
-and the static method `device_info` will report on the devices available:
+and the static method `gpu_info` will report on the GPU devices available:
 
 ```{r}
-sirs$public_methods$device_info()
+sirs$public_methods$gpu_info()
 ```
 
 If you have more than one GPU, the `id` in the `devices` section will be useful for targeting the correct device.

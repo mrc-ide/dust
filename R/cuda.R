@@ -165,7 +165,7 @@ cuda_configuration <- function(path_cuda_lib = NULL, path_cub_include = NULL,
     pkg <- pkgload::load_all(dat$path, export_all = FALSE, quiet = quiet,
                              helpers = FALSE, attach_testthat = FALSE)
     on.exit(pkgload::unload(dat$name))
-    info <- pkg$env$dust_device_info()
+    info <- pkg$env$dust_gpu_info()
     path_cub_include <-
       cuda_path_cub_include(info$cuda_version, path_cub_include)
     paths <- list(

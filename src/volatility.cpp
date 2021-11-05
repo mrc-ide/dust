@@ -5,7 +5,7 @@
 cpp11::sexp dust_volatility_capabilities();
 
 [[cpp11::register]]
-cpp11::sexp dust_volatility_device_info();
+cpp11::sexp dust_volatility_gpu_info();
 [[cpp11::register]]
 SEXP dust_cpu_volatility_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                          cpp11::sexp r_n_particles, size_t n_threads,
@@ -138,8 +138,8 @@ cpp11::sexp dust_volatility_capabilities() {
   return dust::r::dust_capabilities<volatility>();
 }
 
-cpp11::sexp dust_volatility_device_info() {
-  return dust::cuda::device_info<volatility::real_type>();
+cpp11::sexp dust_volatility_gpu_info() {
+  return dust::cuda::interface::gpu_info<volatility::real_type>();
 }
 using model_cpu = dust::dust_cpu<volatility>;
 

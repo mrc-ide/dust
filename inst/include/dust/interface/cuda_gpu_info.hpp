@@ -1,5 +1,5 @@
-#ifndef DUST_INTERFACE_CUDA_DEVICE_INFO_HPP
-#define DUST_INTERFACE_CUDA_DEVICE_INFO_HPP
+#ifndef DUST_INTERFACE_CUDA_GPU_INFO_HPP
+#define DUST_INTERFACE_CUDA_GPU_INFO_HPP
 
 #include <cpp11/data_frame.hpp>
 #include <cpp11/doubles.hpp>
@@ -8,18 +8,17 @@
 #include <cpp11/logicals.hpp>
 #include <cpp11/strings.hpp>
 
-#include "dust/cuda/device_info.hpp"
+#include "dust/cuda/gpu_info.hpp"
 
 // NOTE: this one gets its own file because we can't include cub at
 // this point for our test program (we want to get the CUDA version
 // which indicates if we *need* to find cub)
 namespace dust {
 namespace cuda {
+namespace interface {
 
-// See #317, this is not in the interface namespace (moving it will
-// require recompiling all dust models)
 template <typename real_type>
-cpp11::sexp device_info() {
+cpp11::sexp gpu_info() {
   using namespace cpp11::literals;
   cpp11::writable::logicals has_cuda(1);
   int device_count = devices_count();
@@ -70,6 +69,7 @@ cpp11::sexp device_info() {
                                 "real_bits"_nm = real_bits});
 }
 
+}
 }
 }
 #endif

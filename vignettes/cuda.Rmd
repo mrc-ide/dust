@@ -75,11 +75,11 @@ sirs$public_methods$has_cuda()
 #> [1] TRUE
 ```
 
-and the static method `device_info` will report on the devices available:
+and the static method `gpu_info` will report on the GPU devices available:
 
 
 ```r
-sirs$public_methods$device_info()
+sirs$public_methods$gpu_info()
 #> $has_cuda
 #> [1] TRUE
 #>

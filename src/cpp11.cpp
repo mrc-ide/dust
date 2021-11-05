@@ -141,10 +141,10 @@ extern "C" SEXP _dust_dust_sir_capabilities() {
   END_CPP11
 }
 // sir.cpp
-cpp11::sexp dust_sir_device_info();
-extern "C" SEXP _dust_dust_sir_device_info() {
+cpp11::sexp dust_sir_gpu_info();
+extern "C" SEXP _dust_dust_sir_gpu_info() {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_sir_device_info());
+    return cpp11::as_sexp(dust_sir_gpu_info());
   END_CPP11
 }
 // sir.cpp
@@ -269,10 +269,10 @@ extern "C" SEXP _dust_dust_sirs_capabilities() {
   END_CPP11
 }
 // sirs.cpp
-cpp11::sexp dust_sirs_device_info();
-extern "C" SEXP _dust_dust_sirs_device_info() {
+cpp11::sexp dust_sirs_gpu_info();
+extern "C" SEXP _dust_dust_sirs_gpu_info() {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_sirs_device_info());
+    return cpp11::as_sexp(dust_sirs_gpu_info());
   END_CPP11
 }
 // sirs.cpp
@@ -532,10 +532,10 @@ extern "C" SEXP _dust_dust_variable_capabilities() {
   END_CPP11
 }
 // variable.cpp
-cpp11::sexp dust_variable_device_info();
-extern "C" SEXP _dust_dust_variable_device_info() {
+cpp11::sexp dust_variable_gpu_info();
+extern "C" SEXP _dust_dust_variable_gpu_info() {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_variable_device_info());
+    return cpp11::as_sexp(dust_variable_gpu_info());
   END_CPP11
 }
 // variable.cpp
@@ -774,10 +774,10 @@ extern "C" SEXP _dust_dust_volatility_capabilities() {
   END_CPP11
 }
 // volatility.cpp
-cpp11::sexp dust_volatility_device_info();
-extern "C" SEXP _dust_dust_volatility_device_info() {
+cpp11::sexp dust_volatility_gpu_info();
+extern "C" SEXP _dust_dust_volatility_gpu_info() {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_volatility_device_info());
+    return cpp11::as_sexp(dust_volatility_gpu_info());
   END_CPP11
 }
 // volatility.cpp
@@ -902,10 +902,10 @@ extern "C" SEXP _dust_dust_walk_capabilities() {
   END_CPP11
 }
 // walk.cpp
-cpp11::sexp dust_walk_device_info();
-extern "C" SEXP _dust_dust_walk_device_info() {
+cpp11::sexp dust_walk_gpu_info();
+extern "C" SEXP _dust_dust_walk_gpu_info() {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_walk_device_info());
+    return cpp11::as_sexp(dust_walk_gpu_info());
   END_CPP11
 }
 // walk.cpp
@@ -1157,15 +1157,15 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_rng_state",                    (DL_FUNC) &_dust_dust_rng_state,                    2},
     {"_dust_dust_rng_uniform",                  (DL_FUNC) &_dust_dust_rng_uniform,                  6},
     {"_dust_dust_sir_capabilities",             (DL_FUNC) &_dust_dust_sir_capabilities,             0},
-    {"_dust_dust_sir_device_info",              (DL_FUNC) &_dust_dust_sir_device_info,              0},
+    {"_dust_dust_sir_gpu_info",                 (DL_FUNC) &_dust_dust_sir_gpu_info,                 0},
     {"_dust_dust_sirs_capabilities",            (DL_FUNC) &_dust_dust_sirs_capabilities,            0},
-    {"_dust_dust_sirs_device_info",             (DL_FUNC) &_dust_dust_sirs_device_info,             0},
+    {"_dust_dust_sirs_gpu_info",                (DL_FUNC) &_dust_dust_sirs_gpu_info,                0},
     {"_dust_dust_variable_capabilities",        (DL_FUNC) &_dust_dust_variable_capabilities,        0},
-    {"_dust_dust_variable_device_info",         (DL_FUNC) &_dust_dust_variable_device_info,         0},
+    {"_dust_dust_variable_gpu_info",            (DL_FUNC) &_dust_dust_variable_gpu_info,            0},
     {"_dust_dust_volatility_capabilities",      (DL_FUNC) &_dust_dust_volatility_capabilities,      0},
-    {"_dust_dust_volatility_device_info",       (DL_FUNC) &_dust_dust_volatility_device_info,       0},
+    {"_dust_dust_volatility_gpu_info",          (DL_FUNC) &_dust_dust_volatility_gpu_info,          0},
     {"_dust_dust_walk_capabilities",            (DL_FUNC) &_dust_dust_walk_capabilities,            0},
-    {"_dust_dust_walk_device_info",             (DL_FUNC) &_dust_dust_walk_device_info,             0},
+    {"_dust_dust_walk_gpu_info",                (DL_FUNC) &_dust_dust_walk_gpu_info,                0},
     {"_dust_test_cuda_pars",                    (DL_FUNC) &_dust_test_cuda_pars,                    9},
     {"_dust_test_xoshiro_run",                  (DL_FUNC) &_dust_test_xoshiro_run,                  1},
     {NULL, NULL, 0}

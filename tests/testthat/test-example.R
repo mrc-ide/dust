@@ -251,7 +251,7 @@ test_that("run in float mode", {
 
   obj <- res$new(list(sd = 10), 0, 5, seed = 1L)
 
-  expect_equal(obj$device_info()$real_bits, 32)
+  expect_equal(obj$gpu_info()$real_bits, 32)
 
   y <- drop(obj$simulate(1:7))
 
@@ -620,11 +620,11 @@ test_that("no device info by default", {
                   real_bits = 64L)
   res <- dust_example("sir")
   expect_false(res$public_methods$has_cuda())
-  expect_equal(res$public_methods$device_info(), no_cuda)
+  expect_equal(res$public_methods$gpu_info(), no_cuda)
 
   mod <- res$new(list(), 0, 1)
   expect_false(mod$has_cuda())
-  expect_equal(mod$device_info(), no_cuda)
+  expect_equal(mod$gpu_info(), no_cuda)
   expect_false(mod$uses_gpu())
   expect_false(mod$uses_gpu(TRUE))
 })

@@ -231,8 +231,8 @@ sir <- R6::R6Class(
       private$methods_$filter(private$ptr_, save_trajectories, step_snapshot)
     },
 
-    device_info = function() {
-      ret <- dust_sir_device_info()
+    gpu_info = function() {
+      ret <- dust_sir_gpu_info()
       parent <- parent.env(environment())
       if (ret$has_cuda && exists("private", parent, inherits = FALSE)) {
         ret$config <- private$device_config_
@@ -487,8 +487,8 @@ sirs <- R6::R6Class(
       private$methods_$filter(private$ptr_, save_trajectories, step_snapshot)
     },
 
-    device_info = function() {
-      ret <- dust_sirs_device_info()
+    gpu_info = function() {
+      ret <- dust_sirs_gpu_info()
       parent <- parent.env(environment())
       if (ret$has_cuda && exists("private", parent, inherits = FALSE)) {
         ret$config <- private$device_config_
@@ -740,8 +740,8 @@ variable <- R6::R6Class(
       private$methods_$filter(private$ptr_, save_trajectories, step_snapshot)
     },
 
-    device_info = function() {
-      ret <- dust_variable_device_info()
+    gpu_info = function() {
+      ret <- dust_variable_gpu_info()
       parent <- parent.env(environment())
       if (ret$has_cuda && exists("private", parent, inherits = FALSE)) {
         ret$config <- private$device_config_
@@ -979,8 +979,8 @@ volatility <- R6::R6Class(
       private$methods_$filter(private$ptr_, save_trajectories, step_snapshot)
     },
 
-    device_info = function() {
-      ret <- dust_volatility_device_info()
+    gpu_info = function() {
+      ret <- dust_volatility_gpu_info()
       parent <- parent.env(environment())
       if (ret$has_cuda && exists("private", parent, inherits = FALSE)) {
         ret$config <- private$device_config_
@@ -1218,8 +1218,8 @@ walk <- R6::R6Class(
       private$methods_$filter(private$ptr_, save_trajectories, step_snapshot)
     },
 
-    device_info = function() {
-      ret <- dust_walk_device_info()
+    gpu_info = function() {
+      ret <- dust_walk_gpu_info()
       parent <- parent.env(environment())
       if (ret$has_cuda && exists("private", parent, inherits = FALSE)) {
         ret$config <- private$device_config_

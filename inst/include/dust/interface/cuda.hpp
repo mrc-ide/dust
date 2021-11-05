@@ -9,7 +9,7 @@
 #include <cpp11/strings.hpp>
 
 #include "dust/cuda/launch_control.hpp"
-#include "dust/interface/cuda_device_info.hpp"
+#include "dust/interface/cuda_gpu_info.hpp"
 #include "dust/interface/helpers.hpp"
 
 namespace dust {

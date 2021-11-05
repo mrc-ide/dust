@@ -5,4 +5,4 @@
 cpp11::sexp dust_{{name}}_capabilities();
 
 [[cpp11::register]]
-cpp11::sexp dust_{{name}}_device_info();
+cpp11::sexp dust_{{name}}_gpu_info();
