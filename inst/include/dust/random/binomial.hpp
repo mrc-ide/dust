@@ -34,8 +34,7 @@ real_type fast_pow(real_type x, int n) {
 __nv_exec_check_disable__
 template <typename real_type>
 __host__ __device__
-real_type binomial_inversion_calc(real_type u, int n,
-                                                      real_type p) {
+real_type binomial_inversion_calc(real_type u, int n, real_type p) {
   const real_type q = 1 - p;
   const real_type r = p / q;
   const real_type g = r * (n + 1);
