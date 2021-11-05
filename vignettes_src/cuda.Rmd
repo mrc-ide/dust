@@ -59,10 +59,10 @@ sirs <- dust::dust(path, gpu = TRUE, real_type = "float")
 
 Notice in compilation that `nvcc` is used to compile the model, rather than `g++` or `clang++`.  The additional option `-gencode=arch=compute_XX,code=sm_XX` was added by `dust` and will include the CUDA compute version supported by the graphics cards found on the current system. You can use `dust::dust_cuda_options` to set additional options, passing in the return value for the `gpu` argument above.
 
-Once compiled with GPU support, the static method `has_cuda` will report `TRUE`:
+Once compiled with GPU support, the static method `has_gpu_support` will report `TRUE`:
 
 ```{r}
-sirs$public_methods$has_cuda()
+sirs$public_methods$has_gpu_support()
 ```
 
 and the static method `gpu_info` will report on the GPU devices available:
@@ -122,7 +122,7 @@ model_large <- sirs$new(list(), 0, 2^17, gpu_config = 0L, seed = 1L)
 ratio <- t_large[["elapsed"]] / t_cpu[["elapsed"]]
 ```
 
-This is **heaps** faster, the GPU model ran in `r round(ratio * 100, 1)`% of the time as the CPU model but simulated `r 2^17 / n_particles` as many particles (i.e., `r round(2^17 / n_particles / ratio)` times as fast per particle). With the relatively low times here, much of this time is just moving the data around, and with over a hundred thousand particles this is nontrivial.  Of course, _doing_ anything quickly with all these particles is its own problem.
+This is **heaps** faster, the GPU model ran in `r round(ratio * 100, 1)`% of the time as the CPU model but simulated `r 2^17 / n_particles` times as many particles (i.e., `r round(2^17 / n_particles / ratio)` times as fast per particle). With the relatively low times here, much of this time is just moving the data around, and with over a hundred thousand particles this is nontrivial.  Of course, _doing_ anything quickly with all these particles is its own problem.
 
 All methods will automatically run on the GPU; this includes `run`, `simulate`, `compare_data` and `filter`.  The last two are typically used from the [`mcstate` interface](https://mrc-ide.github.io/mcstate/reference/particle_filter.html).
 
@@ -136,7 +136,7 @@ cc_output(readLines(path))
 
 This is somewhat more complicated than the models described in `vignette("dust.Rmd")`. There are several important components required to run on the GPU.
 
-Within the `dust::cuda` namespace, we declare the size of the *shared parameters* for the model. These are parameters that will be the same across all instances of a parameter set, as opposed to quantities that change between particles.
+Within the `dust::gpu` namespace, we declare the size of the *shared parameters* for the model. These are parameters that will be the same across all instances of a parameter set, as opposed to quantities that change between particles.
 
 ```cc
 namespace dust {

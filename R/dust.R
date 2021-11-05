@@ -191,12 +191,20 @@ sir <- R6::R6Class(
       dust_sir_capabilities()[["openmp"]]
     },
 
-    has_cuda = function(fake_gpu = FALSE) {
+    has_gpu_support = function(fake_gpu = FALSE) {
       if (fake_gpu) {
         FALSE
       } else {
-        dust_sir_capabilities()[["cuda"]]
+        dust_sir_capabilities()[["gpu"]]
       }
+    },
+
+    has_compare = function() {
+      dust_sir_capabilities()[["compare"]]
+    },
+
+    real_size = function() {
+      dust_sir_capabilities()[["real_size"]]
     },
 
     uses_gpu = function(fake_gpu = FALSE) {
@@ -213,10 +221,6 @@ sir <- R6::R6Class(
       private$methods_$set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
-    },
-
-    has_compare = function() {
-      dust_sir_capabilities()[["compare"]]
     },
 
     set_data = function(data) {
@@ -447,12 +451,20 @@ sirs <- R6::R6Class(
       dust_sirs_capabilities()[["openmp"]]
     },
 
-    has_cuda = function(fake_gpu = FALSE) {
+    has_gpu_support = function(fake_gpu = FALSE) {
       if (fake_gpu) {
         TRUE
       } else {
-        dust_sirs_capabilities()[["cuda"]]
+        dust_sirs_capabilities()[["gpu"]]
       }
+    },
+
+    has_compare = function() {
+      dust_sirs_capabilities()[["compare"]]
+    },
+
+    real_size = function() {
+      dust_sirs_capabilities()[["real_size"]]
     },
 
     uses_gpu = function(fake_gpu = FALSE) {
@@ -469,10 +481,6 @@ sirs <- R6::R6Class(
       private$methods_$set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
-    },
-
-    has_compare = function() {
-      dust_sirs_capabilities()[["compare"]]
     },
 
     set_data = function(data) {
@@ -700,12 +708,20 @@ variable <- R6::R6Class(
       dust_variable_capabilities()[["openmp"]]
     },
 
-    has_cuda = function(fake_gpu = FALSE) {
+    has_gpu_support = function(fake_gpu = FALSE) {
       if (fake_gpu) {
         TRUE
       } else {
-        dust_variable_capabilities()[["cuda"]]
+        dust_variable_capabilities()[["gpu"]]
       }
+    },
+
+    has_compare = function() {
+      dust_variable_capabilities()[["compare"]]
+    },
+
+    real_size = function() {
+      dust_variable_capabilities()[["real_size"]]
     },
 
     uses_gpu = function(fake_gpu = FALSE) {
@@ -722,10 +738,6 @@ variable <- R6::R6Class(
       private$methods_$set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
-    },
-
-    has_compare = function() {
-      dust_variable_capabilities()[["compare"]]
     },
 
     set_data = function(data) {
@@ -939,12 +951,20 @@ volatility <- R6::R6Class(
       dust_volatility_capabilities()[["openmp"]]
     },
 
-    has_cuda = function(fake_gpu = FALSE) {
+    has_gpu_support = function(fake_gpu = FALSE) {
       if (fake_gpu) {
         FALSE
       } else {
-        dust_volatility_capabilities()[["cuda"]]
+        dust_volatility_capabilities()[["gpu"]]
       }
+    },
+
+    has_compare = function() {
+      dust_volatility_capabilities()[["compare"]]
+    },
+
+    real_size = function() {
+      dust_volatility_capabilities()[["real_size"]]
     },
 
     uses_gpu = function(fake_gpu = FALSE) {
@@ -961,10 +981,6 @@ volatility <- R6::R6Class(
       private$methods_$set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
-    },
-
-    has_compare = function() {
-      dust_volatility_capabilities()[["compare"]]
     },
 
     set_data = function(data) {
@@ -1178,12 +1194,20 @@ walk <- R6::R6Class(
       dust_walk_capabilities()[["openmp"]]
     },
 
-    has_cuda = function(fake_gpu = FALSE) {
+    has_gpu_support = function(fake_gpu = FALSE) {
       if (fake_gpu) {
         FALSE
       } else {
-        dust_walk_capabilities()[["cuda"]]
+        dust_walk_capabilities()[["gpu"]]
       }
+    },
+
+    has_compare = function() {
+      dust_walk_capabilities()[["compare"]]
+    },
+
+    real_size = function() {
+      dust_walk_capabilities()[["real_size"]]
     },
 
     uses_gpu = function(fake_gpu = FALSE) {
@@ -1200,10 +1224,6 @@ walk <- R6::R6Class(
       private$methods_$set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
-    },
-
-    has_compare = function() {
-      dust_walk_capabilities()[["compare"]]
     },
 
     set_data = function(data) {

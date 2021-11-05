@@ -352,12 +352,29 @@ dust_generator <- R6::R6Class(
     ##' "CUDA" support, in which case it will react to the `device`
     ##' argument passed to the run method. This method can also be used
     ##' as a static method by running it directly
-    ##' as `dust_generator$public_methods$has_cuda()`
+    ##' as `dust_generator$public_methods$has_gpu_support()`
     ##'
     ##' @param fake_gpu Logical, indicating if we count as `TRUE`
     ##'   models that run on the "fake" GPU (i.e., using the GPU
     ##'   version of the model but running on the CPU)
-    has_cuda = function(fake_gpu = FALSE) {
+    has_gpu_support = function(fake_gpu = FALSE) {
+    },
+
+    ##' @description
+    ##' Returns a logical, indicating if this model was compiled with
+    ##' "compare" support, in which case the `set_data` and `compare_data`
+    ##' methods are available (otherwise these methods will error). This
+    ##' method can also be used as a static method by running it directly
+    ##' as `dust_generator$public_methods$has_compare()`
+    has_compare = function() {
+    },
+
+    ##' @description
+    ##' Return the size of real numbers (in bytes). Typically this will be
+    ##' 8 for double precision and 4 for `float`..  This method can also be
+    ##' used as a static method by running it directory as
+    ##' `dust_generator$public_methods$real_size()`
+    real_size = function() {
     },
 
     ##' @description
@@ -386,15 +403,6 @@ dust_generator <- R6::R6Class(
     ##'   verify that you can actually use the number of threads
     ##'   requested (based on environment variables and OpenMP support).
     set_n_threads = function(n_threads) {
-    },
-
-    ##' @description
-    ##' Returns a logical, indicating if this model was compiled with
-    ##' "compare" support, in which case the `set_data` and `compare_data`
-    ##' methods are available (otherwise these methods will error). This
-    ##' method can also be used as a static method by running it directly
-    ##' as `dust_generator$public_methods$has_compare()`
-    has_compare = function() {
     },
 
     ##' @description

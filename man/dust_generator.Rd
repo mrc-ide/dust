@@ -50,11 +50,12 @@ walk
 \item \href{#method-rng_state}{\code{dust_generator$rng_state()}}
 \item \href{#method-set_rng_state}{\code{dust_generator$set_rng_state()}}
 \item \href{#method-has_openmp}{\code{dust_generator$has_openmp()}}
-\item \href{#method-has_cuda}{\code{dust_generator$has_cuda()}}
+\item \href{#method-has_gpu_support}{\code{dust_generator$has_gpu_support()}}
+\item \href{#method-has_compare}{\code{dust_generator$has_compare()}}
+\item \href{#method-real_size}{\code{dust_generator$real_size()}}
 \item \href{#method-uses_gpu}{\code{dust_generator$uses_gpu()}}
 \item \href{#method-n_pars}{\code{dust_generator$n_pars()}}
 \item \href{#method-set_n_threads}{\code{dust_generator$set_n_threads()}}
-\item \href{#method-has_compare}{\code{dust_generator$has_compare()}}
 \item \href{#method-set_data}{\code{dust_generator$set_data()}}
 \item \href{#method-compare_data}{\code{dust_generator$compare_data()}}
 \item \href{#method-filter}{\code{dust_generator$filter()}}
@@ -563,16 +564,16 @@ as \code{dust_generator$public_methods$has_openmp()}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-has_cuda"></a>}}
-\if{latex}{\out{\hypertarget{method-has_cuda}{}}}
-\subsection{Method \code{has_cuda()}}{
+\if{html}{\out{<a id="method-has_gpu_support"></a>}}
+\if{latex}{\out{\hypertarget{method-has_gpu_support}{}}}
+\subsection{Method \code{has_gpu_support()}}{
 Returns a logical, indicating if this model was compiled with
 "CUDA" support, in which case it will react to the \code{device}
 argument passed to the run method. This method can also be used
 as a static method by running it directly
-as \code{dust_generator$public_methods$has_cuda()}
+as \code{dust_generator$public_methods$has_gpu_support()}
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$has_cuda(fake_gpu = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$has_gpu_support(fake_gpu = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -584,6 +585,33 @@ version of the model but running on the CPU)}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-has_compare"></a>}}
+\if{latex}{\out{\hypertarget{method-has_compare}{}}}
+\subsection{Method \code{has_compare()}}{
+Returns a logical, indicating if this model was compiled with
+"compare" support, in which case the \code{set_data} and \code{compare_data}
+methods are available (otherwise these methods will error). This
+method can also be used as a static method by running it directly
+as \code{dust_generator$public_methods$has_compare()}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$has_compare()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-real_size"></a>}}
+\if{latex}{\out{\hypertarget{method-real_size}{}}}
+\subsection{Method \code{real_size()}}{
+Return the size of real numbers (in bytes). Typically this will be
+8 for double precision and 4 for \code{float}..  This method can also be
+used as a static method by running it directory as
+\code{dust_generator$public_methods$real_size()}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$real_size()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-uses_gpu"></a>}}
@@ -638,20 +666,6 @@ requested (based on environment variables and OpenMP support).}
 }
 \if{html}{\out{</div>}}
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-has_compare"></a>}}
-\if{latex}{\out{\hypertarget{method-has_compare}{}}}
-\subsection{Method \code{has_compare()}}{
-Returns a logical, indicating if this model was compiled with
-"compare" support, in which case the \code{set_data} and \code{compare_data}
-methods are available (otherwise these methods will error). This
-method can also be used as a static method by running it directly
-as \code{dust_generator$public_methods$has_compare()}
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$has_compare()}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-set_data"></a>}}

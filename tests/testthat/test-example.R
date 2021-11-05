@@ -619,11 +619,11 @@ test_that("no device info by default", {
                                        stringsAsFactors = FALSE),
                   real_bits = 64L)
   res <- dust_example("sir")
-  expect_false(res$public_methods$has_cuda())
+  expect_false(res$public_methods$has_gpu_support())
   expect_equal(res$public_methods$gpu_info(), no_cuda)
 
   mod <- res$new(list(), 0, 1)
-  expect_false(mod$has_cuda())
+  expect_false(mod$has_gpu_support())
   expect_equal(mod$gpu_info(), no_cuda)
   expect_false(mod$uses_gpu())
   expect_false(mod$uses_gpu(TRUE))
@@ -802,8 +802,8 @@ test_that("update_state controls initial state", {
 
 test_that("sirs model has gpu support", {
   gen <- dust_example("sirs")
-  expect_false(gen$public_methods$has_cuda())
-  expect_true(gen$public_methods$has_cuda(TRUE))
+  expect_false(gen$public_methods$has_gpu_support())
+  expect_true(gen$public_methods$has_gpu_support(TRUE))
 
   mod1 <- gen$new(list(), 0, 1, gpu_config = NULL)
   expect_false(mod1$uses_gpu())

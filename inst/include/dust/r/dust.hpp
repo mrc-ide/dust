@@ -527,14 +527,17 @@ cpp11::sexp dust_capabilities() {
   bool openmp = false;
 #endif
 #ifdef __NVCC__
-  bool cuda = true;
+  bool gpu = true;
 #else
-  bool cuda = false;
+  bool gpu = false;
 #endif
   bool compare = !std::is_same<dust::no_data, typename T::data_type>::value;
+  using real_type = typename T::real_type;
+  auto real_size = sizeof(real_type);
   return cpp11::writable::list({"openmp"_nm = openmp,
                                 "compare"_nm = compare,
-                                "cuda"_nm = cuda});
+                                "gpu"_nm = gpu,
+                                "real_size"_nm = real_size});
 }
 
 template <typename T>
