@@ -9,5 +9,5 @@ cpp11::sexp dust_{{name}}_capabilities() {
 }
 
 cpp11::sexp dust_{{name}}_gpu_info() {
-  return dust::gpu::r::gpu_info<{{class}}::real_type>();
+  return dust::gpu::r::gpu_info();
 }

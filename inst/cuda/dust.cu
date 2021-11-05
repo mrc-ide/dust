@@ -4,5 +4,5 @@
 #include <dust/r/gpu_info.hpp>
 
 cpp11::sexp dust_gpu_info() {
-  return dust::gpu::r::gpu_info<float>();
+  return dust::gpu::r::gpu_info();
 }

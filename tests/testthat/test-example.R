@@ -616,8 +616,7 @@ test_that("no device info by default", {
                                        name = character(0),
                                        memory = numeric(0),
                                        version = integer(0),
-                                       stringsAsFactors = FALSE),
-                  real_bits = 64L)
+                                       stringsAsFactors = FALSE))
   res <- dust_example("sir")
   expect_false(res$public_methods$has_gpu_support())
   expect_equal(res$public_methods$gpu_info(), no_cuda)

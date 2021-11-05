@@ -17,8 +17,7 @@ namespace dust {
 namespace gpu {
 namespace r {
 
-template <typename real_type>
-cpp11::sexp gpu_info() {
+inline cpp11::sexp gpu_info() {
   using namespace cpp11::literals;
   cpp11::writable::logicals has_cuda(1);
   int device_count = devices_count();
@@ -60,13 +59,9 @@ cpp11::sexp gpu_info() {
     "version"_nm = version
     });
 
-  cpp11::writable::integers real_bits =
-    cpp11::as_sexp(sizeof(real_type) * CHAR_BIT);
-
   return cpp11::writable::list({"has_cuda"_nm = has_cuda,
                                 "cuda_version"_nm = cuda_version,
-                                "devices"_nm = devices,
-                                "real_bits"_nm = real_bits});
+                                "devices"_nm = devices});
 }
 
 }

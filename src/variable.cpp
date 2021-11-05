@@ -224,7 +224,7 @@ cpp11::sexp dust_variable_capabilities() {
 }
 
 cpp11::sexp dust_variable_gpu_info() {
-  return dust::gpu::r::gpu_info<variable::real_type>();
+  return dust::gpu::r::gpu_info();
 }
 using model_cpu = dust::dust_cpu<variable>;
 

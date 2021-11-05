@@ -310,7 +310,7 @@ cpp11::sexp dust_sirs_capabilities() {
 }
 
 cpp11::sexp dust_sirs_gpu_info() {
-  return dust::gpu::r::gpu_info<sirs::real_type>();
+  return dust::gpu::r::gpu_info();
 }
 using model_cpu = dust::dust_cpu<sirs>;
 
