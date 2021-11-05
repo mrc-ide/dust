@@ -15,4 +15,4 @@ docker build \
        -f $PACKAGE_ROOT/docker/Dockerfile.cuda \
        $PACKAGE_ROOT
 
-docker run -it --rm -v $PWD:/src:ro $DUST_CUDA /compile_cuda_model
+docker run -it --rm -v $PWD:/src:ro $DUST_CUDA /compile_gpu_model

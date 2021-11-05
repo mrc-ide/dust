@@ -8,4 +8,4 @@ RUN apt-get update && apt-get -y install --no-install-recommends \
 
 RUN Rscript -e 'dust:::cuda_install_cub(NULL)'
 
-COPY docker/compile_cuda_model /
+COPY docker/compile_gpu_model /
