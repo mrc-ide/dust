@@ -8,8 +8,8 @@
 
 #include "dust/types.hpp"
 
-#include "dust/cuda/filter_kernels.hpp"
-#include "dust/cuda/utils.hpp"
+#include "dust/gpu/filter_kernels.hpp"
+#include "dust/gpu/utils.hpp"
 
 #include "dust/random/numeric.hpp"
 

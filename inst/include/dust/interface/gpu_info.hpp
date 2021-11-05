@@ -8,7 +8,7 @@
 #include <cpp11/logicals.hpp>
 #include <cpp11/strings.hpp>
 
-#include "dust/cuda/gpu_info.hpp"
+#include "dust/gpu/gpu_info.hpp"
 
 // NOTE: this one gets its own file because we can't include cub at
 // this point for our test program (we want to get the CUDA version

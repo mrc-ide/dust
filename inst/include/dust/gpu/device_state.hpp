@@ -1,8 +1,8 @@
 #ifndef DUST_CUDA_DEVICE_STATE_CUH
 #define DUST_CUDA_DEVICE_STATE_CUH
 
-#include "dust/cuda/cuda.hpp"
-#include "dust/cuda/types.hpp"
+#include "dust/gpu/cuda.hpp"
+#include "dust/gpu/types.hpp"
 
 namespace dust {
 namespace gpu {

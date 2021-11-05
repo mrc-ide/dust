@@ -1,8 +1,8 @@
 #ifndef DUST_CUDA_LAUNCH_CONTROL_HPP
 #define DUST_CUDA_LAUNCH_CONTROL_HPP
 
-#include "dust/cuda/types.hpp"
-#include "dust/cuda/utils.hpp"
+#include "dust/gpu/types.hpp"
+#include "dust/gpu/utils.hpp"
 
 namespace dust {
 namespace gpu {

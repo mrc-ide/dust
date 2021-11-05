@@ -12,7 +12,7 @@
 #include <omp.h>
 #endif
 
-#include "dust/cuda/cuda.hpp"
+#include "dust/gpu/cuda.hpp"
 #include "dust/filter_state.hpp"
 #include "dust/filter_tools.hpp"
 #include "dust/particle.hpp"

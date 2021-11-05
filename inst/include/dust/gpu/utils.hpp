@@ -5,7 +5,7 @@
 #include <numeric>
 #include <vector>
 
-#include "dust/cuda/cuda.hpp"
+#include "dust/gpu/cuda.hpp"
 
 namespace dust {
 namespace gpu {

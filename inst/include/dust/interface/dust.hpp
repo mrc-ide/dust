@@ -12,12 +12,12 @@
 #include <cpp11/raws.hpp>
 #include <cpp11/strings.hpp>
 
-#include "dust/cuda/dust_gpu.hpp"
-#include "dust/cuda/filter.hpp"
+#include "dust/gpu/dust_gpu.hpp"
+#include "dust/gpu/filter.hpp"
 #include "dust/dust_cpu.hpp"
 #include "dust/filter.hpp"
 
-#include "dust/interface/cuda.hpp"
+#include "dust/interface/gpu.hpp"
 #include "dust/interface/helpers.hpp"
 #include "dust/interface/random.hpp"
 

@@ -1,7 +1,7 @@
 #ifndef DUST_CUDA_FILTER_HPP
 #define DUST_CUDA_FILTER_HPP
 
-#include "dust/cuda/filter_state.hpp"
+#include "dust/gpu/filter_state.hpp"
 #include "dust/filter_state.hpp"
 #include "dust/filter_tools.hpp"
 

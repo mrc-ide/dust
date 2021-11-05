@@ -1,8 +1,8 @@
 #ifndef DUST_CUDA_DEVICE_RESAMPLE_HPP
 #define DUST_CUDA_DEVICE_RESAMPLE_HPP
 
-#include "dust/cuda/launch_control.hpp"
-#include "dust/cuda/kernels.hpp"
+#include "dust/gpu/launch_control.hpp"
+#include "dust/gpu/kernels.hpp"
 #include "dust/random/random.hpp"
 
 namespace dust {

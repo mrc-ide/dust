@@ -13,7 +13,7 @@
 
 #endif
 
-#include "dust/cuda/call.hpp"
+#include "dust/gpu/call.hpp"
 #include "dust/random/cuda_compatibility.hpp"
 
 // Prevent accidentally enabling profiling on non-nvcc platforms

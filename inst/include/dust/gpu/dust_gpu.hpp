@@ -12,13 +12,13 @@
 #include <omp.h>
 #endif
 
-#include "dust/cuda/call.hpp"
-#include "dust/cuda/cuda.hpp"
-#include "dust/cuda/device_resample.hpp"
-#include "dust/cuda/filter_state.hpp"
-#include "dust/cuda/kernels.hpp"
-#include "dust/cuda/launch_control.hpp"
-#include "dust/cuda/types.hpp"
+#include "dust/gpu/call.hpp"
+#include "dust/gpu/cuda.hpp"
+#include "dust/gpu/device_resample.hpp"
+#include "dust/gpu/filter_state.hpp"
+#include "dust/gpu/kernels.hpp"
+#include "dust/gpu/launch_control.hpp"
+#include "dust/gpu/types.hpp"
 #include "dust/filter_tools.hpp"
 #include "dust/particle.hpp"
 #include "dust/random/density.hpp"

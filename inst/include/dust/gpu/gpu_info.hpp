@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <climits>
-#include "dust/cuda/call.hpp"
+#include "dust/gpu/call.hpp"
 
 namespace dust {
 namespace gpu {
