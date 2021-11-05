@@ -108,7 +108,7 @@ cpp11::sexp dust_walk_capabilities() {
 }
 
 cpp11::sexp dust_walk_gpu_info() {
-  return dust::cuda::interface::gpu_info<walk::real_type>();
+  return dust::gpu::interface::gpu_info<walk::real_type>();
 }
 using model_cpu = dust::dust_cpu<walk>;
 

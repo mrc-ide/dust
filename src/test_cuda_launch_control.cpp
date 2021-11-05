@@ -3,7 +3,7 @@
 #include <dust/cuda/launch_control.hpp>
 #include <dust/interface/cuda.hpp>
 
-cpp11::list launch_r_list(const dust::cuda::launch_control& p) {
+cpp11::list launch_r_list(const dust::gpu::launch_control& p) {
   using namespace cpp11::literals;
   return cpp11::writable::list({"block_size"_nm = p.block_size,
                                 "block_count"_nm = p.block_count,
@@ -19,15 +19,15 @@ SEXP test_cuda_pars(cpp11::sexp r_gpu_config, int n_particles,
                     int n_shared_int, int n_shared_real, int data_size,
                     int shared_size) {
   size_t real_size = sizeof(float);
-  dust::cuda::gpu_config config =
-    dust::cuda::interface::gpu_config(r_gpu_config);
+  dust::gpu::gpu_config config =
+    dust::gpu::interface::gpu_config(r_gpu_config);
   config.shared_size_ = shared_size; // this will be zero, add our own size!
 
-  auto pars = dust::cuda::launch_control_dust(config,
-                                              n_particles, n_particles_each,
-                                              n_state, n_state_full,
-                                              n_shared_int, n_shared_real,
-                                              real_size, data_size);
+  auto pars = dust::gpu::launch_control_dust(config,
+                                             n_particles, n_particles_each,
+                                             n_state, n_state_full,
+                                             n_shared_int, n_shared_real,
+                                             real_size, data_size);
 
   using namespace cpp11::literals;
   return cpp11::writable::list

@@ -193,7 +193,7 @@ cpp11::sexp dust_sir_capabilities() {
 }
 
 cpp11::sexp dust_sir_gpu_info() {
-  return dust::cuda::interface::gpu_info<sir::real_type>();
+  return dust::gpu::interface::gpu_info<sir::real_type>();
 }
 using model_cpu = dust::dust_cpu<sir>;
 

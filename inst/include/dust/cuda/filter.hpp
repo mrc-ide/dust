@@ -21,9 +21,9 @@ filter(T * obj,
   const size_t n_pars = obj->n_pars_effective();
 
   std::vector<real_type> ll_host(n_pars, 0);
-  dust::cuda::device_array<real_type> log_likelihood(ll_host);
-  dust::cuda::device_weights<real_type> weights(n_particles, n_pars);
-  dust::cuda::device_scan_state<real_type> scan;
+  dust::gpu::device_array<real_type> log_likelihood(ll_host);
+  dust::gpu::device_weights<real_type> weights(n_particles, n_pars);
+  dust::gpu::device_scan_state<real_type> scan;
   scan.initialise(n_particles, weights.weights());
 
   if (save_trajectories) {

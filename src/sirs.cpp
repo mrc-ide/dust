@@ -225,7 +225,7 @@ sirs::data_type dust_data<sirs>(cpp11::list data) {
   return sirs::data_type{cpp11::as_cpp<double>(data["incidence"])};
 }
 
-namespace cuda {
+namespace gpu {
 
 template <>
 size_t shared_int_size<sirs>(dust::shared_ptr<sirs> shared) {
@@ -242,7 +242,7 @@ void shared_copy<sirs>(dust::shared_ptr<sirs> shared,
                        int * shared_int,
                        sirs::real_type * shared_real) {
   typedef sirs::real_type real_type;
-  using dust::cuda::shared_copy_data;
+  using dust::gpu::shared_copy_data;
   shared_real = shared_copy_data<real_type>(shared_real, shared->alpha);
   shared_real = shared_copy_data<real_type>(shared_real, shared->beta);
   shared_real = shared_copy_data<real_type>(shared_real, shared->gamma);
@@ -254,13 +254,13 @@ void shared_copy<sirs>(dust::shared_ptr<sirs> shared,
 template <>
 DEVICE
 void update_gpu<sirs>(size_t step,
-                      const dust::cuda::interleaved<sirs::real_type> state,
-                      dust::cuda::interleaved<int> internal_int,
-                      dust::cuda::interleaved<sirs::real_type> internal_real,
+                      const dust::gpu::interleaved<sirs::real_type> state,
+                      dust::gpu::interleaved<int> internal_int,
+                      dust::gpu::interleaved<sirs::real_type> internal_real,
                       const int * shared_int,
                       const sirs::real_type * shared_real,
                       sirs::rng_state_type& rng_state,
-                      dust::cuda::interleaved<sirs::real_type> state_next) {
+                      dust::gpu::interleaved<sirs::real_type> state_next) {
   using dust::random::binomial;
   typedef sirs::real_type real_type;
   const real_type alpha = shared_real[0];
@@ -286,10 +286,10 @@ void update_gpu<sirs>(size_t step,
 
 template <>
 DEVICE
-sirs::real_type compare_gpu<sirs>(const dust::cuda::interleaved<sirs::real_type> state,
+sirs::real_type compare_gpu<sirs>(const dust::gpu::interleaved<sirs::real_type> state,
                                   const sirs::data_type& data,
-                                  dust::cuda::interleaved<int> internal_int,
-                                  dust::cuda::interleaved<sirs::real_type> internal_real,
+                                  dust::gpu::interleaved<int> internal_int,
+                                  dust::gpu::interleaved<sirs::real_type> internal_real,
                                   const int * shared_int,
                                   const sirs::real_type * shared_real,
                                   sirs::rng_state_type& rng_state) {
@@ -310,7 +310,7 @@ cpp11::sexp dust_sirs_capabilities() {
 }
 
 cpp11::sexp dust_sirs_gpu_info() {
-  return dust::cuda::interface::gpu_info<sirs::real_type>();
+  return dust::gpu::interface::gpu_info<sirs::real_type>();
 }
 using model_cpu = dust::dust_cpu<sirs>;
 

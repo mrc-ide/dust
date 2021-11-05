@@ -5,7 +5,7 @@
 #include "dust/utils.hpp"
 
 namespace dust {
-namespace cuda {
+namespace gpu {
 
 // This is the main model update, will be defined by the model code
 // (see inst/examples/variable.cpp for an example). This is unique

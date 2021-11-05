@@ -5,7 +5,7 @@
 #include "dust/cuda/types.hpp"
 
 namespace dust {
-namespace cuda {
+namespace gpu {
 
 // This function loads the shared state (shared_int and shared_real) for a
 // single set of parameters into __shared__ memory. If data is set, provided

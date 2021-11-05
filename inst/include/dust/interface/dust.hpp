@@ -61,8 +61,8 @@ cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi, int step,
                            cpp11::sexp r_n_particles, int n_threads,
                            cpp11::sexp r_seed, bool deterministic,
                            cpp11::sexp r_gpu_config) {
-  const dust::cuda::gpu_config gpu_config =
-    dust::cuda::interface::gpu_config(r_gpu_config);
+  const dust::gpu::gpu_config gpu_config =
+    dust::gpu::interface::gpu_config(r_gpu_config);
   if (deterministic) {
     cpp11::stop("Deterministic models not supported on gpu");
   }
@@ -91,7 +91,7 @@ cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi, int step,
     dust::interface::vector_size_to_int(d->shape());
 
   cpp11::sexp ret_r_gpu_config =
-    dust::cuda::interface::gpu_config_as_sexp(gpu_config);
+    dust::gpu::interface::gpu_config_as_sexp(gpu_config);
 
   return cpp11::writable::list({ptr, info, r_shape, ret_r_gpu_config});
 }

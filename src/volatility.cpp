@@ -139,7 +139,7 @@ cpp11::sexp dust_volatility_capabilities() {
 }
 
 cpp11::sexp dust_volatility_gpu_info() {
-  return dust::cuda::interface::gpu_info<volatility::real_type>();
+  return dust::gpu::interface::gpu_info<volatility::real_type>();
 }
 using model_cpu = dust::dust_cpu<volatility>;
 

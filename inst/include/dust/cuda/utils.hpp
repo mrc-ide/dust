@@ -8,7 +8,7 @@
 #include "dust/cuda/cuda.hpp"
 
 namespace dust {
-namespace cuda {
+namespace gpu {
 namespace utils {
 
 // Translates index in y (full state) to index in y_selected

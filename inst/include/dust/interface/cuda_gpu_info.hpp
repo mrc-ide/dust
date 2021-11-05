@@ -14,7 +14,7 @@
 // this point for our test program (we want to get the CUDA version
 // which indicates if we *need* to find cub)
 namespace dust {
-namespace cuda {
+namespace gpu {
 namespace interface {
 
 template <typename real_type>

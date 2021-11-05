@@ -14,7 +14,7 @@
 #include "dust/random/numeric.hpp"
 
 namespace dust {
-namespace cuda {
+namespace gpu {
 
 // The class from before, which is a light wrapper around a pointer
 // This can be used within a kernel with copying memory. There is no

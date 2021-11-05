@@ -22,7 +22,7 @@
 #endif
 
 namespace dust {
-namespace cuda {
+namespace gpu {
 
 const int warp_size = 32;
 
@@ -67,7 +67,7 @@ public:
     if (status == cudaErrorNoDevice) {
       stream_ = nullptr;
     } else if (status != cudaSuccess) {
-      dust::cuda::throw_cuda_error(__FILE__, __LINE__, status);
+      dust::gpu::throw_cuda_error(__FILE__, __LINE__, status);
     }
 #endif
   }

@@ -13,13 +13,13 @@ template <typename real_type, typename rng_state_type>
 void run_device_resample(const size_t n_particles,
                          const size_t n_pars,
                          const size_t n_state,
-                         const dust::cuda::launch_control_dust& cuda_pars,
-                         dust::cuda::cuda_stream& kernel_stream,
-                         dust::cuda::cuda_stream& resample_stream,
+                         const dust::gpu::launch_control_dust& cuda_pars,
+                         dust::gpu::cuda_stream& kernel_stream,
+                         dust::gpu::cuda_stream& resample_stream,
                          rng_state_type& resample_rng,
-                         dust::cuda::device_state<real_type, rng_state_type>& device_state,
-                         dust::cuda::device_array<real_type>& weights,
-                         dust::cuda::device_scan_state<real_type>& scan) {
+                         dust::gpu::device_state<real_type, rng_state_type>& device_state,
+                         dust::gpu::device_array<real_type>& weights,
+                         dust::gpu::device_scan_state<real_type>& scan) {
 #ifdef __NVCC__
     // Cumulative sum
     // Note this is over all parameters, this is fixed with a
@@ -58,7 +58,7 @@ void run_device_resample(const size_t n_particles,
 
     // Generate the scatter indices
 #ifdef __NVCC__
-    dust::cuda::find_intervals<real_type><<<cuda_pars.interval.block_count,
+    dust::gpu::find_intervals<real_type><<<cuda_pars.interval.block_count,
                                          cuda_pars.interval.block_size,
                                          0,
                                          kernel_stream.stream()>>>(
@@ -70,7 +70,7 @@ void run_device_resample(const size_t n_particles,
     );
     kernel_stream.sync();
 #else
-    dust::cuda::find_intervals<real_type>(
+    dust::gpu::find_intervals<real_type>(
       scan.cum_weights.data(),
       n_particles,
       n_pars,
@@ -82,7 +82,7 @@ void run_device_resample(const size_t n_particles,
     // Shuffle the particles
     const bool select_kernel = false;
 #ifdef __NVCC__
-    dust::cuda::scatter_device<real_type><<<cuda_pars.scatter.block_count,
+    dust::gpu::scatter_device<real_type><<<cuda_pars.scatter.block_count,
                                    cuda_pars.scatter.block_size,
                                    0,
                                    kernel_stream.stream()>>>(
@@ -94,7 +94,7 @@ void run_device_resample(const size_t n_particles,
         select_kernel);
     kernel_stream.sync();
 #else
-    dust::cuda::scatter_device<real_type>(
+    dust::gpu::scatter_device<real_type>(
         device_state.scatter_index.data(),
         device_state.y.data(),
         device_state.y_next.data(),

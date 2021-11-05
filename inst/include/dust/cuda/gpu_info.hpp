@@ -6,7 +6,7 @@
 #include "dust/cuda/call.hpp"
 
 namespace dust {
-namespace cuda {
+namespace gpu {
 
 inline int devices_count() {
   int device_count = 0;

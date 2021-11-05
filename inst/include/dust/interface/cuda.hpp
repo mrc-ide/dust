@@ -13,12 +13,12 @@
 #include "dust/interface/helpers.hpp"
 
 namespace dust {
-namespace cuda {
+namespace gpu {
 namespace interface {
 
 inline int check_device_id(cpp11::sexp r_device_id) {
 #ifdef __NVCC__
-  const int device_id_max = dust::cuda::devices_count() - 1;
+  const int device_id_max = dust::gpu::devices_count() - 1;
 #else
   // We allow a device_id set to 0 to allow us to test the device
   // storage. However, if compiling with nvcc the device id must be
@@ -34,7 +34,7 @@ inline int check_device_id(cpp11::sexp r_device_id) {
   return device_id;
 }
 
-inline dust::cuda::gpu_config gpu_config(cpp11::sexp r_gpu_config) {
+inline dust::gpu::gpu_config gpu_config(cpp11::sexp r_gpu_config) {
   size_t run_block_size = 128;
 
   cpp11::sexp r_device_id = r_gpu_config;
@@ -55,11 +55,11 @@ inline dust::cuda::gpu_config gpu_config(cpp11::sexp r_gpu_config) {
       run_block_size = run_block_size_int;
     }
   }
-  return dust::cuda::gpu_config(check_device_id(r_device_id), run_block_size);
+  return dust::gpu::gpu_config(check_device_id(r_device_id), run_block_size);
 }
 
 inline
-cpp11::sexp gpu_config_as_sexp(const dust::cuda::gpu_config& config) {
+cpp11::sexp gpu_config_as_sexp(const dust::gpu::gpu_config& config) {
   using namespace cpp11::literals;
   return cpp11::writable::list({"real_gpu"_nm = config.real_gpu_,
                                 "device_id"_nm = config.device_id_,

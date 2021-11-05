@@ -59,7 +59,7 @@ dust::pars_type<variable> dust_pars<variable>(cpp11::list pars) {
   return dust::pars_type<variable>(shared);
 }
 
-namespace cuda {
+namespace gpu {
 
 template <>
 size_t shared_int_size<variable>(dust::shared_ptr<variable> shared) {
@@ -75,7 +75,7 @@ template <>
 void shared_copy<variable>(dust::shared_ptr<variable> shared,
                            int * shared_int,
                            variable::real_type * shared_real) {
-  using dust::cuda::shared_copy_data;
+  using dust::gpu::shared_copy_data;
   typedef variable::real_type real_type;
   shared_int = shared_copy_data<int>(shared_int, shared->len);
   shared_real = shared_copy_data<real_type>(shared_real, shared->mean);
@@ -85,13 +85,13 @@ void shared_copy<variable>(dust::shared_ptr<variable> shared,
 template <>
 DEVICE
 void update_gpu<variable>(size_t step,
-                          const dust::cuda::interleaved<variable::real_type> state,
-                          dust::cuda::interleaved<int> internal_int,
-                          dust::cuda::interleaved<variable::real_type> internal_real,
+                          const dust::gpu::interleaved<variable::real_type> state,
+                          dust::gpu::interleaved<int> internal_int,
+                          dust::gpu::interleaved<variable::real_type> internal_real,
                           const int * shared_int,
                           const variable::real_type * shared_real,
                           variable::rng_state_type& rng_state,
-                          dust::cuda::interleaved<variable::real_type> state_next) {
+                          dust::gpu::interleaved<variable::real_type> state_next) {
   typedef variable::real_type real_type;
   const size_t len = shared_int[0];
   const real_type mean = shared_real[0];
