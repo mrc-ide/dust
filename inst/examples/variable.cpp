@@ -84,14 +84,14 @@ void shared_copy<variable>(dust::shared_ptr<variable> shared,
 
 template <>
 DEVICE
-void update_device<variable>(size_t step,
-                             const dust::cuda::interleaved<variable::real_type> state,
-                             dust::cuda::interleaved<int> internal_int,
-                             dust::cuda::interleaved<variable::real_type> internal_real,
-                             const int * shared_int,
-                             const variable::real_type * shared_real,
-                             variable::rng_state_type& rng_state,
-                             dust::cuda::interleaved<variable::real_type> state_next) {
+void update_gpu<variable>(size_t step,
+                          const dust::cuda::interleaved<variable::real_type> state,
+                          dust::cuda::interleaved<int> internal_int,
+                          dust::cuda::interleaved<variable::real_type> internal_real,
+                          const int * shared_int,
+                          const variable::real_type * shared_real,
+                          variable::rng_state_type& rng_state,
+                          dust::cuda::interleaved<variable::real_type> state_next) {
   typedef variable::real_type real_type;
   const size_t len = shared_int[0];
   const real_type mean = shared_real[0];

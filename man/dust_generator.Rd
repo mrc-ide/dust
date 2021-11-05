@@ -131,9 +131,9 @@ If not given, then the default value of \code{NULL} will fall back on the
 first found device if any are available. An error is thrown if the
 device id given is larger than those reported to be available (note
 that CUDA numbers devices from 0, so that '0' is the first device,
-and so on). Negative values disable the use of a device. See the
-method \verb{$gpu_info()} for available device ids; this can be called
-before object creation as \code{dust_generator$public_methods$gpu_info()}.
+and so on). See the method \verb{$gpu_info()} for available device ids;
+this can be called before object creation as
+\code{dust_generator$public_methods$gpu_info()}.
 For additional control, provide a list with elements \code{device_id}
 and \code{run_block_size}. Further options (and validation) of this
 list will be added in a future version!}

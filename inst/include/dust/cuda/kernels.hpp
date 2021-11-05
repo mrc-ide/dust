@@ -11,17 +11,17 @@ namespace cuda {
 // (see inst/examples/variable.cpp for an example). This is unique
 // within the file in that we expect that the user will specialise it.
 template <typename T>
-DEVICE void update_device(size_t step,
-                   const interleaved<typename T::real_type> state,
-                   interleaved<int> internal_int,
-                   interleaved<typename T::real_type> internal_real,
-                   const int * shared_int,
-                   const typename T::real_type * shared_real,
-                   typename T::rng_state_type& rng_state,
-                   interleaved<typename T::real_type> state_next);
+DEVICE void update_gpu(size_t step,
+                       const interleaved<typename T::real_type> state,
+                       interleaved<int> internal_int,
+                       interleaved<typename T::real_type> internal_real,
+                       const int * shared_int,
+                       const typename T::real_type * shared_real,
+                       typename T::rng_state_type& rng_state,
+                       interleaved<typename T::real_type> state_next);
 
 template <typename T>
-DEVICE typename T::real_type compare_device(
+DEVICE typename T::real_type compare_gpu(
                    const interleaved<typename T::real_type> state,
                    const typename T::data_type& data,
                    interleaved<int> internal_int,
@@ -141,14 +141,14 @@ KERNEL void run_particles(size_t step_start,
 
     rng_state_type rng_block = get_rng_state<rng_state_type>(p_rng);
     for (size_t step = step_start; step < step_end; ++step) {
-      update_device<T>(step,
-                       p_state,
-                       p_internal_int,
-                       p_internal_real,
-                       shared_state.shared_int,
-                       shared_state.shared_real,
-                       rng_block,
-                       p_state_next);
+      update_gpu<T>(step,
+                    p_state,
+                    p_internal_int,
+                    p_internal_real,
+                    shared_state.shared_int,
+                    shared_state.shared_real,
+                    rng_block,
+                    p_state_next);
       SYNCWARP
 
       interleaved<real_type> tmp = p_state;
@@ -232,13 +232,13 @@ KERNEL void compare_particles(size_t n_particles,
     interleaved<rng_int_type> p_rng(rng_state, i, n_particles);
     rng_state_type rng_block = get_rng_state<rng_state_type>(p_rng);
 
-    weights[i] = compare_device<T>(p_state,
-                                   *shared_state.data,
-                                   p_internal_int,
-                                   p_internal_real,
-                                   shared_state.shared_int,
-                                   shared_state.shared_real,
-                                   rng_block);
+    weights[i] = compare_gpu<T>(p_state,
+                                *shared_state.data,
+                                p_internal_int,
+                                p_internal_real,
+                                shared_state.shared_int,
+                                shared_state.shared_real,
+                                rng_block);
     SYNCWARP
     put_rng_state(rng_block, p_rng);
   }

@@ -307,14 +307,14 @@ void gpu_shared_copy<sirs>(dust::shared_ptr<sirs> shared,
 
 template <>
 DEVICE
-void update_device<sirs>(size_t step,
-                         const dust::cuda::interleaved<sirs::real_type> state,
-                         dust::cuda::interleaved<int> internal_int,
-                         dust::cuda::interleaved<sirs::real_type> internal_real,
-                         const int * shared_int,
-                         const sirs::real_type * shared_real,
-                         sirs::rng_state_type& rng_state,
-                         dust::cuda::interleaved<sirs::real_type> state_next) {
+void update_gpu<sirs>(size_t step,
+                      const dust::cuda::interleaved<sirs::real_type> state,
+                      dust::cuda::interleaved<int> internal_int,
+                      dust::cuda::interleaved<sirs::real_type> internal_real,
+                      const int * shared_int,
+                      const sirs::real_type * shared_real,
+                      sirs::rng_state_type& rng_state,
+                      dust::cuda::interleaved<sirs::real_type> state_next) {
   typedef sirs::real_type real_type;
   const real_type alpha = shared_real[0];
   const real_type beta = shared_real[1];
@@ -339,13 +339,13 @@ void update_device<sirs>(size_t step,
 
 template <>
 DEVICE
-sirs::real_type compare_device<sirs>(const dust::cuda::interleaved<sirs::real_type> state,
-                                     const sirs::data_type& data,
-                                     dust::cuda::interleaved<int> internal_int,
-                                     dust::cuda::interleaved<sirs::real_type> internal_real,
-                                     const int * shared_int,
-                                     const sirs::real_type * shared_real,
-                                     sirs::rng_state_type& rng_state) {
+sirs::real_type compare_gpu<sirs>(const dust::cuda::interleaved<sirs::real_type> state,
+                                  const sirs::data_type& data,
+                                  dust::cuda::interleaved<int> internal_int,
+                                  dust::cuda::interleaved<sirs::real_type> internal_real,
+                                  const int * shared_int,
+                                  const sirs::real_type * shared_real,
+                                  sirs::rng_state_type& rng_state) {
   typedef sirs::real_type real_type;
   const real_type exp_noise = shared_real[4];
   const real_type incidence_modelled = state[3];
@@ -441,19 +441,19 @@ size_t dust::internal_int_size<sirs>(dust::shared_ptr<sirs> shared) {
 }
 ```
 
-Most interestingly we have the `update_device` method that actually does the update on the device
+Most interestingly we have the `update_gpu` method that actually does the update on the device
 
 ```cc
 template <>
 DEVICE
-void update_device<sirs>(size_t step,
-                         const dust::cuda::interleaved<sirs::real_type> state,
-                         dust::cuda::interleaved<int> internal_int,
-                         dust::cuda::interleaved<sirs::real_type> internal_real,
-                         const int * shared_int,
-                         const sirs::real_type * shared_real,
-                         sirs::rng_state_type& rng_state,
-                         dust::cuda::interleaved<sirs::real_type> state_next) {
+void update_gpu<sirs>(size_t step,
+                      const dust::cuda::interleaved<sirs::real_type> state,
+                      dust::cuda::interleaved<int> internal_int,
+                      dust::cuda::interleaved<sirs::real_type> internal_real,
+                      const int * shared_int,
+                      const sirs::real_type * shared_real,
+                      sirs::rng_state_type& rng_state,
+                      dust::cuda::interleaved<sirs::real_type> state_next) {
   typedef sirs::real_type real_type;
   const real_type alpha = shared_real[0];
   const real_type beta = shared_real[1];
@@ -517,13 +517,13 @@ Finally, if running a particle filter on the GPU, a version of the `compare_data
 ```cc
 template <>
 DEVICE
-sirs::real_type compare_device<sirs>(const dust::cuda::interleaved<sirs::real_type> state,
-                                     const sirs::data_type& data,
-                                     dust::cuda::interleaved<int> internal_int,
-                                     dust::cuda::interleaved<sirs::real_type> internal_real,
-                                     const int * shared_int,
-                                     const sirs::real_type * shared_real,
-                                     sirs::rng_state_type& rng_state) {
+sirs::real_type compare_gpu<sirs>(const dust::cuda::interleaved<sirs::real_type> state,
+                                  const sirs::data_type& data,
+                                  dust::cuda::interleaved<int> internal_int,
+                                  dust::cuda::interleaved<sirs::real_type> internal_real,
+                                  const int * shared_int,
+                                  const sirs::real_type * shared_real,
+                                  sirs::rng_state_type& rng_state) {
   typedef sirs::real_type real_type;
   const real_type exp_noise = shared_real[4];
   const real_type incidence_modelled = state[3];

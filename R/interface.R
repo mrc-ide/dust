@@ -142,9 +142,10 @@
 ##'   (happens in `rbinom` when given impossible inputs such as
 ##'   negative sizes, probabilities less than zero or greater than 1)
 ##'   then we currently use CUDA's `__trap()` function which will
-##'   require a process restart to be able to use any device function
-##'   again, covering all methods in the class.  However, this is
-##'   preferable to the infinite loop that would otherwise be caused.
+##'   require a process restart to be able to use anything that uses
+##'   the GPU again, covering all methods in the class.  However, this
+##'   is preferable to the infinite loop that would otherwise be
+##'   caused.
 ##'
 ##' @title Create a dust model from a C++ input file
 ##'
