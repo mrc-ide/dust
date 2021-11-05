@@ -22,7 +22,6 @@
 #include "dust/r/random.hpp"
 
 namespace dust {
-
 namespace r {
 
 template <typename T>

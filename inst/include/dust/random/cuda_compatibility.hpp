@@ -12,23 +12,21 @@
 // * Neither is defined: we're compiling under gcc/clang etc and need
 //   to inject our stubs
 
-#ifdef __NVCC__
 // This is necessary due to templates which are __host__ __device__;
 // whenever a HOSTDEVICE function is called from another HOSTDEVICE
 // function the compiler gets confused as it can't tell which one it's
 // going to use. This suppresses the warning as it is ok here.
+#ifdef __NVCC__
 #define __nv_exec_check_disable__ _Pragma("nv_exec_check_disable")
-
 #else
-
 #define __nv_exec_check_disable__
 
+// Additional stubs used to shadow the now-unneeded directives for
+// nvcc
 #define __host__
 #define __device__
 #define __global__
 #define __align__(n)
-
-
 #endif
 
 #ifdef __CUDA_ARCH__
