@@ -3,7 +3,7 @@
 SEXP dust_{{target}}_{{name}}_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                          cpp11::sexp r_n_particles, size_t n_threads,
                          cpp11::sexp r_seed, bool deterministic,
-                         cpp11::sexp device_config);
+                         cpp11::sexp gpu_config);
 
 [[cpp11::register]]
 SEXP dust_{{target}}_{{name}}_run(SEXP ptr, size_t step_end);

@@ -805,11 +805,11 @@ test_that("sirs model has gpu support", {
   expect_false(gen$public_methods$has_cuda())
   expect_true(gen$public_methods$has_cuda(TRUE))
 
-  mod1 <- gen$new(list(), 0, 1, device_config = NULL)
+  mod1 <- gen$new(list(), 0, 1, gpu_config = NULL)
   expect_false(mod1$uses_gpu())
   expect_false(mod1$uses_gpu(TRUE))
 
-  mod2 <- gen$new(list(), 0, 1, device_config = 0L)
+  mod2 <- gen$new(list(), 0, 1, gpu_config = 0L)
   expect_false(mod2$uses_gpu())
   expect_true(mod2$uses_gpu(TRUE))
 })

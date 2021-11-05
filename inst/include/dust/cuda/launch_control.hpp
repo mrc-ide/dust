@@ -30,9 +30,9 @@ inline size_t device_shared_size(int device_id) {
 
 
 // Tunable bits exposed to the front end
-class device_config {
+class gpu_config {
 public:
-  device_config(int device_id, int run_block_size) :
+  gpu_config(int device_id, int run_block_size) :
     device_id_(device_id),
     run_block_size_(run_block_size),
     shared_size_(device_shared_size(device_id_)),
@@ -55,13 +55,13 @@ public:
 };
 
 
-inline void cuda_profiler_start(const device_config& config) {
+inline void cuda_profiler_start(const gpu_config& config) {
 #ifdef DUST_ENABLE_CUDA_PROFILER
   CUDA_CALL(cudaProfilerStart());
 #endif
 }
 
-inline void cuda_profiler_stop(const device_config& config) {
+inline void cuda_profiler_stop(const gpu_config& config) {
 #ifdef DUST_ENABLE_CUDA_PROFILER
   CUDA_CALL(cudaProfilerStop());
 #endif
@@ -70,7 +70,7 @@ inline void cuda_profiler_stop(const device_config& config) {
 
 class launch_control_dust {
 public:
-  launch_control_dust(const device_config& config,
+  launch_control_dust(const gpu_config& config,
                       size_t n_particles, size_t n_particles_each,
                       size_t n_state, size_t n_state_full,
                       size_t n_shared_int, size_t n_shared_real,
@@ -190,7 +190,7 @@ inline launch_control_dust::launch_control_dust() {
 }
 
 
-inline launch_control_dust::launch_control_dust(const device_config& config,
+inline launch_control_dust::launch_control_dust(const gpu_config& config,
                                                 size_t n_particles,
                                                 size_t n_particles_each,
                                                 size_t n_state,

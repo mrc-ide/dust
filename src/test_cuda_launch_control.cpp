@@ -13,14 +13,14 @@ cpp11::list launch_r_list(const dust::cuda::launch_control& p) {
 }
 
 [[cpp11::register]]
-SEXP test_cuda_pars(cpp11::sexp r_device_config, int n_particles,
+SEXP test_cuda_pars(cpp11::sexp r_gpu_config, int n_particles,
                     int n_particles_each,
                     int n_state, int n_state_full,
                     int n_shared_int, int n_shared_real, int data_size,
                     int shared_size) {
   size_t real_size = sizeof(float);
-  dust::cuda::device_config config =
-    dust::cuda::interface::device_config(r_device_config);
+  dust::cuda::gpu_config config =
+    dust::cuda::interface::gpu_config(r_gpu_config);
   config.shared_size_ = shared_size; // this will be zero, add our own size!
 
   auto pars = dust::cuda::launch_control_dust(config,

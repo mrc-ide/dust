@@ -29,7 +29,7 @@ template <typename T>
 cpp11::list dust_cpu_alloc(cpp11::list r_pars, bool pars_multi, int step,
                            cpp11::sexp r_n_particles, int n_threads,
                            cpp11::sexp r_seed, bool deterministic,
-                           cpp11::sexp r_device_config) {
+                           cpp11::sexp r_gpu_config) {
   dust_cpu<T> *d = nullptr;
   cpp11::sexp info;
   if (pars_multi) {
@@ -60,9 +60,9 @@ template <typename T>
 cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi, int step,
                            cpp11::sexp r_n_particles, int n_threads,
                            cpp11::sexp r_seed, bool deterministic,
-                           cpp11::sexp r_device_config) {
-  const dust::cuda::device_config device_config =
-    dust::cuda::interface::device_config(r_device_config);
+                           cpp11::sexp r_gpu_config) {
+  const dust::cuda::gpu_config gpu_config =
+    dust::cuda::interface::gpu_config(r_gpu_config);
   if (deterministic) {
     cpp11::stop("Deterministic models not supported on gpu");
   }
@@ -76,24 +76,24 @@ cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi, int step,
     info = inputs.info;
     d = new dust_gpu<T>(inputs.pars, inputs.step, inputs.n_particles,
                         inputs.n_threads, inputs.seed,
-                        inputs.shape, device_config);
+                        inputs.shape, gpu_config);
   } else {
     auto inputs =
       dust::interface::process_inputs_single<T>(r_pars, step, r_n_particles,
                                                 n_threads, r_seed);
     info = inputs.info;
     d = new dust_gpu<T>(inputs.pars[0], inputs.step, inputs.n_particles,
-                        inputs.n_threads, inputs.seed, device_config);
+                        inputs.n_threads, inputs.seed, gpu_config);
   }
   cpp11::external_pointer<dust_gpu<T>> ptr(d, true, false);
 
   cpp11::writable::integers r_shape =
     dust::interface::vector_size_to_int(d->shape());
 
-  cpp11::sexp ret_r_device_config =
-    dust::cuda::interface::device_config_as_sexp(device_config);
+  cpp11::sexp ret_r_gpu_config =
+    dust::cuda::interface::gpu_config_as_sexp(gpu_config);
 
-  return cpp11::writable::list({ptr, info, r_shape, ret_r_device_config});
+  return cpp11::writable::list({ptr, info, r_shape, ret_r_gpu_config});
 }
 
 template <typename T>

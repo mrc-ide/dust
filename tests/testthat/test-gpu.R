@@ -2,8 +2,8 @@ test_that("Can run device version of model on cpu", {
   np <- 100
   len <- 20
   gen <- dust_example("variable")
-  mod1 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = NULL)
-  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
+  mod1 <- gen$new(list(len = len), 0, np, seed = 1L, gpu_config = NULL)
+  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, gpu_config = 0L)
 
   expect_false(mod1$uses_gpu())
   expect_false(mod2$uses_gpu())
@@ -22,7 +22,7 @@ test_that("Raise suitable errors if models do not support GPU", {
   gen <- dust_example("walk")
   mod <- gen$new(list(sd = 1), 0, 100, seed = 1L)
   expect_error(
-    gen$new(list(sd = 1), 0, 100, seed = 1L, device_config = 0L),
+    gen$new(list(sd = 1), 0, 100, seed = 1L, gpu_config = 0L),
     "GPU support not enabled for this object")
 })
 
@@ -31,7 +31,7 @@ test_that("Can run multiple parameter sets", {
   res <- dust_example("variable")
   p <- list(list(len = 3, sd = 1), list(len = 3, sd = 1))
   mod1 <- res$new(p, 0, 5, seed = 1L, pars_multi = TRUE)
-  mod2 <- res$new(p, 0, 5, seed = 1L, pars_multi = TRUE, device_config = 0L)
+  mod2 <- res$new(p, 0, 5, seed = 1L, pars_multi = TRUE, gpu_config = 0L)
 
   y1 <- mod1$run(10)
   y2 <- mod2$run(10)
@@ -51,7 +51,7 @@ test_that("Can reorder on the device", {
 
   np <- 13
   mod1 <- res$new(p, 0, np, seed = 1L, pars_multi = TRUE)
-  mod2 <- res$new(p, 0, np, seed = 1L, pars_multi = TRUE, device_config = 0L)
+  mod2 <- res$new(p, 0, np, seed = 1L, pars_multi = TRUE, gpu_config = 0L)
   mod1$set_index(2L)
   mod2$set_index(2L)
 
@@ -379,15 +379,15 @@ test_that("Can provide device id", {
   len <- 20
   gen <- dust_example("variable")
   expect_error(
-    gen$new(list(len = len), 0, np, device_config = 2),
+    gen$new(list(len = len), 0, np, gpu_config = 2),
     "Invalid 'device_id' 2, must be at most 0")
   expect_error(
-    gen$new(list(len = len), 0, np, device_config = -1),
+    gen$new(list(len = len), 0, np, gpu_config = -1),
     "'device_id' must be non-negative")
-  mod <- gen$new(list(len = len), 0, np, device_config = NULL)
-  expect_equal(r6_private(mod)$device_config_$device_id, NULL)
-  mod <- gen$new(list(len = len), 0, np, device_config = 0L)
-  expect_equal(r6_private(mod)$device_config_$device_id, 0)
+  mod <- gen$new(list(len = len), 0, np, gpu_config = NULL)
+  expect_equal(r6_private(mod)$gpu_config_$device_id, NULL)
+  mod <- gen$new(list(len = len), 0, np, gpu_config = 0L)
+  expect_equal(r6_private(mod)$gpu_config_$device_id, 0)
 })
 
 
@@ -396,8 +396,8 @@ test_that("Can control device run block size", {
   len <- 20
   gen <- dust_example("variable")
   mod <- gen$new(list(len = len), 0, np,
-                 device_config = list(device_id = 0, run_block_size = 512))
-  expect_equal(r6_private(mod)$device_config_,
+                 gpu_config = list(device_id = 0, run_block_size = 512))
+  expect_equal(r6_private(mod)$gpu_config_,
                list(real_gpu = FALSE,
                     device_id = 0,
                     shared_size = 0,
@@ -411,7 +411,7 @@ test_that("Can use sirs gpu model", {
   len <- 20
 
   mod1 <- gen$new(list(), 0, np, seed = 1L)
-  mod2 <- gen$new(list(), 0, np, seed = 1L, device_config = 0L)
+  mod2 <- gen$new(list(), 0, np, seed = 1L, gpu_config = 0L)
 
   expect_identical(
     mod1$run(10),
@@ -437,7 +437,7 @@ test_that("Can simulate sirs gpu model", {
 
   steps <- seq(0, 100, by = 10)
   np <- 20
-  mod_d <- res$new(list(), 0, np, seed = 1L, device_config = 0L)
+  mod_d <- res$new(list(), 0, np, seed = 1L, gpu_config = 0L)
   mod_d$set_index(c(1, 3))
   y <- mod_d$simulate(steps)
   expect_equal(dim(y), c(2, np, length(steps)))
@@ -457,7 +457,7 @@ test_that("Comparison function can be run on the GPU", {
   mod_h$run(4)
   weights_h <- mod_h$compare_data()
 
-  mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_config = 0L)
+  mod_d <- dat$model$new(list(), 0, np, seed = 10L, gpu_config = 0L)
   mod_d$set_data(dat$dat_dust)
   mod_d$run(4)
   weights_d <- mod_d$compare_data()
@@ -476,7 +476,7 @@ test_that("Can run a single particle filter on the GPU", {
   ans_h <- mod_h$filter(save_trajectories = TRUE,
                         step_snapshot = c(4, 16))
 
-  mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_config = 0L)
+  mod_d <- dat$model$new(list(), 0, np, seed = 10L, gpu_config = 0L)
   mod_d$set_data(dat$dat_dust)
   ans_d <- mod_d$filter(save_trajectories = TRUE,
                         step_snapshot = c(4, 16))
@@ -496,7 +496,7 @@ test_that("Can run particle filter without collecting state on GPU", {
   mod_h$set_data(dat$dat_dust)
   ans_h <- mod_h$filter()
 
-  mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_config = 0L)
+  mod_d <- dat$model$new(list(), 0, np, seed = 10L, gpu_config = 0L)
   mod_d$set_data(dat$dat_dust)
   ans_d <- mod_d$filter()
 
@@ -515,7 +515,7 @@ test_that("Can run GPU kernels using shared memory", {
   ans_h <- mod_h$filter(save_trajectories = TRUE,
                         step_snapshot = c(4, 16))
 
-  mod_d <- dat$model$new(list(), 0, np, seed = 10L, device_config = 0L)
+  mod_d <- dat$model$new(list(), 0, np, seed = 10L, gpu_config = 0L)
   mod_d$set_data(dat$dat_dust)
   ans_d <- mod_d$filter(save_trajectories = TRUE,
                         step_snapshot = c(4, 16))
@@ -538,7 +538,7 @@ test_that("Can run multiple particle filters on the GPU", {
                         step_snapshot = c(4, 16))
 
   mod_d <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE,
-                         device_config = 0L)
+                         gpu_config = 0L)
   mod_d$set_data(dust_data(dat$dat, multi = 2))
   ans_d <- mod_d$filter(save_trajectories = TRUE,
                         step_snapshot = c(4, 16))
@@ -556,7 +556,7 @@ test_that("Can run and simulate with nontrivial index", {
 
   # Test run
   mod1 <- gen$new(list(len = len), 0, np, seed = 1L)
-  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
+  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, gpu_config = 0L)
 
   index <- c(4:7, 19:16, 10:12)
 
@@ -574,7 +574,7 @@ test_that("Can run and simulate with nontrivial index", {
   steps <- seq(0, 100, by = 10)
 
   mod3 <- gen$new(list(len = len), 0, np, seed = 1L)
-  mod4 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
+  mod4 <- gen$new(list(len = len), 0, np, seed = 1L, gpu_config = 0L)
   mod3$set_index(index)
   mod4$set_index(index)
 
@@ -717,7 +717,7 @@ test_that("Can't run deterministically on the device", {
   gen <- dust_example("variable")
   expect_error(
     gen$new(list(len = len), 0, np, seed = 1L, deterministic = TRUE,
-            device_config = 0L),
+            gpu_config = 0L),
     "Deterministic models not supported on gpu")
 })
 
@@ -729,8 +729,8 @@ test_that("can update parameters, leaving state alone", {
   pa <- list(len = len, sd = 1)
   pb <- list(len = len, sd = 2)
 
-  mod1 <- gen$new(pa, 0, np, seed = 1L, device_config = NULL)
-  mod2 <- gen$new(pa, 0, np, seed = 1L, device_config = 0L)
+  mod1 <- gen$new(pa, 0, np, seed = 1L, gpu_config = NULL)
+  mod2 <- gen$new(pa, 0, np, seed = 1L, gpu_config = 0L)
 
   mod1$run(5)
   mod2$run(5)
@@ -749,8 +749,8 @@ test_that("Can reset time", {
   np <- 100
   len <- 20
   gen <- dust_example("variable")
-  mod1 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = NULL)
-  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
+  mod1 <- gen$new(list(len = len), 0, np, seed = 1L, gpu_config = NULL)
+  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, gpu_config = 0L)
 
   y1 <- mod1$run(5)
   y2 <- mod2$run(5)
@@ -772,8 +772,8 @@ test_that("can update parameters and time, resetting state", {
   gen <- dust_example("variable")
   pa <- list(len = len, sd = 1)
   pb <- list(len = len, sd = 2)
-  mod1 <- gen$new(pa, 0, np, seed = 1L, device_config = NULL)
-  mod2 <- gen$new(pa, 0, np, seed = 1L, device_config = 0L)
+  mod1 <- gen$new(pa, 0, np, seed = 1L, gpu_config = NULL)
+  mod2 <- gen$new(pa, 0, np, seed = 1L, gpu_config = 0L)
   y1 <- mod1$run(5)
   y2 <- mod2$run(5)
   expect_equal(y1, y2)
@@ -795,8 +795,8 @@ test_that("Can set state", {
   len <- 3
   gen <- dust_example("variable")
 
-  mod1 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = NULL)
-  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
+  mod1 <- gen$new(list(len = len), 0, np, seed = 1L, gpu_config = NULL)
+  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, gpu_config = 0L)
 
   s1 <- matrix(runif(len * np), len, np)
   mod1$update_state(state = s1)
@@ -820,7 +820,7 @@ test_that("Can extract partial state", {
   np <- 5
   len <- 20
   gen <- dust_example("variable")
-  mod <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
+  mod <- gen$new(list(len = len), 0, np, seed = 1L, gpu_config = 0L)
   m <- matrix(as.numeric(seq_len(np * len)), len)
   mod$update_state(state = m)
   idx <- sample(len, 8)
@@ -832,8 +832,8 @@ test_that("can extract and reset rng state", {
   np <- 5
   len <- 20
   gen <- dust_example("variable")
-  mod1 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = NULL)
-  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
+  mod1 <- gen$new(list(len = len), 0, np, seed = 1L, gpu_config = NULL)
+  mod2 <- gen$new(list(len = len), 0, np, seed = 1L, gpu_config = 0L)
 
   r1 <- mod1$rng_state()
   r2 <- mod2$rng_state()
@@ -860,7 +860,7 @@ test_that("Can update number of threads", {
   np <- 100
   len <- 20
   gen <- dust_example("variable")
-  mod <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
+  mod <- gen$new(list(len = len), 0, np, seed = 1L, gpu_config = 0L)
   expect_equal(mod$set_n_threads(2), 1)
   expect_equal(mod$n_threads(), 2)
 })
@@ -870,7 +870,7 @@ test_that("Can resample particles", {
   ## This one suggests a bug in how we're doing the fiddly index
   ## calculation (actual resample does look correct though)
   res <- dust_example("variable")
-  obj <- res$new(list(len = 5), 0, 7, seed = 1L, device_config = 0L)
+  obj <- res$new(list(len = 5), 0, 7, seed = 1L, gpu_config = 0L)
   m <- matrix(as.numeric(1:35), 5, 7)
   obj$update_state(state = m)
   rng <- dust_rng$new(obj$rng_state(last_only = TRUE))
@@ -894,7 +894,7 @@ test_that("Detect inconsistent parameter set size", {
     res$new(p, 0, 5, seed = 1L, pars_multi = TRUE),
     msg)
   expect_error(
-    res$new(p, 0, 5, seed = 1L, pars_multi = TRUE, device_config = 0L),
+    res$new(p, 0, 5, seed = 1L, pars_multi = TRUE, gpu_config = 0L),
     msg)
 })
 
@@ -903,7 +903,7 @@ test_that("Can't set vector of times into gpu object", {
   np <- 100
   len <- 20
   gen <- dust_example("variable")
-  mod <- gen$new(list(len = len), 0, np, seed = 1L, device_config = 0L)
+  mod <- gen$new(list(len = len), 0, np, seed = 1L, gpu_config = 0L)
   expect_error(
     mod$update_state(step = seq_len(np)),
     "GPU doesn't support setting vector of steps")
@@ -917,8 +917,8 @@ test_that("Set parameters in multiparameter object without updating state", {
   pa <- list(list(len = len, sd = 1), list(len = len, sd = 10))
   pb <- list(list(len = len, sd = 2), list(len = len, sd = 20))
 
-  mod1 <- gen$new(pa, 0, np, seed = 1L, pars_multi = TRUE, device_config = NULL)
-  mod2 <- gen$new(pa, 0, np, seed = 1L, pars_multi = TRUE, device_config = 0L)
+  mod1 <- gen$new(pa, 0, np, seed = 1L, pars_multi = TRUE, gpu_config = NULL)
+  mod2 <- gen$new(pa, 0, np, seed = 1L, pars_multi = TRUE, gpu_config = 0L)
 
   y1 <- mod1$run(5)
   y2 <- mod2$run(5)
@@ -941,8 +941,8 @@ test_that("can update parameters and time, resetting state", {
   pa <- list(list(len = len, sd = 1), list(len = len, sd = 10))
   pb <- list(list(len = len, sd = 2), list(len = len, sd = 20))
 
-  mod1 <- gen$new(pa, 0, np, seed = 1L, pars_multi = TRUE, device_config = NULL)
-  mod2 <- gen$new(pa, 0, np, seed = 1L, pars_multi = TRUE, device_config = 0L)
+  mod1 <- gen$new(pa, 0, np, seed = 1L, pars_multi = TRUE, gpu_config = NULL)
+  mod2 <- gen$new(pa, 0, np, seed = 1L, pars_multi = TRUE, gpu_config = 0L)
 
   y1 <- mod1$run(5)
   y2 <- mod2$run(5)

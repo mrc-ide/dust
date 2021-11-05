@@ -44,7 +44,7 @@ public:
 
   dust_gpu(const pars_type& pars, const size_t step, const size_t n_particles,
            const size_t n_threads, const std::vector<rng_int_type>& seed,
-           const cuda::device_config& device_config) :
+           const cuda::gpu_config& gpu_config) :
     n_pars_(0),
     n_particles_each_(n_particles),
     n_particles_total_(n_particles),
@@ -52,7 +52,7 @@ public:
     n_state_(0),
     pars_are_shared_(true),
     n_threads_(n_threads),
-    device_config_(device_config),
+    gpu_config_(gpu_config),
     select_needed_(true),
     select_scatter_(false),
     step_(step) {
@@ -64,7 +64,7 @@ public:
            const size_t n_particles, const size_t n_threads,
            const std::vector<rng_int_type>& seed,
            const std::vector<size_t>& shape,
-           const cuda::device_config& device_config) :
+           const cuda::gpu_config& gpu_config) :
     n_pars_(pars.size()),
     n_particles_each_(n_particles == 0 ? 1 : n_particles),
     n_particles_total_(n_particles_each_ * pars.size()),
@@ -72,7 +72,7 @@ public:
     n_state_(0),
     pars_are_shared_(n_particles != 0),
     n_threads_(n_threads),
-    device_config_(device_config),
+    gpu_config_(gpu_config),
     select_needed_(true),
     select_scatter_(false),
     step_(step) {
@@ -91,7 +91,7 @@ public:
   // of 3/5/0
 #ifdef DUST_ENABLE_CUDA_PROFILER
   ~dust_gpu() {
-    cuda_profiler_stop(device_config_);
+    cuda_profiler_stop(gpu_config_);
   }
 #endif
 
@@ -567,7 +567,7 @@ private:
   std::vector<size_t> shape_; // shape of output
   size_t n_threads_;
   rng_state_type resample_rng_; // for the filter
-  cuda::device_config device_config_;
+  cuda::gpu_config gpu_config_;
 
   // GPU support
   dust::cuda::launch_control_dust cuda_pars_;
@@ -616,7 +616,7 @@ private:
     // ifdef guards not really needed here but helps guarantee
     // symmetry with destructor.
 #ifdef DUST_ENABLE_CUDA_PROFILER
-    cuda_profiler_start(device_config_);
+    cuda_profiler_start(gpu_config_);
 #endif
   }
 
@@ -784,7 +784,7 @@ private:
 
   // Set up CUDA block sizes and shared memory preferences
   void set_cuda_launch() {
-    cuda_pars_ = dust::cuda::launch_control_dust(device_config_,
+    cuda_pars_ = dust::cuda::launch_control_dust(gpu_config_,
                                                  n_particles(),
                                                  n_particles_each_,
                                                  n_state(),

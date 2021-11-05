@@ -13,7 +13,7 @@ sir <- R6::R6Class(
     n_particles_each_ = NULL,
     shape_ = NULL,
     ptr_ = NULL,
-    device_config_ = NULL,
+    gpu_config_ = NULL,
     methods_ = NULL,
     param_ = list(I0 = list(required = FALSE),
      beta = list(required = FALSE),
@@ -25,8 +25,8 @@ sir <- R6::R6Class(
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
-                          device_config = NULL) {
-      if (is.null(device_config)) {
+                          gpu_config = NULL) {
+      if (is.null(gpu_config)) {
         private$methods_ <- list(
            alloc = dust_cpu_sir_alloc,
            run = dust_cpu_sir_run,
@@ -50,14 +50,14 @@ sir <- R6::R6Class(
         })
       }
       res <- private$methods_$alloc(pars, pars_multi, step, n_particles,
-                        n_threads, seed, deterministic, device_config)
+                        n_threads, seed, deterministic, gpu_config)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
-      private$device_config_ <- res[[4L]]
+      private$gpu_config_ <- res[[4L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -200,7 +200,7 @@ sir <- R6::R6Class(
     },
 
     uses_gpu = function(fake_gpu = FALSE) {
-      real_gpu <- private$device_config_$real_gpu
+      real_gpu <- private$gpu_config_$real_gpu
       !is.null(real_gpu) && (fake_gpu || real_gpu)
     },
 
@@ -235,7 +235,7 @@ sir <- R6::R6Class(
       ret <- dust_sir_gpu_info()
       parent <- parent.env(environment())
       if (ret$has_cuda && exists("private", parent, inherits = FALSE)) {
-        ret$config <- private$device_config_
+        ret$config <- private$gpu_config_
       }
       ret
     }
@@ -255,7 +255,7 @@ sirs <- R6::R6Class(
     n_particles_each_ = NULL,
     shape_ = NULL,
     ptr_ = NULL,
-    device_config_ = NULL,
+    gpu_config_ = NULL,
     methods_ = NULL,
     param_ = list(freq = list(required = FALSE, default = 1),
      alpha = list(required = FALSE, default = 0.1),
@@ -267,8 +267,8 @@ sirs <- R6::R6Class(
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
-                          device_config = NULL) {
-      if (is.null(device_config)) {
+                          gpu_config = NULL) {
+      if (is.null(gpu_config)) {
         private$methods_ <- list(
            alloc = dust_cpu_sirs_alloc,
            run = dust_cpu_sirs_run,
@@ -306,14 +306,14 @@ sirs <- R6::R6Class(
            filter = dust_gpu_sirs_filter)
       }
       res <- private$methods_$alloc(pars, pars_multi, step, n_particles,
-                        n_threads, seed, deterministic, device_config)
+                        n_threads, seed, deterministic, gpu_config)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
-      private$device_config_ <- res[[4L]]
+      private$gpu_config_ <- res[[4L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -456,7 +456,7 @@ sirs <- R6::R6Class(
     },
 
     uses_gpu = function(fake_gpu = FALSE) {
-      real_gpu <- private$device_config_$real_gpu
+      real_gpu <- private$gpu_config_$real_gpu
       !is.null(real_gpu) && (fake_gpu || real_gpu)
     },
 
@@ -491,7 +491,7 @@ sirs <- R6::R6Class(
       ret <- dust_sirs_gpu_info()
       parent <- parent.env(environment())
       if (ret$has_cuda && exists("private", parent, inherits = FALSE)) {
-        ret$config <- private$device_config_
+        ret$config <- private$gpu_config_
       }
       ret
     }
@@ -511,7 +511,7 @@ variable <- R6::R6Class(
     n_particles_each_ = NULL,
     shape_ = NULL,
     ptr_ = NULL,
-    device_config_ = NULL,
+    gpu_config_ = NULL,
     methods_ = NULL,
     param_ = NULL
   ),
@@ -520,8 +520,8 @@ variable <- R6::R6Class(
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
-                          device_config = NULL) {
-      if (is.null(device_config)) {
+                          gpu_config = NULL) {
+      if (is.null(gpu_config)) {
         private$methods_ <- list(
            alloc = dust_cpu_variable_alloc,
            run = dust_cpu_variable_run,
@@ -559,14 +559,14 @@ variable <- R6::R6Class(
            filter = dust_gpu_variable_filter)
       }
       res <- private$methods_$alloc(pars, pars_multi, step, n_particles,
-                        n_threads, seed, deterministic, device_config)
+                        n_threads, seed, deterministic, gpu_config)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
-      private$device_config_ <- res[[4L]]
+      private$gpu_config_ <- res[[4L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -709,7 +709,7 @@ variable <- R6::R6Class(
     },
 
     uses_gpu = function(fake_gpu = FALSE) {
-      real_gpu <- private$device_config_$real_gpu
+      real_gpu <- private$gpu_config_$real_gpu
       !is.null(real_gpu) && (fake_gpu || real_gpu)
     },
 
@@ -744,7 +744,7 @@ variable <- R6::R6Class(
       ret <- dust_variable_gpu_info()
       parent <- parent.env(environment())
       if (ret$has_cuda && exists("private", parent, inherits = FALSE)) {
-        ret$config <- private$device_config_
+        ret$config <- private$gpu_config_
       }
       ret
     }
@@ -764,7 +764,7 @@ volatility <- R6::R6Class(
     n_particles_each_ = NULL,
     shape_ = NULL,
     ptr_ = NULL,
-    device_config_ = NULL,
+    gpu_config_ = NULL,
     methods_ = NULL,
     param_ = NULL
   ),
@@ -773,8 +773,8 @@ volatility <- R6::R6Class(
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
-                          device_config = NULL) {
-      if (is.null(device_config)) {
+                          gpu_config = NULL) {
+      if (is.null(gpu_config)) {
         private$methods_ <- list(
            alloc = dust_cpu_volatility_alloc,
            run = dust_cpu_volatility_run,
@@ -798,14 +798,14 @@ volatility <- R6::R6Class(
         })
       }
       res <- private$methods_$alloc(pars, pars_multi, step, n_particles,
-                        n_threads, seed, deterministic, device_config)
+                        n_threads, seed, deterministic, gpu_config)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
-      private$device_config_ <- res[[4L]]
+      private$gpu_config_ <- res[[4L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -948,7 +948,7 @@ volatility <- R6::R6Class(
     },
 
     uses_gpu = function(fake_gpu = FALSE) {
-      real_gpu <- private$device_config_$real_gpu
+      real_gpu <- private$gpu_config_$real_gpu
       !is.null(real_gpu) && (fake_gpu || real_gpu)
     },
 
@@ -983,7 +983,7 @@ volatility <- R6::R6Class(
       ret <- dust_volatility_gpu_info()
       parent <- parent.env(environment())
       if (ret$has_cuda && exists("private", parent, inherits = FALSE)) {
-        ret$config <- private$device_config_
+        ret$config <- private$gpu_config_
       }
       ret
     }
@@ -1003,7 +1003,7 @@ walk <- R6::R6Class(
     n_particles_each_ = NULL,
     shape_ = NULL,
     ptr_ = NULL,
-    device_config_ = NULL,
+    gpu_config_ = NULL,
     methods_ = NULL,
     param_ = NULL
   ),
@@ -1012,8 +1012,8 @@ walk <- R6::R6Class(
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
-                          device_config = NULL) {
-      if (is.null(device_config)) {
+                          gpu_config = NULL) {
+      if (is.null(gpu_config)) {
         private$methods_ <- list(
            alloc = dust_cpu_walk_alloc,
            run = dust_cpu_walk_run,
@@ -1037,14 +1037,14 @@ walk <- R6::R6Class(
         })
       }
       res <- private$methods_$alloc(pars, pars_multi, step, n_particles,
-                        n_threads, seed, deterministic, device_config)
+                        n_threads, seed, deterministic, gpu_config)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
-      private$device_config_ <- res[[4L]]
+      private$gpu_config_ <- res[[4L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -1187,7 +1187,7 @@ walk <- R6::R6Class(
     },
 
     uses_gpu = function(fake_gpu = FALSE) {
-      real_gpu <- private$device_config_$real_gpu
+      real_gpu <- private$gpu_config_$real_gpu
       !is.null(real_gpu) && (fake_gpu || real_gpu)
     },
 
@@ -1222,7 +1222,7 @@ walk <- R6::R6Class(
       ret <- dust_walk_gpu_info()
       parent <- parent.env(environment())
       if (ret$has_cuda && exists("private", parent, inherits = FALSE)) {
-        ret$config <- private$device_config_
+        ret$config <- private$gpu_config_
       }
       ret
     }

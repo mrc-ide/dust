@@ -58,7 +58,7 @@ walk
 \item \href{#method-set_data}{\code{dust_generator$set_data()}}
 \item \href{#method-compare_data}{\code{dust_generator$compare_data()}}
 \item \href{#method-filter}{\code{dust_generator$filter()}}
-\item \href{#method-device_info}{\code{dust_generator$device_info()}}
+\item \href{#method-gpu_info}{\code{dust_generator$gpu_info()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -85,7 +85,7 @@ is the same size.
   seed = NULL,
   pars_multi = FALSE,
   deterministic = FALSE,
-  device_config = NULL
+  gpu_config = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -125,15 +125,15 @@ replacing a random number from some distribution with its
 expectation. Deterministic models are not compatible with running on
 a a GPU.}
 
-\item{\code{device_config}}{Device configuration, typically an integer
+\item{\code{gpu_config}}{GPU configuration, typically an integer
 indicating the device to use, where the model has GPU support.
 If not given, then the default value of \code{NULL} will fall back on the
 first found device if any are available. An error is thrown if the
 device id given is larger than those reported to be available (note
 that CUDA numbers devices from 0, so that '0' is the first device,
 and so on). Negative values disable the use of a device. See the
-method \verb{$device_info()} for available device ids; this can be called
-before object creation as \code{dust_generator$public_methods$device_info()}.
+method \verb{$gpu_info()} for available device ids; this can be called
+before object creation as \code{dust_generator$public_methods$gpu_info()}.
 For additional control, provide a list with elements \code{device_id}
 and \code{run_block_size}. Further options (and validation) of this
 list will be added in a future version!}
@@ -722,18 +722,18 @@ containing full state values at the requested steps.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-device_info"></a>}}
-\if{latex}{\out{\hypertarget{method-device_info}{}}}
-\subsection{Method \code{device_info()}}{
+\if{html}{\out{<a id="method-gpu_info"></a>}}
+\if{latex}{\out{\hypertarget{method-gpu_info}{}}}
+\subsection{Method \code{gpu_info()}}{
 Return information about GPU devices, if the model
 has been compiled with CUDA/GPU support. This can be called as a
-static method by running \code{dust_generator$public_methods$device_info()}.
+static method by running \code{dust_generator$public_methods$gpu_info()}.
 If run from a GPU enabled object, it will also have an element
 \code{config} containing the computed device configuration: the device
 id, shared memory and the block size for the \code{run} method on the
 device.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$device_info()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$gpu_info()}\if{html}{\out{</div>}}
 }
 
 }

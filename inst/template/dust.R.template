@@ -37,7 +37,7 @@
     n_particles_each_ = NULL,
     shape_ = NULL,
     ptr_ = NULL,
-    device_config_ = NULL,
+    gpu_config_ = NULL,
     methods_ = NULL,
     param_ = {{param}}
   ),
@@ -89,7 +89,7 @@
     ##' expectation. Deterministic models are not compatible with running on
     ##' a a GPU.
     ##'
-    ##' @param device_config Device configuration, typically an integer
+    ##' @param gpu_config GPU configuration, typically an integer
     ##' indicating the device to use, where the model has GPU support.
     ##' If not given, then the default value of `NULL` will fall back on the
     ##' first found device if any are available. An error is thrown if the
@@ -104,21 +104,21 @@
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
-                          device_config = NULL) {
-      if (is.null(device_config)) {
+                          gpu_config = NULL) {
+      if (is.null(gpu_config)) {
         private$methods_ <- {{methods_cpu}}
       } else {
         private$methods_ <- {{methods_gpu}}
       }
       res <- private$methods_$alloc(pars, pars_multi, step, n_particles,
-                        n_threads, seed, deterministic, device_config)
+                        n_threads, seed, deterministic, gpu_config)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
-      private$device_config_ <- res[[4L]]
+      private$gpu_config_ <- res[[4L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -438,7 +438,7 @@
     ##'   models that run on the "fake" GPU (i.e., using the GPU
     ##'   version of the model but running on the CPU)
     uses_gpu = function(fake_gpu = FALSE) {
-      real_gpu <- private$device_config_$real_gpu
+      real_gpu <- private$gpu_config_$real_gpu
       !is.null(real_gpu) && (fake_gpu || real_gpu)
     },
 
@@ -535,7 +535,7 @@
       ret <- dust_{{name}}_gpu_info()
       parent <- parent.env(environment())
       if (ret$has_cuda && exists("private", parent, inherits = FALSE)) {
-        ret$config <- private$device_config_
+        ret$config <- private$gpu_config_
       }
       ret
     }

@@ -10,7 +10,7 @@ cpp11::sexp dust_sir_gpu_info();
 SEXP dust_cpu_sir_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                          cpp11::sexp r_n_particles, size_t n_threads,
                          cpp11::sexp r_seed, bool deterministic,
-                         cpp11::sexp device_config);
+                         cpp11::sexp gpu_config);
 
 [[cpp11::register]]
 SEXP dust_cpu_sir_run(SEXP ptr, size_t step_end);
@@ -200,10 +200,10 @@ using model_cpu = dust::dust_cpu<sir>;
 SEXP dust_cpu_sir_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                              cpp11::sexp r_n_particles, size_t n_threads,
                              cpp11::sexp r_seed, bool deterministic,
-                             cpp11::sexp device_config) {
+                             cpp11::sexp gpu_config) {
   return dust::r::dust_cpu_alloc<sir>(r_pars, pars_multi, step, r_n_particles,
                                         n_threads, r_seed, deterministic,
-                                        device_config);
+                                        gpu_config);
 }
 
 SEXP dust_cpu_sir_run(SEXP ptr, size_t step_end) {

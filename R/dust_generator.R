@@ -45,7 +45,7 @@ dust_generator <- R6::R6Class(
     n_particles_each_ = NULL,
     shape_ = NULL,
     ptr_ = NULL,
-    device_config_ = NULL,
+    gpu_config_ = NULL,
     methods_ = NULL,
     param_ = NULL
   ),
@@ -97,7 +97,7 @@ dust_generator <- R6::R6Class(
     ##' expectation. Deterministic models are not compatible with running on
     ##' a a GPU.
     ##'
-    ##' @param device_config Device configuration, typically an integer
+    ##' @param gpu_config GPU configuration, typically an integer
     ##' indicating the device to use, where the model has GPU support.
     ##' If not given, then the default value of `NULL` will fall back on the
     ##' first found device if any are available. An error is thrown if the
@@ -112,7 +112,7 @@ dust_generator <- R6::R6Class(
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
-                          device_config = NULL) {
+                          gpu_config = NULL) {
     },
 
     ##' @description

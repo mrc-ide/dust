@@ -34,14 +34,14 @@ inline int check_device_id(cpp11::sexp r_device_id) {
   return device_id;
 }
 
-inline dust::cuda::device_config device_config(cpp11::sexp r_device_config) {
+inline dust::cuda::gpu_config gpu_config(cpp11::sexp r_gpu_config) {
   size_t run_block_size = 128;
 
-  cpp11::sexp r_device_id = r_device_config;
-  if (TYPEOF(r_device_config) == VECSXP) {
-    cpp11::list r_device_config_l = cpp11::as_cpp<cpp11::list>(r_device_config);
-    r_device_id = r_device_config_l["device_id"]; // could error if missing?
-    cpp11::sexp r_run_block_size = r_device_config_l["run_block_size"];
+  cpp11::sexp r_device_id = r_gpu_config;
+  if (TYPEOF(r_gpu_config) == VECSXP) {
+    cpp11::list r_gpu_config_l = cpp11::as_cpp<cpp11::list>(r_gpu_config);
+    r_device_id = r_gpu_config_l["device_id"]; // could error if missing?
+    cpp11::sexp r_run_block_size = r_gpu_config_l["run_block_size"];
     if (r_run_block_size != R_NilValue) {
       int run_block_size_int = cpp11::as_cpp<int>(r_run_block_size);
       if (run_block_size_int < 0) {
@@ -55,12 +55,11 @@ inline dust::cuda::device_config device_config(cpp11::sexp r_device_config) {
       run_block_size = run_block_size_int;
     }
   }
-  return dust::cuda::device_config(check_device_id(r_device_id),
-                                   run_block_size);
+  return dust::cuda::gpu_config(check_device_id(r_device_id), run_block_size);
 }
 
 inline
-cpp11::sexp device_config_as_sexp(const dust::cuda::device_config& config) {
+cpp11::sexp gpu_config_as_sexp(const dust::cuda::gpu_config& config) {
   using namespace cpp11::literals;
   return cpp11::writable::list({"real_gpu"_nm = config.real_gpu_,
                                 "device_id"_nm = config.device_id_,

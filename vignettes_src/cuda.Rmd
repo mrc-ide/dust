@@ -76,12 +76,12 @@ If you have more than one GPU, the `id` in the `devices` section will be useful 
 The object is initialised as usual but with slight differences:
 
 * you will probably want a (much) larger number of particles to take advantage of your device. As a rule of thumb we would suggest at least 10,000, but depending on model and card you may still see per-particle increases in compute speed as you use up to 1,000,000 particles. See below for more discussion of this.
-* the `device_config` argument needs to be provided to indicate which device we are running on. Minimally this is an integer indicating the device that you want to run on (on this machine the only option is `0`), but you can also provide a list with elements `device_id` and `run_block_size`.
+* the `gpu_config` argument needs to be provided to indicate which GPU device we are running on. Minimally this is an integer indicating the device that you want to use (on this machine the only option is `0`), but you can also provide a list with elements `device_id` and `run_block_size`.
 
 ```{r}
 pars <- list()
 n_particles <- 8192
-model_gpu <- sirs$new(pars, 0, n_particles, device_config = 0L, seed = 1L)
+model_gpu <- sirs$new(pars, 0, n_particles, gpu_config = 0L, seed = 1L)
 ```
 
 Once initialised, a model can only be run on either the GPU or CPU, so we'll create a CPU version here for comparison:
@@ -114,7 +114,7 @@ Running the model on the GPU however:
 This is much faster! However, ~8,000 particles is unlikely to saturate a modern GPU and (overhead-aside) this will run about as quickly for potentially a hundred thousand particles. For example running 2^17 (131,072) particles only takes a little longer
 
 ```{r}
-model_large <- sirs$new(list(), 0, 2^17, device_config = 0L, seed = 1L)
+model_large <- sirs$new(list(), 0, 2^17, gpu_config = 0L, seed = 1L)
 (t_large <- system.time(model_large$run(400)))
 ```
 
@@ -338,11 +338,11 @@ To do this, compile the model with your preferred real type, but set the `gpu` a
 sirs_cpu <- dust::dust(path, gpu = FALSE, real_type = "float")
 ```
 
-Note that above the model is compiled with `g++`, not `nvcc`. However, the "device" code is still compiled into the model.  We can then initialise this with and without a `device_config` argument
+Note that above the model is compiled with `g++`, not `nvcc`. However, the "device" code is still compiled into the model.  We can then initialise this with and without a `gpu_config` argument
 
 ```{r}
 model1 <- sirs_cpu$new(pars, 0, 10, seed = 1L)
-model2 <- sirs_cpu$new(pars, 0, 10, device_config = 0L, seed = 1L)
+model2 <- sirs_cpu$new(pars, 0, 10, gpu_config = 0L, seed = 1L)
 ```
 
 And run the models using the "device" code and the normal CPU code:
