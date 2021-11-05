@@ -1,4 +1,4 @@
-test_that("Can run device version of model on cpu", {
+test_that("Can run gpu version of model on cpu", {
   np <- 100
   len <- 20
   gen <- dust_example("variable")
@@ -45,7 +45,7 @@ test_that("Can run multiple parameter sets", {
 })
 
 
-test_that("Can reorder on the device", {
+test_that("Can reorder on the gpu", {
   res <- dust_example("variable")
   p <- list(list(len = 10, sd = 1), list(len = 10, sd = 10))
 
@@ -711,7 +711,7 @@ test_that("Can validate block size", {
 })
 
 
-test_that("Can't run deterministically on the device", {
+test_that("Can't run deterministically on the gpu", {
   np <- 100
   len <- 20
   gen <- dust_example("variable")
