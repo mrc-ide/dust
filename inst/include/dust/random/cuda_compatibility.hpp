@@ -22,7 +22,7 @@
 #define __nv_exec_check_disable__
 
 // Additional stubs used to shadow the now-unneeded directives for
-// nvcc
+// nvcc, which would cause gcc/clang to raise an error
 #define __host__
 #define __device__
 #define __global__
