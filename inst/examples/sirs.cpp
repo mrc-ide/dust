@@ -114,27 +114,27 @@ sirs::data_type dust_data<sirs>(cpp11::list data) {
 namespace cuda {
 
 template <>
-size_t device_shared_int_size<sirs>(dust::shared_ptr<sirs> shared) {
+size_t shared_int_size<sirs>(dust::shared_ptr<sirs> shared) {
   return 1;
 }
 
 template <>
-size_t device_shared_real_size<sirs>(dust::shared_ptr<sirs> shared) {
+size_t shared_real_size<sirs>(dust::shared_ptr<sirs> shared) {
   return 5;
 }
 
 template <>
-void device_shared_copy<sirs>(dust::shared_ptr<sirs> shared,
-                              int * shared_int,
-                              sirs::real_type * shared_real) {
+void shared_copy<sirs>(dust::shared_ptr<sirs> shared,
+                       int * shared_int,
+                       sirs::real_type * shared_real) {
   typedef sirs::real_type real_type;
-  using dust::cuda::shared_copy;
-  shared_real = shared_copy<real_type>(shared_real, shared->alpha);
-  shared_real = shared_copy<real_type>(shared_real, shared->beta);
-  shared_real = shared_copy<real_type>(shared_real, shared->gamma);
-  shared_real = shared_copy<real_type>(shared_real, shared->dt);
-  shared_real = shared_copy<real_type>(shared_real, shared->exp_noise);
-  shared_int = shared_copy<int>(shared_int, shared->freq);
+  using dust::cuda::shared_copy_data;
+  shared_real = shared_copy_data<real_type>(shared_real, shared->alpha);
+  shared_real = shared_copy_data<real_type>(shared_real, shared->beta);
+  shared_real = shared_copy_data<real_type>(shared_real, shared->gamma);
+  shared_real = shared_copy_data<real_type>(shared_real, shared->dt);
+  shared_real = shared_copy_data<real_type>(shared_real, shared->exp_noise);
+  shared_int = shared_copy_data<int>(shared_int, shared->freq);
 }
 
 template <>

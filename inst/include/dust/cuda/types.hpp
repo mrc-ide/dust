@@ -630,39 +630,39 @@ private:
 // for either real or int types and return the length of data
 // required.
 template <typename T>
-size_t device_internal_int_size(typename dust::shared_ptr<T> shared) {
+size_t internal_int_size(typename dust::shared_ptr<T> shared) {
   return 0;
 }
 
 template <typename T>
-size_t device_internal_real_size(typename dust::shared_ptr<T> shared) {
+size_t internal_real_size(typename dust::shared_ptr<T> shared) {
   return 0;
 }
 
 template <typename T>
-size_t device_shared_int_size(typename dust::shared_ptr<T> shared) {
+size_t shared_int_size(typename dust::shared_ptr<T> shared) {
   return 0;
 }
 
 template <typename T>
-size_t device_shared_real_size(typename dust::shared_ptr<T> shared) {
+size_t shared_real_size(typename dust::shared_ptr<T> shared) {
   return 0;
 }
 
 template <typename T>
-void device_shared_copy(typename dust::shared_ptr<T> shared,
-                        int * shared_int,
-                        typename T::real_type * shared_real) {
+void shared_copy(typename dust::shared_ptr<T> shared,
+                 int * shared_int,
+                 typename T::real_type * shared_real) {
 }
 
 template <typename T>
-T* shared_copy(T* dest, const std::vector<T>& src) {
+T* shared_copy_data(T* dest, const std::vector<T>& src) {
   memcpy(dest, src.data(), src.size() * sizeof(T));
   return dest + src.size();
 }
 
 template <typename T>
-T* shared_copy(T* dest, const T src) {
+T* shared_copy_data(T* dest, const T src) {
   *dest = src;
   return dest + 1;
 }

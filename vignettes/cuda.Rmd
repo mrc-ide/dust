@@ -282,19 +282,19 @@ sirs::data_type dust_data<sirs>(cpp11::list data) {
 namespace cuda {
 
 template <>
-size_t device_shared_int_size<sirs>(dust::shared_ptr<sirs> shared) {
+size_t shared_int_size<sirs>(dust::shared_ptr<sirs> shared) {
   return 1;
 }
 
 template <>
-size_t device_shared_real_size<sirs>(dust::shared_ptr<sirs> shared) {
+size_t shared_real_size<sirs>(dust::shared_ptr<sirs> shared) {
   return 5;
 }
 
 template <>
-void device_shared_copy<sirs>(dust::shared_ptr<sirs> shared,
-                              int * shared_int,
-                              sirs::real_type * shared_real) {
+void gpu_shared_copy<sirs>(dust::shared_ptr<sirs> shared,
+                           int * shared_int,
+                           sirs::real_type * shared_real) {
   typedef sirs::real_type real_type;
   using dust::cuda::shared_copy;
   shared_real = shared_copy<real_type>(shared_real, shared->alpha);
@@ -367,12 +367,12 @@ Within the `dust::cuda` namespace, we declare the size of the *shared parameters
 namespace dust {
 namespace cuda {
 template <>
-size_t device_shared_int_size<sirs>(dust::shared_ptr<sirs> shared) {
+size_t shared_int_size<sirs>(dust::shared_ptr<sirs> shared) {
   return 1;
 }
 
 template <>
-size_t device_shared_real_size<sirs>(dust::shared_ptr<sirs> shared) {
+size_t shared_real_size<sirs>(dust::shared_ptr<sirs> shared) {
   return 5;
 }
 }
@@ -387,9 +387,9 @@ The next definition makes the above a bit clearer, it defines the method for cop
 namespace dust {
 namespace cuda {
 template <>
-void device_shared_copy<sirs>(dust::shared_ptr<sirs> shared,
-                              int * shared_int,
-                              sirs::real_type * shared_real) {
+void gpu_shared_copy<sirs>(dust::shared_ptr<sirs> shared,
+                           int * shared_int,
+                           sirs::real_type * shared_real) {
   typedef sirs::real_type real_type;
   using dust::cuda::shared_copy;
   shared_real = shared_copy<real_type>(shared_real, shared->alpha);
@@ -408,9 +408,9 @@ In the CPU version of the model we have a nice smart pointer to a struct (`dust:
 ```cc
 namespace dust {
 template <>
-void device_shared_copy<sirs>(dust::shared_ptr<sirs> shared,
-                              int * shared_int,
-                              sirs::real_type * shared_real) {
+void gpu_shared_copy<sirs>(dust::shared_ptr<sirs> shared,
+                           int * shared_int,
+                           sirs::real_type * shared_real) {
   typedef sirs::real_type real_type;
   shared_real[0] = shared->alpha;
   shared_real[1] = shared->beta;
@@ -430,11 +430,11 @@ There are two methods that are not used here, but could be included, to define t
 namespace dust {
 namespace cuda {
 template <>
-size_t dust::device_internal_real_size<sirs>(dust::shared_ptr<sirs> shared) {
+size_t dust::internal_real_size<sirs>(dust::shared_ptr<sirs> shared) {
   return 0;
 }
 template <>
-size_t dust::device_internal_int_size<sirs>(dust::shared_ptr<sirs> shared) {
+size_t dust::internal_int_size<sirs>(dust::shared_ptr<sirs> shared) {
   return 0;
 }
 }

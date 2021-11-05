@@ -624,10 +624,10 @@ private:
   // changes.  Could be merged with the above really.
   void initialise_device_memory(typename dust::shared_ptr<T> s) {
     const size_t n_pars = n_pars_effective();
-    const size_t n_internal_int = dust::cuda::device_internal_int_size<T>(s);
-    const size_t n_internal_real = dust::cuda::device_internal_real_size<T>(s);
-    const size_t n_shared_int = dust::cuda::device_shared_int_size<T>(s);
-    const size_t n_shared_real = dust::cuda::device_shared_real_size<T>(s);
+    const size_t n_internal_int = dust::cuda::internal_int_size<T>(s);
+    const size_t n_internal_real = dust::cuda::internal_real_size<T>(s);
+    const size_t n_shared_int = dust::cuda::shared_int_size<T>(s);
+    const size_t n_shared_real = dust::cuda::shared_real_size<T>(s);
     device_state_.initialise(n_particles_total_, n_state_full_, n_pars,
                              n_internal_int, n_internal_real,
                              n_shared_int, n_shared_real);
@@ -655,7 +655,7 @@ private:
     for (size_t i = 0; i < pars.size(); ++i) {
       int * dest_int = shared_int.data() + n_shared_int * i;
       real_type * dest_real = shared_real.data() + n_shared_real * i;
-      dust::cuda::device_shared_copy<T>(pars[i].shared, dest_int, dest_real);
+      dust::cuda::shared_copy<T>(pars[i].shared, dest_int, dest_real);
     }
     device_state_.shared_int.set_array(shared_int);
     device_state_.shared_real.set_array(shared_real);

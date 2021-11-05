@@ -62,24 +62,24 @@ dust::pars_type<variable> dust_pars<variable>(cpp11::list pars) {
 namespace cuda {
 
 template <>
-size_t device_shared_int_size<variable>(dust::shared_ptr<variable> shared) {
+size_t shared_int_size<variable>(dust::shared_ptr<variable> shared) {
   return 1;
 }
 
 template <>
-size_t device_shared_real_size<variable>(dust::shared_ptr<variable> shared) {
+size_t shared_real_size<variable>(dust::shared_ptr<variable> shared) {
   return 2;
 }
 
 template <>
-void device_shared_copy<variable>(dust::shared_ptr<variable> shared,
-                                  int * shared_int,
-                                  variable::real_type * shared_real) {
-  using dust::cuda::shared_copy;
+void shared_copy<variable>(dust::shared_ptr<variable> shared,
+                           int * shared_int,
+                           variable::real_type * shared_real) {
+  using dust::cuda::shared_copy_data;
   typedef variable::real_type real_type;
-  shared_int = shared_copy<int>(shared_int, shared->len);
-  shared_real = shared_copy<real_type>(shared_real, shared->mean);
-  shared_real = shared_copy<real_type>(shared_real, shared->sd);
+  shared_int = shared_copy_data<int>(shared_int, shared->len);
+  shared_real = shared_copy_data<real_type>(shared_real, shared->mean);
+  shared_real = shared_copy_data<real_type>(shared_real, shared->sd);
 }
 
 template <>
