@@ -58,7 +58,7 @@ void dust_cpu_volatility_set_n_threads(SEXP ptr, int n_threads);
 
 [[cpp11::register]]
 int dust_cpu_volatility_n_state(SEXP ptr);
-#include <dust/interface/dust.hpp>
+#include <dust/r/dust.hpp>
 
 class volatility {
 public:
@@ -139,7 +139,7 @@ cpp11::sexp dust_volatility_capabilities() {
 }
 
 cpp11::sexp dust_volatility_gpu_info() {
-  return dust::gpu::interface::gpu_info<volatility::real_type>();
+  return dust::gpu::r::gpu_info<volatility::real_type>();
 }
 using model_cpu = dust::dust_cpu<volatility>;
 

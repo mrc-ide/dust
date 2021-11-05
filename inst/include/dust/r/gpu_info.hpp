@@ -1,5 +1,5 @@
-#ifndef DUST_INTERFACE_CUDA_GPU_INFO_HPP
-#define DUST_INTERFACE_CUDA_GPU_INFO_HPP
+#ifndef DUST_R_CUDA_GPU_INFO_HPP
+#define DUST_R_CUDA_GPU_INFO_HPP
 
 #include <cpp11/data_frame.hpp>
 #include <cpp11/doubles.hpp>
@@ -15,7 +15,7 @@
 // which indicates if we *need* to find cub)
 namespace dust {
 namespace gpu {
-namespace interface {
+namespace r {
 
 template <typename real_type>
 cpp11::sexp gpu_info() {

@@ -58,7 +58,7 @@ void dust_cpu_sir_set_n_threads(SEXP ptr, int n_threads);
 
 [[cpp11::register]]
 int dust_cpu_sir_n_state(SEXP ptr);
-#include <dust/interface/dust.hpp>
+#include <dust/r/dust.hpp>
 
 class sir {
 public:
@@ -193,7 +193,7 @@ cpp11::sexp dust_sir_capabilities() {
 }
 
 cpp11::sexp dust_sir_gpu_info() {
-  return dust::gpu::interface::gpu_info<sir::real_type>();
+  return dust::gpu::r::gpu_info<sir::real_type>();
 }
 using model_cpu = dust::dust_cpu<sir>;
 

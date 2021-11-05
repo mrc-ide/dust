@@ -110,7 +110,7 @@ void dust_gpu_variable_set_n_threads(SEXP ptr, int n_threads);
 
 [[cpp11::register]]
 int dust_gpu_variable_n_state(SEXP ptr);
-#include <dust/interface/dust.hpp>
+#include <dust/r/dust.hpp>
 
 class variable {
 public:
@@ -224,7 +224,7 @@ cpp11::sexp dust_variable_capabilities() {
 }
 
 cpp11::sexp dust_variable_gpu_info() {
-  return dust::gpu::interface::gpu_info<variable::real_type>();
+  return dust::gpu::r::gpu_info<variable::real_type>();
 }
 using model_cpu = dust::dust_cpu<variable>;
 

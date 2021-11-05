@@ -1,7 +1,7 @@
 #include <cpp11.hpp>
 
 #include <dust/gpu/launch_control.hpp>
-#include <dust/interface/gpu.hpp>
+#include <dust/r/gpu.hpp>
 
 cpp11::list launch_r_list(const dust::gpu::launch_control& p) {
   using namespace cpp11::literals;
@@ -20,7 +20,7 @@ SEXP test_cuda_pars(cpp11::sexp r_gpu_config, int n_particles,
                     int shared_size) {
   size_t real_size = sizeof(float);
   dust::gpu::gpu_config config =
-    dust::gpu::interface::gpu_config(r_gpu_config);
+    dust::gpu::r::gpu_config(r_gpu_config);
   config.shared_size_ = shared_size; // this will be zero, add our own size!
 
   auto pars = dust::gpu::launch_control_dust(config,

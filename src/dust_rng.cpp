@@ -9,7 +9,7 @@
 #include <cpp11/integers.hpp>
 #include <cpp11/raws.hpp>
 
-#include <dust/interface/random.hpp>
+#include <dust/r/random.hpp>
 #include <dust/random/random.hpp>
 #include <dust/utils.hpp>
 
@@ -18,7 +18,7 @@ using dust_rng32 = dust::random::prng<dust::random::generator<float>>;
 
 template <typename T>
 SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators, bool deterministic) {
-  auto seed = dust::interface::as_rng_seed<typename T::rng_state>(r_seed);
+  auto seed = dust::r::as_rng_seed<typename T::rng_state>(r_seed);
   T *rng = new T(n_generators, seed, deterministic);
   return cpp11::external_pointer<T>(rng);
 }

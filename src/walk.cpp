@@ -58,7 +58,7 @@ void dust_cpu_walk_set_n_threads(SEXP ptr, int n_threads);
 
 [[cpp11::register]]
 int dust_cpu_walk_n_state(SEXP ptr);
-#include <dust/interface/dust.hpp>
+#include <dust/r/dust.hpp>
 
 class walk {
 public:
@@ -108,7 +108,7 @@ cpp11::sexp dust_walk_capabilities() {
 }
 
 cpp11::sexp dust_walk_gpu_info() {
-  return dust::gpu::interface::gpu_info<walk::real_type>();
+  return dust::gpu::r::gpu_info<walk::real_type>();
 }
 using model_cpu = dust::dust_cpu<walk>;
 

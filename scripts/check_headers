@@ -22,7 +22,7 @@ files <- dir(path_dust, "\\.hpp$", recursive = TRUE)
 for (f in files) {
   message(crayon::bold(sprintf("%s...", f)), appendLF = FALSE)
   include <- c(include_r, include_dust)
-  if (grepl("/interface/", f, fixed = TRUE)) {
+  if (grepl("/r/", f, fixed = TRUE)) {
     include <- c(include, include_cpp)
   }
   ans <- system2(cc, c(cc_flags, "-O0", "-o/dev/null", "-c", include,

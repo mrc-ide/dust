@@ -110,7 +110,7 @@ void dust_gpu_sirs_set_n_threads(SEXP ptr, int n_threads);
 
 [[cpp11::register]]
 int dust_gpu_sirs_n_state(SEXP ptr);
-#include <dust/interface/dust.hpp>
+#include <dust/r/dust.hpp>
 
 class sirs {
 public:
@@ -310,7 +310,7 @@ cpp11::sexp dust_sirs_capabilities() {
 }
 
 cpp11::sexp dust_sirs_gpu_info() {
-  return dust::gpu::interface::gpu_info<sirs::real_type>();
+  return dust::gpu::r::gpu_info<sirs::real_type>();
 }
 using model_cpu = dust::dust_cpu<sirs>;
 

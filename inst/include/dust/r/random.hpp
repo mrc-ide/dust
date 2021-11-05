@@ -1,5 +1,5 @@
-#ifndef DUST_INTERFACE_RANDOM_HPP
-#define DUST_INTERFACE_RANDOM_HPP
+#ifndef DUST_R_RANDOM_HPP
+#define DUST_R_RANDOM_HPP
 
 #include <cstring> // memcpy
 
@@ -9,7 +9,7 @@
 #include "dust/random/generator.hpp"
 
 namespace dust {
-namespace interface {
+namespace r {
 
 template <typename rng_state_type>
 std::vector<typename rng_state_type::int_type> as_rng_seed(cpp11::sexp r_seed) {

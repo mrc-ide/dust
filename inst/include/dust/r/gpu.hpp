@@ -1,5 +1,5 @@
-#ifndef DUST_INTERFACE_CUDA_HPP
-#define DUST_INTERFACE_CUDA_HPP
+#ifndef DUST_R_CUDA_HPP
+#define DUST_R_CUDA_HPP
 
 #include <cpp11/data_frame.hpp>
 #include <cpp11/doubles.hpp>
@@ -9,12 +9,12 @@
 #include <cpp11/strings.hpp>
 
 #include "dust/gpu/launch_control.hpp"
-#include "dust/interface/gpu_info.hpp"
-#include "dust/interface/helpers.hpp"
+#include "dust/r/gpu_info.hpp"
+#include "dust/r/helpers.hpp"
 
 namespace dust {
 namespace gpu {
-namespace interface {
+namespace r {
 
 inline int check_device_id(cpp11::sexp r_device_id) {
 #ifdef __NVCC__
@@ -26,7 +26,7 @@ inline int check_device_id(cpp11::sexp r_device_id) {
   const int device_id_max = 0;
 #endif
   int device_id = cpp11::as_cpp<int>(r_device_id);
-  dust::interface::validate_size(device_id, "device_id");
+  dust::r::validate_size(device_id, "device_id");
   if (device_id > device_id_max) {
     cpp11::stop("Invalid 'device_id' %d, must be at most %d",
                 device_id, device_id_max);
