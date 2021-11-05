@@ -15,21 +15,21 @@ namespace utils {
 
 #ifdef __NVCC__
 template <typename T>
-HOSTDEVICE T epsilon_nvcc();
+__host__ __device__ T epsilon_nvcc();
 
 template <>
-inline DEVICE float epsilon_nvcc() {
+inline __device__ float epsilon_nvcc() {
   return FLT_EPSILON;
 }
 
 template <>
-inline DEVICE double epsilon_nvcc() {
+inline __device__ double epsilon_nvcc() {
   return DBL_EPSILON;
 }
 #endif
 
 template <typename T>
-HOSTDEVICE T epsilon() {
+__host__ __device__ T epsilon() {
 #ifdef __CUDA_ARCH__
   return epsilon_nvcc<T>();
 #else
@@ -37,7 +37,7 @@ HOSTDEVICE T epsilon() {
 #endif
 }
 
-inline HOSTDEVICE int integer_max() {
+inline __host__ __device__ int integer_max() {
 #ifdef __CUDA_ARCH__
   return INT_MAX;
 #else
@@ -51,18 +51,18 @@ template <typename real_type>
 real_type lgamma_nvcc(real_type x);
 
 template <>
-inline DEVICE float lgamma_nvcc(float x) {
+inline __device__ float lgamma_nvcc(float x) {
   return ::lgammaf(x);
 }
 
 template <>
-inline DEVICE double lgamma_nvcc(double x) {
+inline __device__ double lgamma_nvcc(double x) {
   return ::lgamma(x);
 }
 #endif
 
 template <typename real_type>
-HOSTDEVICE real_type lgamma(real_type x) {
+__host__ __device__ real_type lgamma(real_type x) {
 #ifdef __CUDA_ARCH__
   return lgamma_nvcc(x);
 #else
@@ -77,18 +77,18 @@ template <typename real_type>
 real_type infinity_nvcc();
 
 template <>
-inline DEVICE float infinity_nvcc() {
+inline __device__ float infinity_nvcc() {
   return HUGE_VALF;
 }
 
 template <>
-inline DEVICE double infinity_nvcc() {
+inline __device__ double infinity_nvcc() {
   return HUGE_VAL;
 }
 #endif
 
 template <typename real_type>
-HOSTDEVICE real_type infinity() {
+__host__ __device__ real_type infinity() {
 #ifdef __CUDA_ARCH__
   return infinity_nvcc<real_type>();
 #else

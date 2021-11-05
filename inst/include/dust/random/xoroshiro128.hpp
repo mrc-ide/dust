@@ -67,7 +67,8 @@ std::array<uint64_t, 2> long_jump_constants<xoroshiro128plus_state>() {
 }
 
 template <>
-inline HOSTDEVICE uint64_t next(xoroshiro128starstar_state& state) {
+inline __host__ __device__
+uint64_t next(xoroshiro128starstar_state& state) {
   const uint64_t s0 = state[0];
   uint64_t s1 = state[1];
   const uint64_t result = rotl(s0 * 5, 7) * 9;
@@ -78,7 +79,8 @@ inline HOSTDEVICE uint64_t next(xoroshiro128starstar_state& state) {
 }
 
 template <>
-inline HOSTDEVICE uint64_t next(xoroshiro128plusplus_state& state) {
+inline __host__ __device__
+uint64_t next(xoroshiro128plusplus_state& state) {
   const uint64_t s0 = state[0];
   uint64_t s1 = state[1];
   const uint64_t result = rotl(s0 + s1, 17) + s0;
@@ -89,7 +91,8 @@ inline HOSTDEVICE uint64_t next(xoroshiro128plusplus_state& state) {
 }
 
 template <>
-inline HOSTDEVICE uint64_t next(xoroshiro128plus_state& state) {
+inline __host__ __device__
+uint64_t next(xoroshiro128plus_state& state) {
   const uint64_t s0 = state[0];
   uint64_t s1 = state[1];
   const uint64_t result = s0 + s1;

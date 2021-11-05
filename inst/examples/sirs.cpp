@@ -4,9 +4,9 @@ public:
   typedef dust::no_internal internal_type;
   typedef dust::random::generator<real_type> rng_state_type;
 
-  // ALIGN(16) is required before the data_type definition when using NVCC
+  // __align__(16) is required before the data_type definition when using NVCC
   // This is so when loaded into shared memory it is aligned correctly
-  struct ALIGN(16) data_type {
+  struct __align__(16) data_type {
     double incidence;
   };
 
@@ -138,7 +138,7 @@ void shared_copy<sirs>(dust::shared_ptr<sirs> shared,
 }
 
 template <>
-DEVICE
+__device__
 void update_gpu<sirs>(size_t step,
                       const dust::gpu::interleaved<sirs::real_type> state,
                       dust::gpu::interleaved<int> internal_int,
@@ -171,7 +171,7 @@ void update_gpu<sirs>(size_t step,
 }
 
 template <>
-DEVICE
+__device__
 sirs::real_type compare_gpu<sirs>(const dust::gpu::interleaved<sirs::real_type> state,
                                   const sirs::data_type& data,
                                   dust::gpu::interleaved<int> internal_int,

@@ -35,7 +35,7 @@ std::vector<size_t> sort_indexes(const T &v) {
 
 
 template <typename T, typename U = T>
-inline HOSTDEVICE T align_padding(const T offset, const U align) {
+inline __host__ __device__ T align_padding(const T offset, const U align) {
   T remainder = offset % align;
   return remainder ? align - remainder : 0;
 }

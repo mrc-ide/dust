@@ -18,33 +18,33 @@ CONSTANT float m_ln_sqrt_2pi_flt = 0.918938533204672741780329736406f;
 
 // Returns m_ln_sqrt_2pi
 template <typename real_type>
-HOSTDEVICE real_type norm_integral();
+__host__ __device__ real_type norm_integral();
 
 template<>
-HOSTDEVICE inline double norm_integral() {
+__host__ __device__ inline double norm_integral() {
   return m_ln_sqrt_2pi_dbl;
 }
 
 template<>
-HOSTDEVICE inline float norm_integral() {
+__host__ __device__ inline float norm_integral() {
   return m_ln_sqrt_2pi_flt;
 }
 
 __nv_exec_check_disable__
 template <typename T>
-HOSTDEVICE T maybe_log(T x, bool log) {
+__host__ __device__ T maybe_log(T x, bool log) {
   return log ? x : std::exp(x);
 }
 
 template <typename T>
-HOSTDEVICE T lchoose(T n, T k) {
+__host__ __device__ T lchoose(T n, T k) {
   return random::utils::lgamma(static_cast<T>(n + 1)) -
     random::utils::lgamma(static_cast<T>(k + 1)) -
     random::utils::lgamma(static_cast<T>(n - k + 1));
 }
 
 template <typename T>
-HOSTDEVICE T lbeta(T x, T y) {
+__host__ __device__ T lbeta(T x, T y) {
   return random::utils::lgamma(x) + random::utils::lgamma(y) -
     random::utils::lgamma(x + y);
 }
@@ -52,7 +52,7 @@ HOSTDEVICE T lbeta(T x, T y) {
 }
 
 template <typename T>
-HOSTDEVICE T binomial(int x, int size, T prob, bool log) {
+__host__ __device__ T binomial(int x, int size, T prob, bool log) {
 #ifndef __CUDA_ARCH__
   static_assert(std::is_floating_point<T>::value,
                 "binomial should only be used with real types");
@@ -71,13 +71,13 @@ HOSTDEVICE T binomial(int x, int size, T prob, bool log) {
 }
 
 template <typename T>
-HOSTDEVICE T dirac_delta(T x, bool log) {
+__host__ __device__ T dirac_delta(T x, bool log) {
   const T inf = random::utils::infinity<T>();
   return maybe_log(x == 0 ? inf : -inf, log);
 }
 
 template <typename T>
-HOSTDEVICE T normal(T x, T mu, T sd, bool log) {
+__host__ __device__ T normal(T x, T mu, T sd, bool log) {
   T ret;
   if (sd == 0) {
     ret = dirac_delta(x - mu, log); // This does maybe_log
@@ -92,7 +92,7 @@ HOSTDEVICE T normal(T x, T mu, T sd, bool log) {
 }
 
 template <typename T>
-HOSTDEVICE T negative_binomial_mu(int x, T size, T mu, bool log) {
+__host__ __device__ T negative_binomial_mu(int x, T size, T mu, bool log) {
 #ifndef __CUDA_ARCH__
   static_assert(std::is_floating_point<T>::value,
                 "negative_binomial should only be used with real types");
@@ -131,7 +131,7 @@ HOSTDEVICE T negative_binomial_mu(int x, T size, T mu, bool log) {
 // This may not be stable for all size and prob, but provides
 // compatibility with R's C-level function. See ?dnbinom for details.
 template <typename T>
-HOSTDEVICE T negative_binomial_prob(int x, T size, T prob, bool log) {
+__host__ __device__ T negative_binomial_prob(int x, T size, T prob, bool log) {
   const T mu = size * (1 - prob) / prob;
   return negative_binomial_mu(x, size, mu, log);
 }
@@ -143,7 +143,7 @@ HOSTDEVICE T negative_binomial_prob(int x, T size, T prob, bool log) {
 //
 // Where alpha and beta have (0, Inf) support
 template <typename T>
-HOSTDEVICE T beta_binomial(int x, int size, T prob, T rho, bool log) {
+__host__ __device__ T beta_binomial(int x, int size, T prob, T rho, bool log) {
 #ifndef __CUDA_ARCH__
   static_assert(std::is_floating_point<T>::value,
                 "beta_binomial should only be used with real types");
@@ -162,7 +162,7 @@ HOSTDEVICE T beta_binomial(int x, int size, T prob, T rho, bool log) {
 }
 
 template <typename T>
-HOSTDEVICE T poisson(int x, T lambda, bool log) {
+__host__ __device__ T poisson(int x, T lambda, bool log) {
 #ifndef __CUDA_ARCH__
   static_assert(std::is_floating_point<T>::value,
                 "poisson should only be used with real types");

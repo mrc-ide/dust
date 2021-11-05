@@ -48,8 +48,7 @@ namespace dust {
 namespace random {
 
 template <typename T>
-inline HOST
-void jump(T& state) {
+inline __host__ void jump(T& state) {
   using int_type = typename T::int_type;
   constexpr auto N = T::size();
   constexpr std::array<int_type, N> jump = jump_constants<T>();
@@ -57,8 +56,7 @@ void jump(T& state) {
 }
 
 template <typename T>
-inline HOST
-void long_jump(T& state) {
+inline __host__ void long_jump(T& state) {
   using int_type = typename T::int_type;
   constexpr auto N = T::size();
   constexpr std::array<int_type, N> jump = long_jump_constants<T>();
@@ -66,7 +64,7 @@ void long_jump(T& state) {
 }
 
 template <typename T>
-inline HOST
+inline __host__
 void rng_jump_state(T& state,
                     std::array<typename T::int_type, T::size()> coef) {
   using int_type = typename T::int_type;
@@ -89,8 +87,7 @@ void rng_jump_state(T& state,
 }
 
 template <typename T>
-HOST
-void seed(T& state, uint64_t seed) {
+__host__ void seed(T& state, uint64_t seed) {
   constexpr size_t n = T::size();
   using int_type = typename T::int_type;
   for (size_t i = 0; i < n; ++i) {
@@ -100,16 +97,14 @@ void seed(T& state, uint64_t seed) {
 }
 
 template <typename T>
-HOST
-T seed(uint64_t seed) {
+__host__ T seed(uint64_t seed) {
   T state;
   dust::random::seed(state, seed);
   return state;
 }
 
 template <typename T>
-HOST
-std::vector<typename T::int_type> seed_data(uint64_t seed) {
+__host__ std::vector<typename T::int_type> seed_data(uint64_t seed) {
   T state = dust::random::seed<T>(seed);
   const size_t n = state.size();
   std::vector<typename T::int_type> ret(n);
@@ -119,7 +114,7 @@ std::vector<typename T::int_type> seed_data(uint64_t seed) {
 
 // This is the workhorse function
 template <typename T, typename U>
-HOSTDEVICE
+__host__ __device__
 T random_real(U& state) {
   const auto value = next(state);
   return int_to_real<T>(value);

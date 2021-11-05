@@ -1,12 +1,11 @@
-##' Detect CUDA configuration. This is experimental and subject to
-##' change. This function tries to compile a small program with `nvcc`
-##' and confirms that this can be loaded into R, then uses that
-##' program to query the presence and capabilities of your NVIDIA
-##' GPUs. If this works, then you can use the GPU-enabled dust
-##' features, and the information returned will help us.  It's quite
-##' slow to execute (several seconds) so we cache the value within a
-##' session.  Later versions of dust will cache this across sessions
-##' too.
+##' Detect CUDA configuration. This function tries to compile a small
+##' program with `nvcc` and confirms that this can be loaded into R,
+##' then uses that program to query the presence and capabilities of
+##' your NVIDIA GPUs. If this works, then you can use the GPU-enabled
+##' dust features, and the information returned will help us.  It's
+##' quite slow to execute (several seconds) so we cache the value
+##' within a session.  Later versions of dust will cache this across
+##' sessions too.
 ##'
 ##' Not all installations leave the CUDA libraries on the default
 ##' paths, and you may need to provide it. Specifically, when we link

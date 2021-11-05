@@ -197,7 +197,7 @@ void shared_copy<variable>(dust::shared_ptr<variable> shared,
 }
 
 template <>
-DEVICE
+__device__
 void update_gpu<variable>(size_t step,
                           const dust::gpu::interleaved<variable::real_type> state,
                           dust::gpu::interleaved<int> internal_int,

@@ -23,29 +23,29 @@ namespace gpu {
 template <typename T>
 class interleaved {
 public:
-  DEVICE interleaved(T* data, size_t offset, size_t stride) :
+  __device__ interleaved(T* data, size_t offset, size_t stride) :
     data_(data + offset),
     stride_(stride) {
   }
 
   template <typename Container>
-  DEVICE interleaved(Container& data, size_t offset, size_t stride) :
+  __device__ interleaved(Container& data, size_t offset, size_t stride) :
     interleaved(data.data(), offset, stride) {
   }
 
-  DEVICE T& operator[](size_t i) {
+  __device__ T& operator[](size_t i) {
     return data_[i * stride_];
   }
 
-  DEVICE const T& operator[](size_t i) const {
+  __device__ const T& operator[](size_t i) const {
     return data_[i * stride_];
   }
 
-  DEVICE interleaved<T> operator+(size_t by) {
+  __device__ interleaved<T> operator+(size_t by) {
     return interleaved(data_ + by * stride_, 0, stride_);
   }
 
-  DEVICE const interleaved<T> operator+(size_t by) const {
+  __device__ const interleaved<T> operator+(size_t by) const {
     return interleaved(data_ + by * stride_, 0, stride_);
   }
 
@@ -675,7 +675,7 @@ struct device_ptrs {
 };
 
 template <typename rng_state_type>
-DEVICE
+__device__
 rng_state_type get_rng_state(const interleaved<typename rng_state_type::int_type>& full_rng_state) {
   rng_state_type rng_state;
   for (size_t i = 0; i < rng_state.size(); i++) {
@@ -686,7 +686,7 @@ rng_state_type get_rng_state(const interleaved<typename rng_state_type::int_type
 
 // Write state into global memory
 template <typename rng_state_type>
-DEVICE
+__device__
 void put_rng_state(rng_state_type& rng_state,
                    interleaved<typename rng_state_type::int_type>& full_rng_state) {
   for (size_t i = 0; i < rng_state.size(); i++) {

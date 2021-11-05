@@ -14,7 +14,7 @@ enum class scrambler {starstar, plusplus, plus};
 template <typename T, size_t N, scrambler X>
 struct xoshiro_state {
   typedef T int_type;
-  HOSTDEVICE static constexpr size_t size() {
+  __host__ __device__ static constexpr size_t size() {
     return N;
   }
   int_type state[N];
@@ -22,7 +22,7 @@ struct xoshiro_state {
   // deterministic expectation of the draw, and not use any random
   // numbers
   bool deterministic = false;
-  HOSTDEVICE int_type& operator[](size_t i) {
+  __host__ __device__ int_type& operator[](size_t i) {
     return state[i];
   }
 };

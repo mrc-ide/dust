@@ -230,7 +230,7 @@ public:
     state[0] = shared->initial_y;
     return state;
   }
-  HOST void update(size_t step, const real_type * state, rng_state_type& rng_state, real_type * state_next) {
+  void update(size_t step, const real_type * state, rng_state_type& rng_state, real_type * state_next) {
     const real_type y = state[0];
     state_next[0] = dust::random::uniform<real_type>(rng_state, y, shared->sd);
   }

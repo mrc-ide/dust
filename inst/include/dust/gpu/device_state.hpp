@@ -21,7 +21,7 @@ namespace gpu {
 // This is also the default behaviour for non-NVCC compiled code through
 // this function (which does not have __shared__ memory).
 template <typename T>
-DEVICE
+__device__
 device_ptrs<T> load_shared_state(const int pars_idx,
                                  const size_t n_shared_int,
                                  const size_t n_shared_real,

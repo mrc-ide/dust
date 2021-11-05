@@ -306,7 +306,7 @@ void gpu_shared_copy<sirs>(dust::shared_ptr<sirs> shared,
 }
 
 template <>
-DEVICE
+__device__
 void update_gpu<sirs>(size_t step,
                       const dust::gpu::interleaved<sirs::real_type> state,
                       dust::gpu::interleaved<int> internal_int,
@@ -338,7 +338,7 @@ void update_gpu<sirs>(size_t step,
 }
 
 template <>
-DEVICE
+__device__
 sirs::real_type compare_gpu<sirs>(const dust::gpu::interleaved<sirs::real_type> state,
                                   const sirs::data_type& data,
                                   dust::gpu::interleaved<int> internal_int,
@@ -445,7 +445,7 @@ Most interestingly we have the `update_gpu` method that actually does the update
 
 ```cc
 template <>
-DEVICE
+__device__
 void update_gpu<sirs>(size_t step,
                       const dust::gpu::interleaved<sirs::real_type> state,
                       dust::gpu::interleaved<int> internal_int,
@@ -508,7 +508,7 @@ Differences include:
 * the presence of the four auxiliary data elements (`internal_int`, `internal_real`, `shared_int` and `shared_real`)
 * the data types that vary across particles are a special `dust::gpu::interleaved<>` type, which prevents slow uncoalesced reads from global device memory
 * All accesses into the `shared_int` and `shared_real` elements are now by position in the array, rather than the previous pointer/name based access
-* The `DEVICE` annotation, which compiles the function for use on the GPU
+* The `__device__` annotation, which compiles the function for use on the GPU
 
 ## Data comparison functions
 
@@ -516,7 +516,7 @@ Finally, if running a particle filter on the GPU, a version of the `compare_data
 
 ```cc
 template <>
-DEVICE
+__device__
 sirs::real_type compare_gpu<sirs>(const dust::gpu::interleaved<sirs::real_type> state,
                                   const sirs::data_type& data,
                                   dust::gpu::interleaved<int> internal_int,
@@ -551,7 +551,7 @@ with similar differences to the update function:
 
 * argument types are different (interleaved types, internals and shared data passed explicitly)
 * Accessing of shared parameters is by position, not name
-* The `DEVICE` annotation
+* The `__device__` annotation
 
 ## Developing a GPU model
 

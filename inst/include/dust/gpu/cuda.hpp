@@ -1,6 +1,10 @@
 #ifndef DUST_CUDA_CUDA_HPP
 #define DUST_CUDA_CUDA_HPP
 
+// Important: some key defines occur in
+// dust/random/cuda_compatibility.hpp rather than here; they need to
+// be there so that the standalone random library will work.
+
 #ifdef __NVCC__
 #include <device_launch_parameters.h>
 #include <cooperative_groups.h>
@@ -28,10 +32,9 @@ const int warp_size = 32;
 
 #ifdef __NVCC__
 template <typename T>
-DEVICE void shared_mem_cpy(cooperative_groups::thread_block& block,
-                           T* shared_ptr,
-                           const T* global_ptr,
-                           size_t n_elem) {
+__device__
+void shared_mem_cpy(cooperative_groups::thread_block& block, T* shared_ptr,
+                    const T* global_ptr, size_t n_elem) {
 #if __CUDACC_VER_MAJOR__ >= 11
   cooperative_groups::memcpy_async(block,
                                    shared_ptr,
@@ -46,7 +49,7 @@ DEVICE void shared_mem_cpy(cooperative_groups::thread_block& block,
 #endif
 }
 
-DEVICE void shared_mem_wait(cooperative_groups::thread_block& block) {
+__device__ void shared_mem_wait(cooperative_groups::thread_block& block) {
 #if __CUDACC_VER_MAJOR__ >= 11
   cooperative_groups::wait(block);
 #else

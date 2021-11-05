@@ -13,7 +13,8 @@ namespace random {
 // "exponentiation by squaring"
 // https://en.wikipedia.org/wiki/Exponentiation_by_squaring
 template <typename real_type>
-HOSTDEVICE real_type fast_pow(real_type x, int n) {
+__host__ __device__
+real_type fast_pow(real_type x, int n) {
   real_type pow = 1.0;
   if (n != 0) {
     while (true) {
@@ -32,7 +33,9 @@ HOSTDEVICE real_type fast_pow(real_type x, int n) {
 
 __nv_exec_check_disable__
 template <typename real_type>
-real_type HOSTDEVICE binomial_inversion_calc(real_type u, int n, real_type p) {
+__host__ __device__
+real_type binomial_inversion_calc(real_type u, int n,
+                                                      real_type p) {
   const real_type q = 1 - p;
   const real_type r = p / q;
   const real_type g = r * (n + 1);
@@ -61,8 +64,8 @@ real_type HOSTDEVICE binomial_inversion_calc(real_type u, int n, real_type p) {
 // (given p) that corresponds to this
 __nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
-real_type HOSTDEVICE binomial_inversion(rng_state_type& rng_state, int n,
-                                     real_type p) {
+__host__ __device__
+real_type binomial_inversion(rng_state_type& rng_state, int n, real_type p) {
   real_type k = -1;
   do {
     real_type u = random_real<real_type>(rng_state);
@@ -72,17 +75,17 @@ real_type HOSTDEVICE binomial_inversion(rng_state_type& rng_state, int n,
 }
 
 template <typename real_type>
-HOSTDEVICE real_type stirling_approx_tail(real_type k);
+__host__ __device__ real_type stirling_approx_tail(real_type k);
 
 template <typename real_type>
-HOSTDEVICE inline real_type stirling_approx_tail_calc(real_type k) {
+__host__ __device__ inline real_type stirling_approx_tail_calc(real_type k) {
   const real_type one = 1;
   real_type kp1sq = (k + 1) * (k + 1);
   return (one / 12 - (one / 360 - one / 1260 / kp1sq) / kp1sq) / (k + 1);
 }
 
 template <>
-HOSTDEVICE inline float stirling_approx_tail(float k) {
+__host__ __device__ inline float stirling_approx_tail(float k) {
   float tail;
   if (k <= k_tail_values_max_f) {
     tail = k_tail_values_f[static_cast<int>(k)];
@@ -96,7 +99,7 @@ HOSTDEVICE inline float stirling_approx_tail(float k) {
 }
 
 template <>
-HOSTDEVICE inline double stirling_approx_tail(double k) {
+__host__ __device__ inline double stirling_approx_tail(double k) {
   double tail;
   if (k <= k_tail_values_max_d) {
     tail = k_tail_values_d[static_cast<int>(k)];
@@ -109,7 +112,8 @@ HOSTDEVICE inline double stirling_approx_tail(double k) {
 // https://www.tandfonline.com/doi/abs/10.1080/00949659308811496
 __nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
-inline HOSTDEVICE real_type btrs(rng_state_type& rng_state, int n_int, real_type p) {
+inline __host__ __device__
+real_type btrs(rng_state_type& rng_state, int n_int, real_type p) {
   const real_type n = static_cast<real_type>(n_int);
   const real_type one = 1.0;
   const real_type half = 0.5;
@@ -124,7 +128,8 @@ inline HOSTDEVICE real_type btrs(rng_state_type& rng_state, int n_int, real_type
   const real_type v_r = static_cast<real_type>(0.92) - static_cast<real_type>(4.2) / b;
   const real_type r = p / (1 - p);
 
-  const real_type alpha = (static_cast<real_type>(2.83) + static_cast<real_type>(5.1) / b) * stddev;
+  const real_type alpha = (static_cast<real_type>(2.83) +
+                           static_cast<real_type>(5.1) / b) * stddev;
   const real_type m = std::floor((n + 1) * p);
 
   real_type draw;
@@ -168,15 +173,18 @@ inline HOSTDEVICE real_type btrs(rng_state_type& rng_state, int n_int, real_type
 }
 
 template <typename real_type>
-HOSTDEVICE void binomial_validate(int n, real_type p) {
+__host__ __device__
+void binomial_validate(int n, real_type p) {
   if (n < 0 || p < 0 || p > 1) {
 #ifdef __CUDA_ARCH__
     // This is unrecoverable
-    printf("Invalid call to binomial with n = %d, p = %g, q = %g\n", n, p, 1 - p);
+    printf("Invalid call to binomial with n = %d, p = %g, q = %g\n",
+           n, p, 1 - p);
     __trap();
 #else
     char buffer[256];
-    snprintf(buffer, 256, "Invalid call to binomial with n = %d, p = %g, q = %g",
+    snprintf(buffer, 256,
+             "Invalid call to binomial with n = %d, p = %g, q = %g",
              n, p, 1 - p);
     throw std::runtime_error(buffer);
 #endif
@@ -184,7 +192,7 @@ HOSTDEVICE void binomial_validate(int n, real_type p) {
 }
 
 template <typename real_type>
-HOST real_type binomial_deterministic(real_type n, real_type p) {
+__host__ real_type binomial_deterministic(real_type n, real_type p) {
   if (n < 0) {
     if (n * n < std::numeric_limits<real_type>::epsilon()) {
       // Avoid small round-off errors here
@@ -202,8 +210,8 @@ HOST real_type binomial_deterministic(real_type n, real_type p) {
 // NOTE: we return a real, not an int, as with deterministic mode this
 // will not necessarily be an integer
 template <typename real_type, typename rng_state_type>
-HOSTDEVICE real_type binomial_stochastic(rng_state_type& rng_state, int n,
-                                      real_type p) {
+__host__ __device__
+real_type binomial_stochastic(rng_state_type& rng_state, int n, real_type p) {
   binomial_validate(n, p);
   real_type draw;
 
@@ -233,7 +241,8 @@ HOSTDEVICE real_type binomial_stochastic(rng_state_type& rng_state, int n,
 }
 
 template <typename real_type, typename rng_state_type>
-HOSTDEVICE real_type binomial(rng_state_type& rng_state, real_type n, real_type p) {
+__host__ __device__
+real_type binomial(rng_state_type& rng_state, real_type n, real_type p) {
   static_assert(std::is_floating_point<real_type>::value,
                 "Only valid for floating-point types; use binomial<real_type>()");
 #ifndef __CUDA_ARCH__
