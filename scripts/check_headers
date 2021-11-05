@@ -19,6 +19,23 @@ include_cpp <- paste0("-I", path_cpp)
 
 ok <- TRUE
 files <- dir(path_dust, "\\.hpp$", recursive = TRUE)
+
+message("Checking header guards")
+for (f in files) {
+  message(crayon::bold(sprintf("%s...", f)), appendLF = FALSE)
+  txt <- readLines(file.path(path_dust, f))
+  name <- toupper(gsub("[/+.]", "_", f))
+  expected <- c(sprintf("#ifndef %s", name), sprintf("#define %s", name))
+  i <- if (f == "dust/random/gamma_table.hpp") 2:3 else 1:2
+  if (identical(txt[i], expected)) {
+    message(crayon::bold(crayon::green("OK")))
+  } else {
+    ok <- FALSE
+    message(crayon::bold(crayon::red("FAIL")))
+  }
+}
+
+message("Checking headers are self-contained")
 for (f in files) {
   message(crayon::bold(sprintf("%s...", f)), appendLF = FALSE)
   include <- c(include_r, include_dust)

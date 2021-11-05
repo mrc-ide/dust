@@ -1,5 +1,5 @@
-#ifndef DUST_R_HPP
-#define DUST_R_HPP
+#ifndef DUST_R_DUST_HPP
+#define DUST_R_DUST_HPP
 
 #include <cstring>
 #include <map>

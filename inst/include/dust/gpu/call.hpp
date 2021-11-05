@@ -1,5 +1,5 @@
-#ifndef DUST_CUDA_CALL_HPP
-#define DUST_CUDA_CALL_HPP
+#ifndef DUST_GPU_CALL_HPP
+#define DUST_GPU_CALL_HPP
 
 #ifdef __NVCC__
 

@@ -1,5 +1,5 @@
-#ifndef DUST_CUDA_CUDA_HPP
-#define DUST_CUDA_CUDA_HPP
+#ifndef DUST_GPU_CUDA_HPP
+#define DUST_GPU_CUDA_HPP
 
 // Important: some key defines occur in
 // dust/random/cuda_compatibility.hpp rather than here; they need to

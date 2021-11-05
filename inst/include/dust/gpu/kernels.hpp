@@ -1,5 +1,5 @@
-#ifndef DUST_CUDA_KERNELS_HPP
-#define DUST_CUDA_KERNELS_HPP
+#ifndef DUST_GPU_KERNELS_HPP
+#define DUST_GPU_KERNELS_HPP
 
 #include "dust/gpu/device_state.hpp"
 #include "dust/utils.hpp"

@@ -1,5 +1,5 @@
-#ifndef DUST_CUDA_FILTER_KERNELS_HPP
-#define DUST_CUDA_FILTER_KERNELS_HPP
+#ifndef DUST_GPU_FILTER_KERNELS_HPP
+#define DUST_GPU_FILTER_KERNELS_HPP
 
 #include <cmath>
 #include "dust/gpu/cuda.hpp"

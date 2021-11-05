@@ -1,5 +1,5 @@
-#ifndef DUST_DUST_HPP
-#define DUST_DUST_HPP
+#ifndef DUST_DUST_CPU_HPP
+#define DUST_DUST_CPU_HPP
 
 #include <algorithm>
 #include <map>

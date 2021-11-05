@@ -1,5 +1,5 @@
-#ifndef DUST_CUDA_UTILS_HPP
-#define DUST_CUDA_UTILS_HPP
+#ifndef DUST_GPU_UTILS_HPP
+#define DUST_GPU_UTILS_HPP
 
 #include <algorithm>
 #include <numeric>

@@ -1,5 +1,5 @@
-#ifndef DUST_CUDA_LAUNCH_CONTROL_HPP
-#define DUST_CUDA_LAUNCH_CONTROL_HPP
+#ifndef DUST_GPU_LAUNCH_CONTROL_HPP
+#define DUST_GPU_LAUNCH_CONTROL_HPP
 
 #include "dust/gpu/types.hpp"
 #include "dust/gpu/utils.hpp"

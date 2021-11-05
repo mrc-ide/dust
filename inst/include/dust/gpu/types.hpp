@@ -1,5 +1,5 @@
-#ifndef DUST_CUDA_TYPES_HPP
-#define DUST_CUDA_TYPES_HPP
+#ifndef DUST_GPU_TYPES_HPP
+#define DUST_GPU_TYPES_HPP
 
 #include <cstring>
 #include <numeric>

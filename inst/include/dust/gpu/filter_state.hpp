@@ -1,5 +1,5 @@
-#ifndef DUST_CUDA_FILTER_STATE_HPP
-#define DUST_CUDA_FILTER_STATE_HPP
+#ifndef DUST_GPU_FILTER_STATE_HPP
+#define DUST_GPU_FILTER_STATE_HPP
 
 #include "dust/filter_state.hpp"
 #include "dust/gpu/device_state.hpp"

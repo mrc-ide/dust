@@ -1,5 +1,5 @@
-#ifndef DUST_CUDA_DEVICE_STATE_CUH
-#define DUST_CUDA_DEVICE_STATE_CUH
+#ifndef DUST_GPU_DEVICE_STATE_HPP
+#define DUST_GPU_DEVICE_STATE_HPP
 
 #include "dust/gpu/cuda.hpp"
 #include "dust/gpu/types.hpp"

@@ -1,5 +1,5 @@
-#ifndef DUST_R_CUDA_GPU_INFO_HPP
-#define DUST_R_CUDA_GPU_INFO_HPP
+#ifndef DUST_R_GPU_INFO_HPP
+#define DUST_R_GPU_INFO_HPP
 
 #include <cpp11/data_frame.hpp>
 #include <cpp11/doubles.hpp>
