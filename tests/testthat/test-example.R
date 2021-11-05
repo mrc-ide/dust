@@ -250,8 +250,8 @@ test_that("run in float mode", {
               quiet = TRUE)
 
   obj <- res$new(list(sd = 10), 0, 5, seed = 1L)
-
-  expect_equal(obj$gpu_info()$real_bits, 32)
+  expect_equal(obj$real_size(), 32)
+  expect_equal(dust_example("walk")$public_methods$real_size(), 64)
 
   y <- drop(obj$simulate(1:7))
 

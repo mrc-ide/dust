@@ -370,8 +370,8 @@ dust_generator <- R6::R6Class(
     },
 
     ##' @description
-    ##' Return the size of real numbers (in bytes). Typically this will be
-    ##' 8 for double precision and 4 for `float`..  This method can also be
+    ##' Return the size of real numbers (in bits). Typically this will be
+    ##' 64 for double precision and 32 for `float`..  This method can also be
     ##' used as a static method by running it directory as
     ##' `dust_generator$public_methods$real_size()`
     real_size = function() {

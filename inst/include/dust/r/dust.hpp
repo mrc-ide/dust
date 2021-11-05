@@ -537,7 +537,7 @@ cpp11::sexp dust_capabilities() {
   return cpp11::writable::list({"openmp"_nm = openmp,
                                 "compare"_nm = compare,
                                 "gpu"_nm = gpu,
-                                "real_size"_nm = real_size});
+                                "real_size"_nm = real_size * CHAR_BIT});
 }
 
 template <typename T>
