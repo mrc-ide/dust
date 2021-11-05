@@ -311,9 +311,15 @@ g++ -I$(PATH_DUST_INCLUDE) -O2 -std=c++11 -fopenmp -o rnguse rnguse.cpp
 
 where `$PATH_DUST_INCLUDE` is the path to the header only library.
 
+### Standalone, parallel on a GPU
+
+This is considerably more complicated and will depend on your aims with your GPU-accelerated program.
+
+We include [examples in a repository showing `dust::random` vs `curand` benchmarks](https://github.com/mrc-ide/dust-random-bench/blob/main/dustrand.cu). This covers setting up the RNG state so that it can be set from the host and retrieved, interleaving as appropriate, plus samples from the uniform, normal, exponential Poisson and binomial distributions. We overlap with `curand` only for uniform, normal, and Poisson.  See [the repository](https://github.com/mrc-ide/dust-random-bench) for more details.
+
 ## Other packages with similar functionality
 
-There are many packages offering similar functionality to this
+There are many packages offering similar functionality to `dust`:
 
 * [`sitmo`](https://cran.r-project.org/package=sitmo) offers several modern RNGs (sitmo, threefry, vandercorput) for generating standard uniform numbers (U(0, 1)), designed to be usable from an Rcpp-using package.
 * [`dqrng`](https://cran.r-project.org/package=dqrng) offers an overlapping set and generators for normal and exponential random numbers, also designed to be used with Rcpp and BH.
