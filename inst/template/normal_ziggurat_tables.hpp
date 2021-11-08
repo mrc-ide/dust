@@ -6,13 +6,33 @@ namespace dust {
 namespace random {
 namespace ziggurat {
 
+template <typename T>
+T x[257];
+
+template <typename T>
+T y[256];
+
+template <>
 CONSTANT
-double x[257] = {
+double x<double>[257] = {
 {{x}}
 };
 
+template <>
 CONSTANT
-double y[256] = {
+double y<double>[256] = {
+{{y}}
+};
+
+template <>
+CONSTANT
+float x<float>[257] = {
+{{x}}
+};
+
+template <>
+CONSTANT
+float y<float>[256] = {
 {{y}}
 };
 
