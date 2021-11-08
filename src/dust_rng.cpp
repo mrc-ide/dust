@@ -66,6 +66,29 @@ cpp11::writable::doubles dust_rng_random_real(SEXP ptr, int n, int n_threads) {
   return double_matrix(ret, n, n_generators);
 }
 
+template <typename real_type, dust::random::algorithm::normal A, typename T>
+cpp11::writable::doubles dust_rng_random_normal(SEXP ptr, int n,
+                                                int n_threads) {
+  T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
+  const int n_generators = rng->size();
+
+  cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_generators);
+  double * y = REAL(ret);
+
+#ifdef _OPENMP
+   #pragma omp parallel for schedule(static) num_threads(n_threads)
+#endif
+  for (int i = 0; i < n_generators; ++i) {
+    auto &state = rng->state(i);
+    auto y_i = y + n * i;
+    for (size_t j = 0; j < (size_t)n; ++j) {
+      y_i[j] = dust::random::random_normal<real_type, A>(state);
+    }
+  }
+
+  return double_matrix(ret, n, n_generators);
+}
+
 struct input_vary {
   size_t len;
   size_t offset;
@@ -416,6 +439,26 @@ cpp11::writable::doubles dust_rng_random_real(SEXP ptr, int n, int n_threads,
 }
 
 [[cpp11::register]]
+cpp11::sexp dust_rng_random_normal(SEXP ptr, int n, int n_threads,
+                                   std::string algorithm, bool is_float) {
+  cpp11::sexp ret;
+  if (algorithm == "box_muller") {
+    constexpr auto a = dust::random::algorithm::normal::box_muller;
+    ret = is_float ?
+      dust_rng_random_normal<float, a, dust_rng32>(ptr, n, n_threads) :
+      dust_rng_random_normal<double, a, dust_rng64>(ptr, n, n_threads);
+  } else if (algorithm == "ziggurat") {
+    constexpr auto a = dust::random::algorithm::normal::ziggurat;
+    ret = is_float ?
+      dust_rng_random_normal<float, a, dust_rng32>(ptr, n, n_threads) :
+      dust_rng_random_normal<double, a, dust_rng64>(ptr, n, n_threads);
+  } else {
+    cpp11::stop("Unknown normal algorithm '%s'", algorithm.c_str());
+  }
+  return ret;
+}
+
+[[cpp11::register]]
 cpp11::writable::doubles dust_rng_uniform(SEXP ptr, int n,
                                           cpp11::doubles r_min,
                                           cpp11::doubles r_max,
@@ -439,7 +482,7 @@ cpp11::writable::doubles dust_rng_exponential(SEXP ptr, int n,
 [[cpp11::register]]
 cpp11::sexp dust_rng_normal(SEXP ptr, int n, cpp11::doubles r_mean,
                             cpp11::doubles r_sd, int n_threads,
-                            bool is_float, std::string algorithm) {
+                            std::string algorithm, bool is_float) {
   cpp11::sexp ret;
   if (algorithm == "box_muller") {
     constexpr auto a = dust::random::algorithm::normal::box_muller;

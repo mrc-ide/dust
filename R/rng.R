@@ -192,6 +192,20 @@ dust_rng <- R6::R6Class(
       dust_rng_random_real(private$ptr, n, n_threads, private$float)
     },
 
+    ##' @description Generate `n` numbers from a standard normal distribution
+    ##'
+    ##' @param n Number of samples to draw (per generator)
+    ##'
+    ##' @param n_threads Number of threads to use; see Details
+    ##'
+    ##' @param algorithm Name of the algorithm to use; currently `box_muller`
+    ##'   and `ziggurat` are supported, with the latter being considerably
+    ##'   faster.
+    random_normal = function(n, n_threads = 1L, algorithm = "box_muller") {
+      dust_rng_random_normal(private$ptr, n, n_threads, algorithm,
+                             private$float)
+    },
+    
     ##' @description Generate `n` numbers from a uniform distribution
     ##'
     ##' @param n Number of samples to draw (per generator)
@@ -219,8 +233,8 @@ dust_rng <- R6::R6Class(
     ##'   and `ziggurat` are supported, with the latter being considerably
     ##'   faster.
     normal = function(n, mean, sd, n_threads = 1L, algorithm = "box_muller") {
-      dust_rng_normal(private$ptr, n, mean, sd, n_threads, private$float,
-                      algorithm)
+      dust_rng_normal(private$ptr, n, mean, sd, n_threads, algorithm,
+                      private$float)
     },
 
     ##' @description Generate `n` numbers from a binomial distribution

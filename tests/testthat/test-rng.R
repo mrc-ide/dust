@@ -199,23 +199,32 @@ test_that("Short circuit exit does not update rng state", {
 
 test_that("normal (box_muller) agrees with stats::rnorm", {
   n <- 100000
-  mu <- exp(1)
-  sd <- pi
-  ans <- dust_rng$new(2)$normal(n, mu, sd)
-  expect_equal(mean(ans), mu, tolerance = 1e-2)
-  expect_equal(sd(ans), sd, tolerance = 1e-2)
-  expect_gt(ks.test(ans, "pnorm", mu, sd)$p.value, 0.1)
+  ans <- dust_rng$new(2)$random_normal(n)
+  expect_equal(mean(ans), 0, tolerance = 1e-2)
+  expect_equal(sd(ans), 1, tolerance = 1e-2)
+  expect_gt(ks.test(ans, "pnorm")$p.value, 0.1)
 })
 
 
 test_that("normal (ziggurat) agrees with stats::rnorm", {
   n <- 100000
-  mu <- exp(1)
+  ans <- dust_rng$new(2)$random_normal(n, algorithm = "ziggurat")
+  expect_equal(mean(ans), 0, tolerance = 1e-2)
+  expect_equal(sd(ans), 1, tolerance = 1e-2)
+  expect_gt(ks.test(ans, "pnorm")$p.value, 0.1)
+})
+
+
+test_that("normal scales draws", {
+  n <- 100
+  mean <- exp(1)
   sd <- pi
-  ans <- dust_rng$new(2)$normal(n, mu, sd, algorithm = "ziggurat")
-  expect_equal(mean(ans), mu, tolerance = 1e-2)
-  expect_equal(sd(ans), sd, tolerance = 1e-2)
-  expect_gt(ks.test(ans, "pnorm", mu, sd)$p.value, 0.1)
+  rng1 <- dust_rng$new(1)
+  rng2 <- dust_rng$new(1)
+  expect_equal(rng1$normal(n, mean, sd),
+               mean + sd * rng2$random_normal(n))
+  expect_equal(rng1$normal(n, mean, sd, algorithm = "ziggurat"),
+               mean + sd * rng2$random_normal(n, algorithm = "ziggurat"))
 })
 
 
