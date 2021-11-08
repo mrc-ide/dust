@@ -137,7 +137,7 @@ std::vector<real_type> dest(3);
 dust::rng::multinomial<real_type>(state, 20, prob, dest);
 ```
 
-There is also one special case distribution, the **Standard uniform distribution** (between 0 and 1) - faster than using `$uniform(n, 0, 1)`:
+There are also two special case distributions, the **Standard uniform distribution** (between 0 and 1) - faster than using `$uniform(n, 0, 1)`:
 
 ```{r}
 rng$random_real(10)
@@ -145,6 +145,16 @@ rng$random_real(10)
 
 ```cc
 real_type u = dust::random::random_real<real_type>(state);
+```
+
+the **Standard normal distribution** (between mean 0 and sd 1) - faster than using `$normal(n, 0, 1)`:
+
+```{r}
+rng$random_normal(10)
+```
+
+```cc
+real_type u = dust::random::random_normal<real_type>(state);
 ```
 
 ## Performance

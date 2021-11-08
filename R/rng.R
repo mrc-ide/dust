@@ -84,6 +84,9 @@
 ##' # Shorthand for Uniform(0, 1)
 ##' rng$random_real(5)
 ##'
+##' # Shorthand for Normal(0, 1)
+##' rng$random_normal(5)
+##'
 ##' # Uniform random numbers between min and max
 ##' rng$uniform(5, -2, 6)
 ##'
