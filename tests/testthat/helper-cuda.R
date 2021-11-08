@@ -3,8 +3,7 @@ example_cuda_config <- function() {
        cuda_version = numeric_version("11.1.243"),
        devices = data.frame(
          id = 0L, name = "GeForce RTX 2080 Ti", memory = 11016.3125,
-         version = 75L, stringsAsFactors = FALSE),
-       real_bits = 32L)
+         version = 75L, stringsAsFactors = FALSE))
 }
 
 mock_create_test_package <- function(...) {
@@ -15,7 +14,7 @@ mock_create_test_package <- function(...) {
   writeLines(sprintf("Package: %s\nVersion: 0.1", base),
              file.path(path, "DESCRIPTION"))
   file.create(file.path(path, "NAMESPACE"))
-  code <- sprintf("dust_device_info <- function() %s",
+  code <- sprintf("dust_gpu_info <- function() %s",
                   paste(deparse(example_cuda_config()), collapse = "\n"))
   writeLines(code, file.path(path, "R", "code.R"))
   list(path = path, name = base)

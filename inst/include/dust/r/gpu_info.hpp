@@ -1,5 +1,5 @@
-#ifndef DUST_INTERFACE_CUDA_DEVICE_INFO_HPP
-#define DUST_INTERFACE_CUDA_DEVICE_INFO_HPP
+#ifndef DUST_R_GPU_INFO_HPP
+#define DUST_R_GPU_INFO_HPP
 
 #include <cpp11/data_frame.hpp>
 #include <cpp11/doubles.hpp>
@@ -8,18 +8,16 @@
 #include <cpp11/logicals.hpp>
 #include <cpp11/strings.hpp>
 
-#include "dust/cuda/device_info.hpp"
+#include "dust/gpu/gpu_info.hpp"
 
 // NOTE: this one gets its own file because we can't include cub at
 // this point for our test program (we want to get the CUDA version
 // which indicates if we *need* to find cub)
 namespace dust {
-namespace cuda {
+namespace gpu {
+namespace r {
 
-// See #317, this is not in the interface namespace (moving it will
-// require recompiling all dust models)
-template <typename real_type>
-cpp11::sexp device_info() {
+inline cpp11::sexp gpu_info() {
   using namespace cpp11::literals;
   cpp11::writable::logicals has_cuda(1);
   int device_count = devices_count();
@@ -61,15 +59,12 @@ cpp11::sexp device_info() {
     "version"_nm = version
     });
 
-  cpp11::writable::integers real_bits =
-    cpp11::as_sexp(sizeof(real_type) * CHAR_BIT);
-
   return cpp11::writable::list({"has_cuda"_nm = has_cuda,
                                 "cuda_version"_nm = cuda_version,
-                                "devices"_nm = devices,
-                                "real_bits"_nm = real_bits});
+                                "devices"_nm = devices});
 }
 
+}
 }
 }
 #endif

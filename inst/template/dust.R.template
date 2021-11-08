@@ -37,7 +37,7 @@
     n_particles_each_ = NULL,
     shape_ = NULL,
     ptr_ = NULL,
-    device_config_ = NULL,
+    gpu_config_ = NULL,
     methods_ = NULL,
     param_ = {{param}}
   ),
@@ -89,36 +89,36 @@
     ##' expectation. Deterministic models are not compatible with running on
     ##' a a GPU.
     ##'
-    ##' @param device_config Device configuration, typically an integer
+    ##' @param gpu_config GPU configuration, typically an integer
     ##' indicating the device to use, where the model has GPU support.
     ##' If not given, then the default value of `NULL` will fall back on the
     ##' first found device if any are available. An error is thrown if the
     ##' device id given is larger than those reported to be available (note
     ##' that CUDA numbers devices from 0, so that '0' is the first device,
-    ##' and so on). Negative values disable the use of a device. See the
-    ##' method `$device_info()` for available device ids; this can be called
-    ##' before object creation as `{{name}}$public_methods$device_info()`.
+    ##' and so on). See the method `$gpu_info()` for available device ids;
+    ##' this can be called before object creation as
+    ##' `{{name}}$public_methods$gpu_info()`.
     ##' For additional control, provide a list with elements `device_id`
     ##' and `run_block_size`. Further options (and validation) of this
     ##' list will be added in a future version!
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
-                          device_config = NULL) {
-      if (is.null(device_config)) {
+                          gpu_config = NULL) {
+      if (is.null(gpu_config)) {
         private$methods_ <- {{methods_cpu}}
       } else {
         private$methods_ <- {{methods_gpu}}
       }
       res <- private$methods_$alloc(pars, pars_multi, step, n_particles,
-                        n_threads, seed, deterministic, device_config)
+                        n_threads, seed, deterministic, gpu_config)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
       private$ptr_ <- res[[1L]]
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
-      private$device_config_ <- res[[4L]]
+      private$gpu_config_ <- res[[4L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -419,17 +419,36 @@
     ##' "CUDA" support, in which case it will react to the `device`
     ##' argument passed to the run method. This method can also be used
     ##' as a static method by running it directly
-    ##' as `{{name}}$public_methods$has_cuda()`
+    ##' as `{{name}}$public_methods$has_gpu_support()`
     ##'
     ##' @param fake_gpu Logical, indicating if we count as `TRUE`
     ##'   models that run on the "fake" GPU (i.e., using the GPU
     ##'   version of the model but running on the CPU)
-    has_cuda = function(fake_gpu = FALSE) {
+    has_gpu_support = function(fake_gpu = FALSE) {
       if (fake_gpu) {
         {{has_gpu_support}}
       } else {
-        dust_{{name}}_capabilities()[["cuda"]]
+        dust_{{name}}_capabilities()[["gpu"]]
       }
+    },
+
+    ##' @description
+    ##' Returns a logical, indicating if this model was compiled with
+    ##' "compare" support, in which case the `set_data` and `compare_data`
+    ##' methods are available (otherwise these methods will error). This
+    ##' method can also be used as a static method by running it directly
+    ##' as `{{name}}$public_methods$has_compare()`
+    has_compare = function() {
+      dust_{{name}}_capabilities()[["compare"]]
+    },
+
+    ##' @description
+    ##' Return the size of real numbers (in bits). Typically this will be
+    ##' 64 for double precision and 32 for `float`..  This method can also be
+    ##' used as a static method by running it directory as
+    ##' `{{name}}$public_methods$real_size()`
+    real_size = function() {
+      dust_{{name}}_capabilities()[["real_size"]]
     },
 
     ##' @description
@@ -438,7 +457,7 @@
     ##'   models that run on the "fake" GPU (i.e., using the GPU
     ##'   version of the model but running on the CPU)
     uses_gpu = function(fake_gpu = FALSE) {
-      real_gpu <- private$device_config_$real_gpu
+      real_gpu <- private$gpu_config_$real_gpu
       !is.null(real_gpu) && (fake_gpu || real_gpu)
     },
 
@@ -465,16 +484,6 @@
       private$methods_$set_n_threads(private$ptr_, n_threads)
       private$n_threads_ <- n_threads
       invisible(prev)
-    },
-
-    ##' @description
-    ##' Returns a logical, indicating if this model was compiled with
-    ##' "compare" support, in which case the `set_data` and `compare_data`
-    ##' methods are available (otherwise these methods will error). This
-    ##' method can also be used as a static method by running it directly
-    ##' as `{{name}}$public_methods$has_compare()`
-    has_compare = function() {
-      dust_{{name}}_capabilities()[["compare"]]
     },
 
     ##' @description
@@ -526,16 +535,16 @@
     ##' @description
     ##' Return information about GPU devices, if the model
     ##' has been compiled with CUDA/GPU support. This can be called as a
-    ##' static method by running `{{name}}$public_methods$device_info()`.
+    ##' static method by running `{{name}}$public_methods$gpu_info()`.
     ##' If run from a GPU enabled object, it will also have an element
     ##' `config` containing the computed device configuration: the device
     ##' id, shared memory and the block size for the `run` method on the
     ##' device.
-    device_info = function() {
-      ret <- dust_{{name}}_device_info()
+    gpu_info = function() {
+      ret <- dust_{{name}}_gpu_info()
       parent <- parent.env(environment())
       if (ret$has_cuda && exists("private", parent, inherits = FALSE)) {
-        ret$config <- private$device_config_
+        ret$config <- private$gpu_config_
       }
       ret
     }

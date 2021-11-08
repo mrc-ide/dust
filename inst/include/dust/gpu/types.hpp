@@ -1,5 +1,5 @@
-#ifndef DUST_CUDA_TYPES_HPP
-#define DUST_CUDA_TYPES_HPP
+#ifndef DUST_GPU_TYPES_HPP
+#define DUST_GPU_TYPES_HPP
 
 #include <cstring>
 #include <numeric>
@@ -8,13 +8,13 @@
 
 #include "dust/types.hpp"
 
-#include "dust/cuda/filter_kernels.hpp"
-#include "dust/cuda/utils.hpp"
+#include "dust/gpu/filter_kernels.hpp"
+#include "dust/gpu/utils.hpp"
 
 #include "dust/random/numeric.hpp"
 
 namespace dust {
-namespace cuda {
+namespace gpu {
 
 // The class from before, which is a light wrapper around a pointer
 // This can be used within a kernel with copying memory. There is no
@@ -23,29 +23,29 @@ namespace cuda {
 template <typename T>
 class interleaved {
 public:
-  DEVICE interleaved(T* data, size_t offset, size_t stride) :
+  __device__ interleaved(T* data, size_t offset, size_t stride) :
     data_(data + offset),
     stride_(stride) {
   }
 
   template <typename Container>
-  DEVICE interleaved(Container& data, size_t offset, size_t stride) :
+  __device__ interleaved(Container& data, size_t offset, size_t stride) :
     interleaved(data.data(), offset, stride) {
   }
 
-  DEVICE T& operator[](size_t i) {
+  __device__ T& operator[](size_t i) {
     return data_[i * stride_];
   }
 
-  DEVICE const T& operator[](size_t i) const {
+  __device__ const T& operator[](size_t i) const {
     return data_[i * stride_];
   }
 
-  DEVICE interleaved<T> operator+(size_t by) {
+  __device__ interleaved<T> operator+(size_t by) {
     return interleaved(data_ + by * stride_, 0, stride_);
   }
 
-  DEVICE const interleaved<T> operator+(size_t by) const {
+  __device__ const interleaved<T> operator+(size_t by) const {
     return interleaved(data_ + by * stride_, 0, stride_);
   }
 
@@ -630,39 +630,39 @@ private:
 // for either real or int types and return the length of data
 // required.
 template <typename T>
-size_t device_internal_int_size(typename dust::shared_ptr<T> shared) {
+size_t internal_int_size(typename dust::shared_ptr<T> shared) {
   return 0;
 }
 
 template <typename T>
-size_t device_internal_real_size(typename dust::shared_ptr<T> shared) {
+size_t internal_real_size(typename dust::shared_ptr<T> shared) {
   return 0;
 }
 
 template <typename T>
-size_t device_shared_int_size(typename dust::shared_ptr<T> shared) {
+size_t shared_int_size(typename dust::shared_ptr<T> shared) {
   return 0;
 }
 
 template <typename T>
-size_t device_shared_real_size(typename dust::shared_ptr<T> shared) {
+size_t shared_real_size(typename dust::shared_ptr<T> shared) {
   return 0;
 }
 
 template <typename T>
-void device_shared_copy(typename dust::shared_ptr<T> shared,
-                        int * shared_int,
-                        typename T::real_type * shared_real) {
+void shared_copy(typename dust::shared_ptr<T> shared,
+                 int * shared_int,
+                 typename T::real_type * shared_real) {
 }
 
 template <typename T>
-T* shared_copy(T* dest, const std::vector<T>& src) {
+T* shared_copy_data(T* dest, const std::vector<T>& src) {
   memcpy(dest, src.data(), src.size() * sizeof(T));
   return dest + src.size();
 }
 
 template <typename T>
-T* shared_copy(T* dest, const T src) {
+T* shared_copy_data(T* dest, const T src) {
   *dest = src;
   return dest + 1;
 }
@@ -675,7 +675,7 @@ struct device_ptrs {
 };
 
 template <typename rng_state_type>
-DEVICE
+__device__
 rng_state_type get_rng_state(const interleaved<typename rng_state_type::int_type>& full_rng_state) {
   rng_state_type rng_state;
   for (size_t i = 0; i < rng_state.size(); i++) {
@@ -686,7 +686,7 @@ rng_state_type get_rng_state(const interleaved<typename rng_state_type::int_type
 
 // Write state into global memory
 template <typename rng_state_type>
-DEVICE
+__device__
 void put_rng_state(rng_state_type& rng_state,
                    interleaved<typename rng_state_type::int_type>& full_rng_state) {
   for (size_t i = 0; i < rng_state.size(); i++) {

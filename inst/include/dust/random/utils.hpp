@@ -20,36 +20,36 @@ T int_to_real(U x);
 #define TWOPOW53_INV_DOUBLE (1.1102230246251565e-16)
 
 template <>
-inline HOSTDEVICE
+inline __host__ __device__
 double int_to_real(uint64_t x) {
   return (x >> 11) * TWOPOW53_INV_DOUBLE + (TWOPOW53_INV_DOUBLE / 2.0);
 }
 
 template <>
-inline HOSTDEVICE
+inline __host__ __device__
 double int_to_real(uint32_t x) {
   return x * TWOPOW32_INV_DOUBLE + (TWOPOW32_INV_DOUBLE / 2.0);
 }
 
 template <>
-inline HOSTDEVICE
+inline __host__ __device__
 float int_to_real(uint64_t x) {
   uint32_t t = (uint32_t)(x >> 32);
   return t * TWOPOW32_INV + (TWOPOW32_INV / 2.0f);
 }
 
 template <>
-inline HOSTDEVICE
+inline __host__ __device__
 float int_to_real(uint32_t x) {
   return x * TWOPOW32_INV + (TWOPOW32_INV / 2.0f);
 }
 
-inline HOSTDEVICE
+inline __host__ __device__
 uint64_t rotl(const uint64_t x, int k) {
   return (x << k) | (x >> (64 - k));
 }
 
-inline HOSTDEVICE
+inline __host__ __device__
 uint32_t rotl(const uint32_t x, int k) {
   return (x << k) | (x >> (32 - k));
 }
@@ -59,18 +59,18 @@ template <typename T>
 constexpr size_t bit_size();
 
 template <>
-inline HOST
+inline __host__
 constexpr size_t bit_size<uint32_t>() {
   return 32;
 }
 
 template <>
-inline HOST
+inline __host__
 constexpr size_t bit_size<uint64_t>() {
   return 64;
 }
 
-inline HOST uint64_t splitmix64(uint64_t seed) {
+inline __host__ uint64_t splitmix64(uint64_t seed) {
   uint64_t z = (seed += 0x9e3779b97f4a7c15);
   z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9;
   z = (z ^ (z >> 27)) * 0x94d049bb133111eb;

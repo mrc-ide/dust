@@ -1,5 +1,5 @@
-#ifndef DUST_CUDA_DUST_DEVICE_HPP
-#define DUST_CUDA_DUST_DEVICE_HPP
+#ifndef DUST_GPU_DUST_GPU_HPP
+#define DUST_GPU_DUST_GPU_HPP
 
 #include <algorithm>
 #include <map>
@@ -12,13 +12,13 @@
 #include <omp.h>
 #endif
 
-#include "dust/cuda/call.hpp"
-#include "dust/cuda/cuda.hpp"
-#include "dust/cuda/device_resample.hpp"
-#include "dust/cuda/filter_state.hpp"
-#include "dust/cuda/kernels.hpp"
-#include "dust/cuda/launch_control.hpp"
-#include "dust/cuda/types.hpp"
+#include "dust/gpu/call.hpp"
+#include "dust/gpu/cuda.hpp"
+#include "dust/gpu/device_resample.hpp"
+#include "dust/gpu/filter_state.hpp"
+#include "dust/gpu/kernels.hpp"
+#include "dust/gpu/launch_control.hpp"
+#include "dust/gpu/types.hpp"
 #include "dust/filter_tools.hpp"
 #include "dust/particle.hpp"
 #include "dust/random/density.hpp"
@@ -28,7 +28,7 @@
 namespace dust {
 
 template <typename T>
-class DustDevice {
+class dust_gpu {
 public:
   typedef T model_type;
   typedef dust::pars_type<T> pars_type;
@@ -39,12 +39,12 @@ public:
   typedef typename T::rng_state_type rng_state_type;
   typedef typename rng_state_type::int_type rng_int_type;
 
-  // TODO: fix this elsewhere, perhaps (see also dust/dust.hpp)
+  // TODO: fix this elsewhere, perhaps (see also dust/dust_cpu.hpp)
   typedef dust::filter::filter_state_device<real_type> filter_state_type;
 
-  DustDevice(const pars_type& pars, const size_t step, const size_t n_particles,
-       const size_t n_threads, const std::vector<rng_int_type>& seed,
-       const cuda::device_config& device_config) :
+  dust_gpu(const pars_type& pars, const size_t step, const size_t n_particles,
+           const size_t n_threads, const std::vector<rng_int_type>& seed,
+           const gpu::gpu_config& gpu_config) :
     n_pars_(0),
     n_particles_each_(n_particles),
     n_particles_total_(n_particles),
@@ -52,7 +52,7 @@ public:
     n_state_(0),
     pars_are_shared_(true),
     n_threads_(n_threads),
-    device_config_(device_config),
+    gpu_config_(gpu_config),
     select_needed_(true),
     select_scatter_(false),
     step_(step) {
@@ -60,11 +60,11 @@ public:
     shape_ = {n_particles};
   }
 
-  DustDevice(const std::vector<pars_type>& pars, const size_t step,
-       const size_t n_particles, const size_t n_threads,
-       const std::vector<rng_int_type>& seed,
-       const std::vector<size_t>& shape,
-       const cuda::device_config& device_config) :
+  dust_gpu(const std::vector<pars_type>& pars, const size_t step,
+           const size_t n_particles, const size_t n_threads,
+           const std::vector<rng_int_type>& seed,
+           const std::vector<size_t>& shape,
+           const gpu::gpu_config& gpu_config) :
     n_pars_(pars.size()),
     n_particles_each_(n_particles == 0 ? 1 : n_particles),
     n_particles_total_(n_particles_each_ * pars.size()),
@@ -72,7 +72,7 @@ public:
     n_state_(0),
     pars_are_shared_(n_particles != 0),
     n_threads_(n_threads),
-    device_config_(device_config),
+    gpu_config_(gpu_config),
     select_needed_(true),
     select_scatter_(false),
     step_(step) {
@@ -90,8 +90,8 @@ public:
   // include ond otherwise because we don't actually follow the rule
   // of 3/5/0
 #ifdef DUST_ENABLE_CUDA_PROFILER
-  ~Dust() {
-    cuda_profiler_stop(device_config_);
+  ~dust_gpu() {
+    cuda_profiler_stop(gpu_config_);
   }
 #endif
 
@@ -146,7 +146,7 @@ public:
   // this model because we always (currently) run particles serially
   // on the cpu (and errors on the gpu are unrecoverable). If we ever
   // set up to do openmp running of the particles (and we probably
-  // should), then these need the same implementation as for Dust.
+  // should), then these need the same implementation as for dust_cpu.
   void check_errors() {
   }
 
@@ -219,14 +219,14 @@ public:
 
     const auto block_size = cuda_pars_.index_scatter.block_size;
     cuda_pars_.index_scatter =
-      dust::cuda::launch_control_simple(block_size, n_particles * n_state());
+      dust::gpu::launch_control_simple(block_size, n_particles * n_state());
   }
 
   void run(const size_t step_end) {
     if (step_end > step_) {
       const size_t step_start = step_;
 #ifdef __NVCC__
-      dust::cuda::run_particles<T><<<cuda_pars_.run.block_count,
+      dust::gpu::run_particles<T><<<cuda_pars_.run.block_count,
                                      cuda_pars_.run.block_size,
                                      cuda_pars_.run.shared_size_bytes,
                                      kernel_stream_.stream()>>>(
@@ -247,7 +247,7 @@ public:
 #else
       const bool use_shared_int = false;
       const bool use_shared_real = false;
-      dust::cuda::run_particles<T>(step_start, step_end, n_particles_total_,
+      dust::gpu::run_particles<T>(step_start, step_end, n_particles_total_,
                       n_pars_effective(),
                       device_state_.y.data(),
                       device_state_.y_next.data(),
@@ -343,7 +343,7 @@ public:
     get_device_state(end_state);
   }
 
-  void state_full(dust::cuda::device_array<real_type>& device_state,
+  void state_full(dust::gpu::device_array<real_type>& device_state,
                   size_t dst_offset) {
     device_state.set_array(device_state_.y.data(),
                            device_state_.y.size(), dst_offset);
@@ -355,7 +355,7 @@ public:
     device_state_.scatter_index.set_array(index);
     bool select_kernel = false;
 #ifdef __NVCC__
-    dust::cuda::scatter_device<real_type><<<cuda_pars_.reorder.block_count,
+    dust::gpu::scatter_device<real_type><<<cuda_pars_.reorder.block_count,
                                           cuda_pars_.reorder.block_size,
                                           0,
                                           kernel_stream_.stream()>>>(
@@ -367,7 +367,7 @@ public:
       select_kernel);
     kernel_stream_.sync();
 #else
-    dust::cuda::scatter_device<real_type>(
+    dust::gpu::scatter_device<real_type>(
       device_state_.scatter_index.data(),
       device_state_.y.data(),
       device_state_.y_next.data(),
@@ -383,11 +383,11 @@ public:
   // NOTE: this is only used for debugging/testing, otherwise we would
   // make device_weights and scan class members.
   std::vector<size_t> resample(const std::vector<real_type>& weights) {
-    dust::cuda::device_weights<real_type>
+    dust::gpu::device_weights<real_type>
       device_weights(n_particles(), n_pars_effective());
     device_weights.weights() = weights;
 
-    dust::cuda::device_scan_state<real_type> scan;
+    dust::gpu::device_scan_state<real_type> scan;
     scan.initialise(n_particles_total_, device_weights.weights());
     resample(device_weights.weights(), scan);
 
@@ -397,8 +397,8 @@ public:
   }
 
   // Functions used in the device filter
-  void resample(dust::cuda::device_array<real_type>& weights,
-                dust::cuda::device_scan_state<real_type>& scan) {
+  void resample(dust::gpu::device_array<real_type>& weights,
+                dust::gpu::device_scan_state<real_type>& scan) {
     dust::filter::run_device_resample(n_particles(),
                                       n_pars_effective(),
                                       n_state_full(),
@@ -412,16 +412,16 @@ public:
   }
 
   // For the particle filter only
-  dust::cuda::device_array<size_t>& filter_kappa() {
+  dust::gpu::device_array<size_t>& filter_kappa() {
     return device_state_.scatter_index;
   }
 
-  dust::cuda::device_array<real_type>& device_state_full() {
+  dust::gpu::device_array<real_type>& device_state_full() {
     kernel_stream_.sync();
     return device_state_.y;
   }
 
-  dust::cuda::device_array<real_type>& device_state_selected() {
+  dust::gpu::device_array<real_type>& device_state_selected() {
     run_select();
     return device_state_.y_selected;
   }
@@ -493,7 +493,7 @@ public:
         i++;
       }
     }
-    device_data_ = dust::cuda::device_array<data_type>(flattened_data.size());
+    device_data_ = dust::gpu::device_array<data_type>(flattened_data.size());
     device_data_.set_array(flattened_data);
   }
 
@@ -508,10 +508,10 @@ public:
     return res;
   }
 
-  void compare_data(dust::cuda::device_array<real_type>& res,
+  void compare_data(dust::gpu::device_array<real_type>& res,
                     const size_t data_offset) {
 #ifdef __NVCC__
-    dust::cuda::compare_particles<T><<<cuda_pars_.compare.block_count,
+    dust::gpu::compare_particles<T><<<cuda_pars_.compare.block_count,
                                        cuda_pars_.compare.block_size,
                                        cuda_pars_.compare.shared_size_bytes,
                                        kernel_stream_.stream()>>>(
@@ -533,7 +533,7 @@ public:
 #else
     const bool use_shared_int = false;
     const bool use_shared_real = false;
-    dust::cuda::compare_particles<T>(
+    dust::gpu::compare_particles<T>(
                      n_particles(),
                      n_pars_effective(),
                      device_state_.y.data(),
@@ -553,8 +553,8 @@ public:
 
 private:
   // delete move and copy to avoid accidentally using them
-  DustDevice ( const DustDevice & ) = delete;
-  DustDevice ( DustDevice && ) = delete;
+  dust_gpu(const dust_gpu &) = delete;
+  dust_gpu(dust_gpu &&) = delete;
 
   // Host quantities
   const size_t n_pars_; // 0 in the "single" case, >=1 otherwise
@@ -567,15 +567,15 @@ private:
   std::vector<size_t> shape_; // shape of output
   size_t n_threads_;
   rng_state_type resample_rng_; // for the filter
-  cuda::device_config device_config_;
+  gpu::gpu_config gpu_config_;
 
   // GPU support
-  dust::cuda::launch_control_dust cuda_pars_;
-  dust::cuda::device_state<real_type, rng_state_type> device_state_;
-  dust::cuda::device_array<data_type> device_data_;
+  dust::gpu::launch_control_dust cuda_pars_;
+  dust::gpu::device_state<real_type, rng_state_type> device_state_;
+  dust::gpu::device_array<data_type> device_data_;
   std::map<size_t, size_t> device_data_offsets_;
-  dust::cuda::cuda_stream kernel_stream_;
-  dust::cuda::cuda_stream resample_stream_;
+  dust::gpu::cuda_stream kernel_stream_;
+  dust::gpu::cuda_stream resample_stream_;
 
   bool select_needed_;
   bool select_scatter_;
@@ -594,7 +594,7 @@ private:
   void initialise_device_state(const std::vector<pars_type>& pars,
                                const std::vector<rng_int_type>& seed) {
     if (n_state_full_ == 0) {
-      const dust::Particle<T> p(pars[0], step_);
+      const dust::particle<T> p(pars[0], step_);
       n_state_full_ = p.size();
       n_state_ = n_state_full_;
     }
@@ -616,7 +616,7 @@ private:
     // ifdef guards not really needed here but helps guarantee
     // symmetry with destructor.
 #ifdef DUST_ENABLE_CUDA_PROFILER
-    cuda_profiler_start(device_config_);
+    cuda_profiler_start(gpu_config_);
 #endif
   }
 
@@ -624,10 +624,10 @@ private:
   // changes.  Could be merged with the above really.
   void initialise_device_memory(typename dust::shared_ptr<T> s) {
     const size_t n_pars = n_pars_effective();
-    const size_t n_internal_int = dust::cuda::device_internal_int_size<T>(s);
-    const size_t n_internal_real = dust::cuda::device_internal_real_size<T>(s);
-    const size_t n_shared_int = dust::cuda::device_shared_int_size<T>(s);
-    const size_t n_shared_real = dust::cuda::device_shared_real_size<T>(s);
+    const size_t n_internal_int = dust::gpu::internal_int_size<T>(s);
+    const size_t n_internal_real = dust::gpu::internal_real_size<T>(s);
+    const size_t n_shared_int = dust::gpu::shared_int_size<T>(s);
+    const size_t n_shared_real = dust::gpu::shared_real_size<T>(s);
     device_state_.initialise(n_particles_total_, n_state_full_, n_pars,
                              n_internal_int, n_internal_real,
                              n_shared_int, n_shared_real);
@@ -635,9 +635,9 @@ private:
 
   void set_device_shared(const std::vector<pars_type>& pars) {
     size_t n = n_particles() == 0 ? 0 : n_state_full();
-    std::vector<dust::Particle<T>> p;
+    std::vector<dust::particle<T>> p;
     for (size_t i = 0; i < n_pars_effective(); ++i) {
-      p.push_back(dust::Particle<T>(pars[i], step_));
+      p.push_back(dust::particle<T>(pars[i], step_));
       if (n > 0 && p.back().size() != n) {
         std::stringstream msg;
         msg << "'pars' created inconsistent state size: " <<
@@ -655,7 +655,7 @@ private:
     for (size_t i = 0; i < pars.size(); ++i) {
       int * dest_int = shared_int.data() + n_shared_int * i;
       real_type * dest_real = shared_real.data() + n_shared_real * i;
-      dust::cuda::device_shared_copy<T>(pars[i].shared, dest_int, dest_real);
+      dust::gpu::shared_copy<T>(pars[i].shared, dest_int, dest_real);
     }
     device_state_.shared_int.set_array(shared_int);
     device_state_.shared_real.set_array(shared_real);
@@ -677,7 +677,7 @@ private:
 #endif
     for (size_t i = 0; i < n_pars; ++i) {
       for (size_t j = 0; j < n_particles(); ++j) {
-        dust::Particle<T> p(pars[i], step_);
+        dust::particle<T> p(pars[i], step_);
         p.state_full(state_host[i * n_particles() + j].begin());
       }
     }
@@ -746,7 +746,7 @@ private:
                                 kernel_stream_.stream());
     kernel_stream_.sync();
     if (select_scatter_) {
-      dust::cuda::scatter_device<real_type><<<cuda_pars_.index_scatter.block_count,
+      dust::gpu::scatter_device<real_type><<<cuda_pars_.index_scatter.block_count,
                                            cuda_pars_.index_scatter.block_size,
                                            0,
                                            kernel_stream_.stream()>>>(
@@ -769,7 +769,7 @@ private:
       }
     }
     if (select_scatter_) {
-      dust::cuda::scatter_device<real_type>(
+      dust::gpu::scatter_device<real_type>(
         device_state_.index_state_scatter.data(),
         device_state_.y_selected.data(),
         device_state_.y_selected_swap.data(),
@@ -784,15 +784,15 @@ private:
 
   // Set up CUDA block sizes and shared memory preferences
   void set_cuda_launch() {
-    cuda_pars_ = dust::cuda::launch_control_dust(device_config_,
-                                                 n_particles(),
-                                                 n_particles_each_,
-                                                 n_state(),
-                                                 n_state_full(),
-                                                 device_state_.n_shared_int,
-                                                 device_state_.n_shared_real,
-                                                 sizeof(real_type),
-                                                 sizeof(data_type));
+    cuda_pars_ = dust::gpu::launch_control_dust(gpu_config_,
+                                                n_particles(),
+                                                n_particles_each_,
+                                                n_state(),
+                                                n_state_full(),
+                                                device_state_.n_shared_int,
+                                                device_state_.n_shared_real,
+                                                sizeof(real_type),
+                                                sizeof(data_type));
   }
 };
 

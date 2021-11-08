@@ -1,11 +1,11 @@
-#ifndef DUST_CUDA_DEVICE_STATE_CUH
-#define DUST_CUDA_DEVICE_STATE_CUH
+#ifndef DUST_GPU_DEVICE_STATE_HPP
+#define DUST_GPU_DEVICE_STATE_HPP
 
-#include "dust/cuda/cuda.hpp"
-#include "dust/cuda/types.hpp"
+#include "dust/gpu/cuda.hpp"
+#include "dust/gpu/types.hpp"
 
 namespace dust {
-namespace cuda {
+namespace gpu {
 
 // This function loads the shared state (shared_int and shared_real) for a
 // single set of parameters into __shared__ memory. If data is set, provided
@@ -21,7 +21,7 @@ namespace cuda {
 // This is also the default behaviour for non-NVCC compiled code through
 // this function (which does not have __shared__ memory).
 template <typename T>
-DEVICE
+__device__
 device_ptrs<T> load_shared_state(const int pars_idx,
                                  const size_t n_shared_int,
                                  const size_t n_shared_real,

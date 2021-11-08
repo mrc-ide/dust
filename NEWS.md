@@ -1,3 +1,8 @@
+# dust 0.11.5
+
+* Major header reorganisation, the `dust::cuda` namespace is now `dust::gpu`, most user-facing uses of `cuda` and `device` now replaced with `gpu` (#298, #317)
+* New (static) method `real_size` on every dust class for accessing the size of `real_type`, in bits (#301)
+
 # dust 0.11.1
 
 * Support for the multinomial distribution. This differs from most other random number support because it returns a *vector* of values not a single number (#307)

@@ -48,8 +48,8 @@ clean:
 		tests/testthat/example/*.o tests/testthat/example/*.so \
 		src/*.gcov src/*.gcda src/*.gcno
 
-vignettes/cuda.Rmd: vignettes_src/cuda.Rmd
-	./scripts/build_cuda_vignette
+vignettes/gpu.Rmd: vignettes_src/gpu.Rmd
+	./scripts/build_gpu_vignette
 
 vignettes: vignettes/dust.Rmd vignettes/rng.Rmd
 	${RSCRIPT} -e 'tools::buildVignettes(dir = ".")'

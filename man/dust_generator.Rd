@@ -50,15 +50,16 @@ walk
 \item \href{#method-rng_state}{\code{dust_generator$rng_state()}}
 \item \href{#method-set_rng_state}{\code{dust_generator$set_rng_state()}}
 \item \href{#method-has_openmp}{\code{dust_generator$has_openmp()}}
-\item \href{#method-has_cuda}{\code{dust_generator$has_cuda()}}
+\item \href{#method-has_gpu_support}{\code{dust_generator$has_gpu_support()}}
+\item \href{#method-has_compare}{\code{dust_generator$has_compare()}}
+\item \href{#method-real_size}{\code{dust_generator$real_size()}}
 \item \href{#method-uses_gpu}{\code{dust_generator$uses_gpu()}}
 \item \href{#method-n_pars}{\code{dust_generator$n_pars()}}
 \item \href{#method-set_n_threads}{\code{dust_generator$set_n_threads()}}
-\item \href{#method-has_compare}{\code{dust_generator$has_compare()}}
 \item \href{#method-set_data}{\code{dust_generator$set_data()}}
 \item \href{#method-compare_data}{\code{dust_generator$compare_data()}}
 \item \href{#method-filter}{\code{dust_generator$filter()}}
-\item \href{#method-device_info}{\code{dust_generator$device_info()}}
+\item \href{#method-gpu_info}{\code{dust_generator$gpu_info()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -85,7 +86,7 @@ is the same size.
   seed = NULL,
   pars_multi = FALSE,
   deterministic = FALSE,
-  device_config = NULL
+  gpu_config = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -125,15 +126,15 @@ replacing a random number from some distribution with its
 expectation. Deterministic models are not compatible with running on
 a a GPU.}
 
-\item{\code{device_config}}{Device configuration, typically an integer
+\item{\code{gpu_config}}{GPU configuration, typically an integer
 indicating the device to use, where the model has GPU support.
 If not given, then the default value of \code{NULL} will fall back on the
 first found device if any are available. An error is thrown if the
 device id given is larger than those reported to be available (note
 that CUDA numbers devices from 0, so that '0' is the first device,
-and so on). Negative values disable the use of a device. See the
-method \verb{$device_info()} for available device ids; this can be called
-before object creation as \code{dust_generator$public_methods$device_info()}.
+and so on). See the method \verb{$gpu_info()} for available device ids;
+this can be called before object creation as
+\code{dust_generator$public_methods$gpu_info()}.
 For additional control, provide a list with elements \code{device_id}
 and \code{run_block_size}. Further options (and validation) of this
 list will be added in a future version!}
@@ -563,16 +564,16 @@ as \code{dust_generator$public_methods$has_openmp()}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-has_cuda"></a>}}
-\if{latex}{\out{\hypertarget{method-has_cuda}{}}}
-\subsection{Method \code{has_cuda()}}{
+\if{html}{\out{<a id="method-has_gpu_support"></a>}}
+\if{latex}{\out{\hypertarget{method-has_gpu_support}{}}}
+\subsection{Method \code{has_gpu_support()}}{
 Returns a logical, indicating if this model was compiled with
 "CUDA" support, in which case it will react to the \code{device}
 argument passed to the run method. This method can also be used
 as a static method by running it directly
-as \code{dust_generator$public_methods$has_cuda()}
+as \code{dust_generator$public_methods$has_gpu_support()}
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$has_cuda(fake_gpu = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$has_gpu_support(fake_gpu = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -584,6 +585,33 @@ version of the model but running on the CPU)}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-has_compare"></a>}}
+\if{latex}{\out{\hypertarget{method-has_compare}{}}}
+\subsection{Method \code{has_compare()}}{
+Returns a logical, indicating if this model was compiled with
+"compare" support, in which case the \code{set_data} and \code{compare_data}
+methods are available (otherwise these methods will error). This
+method can also be used as a static method by running it directly
+as \code{dust_generator$public_methods$has_compare()}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$has_compare()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-real_size"></a>}}
+\if{latex}{\out{\hypertarget{method-real_size}{}}}
+\subsection{Method \code{real_size()}}{
+Return the size of real numbers (in bits). Typically this will be
+64 for double precision and 32 for \code{float}..  This method can also be
+used as a static method by running it directory as
+\code{dust_generator$public_methods$real_size()}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$real_size()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-uses_gpu"></a>}}
@@ -638,20 +666,6 @@ requested (based on environment variables and OpenMP support).}
 }
 \if{html}{\out{</div>}}
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-has_compare"></a>}}
-\if{latex}{\out{\hypertarget{method-has_compare}{}}}
-\subsection{Method \code{has_compare()}}{
-Returns a logical, indicating if this model was compiled with
-"compare" support, in which case the \code{set_data} and \code{compare_data}
-methods are available (otherwise these methods will error). This
-method can also be used as a static method by running it directly
-as \code{dust_generator$public_methods$has_compare()}
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$has_compare()}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-set_data"></a>}}
@@ -722,18 +736,18 @@ containing full state values at the requested steps.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-device_info"></a>}}
-\if{latex}{\out{\hypertarget{method-device_info}{}}}
-\subsection{Method \code{device_info()}}{
+\if{html}{\out{<a id="method-gpu_info"></a>}}
+\if{latex}{\out{\hypertarget{method-gpu_info}{}}}
+\subsection{Method \code{gpu_info()}}{
 Return information about GPU devices, if the model
 has been compiled with CUDA/GPU support. This can be called as a
-static method by running \code{dust_generator$public_methods$device_info()}.
+static method by running \code{dust_generator$public_methods$gpu_info()}.
 If run from a GPU enabled object, it will also have an element
 \code{config} containing the computed device configuration: the device
 id, shared memory and the block size for the \code{run} method on the
 device.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$device_info()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$gpu_info()}\if{html}{\out{</div>}}
 }
 
 }

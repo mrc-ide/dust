@@ -1,12 +1,12 @@
-#ifndef DUST_CUDA_DEVICE_INFO_HPP
-#define DUST_CUDA_DEVICE_INFO_HPP
+#ifndef DUST_GPU_GPU_INFO_HPP
+#define DUST_GPU_GPU_INFO_HPP
 
 #include <vector>
 #include <climits>
-#include "dust/cuda/call.hpp"
+#include "dust/gpu/call.hpp"
 
 namespace dust {
-namespace cuda {
+namespace gpu {
 
 inline int devices_count() {
   int device_count = 0;

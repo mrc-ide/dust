@@ -45,7 +45,7 @@ dust_generator <- R6::R6Class(
     n_particles_each_ = NULL,
     shape_ = NULL,
     ptr_ = NULL,
-    device_config_ = NULL,
+    gpu_config_ = NULL,
     methods_ = NULL,
     param_ = NULL
   ),
@@ -97,22 +97,22 @@ dust_generator <- R6::R6Class(
     ##' expectation. Deterministic models are not compatible with running on
     ##' a a GPU.
     ##'
-    ##' @param device_config Device configuration, typically an integer
+    ##' @param gpu_config GPU configuration, typically an integer
     ##' indicating the device to use, where the model has GPU support.
     ##' If not given, then the default value of `NULL` will fall back on the
     ##' first found device if any are available. An error is thrown if the
     ##' device id given is larger than those reported to be available (note
     ##' that CUDA numbers devices from 0, so that '0' is the first device,
-    ##' and so on). Negative values disable the use of a device. See the
-    ##' method `$device_info()` for available device ids; this can be called
-    ##' before object creation as `dust_generator$public_methods$device_info()`.
+    ##' and so on). See the method `$gpu_info()` for available device ids;
+    ##' this can be called before object creation as
+    ##' `dust_generator$public_methods$gpu_info()`.
     ##' For additional control, provide a list with elements `device_id`
     ##' and `run_block_size`. Further options (and validation) of this
     ##' list will be added in a future version!
     initialize = function(pars, step, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
-                          device_config = NULL) {
+                          gpu_config = NULL) {
     },
 
     ##' @description
@@ -352,12 +352,29 @@ dust_generator <- R6::R6Class(
     ##' "CUDA" support, in which case it will react to the `device`
     ##' argument passed to the run method. This method can also be used
     ##' as a static method by running it directly
-    ##' as `dust_generator$public_methods$has_cuda()`
+    ##' as `dust_generator$public_methods$has_gpu_support()`
     ##'
     ##' @param fake_gpu Logical, indicating if we count as `TRUE`
     ##'   models that run on the "fake" GPU (i.e., using the GPU
     ##'   version of the model but running on the CPU)
-    has_cuda = function(fake_gpu = FALSE) {
+    has_gpu_support = function(fake_gpu = FALSE) {
+    },
+
+    ##' @description
+    ##' Returns a logical, indicating if this model was compiled with
+    ##' "compare" support, in which case the `set_data` and `compare_data`
+    ##' methods are available (otherwise these methods will error). This
+    ##' method can also be used as a static method by running it directly
+    ##' as `dust_generator$public_methods$has_compare()`
+    has_compare = function() {
+    },
+
+    ##' @description
+    ##' Return the size of real numbers (in bits). Typically this will be
+    ##' 64 for double precision and 32 for `float`..  This method can also be
+    ##' used as a static method by running it directory as
+    ##' `dust_generator$public_methods$real_size()`
+    real_size = function() {
     },
 
     ##' @description
@@ -386,15 +403,6 @@ dust_generator <- R6::R6Class(
     ##'   verify that you can actually use the number of threads
     ##'   requested (based on environment variables and OpenMP support).
     set_n_threads = function(n_threads) {
-    },
-
-    ##' @description
-    ##' Returns a logical, indicating if this model was compiled with
-    ##' "compare" support, in which case the `set_data` and `compare_data`
-    ##' methods are available (otherwise these methods will error). This
-    ##' method can also be used as a static method by running it directly
-    ##' as `dust_generator$public_methods$has_compare()`
-    has_compare = function() {
     },
 
     ##' @description
@@ -443,12 +451,12 @@ dust_generator <- R6::R6Class(
     ##' @description
     ##' Return information about GPU devices, if the model
     ##' has been compiled with CUDA/GPU support. This can be called as a
-    ##' static method by running `dust_generator$public_methods$device_info()`.
+    ##' static method by running `dust_generator$public_methods$gpu_info()`.
     ##' If run from a GPU enabled object, it will also have an element
     ##' `config` containing the computed device configuration: the device
     ##' id, shared memory and the block size for the `run` method on the
     ##' device.
-    device_info = function() {
+    gpu_info = function() {
     }
   ))
 class(dust_generator) <- c("dust_generator", class(dust_generator))

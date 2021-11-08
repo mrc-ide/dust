@@ -1,5 +1,5 @@
-#ifndef DUST_CUDA_CALL_HPP
-#define DUST_CUDA_CALL_HPP
+#ifndef DUST_GPU_CALL_HPP
+#define DUST_GPU_CALL_HPP
 
 #ifdef __NVCC__
 
@@ -10,7 +10,7 @@
 #include <cuda_profiler_api.h>
 
 namespace dust {
-namespace cuda {
+namespace gpu {
 
 static void throw_cuda_error(const char *file, int line, cudaError_t status) {
   std::stringstream msg;
@@ -40,7 +40,7 @@ static void handle_cuda_error(const char *file, int line,
 }
 }
 
-#define CUDA_CALL( err ) (dust::cuda::handle_cuda_error(__FILE__, __LINE__ , err))
+#define CUDA_CALL( err ) (dust::gpu::handle_cuda_error(__FILE__, __LINE__ , err))
 #define CUDA_CALL_NOTHROW( err ) (err)
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef DUST_INTERFACE_UTILS_HPP
-#define DUST_INTERFACE_UTILS_HPP
+#ifndef DUST_R_UTILS_HPP
+#define DUST_R_UTILS_HPP
 
 #include <cpp11.hpp>
 

@@ -18,7 +18,8 @@ namespace random {
 // Faster generators will exist but we can swap one in if it becomes
 // important.
 template <typename real_type, typename rng_state_type>
-HOSTDEVICE real_type exponential_rand(rng_state_type& rng_state) {
+__host__ __device__
+real_type exponential_rand(rng_state_type& rng_state) {
 #ifdef __CUDA_ARCH__
   return -std::log(random_real<real_type>(rng_state));
 #else
@@ -29,7 +30,8 @@ HOSTDEVICE real_type exponential_rand(rng_state_type& rng_state) {
 
 __nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
-HOSTDEVICE real_type exponential(rng_state_type& rng_state, real_type rate) {
+__host__ __device__
+real_type exponential(rng_state_type& rng_state, real_type rate) {
   static_assert(std::is_floating_point<real_type>::value,
                 "Only valid for floating-point types; use exponential<real_type>()");
   return exponential_rand<real_type>(rng_state) / rate;

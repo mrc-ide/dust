@@ -1,5 +1,5 @@
-#ifndef DUST_INTERFACE_HELPERS_HPP
-#define DUST_INTERFACE_HELPERS_HPP
+#ifndef DUST_R_HELPERS_HPP
+#define DUST_R_HELPERS_HPP
 
 #include <map>
 #include <vector>
@@ -9,11 +9,11 @@
 #include <cpp11/list.hpp>
 #include <cpp11/strings.hpp>
 
-#include "dust/interface/random.hpp"
-#include "dust/interface/utils.hpp"
+#include "dust/r/random.hpp"
+#include "dust/r/utils.hpp"
 
 namespace dust {
-namespace interface {
+namespace r {
 
 inline
 cpp11::integers as_integer(cpp11::sexp x, const char * name) {
@@ -361,16 +361,16 @@ template <typename T>
 dust_inputs<T> process_inputs_single(cpp11::list r_pars, int step,
                                      cpp11::sexp r_n_particles,
                                      int n_threads, cpp11::sexp r_seed) {
-  dust::interface::validate_size(step, "step");
-  dust::interface::validate_positive(n_threads, "n_threads");
+  dust::r::validate_size(step, "step");
+  dust::r::validate_positive(n_threads, "n_threads");
   std::vector<typename T::rng_state_type::int_type> seed =
-    dust::interface::as_rng_seed<typename T::rng_state_type>(r_seed);
+    dust::r::as_rng_seed<typename T::rng_state_type>(r_seed);
 
   std::vector<dust::pars_type<T>> pars;
   pars.push_back(dust::dust_pars<T>(r_pars));
   auto info = dust::dust_info<T>(pars[0]);
   auto n_particles = cpp11::as_cpp<int>(r_n_particles);
-  dust::interface::validate_positive(n_particles, "n_particles");
+  dust::r::validate_positive(n_particles, "n_particles");
   std::vector<size_t> shape; // empty
   return dust_inputs<T>{
     pars,
@@ -386,12 +386,12 @@ template <typename T>
 dust_inputs<T> process_inputs_multi(cpp11::list r_pars, int step,
                                     cpp11::sexp r_n_particles,
                                     int n_threads, cpp11::sexp r_seed) {
-  dust::interface::validate_size(step, "step");
-  dust::interface::validate_positive(n_threads, "n_threads");
+  dust::r::validate_size(step, "step");
+  dust::r::validate_positive(n_threads, "n_threads");
   std::vector<typename T::rng_state_type::int_type> seed =
-    dust::interface::as_rng_seed<typename T::rng_state_type>(r_seed);
+    dust::r::as_rng_seed<typename T::rng_state_type>(r_seed);
 
-  dust::interface::check_pars_multi(r_pars);
+  dust::r::check_pars_multi(r_pars);
   std::vector<dust::pars_type<T>> pars;
   cpp11::writable::list info = cpp11::writable::list(r_pars.size());
   for (int i = 0; i < r_pars.size(); ++i) {
@@ -411,7 +411,7 @@ dust_inputs<T> process_inputs_multi(cpp11::list r_pars, int step,
   size_t n_particles = 0;
   if (r_n_particles != R_NilValue) {
     n_particles = cpp11::as_cpp<int>(r_n_particles);
-    dust::interface::validate_size(n_particles, "n_particles");
+    dust::r::validate_size(n_particles, "n_particles");
   }
   return dust_inputs<T>{
     pars,

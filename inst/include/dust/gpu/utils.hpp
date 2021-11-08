@@ -1,14 +1,14 @@
-#ifndef DUST_CUDA_UTILS_HPP
-#define DUST_CUDA_UTILS_HPP
+#ifndef DUST_GPU_UTILS_HPP
+#define DUST_GPU_UTILS_HPP
 
 #include <algorithm>
 #include <numeric>
 #include <vector>
 
-#include "dust/cuda/cuda.hpp"
+#include "dust/gpu/cuda.hpp"
 
 namespace dust {
-namespace cuda {
+namespace gpu {
 namespace utils {
 
 // Translates index in y (full state) to index in y_selected
@@ -35,7 +35,7 @@ std::vector<size_t> sort_indexes(const T &v) {
 
 
 template <typename T, typename U = T>
-inline HOSTDEVICE T align_padding(const T offset, const U align) {
+inline __host__ __device__ T align_padding(const T offset, const U align) {
   T remainder = offset % align;
   return remainder ? align - remainder : 0;
 }

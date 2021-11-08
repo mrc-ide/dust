@@ -4,10 +4,10 @@ using model_{{target}} = dust::{{container}}<{{class}}>;
 SEXP dust_{{target}}_{{name}}_alloc(cpp11::list r_pars, bool pars_multi, size_t step,
                              cpp11::sexp r_n_particles, size_t n_threads,
                              cpp11::sexp r_seed, bool deterministic,
-                             cpp11::sexp device_config) {
+                             cpp11::sexp gpu_config) {
   return dust::r::dust_{{target}}_alloc<{{class}}>(r_pars, pars_multi, step, r_n_particles,
                                         n_threads, r_seed, deterministic,
-                                        device_config);
+                                        gpu_config);
 }
 
 SEXP dust_{{target}}_{{name}}_run(SEXP ptr, size_t step_end) {

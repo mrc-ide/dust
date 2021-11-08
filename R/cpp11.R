@@ -76,12 +76,12 @@ dust_sir_capabilities <- function() {
   .Call(`_dust_dust_sir_capabilities`)
 }
 
-dust_sir_device_info <- function() {
-  .Call(`_dust_dust_sir_device_info`)
+dust_sir_gpu_info <- function() {
+  .Call(`_dust_dust_sir_gpu_info`)
 }
 
-dust_cpu_sir_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {
-  .Call(`_dust_dust_cpu_sir_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config)
+dust_cpu_sir_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
+  .Call(`_dust_dust_cpu_sir_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
 }
 
 dust_cpu_sir_run <- function(ptr, step_end) {
@@ -148,12 +148,12 @@ dust_sirs_capabilities <- function() {
   .Call(`_dust_dust_sirs_capabilities`)
 }
 
-dust_sirs_device_info <- function() {
-  .Call(`_dust_dust_sirs_device_info`)
+dust_sirs_gpu_info <- function() {
+  .Call(`_dust_dust_sirs_gpu_info`)
 }
 
-dust_cpu_sirs_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {
-  .Call(`_dust_dust_cpu_sirs_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config)
+dust_cpu_sirs_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
+  .Call(`_dust_dust_cpu_sirs_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
 }
 
 dust_cpu_sirs_run <- function(ptr, step_end) {
@@ -216,8 +216,8 @@ dust_cpu_sirs_n_state <- function(ptr) {
   .Call(`_dust_dust_cpu_sirs_n_state`, ptr)
 }
 
-dust_gpu_sirs_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {
-  .Call(`_dust_dust_gpu_sirs_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config)
+dust_gpu_sirs_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
+  .Call(`_dust_dust_gpu_sirs_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
 }
 
 dust_gpu_sirs_run <- function(ptr, step_end) {
@@ -280,8 +280,8 @@ dust_gpu_sirs_n_state <- function(ptr) {
   .Call(`_dust_dust_gpu_sirs_n_state`, ptr)
 }
 
-test_cuda_pars <- function(r_device_config, n_particles, n_particles_each, n_state, n_state_full, n_shared_int, n_shared_real, data_size, shared_size) {
-  .Call(`_dust_test_cuda_pars`, r_device_config, n_particles, n_particles_each, n_state, n_state_full, n_shared_int, n_shared_real, data_size, shared_size)
+test_cuda_pars <- function(r_gpu_config, n_particles, n_particles_each, n_state, n_state_full, n_shared_int, n_shared_real, data_size, shared_size) {
+  .Call(`_dust_test_cuda_pars`, r_gpu_config, n_particles, n_particles_each, n_state, n_state_full, n_shared_int, n_shared_real, data_size, shared_size)
 }
 
 test_xoshiro_run <- function(name) {
@@ -296,12 +296,12 @@ dust_variable_capabilities <- function() {
   .Call(`_dust_dust_variable_capabilities`)
 }
 
-dust_variable_device_info <- function() {
-  .Call(`_dust_dust_variable_device_info`)
+dust_variable_gpu_info <- function() {
+  .Call(`_dust_dust_variable_gpu_info`)
 }
 
-dust_cpu_variable_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {
-  .Call(`_dust_dust_cpu_variable_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config)
+dust_cpu_variable_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
+  .Call(`_dust_dust_cpu_variable_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
 }
 
 dust_cpu_variable_run <- function(ptr, step_end) {
@@ -364,8 +364,8 @@ dust_cpu_variable_n_state <- function(ptr) {
   .Call(`_dust_dust_cpu_variable_n_state`, ptr)
 }
 
-dust_gpu_variable_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {
-  .Call(`_dust_dust_gpu_variable_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config)
+dust_gpu_variable_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
+  .Call(`_dust_dust_gpu_variable_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
 }
 
 dust_gpu_variable_run <- function(ptr, step_end) {
@@ -432,12 +432,12 @@ dust_volatility_capabilities <- function() {
   .Call(`_dust_dust_volatility_capabilities`)
 }
 
-dust_volatility_device_info <- function() {
-  .Call(`_dust_dust_volatility_device_info`)
+dust_volatility_gpu_info <- function() {
+  .Call(`_dust_dust_volatility_gpu_info`)
 }
 
-dust_cpu_volatility_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {
-  .Call(`_dust_dust_cpu_volatility_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config)
+dust_cpu_volatility_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
+  .Call(`_dust_dust_cpu_volatility_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
 }
 
 dust_cpu_volatility_run <- function(ptr, step_end) {
@@ -504,12 +504,12 @@ dust_walk_capabilities <- function() {
   .Call(`_dust_dust_walk_capabilities`)
 }
 
-dust_walk_device_info <- function() {
-  .Call(`_dust_dust_walk_device_info`)
+dust_walk_gpu_info <- function() {
+  .Call(`_dust_dust_walk_gpu_info`)
 }
 
-dust_cpu_walk_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config) {
-  .Call(`_dust_dust_cpu_walk_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, device_config)
+dust_cpu_walk_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
+  .Call(`_dust_dust_cpu_walk_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
 }
 
 dust_cpu_walk_run <- function(ptr, step_end) {

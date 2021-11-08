@@ -250,8 +250,8 @@ test_that("run in float mode", {
               quiet = TRUE)
 
   obj <- res$new(list(sd = 10), 0, 5, seed = 1L)
-
-  expect_equal(obj$device_info()$real_bits, 32)
+  expect_equal(obj$real_size(), 32)
+  expect_equal(dust_example("walk")$public_methods$real_size(), 64)
 
   y <- drop(obj$simulate(1:7))
 
@@ -616,15 +616,14 @@ test_that("no device info by default", {
                                        name = character(0),
                                        memory = numeric(0),
                                        version = integer(0),
-                                       stringsAsFactors = FALSE),
-                  real_bits = 64L)
+                                       stringsAsFactors = FALSE))
   res <- dust_example("sir")
-  expect_false(res$public_methods$has_cuda())
-  expect_equal(res$public_methods$device_info(), no_cuda)
+  expect_false(res$public_methods$has_gpu_support())
+  expect_equal(res$public_methods$gpu_info(), no_cuda)
 
   mod <- res$new(list(), 0, 1)
-  expect_false(mod$has_cuda())
-  expect_equal(mod$device_info(), no_cuda)
+  expect_false(mod$has_gpu_support())
+  expect_equal(mod$gpu_info(), no_cuda)
   expect_false(mod$uses_gpu())
   expect_false(mod$uses_gpu(TRUE))
 })
@@ -802,14 +801,14 @@ test_that("update_state controls initial state", {
 
 test_that("sirs model has gpu support", {
   gen <- dust_example("sirs")
-  expect_false(gen$public_methods$has_cuda())
-  expect_true(gen$public_methods$has_cuda(TRUE))
+  expect_false(gen$public_methods$has_gpu_support())
+  expect_true(gen$public_methods$has_gpu_support(TRUE))
 
-  mod1 <- gen$new(list(), 0, 1, device_config = NULL)
+  mod1 <- gen$new(list(), 0, 1, gpu_config = NULL)
   expect_false(mod1$uses_gpu())
   expect_false(mod1$uses_gpu(TRUE))
 
-  mod2 <- gen$new(list(), 0, 1, device_config = 0L)
+  mod2 <- gen$new(list(), 0, 1, gpu_config = 0L)
   expect_false(mod2$uses_gpu())
   expect_true(mod2$uses_gpu(TRUE))
 })

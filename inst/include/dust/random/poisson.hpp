@@ -11,7 +11,8 @@ namespace random {
 
 __nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
-HOSTDEVICE real_type poisson_knuth(rng_state_type& rng_state, real_type lambda) {
+__host__ __device__
+real_type poisson_knuth(rng_state_type& rng_state, real_type lambda) {
   int x = 0;
   // Knuth's algorithm for generating Poisson random variates.
   // Given a Poisson process, the time between events is exponentially
@@ -40,7 +41,8 @@ HOSTDEVICE real_type poisson_knuth(rng_state_type& rng_state, real_type lambda) 
 
 __nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
-HOSTDEVICE real_type poisson_hormann(rng_state_type& rng_state, real_type lambda) {
+__host__ __device__
+real_type poisson_hormann(rng_state_type& rng_state, real_type lambda) {
   // Transformed rejection due to Hormann.
   //
   // Given a CDF F(x), and G(x), a dominating distribution chosen such
@@ -120,7 +122,8 @@ HOSTDEVICE real_type poisson_hormann(rng_state_type& rng_state, real_type lambda
 // will not necessarily be an integer
 __nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
-HOSTDEVICE real_type poisson(rng_state_type& rng_state, real_type lambda) {
+__host__ __device__
+real_type poisson(rng_state_type& rng_state, real_type lambda) {
   static_assert(std::is_floating_point<real_type>::value,
                 "Only valid for floating-point types; use poisson<real_type>()");
   real_type x = 0;

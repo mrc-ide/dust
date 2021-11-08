@@ -1,11 +1,11 @@
-#ifndef DUST_CUDA_LAUNCH_CONTROL_HPP
-#define DUST_CUDA_LAUNCH_CONTROL_HPP
+#ifndef DUST_GPU_LAUNCH_CONTROL_HPP
+#define DUST_GPU_LAUNCH_CONTROL_HPP
 
-#include "dust/cuda/types.hpp"
-#include "dust/cuda/utils.hpp"
+#include "dust/gpu/types.hpp"
+#include "dust/gpu/utils.hpp"
 
 namespace dust {
-namespace cuda {
+namespace gpu {
 
 struct launch_control {
   size_t block_size;
@@ -30,9 +30,9 @@ inline size_t device_shared_size(int device_id) {
 
 
 // Tunable bits exposed to the front end
-class device_config {
+class gpu_config {
 public:
-  device_config(int device_id, int run_block_size) :
+  gpu_config(int device_id, int run_block_size) :
     device_id_(device_id),
     run_block_size_(run_block_size),
     shared_size_(device_shared_size(device_id_)),
@@ -55,13 +55,13 @@ public:
 };
 
 
-inline void cuda_profiler_start(const device_config& config) {
+inline void cuda_profiler_start(const gpu_config& config) {
 #ifdef DUST_ENABLE_CUDA_PROFILER
   CUDA_CALL(cudaProfilerStart());
 #endif
 }
 
-inline void cuda_profiler_stop(const device_config& config) {
+inline void cuda_profiler_stop(const gpu_config& config) {
 #ifdef DUST_ENABLE_CUDA_PROFILER
   CUDA_CALL(cudaProfilerStop());
 #endif
@@ -70,7 +70,7 @@ inline void cuda_profiler_stop(const device_config& config) {
 
 class launch_control_dust {
 public:
-  launch_control_dust(const device_config& config,
+  launch_control_dust(const gpu_config& config,
                       size_t n_particles, size_t n_particles_each,
                       size_t n_state, size_t n_state_full,
                       size_t n_shared_int, size_t n_shared_real,
@@ -100,17 +100,17 @@ inline launch_control launch_control_model(size_t n_particles,
   const size_t int_size = sizeof(int);
 
   const size_t n_pars_effective = n_particles / n_particles_each;
-  const int warp_size = dust::cuda::warp_size;
+  const int warp_size = dust::gpu::warp_size;
   const size_t warp_block_size =
     warp_size * (n_particles_each + warp_size - 1) / warp_size;
   const size_t n_shared_int_effective = n_shared_int +
-    dust::cuda::utils::align_padding(n_shared_int * int_size,
+    dust::gpu::utils::align_padding(n_shared_int * int_size,
                                      real_size) / int_size;
   const size_t shared_size_int_bytes = n_shared_int_effective * int_size;
 
   const size_t real_align = data_size == 0 ? real_size : 16;
   const size_t n_shared_real_effective = n_shared_real +
-    dust::cuda::utils::align_padding(shared_size_int_bytes +
+    dust::gpu::utils::align_padding(shared_size_int_bytes +
                                      n_shared_real * real_size,
                                      real_align) / real_size;
 
@@ -190,7 +190,7 @@ inline launch_control_dust::launch_control_dust() {
 }
 
 
-inline launch_control_dust::launch_control_dust(const device_config& config,
+inline launch_control_dust::launch_control_dust(const gpu_config& config,
                                                 size_t n_particles,
                                                 size_t n_particles_each,
                                                 size_t n_state,

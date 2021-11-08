@@ -13,7 +13,7 @@ namespace {
 
 __nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
-HOSTDEVICE
+__host__ __device__
 real_type box_muller(rng_state_type& rng_state) {
   // This function implements the Box-Muller transform:
   // https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform#Basic_form
@@ -35,7 +35,7 @@ real_type box_muller(rng_state_type& rng_state) {
 
 __nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
-HOSTDEVICE
+__host__ __device__
 real_type normal(rng_state_type& rng_state, real_type mean, real_type sd) {
   static_assert(std::is_floating_point<real_type>::value,
                 "Only valid for floating-point types; use normal<real_type>()");

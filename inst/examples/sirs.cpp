@@ -4,9 +4,9 @@ public:
   typedef dust::no_internal internal_type;
   typedef dust::random::generator<real_type> rng_state_type;
 
-  // ALIGN(16) is required before the data_type definition when using NVCC
+  // __align__(16) is required before the data_type definition when using NVCC
   // This is so when loaded into shared memory it is aligned correctly
-  struct ALIGN(16) data_type {
+  struct __align__(16) data_type {
     double incidence;
   };
 
@@ -111,42 +111,43 @@ sirs::data_type dust_data<sirs>(cpp11::list data) {
   return sirs::data_type{cpp11::as_cpp<double>(data["incidence"])};
 }
 
-namespace cuda {
+namespace gpu {
 
 template <>
-size_t device_shared_int_size<sirs>(dust::shared_ptr<sirs> shared) {
+size_t shared_int_size<sirs>(dust::shared_ptr<sirs> shared) {
   return 1;
 }
 
 template <>
-size_t device_shared_real_size<sirs>(dust::shared_ptr<sirs> shared) {
+size_t shared_real_size<sirs>(dust::shared_ptr<sirs> shared) {
   return 5;
 }
 
 template <>
-void device_shared_copy<sirs>(dust::shared_ptr<sirs> shared,
-                              int * shared_int,
-                              sirs::real_type * shared_real) {
+void shared_copy<sirs>(dust::shared_ptr<sirs> shared,
+                       int * shared_int,
+                       sirs::real_type * shared_real) {
   typedef sirs::real_type real_type;
-  using dust::cuda::shared_copy;
-  shared_real = shared_copy<real_type>(shared_real, shared->alpha);
-  shared_real = shared_copy<real_type>(shared_real, shared->beta);
-  shared_real = shared_copy<real_type>(shared_real, shared->gamma);
-  shared_real = shared_copy<real_type>(shared_real, shared->dt);
-  shared_real = shared_copy<real_type>(shared_real, shared->exp_noise);
-  shared_int = shared_copy<int>(shared_int, shared->freq);
+  using dust::gpu::shared_copy_data;
+  shared_real = shared_copy_data<real_type>(shared_real, shared->alpha);
+  shared_real = shared_copy_data<real_type>(shared_real, shared->beta);
+  shared_real = shared_copy_data<real_type>(shared_real, shared->gamma);
+  shared_real = shared_copy_data<real_type>(shared_real, shared->dt);
+  shared_real = shared_copy_data<real_type>(shared_real, shared->exp_noise);
+  shared_int = shared_copy_data<int>(shared_int, shared->freq);
 }
 
 template <>
-DEVICE
-void update_device<sirs>(size_t step,
-                         const dust::cuda::interleaved<sirs::real_type> state,
-                         dust::cuda::interleaved<int> internal_int,
-                         dust::cuda::interleaved<sirs::real_type> internal_real,
-                         const int * shared_int,
-                         const sirs::real_type * shared_real,
-                         sirs::rng_state_type& rng_state,
-                         dust::cuda::interleaved<sirs::real_type> state_next) {
+__device__
+void update_gpu<sirs>(size_t step,
+                      const dust::gpu::interleaved<sirs::real_type> state,
+                      dust::gpu::interleaved<int> internal_int,
+                      dust::gpu::interleaved<sirs::real_type> internal_real,
+                      const int * shared_int,
+                      const sirs::real_type * shared_real,
+                      sirs::rng_state_type& rng_state,
+                      dust::gpu::interleaved<sirs::real_type> state_next) {
+  using dust::random::binomial;
   typedef sirs::real_type real_type;
   const real_type alpha = shared_real[0];
   const real_type beta = shared_real[1];
@@ -160,9 +161,9 @@ void update_device<sirs>(size_t step,
   const real_type p_SI = 1 - exp(- beta * I / N);
   const real_type p_IR = 1 - exp(- gamma);
   const real_type p_RS = 1 - exp(- alpha);
-  const real_type n_SI = dust::random::binomial<real_type>(rng_state, S, p_SI * dt);
-  const real_type n_IR = dust::random::binomial<real_type>(rng_state, I, p_IR * dt);
-  const real_type n_RS = dust::random::binomial<real_type>(rng_state, R, p_RS * dt);
+  const real_type n_SI = binomial<real_type>(rng_state, S, p_SI * dt);
+  const real_type n_IR = binomial<real_type>(rng_state, I, p_IR * dt);
+  const real_type n_RS = binomial<real_type>(rng_state, R, p_RS * dt);
   state_next[0] = S - n_SI + n_RS;
   state_next[1] = I + n_SI - n_IR;
   state_next[2] = R + n_IR - n_RS;
@@ -170,14 +171,14 @@ void update_device<sirs>(size_t step,
 }
 
 template <>
-DEVICE
-sirs::real_type compare_device<sirs>(const dust::cuda::interleaved<sirs::real_type> state,
-                                     const sirs::data_type& data,
-                                     dust::cuda::interleaved<int> internal_int,
-                                     dust::cuda::interleaved<sirs::real_type> internal_real,
-                                     const int * shared_int,
-                                     const sirs::real_type * shared_real,
-                                     sirs::rng_state_type& rng_state) {
+__device__
+sirs::real_type compare_gpu<sirs>(const dust::gpu::interleaved<sirs::real_type> state,
+                                  const sirs::data_type& data,
+                                  dust::gpu::interleaved<int> internal_int,
+                                  dust::gpu::interleaved<sirs::real_type> internal_real,
+                                  const int * shared_int,
+                                  const sirs::real_type * shared_real,
+                                  sirs::rng_state_type& rng_state) {
   typedef sirs::real_type real_type;
   const real_type exp_noise = shared_real[4];
   const real_type incidence_modelled = state[3];

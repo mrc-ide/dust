@@ -1,5 +1,5 @@
-#ifndef DUST_DUST_HPP
-#define DUST_DUST_HPP
+#ifndef DUST_DUST_CPU_HPP
+#define DUST_DUST_CPU_HPP
 
 #include <algorithm>
 #include <map>
@@ -12,7 +12,7 @@
 #include <omp.h>
 #endif
 
-#include "dust/cuda/cuda.hpp"
+#include "dust/gpu/cuda.hpp"
 #include "dust/filter_state.hpp"
 #include "dust/filter_tools.hpp"
 #include "dust/particle.hpp"
@@ -23,7 +23,7 @@
 namespace dust {
 
 template <typename T>
-class Dust {
+class dust_cpu {
 public:
   typedef T model_type;
   typedef dust::pars_type<T> pars_type;
@@ -34,12 +34,12 @@ public:
   typedef typename T::rng_state_type rng_state_type;
   typedef typename rng_state_type::int_type rng_int_type;
 
-  // TODO: fix this elsewhere, perhaps (see also cuda/dust_device.hpp)
+  // TODO: fix this elsewhere, perhaps (see also cuda/dust_gpu.hpp)
   typedef dust::filter::filter_state_host<real_type> filter_state_type;
 
-  Dust(const pars_type& pars, const size_t step, const size_t n_particles,
-       const size_t n_threads, const std::vector<rng_int_type>& seed,
-       const bool deterministic) :
+  dust_cpu(const pars_type& pars, const size_t step, const size_t n_particles,
+           const size_t n_threads, const std::vector<rng_int_type>& seed,
+           const bool deterministic) :
     n_pars_(0),
     n_particles_each_(n_particles),
     n_particles_total_(n_particles),
@@ -52,11 +52,11 @@ public:
     shape_ = {n_particles};
   }
 
-  Dust(const std::vector<pars_type>& pars, const size_t step,
-       const size_t n_particles, const size_t n_threads,
-       const std::vector<rng_int_type>& seed,
-       const bool deterministic,
-       const std::vector<size_t>& shape) :
+  dust_cpu(const std::vector<pars_type>& pars, const size_t step,
+           const size_t n_particles, const size_t n_threads,
+           const std::vector<rng_int_type>& seed,
+           const bool deterministic,
+           const std::vector<size_t>& shape) :
     n_pars_(pars.size()),
     n_particles_each_(n_particles == 0 ? 1 : n_particles),
     n_particles_total_(n_particles_each_ * pars.size()),
@@ -210,7 +210,7 @@ public:
   // There are two obvious ways of reordering; we can construct a
   // completely new set of particles, like
   //
-  //   std::vector<dust::Particle<T>> next;
+  //   std::vector<dust::particle<T>> next;
   //   for (auto const& i: index) {
   //     next.push_back(particles_[i]);
   //   }
@@ -374,8 +374,8 @@ public:
 
 private:
   // delete move and copy to avoid accidentally using them
-  Dust ( const Dust & ) = delete;
-  Dust ( Dust && ) = delete;
+  dust_cpu(const dust_cpu &) = delete;
+  dust_cpu(dust_cpu &&) = delete;
 
   const size_t n_pars_; // 0 in the "single" case, >=1 otherwise
   const size_t n_particles_each_; // Particles per parameter set
@@ -388,13 +388,13 @@ private:
   dust::utils::openmp_errors errors_;
 
   std::vector<size_t> index_;
-  std::vector<dust::Particle<T>> particles_;
+  std::vector<dust::particle<T>> particles_;
   std::vector<dust::shared_ptr<T>> shared_;
 
   void initialise(const pars_type& pars, const size_t step,
                   const size_t n_particles, bool set_state) {
     const size_t n = particles_.size() == 0 ? 0 : n_state_full();
-    dust::Particle<T> p(pars, step);
+    dust::particle<T> p(pars, step);
     if (n > 0 && p.size() != n) {
       std::stringstream msg;
       msg << "'pars' created inconsistent state size: " <<
@@ -425,9 +425,9 @@ private:
   void initialise(const std::vector<pars_type>& pars, const size_t step,
                   const size_t n_particles, bool set_state) {
     size_t n = particles_.size() == 0 ? 0 : n_state_full();
-    std::vector<dust::Particle<T>> p;
+    std::vector<dust::particle<T>> p;
     for (size_t i = 0; i < n_pars_; ++i) {
-      p.push_back(dust::Particle<T>(pars[i], step));
+      p.push_back(dust::particle<T>(pars[i], step));
       if (n > 0 && p.back().size() != n) {
         std::stringstream msg;
         msg << "'pars' created inconsistent state size: " <<

@@ -1,27 +1,29 @@
-#ifndef DUST_CUDA_KERNELS_HPP
-#define DUST_CUDA_KERNELS_HPP
+#ifndef DUST_GPU_KERNELS_HPP
+#define DUST_GPU_KERNELS_HPP
 
-#include "dust/cuda/device_state.hpp"
+#include "dust/gpu/device_state.hpp"
 #include "dust/utils.hpp"
 
 namespace dust {
-namespace cuda {
+namespace gpu {
 
 // This is the main model update, will be defined by the model code
 // (see inst/examples/variable.cpp for an example). This is unique
 // within the file in that we expect that the user will specialise it.
 template <typename T>
-DEVICE void update_device(size_t step,
-                   const interleaved<typename T::real_type> state,
-                   interleaved<int> internal_int,
-                   interleaved<typename T::real_type> internal_real,
-                   const int * shared_int,
-                   const typename T::real_type * shared_real,
-                   typename T::rng_state_type& rng_state,
-                   interleaved<typename T::real_type> state_next);
+__device__
+void update_gpu(size_t step,
+                const interleaved<typename T::real_type> state,
+                interleaved<int> internal_int,
+                interleaved<typename T::real_type> internal_real,
+                const int * shared_int,
+                const typename T::real_type * shared_real,
+                typename T::rng_state_type& rng_state,
+                interleaved<typename T::real_type> state_next);
 
 template <typename T>
-DEVICE typename T::real_type compare_device(
+__device__
+typename T::real_type compare_gpu(
                    const interleaved<typename T::real_type> state,
                    const typename T::data_type& data,
                    interleaved<int> internal_int,
@@ -32,12 +34,13 @@ DEVICE typename T::real_type compare_device(
 
 // __global__ for shuffling particles
 template <typename real_type>
-KERNEL void scatter_device(const size_t* index,
-                           real_type* state,
-                           real_type* scatter_state,
-                           const size_t n_state,
-                           const size_t n_particles,
-                           bool selected) {
+__global__
+void scatter_device(const size_t* index,
+                    real_type* state,
+                    real_type* scatter_state,
+                    const size_t n_state,
+                    const size_t n_particles,
+                    bool selected) {
   int state_size = n_state * n_particles;
 #ifdef __NVCC__
   // https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/
@@ -69,20 +72,21 @@ KERNEL void scatter_device(const size_t* index,
 }
 
 template <typename T>
-KERNEL void run_particles(size_t step_start,
-                          size_t step_end,
-                          size_t n_particles,
-                          size_t n_pars,
-                          typename T::real_type * state,
-                          typename T::real_type * state_next,
-                          int * internal_int,
-                          typename T::real_type * internal_real,
-                          size_t n_shared_int, size_t n_shared_real,
-                          const int * shared_int,
-                          const typename T::real_type * shared_real,
-                          typename T::rng_state_type::int_type * rng_state,
-                          bool use_shared_int,
-                          bool use_shared_real) {
+__global__
+void run_particles(size_t step_start,
+                   size_t step_end,
+                   size_t n_particles,
+                   size_t n_pars,
+                   typename T::real_type * state,
+                   typename T::real_type * state_next,
+                   int * internal_int,
+                   typename T::real_type * internal_real,
+                   size_t n_shared_int, size_t n_shared_real,
+                   const int * shared_int,
+                   const typename T::real_type * shared_real,
+                   typename T::rng_state_type::int_type * rng_state,
+                   bool use_shared_int,
+                   bool use_shared_real) {
   typedef typename T::real_type real_type;
   typedef typename T::rng_state_type rng_state_type;
   typedef typename rng_state_type::int_type rng_int_type;
@@ -141,14 +145,14 @@ KERNEL void run_particles(size_t step_start,
 
     rng_state_type rng_block = get_rng_state<rng_state_type>(p_rng);
     for (size_t step = step_start; step < step_end; ++step) {
-      update_device<T>(step,
-                       p_state,
-                       p_internal_int,
-                       p_internal_real,
-                       shared_state.shared_int,
-                       shared_state.shared_real,
-                       rng_block,
-                       p_state_next);
+      update_gpu<T>(step,
+                    p_state,
+                    p_internal_int,
+                    p_internal_real,
+                    shared_state.shared_int,
+                    shared_state.shared_real,
+                    rng_block,
+                    p_state_next);
       SYNCWARP
 
       interleaved<real_type> tmp = p_state;
@@ -160,20 +164,21 @@ KERNEL void run_particles(size_t step_start,
 }
 
 template <typename T>
-KERNEL void compare_particles(size_t n_particles,
-                              size_t n_pars,
-                              typename T::real_type * state,
-                              typename T::real_type * weights,
-                              int * internal_int,
-                              typename T::real_type * internal_real,
-                              size_t n_shared_int,
-                              size_t n_shared_real,
-                              const int * shared_int,
-                              const typename T::real_type * shared_real,
-                              const typename T::data_type * data,
-                              typename T::rng_state_type::int_type * rng_state,
-                              bool use_shared_int,
-                              bool use_shared_real) {
+__global__
+  void compare_particles(size_t n_particles,
+                         size_t n_pars,
+                         typename T::real_type * state,
+                         typename T::real_type * weights,
+                         int * internal_int,
+                         typename T::real_type * internal_real,
+                         size_t n_shared_int,
+                         size_t n_shared_real,
+                         const int * shared_int,
+                         const typename T::real_type * shared_real,
+                         const typename T::data_type * data,
+                         typename T::rng_state_type::int_type * rng_state,
+                         bool use_shared_int,
+                         bool use_shared_real) {
   // This setup is mostly shared with run_particles
   typedef typename T::real_type real_type;
   typedef typename T::rng_state_type rng_state_type;
@@ -232,13 +237,13 @@ KERNEL void compare_particles(size_t n_particles,
     interleaved<rng_int_type> p_rng(rng_state, i, n_particles);
     rng_state_type rng_block = get_rng_state<rng_state_type>(p_rng);
 
-    weights[i] = compare_device<T>(p_state,
-                                   *shared_state.data,
-                                   p_internal_int,
-                                   p_internal_real,
-                                   shared_state.shared_int,
-                                   shared_state.shared_real,
-                                   rng_block);
+    weights[i] = compare_gpu<T>(p_state,
+                                *shared_state.data,
+                                p_internal_int,
+                                p_internal_real,
+                                shared_state.shared_int,
+                                shared_state.shared_real,
+                                rng_block);
     SYNCWARP
     put_rng_state(rng_block, p_rng);
   }
@@ -247,10 +252,10 @@ KERNEL void compare_particles(size_t n_particles,
 // Likely not particularly CUDA friendly, but will do for now
 // (better alternative would be merge, as both lists sorted)
 template <typename T>
-DEVICE size_t binary_interval_search(const T * array,
-                            const size_t array_len,
-                            const T search,
-                            const T offset) {
+__device__ size_t binary_interval_search(const T * array,
+                                         const size_t array_len,
+                                         const T search,
+                                         const T offset) {
   size_t l_pivot = 0;
   size_t r_pivot = array_len;
   while (l_pivot < r_pivot) {
@@ -269,9 +274,10 @@ DEVICE size_t binary_interval_search(const T * array,
 // same as
 // index = findInterval(u * cumsum(weights)[n], cumsum(weights))
 template <typename real_type>
-KERNEL void find_intervals(const real_type * cum_weights,
-                           const size_t n_particles, const size_t n_pars,
-                           size_t * index, const real_type * u) {
+__global__
+void find_intervals(const real_type * cum_weights,
+                    const size_t n_particles, const size_t n_pars,
+                    size_t * index, const real_type * u) {
   const size_t n_particles_each = n_particles / n_pars;
 #ifdef __NVCC__
   for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n_particles;
