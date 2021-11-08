@@ -197,7 +197,7 @@ test_that("Short circuit exit does not update rng state", {
 })
 
 
-test_that("rnorm agrees with stats::rnorm", {
+test_that("normal (box_muller) agrees with stats::rnorm", {
   n <- 100000
   mu <- exp(1)
   sd <- pi
@@ -205,6 +205,24 @@ test_that("rnorm agrees with stats::rnorm", {
   expect_equal(mean(ans), mu, tolerance = 1e-2)
   expect_equal(sd(ans), sd, tolerance = 1e-2)
   expect_gt(ks.test(ans, "pnorm", mu, sd)$p.value, 0.1)
+})
+
+
+test_that("normal (ziggurat) agrees with stats::rnorm", {
+  n <- 100000
+  mu <- exp(1)
+  sd <- pi
+  ans <- dust_rng$new(2)$normal(n, mu, sd, algorithm = "ziggurat")
+  expect_equal(mean(ans), mu, tolerance = 1e-2)
+  expect_equal(sd(ans), sd, tolerance = 1e-2)
+  expect_gt(ks.test(ans, "pnorm", mu, sd)$p.value, 0.1)
+})
+
+
+test_that("Prevent unknown normal algorithms", {
+  expect_error(
+    dust_rng$new(2)$normal(10, 0, 1, algorithm = "monty_python"),
+    "Unknown normal algorithm 'monty_python'")
 })
 
 

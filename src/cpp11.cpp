@@ -92,10 +92,10 @@ extern "C" SEXP _dust_dust_rng_exponential(SEXP ptr, SEXP n, SEXP r_rate, SEXP n
   END_CPP11
 }
 // dust_rng.cpp
-cpp11::writable::doubles dust_rng_normal(SEXP ptr, int n, cpp11::doubles r_mean, cpp11::doubles r_sd, int n_threads, bool is_float);
-extern "C" SEXP _dust_dust_rng_normal(SEXP ptr, SEXP n, SEXP r_mean, SEXP r_sd, SEXP n_threads, SEXP is_float) {
+cpp11::sexp dust_rng_normal(SEXP ptr, int n, cpp11::doubles r_mean, cpp11::doubles r_sd, int n_threads, bool is_float, std::string algorithm);
+extern "C" SEXP _dust_dust_rng_normal(SEXP ptr, SEXP n, SEXP r_mean, SEXP r_sd, SEXP n_threads, SEXP is_float, SEXP algorithm) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_normal(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_mean), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_sd), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
+    return cpp11::as_sexp(dust_rng_normal(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_mean), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_sd), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm)));
   END_CPP11
 }
 // dust_rng.cpp
@@ -1172,7 +1172,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_rng_jump",                     (DL_FUNC) &_dust_dust_rng_jump,                     2},
     {"_dust_dust_rng_long_jump",                (DL_FUNC) &_dust_dust_rng_long_jump,                2},
     {"_dust_dust_rng_multinomial",              (DL_FUNC) &_dust_dust_rng_multinomial,              6},
-    {"_dust_dust_rng_normal",                   (DL_FUNC) &_dust_dust_rng_normal,                   6},
+    {"_dust_dust_rng_normal",                   (DL_FUNC) &_dust_dust_rng_normal,                   7},
     {"_dust_dust_rng_poisson",                  (DL_FUNC) &_dust_dust_rng_poisson,                  5},
     {"_dust_dust_rng_random_real",              (DL_FUNC) &_dust_dust_rng_random_real,              4},
     {"_dust_dust_rng_state",                    (DL_FUNC) &_dust_dust_rng_state,                    2},

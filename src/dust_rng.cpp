@@ -214,7 +214,7 @@ cpp11::writable::doubles dust_rng_exponential(SEXP ptr, int n,
 }
 
 
-template <typename real_type, typename T>
+template <typename real_type, dust::random::algorithm::normal A, typename T>
 cpp11::writable::doubles dust_rng_normal(SEXP ptr, int n,
                                          cpp11::doubles r_mean,
                                          cpp11::doubles r_sd,
@@ -240,7 +240,7 @@ cpp11::writable::doubles dust_rng_normal(SEXP ptr, int n,
     for (size_t j = 0; j < (size_t)n; ++j) {
       auto mean_ij = mean_vary.draw ? mean_i[j] : mean_i[0];
       auto sd_ij = sd_vary.draw ? sd_i[j] : sd_i[0];
-      y_i[j] = dust::random::normal<real_type>(state, mean_ij, sd_ij);
+      y_i[j] = dust::random::normal<real_type, A>(state, mean_ij, sd_ij);
     }
   }
 
@@ -437,12 +437,24 @@ cpp11::writable::doubles dust_rng_exponential(SEXP ptr, int n,
 }
 
 [[cpp11::register]]
-cpp11::writable::doubles dust_rng_normal(SEXP ptr, int n, cpp11::doubles r_mean,
-                                         cpp11::doubles r_sd, int n_threads,
-                                         bool is_float) {
-  return is_float ?
-    dust_rng_normal<float, dust_rng32>(ptr, n, r_mean, r_sd, n_threads) :
-    dust_rng_normal<double, dust_rng64>(ptr, n, r_mean, r_sd, n_threads);
+cpp11::sexp dust_rng_normal(SEXP ptr, int n, cpp11::doubles r_mean,
+                            cpp11::doubles r_sd, int n_threads,
+                            bool is_float, std::string algorithm) {
+  cpp11::sexp ret;
+  if (algorithm == "box_muller") {
+    constexpr auto a = dust::random::algorithm::normal::box_muller;
+    ret = is_float ?
+      dust_rng_normal<float, a, dust_rng32>(ptr, n, r_mean, r_sd, n_threads) :
+      dust_rng_normal<double, a, dust_rng64>(ptr, n, r_mean, r_sd, n_threads);
+  } else if (algorithm == "ziggurat") {
+    constexpr auto a = dust::random::algorithm::normal::ziggurat;
+    ret = is_float ?
+      dust_rng_normal<float, a, dust_rng32>(ptr, n, r_mean, r_sd, n_threads) :
+      dust_rng_normal<double, a, dust_rng64>(ptr, n, r_mean, r_sd, n_threads);
+  } else {
+    cpp11::stop("Unknown normal algorithm '%s'", algorithm.c_str());
+  }
+  return ret;
 }
 
 [[cpp11::register]]

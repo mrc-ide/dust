@@ -214,8 +214,13 @@ dust_rng <- R6::R6Class(
     ##' @param sd The standard deviation of the distribution (length 1 or n)
     ##'
     ##' @param n_threads Number of threads to use; see Details
-    normal = function(n, mean, sd, n_threads = 1L) {
-      dust_rng_normal(private$ptr, n, mean, sd, n_threads, private$float)
+    ##'
+    ##' @param algorithm Name of the algorithm to use; currently `box_muller`
+    ##'   and `ziggurat` are supported, with the latter being considerably
+    ##'   faster.
+    normal = function(n, mean, sd, n_threads = 1L, algorithm = "box_muller") {
+      dust_rng_normal(private$ptr, n, mean, sd, n_threads, private$float,
+                      algorithm)
     },
 
     ##' @description Generate `n` numbers from a binomial distribution
