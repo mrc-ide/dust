@@ -26,8 +26,11 @@ for (f in files) {
   txt <- readLines(file.path(path_dust, f))
   name <- toupper(gsub("[/+.]", "_", f))
   expected <- c(sprintf("#ifndef %s", name), sprintf("#define %s", name))
-  i <- if (f == "dust/random/gamma_table.hpp") 2:3 else 1:2
-  if (identical(txt[i], expected)) {
+  re_generated <- "Generated .* - do not edit"
+  if (grepl(re_generated, txt[[1]])) {
+    txt <- txt[-1]
+  }
+  if (identical(txt[1:2], expected)) {
     message(crayon::bold(crayon::green("OK")))
   } else {
     ok <- FALSE

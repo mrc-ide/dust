@@ -40,6 +40,10 @@ dust_rng_random_real <- function(ptr, n, n_threads, is_float) {
   .Call(`_dust_dust_rng_random_real`, ptr, n, n_threads, is_float)
 }
 
+dust_rng_random_normal <- function(ptr, n, n_threads, algorithm, is_float) {
+  .Call(`_dust_dust_rng_random_normal`, ptr, n, n_threads, algorithm, is_float)
+}
+
 dust_rng_uniform <- function(ptr, n, r_min, r_max, n_threads, is_float) {
   .Call(`_dust_dust_rng_uniform`, ptr, n, r_min, r_max, n_threads, is_float)
 }
@@ -48,8 +52,8 @@ dust_rng_exponential <- function(ptr, n, r_rate, n_threads, is_float) {
   .Call(`_dust_dust_rng_exponential`, ptr, n, r_rate, n_threads, is_float)
 }
 
-dust_rng_normal <- function(ptr, n, r_mean, r_sd, n_threads, is_float) {
-  .Call(`_dust_dust_rng_normal`, ptr, n, r_mean, r_sd, n_threads, is_float)
+dust_rng_normal <- function(ptr, n, r_mean, r_sd, n_threads, algorithm, is_float) {
+  .Call(`_dust_dust_rng_normal`, ptr, n, r_mean, r_sd, n_threads, algorithm, is_float)
 }
 
 dust_rng_binomial <- function(ptr, n, r_size, r_prob, n_threads, is_float) {

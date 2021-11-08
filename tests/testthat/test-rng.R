@@ -197,14 +197,44 @@ test_that("Short circuit exit does not update rng state", {
 })
 
 
-test_that("rnorm agrees with stats::rnorm", {
+test_that("normal (box_muller) agrees with stats::rnorm", {
   n <- 100000
-  mu <- exp(1)
+  ans <- dust_rng$new(2)$random_normal(n)
+  expect_equal(mean(ans), 0, tolerance = 1e-2)
+  expect_equal(sd(ans), 1, tolerance = 1e-2)
+  expect_gt(ks.test(ans, "pnorm")$p.value, 0.1)
+})
+
+
+test_that("normal (ziggurat) agrees with stats::rnorm", {
+  n <- 100000
+  ans <- dust_rng$new(2)$random_normal(n, algorithm = "ziggurat")
+  expect_equal(mean(ans), 0, tolerance = 1e-2)
+  expect_equal(sd(ans), 1, tolerance = 1e-2)
+  expect_gt(ks.test(ans, "pnorm")$p.value, 0.1)
+})
+
+
+test_that("normal scales draws", {
+  n <- 100
+  mean <- exp(1)
   sd <- pi
-  ans <- dust_rng$new(2)$normal(n, mu, sd)
-  expect_equal(mean(ans), mu, tolerance = 1e-2)
-  expect_equal(sd(ans), sd, tolerance = 1e-2)
-  expect_gt(ks.test(ans, "pnorm", mu, sd)$p.value, 0.1)
+  rng1 <- dust_rng$new(1)
+  rng2 <- dust_rng$new(1)
+  expect_equal(rng1$normal(n, mean, sd),
+               mean + sd * rng2$random_normal(n))
+  expect_equal(rng1$normal(n, mean, sd, algorithm = "ziggurat"),
+               mean + sd * rng2$random_normal(n, algorithm = "ziggurat"))
+})
+
+
+test_that("Prevent unknown normal algorithms", {
+  expect_error(
+    dust_rng$new(2)$random_normal(10, algorithm = "monty_python"),
+    "Unknown normal algorithm 'monty_python'")
+  expect_error(
+    dust_rng$new(2)$normal(10, 0, 1, algorithm = "monty_python"),
+    "Unknown normal algorithm 'monty_python'")
 })
 
 
@@ -489,11 +519,37 @@ test_that("uniform random numbers from floats have correct distribution", {
 
 test_that("normal random numbers from floats have correct distribution", {
   n <- 100000
-  mu <- 2
-  sd <- 0.1
-  yf <- dust_rng$new(1, real_type = "float")$normal(n, mu, sd)
-  expect_equal(mean(yf), mu, tolerance = 1e-2)
-  expect_equal(sd(yf), sd, tolerance = 1e-2)
+  y <- dust_rng$new(1, real_type = "float")$random_normal(n)
+  expect_equal(mean(y), 0, tolerance = 1e-2)
+  expect_equal(sd(y), 1, tolerance = 1e-2)
+  expect_gt(suppressWarnings(ks.test(y, "pnorm")$p.value), 0.1)
+
+  m <- 200
+  mu <- exp(1)
+  sd <- pi
+  expect_equal(
+    dust_rng$new(1, real_type = "float")$normal(m, mu, sd),
+    mu + sd * y[seq_len(m)],
+    tolerance = 1e-5)
+})
+
+
+test_that("normal random numbers from floats have correct distribution (zig)", {
+  n <- 100000
+  r <- dust_rng$new(1, real_type = "float")
+  y <- r$random_normal(n, algorithm = "ziggurat")
+  expect_equal(mean(y), 0, tolerance = 1e-2)
+  expect_equal(sd(y), 1, tolerance = 1e-2)
+  expect_gt(suppressWarnings(ks.test(y, "pnorm")$p.value), 0.1)
+
+  cmp <- dust_rng$new(1, real_type = "float")
+  m <- 200
+  mu <- exp(1)
+  sd <- pi
+  expect_equal(
+    cmp$normal(m, mu, sd, algorithm = "ziggurat"),
+    mu + sd * y[seq_len(m)],
+    tolerance = 1e-5)
 })
 
 

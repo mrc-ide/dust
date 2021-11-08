@@ -85,6 +85,9 @@ rng <- dust::dust_rng$new(42)
 # Shorthand for Uniform(0, 1)
 rng$random_real(5)
 
+# Shorthand for Normal(0, 1)
+rng$random_normal(5)
+
 # Uniform random numbers between min and max
 rng$uniform(5, -2, 6)
 
@@ -119,6 +122,7 @@ rng$multinomial(5, 10, c(0.1, 0.3, 0.5, 0.1))
 \item \href{#method-jump}{\code{dust_rng$jump()}}
 \item \href{#method-long_jump}{\code{dust_rng$long_jump()}}
 \item \href{#method-random_real}{\code{dust_rng$random_real()}}
+\item \href{#method-random_normal}{\code{dust_rng$random_normal()}}
 \item \href{#method-uniform}{\code{dust_rng$uniform()}}
 \item \href{#method-normal}{\code{dust_rng$normal()}}
 \item \href{#method-binomial}{\code{dust_rng$binomial()}}
@@ -215,6 +219,29 @@ Generate \code{n} numbers from a standard uniform distribution
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-random_normal"></a>}}
+\if{latex}{\out{\hypertarget{method-random_normal}{}}}
+\subsection{Method \code{random_normal()}}{
+Generate \code{n} numbers from a standard normal distribution
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$random_normal(n, n_threads = 1L, algorithm = "box_muller")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{n}}{Number of samples to draw (per generator)}
+
+\item{\code{n_threads}}{Number of threads to use; see Details}
+
+\item{\code{algorithm}}{Name of the algorithm to use; currently \code{box_muller}
+and \code{ziggurat} are supported, with the latter being considerably
+faster.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-uniform"></a>}}
 \if{latex}{\out{\hypertarget{method-uniform}{}}}
 \subsection{Method \code{uniform()}}{
@@ -243,7 +270,7 @@ Generate \code{n} numbers from a uniform distribution
 \subsection{Method \code{normal()}}{
 Generate \code{n} numbers from a normal distribution
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$normal(n, mean, sd, n_threads = 1L)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$normal(n, mean, sd, n_threads = 1L, algorithm = "box_muller")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -256,6 +283,10 @@ Generate \code{n} numbers from a normal distribution
 \item{\code{sd}}{The standard deviation of the distribution (length 1 or n)}
 
 \item{\code{n_threads}}{Number of threads to use; see Details}
+
+\item{\code{algorithm}}{Name of the algorithm to use; currently \code{box_muller}
+and \code{ziggurat} are supported, with the latter being considerably
+faster.}
 }
 \if{html}{\out{</div>}}
 }

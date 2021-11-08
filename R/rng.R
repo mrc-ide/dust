@@ -84,6 +84,9 @@
 ##' # Shorthand for Uniform(0, 1)
 ##' rng$random_real(5)
 ##'
+##' # Shorthand for Normal(0, 1)
+##' rng$random_normal(5)
+##'
 ##' # Uniform random numbers between min and max
 ##' rng$uniform(5, -2, 6)
 ##'
@@ -192,6 +195,20 @@ dust_rng <- R6::R6Class(
       dust_rng_random_real(private$ptr, n, n_threads, private$float)
     },
 
+    ##' @description Generate `n` numbers from a standard normal distribution
+    ##'
+    ##' @param n Number of samples to draw (per generator)
+    ##'
+    ##' @param n_threads Number of threads to use; see Details
+    ##'
+    ##' @param algorithm Name of the algorithm to use; currently `box_muller`
+    ##'   and `ziggurat` are supported, with the latter being considerably
+    ##'   faster.
+    random_normal = function(n, n_threads = 1L, algorithm = "box_muller") {
+      dust_rng_random_normal(private$ptr, n, n_threads, algorithm,
+                             private$float)
+    },
+
     ##' @description Generate `n` numbers from a uniform distribution
     ##'
     ##' @param n Number of samples to draw (per generator)
@@ -214,8 +231,13 @@ dust_rng <- R6::R6Class(
     ##' @param sd The standard deviation of the distribution (length 1 or n)
     ##'
     ##' @param n_threads Number of threads to use; see Details
-    normal = function(n, mean, sd, n_threads = 1L) {
-      dust_rng_normal(private$ptr, n, mean, sd, n_threads, private$float)
+    ##'
+    ##' @param algorithm Name of the algorithm to use; currently `box_muller`
+    ##'   and `ziggurat` are supported, with the latter being considerably
+    ##'   faster.
+    normal = function(n, mean, sd, n_threads = 1L, algorithm = "box_muller") {
+      dust_rng_normal(private$ptr, n, mean, sd, n_threads, algorithm,
+                      private$float)
     },
 
     ##' @description Generate `n` numbers from a binomial distribution

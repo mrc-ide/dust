@@ -1,3 +1,7 @@
+# dust 0.11.6
+
+* Added support for drawing normally distributed random numbers using the ziggurat method. Currently this is only efficient on a CPU, though supported on a GPU (#308)
+
 # dust 0.11.5
 
 * Major header reorganisation, the `dust::cuda` namespace is now `dust::gpu`, most user-facing uses of `cuda` and `device` now replaced with `gpu` (#298, #317)

@@ -35,9 +35,9 @@ void dust_rng_long_jump(SEXP ptr) {
   rng->long_jump();
 }
 
-// Little helper for returning x as a vector (m == 1) or matrix (n * m)
-cpp11::writable::doubles double_matrix(cpp11::writable::doubles x,
-                                       int n, int m) {
+// Little helper for returning x as a vector (m == 1) or matrix (n *
+// m) by setting the dimension attribute.
+cpp11::sexp sexp_matrix(cpp11::sexp x, int n, int m) {
   if (m > 1) {
     x.attr("dim") = cpp11::writable::integers{n, m};
   }
@@ -45,7 +45,7 @@ cpp11::writable::doubles double_matrix(cpp11::writable::doubles x,
 }
 
 template <typename real_type, typename T>
-cpp11::writable::doubles dust_rng_random_real(SEXP ptr, int n, int n_threads) {
+cpp11::sexp dust_rng_random_real(SEXP ptr, int n, int n_threads) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const int n_generators = rng->size();
 
@@ -63,7 +63,29 @@ cpp11::writable::doubles dust_rng_random_real(SEXP ptr, int n, int n_threads) {
     }
   }
 
-  return double_matrix(ret, n, n_generators);
+  return sexp_matrix(ret, n, n_generators);
+}
+
+template <typename real_type, dust::random::algorithm::normal A, typename T>
+cpp11::sexp dust_rng_random_normal(SEXP ptr, int n, int n_threads) {
+  T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
+  const int n_generators = rng->size();
+
+  cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_generators);
+  double * y = REAL(ret);
+
+#ifdef _OPENMP
+   #pragma omp parallel for schedule(static) num_threads(n_threads)
+#endif
+  for (int i = 0; i < n_generators; ++i) {
+    auto &state = rng->state(i);
+    auto y_i = y + n * i;
+    for (size_t j = 0; j < (size_t)n; ++j) {
+      y_i[j] = dust::random::random_normal<real_type, A>(state);
+    }
+  }
+
+  return sexp_matrix(ret, n, n_generators);
 }
 
 struct input_vary {
@@ -153,10 +175,10 @@ input_vary check_input_type2(cpp11::doubles x, int n, int m, const char *name) {
 // want to support 4 modes of taking 1 or 2 parameters (each varying
 // or not over draws and generators)
 template <typename real_type, typename T>
-cpp11::writable::doubles dust_rng_uniform(SEXP ptr, int n,
-                                          cpp11::doubles r_min,
-                                          cpp11::doubles r_max,
-                                          int n_threads) {
+cpp11::sexp dust_rng_uniform(SEXP ptr, int n,
+                             cpp11::doubles r_min,
+                             cpp11::doubles r_max,
+                             int n_threads) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const int n_generators = rng->size();
   cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_generators);
@@ -182,13 +204,12 @@ cpp11::writable::doubles dust_rng_uniform(SEXP ptr, int n,
     }
   }
 
-  return double_matrix(ret, n, n_generators);
+  return sexp_matrix(ret, n, n_generators);
 }
 
 template <typename real_type, typename T>
-cpp11::writable::doubles dust_rng_exponential(SEXP ptr, int n,
-                                              cpp11::doubles r_rate,
-                                              int n_threads) {
+cpp11::sexp dust_rng_exponential(SEXP ptr, int n, cpp11::doubles r_rate,
+                                 int n_threads) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const int n_generators = rng->size();
   cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_generators);
@@ -210,15 +231,14 @@ cpp11::writable::doubles dust_rng_exponential(SEXP ptr, int n,
     }
   }
 
-  return double_matrix(ret, n, n_generators);
+  return sexp_matrix(ret, n, n_generators);
 }
 
 
-template <typename real_type, typename T>
-cpp11::writable::doubles dust_rng_normal(SEXP ptr, int n,
-                                         cpp11::doubles r_mean,
-                                         cpp11::doubles r_sd,
-                                         int n_threads) {
+template <typename real_type, dust::random::algorithm::normal A, typename T>
+cpp11::sexp dust_rng_normal(SEXP ptr, int n,
+                            cpp11::doubles r_mean, cpp11::doubles r_sd,
+                            int n_threads) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const int n_generators = rng->size();
   cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_generators);
@@ -240,18 +260,17 @@ cpp11::writable::doubles dust_rng_normal(SEXP ptr, int n,
     for (size_t j = 0; j < (size_t)n; ++j) {
       auto mean_ij = mean_vary.draw ? mean_i[j] : mean_i[0];
       auto sd_ij = sd_vary.draw ? sd_i[j] : sd_i[0];
-      y_i[j] = dust::random::normal<real_type>(state, mean_ij, sd_ij);
+      y_i[j] = dust::random::normal<real_type, A>(state, mean_ij, sd_ij);
     }
   }
 
-  return double_matrix(ret, n, n_generators);
+  return sexp_matrix(ret, n, n_generators);
 }
 
 template <typename real_type, typename T>
-cpp11::writable::doubles dust_rng_binomial(SEXP ptr, int n,
-                                           cpp11::doubles r_size,
-                                           cpp11::doubles r_prob,
-                                           int n_threads) {
+cpp11::sexp dust_rng_binomial(SEXP ptr, int n,
+                              cpp11::doubles r_size, cpp11::doubles r_prob,
+                              int n_threads) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const int n_generators = rng->size();
   cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_generators);
@@ -285,13 +304,12 @@ cpp11::writable::doubles dust_rng_binomial(SEXP ptr, int n,
 
   errors.report("generators");
 
-  return double_matrix(ret, n, n_generators);
+  return sexp_matrix(ret, n, n_generators);
 }
 
 template <typename real_type, typename T>
-cpp11::writable::doubles dust_rng_poisson(SEXP ptr, int n,
-                                          cpp11::doubles r_lambda,
-                                          int n_threads) {
+cpp11::sexp dust_rng_poisson(SEXP ptr, int n, cpp11::doubles r_lambda,
+                             int n_threads) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const int n_generators = rng->size();
   cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_generators);
@@ -314,14 +332,14 @@ cpp11::writable::doubles dust_rng_poisson(SEXP ptr, int n,
     }
   }
 
-  return double_matrix(ret, n, n_generators);
+  return sexp_matrix(ret, n, n_generators);
 }
 
 template <typename real_type, typename T>
-cpp11::writable::doubles dust_rng_multinomial(SEXP ptr, int n,
-                                              cpp11::doubles r_size,
-                                              cpp11::doubles r_prob,
-                                              int n_threads) {
+cpp11::sexp dust_rng_multinomial(SEXP ptr, int n,
+                                 cpp11::doubles r_size,
+                                 cpp11::doubles r_prob,
+                                 int n_threads) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const int n_generators = rng->size();
 
@@ -372,7 +390,7 @@ cpp11::writable::doubles dust_rng_multinomial(SEXP ptr, int n,
 }
 
 template <typename T>
-cpp11::writable::raws dust_rng_state(SEXP ptr) {
+cpp11::sexp dust_rng_state(SEXP ptr) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   auto state = rng->export_state();
   size_t len = sizeof(typename T::int_type) * state.size();
@@ -408,77 +426,103 @@ void dust_rng_long_jump(SEXP ptr, bool is_float) {
 }
 
 [[cpp11::register]]
-cpp11::writable::doubles dust_rng_random_real(SEXP ptr, int n, int n_threads,
-                                              bool is_float) {
+cpp11::sexp dust_rng_random_real(SEXP ptr, int n, int n_threads,
+                                 bool is_float) {
   return is_float ?
     dust_rng_random_real<float, dust_rng32>(ptr, n, n_threads) :
     dust_rng_random_real<double, dust_rng64>(ptr, n, n_threads);
 }
 
 [[cpp11::register]]
-cpp11::writable::doubles dust_rng_uniform(SEXP ptr, int n,
-                                          cpp11::doubles r_min,
-                                          cpp11::doubles r_max,
-                                          int n_threads,
-                                          bool is_float) {
+cpp11::sexp dust_rng_random_normal(SEXP ptr, int n, int n_threads,
+                                   std::string algorithm, bool is_float) {
+  cpp11::sexp ret;
+  if (algorithm == "box_muller") {
+    constexpr auto a = dust::random::algorithm::normal::box_muller;
+    ret = is_float ?
+      dust_rng_random_normal<float, a, dust_rng32>(ptr, n, n_threads) :
+      dust_rng_random_normal<double, a, dust_rng64>(ptr, n, n_threads);
+  } else if (algorithm == "ziggurat") {
+    constexpr auto a = dust::random::algorithm::normal::ziggurat;
+    ret = is_float ?
+      dust_rng_random_normal<float, a, dust_rng32>(ptr, n, n_threads) :
+      dust_rng_random_normal<double, a, dust_rng64>(ptr, n, n_threads);
+  } else {
+    cpp11::stop("Unknown normal algorithm '%s'", algorithm.c_str());
+  }
+  return ret;
+}
+
+[[cpp11::register]]
+cpp11::sexp dust_rng_uniform(SEXP ptr, int n,
+                             cpp11::doubles r_min,
+                             cpp11::doubles r_max,
+                             int n_threads,
+                             bool is_float) {
   return is_float ?
     dust_rng_uniform<float, dust_rng32>(ptr, n, r_min, r_max, n_threads) :
     dust_rng_uniform<double, dust_rng64>(ptr, n, r_min, r_max, n_threads);
 }
 
 [[cpp11::register]]
-cpp11::writable::doubles dust_rng_exponential(SEXP ptr, int n,
-                                              cpp11::doubles r_rate,
-                                              int n_threads,
-                                              bool is_float) {
+cpp11::sexp dust_rng_exponential(SEXP ptr, int n, cpp11::doubles r_rate,
+                                 int n_threads,
+                                 bool is_float) {
   return is_float ?
     dust_rng_exponential<float, dust_rng32>(ptr, n, r_rate, n_threads) :
     dust_rng_exponential<double, dust_rng64>(ptr, n, r_rate, n_threads);
 }
 
 [[cpp11::register]]
-cpp11::writable::doubles dust_rng_normal(SEXP ptr, int n, cpp11::doubles r_mean,
-                                         cpp11::doubles r_sd, int n_threads,
-                                         bool is_float) {
-  return is_float ?
-    dust_rng_normal<float, dust_rng32>(ptr, n, r_mean, r_sd, n_threads) :
-    dust_rng_normal<double, dust_rng64>(ptr, n, r_mean, r_sd, n_threads);
+cpp11::sexp dust_rng_normal(SEXP ptr, int n, cpp11::doubles r_mean,
+                            cpp11::doubles r_sd, int n_threads,
+                            std::string algorithm, bool is_float) {
+  cpp11::sexp ret;
+  if (algorithm == "box_muller") {
+    constexpr auto a = dust::random::algorithm::normal::box_muller;
+    ret = is_float ?
+      dust_rng_normal<float, a, dust_rng32>(ptr, n, r_mean, r_sd, n_threads) :
+      dust_rng_normal<double, a, dust_rng64>(ptr, n, r_mean, r_sd, n_threads);
+  } else if (algorithm == "ziggurat") {
+    constexpr auto a = dust::random::algorithm::normal::ziggurat;
+    ret = is_float ?
+      dust_rng_normal<float, a, dust_rng32>(ptr, n, r_mean, r_sd, n_threads) :
+      dust_rng_normal<double, a, dust_rng64>(ptr, n, r_mean, r_sd, n_threads);
+  } else {
+    cpp11::stop("Unknown normal algorithm '%s'", algorithm.c_str());
+  }
+  return ret;
 }
 
 [[cpp11::register]]
-cpp11::writable::doubles dust_rng_binomial(SEXP ptr, int n,
-                                           cpp11::doubles r_size,
-                                           cpp11::doubles r_prob,
-                                           int n_threads,
-                                           bool is_float) {
+cpp11::sexp dust_rng_binomial(SEXP ptr, int n,
+                              cpp11::doubles r_size, cpp11::doubles r_prob,
+                              int n_threads, bool is_float) {
   return is_float ?
     dust_rng_binomial<float, dust_rng32>(ptr, n, r_size, r_prob, n_threads) :
     dust_rng_binomial<double, dust_rng64>(ptr, n, r_size, r_prob, n_threads);
 }
 
 [[cpp11::register]]
-cpp11::writable::doubles dust_rng_poisson(SEXP ptr, int n,
-                                          cpp11::doubles r_lambda,
-                                          int n_threads,
-                                          bool is_float) {
+cpp11::sexp dust_rng_poisson(SEXP ptr, int n,
+                             cpp11::doubles r_lambda,
+                             int n_threads, bool is_float) {
   return is_float ?
     dust_rng_poisson<float, dust_rng32>(ptr, n, r_lambda, n_threads) :
     dust_rng_poisson<double, dust_rng64>(ptr, n, r_lambda, n_threads);
 }
 
 [[cpp11::register]]
-cpp11::writable::doubles dust_rng_multinomial(SEXP ptr, int n,
-                                              cpp11::doubles r_size,
-                                              cpp11::doubles r_prob,
-                                              int n_threads,
-                                              bool is_float) {
+cpp11::sexp dust_rng_multinomial(SEXP ptr, int n,
+                                 cpp11::doubles r_size, cpp11::doubles r_prob,
+                                 int n_threads, bool is_float) {
   return is_float ?
     dust_rng_multinomial<float, dust_rng32>(ptr, n, r_size, r_prob, n_threads) :
     dust_rng_multinomial<double, dust_rng64>(ptr, n, r_size, r_prob, n_threads);
 }
 
 [[cpp11::register]]
-cpp11::writable::raws dust_rng_state(SEXP ptr, bool is_float) {
+cpp11::sexp dust_rng_state(SEXP ptr, bool is_float) {
   return is_float ?
     dust_rng_state<dust_rng32>(ptr) :
     dust_rng_state<dust_rng64>(ptr);

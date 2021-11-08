@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-#include "dust/random/gamma_table.hpp"
+#include "dust/random/binomial_gamma_tables.hpp"
 #include "dust/random/generator.hpp"
 
 namespace dust {

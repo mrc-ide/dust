@@ -1,6 +1,8 @@
 {{header}}
-#ifndef DUST_RANDOM_GAMMA_TABLE_HPP
-#define DUST_RANDOM_GAMMA_TABLE_HPP
+#ifndef DUST_RANDOM_BINOMIAL_GAMMA_TABLES_HPP
+#define DUST_RANDOM_BINOMIAL_GAMMA_TABLES_HPP
+
+#include "dust/random/cuda_compatibility.hpp"
 
 namespace dust {
 namespace random {
