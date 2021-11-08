@@ -571,3 +571,15 @@ dust_cpu_walk_set_n_threads <- function(ptr, n_threads) {
 dust_cpu_walk_n_state <- function(ptr) {
   .Call(`_dust_dust_cpu_walk_n_state`, ptr)
 }
+
+normal_ziggurat <- function(n) {
+  .Call(`_dust_normal_ziggurat`, n)
+}
+
+normal2 <- function(n, use_ziggurat) {
+  .Call(`_dust_normal2`, n, use_ziggurat)
+}
+
+normal3 <- function(n) {
+  .Call(`_dust_normal3`, n)
+}
