@@ -66,8 +66,11 @@ real_type random_normal_ziggurat(rng_state_type& rng_state) {
       break;
     }
     const auto z = u0 * x<real_type>[i];
-    const auto f0 = std::exp(-0.5 * (x<real_type>[i] * x<real_type>[i] - z * z));
-    const auto f1 = std::exp(-0.5 * (x<real_type>[i + 1] * x<real_type>[i + 1] - z * z));
+    const auto z2 = z * z;
+    const auto f0 =
+      std::exp(-0.5 * (x<real_type>[i] * x<real_type>[i] - z2));
+    const auto f1 =
+      std::exp(-0.5 * (x<real_type>[i + 1] * x<real_type>[i + 1] - z2));
     const auto u1 = random_real<real_type>(rng_state);
     if (f1 + u1 * (f0 - f1) < 1.0) {
       ret = z;
