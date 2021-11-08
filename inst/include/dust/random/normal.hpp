@@ -27,6 +27,7 @@ real_type random_normal(rng_state_type& rng_state) {
   case algorithm::normal::box_muller:
     return random_normal_box_muller<real_type>(rng_state);
   case algorithm::normal::ziggurat:
+  default: // keeps compiler happy
     return random_normal_ziggurat<real_type>(rng_state);
   }
 }

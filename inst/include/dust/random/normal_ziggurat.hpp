@@ -7,8 +7,10 @@
 namespace dust {
 namespace random {
 
+__nv_exec_check_disable__
 namespace {
 template <typename real_type, typename rng_state_type>
+__host__ __device__
 real_type normal_ziggurat_tail(rng_state_type& rng_state, real_type x1,
                                bool negative) {
   do {
@@ -29,7 +31,9 @@ real_type normal_ziggurat_tail(rng_state_type& rng_state, real_type x1,
 // rewritten easily as a function though taking 'u1' and so allowing
 // full template specialisation. However by most accounts this
 // performs poorly onn a GPU to latency so it might be ok.
+__nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
+__host__ __device__
 real_type random_normal_ziggurat(rng_state_type& rng_state) {
   using ziggurat::x;
   using ziggurat::y;
