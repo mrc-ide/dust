@@ -85,6 +85,16 @@ rng$normal(10, 3, 6)
 real_type z = dust::random::normal<real_type>(state, 3, 6);
 ```
 
+This function supports using the ziggurat algorithm, which will generally be faster:
+
+```{r}
+rng$normal(10, 3, 6, algorithm = "ziggurat")
+```
+
+```cc
+real_type z = dust::random::normal<real_type, dust::random::normal::algorithm::ziggurat>(state, 3, 6);
+```
+
 **Poisson distribution** with mean `lambda`
 
 ```{r}
