@@ -44,6 +44,12 @@ real_type random_normal_ziggurat(rng_state_type& rng_state) {
   using ziggurat::y;
   // This 'n' needs to match the length of 'y'. To change, update the
   // tables by editing and re-running ./scripts/update_ziggurat_tables
+  //
+  // Benchmarking on the CPU showed 256 to be the fastest of 32, 64,
+  // 128, 258 (it was the largest tried though), but it is quite
+  // possible that a different number will be better on the GPU. Once
+  // #327 and #324 are dealt with we could template over the number of
+  // bins.
   constexpr size_t n = 256;
   const real_type r = x[1];
 
