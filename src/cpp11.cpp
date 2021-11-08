@@ -1029,27 +1029,6 @@ extern "C" SEXP _dust_dust_cpu_walk_n_state(SEXP ptr) {
     return cpp11::as_sexp(dust_cpu_walk_n_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
   END_CPP11
 }
-// zig.cpp
-cpp11::sexp normal_ziggurat(int n);
-extern "C" SEXP _dust_normal_ziggurat(SEXP n) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(normal_ziggurat(cpp11::as_cpp<cpp11::decay_t<int>>(n)));
-  END_CPP11
-}
-// zig.cpp
-cpp11::sexp normal2(int n, const bool use_ziggurat);
-extern "C" SEXP _dust_normal2(SEXP n, SEXP use_ziggurat) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(normal2(cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<const bool>>(use_ziggurat)));
-  END_CPP11
-}
-// zig.cpp
-cpp11::sexp normal3(int n);
-extern "C" SEXP _dust_normal3(SEXP n) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(normal3(cpp11::as_cpp<cpp11::decay_t<int>>(n)));
-  END_CPP11
-}
 
 extern "C" {
 static const R_CallMethodDef CallEntries[] = {
@@ -1195,9 +1174,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_volatility_gpu_info",          (DL_FUNC) &_dust_dust_volatility_gpu_info,          0},
     {"_dust_dust_walk_capabilities",            (DL_FUNC) &_dust_dust_walk_capabilities,            0},
     {"_dust_dust_walk_gpu_info",                (DL_FUNC) &_dust_dust_walk_gpu_info,                0},
-    {"_dust_normal2",                           (DL_FUNC) &_dust_normal2,                           2},
-    {"_dust_normal3",                           (DL_FUNC) &_dust_normal3,                           1},
-    {"_dust_normal_ziggurat",                   (DL_FUNC) &_dust_normal_ziggurat,                   1},
     {"_dust_test_cuda_pars",                    (DL_FUNC) &_dust_test_cuda_pars,                    9},
     {"_dust_test_xoshiro_run",                  (DL_FUNC) &_dust_test_xoshiro_run,                  1},
     {NULL, NULL, 0}
