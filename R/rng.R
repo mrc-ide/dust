@@ -208,7 +208,7 @@ dust_rng <- R6::R6Class(
       dust_rng_random_normal(private$ptr, n, n_threads, algorithm,
                              private$float)
     },
-    
+
     ##' @description Generate `n` numbers from a uniform distribution
     ##'
     ##' @param n Number of samples to draw (per generator)
