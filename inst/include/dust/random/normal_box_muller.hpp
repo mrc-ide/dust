@@ -1,6 +1,10 @@
 #ifndef DUST_RANDOM_NORMAL_BOX_MULLER_HPP
 #define DUST_RANDOM_NORMAL_BOX_MULLER_HPP
 
+#include <cmath>
+
+#include "dust/random/generator.hpp"
+
 namespace dust {
 namespace random {
 
