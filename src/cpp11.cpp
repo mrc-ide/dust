@@ -71,7 +71,7 @@ extern "C" SEXP _dust_dust_rng_long_jump(SEXP ptr, SEXP is_float) {
   END_CPP11
 }
 // dust_rng.cpp
-cpp11::writable::doubles dust_rng_random_real(SEXP ptr, int n, int n_threads, bool is_float);
+cpp11::sexp dust_rng_random_real(SEXP ptr, int n, int n_threads, bool is_float);
 extern "C" SEXP _dust_dust_rng_random_real(SEXP ptr, SEXP n, SEXP n_threads, SEXP is_float) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_rng_random_real(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
@@ -85,14 +85,14 @@ extern "C" SEXP _dust_dust_rng_random_normal(SEXP ptr, SEXP n, SEXP n_threads, S
   END_CPP11
 }
 // dust_rng.cpp
-cpp11::writable::doubles dust_rng_uniform(SEXP ptr, int n, cpp11::doubles r_min, cpp11::doubles r_max, int n_threads, bool is_float);
+cpp11::sexp dust_rng_uniform(SEXP ptr, int n, cpp11::doubles r_min, cpp11::doubles r_max, int n_threads, bool is_float);
 extern "C" SEXP _dust_dust_rng_uniform(SEXP ptr, SEXP n, SEXP r_min, SEXP r_max, SEXP n_threads, SEXP is_float) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_rng_uniform(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_min), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_max), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
   END_CPP11
 }
 // dust_rng.cpp
-cpp11::writable::doubles dust_rng_exponential(SEXP ptr, int n, cpp11::doubles r_rate, int n_threads, bool is_float);
+cpp11::sexp dust_rng_exponential(SEXP ptr, int n, cpp11::doubles r_rate, int n_threads, bool is_float);
 extern "C" SEXP _dust_dust_rng_exponential(SEXP ptr, SEXP n, SEXP r_rate, SEXP n_threads, SEXP is_float) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_rng_exponential(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_rate), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
@@ -106,28 +106,28 @@ extern "C" SEXP _dust_dust_rng_normal(SEXP ptr, SEXP n, SEXP r_mean, SEXP r_sd, 
   END_CPP11
 }
 // dust_rng.cpp
-cpp11::writable::doubles dust_rng_binomial(SEXP ptr, int n, cpp11::doubles r_size, cpp11::doubles r_prob, int n_threads, bool is_float);
+cpp11::sexp dust_rng_binomial(SEXP ptr, int n, cpp11::doubles r_size, cpp11::doubles r_prob, int n_threads, bool is_float);
 extern "C" SEXP _dust_dust_rng_binomial(SEXP ptr, SEXP n, SEXP r_size, SEXP r_prob, SEXP n_threads, SEXP is_float) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_rng_binomial(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_size), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_prob), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
   END_CPP11
 }
 // dust_rng.cpp
-cpp11::writable::doubles dust_rng_poisson(SEXP ptr, int n, cpp11::doubles r_lambda, int n_threads, bool is_float);
+cpp11::sexp dust_rng_poisson(SEXP ptr, int n, cpp11::doubles r_lambda, int n_threads, bool is_float);
 extern "C" SEXP _dust_dust_rng_poisson(SEXP ptr, SEXP n, SEXP r_lambda, SEXP n_threads, SEXP is_float) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_rng_poisson(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_lambda), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
   END_CPP11
 }
 // dust_rng.cpp
-cpp11::writable::doubles dust_rng_multinomial(SEXP ptr, int n, cpp11::doubles r_size, cpp11::doubles r_prob, int n_threads, bool is_float);
+cpp11::sexp dust_rng_multinomial(SEXP ptr, int n, cpp11::doubles r_size, cpp11::doubles r_prob, int n_threads, bool is_float);
 extern "C" SEXP _dust_dust_rng_multinomial(SEXP ptr, SEXP n, SEXP r_size, SEXP r_prob, SEXP n_threads, SEXP is_float) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_rng_multinomial(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_size), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_prob), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
   END_CPP11
 }
 // dust_rng.cpp
-cpp11::writable::raws dust_rng_state(SEXP ptr, bool is_float);
+cpp11::sexp dust_rng_state(SEXP ptr, bool is_float);
 extern "C" SEXP _dust_dust_rng_state(SEXP ptr, SEXP is_float) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
