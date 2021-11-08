@@ -2,6 +2,8 @@
 #ifndef DUST_RANDOM_NORMAL_ZIGGURAT_TABLES_HPP
 #define DUST_RANDOM_NORMAL_ZIGGURAT_TABLES_HPP
 
+#include "dust/random/cuda_compatibility.hpp"
+
 namespace dust {
 namespace random {
 namespace ziggurat {
