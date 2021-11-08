@@ -25,7 +25,7 @@ real_type random_normal_box_muller(rng_state_type& rng_state) {
   } while (u1 <= epsilon);
 
   SYNCWARP
-  return std::sqrt(-2 * std::log(u1)) * std::cos(two_pi * u2);
+  return std::sqrt(-2 * std::log(u1)) * utils::fast_cos(two_pi * u2);
 }
 
 

@@ -96,6 +96,21 @@ __host__ __device__ real_type infinity() {
 #endif
 }
 
+__nv_exec_check_disable__
+template <typename real_type>
+__host__ __device__
+real_type fast_cos(real_type x) {
+  return std::cos(x);
+}
+
+#ifdef __CUDA_ARCH__
+template <>
+__device__
+inline float fast_cos(float x) {
+  return __cosf(x);
+}
+#endif
+
 }
 }
 }
