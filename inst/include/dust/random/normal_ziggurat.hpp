@@ -42,6 +42,8 @@ __host__ __device__
 real_type random_normal_ziggurat(rng_state_type& rng_state) {
   using ziggurat::x;
   using ziggurat::y;
+  // This 'n' needs to match the length of 'y'. To change, update the
+  // tables by editing and re-running ./scripts/update_ziggurat_tables
   constexpr size_t n = 256;
   const real_type r = x[1];
 
@@ -63,6 +65,7 @@ real_type random_normal_ziggurat(rng_state_type& rng_state) {
     const auto u1 = random_real<real_type>(rng_state);
     if (f1 + u1 * (f0 - f1) < 1.0) {
       ret = z;
+      break;
     }
   } while (true);
   SYNCWARP

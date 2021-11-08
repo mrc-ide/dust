@@ -45,6 +45,9 @@ intervals <- function(n, r, v) {
 }
 
 
+## For derivation see:
+## * https://www.doornik.com/research/ziggurat.pdf
+## * https://en.wikipedia.org/wiki/Ziggurat_algorithm
 zig_constants <- function(n, tolerance = 1e-10) {
   ## As for intervals but with more robustness to being out of bounds
   intervals <- function(n, r, v) {
