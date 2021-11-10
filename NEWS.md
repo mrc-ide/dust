@@ -1,3 +1,9 @@
+# dust 0.11.7
+
+* New polar algorithm for normally distributed random numbers; faster than Box-Muller but slower than Ziggurat
+* Tweaked algorithm for Ziggurat so now ~10% faster by avoiding drawing a second random number when working with 64 bit integers
+* Added a new vignette describing the internals of the normal sampling algorithms (#325)
+
 # dust 0.11.6
 
 * Added support for drawing normally distributed random numbers using the ziggurat method. Currently this is only efficient on a CPU, though supported on a GPU (#308)
