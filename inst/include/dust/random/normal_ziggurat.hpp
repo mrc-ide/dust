@@ -28,6 +28,20 @@ real_type normal_ziggurat_tail(rng_state_type& rng_state, real_type x1,
   } while (true);
   return ret;
 }
+
+template <typename rng_state_type>
+int ziggurat_layer(rng_state_type& rng_state,
+                   typename rng_state_type::int_type value, int n) {
+  using int_type = typename rng_state_type::int_type;
+  // It might be worth rejecting this approach for xoroshiro128+ or
+  // for all rngs with a + scrambler (this is gettable at compile
+  // time).
+  if (std::is_same<int_type, uint64_t>::value) {
+    return (value >> 3) % n;
+  } else {
+    return (random_int<typename rng_state_type::int_type>(rng_state) >> 16) % n;
+  }
+}
 }
 
 // TODO: this will not work efficiently for float types because we
@@ -53,10 +67,14 @@ real_type random_normal_ziggurat(rng_state_type& rng_state) {
   constexpr size_t n = 256;
   const real_type r = x[1];
 
+  using int_type = typename rng_state_type::int_type;
+
   real_type ret;
   do {
-    const auto i = (next(rng_state) >> 16) % n;
-    const auto u0 = 2 * random_real<real_type>(rng_state) - 1;
+    const auto value = random_int<int_type>(rng_state);
+    const auto i = ziggurat_layer(rng_state, value, n);
+    const auto u0 = 2 * int_to_real<real_type>(value) - 1;
+
     if (std::abs(u0) < y[i]) {
       ret = u0 * x[i];
       break;

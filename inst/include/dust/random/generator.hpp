@@ -26,6 +26,7 @@
 #include <array>
 #include <cstdint>
 #include <cstddef>
+#include <type_traits>
 #include <vector>
 
 #include "dust/random/cuda_compatibility.hpp"
@@ -118,6 +119,19 @@ __host__ __device__
 T random_real(U& state) {
   const auto value = next(state);
   return int_to_real<T>(value);
+}
+
+template <typename T, typename U>
+__host__ __device__
+T random_int(U& state) {
+  static_assert(sizeof(T) <= sizeof(typename U::int_type),
+                "requested integer too wide");
+  static_assert(std::is_integral<T>::value,
+                "integer type required for T");
+  const auto value = next(state);
+  // TODO: some work required here to make this work with signed
+  // integers perhaps? Might be better with reinterpret_cast?
+  return static_cast<T>(value);
 }
 
 }
