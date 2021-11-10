@@ -206,6 +206,15 @@ test_that("normal (box_muller) agrees with stats::rnorm", {
 })
 
 
+test_that("normal (polar) agrees with stats::rnorm", {
+  n <- 100000
+  ans <- dust_rng$new(2)$random_normal(n, algorithm = "polar")
+  expect_equal(mean(ans), 0, tolerance = 1e-2)
+  expect_equal(sd(ans), 1, tolerance = 1e-2)
+  expect_gt(ks.test(ans, "pnorm")$p.value, 0.1)
+})
+
+
 test_that("normal (ziggurat) agrees with stats::rnorm", {
   n <- 100000
   ans <- dust_rng$new(2)$random_normal(n, algorithm = "ziggurat")
@@ -529,6 +538,25 @@ test_that("normal random numbers from floats have correct distribution", {
   sd <- pi
   expect_equal(
     dust_rng$new(1, real_type = "float")$normal(m, mu, sd),
+    mu + sd * y[seq_len(m)],
+    tolerance = 1e-5)
+})
+
+
+test_that("normal draws from floats have correct distribution (polar)", {
+  n <- 100000
+  r <- dust_rng$new(1, real_type = "float")
+  y <- r$random_normal(n, algorithm = "polar")
+  expect_equal(mean(y), 0, tolerance = 1e-2)
+  expect_equal(sd(y), 1, tolerance = 1e-2)
+  expect_gt(suppressWarnings(ks.test(y, "pnorm")$p.value), 0.1)
+
+  cmp <- dust_rng$new(1, real_type = "float")
+  m <- 200
+  mu <- exp(1)
+  sd <- pi
+  expect_equal(
+    cmp$normal(m, mu, sd, algorithm = "polar"),
     mu + sd * y[seq_len(m)],
     tolerance = 1e-5)
 })

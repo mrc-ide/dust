@@ -6,13 +6,14 @@
 #include "dust/random/generator.hpp"
 #include "dust/random/numeric.hpp"
 #include "dust/random/normal_box_muller.hpp"
+#include "dust/random/normal_polar.hpp"
 #include "dust/random/normal_ziggurat.hpp"
 
 namespace dust {
 namespace random {
 
 namespace algorithm {
-enum class normal {box_muller, ziggurat};
+enum class normal {box_muller, polar, ziggurat};
 }
 
 __nv_exec_check_disable__
@@ -26,6 +27,8 @@ real_type random_normal(rng_state_type& rng_state) {
   switch(algorithm) {
   case algorithm::normal::box_muller:
     return random_normal_box_muller<real_type>(rng_state);
+  case algorithm::normal::polar:
+    return random_normal_polar<real_type>(rng_state);
   case algorithm::normal::ziggurat:
   default: // keeps compiler happy
     return random_normal_ziggurat<real_type>(rng_state);
