@@ -133,6 +133,13 @@ extern "C" SEXP _dust_dust_rng_state(SEXP ptr, SEXP is_float) {
     return cpp11::as_sexp(dust_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
   END_CPP11
 }
+// dust_rng.cpp
+cpp11::sexp dust_rng_pointer_init(int n_streams, cpp11::sexp seed, std::string algorithm);
+extern "C" SEXP _dust_dust_rng_pointer_init(SEXP n_streams, SEXP seed, SEXP algorithm) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_rng_pointer_init(cpp11::as_cpp<cpp11::decay_t<int>>(n_streams), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(seed), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm)));
+  END_CPP11
+}
 // openmp.cpp
 cpp11::writable::list cpp_openmp_info();
 extern "C" SEXP _dust_cpp_openmp_info() {
@@ -1159,6 +1166,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_rng_long_jump",                (DL_FUNC) &_dust_dust_rng_long_jump,                2},
     {"_dust_dust_rng_multinomial",              (DL_FUNC) &_dust_dust_rng_multinomial,              6},
     {"_dust_dust_rng_normal",                   (DL_FUNC) &_dust_dust_rng_normal,                   7},
+    {"_dust_dust_rng_pointer_init",             (DL_FUNC) &_dust_dust_rng_pointer_init,             3},
     {"_dust_dust_rng_poisson",                  (DL_FUNC) &_dust_dust_rng_poisson,                  5},
     {"_dust_dust_rng_random_normal",            (DL_FUNC) &_dust_dust_rng_random_normal,            5},
     {"_dust_dust_rng_random_real",              (DL_FUNC) &_dust_dust_rng_random_real,              4},

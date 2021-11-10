@@ -72,6 +72,10 @@ dust_rng_state <- function(ptr, is_float) {
   .Call(`_dust_dust_rng_state`, ptr, is_float)
 }
 
+dust_rng_pointer_init <- function(n_streams, seed, algorithm) {
+  .Call(`_dust_dust_rng_pointer_init`, n_streams, seed, algorithm)
+}
+
 cpp_openmp_info <- function() {
   .Call(`_dust_cpp_openmp_info`)
 }

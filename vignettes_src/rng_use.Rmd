@@ -1,0 +1,65 @@
+---
+title: "Using RNGs from packages"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using RNGs from packages}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<!-- HEADER -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  error = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
+lang_output <- function(x, lang) {
+  cat(c(sprintf("```%s", lang), x, "```"), sep = "\n")
+}
+cc_output <- function(x) lang_output(x, "cc")
+r_output <- function(x) lang_output(x, "r")
+plain_output <- function(x) lang_output(x, "plain")
+```
+
+The dust random number generators are suitable for use from other packages and we provide a few helpers in both R and C++ to make this easier.
+
+For illustration purposes we will assume that you want to estimate pi using rejection sampling.  The basic idea of this algorithm is simple; sample two U(0, 1) points `x` and `y` and test if they lie in the unit circle (i.e. `sqrt(x^2 + x^2) < 1`) giving the ratio of the area of a unit circle to a square. Multiplying the fraction of the points that we accept by 4 yields our estimate of pi.
+
+## Background using R's random number generator
+
+First, an example that uses R's API for example (note that while the R API is C, we're using the cpp11 package interface here so that the following examples are similar):
+
+```{r, results = "asis", echo = FALSE}
+cc_output(readLines("rng-r_api.cpp"))
+```
+
+With cpp11 we can load this with `cpp11::cpp_source`
+
+```{r}
+cpp11::cpp_source("rng_r_api.cpp")
+```
+
+and then run it wih
+
+```{r}
+pi_r_api(1e6)
+```
+
+The key bits within the code above are that we:
+
+* included random number support from R via the `R_ext/Random.h` header
+* initialised the state of the global random number stream within our C++ context with `GetRNGstate` before drawing any random numbers
+* drew some possible large number of numbers using `unif_rand`
+* restored the random number state back to R.
+
+Failure to run the `GetRNGstate` / `PutRNGstate` will result in the stream not behaving properly.  This is explained in detail in the "Writing R Extensions" manual.
+
+## Implementation using dust
+
+
+obj <- dust:::dust_rng_pointer$new()
+
+cpp11::cpp_source("rng_pi_dust.cpp", quiet = FALSE)
+pi_dust(1e6, obj$ptr)

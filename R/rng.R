@@ -137,6 +137,9 @@ dust_rng <- R6::R6Class(
     ##'   expectations and the state is never changed.
     initialize = function(seed, n_generators = 1L, real_type = "double",
                           deterministic = FALSE) {
+      ## TODO: n_generators -> n_streams
+      ## TODO: seed gets default
+      ## TODO: change order of initialisers?
       if (!(real_type %in% c("double", "float"))) {
         stop("Invalid value for 'real_type': must be 'double' or 'float'")
       }
@@ -353,3 +356,21 @@ dust_rng_state_long_jump <- function(state, times = 1L) {
   }
   rng$state()
 }
+
+
+## TODO: store the algorithm alongside the pointer and validate that
+## TODO: keep track of if we we're current or not
+## TODO: keep a copy of the full state as a raw vector so we survive
+##       serialisation
+## TODO: jump support
+dust_rng_pointer <- R6::R6Class(
+  "dust_rng_pointer",
+  public = list(
+    ptr = NULL,
+    initialize = function(seed = NULL, n_streams = 1L,
+                          algorithm = "xoshiro256plus") {
+      self$ptr <- dust_rng_pointer_init(n_streams, seed, algorithm)
+    }
+  ))
+    
+    
