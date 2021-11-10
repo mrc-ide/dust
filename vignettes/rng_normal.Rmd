@@ -23,7 +23,73 @@ plain_output <- function(x) lang_output(x, "plain")
 set.seed(1)
 ```
 
-The `dust` package includes two algorithms for computing normally distributed random numbers.
+The `dust` package includes three algorithms for computing normally distributed random numbers, all of which should be faster than R's rnorm when called from R on a single thread:
+
+```{r}
+rng <- dust::dust_rng$new(NULL)
+n <- 1e6
+bench::mark(
+  r = rnorm(n),
+  box_muller = rng$random_normal(n, algorithm = "box_muller"),
+  polar = rng$random_normal(n, algorithm = "polar"),
+  ziggurat = rng$random_normal(n, algorithm = "ziggurat"),
+  check = FALSE, time_unit = "ms")
+```
+
+(This is not their intended purpose of course - that is to be called from C++ in parallel.)  This document collects some notes on the algorithms that underly the code used.
+
+## Box-Muller
+
+```{r}
+n <- 1e5
+theta <- 2 * pi * runif(n)
+r <- sqrt(-2 * log(runif(n)))
+r1 <- r * cos(theta)
+r2 <- r * sin(theta)
+```
+
+Here are density plots from these samples against the expectation
+
+```{r}
+plot(dnorm, -4, 4)
+lines(density(r1), col = "red")
+lines(density(r2), col = "blue")
+```
+
+and the covariance between the two draws is statistically zero:
+
+```{r}
+cov(r1, r2)
+```
+
+Because we're interested in running these algorithms in parallel we have opted to discard the second draw (not running `sin` as above).  The simplest way to implement using both draws involves keeping a record of your previous spare draw, but doing that in parallel requires that each thread must be able to do that.  We may change this in future, or expose some system to enable doing this in a thread-safe way.
+
+## Polar
+
+The polar method improves on the Box-Muller method by avoiding the trigonometric functions at the expense of doing more random number draws.
+
+We first generate points on the unit circle (i.e., a pair (`x`, `y`) such that `x^2 + y^2 < 1`). Then, letting `s` be the distance between x and y, we can generate *two* values `x * sqrt(-2 * log(s) / s)` and `y * sqrt(-2 * log(s) / s)`
+
+```{r}
+n <- 1e5
+x <- runif(n, -1, 1)
+y <- runif(n, -1, 1)
+s <- x * x + y * y
+i <- s < 1 # accept
+r1 <- x[i] * sqrt(-2 * log(s[i]) / s[i])
+r2 <- y[i] * sqrt(-2 * log(s[i]) / s[i])
+plot(dnorm, -4, 4)
+lines(density(r1), col = "red")
+lines(density(r2), col = "blue")
+```
+
+Again the covariance is essentially zero
+
+```{r}
+cov(r1, r2)
+```
+
+Here it's a bit more painful to discard the second draw as it's almost free; we already have the second term which cost us one call to `log` and we need only do one multiply to get the second. This would be worse if ziggurat wasn't much faster.
 
 ## Ziggurat
 
