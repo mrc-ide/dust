@@ -334,3 +334,7 @@ all((u < x[3] / x[2]) == (u * x[2] < x[3]))
 ```
 
 and by saving the values of `x[i] / x[i - 1]` in our tables we can avoid many multiplications.
+
+In the description above, we take two random draws at first - one for the layer and one for the `x` position.  Some implementation do that with a single draw but this is not safe if your random number generator works in terms of 32 bit integers (see [Doornik 2005](https://www.doornik.com/research/ziggurat.pdf)) as all bits are needed to convert to a double and this creates a correlation between the layer and the position.
+
+However, most of our random number generators work with 64 bit integers and we only use the top 53 bits to make a double-precision number. So we take bits 4 to 11 to create the integer between 0 and 255 for the layer.  If using a 32 bit generator (one of the `xoshiro128` generators) then a second number will be used; this decision will be made at compile time so should come with no runtime cost.  With the `+` scramblers the lower bits are not of the same quality (See [this paper](https://vigna.di.unimi.it/ftp/papers/ScrambledLinear.pdf)) but for `xoshiro256+` by the 4th bit the randomness should be of sufficient quality.
