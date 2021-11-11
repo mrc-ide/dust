@@ -3,6 +3,10 @@
 
 #include <cmath>
 
+#ifndef
+M_PI = 3.14159265358979
+#endif
+
 #include "dust/random/generator.hpp"
 
 namespace dust {
