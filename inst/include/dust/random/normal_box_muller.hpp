@@ -3,10 +3,6 @@
 
 #include <cmath>
 
-#ifndef
-M_PI = 3.14159265358979
-#endif
-
 #include "dust/random/generator.hpp"
 
 namespace dust {
@@ -20,7 +16,7 @@ real_type random_normal_box_muller(rng_state_type& rng_state) {
   // https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform#Basic_form
   // Do not send a really small number to log().
   const real_type epsilon = utils::epsilon<real_type>();
-  const real_type two_pi = 2 * M_PI;
+  const real_type two_pi = 2 * 3.14159265358979;
 
   real_type u1, u2;
   do {
