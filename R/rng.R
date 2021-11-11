@@ -358,6 +358,13 @@ dust_rng_state_long_jump <- function(state, times = 1L) {
 }
 
 
+##' @title Create pointer to random number generator
+##'
+##' For external use, vignette coming soon.
+##'
+##' @export
+##' @examples
+##' dust::dust_rng_pointer$new()
 dust_rng_pointer <- R6::R6Class(
   "dust_rng_pointer",
   cloneable = FALSE,
@@ -370,6 +377,16 @@ dust_rng_pointer <- R6::R6Class(
   ),
   
   public = list(
+    ##' @description Create a new `dust_rng_pointer` object
+    ##'
+    ##' @param seed The random number seed to use (see [dust::dust_rng]
+    ##'   for details)
+    ##'
+    ##' @param n_streams The number of independent random number streams to
+    ##'   create
+    ##'
+    ##' @param algorithm The random number algorithm to use. The default is
+    ##'   `xoshiro256plus` which is a good general choice
     initialize = function(seed = NULL, n_streams = 1L,
                           algorithm = "xoshiro256plus") {
       dat <- dust_rng_pointer_init(n_streams, seed, algorithm)
@@ -379,18 +396,30 @@ dust_rng_pointer <- R6::R6Class(
       private$is_current_ <- TRUE
     },
 
+    ##' @description Synchronise the R copy of the random number state.
+    ##' Typically this is only needed before serialisation if you have
+    ##' ever used the object.
     sync = function() {
       dust_rng_pointer_sync(private)
     },
 
+    ##' @description Return a raw vector of state. This can be used to
+    ##' create other generators with the same state.
     state = function() {
       private$state_
     },
 
+    ##' @description Return a logical, indicating if the random number
+    ##' state that would be returned by `state()` is "current" (i.e., the
+    ##' same as the copy held in the pointer) or not. This is `TRUE` on
+    ##' creation or immediately after calling `$sync()` and `FALSE` after
+    ##' any use of the pointer.
     is_current = function() {
       private$is_current_
     },
 
+    ##' @description Return a string with the name of the generator
+    ##' algorithm used.
     algorithm = function() {
       private$algorithm_
     }
