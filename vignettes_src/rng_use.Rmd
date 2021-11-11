@@ -32,19 +32,19 @@ For illustration purposes we will assume that you want to estimate pi using reje
 First, an example that uses R's API for example (note that while the R API is C, we're using the cpp11 package interface here so that the following examples are similar):
 
 ```{r, results = "asis", echo = FALSE}
-cc_output(readLines("rng-r_api.cpp"))
+cc_output(readLines("rng_pi_r.cpp"))
 ```
 
 With cpp11 we can load this with `cpp11::cpp_source`
 
 ```{r}
-cpp11::cpp_source("rng_r_api.cpp")
+cpp11::cpp_source("rng_pi_r.cpp")
 ```
 
 and then run it wih
 
 ```{r}
-pi_r_api(1e6)
+pi_r(1e6)
 ```
 
 The key bits within the code above are that we:
@@ -56,10 +56,115 @@ The key bits within the code above are that we:
 
 Failure to run the `GetRNGstate` / `PutRNGstate` will result in the stream not behaving properly.  This is explained in detail in the "Writing R Extensions" manual.
 
-## Implementation using dust
+## Basic implementation using dust
+
+One of the design ideas in dust is that there is no single global source of random numbers, so we need to create a source
+
+```{r}
+rng <- dust:::dust_rng_pointer$new()
+rng
+```
+
+This object acts as a "handle" to some random number state that can be passed safely to C++ programs; the state will be updated when the program runs as a side effect.  Unlike the `dust::dust_rng` object there are no real useful methods on this object and from the R side we'll treat it as a black box. Importantly the `rng` object knows which algorithm it has been created to use
+
+```{r}
+rng$algorithm
+```
+
+The default will be suitable for most purposes.
+
+We can rewrite the pi approximation function as:
+
+```{r, results = "asis", echo = FALSE}
+cc_output(readLines("rng_pi_dust.cpp"))
+```
+
+This snippet looks much the same as above:
+
+* We've added `[[cpp::linking_to(dust)]]` and included the dust random interface (`dust/r/random.hpp`)
+* The first line of the function safely creates a pointer to the random state data. The template argument here (`<dust::random::xoshiro256plus_state>`) refers to the rng algorithm and matches `rng$algorithm`
+* The second line extracts a reference to the first (C++ indexing starting at 0) random number stream - this pair of lines is roughly equivalent to `GetRNGstate()` except that that the random numbers do not come from some global source
+* After that the listing proceeds as before proceeds as before, except there is no equivalent to `PutRNGstate()`
 
 
-obj <- dust:::dust_rng_pointer$new()
+```{r}
+cpp11::cpp_source("rng_pi_dust.cpp")
+```
 
-cpp11::cpp_source("rng_pi_dust.cpp", quiet = FALSE)
-pi_dust(1e3, obj)
+and then run it wih
+
+```{r}
+pi_dust(1e6, rng)
+```
+
+## Parallel implementation with dust and OpenMP
+
+Part of the point of dust's random number generators is that they create independent streams of random numbers that can be safely used in parallel.
+
+```{r, results = "asis", echo = FALSE}
+cc_output(readLines("rng_pi_parallel.cpp"))
+```
+
+```{r}
+cpp11::cpp_source("rng_pi_parallel.cpp")
+```
+
+Here we've made a number of decisions about how to split the problem up subject to a few constraints about using OpenMP together with R:
+
+* Generally speaking we want the answer to be independent of the number of threads used to run it, as this will vary in different sessions. As such avoid the temptation to do a loop over the threads; here we instead iterate over *streams* with the idea that there will be one or more streams used per threads. If we ran a single thread we'd get the same answer as if we ran one thread per stream.
+* Each thread is going to do it's own loop of length `n` so we need to divide by `n * n_streams` at the end as that's many attempts we have made.
+* We use OpenMP's `reduction` clause to safely accumulate the different subtotals (the `tot_i` values) into one `tot` value.
+* In order to compile gracefully on machines that do not have OpenMP support both the `#include <omp.h>` line and the `#pragma omp` line are wrapped in guards that test for `_OPENMP` (see "Writing R Extensions").
+* We let the generator tell us how many streams it has (`n_streams = rng->size()`) but we could as easily specify an ideal number of streams as an argument here and then test that the generator has *at least that many* by adding an argument to the call to `rng_pointer_get` (e.g., if we wanted `m` streams the call would be `rng_pointer_get<type>(ptr, m)`)
+
+```{r}
+rng <- dust:::dust_rng_pointer$new(n_streams = 20)
+pi_dust_parallel(1e6, rng, 4)
+```
+
+Unfortunately [`cpp11::cpp_source` does not support using OpenMP](https://github.com/r-lib/cpp11/issues/243) so in the example above the code will run in serial and we can't see if parallelisation will help.
+
+In order to compile with support, we need to build a little package and set up an appropriate `Makevars` file
+
+```{r, include = FALSE}
+path <- tempfile()
+dir.create(path)
+dir.create(file.path(path, "R"), FALSE, TRUE)
+dir.create(file.path(path, "src"), FALSE, TRUE)
+
+writeLines(
+  c("Package: piparallel",
+    "LinkingTo: cpp11, dust",
+    "Version: 0.0.1",
+    "SystemRequirements: C++11"),
+  file.path(path, "DESCRIPTION"))
+writeLines(
+  c('useDynLib("piparallel", .registration = TRUE)',
+    'exportPattern("^[[:alpha:]]+")'),
+  file.path(path, "NAMESPACE"))
+writeLines(
+  c("PKG_CXXFLAGS=-DHAVE_INLINE $(SHLIB_OPENMP_CXXFLAGS)",
+    "PKG_LIBS=$(SHLIB_OPENMP_CXXFLAGS)"),
+  file.path(path, "src", "Makevars"))
+code <- grep("cpp11::linking_to", readLines("rng_pi_parallel.cpp"),
+             invert = TRUE, value = TRUE)
+writeLines(code, file.path(path, "src", "code.cpp"))
+pkgbuild::compile_dll(path, quiet = FALSE, debug = FALSE)
+pkg <- pkgload::load_all(path, compile = FALSE, recompile = FALSE,
+                         warn_conflicts = FALSE, export_all = FALSE,
+                         helpers = FALSE, attach_testthat = FALSE,
+                         quiet = TRUE)
+pi_dust_parallel <- pkg$env$pi_dust_parallel
+```
+
+Once we have a parallel version we can see a speed-up as we add threads:
+
+```{r}
+rng <- dust:::dust_rng_pointer$new(n_streams = 20)
+bench::mark(
+  pi_dust_parallel(1e6, rng, 1),
+  pi_dust_parallel(1e6, rng, 2),
+  pi_dust_parallel(1e6, rng, 3),
+  pi_dust_parallel(1e6, rng, 4),
+  check = FALSE)
+```

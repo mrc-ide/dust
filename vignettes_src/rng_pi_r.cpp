@@ -2,7 +2,7 @@
 #include <R_ext/Random.h>
 
 [[cpp11::register]]
-double pi_r_api(int n) {
+double pi_r(int n) {
   int tot = 0;
   GetRNGstate();
   for (int i = 0; i < n; ++i) {
