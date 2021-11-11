@@ -4,8 +4,8 @@ test_that("validate package", {
 
   path <- create_test_package()
   ## ensure we create these as needed
-  file.remove(file.path(path, "R"))
-  file.remove(file.path(path, "src"))
+  unlink(file.path(path, "R"), recursive = TRUE)
+  unlink(file.path(path, "src"), recursive = TRUE)
 
   path <- dust_package(path, quiet = TRUE)
   expect_false(any(grepl("##'", readLines(file.path(path, "R", "dust.R")))))
