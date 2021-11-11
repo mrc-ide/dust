@@ -1,25 +1,25 @@
 test_that("Can create pointer object", {
   obj <- dust_rng_pointer$new()
-  expect_true(obj$current)
-  expect_type(obj$state, "raw")
-  expect_length(obj$state, 32)
-  expect_equal(obj$algorithm, "xoshiro256plus")
-  r <- obj$state
+  expect_true(obj$is_current())
+  expect_type(obj$state(), "raw")
+  expect_length(obj$state(), 32)
+  expect_equal(obj$algorithm(), "xoshiro256plus")
+  r <- obj$state()
   obj$sync()
-  expect_identical(r, obj$state)
+  expect_identical(r, obj$state())
 })
 
 
 test_that("Using object requires sync", {
   obj <- dust_rng_pointer$new()
-  expect_true(obj$current)
-  r <- obj$state
+  expect_true(obj$is_current())
+  r <- obj$state()
   pi_dust(100, obj)
-  expect_false(obj$current)
-  expect_identical(obj$state, r)
+  expect_false(obj$is_current())
+  expect_identical(obj$state(), r)
   obj$sync()
-  expect_true(obj$current)
-  expect_false(identical(obj$state, r))
+  expect_true(obj$is_current())
+  expect_false(identical(obj$state(), r))
 })
 
 

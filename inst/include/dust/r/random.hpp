@@ -103,9 +103,14 @@ SEXP rng_pointer_init(int n_streams, cpp11::sexp r_seed) {
 template <typename rng_state_type>
 prng<rng_state_type>* rng_pointer_get(cpp11::environment obj,
                                       int n_streams = 0) {
+  cpp11::environment env_enclos =
+    cpp11::as_cpp<cpp11::environment>(obj[".__enclos_env__"]);
+  cpp11::environment env =
+    cpp11::as_cpp<cpp11::environment>(env_enclos["private"]);
+  
   // We could probably do this more efficiently if we store an enum
   // in the object but this is probably ok.
-  const auto algorithm_given = cpp11::as_cpp<std::string>(obj["algorithm"]);
+  const auto algorithm_given = cpp11::as_cpp<std::string>(env["algorithm_"]);
   const auto algorithm_expected = algorithm_name<rng_state_type>();
   if (algorithm_given != algorithm_expected) {
     cpp11::stop("Incorrect rng type: given %s, expected %s",
@@ -113,28 +118,28 @@ prng<rng_state_type>* rng_pointer_get(cpp11::environment obj,
   }
 
   using ptr_type = cpp11::external_pointer<prng<rng_state_type>>;
-  auto ptr = cpp11::as_cpp<ptr_type>(obj["ptr"]);
+  auto ptr = cpp11::as_cpp<ptr_type>(env["ptr_"]);
 
   auto * rng = ptr.get();
   if (rng == nullptr) {
-    if (!cpp11::as_cpp<bool>(obj["current"])) {
+    if (!cpp11::as_cpp<bool>(env["is_current_"])) {
       cpp11::stop("Can't unserialise an rng pointer that was not synced");
     }
 
     using int_type = typename rng_state_type::int_type;
-    cpp11::raws seed_data = cpp11::as_cpp<cpp11::raws>(obj["state"]);
+    cpp11::raws seed_data = cpp11::as_cpp<cpp11::raws>(env["state_"]);
     std::vector<int_type> seed(seed_data.size() / sizeof(int_type));
     std::memcpy(seed.data(), RAW(seed_data), seed_data.size());
     const auto n_streams_orig = seed.size() / rng_state_type::size();
     rng = new prng<rng_state_type>(n_streams_orig, seed);
-    obj["ptr"] = cpp11::external_pointer<prng<rng_state_type>>(rng);
+    env["ptr_"] = cpp11::external_pointer<prng<rng_state_type>>(rng);
   }
 
   if (n_streams > 0 && static_cast<int>(rng->size()) < n_streams) {
     cpp11::stop("Requested a rng with %d streams but only have %d",
                 n_streams, rng->size());
   }
-  obj["current"] = cpp11::as_sexp(false);
+  env["is_current_"] = cpp11::as_sexp(false);
 
   return rng;
 }
@@ -142,9 +147,9 @@ prng<rng_state_type>* rng_pointer_get(cpp11::environment obj,
 template <typename rng_state_type>
 void rng_pointer_sync(cpp11::environment obj) {
   using ptr_type = cpp11::external_pointer<prng<rng_state_type>>;
-  auto ptr = cpp11::as_cpp<ptr_type>(obj["ptr"]);
-  obj["state"] = rng_state_vector(ptr.get());
-  obj["current"] = cpp11::as_sexp(true);
+  auto ptr = cpp11::as_cpp<ptr_type>(obj["ptr_"]);
+  obj["state_"] = rng_state_vector(ptr.get());
+  obj["is_current_"] = cpp11::as_sexp(true);
 }
 
 }
