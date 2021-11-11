@@ -1,3 +1,7 @@
+# dust 0.11.8
+
+* Improved the interface for using dust's random number support from other packages (#329)
+
 # dust 0.11.7
 
 * New polar algorithm for normally distributed random numbers; faster than Box-Muller but slower than Ziggurat
