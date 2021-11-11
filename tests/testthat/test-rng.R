@@ -232,6 +232,8 @@ test_that("normal scales draws", {
   rng2 <- dust_rng$new(1)
   expect_equal(rng1$normal(n, mean, sd),
                mean + sd * rng2$random_normal(n))
+  expect_equal(rng1$normal(n, mean, sd, algorithm = "polar"),
+               mean + sd * rng2$random_normal(n, algorithm = "polar"))
   expect_equal(rng1$normal(n, mean, sd, algorithm = "ziggurat"),
                mean + sd * rng2$random_normal(n, algorithm = "ziggurat"))
 })
