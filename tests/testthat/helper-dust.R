@@ -54,3 +54,10 @@ copy_directory <- function(src, as) {
     stop("Error copying files")
   }
 }
+
+
+## Serialising and restoring an external pointer replaces the pointer
+## with one to NULL.
+corrupt_pointer <- function(x) {
+  unserialize(serialize(x, NULL))
+}

@@ -117,7 +117,17 @@ prng<rng_state_type>* rng_pointer_get(cpp11::environment obj,
 
   auto * rng = ptr.get();
   if (rng == nullptr) {
-    cpp11::stop("pointer needs rebuilding");
+    if (!cpp11::as_cpp<bool>(obj["current"])) {
+      cpp11::stop("Can't unserialise an rng pointer that was not synced");
+    }
+
+    using int_type = typename rng_state_type::int_type;
+    cpp11::raws seed_data = cpp11::as_cpp<cpp11::raws>(obj["state"]);
+    std::vector<int_type> seed(seed_data.size() / sizeof(int_type));
+    std::memcpy(seed.data(), RAW(seed_data), seed_data.size());
+    const auto n_streams_orig = seed.size() / rng_state_type::size();
+    rng = new prng<rng_state_type>(n_streams_orig, seed);
+    obj["ptr"] = cpp11::external_pointer<prng<rng_state_type>>(rng);
   }
 
   if (n_streams > 0 && static_cast<int>(rng->size()) < n_streams) {
