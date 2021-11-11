@@ -129,8 +129,6 @@ T random_int(U& state) {
   static_assert(std::is_integral<T>::value,
                 "integer type required for T");
   const auto value = next(state);
-  // TODO: some work required here to make this work with signed
-  // integers perhaps? Might be better with reinterpret_cast?
   return static_cast<T>(value);
 }
 
