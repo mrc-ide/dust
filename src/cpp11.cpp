@@ -141,10 +141,10 @@ extern "C" SEXP _dust_dust_rng_pointer_init(SEXP n_streams, SEXP seed, SEXP algo
   END_CPP11
 }
 // dust_rng.cpp
-void dust_rng_pointer_sync(cpp11::environment obj);
-extern "C" SEXP _dust_dust_rng_pointer_sync(SEXP obj) {
+void dust_rng_pointer_sync(cpp11::environment obj, std::string algorithm);
+extern "C" SEXP _dust_dust_rng_pointer_sync(SEXP obj, SEXP algorithm) {
   BEGIN_CPP11
-    dust_rng_pointer_sync(cpp11::as_cpp<cpp11::decay_t<cpp11::environment>>(obj));
+    dust_rng_pointer_sync(cpp11::as_cpp<cpp11::decay_t<cpp11::environment>>(obj), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm));
     return R_NilValue;
   END_CPP11
 }
@@ -1175,7 +1175,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_rng_multinomial",              (DL_FUNC) &_dust_dust_rng_multinomial,              6},
     {"_dust_dust_rng_normal",                   (DL_FUNC) &_dust_dust_rng_normal,                   7},
     {"_dust_dust_rng_pointer_init",             (DL_FUNC) &_dust_dust_rng_pointer_init,             3},
-    {"_dust_dust_rng_pointer_sync",             (DL_FUNC) &_dust_dust_rng_pointer_sync,             1},
+    {"_dust_dust_rng_pointer_sync",             (DL_FUNC) &_dust_dust_rng_pointer_sync,             2},
     {"_dust_dust_rng_poisson",                  (DL_FUNC) &_dust_dust_rng_poisson,                  5},
     {"_dust_dust_rng_random_normal",            (DL_FUNC) &_dust_dust_rng_random_normal,            5},
     {"_dust_dust_rng_random_real",              (DL_FUNC) &_dust_dust_rng_random_real,              4},

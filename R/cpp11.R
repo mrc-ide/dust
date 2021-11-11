@@ -76,8 +76,8 @@ dust_rng_pointer_init <- function(n_streams, seed, algorithm) {
   .Call(`_dust_dust_rng_pointer_init`, n_streams, seed, algorithm)
 }
 
-dust_rng_pointer_sync <- function(obj) {
-  invisible(.Call(`_dust_dust_rng_pointer_sync`, obj))
+dust_rng_pointer_sync <- function(obj, algorithm) {
+  invisible(.Call(`_dust_dust_rng_pointer_sync`, obj, algorithm))
 }
 
 cpp_openmp_info <- function() {

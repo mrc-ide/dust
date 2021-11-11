@@ -3,7 +3,7 @@ test_that("Can create pointer object", {
   expect_true(obj$is_current())
   expect_type(obj$state(), "raw")
   expect_length(obj$state(), 32)
-  expect_equal(obj$algorithm(), "xoshiro256plus")
+  expect_equal(obj$algorithm, "xoshiro256plus")
   r <- obj$state()
   obj$sync()
   expect_identical(r, obj$state())

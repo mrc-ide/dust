@@ -36,14 +36,7 @@ std::vector<std::string> test_xoshiro_run1(cpp11::environment ptr) {
 
 [[cpp11::register]]
 std::vector<std::string> test_xoshiro_run(cpp11::environment obj) {
-  // TODO: consider making algorithm a r-o field in self, and
-  // algorithm_ a field in private?
-  cpp11::environment env_enclos =
-    cpp11::as_cpp<cpp11::environment>(obj[".__enclos_env__"]);
-  cpp11::environment env =
-    cpp11::as_cpp<cpp11::environment>(env_enclos["private"]);
-
-  const auto algorithm = cpp11::as_cpp<std::string>(env["algorithm_"]);
+  const auto algorithm = cpp11::as_cpp<std::string>(obj["algorithm"]);
   std::vector<std::string> ret;
   if (algorithm == "xoshiro256starstar") {
     ret = test_xoshiro_run1<dust::random::xoshiro256starstar_state>(obj);

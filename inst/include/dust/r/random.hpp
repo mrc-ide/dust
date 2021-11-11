@@ -17,6 +17,14 @@ namespace random {
 namespace r {
 
 template <typename rng_state_type>
+std::vector<typename rng_state_type::int_type> raw_seed(cpp11::raws seed_data) {
+  using int_type = typename rng_state_type::int_type;
+  std::vector<int_type> seed(seed_data.size() / sizeof(int_type));
+  std::memcpy(seed.data(), RAW(seed_data), seed_data.size());
+  return seed;
+}
+
+template <typename rng_state_type>
 std::vector<typename rng_state_type::int_type> as_rng_seed(cpp11::sexp r_seed) {
   typedef typename rng_state_type::int_type int_type;
   auto seed_type = TYPEOF(r_seed);
@@ -26,13 +34,7 @@ std::vector<typename rng_state_type::int_type> as_rng_seed(cpp11::sexp r_seed) {
     seed = dust::random::seed_data<rng_state_type>(seed_int);
   } else if (seed_type == RAWSXP) {
     cpp11::raws seed_data = cpp11::as_cpp<cpp11::raws>(r_seed);
-    constexpr size_t len = sizeof(int_type) * rng_state_type::size();
-    if (seed_data.size() == 0 || seed_data.size() % len != 0) {
-      cpp11::stop("Expected raw vector of length as multiple of %d for 'seed'",
-                  len);
-    }
-    seed.resize(seed_data.size() / sizeof(int_type));
-    std::memcpy(seed.data(), RAW(seed_data), seed_data.size());
+    seed = raw_seed<rng_state_type>(seed_data);
   } else if (seed_type == NILSXP) {
     GetRNGstate();
     size_t seed_int =
@@ -103,19 +105,19 @@ SEXP rng_pointer_init(int n_streams, cpp11::sexp r_seed) {
 template <typename rng_state_type>
 prng<rng_state_type>* rng_pointer_get(cpp11::environment obj,
                                       int n_streams = 0) {
-  cpp11::environment env_enclos =
-    cpp11::as_cpp<cpp11::environment>(obj[".__enclos_env__"]);
-  cpp11::environment env =
-    cpp11::as_cpp<cpp11::environment>(env_enclos["private"]);
-  
   // We could probably do this more efficiently if we store an enum
   // in the object but this is probably ok.
-  const auto algorithm_given = cpp11::as_cpp<std::string>(env["algorithm_"]);
+  const auto algorithm_given = cpp11::as_cpp<std::string>(obj["algorithm"]);
   const auto algorithm_expected = algorithm_name<rng_state_type>();
   if (algorithm_given != algorithm_expected) {
     cpp11::stop("Incorrect rng type: given %s, expected %s",
                 algorithm_given.c_str(), algorithm_expected.c_str());
   }
+
+  cpp11::environment env_enclos =
+    cpp11::as_cpp<cpp11::environment>(obj[".__enclos_env__"]);
+  cpp11::environment env =
+    cpp11::as_cpp<cpp11::environment>(env_enclos["private"]);
 
   using ptr_type = cpp11::external_pointer<prng<rng_state_type>>;
   auto ptr = cpp11::as_cpp<ptr_type>(env["ptr_"]);
@@ -125,11 +127,8 @@ prng<rng_state_type>* rng_pointer_get(cpp11::environment obj,
     if (!cpp11::as_cpp<bool>(env["is_current_"])) {
       cpp11::stop("Can't unserialise an rng pointer that was not synced");
     }
-
-    using int_type = typename rng_state_type::int_type;
     cpp11::raws seed_data = cpp11::as_cpp<cpp11::raws>(env["state_"]);
-    std::vector<int_type> seed(seed_data.size() / sizeof(int_type));
-    std::memcpy(seed.data(), RAW(seed_data), seed_data.size());
+    auto seed = raw_seed<rng_state_type>(seed_data);
     const auto n_streams_orig = seed.size() / rng_state_type::size();
     rng = new prng<rng_state_type>(n_streams_orig, seed);
     env["ptr_"] = cpp11::external_pointer<prng<rng_state_type>>(rng);
@@ -147,9 +146,11 @@ prng<rng_state_type>* rng_pointer_get(cpp11::environment obj,
 template <typename rng_state_type>
 void rng_pointer_sync(cpp11::environment obj) {
   using ptr_type = cpp11::external_pointer<prng<rng_state_type>>;
-  auto ptr = cpp11::as_cpp<ptr_type>(obj["ptr_"]);
-  obj["state_"] = rng_state_vector(ptr.get());
-  obj["is_current_"] = cpp11::as_sexp(true);
+  if (!cpp11::as_cpp<bool>(obj["is_current_"])) {
+    auto ptr = cpp11::as_cpp<ptr_type>(obj["ptr_"]);
+    obj["state_"] = rng_state_vector(ptr.get());
+    obj["is_current_"] = cpp11::as_sexp(true);
+  }
 }
 
 }

@@ -576,8 +576,7 @@ cpp11::sexp dust_rng_pointer_init(int n_streams, cpp11::sexp seed,
 }
 
 [[cpp11::register]]
-void dust_rng_pointer_sync(cpp11::environment obj) {
-  const auto algorithm = cpp11::as_cpp<std::string>(obj["algorithm_"]);
+void dust_rng_pointer_sync(cpp11::environment obj, std::string algorithm) {
   using namespace dust::random;
   if (algorithm == "xoshiro256starstar") {
     r::rng_pointer_sync<xoshiro256starstar_state>(obj);
