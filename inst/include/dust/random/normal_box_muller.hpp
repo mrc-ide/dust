@@ -3,6 +3,12 @@
 
 #include <cmath>
 
+// Stan prevents this constant being defined on some systems; could
+// pull it in from Rmath.h too, but it seems unlikely to change...
+#ifndef M_PI
+#define M_PI = 3.14159265358979
+#endif
+
 #include "dust/random/generator.hpp"
 
 namespace dust {
@@ -16,7 +22,7 @@ real_type random_normal_box_muller(rng_state_type& rng_state) {
   // https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform#Basic_form
   // Do not send a really small number to log().
   const real_type epsilon = utils::epsilon<real_type>();
-  const real_type two_pi = 2 * 3.14159265358979;
+  const real_type two_pi = 2 * M_PI;
 
   real_type u1, u2;
   do {
