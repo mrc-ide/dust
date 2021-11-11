@@ -62,4 +62,4 @@ Failure to run the `GetRNGstate` / `PutRNGstate` will result in the stream not b
 obj <- dust:::dust_rng_pointer$new()
 
 cpp11::cpp_source("rng_pi_dust.cpp", quiet = FALSE)
-pi_dust(1e6, obj$ptr)
+pi_dust(1e3, obj)

@@ -140,6 +140,14 @@ extern "C" SEXP _dust_dust_rng_pointer_init(SEXP n_streams, SEXP seed, SEXP algo
     return cpp11::as_sexp(dust_rng_pointer_init(cpp11::as_cpp<cpp11::decay_t<int>>(n_streams), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(seed), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm)));
   END_CPP11
 }
+// dust_rng.cpp
+void dust_rng_pointer_sync(cpp11::environment obj);
+extern "C" SEXP _dust_dust_rng_pointer_sync(SEXP obj) {
+  BEGIN_CPP11
+    dust_rng_pointer_sync(cpp11::as_cpp<cpp11::decay_t<cpp11::environment>>(obj));
+    return R_NilValue;
+  END_CPP11
+}
 // openmp.cpp
 cpp11::writable::list cpp_openmp_info();
 extern "C" SEXP _dust_cpp_openmp_info() {
@@ -529,6 +537,13 @@ std::vector<std::string> test_xoshiro_run(std::string name);
 extern "C" SEXP _dust_test_xoshiro_run(SEXP name) {
   BEGIN_CPP11
     return cpp11::as_sexp(test_xoshiro_run(cpp11::as_cpp<cpp11::decay_t<std::string>>(name)));
+  END_CPP11
+}
+// test_rng.cpp
+double pi_dust(int n, cpp11::sexp ptr);
+extern "C" SEXP _dust_pi_dust(SEXP n, SEXP ptr) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(pi_dust(cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ptr)));
   END_CPP11
 }
 // tools.cpp
@@ -1167,6 +1182,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_rng_multinomial",              (DL_FUNC) &_dust_dust_rng_multinomial,              6},
     {"_dust_dust_rng_normal",                   (DL_FUNC) &_dust_dust_rng_normal,                   7},
     {"_dust_dust_rng_pointer_init",             (DL_FUNC) &_dust_dust_rng_pointer_init,             3},
+    {"_dust_dust_rng_pointer_sync",             (DL_FUNC) &_dust_dust_rng_pointer_sync,             1},
     {"_dust_dust_rng_poisson",                  (DL_FUNC) &_dust_dust_rng_poisson,                  5},
     {"_dust_dust_rng_random_normal",            (DL_FUNC) &_dust_dust_rng_random_normal,            5},
     {"_dust_dust_rng_random_real",              (DL_FUNC) &_dust_dust_rng_random_real,              4},
@@ -1182,6 +1198,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_volatility_gpu_info",          (DL_FUNC) &_dust_dust_volatility_gpu_info,          0},
     {"_dust_dust_walk_capabilities",            (DL_FUNC) &_dust_dust_walk_capabilities,            0},
     {"_dust_dust_walk_gpu_info",                (DL_FUNC) &_dust_dust_walk_gpu_info,                0},
+    {"_dust_pi_dust",                           (DL_FUNC) &_dust_pi_dust,                           2},
     {"_dust_test_cuda_pars",                    (DL_FUNC) &_dust_test_cuda_pars,                    9},
     {"_dust_test_xoshiro_run",                  (DL_FUNC) &_dust_test_xoshiro_run,                  1},
     {NULL, NULL, 0}

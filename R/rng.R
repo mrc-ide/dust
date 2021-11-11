@@ -363,14 +363,26 @@ dust_rng_state_long_jump <- function(state, times = 1L) {
 ## TODO: keep a copy of the full state as a raw vector so we survive
 ##       serialisation
 ## TODO: jump support
+## TODO: clone
+## TODO: sync
+## TODO: work out how to access private from C?
 dust_rng_pointer <- R6::R6Class(
   "dust_rng_pointer",
   public = list(
     ptr = NULL,
+    algorithm = NULL,
+    state = NULL,
+    current = NULL,
     initialize = function(seed = NULL, n_streams = 1L,
                           algorithm = "xoshiro256plus") {
-      self$ptr <- dust_rng_pointer_init(n_streams, seed, algorithm)
+      dat <- dust_rng_pointer_init(n_streams, seed, algorithm)
+      self$ptr <- dat[[1]]
+      self$state <- dat[[2]]
+      self$algorithm <- algorithm
+      self$current <- TRUE
+    },
+
+    sync = function() {
+      dust_rng_pointer_sync(self)
     }
   ))
-    
-    

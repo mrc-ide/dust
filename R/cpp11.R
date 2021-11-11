@@ -76,6 +76,10 @@ dust_rng_pointer_init <- function(n_streams, seed, algorithm) {
   .Call(`_dust_dust_rng_pointer_init`, n_streams, seed, algorithm)
 }
 
+dust_rng_pointer_sync <- function(obj) {
+  invisible(.Call(`_dust_dust_rng_pointer_sync`, obj))
+}
+
 cpp_openmp_info <- function() {
   .Call(`_dust_cpp_openmp_info`)
 }
@@ -294,6 +298,10 @@ test_cuda_pars <- function(r_gpu_config, n_particles, n_particles_each, n_state,
 
 test_xoshiro_run <- function(name) {
   .Call(`_dust_test_xoshiro_run`, name)
+}
+
+pi_dust <- function(n, ptr) {
+  .Call(`_dust_pi_dust`, n, ptr)
 }
 
 cpp_scale_log_weights <- function(w) {

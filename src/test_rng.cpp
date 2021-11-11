@@ -5,7 +5,7 @@
 #include <cpp11.hpp>
 
 #include <dust/random/generator.hpp>
-
+#include <dust/r/random.hpp>
 template <typename T>
 std::string to_string(const T& t) {
   std::ostringstream ss;
@@ -63,4 +63,23 @@ std::vector<std::string> test_xoshiro_run(std::string name) {
   }
 
   return ret;
+}
+
+
+// This is copied over from our example, we'll tidy this up later, but
+// we need something that can be easily tested for now.
+[[cpp11::register]]
+double pi_dust(int n, cpp11::sexp ptr) {
+  auto rng =
+    dust::random::r::rng_pointer_get<dust::random::xoshiro256plus_state>(ptr);
+  auto& state = rng->state(0);
+  int tot = 0;
+  for (int i = 0; i < n; ++i) {
+    const double u1 = dust::random::random_real<double>(state);
+    const double u2 = dust::random::random_real<double>(state);
+    if (u1 * u1 + u2 * u2 < 1) {
+      tot++;
+    }
+  }
+  return tot / static_cast<double>(n) * 4.0;
 }
