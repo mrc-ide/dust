@@ -21,6 +21,9 @@ dust::dust_rng_pointer$new()
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{algorithm}}{The name of the generator algorithm used (read-only)}
+
+\item{\code{n_streams}}{The number of streams of random numbers provided
+(read-only)}
 }
 \if{html}{\out{</div>}}
 }

@@ -19,6 +19,10 @@ dust_rng_pointer <- R6::R6Class(
     ##' @field algorithm The name of the generator algorithm used (read-only)
     algorithm = NULL,
 
+    ##' @field n_streams The number of streams of random numbers provided
+    ##'   (read-only)
+    n_streams = NULL,
+
     ##' @description Create a new `dust_rng_pointer` object
     ##'
     ##' @param seed The random number seed to use (see [dust::dust_rng]
@@ -37,7 +41,9 @@ dust_rng_pointer <- R6::R6Class(
       private$is_current_ <- TRUE
 
       self$algorithm <- algorithm
+      self$n_streams <- n_streams
       lockBinding("algorithm", self)
+      lockBinding("n_streams", self)
     },
 
     ##' @description Synchronise the R copy of the random number state.
