@@ -14,7 +14,7 @@ test_that("Using object requires sync", {
   obj <- dust_rng_pointer$new()
   expect_true(obj$is_current())
   r <- obj$state()
-  pi_dust(100, obj)
+  test_xoshiro_run(obj)
   expect_false(obj$is_current())
   expect_identical(obj$state(), r)
   obj$sync()
@@ -27,19 +27,19 @@ test_that("Invalidated pointers can be rebuilt", {
   obj1 <- dust_rng_pointer$new()
   obj2 <- corrupt_pointer(obj1)
   expect_equal(
-    pi_dust(100, obj2),
-    pi_dust(100, obj1))
+    test_xoshiro_run(obj2),
+    test_xoshiro_run(obj1))
 
   ## This saves that the pointer is invalid:
   obj3 <- corrupt_pointer(obj2)
   expect_error(
-    pi_dust(100, obj3),
+    test_xoshiro_run(obj3),
     "Can't unserialise an rng pointer that was not synced")
 
   ## But if we sync things it's ok:
   obj2$sync()
   obj4 <- corrupt_pointer(obj2)
   expect_equal(
-    pi_dust(100, obj4),
-    pi_dust(100, obj1))
+    test_xoshiro_run(obj4),
+    test_xoshiro_run(obj1))
 })

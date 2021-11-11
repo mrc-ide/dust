@@ -14,8 +14,9 @@ std::string to_string(const T& t) {
 }
 
 template <typename T>
-std::vector<std::string> test_xoshiro_run1() {
-  T state = dust::random::seed<T>(42);
+std::vector<std::string> test_xoshiro_run1(cpp11::environment ptr) {
+  auto rng = dust::random::r::rng_pointer_get<T>(ptr, 1);
+  auto& state = rng->state(0);
 
   constexpr int n = 10;
 
@@ -34,52 +35,41 @@ std::vector<std::string> test_xoshiro_run1() {
 }
 
 [[cpp11::register]]
-std::vector<std::string> test_xoshiro_run(std::string name) {
+std::vector<std::string> test_xoshiro_run(cpp11::environment obj) {
+  // TODO: consider making algorithm a r-o field in self, and
+  // algorithm_ a field in private?
+  cpp11::environment env_enclos =
+    cpp11::as_cpp<cpp11::environment>(obj[".__enclos_env__"]);
+  cpp11::environment env =
+    cpp11::as_cpp<cpp11::environment>(env_enclos["private"]);
+
+  const auto algorithm = cpp11::as_cpp<std::string>(env["algorithm_"]);
   std::vector<std::string> ret;
-  if (name == "xoshiro256starstar") {
-    ret = test_xoshiro_run1<dust::random::xoshiro256starstar_state>();
-  } else if (name == "xoshiro256plusplus") {
-    ret = test_xoshiro_run1<dust::random::xoshiro256plusplus_state>();
-  } else if (name == "xoshiro256plus") {
-    ret = test_xoshiro_run1<dust::random::xoshiro256plus_state>();
-  } else if (name == "xoshiro128starstar") {
-    ret = test_xoshiro_run1<dust::random::xoshiro128starstar_state>();
-  } else if (name == "xoshiro128plusplus") {
-    ret = test_xoshiro_run1<dust::random::xoshiro128plusplus_state>();
-  } else if (name == "xoshiro128plus") {
-    ret = test_xoshiro_run1<dust::random::xoshiro128plus_state>();
-  } else if (name == "xoroshiro128starstar") {
-    ret = test_xoshiro_run1<dust::random::xoroshiro128starstar_state>();
-  } else if (name == "xoroshiro128plusplus") {
-    ret = test_xoshiro_run1<dust::random::xoroshiro128plusplus_state>();
-  } else if (name == "xoroshiro128plus") {
-    ret = test_xoshiro_run1<dust::random::xoroshiro128plus_state>();
-  } else if (name == "xoshiro512starstar") {
-    ret = test_xoshiro_run1<dust::random::xoshiro512starstar_state>();
-  } else if (name == "xoshiro512plusplus") {
-    ret = test_xoshiro_run1<dust::random::xoshiro512plusplus_state>();
-  } else if (name == "xoshiro512plus") {
-    ret = test_xoshiro_run1<dust::random::xoshiro512plus_state>();
+  if (algorithm == "xoshiro256starstar") {
+    ret = test_xoshiro_run1<dust::random::xoshiro256starstar_state>(obj);
+  } else if (algorithm == "xoshiro256plusplus") {
+    ret = test_xoshiro_run1<dust::random::xoshiro256plusplus_state>(obj);
+  } else if (algorithm == "xoshiro256plus") {
+    ret = test_xoshiro_run1<dust::random::xoshiro256plus_state>(obj);
+  } else if (algorithm == "xoshiro128starstar") {
+    ret = test_xoshiro_run1<dust::random::xoshiro128starstar_state>(obj);
+  } else if (algorithm == "xoshiro128plusplus") {
+    ret = test_xoshiro_run1<dust::random::xoshiro128plusplus_state>(obj);
+  } else if (algorithm == "xoshiro128plus") {
+    ret = test_xoshiro_run1<dust::random::xoshiro128plus_state>(obj);
+  } else if (algorithm == "xoroshiro128starstar") {
+    ret = test_xoshiro_run1<dust::random::xoroshiro128starstar_state>(obj);
+  } else if (algorithm == "xoroshiro128plusplus") {
+    ret = test_xoshiro_run1<dust::random::xoroshiro128plusplus_state>(obj);
+  } else if (algorithm == "xoroshiro128plus") {
+    ret = test_xoshiro_run1<dust::random::xoroshiro128plus_state>(obj);
+  } else if (algorithm == "xoshiro512starstar") {
+    ret = test_xoshiro_run1<dust::random::xoshiro512starstar_state>(obj);
+  } else if (algorithm == "xoshiro512plusplus") {
+    ret = test_xoshiro_run1<dust::random::xoshiro512plusplus_state>(obj);
+  } else if (algorithm == "xoshiro512plus") {
+    ret = test_xoshiro_run1<dust::random::xoshiro512plus_state>(obj);
   }
 
   return ret;
-}
-
-
-// This is copied over from our example, we'll tidy this up later, but
-// we need something that can be easily tested for now.
-[[cpp11::register]]
-double pi_dust(int n, cpp11::sexp ptr) {
-  auto rng =
-    dust::random::r::rng_pointer_get<dust::random::xoshiro256plus_state>(ptr);
-  auto& state = rng->state(0);
-  int tot = 0;
-  for (int i = 0; i < n; ++i) {
-    const double u1 = dust::random::random_real<double>(state);
-    const double u2 = dust::random::random_real<double>(state);
-    if (u1 * u1 + u2 * u2 < 1) {
-      tot++;
-    }
-  }
-  return tot / static_cast<double>(n) * 4.0;
 }

@@ -296,12 +296,8 @@ test_cuda_pars <- function(r_gpu_config, n_particles, n_particles_each, n_state,
   .Call(`_dust_test_cuda_pars`, r_gpu_config, n_particles, n_particles_each, n_state, n_state_full, n_shared_int, n_shared_real, data_size, shared_size)
 }
 
-test_xoshiro_run <- function(name) {
-  .Call(`_dust_test_xoshiro_run`, name)
-}
-
-pi_dust <- function(n, ptr) {
-  .Call(`_dust_pi_dust`, n, ptr)
+test_xoshiro_run <- function(obj) {
+  .Call(`_dust_test_xoshiro_run`, obj)
 }
 
 cpp_scale_log_weights <- function(w) {

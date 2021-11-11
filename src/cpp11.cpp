@@ -533,17 +533,10 @@ extern "C" SEXP _dust_test_cuda_pars(SEXP r_gpu_config, SEXP n_particles, SEXP n
   END_CPP11
 }
 // test_rng.cpp
-std::vector<std::string> test_xoshiro_run(std::string name);
-extern "C" SEXP _dust_test_xoshiro_run(SEXP name) {
+std::vector<std::string> test_xoshiro_run(cpp11::environment obj);
+extern "C" SEXP _dust_test_xoshiro_run(SEXP obj) {
   BEGIN_CPP11
-    return cpp11::as_sexp(test_xoshiro_run(cpp11::as_cpp<cpp11::decay_t<std::string>>(name)));
-  END_CPP11
-}
-// test_rng.cpp
-double pi_dust(int n, cpp11::sexp ptr);
-extern "C" SEXP _dust_pi_dust(SEXP n, SEXP ptr) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(pi_dust(cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ptr)));
+    return cpp11::as_sexp(test_xoshiro_run(cpp11::as_cpp<cpp11::decay_t<cpp11::environment>>(obj)));
   END_CPP11
 }
 // tools.cpp
@@ -1198,7 +1191,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_volatility_gpu_info",          (DL_FUNC) &_dust_dust_volatility_gpu_info,          0},
     {"_dust_dust_walk_capabilities",            (DL_FUNC) &_dust_dust_walk_capabilities,            0},
     {"_dust_dust_walk_gpu_info",                (DL_FUNC) &_dust_dust_walk_gpu_info,                0},
-    {"_dust_pi_dust",                           (DL_FUNC) &_dust_pi_dust,                           2},
     {"_dust_test_cuda_pars",                    (DL_FUNC) &_dust_test_cuda_pars,                    9},
     {"_dust_test_xoshiro_run",                  (DL_FUNC) &_dust_test_xoshiro_run,                  1},
     {NULL, NULL, 0}
