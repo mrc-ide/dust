@@ -29,7 +29,9 @@ real_type normal_ziggurat_tail(rng_state_type& rng_state, real_type x1,
   return ret;
 }
 
+__nv_exec_check_disable__
 template <typename rng_state_type>
+__host__ __device__
 int ziggurat_layer_draw(rng_state_type& rng_state,
                         typename rng_state_type::int_type value, int n) {
   using int_type = typename rng_state_type::int_type;
@@ -66,12 +68,6 @@ int ziggurat_layer_draw(rng_state_type& rng_state,
 }
 }
 
-// TODO: this will not work efficiently for float types because we
-// don't have float tables for 'x' and 'y'; getting them is not easy
-// without requiring c++14 either. The lower loop using 'x' could
-// rewritten easily as a function though taking 'u1' and so allowing
-// full template specialisation. However by most accounts this
-// performs poorly onn a GPU to latency so it might be ok.
 __nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
 __host__ __device__
