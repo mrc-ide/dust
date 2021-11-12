@@ -47,6 +47,21 @@ extern "C" SEXP _dust_density_poisson(SEXP x, SEXP lambda, SEXP log) {
     return cpp11::as_sexp(density_poisson(cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(x), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(lambda), cpp11::as_cpp<cpp11::decay_t<bool>>(log)));
   END_CPP11
 }
+// dust_rng_pointer.cpp
+cpp11::sexp dust_rng_pointer_init(int n_streams, cpp11::sexp seed, std::string algorithm);
+extern "C" SEXP _dust_dust_rng_pointer_init(SEXP n_streams, SEXP seed, SEXP algorithm) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_rng_pointer_init(cpp11::as_cpp<cpp11::decay_t<int>>(n_streams), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(seed), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm)));
+  END_CPP11
+}
+// dust_rng_pointer.cpp
+void dust_rng_pointer_sync(cpp11::environment obj, std::string algorithm);
+extern "C" SEXP _dust_dust_rng_pointer_sync(SEXP obj, SEXP algorithm) {
+  BEGIN_CPP11
+    dust_rng_pointer_sync(cpp11::as_cpp<cpp11::decay_t<cpp11::environment>>(obj), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm));
+    return R_NilValue;
+  END_CPP11
+}
 // dust_rng.cpp
 SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators, bool deterministic, bool is_float);
 extern "C" SEXP _dust_dust_rng_alloc(SEXP r_seed, SEXP n_generators, SEXP deterministic, SEXP is_float) {
@@ -131,21 +146,6 @@ cpp11::sexp dust_rng_state(SEXP ptr, bool is_float);
 extern "C" SEXP _dust_dust_rng_state(SEXP ptr, SEXP is_float) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
-  END_CPP11
-}
-// dust_rng.cpp
-cpp11::sexp dust_rng_pointer_init(int n_streams, cpp11::sexp seed, std::string algorithm);
-extern "C" SEXP _dust_dust_rng_pointer_init(SEXP n_streams, SEXP seed, SEXP algorithm) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_pointer_init(cpp11::as_cpp<cpp11::decay_t<int>>(n_streams), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(seed), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm)));
-  END_CPP11
-}
-// dust_rng.cpp
-void dust_rng_pointer_sync(cpp11::environment obj, std::string algorithm);
-extern "C" SEXP _dust_dust_rng_pointer_sync(SEXP obj, SEXP algorithm) {
-  BEGIN_CPP11
-    dust_rng_pointer_sync(cpp11::as_cpp<cpp11::decay_t<cpp11::environment>>(obj), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm));
-    return R_NilValue;
   END_CPP11
 }
 // openmp.cpp

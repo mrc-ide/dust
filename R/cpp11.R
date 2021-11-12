@@ -24,6 +24,14 @@ density_poisson <- function(x, lambda, log) {
   .Call(`_dust_density_poisson`, x, lambda, log)
 }
 
+dust_rng_pointer_init <- function(n_streams, seed, algorithm) {
+  .Call(`_dust_dust_rng_pointer_init`, n_streams, seed, algorithm)
+}
+
+dust_rng_pointer_sync <- function(obj, algorithm) {
+  invisible(.Call(`_dust_dust_rng_pointer_sync`, obj, algorithm))
+}
+
 dust_rng_alloc <- function(r_seed, n_generators, deterministic, is_float) {
   .Call(`_dust_dust_rng_alloc`, r_seed, n_generators, deterministic, is_float)
 }
@@ -70,14 +78,6 @@ dust_rng_multinomial <- function(ptr, n, r_size, r_prob, n_threads, is_float) {
 
 dust_rng_state <- function(ptr, is_float) {
   .Call(`_dust_dust_rng_state`, ptr, is_float)
-}
-
-dust_rng_pointer_init <- function(n_streams, seed, algorithm) {
-  .Call(`_dust_dust_rng_pointer_init`, n_streams, seed, algorithm)
-}
-
-dust_rng_pointer_sync <- function(obj, algorithm) {
-  invisible(.Call(`_dust_dust_rng_pointer_sync`, obj, algorithm))
 }
 
 cpp_openmp_info <- function() {

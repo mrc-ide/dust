@@ -7,11 +7,11 @@
 typedef uint64_t int_type;
 constexpr size_t data_size = 4;
 #elif defined(XOSHIRO128)
-typedef uint64_t int_type;
+typedef uint32_t int_type;
 constexpr size_t data_size = 4;
 #elif defined(XOROSHIRO128)
 typedef uint64_t int_type;
-constexpr size_t data_size = 4;
+constexpr size_t data_size = 2;
 #elif defined(XOSHIRO512)
 typedef uint64_t int_type;
 constexpr size_t data_size = 8;
@@ -51,8 +51,14 @@ int main() {
     }
     auto x = next();
     std::cout <<
-      //std::setw(16) << std::setfill('0') << std::hex << x << " " <<
       std::dec << x <<
+      std::endl;
+  }
+
+  // At the end we dump out the model state, in hex:
+  for (int i = 0; i < data_size; ++i) {
+    std::cout << std::setw(sizeof(int_type) * 2) <<
+      std::setfill('0') << std::hex << s[i] <<
       std::endl;
   }
 
