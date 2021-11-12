@@ -3,6 +3,12 @@
 
 #include <cmath>
 
+// Stan prevents this constant being defined on some systems; could
+// pull it in from Rmath.h too, but it seems unlikely to change...
+#ifndef M_PI
+#define M_PI = 3.14159265358979
+#endif
+
 #include "dust/random/generator.hpp"
 
 namespace dust {

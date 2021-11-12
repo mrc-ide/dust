@@ -12,12 +12,14 @@ CUDA's
 ClassGenerator
 CodeFactor
 Cori
+Doornik
 GBs
 Guizman
 Guntoro
 HPC
 L'Ecuyer
 Makevars
+Marsaglia
 Mersenne
 OMP
 OpenMP
@@ -51,6 +53,8 @@ macOS
 mcstate
 memcpy
 multiparameter
+nd
+nonlinear
 nontrivial
 nvcc
 odin

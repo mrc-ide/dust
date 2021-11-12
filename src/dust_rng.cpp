@@ -442,6 +442,11 @@ cpp11::sexp dust_rng_random_normal(SEXP ptr, int n, int n_threads,
     ret = is_float ?
       dust_rng_random_normal<float, a, dust_rng32>(ptr, n, n_threads) :
       dust_rng_random_normal<double, a, dust_rng64>(ptr, n, n_threads);
+  } else if (algorithm == "polar") {
+    constexpr auto a = dust::random::algorithm::normal::polar;
+    ret = is_float ?
+      dust_rng_random_normal<float, a, dust_rng32>(ptr, n, n_threads) :
+      dust_rng_random_normal<double, a, dust_rng64>(ptr, n, n_threads);
   } else if (algorithm == "ziggurat") {
     constexpr auto a = dust::random::algorithm::normal::ziggurat;
     ret = is_float ?
@@ -480,6 +485,11 @@ cpp11::sexp dust_rng_normal(SEXP ptr, int n, cpp11::doubles r_mean,
   cpp11::sexp ret;
   if (algorithm == "box_muller") {
     constexpr auto a = dust::random::algorithm::normal::box_muller;
+    ret = is_float ?
+      dust_rng_normal<float, a, dust_rng32>(ptr, n, r_mean, r_sd, n_threads) :
+      dust_rng_normal<double, a, dust_rng64>(ptr, n, r_mean, r_sd, n_threads);
+  } else if (algorithm == "polar") {
+    constexpr auto a = dust::random::algorithm::normal::polar;
     ret = is_float ?
       dust_rng_normal<float, a, dust_rng32>(ptr, n, r_mean, r_sd, n_threads) :
       dust_rng_normal<double, a, dust_rng64>(ptr, n, r_mean, r_sd, n_threads);
