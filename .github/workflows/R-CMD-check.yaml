@@ -71,6 +71,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Move real vignettes
+        if: runner.os != 'Windows'
         run: |
           cp vignettes_src/rng_package.Rmd vignettes
           cp vignettes_src/rng_pi*.cpp vignettes
