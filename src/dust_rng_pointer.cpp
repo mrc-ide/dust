@@ -73,3 +73,12 @@ void dust_rng_pointer_sync(cpp11::environment obj, std::string algorithm) {
     r::rng_pointer_sync<xoshiro512plus_state>(obj);
   }
 }
+
+// This exists to check some error paths in rng_pointer_get; it is not
+// for use by users.
+[[cpp11::register]]
+double test_rng_pointer_get(cpp11::environment obj, int n_streams) {
+  using namespace dust::random;
+  auto rng = r::rng_pointer_get<xoshiro256plus_state>(obj, n_streams);
+  return random_real<double>(rng->state(0));
+}

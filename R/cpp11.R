@@ -32,6 +32,10 @@ dust_rng_pointer_sync <- function(obj, algorithm) {
   invisible(.Call(`_dust_dust_rng_pointer_sync`, obj, algorithm))
 }
 
+test_rng_pointer_get <- function(obj, n_streams) {
+  .Call(`_dust_test_rng_pointer_get`, obj, n_streams)
+}
+
 dust_rng_alloc <- function(r_seed, n_generators, deterministic, is_float) {
   .Call(`_dust_dust_rng_alloc`, r_seed, n_generators, deterministic, is_float)
 }

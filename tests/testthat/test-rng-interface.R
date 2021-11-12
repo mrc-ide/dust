@@ -50,3 +50,19 @@ test_that("can't create invalid pointer types", {
     dust_rng_pointer$new(algorithm = "mt19937"),
     "Unknown algorithm 'mt19937'")
 })
+
+
+test_that("Validate pointers on fetch", {
+  obj <- dust_rng_pointer$new(algorithm = "xoshiro256starstar")
+  expect_error(
+    test_rng_pointer_get(obj, 1),
+    "Incorrect rng type: given xoshiro256starstar, expected xoshiro256plus")
+  obj <- dust_rng_pointer$new(algorithm = "xoshiro256plus", n_streams = 4)
+  expect_error(
+    test_rng_pointer_get(obj, 20),
+    "Requested a rng with 20 streams but only have 4")
+  expect_silent(
+    test_rng_pointer_get(obj, 0))
+  expect_silent(
+    test_rng_pointer_get(obj, 1))
+})
