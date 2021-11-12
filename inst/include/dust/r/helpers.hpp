@@ -364,7 +364,7 @@ dust_inputs<T> process_inputs_single(cpp11::list r_pars, int step,
   dust::r::validate_size(step, "step");
   dust::r::validate_positive(n_threads, "n_threads");
   std::vector<typename T::rng_state_type::int_type> seed =
-    dust::r::as_rng_seed<typename T::rng_state_type>(r_seed);
+    dust::random::r::as_rng_seed<typename T::rng_state_type>(r_seed);
 
   std::vector<dust::pars_type<T>> pars;
   pars.push_back(dust::dust_pars<T>(r_pars));
@@ -389,7 +389,7 @@ dust_inputs<T> process_inputs_multi(cpp11::list r_pars, int step,
   dust::r::validate_size(step, "step");
   dust::r::validate_positive(n_threads, "n_threads");
   std::vector<typename T::rng_state_type::int_type> seed =
-    dust::r::as_rng_seed<typename T::rng_state_type>(r_seed);
+    dust::random::r::as_rng_seed<typename T::rng_state_type>(r_seed);
 
   dust::r::check_pars_multi(r_pars);
   std::vector<dust::pars_type<T>> pars;

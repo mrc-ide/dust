@@ -16,7 +16,7 @@ inst/doc
 pkgdown
 inst/include/cub
 *.gcov
-vignettes_src/gpu.md
+vignettes_src/*.md
 
 .vscode/
 

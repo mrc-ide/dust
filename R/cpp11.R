@@ -24,6 +24,18 @@ density_poisson <- function(x, lambda, log) {
   .Call(`_dust_density_poisson`, x, lambda, log)
 }
 
+dust_rng_pointer_init <- function(n_streams, seed, algorithm) {
+  .Call(`_dust_dust_rng_pointer_init`, n_streams, seed, algorithm)
+}
+
+dust_rng_pointer_sync <- function(obj, algorithm) {
+  invisible(.Call(`_dust_dust_rng_pointer_sync`, obj, algorithm))
+}
+
+test_rng_pointer_get <- function(obj, n_streams) {
+  .Call(`_dust_test_rng_pointer_get`, obj, n_streams)
+}
+
 dust_rng_alloc <- function(r_seed, n_generators, deterministic, is_float) {
   .Call(`_dust_dust_rng_alloc`, r_seed, n_generators, deterministic, is_float)
 }
@@ -288,8 +300,8 @@ test_cuda_pars <- function(r_gpu_config, n_particles, n_particles_each, n_state,
   .Call(`_dust_test_cuda_pars`, r_gpu_config, n_particles, n_particles_each, n_state, n_state_full, n_shared_int, n_shared_real, data_size, shared_size)
 }
 
-test_xoshiro_run <- function(name) {
-  .Call(`_dust_test_xoshiro_run`, name)
+test_xoshiro_run <- function(obj) {
+  .Call(`_dust_test_xoshiro_run`, obj)
 }
 
 cpp_scale_log_weights <- function(w) {
