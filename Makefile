@@ -49,7 +49,10 @@ clean:
 		src/*.gcov src/*.gcda src/*.gcno
 
 vignettes/gpu.Rmd: vignettes_src/gpu.Rmd
-	./scripts/build_gpu_vignette
+	./scripts/build_vignette gpu
+
+vignettes/rng_package.Rmd: vignettes_src/rng_package.Rmd
+	./scripts/build_vignette rng_package
 
 vignettes: vignettes/dust.Rmd vignettes/rng.Rmd
 	${RSCRIPT} -e 'tools::buildVignettes(dir = ".")'
