@@ -73,7 +73,7 @@ jobs:
       - name: Move real vignettes
         run: |
           cp vignettes_src/rng_package.Rmd vignettes
-          cp vignettes/rng_pi*.cpp vignettes
+          cp vignettes_src/rng_pi*.cpp vignettes
 
       - name: Check
         env:
