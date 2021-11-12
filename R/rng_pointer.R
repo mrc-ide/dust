@@ -14,7 +14,7 @@ dust_rng_pointer <- R6::R6Class(
     state_ = NULL,
     is_current_ = NULL
   ),
-  
+
   public = list(
     ##' @field algorithm The name of the generator algorithm used (read-only)
     algorithm = NULL,

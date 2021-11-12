@@ -137,9 +137,6 @@ dust_rng <- R6::R6Class(
     ##'   expectations and the state is never changed.
     initialize = function(seed, n_generators = 1L, real_type = "double",
                           deterministic = FALSE) {
-      ## TODO: n_generators -> n_streams
-      ## TODO: seed gets default
-      ## TODO: change order of initialisers?
       if (!(real_type %in% c("double", "float"))) {
         stop("Invalid value for 'real_type': must be 'double' or 'float'")
       }
