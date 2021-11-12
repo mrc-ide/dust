@@ -22,6 +22,17 @@ test_that("Using object requires sync", {
 })
 
 
+test_that("Fetching state syncs", {
+  obj <- dust_rng_pointer$new()
+  expect_true(obj$is_current())
+  r <- obj$state()
+  test_xoshiro_run(obj)
+  expect_false(obj$is_current())
+  expect_false(identical(obj$state(), r))
+  expect_true(obj$is_current())
+})
+
+
 test_that("Invalidated pointers can be rebuilt", {
   obj1 <- dust_rng_pointer$new()
   obj2 <- corrupt_pointer(obj1)
