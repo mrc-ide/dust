@@ -23,7 +23,7 @@ plain_output <- function(x) lang_output(x, "plain")
 set.seed(1)
 ```
 
-The `dust` package includes three algorithms for computing normally distributed random numbers, all of which should be faster than R's rnorm when called from R on a single thread:
+The `dust` package includes three algorithms for computing normally distributed random numbers, all of which should be faster than R's `rnorm` when called from R on a single thread:
 
 ```{r}
 rng <- dust::dust_rng$new(NULL)
@@ -36,7 +36,7 @@ bench::mark(
   check = FALSE, time_unit = "ms")
 ```
 
-(This is not their intended purpose of course - that is to be called from C++ in parallel.)  This document collects some notes on the algorithms that underly the code used.
+(This is not their intended purpose of course - that is to be called from C++ in parallel.)  This document collects some notes on the algorithms that underlie the code used.
 
 ## Box-Muller
 
@@ -95,7 +95,7 @@ Here it's a bit more painful to discard the second draw as it's almost free; we 
 
 The "Ziggurat method" draws random numbers from some distribution by a rejection sampling scheme.  Unfortunately most implementations are opaque, both because they were written in C and because they have been milked for every bit of performance possible. We wanted a version that was fast, but also easy to understand and to relate to the original papers.
 
-The principal reference we will follow is [Doornik 2005](https://www.doornik.com/research/ziggurat.pdf). As with that paper, we consider an unnormalised right hand side of the nornal distribution:
+The principal reference we will follow is [Doornik 2005](https://www.doornik.com/research/ziggurat.pdf). As with that paper, we consider an non-normalised right hand side of the normal distribution:
 
 ```{r}
 f <- function(x) {
@@ -145,7 +145,7 @@ local({
 
 Finding these rectangles turns out to be nontrivial.
 
-Suppose we want to cover `f` with 6 rectangles; to do this we need to find the area of each of the rectangles (will be slightly larger area under `f` divided by `n` due to the overhangs) and a series of `x` points (x1, x2, ..., xn) with the last one being 0
+Suppose we want to cover `f` with 6 rectangles; to do this we need to find the area of each of the rectangles (will be slightly larger area under `f` divided by `n` due to the overhangs) and a series of `x` points (`x1`, `x2`, ..., `xn`) with the last one being 0
 
 1. First we make a starting guess as to the `x` location of the final rectangle, say `r`
 2. We then compute the volume of the lowest rectangle as `f(r) * r + f_int(r)`
@@ -218,7 +218,7 @@ x
 
 To sample from the distribution using these rectangles we do:
 
-1. select a retangle to sample from (an integer between 1 and `n`)
+1. select a rectangle to sample from (an integer between 1 and `n`)
 2. select a random number `u` (between 0 and 1); scale this by `x[i]` to get `z`
 3. if `i == 0` (the base layer)
    a. if `z < r` then the point lies in the rectangle and can be accepted
@@ -258,7 +258,7 @@ hist(sx[accept], nclass = 30, freq = FALSE, xlim = c(0, 3))
 curve(dnorm(x + r) / pnorm(r, lower.tail = FALSE), add = TRUE, col = "red")
 ```
 
-With the relatively low `r` here, our acceptance proability is not bad (~`r round(mean(accept) * 100)` %) but as `r` increases it will improve:
+With the relatively low `r` here, our acceptance probability is not bad (~`r round(mean(accept) * 100)` %) but as `r` increases it will improve:
 
 ```{r}
 sx <- -log(runif(1e5)) / 3.9
