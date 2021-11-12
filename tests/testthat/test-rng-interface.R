@@ -16,7 +16,6 @@ test_that("Using object requires sync", {
   r <- obj$state()
   test_xoshiro_run(obj)
   expect_false(obj$is_current())
-  expect_identical(obj$state(), r)
   obj$sync()
   expect_true(obj$is_current())
   expect_false(identical(obj$state(), r))

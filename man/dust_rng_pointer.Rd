@@ -90,8 +90,8 @@ create other generators with the same state.
 Return a logical, indicating if the random number
 state that would be returned by \code{state()} is "current" (i.e., the
 same as the copy held in the pointer) or not. This is \code{TRUE} on
-creation or immediately after calling \verb{$sync()} and \code{FALSE} after
-any use of the pointer.
+creation or immediately after calling \verb{$sync()} or \verb{$state()}
+and \code{FALSE} after any use of the pointer.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng_pointer$is_current()}\if{html}{\out{</div>}}
 }

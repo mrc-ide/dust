@@ -56,14 +56,17 @@ dust_rng_pointer <- R6::R6Class(
     ##' @description Return a raw vector of state. This can be used to
     ##' create other generators with the same state.
     state = function() {
+      if (!private$is_current_) {
+        self$sync()
+      }
       private$state_
     },
 
     ##' @description Return a logical, indicating if the random number
     ##' state that would be returned by `state()` is "current" (i.e., the
     ##' same as the copy held in the pointer) or not. This is `TRUE` on
-    ##' creation or immediately after calling `$sync()` and `FALSE` after
-    ##' any use of the pointer.
+    ##' creation or immediately after calling `$sync()` or `$state()`
+    ##' and `FALSE` after any use of the pointer.
     is_current = function() {
       private$is_current_
     }
