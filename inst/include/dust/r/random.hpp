@@ -19,6 +19,11 @@ namespace r {
 template <typename rng_state_type>
 std::vector<typename rng_state_type::int_type> raw_seed(cpp11::raws seed_data) {
   using int_type = typename rng_state_type::int_type;
+  constexpr size_t len = sizeof(int_type) * rng_state_type::size();
+  if (seed_data.size() == 0 || seed_data.size() % len != 0) {
+    cpp11::stop("Expected raw vector of length as multiple of %d for 'seed'",
+                len);
+  }
   std::vector<int_type> seed(seed_data.size() / sizeof(int_type));
   std::memcpy(seed.data(), RAW(seed_data), seed_data.size());
   return seed;
