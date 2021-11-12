@@ -4,6 +4,7 @@
 #include <cstring> // memcpy
 
 #include <cpp11/environment.hpp>
+#include <cpp11/external_pointer.hpp>
 #include <cpp11/list.hpp>
 #include <cpp11/raws.hpp>
 
