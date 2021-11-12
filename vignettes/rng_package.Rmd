@@ -51,7 +51,7 @@ and then run it with
 
 ```r
 pi_r(1e6)
-#> [1] 3.143272
+#> [1] 3.140756
 ```
 
 The key bits within the code above are that we:
@@ -65,7 +65,13 @@ Failure to run the `GetRNGstate` / `PutRNGstate` will result in the stream not b
 
 ## Basic implementation using dust
 
-One of the design ideas in dust is that there is no single global source of random numbers, so we need to create a source
+The implementation in dust will look very similar to above, but the way that we cope with the random number stream will look quite different.  With the R version above we are looking after R's global stream (stored in the variable `.Random.seed`) and making sure that it is fetched and set on entry and exit to the function.
+
+One of the design ideas in dust is that there is no single global source of random numbers, so we need to create a source that our function can use.  If we were to use the simulation function multiple times we would want the stream to pick up where it left off last time, so the act of calling the function should update the seed as a "side effect".
+
+The way we expose this for use within other packages is that the user (either package developer or user of the package) creates a "pointer" to some random number state.  Passing that state into a C++ function will allow use of the random functions within dust, and will update the state correctly (see the following section for details).
+
+First we create a pointer object:
 
 
 ```r
@@ -82,10 +88,10 @@ rng
 #>   Private:
 #>     is_current_: TRUE
 #>     ptr_: externalptr
-#>     state_: c2 65 5d bc c6 fd 34 2f 8e 92 da ae cb 41 a8 b9 cf af e0 ...
+#>     state_: 2b af 1c 0b 86 40 6b 1b 5d 9b 94 99 3a 71 ff be 63 09 89 ...
 ```
 
-This object acts as a "handle" to some random number state that can be passed safely to C++ programs; the state will be updated when the program runs as a side effect.  Unlike the `dust::dust_rng` object there are no real useful methods on this object and from the R side we'll treat it as a black box. Importantly the `rng` object knows which algorithm it has been created to use
+Unlike the `dust::dust_rng` object there are no real useful methods on this object and from the R side we'll treat it as a black box. Importantly the `rng` object knows which algorithm it has been created to use
 
 
 ```r
@@ -124,7 +130,7 @@ This snippet looks much the same as above:
 * We've added `[[cpp::linking_to(dust)]]` and included the dust random interface (`dust/r/random.hpp`)
 * The first line of the function safely creates a pointer to the random state data. The template argument here (`<dust::random::xoshiro256plus_state>`) refers to the rng algorithm and matches `rng$algorithm`
 * The second line extracts a reference to the first (C++ indexing starting at 0) random number stream - this pair of lines is roughly equivalent to `GetRNGstate()` except that that the random numbers do not come from some global source
-* After that the listing proceeds as before proceeds as before, except there is no equivalent to `PutRNGstate()`
+* After that the listing proceeds as before proceeds as before, except there is no equivalent to `PutRNGstate()` because the pointer object takes care of this automatically.
 
 
 
@@ -137,7 +143,7 @@ and then run it with
 
 ```r
 pi_dust(1e6, rng)
-#> [1] 3.14428
+#> [1] 3.14102
 ```
 
 ## Parallel implementation with dust and OpenMP
@@ -196,7 +202,7 @@ Here we've made a number of decisions about how to split the problem up subject 
 ```r
 rng <- dust:::dust_rng_pointer$new(n_streams = 20)
 pi_dust_parallel(1e6, rng, 4)
-#> [1] 3.141316
+#> [1] 3.142025
 ```
 
 Unfortunately [`cpp11::cpp_source` does not support using OpenMP](https://github.com/r-lib/cpp11/issues/243) so in the example above the code will run in serial and we can't see if parallelisation will help.
@@ -294,8 +300,59 @@ bench::mark(
 #> # A tibble: 4 x 6
 #>   expression                           min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>                      <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 pi_dust_parallel(1e+06, rng, 1)   44.9ms   45.1ms      21.7        0B        0
-#> 2 pi_dust_parallel(1e+06, rng, 2)   22.6ms   22.7ms      43.4        0B        0
-#> 3 pi_dust_parallel(1e+06, rng, 3)   15.8ms     16ms      62.5        0B        0
-#> 4 pi_dust_parallel(1e+06, rng, 4)   11.5ms   11.6ms      84.5        0B        0
+#> 1 pi_dust_parallel(1e+06, rng, 1)   44.1ms   44.4ms      22.5        0B        0
+#> 2 pi_dust_parallel(1e+06, rng, 2)   22.3ms   22.5ms      44.4        0B        0
+#> 3 pi_dust_parallel(1e+06, rng, 3)   15.7ms   15.8ms      63.2        0B        0
+#> 4 pi_dust_parallel(1e+06, rng, 4)   11.2ms   11.5ms      87.1        0B        0
 ```
+
+## More on the pointer object
+
+This section aims to de-mystify the pointer objects a little.  The dust random number state is a series of integers (by default 64-bit unsigned integers) that are updated each time a state is drawn (see `vignette("rng.Rmd")`). We expose this state to R as a vector of "raw" values (literally a series of bytes of data).
+
+
+```r
+rng <- dust::dust_rng$new(seed = 1)
+rng$state()
+#>  [1] c1 5c 02 89 ec 2d 0a 91 1e 61 39 74 08 ab 41 5e c3 86 8d 6d f4 02 8a b1 56
+#> [26] 49 ee d9 dd 95 81 e2
+```
+
+When numbers are drawn from the stream, the state is modified as a side-effect:
+
+
+```r
+rng$random_real(20)
+#>  [1] 0.451351392 0.073534657 0.218129406 0.200139527 0.017172743 0.323288520
+#>  [7] 0.338823899 0.862898581 0.005702738 0.006453255 0.844823829 0.222676329
+#> [13] 0.665130023 0.283016916 0.502155564 0.290045309 0.055841255 0.083163285
+#> [19] 0.391729373 0.744045249
+rng$state()
+#>  [1] 2c ed 49 d0 8f 7e 97 2c 2a 5e 9e a1 78 85 47 80 06 d5 05 38 a3 5b 08 12 59
+#> [26] 12 03 5c b3 ea 87 c8
+```
+
+The same happens with our `dust_rng_pointer` objects used above:
+
+
+```r
+ptr <- dust::dust_rng_pointer$new(seed = 1)
+ptr$state()
+#>  [1] c1 5c 02 89 ec 2d 0a 91 1e 61 39 74 08 ab 41 5e c3 86 8d 6d f4 02 8a b1 56
+#> [26] 49 ee d9 dd 95 81 e2
+```
+
+Note that `ptr` starts with the same state here as `rng` did because we started from the same seed.  When we draw 20 numbers from the stream (by drawing 10 pairs of numbers with our pi-estimation algorithm), we will advance the state
+
+
+```r
+pi_dust(10, ptr)
+#> [1] 4
+ptr$state()
+#>  [1] 2c ed 49 d0 8f 7e 97 2c 2a 5e 9e a1 78 85 47 80 06 d5 05 38 a3 5b 08 12 59
+#> [26] 12 03 5c b3 ea 87 c8
+```
+
+Note that the state here now matches the value returned by `rng`.
+
+Normally nobody needs to know this - treat the pointer as an object that you pass to functions and ignore the details.
