@@ -4,17 +4,21 @@
 
 #include "dust/random/cuda_compatibility.hpp"
 
+#ifndef DUST_ZIGGURAT_REAL_TYPE
+#define DUST_ZIGGURAT_REAL_TYPE double
+#endif
+
 namespace dust {
 namespace random {
 namespace ziggurat {
 
 CONSTANT
-double x[257] = {
+DUST_ZIGGURAT_REAL_TYPE x[257] = {
 {{x}}
 };
 
 CONSTANT
-double y[256] = {
+DUST_ZIGGURAT_REAL_TYPE y[256] = {
 {{y}}
 };
 

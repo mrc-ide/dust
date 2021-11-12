@@ -78,6 +78,7 @@ __host__ __device__
 real_type random_normal_ziggurat(rng_state_type& rng_state) {
   using ziggurat::x;
   using ziggurat::y;
+
   // This 'n' needs to match the length of 'y'. To change, update the
   // tables by editing and re-running ./scripts/update_ziggurat_tables
   //
