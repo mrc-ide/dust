@@ -41,7 +41,7 @@ With cpp11 we can load this with `cpp11::cpp_source`
 cpp11::cpp_source("rng_pi_r.cpp")
 ```
 
-and then run it wih
+and then run it with
 
 ```{r}
 pi_r(1e6)
@@ -61,7 +61,7 @@ Failure to run the `GetRNGstate` / `PutRNGstate` will result in the stream not b
 One of the design ideas in dust is that there is no single global source of random numbers, so we need to create a source
 
 ```{r}
-rng <- dust:::dust_rng_pointer$new(seed = 42)
+rng <- dust:::dust_rng_pointer$new()
 rng
 ```
 
@@ -91,7 +91,7 @@ This snippet looks much the same as above:
 cpp11::cpp_source("rng_pi_dust.cpp")
 ```
 
-and then run it wih
+and then run it with
 
 ```{r}
 pi_dust(1e6, rng)
@@ -118,7 +118,7 @@ Here we've made a number of decisions about how to split the problem up subject 
 * We let the generator tell us how many streams it has (`n_streams = rng->size()`) but we could as easily specify an ideal number of streams as an argument here and then test that the generator has *at least that many* by adding an argument to the call to `rng_pointer_get` (e.g., if we wanted `m` streams the call would be `rng_pointer_get<type>(ptr, m)`)
 
 ```{r}
-rng <- dust:::dust_rng_pointer$new(seed = 42, n_streams = 20)
+rng <- dust:::dust_rng_pointer$new(n_streams = 20)
 pi_dust_parallel(1e6, rng, 4)
 ```
 
@@ -129,7 +129,6 @@ In order to compile with support, we need to build a little package and set up a
 ```{r, include = FALSE}
 path <- tempfile()
 dir.create(path)
-dir.create(file.path(path, "R"), FALSE, TRUE)
 dir.create(file.path(path, "src"), FALSE, TRUE)
 
 writeLines(
@@ -149,7 +148,42 @@ writeLines(
 code <- grep("cpp11::linking_to", readLines("rng_pi_parallel.cpp"),
              invert = TRUE, value = TRUE)
 writeLines(code, file.path(path, "src", "code.cpp"))
-pkgbuild::compile_dll(path, quiet = FALSE, debug = FALSE)
+```
+
+The package is fairly minimal:
+
+```{r pkg_tree, echo = FALSE}
+withr::with_dir(path, fs::dir_tree())
+```
+
+We have an extremely minimal `DESCRIPTION`, which contains line `LinkingTo: cpp11, dust` from which R will arrange compiler flags to find both packages' headers:
+
+```{r, results = "asis", echo = FALSE}
+plain_output(readLines(file.path(path, "DESCRIPTION")))
+```
+
+The `NAMESPACE` loads the dynamic library
+
+```{r, results = "asis", echo = FALSE}
+plain_output(readLines(file.path(path, "NAMESPACE")))
+```
+
+The `src/Makevars` file contains important flags to pick up OpenMP support:
+
+```{r, results = "asis", echo = FALSE}
+lang_output(readLines(file.path(path, "src/Makevars")), "make")
+```
+
+And `src/code.cpp` contains the file above but without the `[[cpp11::linking_to(dust)]]` line:
+
+```{r, results = "asis", echo = FALSE}
+cc_output(readLines(file.path(path, "src/code.cpp")))
+```
+
+After compiling and installing the package, `pi_dust_parallel` will be available
+
+```{r, include = FALSE}
+pkgbuild::compile_dll(path, quiet = TRUE, debug = FALSE)
 pkg <- pkgload::load_all(path, compile = FALSE, recompile = FALSE,
                          warn_conflicts = FALSE, export_all = FALSE,
                          helpers = FALSE, attach_testthat = FALSE,
@@ -157,7 +191,7 @@ pkg <- pkgload::load_all(path, compile = FALSE, recompile = FALSE,
 pi_dust_parallel <- pkg$env$pi_dust_parallel
 ```
 
-Once we have a parallel version we can see a speed-up as we add threads:
+Now we have a parallel version we can see a speed-up as we add threads:
 
 ```{r}
 rng <- dust:::dust_rng_pointer$new(n_streams = 20)

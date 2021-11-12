@@ -46,12 +46,12 @@ With cpp11 we can load this with `cpp11::cpp_source`
 cpp11::cpp_source("rng_pi_r.cpp")
 ```
 
-and then run it wih
+and then run it with
 
 
 ```r
 pi_r(1e6)
-#> [1] 3.143772
+#> [1] 3.143272
 ```
 
 The key bits within the code above are that we:
@@ -69,7 +69,7 @@ One of the design ideas in dust is that there is no single global source of rand
 
 
 ```r
-rng <- dust:::dust_rng_pointer$new(seed = 42)
+rng <- dust:::dust_rng_pointer$new()
 rng
 #> <dust_rng_pointer>
 #>   Public:
@@ -82,7 +82,7 @@ rng
 #>   Private:
 #>     is_current_: TRUE
 #>     ptr_: externalptr
-#>     state_: 95 6e eb 2f 26 32 d7 bd 04 72 10 65 ba fa e1 57 46 7f 20 ...
+#>     state_: c2 65 5d bc c6 fd 34 2f 8e 92 da ae cb 41 a8 b9 cf af e0 ...
 ```
 
 This object acts as a "handle" to some random number state that can be passed safely to C++ programs; the state will be updated when the program runs as a side effect.  Unlike the `dust::dust_rng` object there are no real useful methods on this object and from the R side we'll treat it as a black box. Importantly the `rng` object knows which algorithm it has been created to use
@@ -132,12 +132,12 @@ This snippet looks much the same as above:
 cpp11::cpp_source("rng_pi_dust.cpp")
 ```
 
-and then run it wih
+and then run it with
 
 
 ```r
 pi_dust(1e6, rng)
-#> [1] 3.14098
+#> [1] 3.14428
 ```
 
 ## Parallel implementation with dust and OpenMP
@@ -194,9 +194,9 @@ Here we've made a number of decisions about how to split the problem up subject 
 
 
 ```r
-rng <- dust:::dust_rng_pointer$new(seed = 42, n_streams = 20)
+rng <- dust:::dust_rng_pointer$new(n_streams = 20)
 pi_dust_parallel(1e6, rng, 4)
-#> [1] 3.141703
+#> [1] 3.141316
 ```
 
 Unfortunately [`cpp11::cpp_source` does not support using OpenMP](https://github.com/r-lib/cpp11/issues/243) so in the example above the code will run in serial and we can't see if parallelisation will help.
@@ -205,7 +205,82 @@ In order to compile with support, we need to build a little package and set up a
 
 
 
-Once we have a parallel version we can see a speed-up as we add threads:
+The package is fairly minimal:
+
+
+```
+#> .
+#> ├── DESCRIPTION
+#> ├── NAMESPACE
+#> └── src
+#>     ├── Makevars
+#>     └── code.cpp
+```
+
+We have an extremely minimal `DESCRIPTION`, which contains line `LinkingTo: cpp11, dust` from which R will arrange compiler flags to find both packages' headers:
+
+```plain
+Package: piparallel
+LinkingTo: cpp11, dust
+Version: 0.0.1
+SystemRequirements: C++11
+```
+
+The `NAMESPACE` loads the dynamic library
+
+```plain
+useDynLib("piparallel", .registration = TRUE)
+exportPattern("^[[:alpha:]]+")
+```
+
+The `src/Makevars` file contains important flags to pick up OpenMP support:
+
+```make
+PKG_CXXFLAGS=-DHAVE_INLINE $(SHLIB_OPENMP_CXXFLAGS)
+PKG_LIBS=$(SHLIB_OPENMP_CXXFLAGS)
+```
+
+And `src/code.cpp` contains the file above but without the `[[cpp11::linking_to(dust)]]` line:
+
+```cc
+#include <cpp11.hpp>
+#include <dust/r/random.hpp>
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
+[[cpp11::register]]
+double pi_dust_parallel(int n, cpp11::sexp ptr, int n_threads) {
+  auto rng =
+    dust::random::r::rng_pointer_get<dust::random::xoshiro256plus_state>(ptr);
+  const auto n_streams = rng->size();
+  int tot = 0;
+#ifdef _OPENMP
+#pragma omp parallel for schedule(static)  num_threads(n_threads) \
+  reduction(+:tot)
+#endif
+  for (size_t i = 0; i < n_streams; ++i) {
+    auto& state = rng->state(0);
+    int tot_i = 0;
+    for (int i = 0; i < n; ++i) {
+      const double u1 = dust::random::random_real<double>(state);
+      const double u2 = dust::random::random_real<double>(state);
+      if (u1 * u1 + u2 * u2 < 1) {
+        tot_i++;
+      }
+    }
+    tot += tot_i;
+  }
+  return tot / static_cast<double>(n * n_streams) * 4.0;
+}
+```
+
+After compiling and installing the package, `pi_dust_parallel` will be available
+
+
+
+Now we have a parallel version we can see a speed-up as we add threads:
 
 
 ```r
@@ -219,8 +294,8 @@ bench::mark(
 #> # A tibble: 4 x 6
 #>   expression                           min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>                      <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 pi_dust_parallel(1e+06, rng, 1)   44.3ms   44.7ms      22.4        0B        0
-#> 2 pi_dust_parallel(1e+06, rng, 2)   22.5ms     23ms      43.4        0B        0
-#> 3 pi_dust_parallel(1e+06, rng, 3)   15.8ms   15.9ms      62.7        0B        0
-#> 4 pi_dust_parallel(1e+06, rng, 4)   11.5ms   11.6ms      85.5        0B        0
+#> 1 pi_dust_parallel(1e+06, rng, 1)   44.9ms   45.1ms      21.7        0B        0
+#> 2 pi_dust_parallel(1e+06, rng, 2)   22.6ms   22.7ms      43.4        0B        0
+#> 3 pi_dust_parallel(1e+06, rng, 3)   15.8ms     16ms      62.5        0B        0
+#> 4 pi_dust_parallel(1e+06, rng, 4)   11.5ms   11.6ms      84.5        0B        0
 ```
