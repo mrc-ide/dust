@@ -43,3 +43,10 @@ test_that("Invalidated pointers can be rebuilt", {
     test_xoshiro_run(obj4),
     test_xoshiro_run(obj1))
 })
+
+
+test_that("can't create invalid pointer types", {
+  expect_error(
+    dust_rng_pointer$new(algorithm = "mt19937"),
+    "Unknown algorithm 'mt19937'")
+})

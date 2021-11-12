@@ -71,7 +71,5 @@ void dust_rng_pointer_sync(cpp11::environment obj, std::string algorithm) {
     r::rng_pointer_sync<xoshiro512plusplus_state>(obj);
   } else if (algorithm == "xoshiro512plus") {
     r::rng_pointer_sync<xoshiro512plus_state>(obj);
-  } else {
-    cpp11::stop("Unknown algorithm '%s'", algorithm.c_str());
   }
 }
