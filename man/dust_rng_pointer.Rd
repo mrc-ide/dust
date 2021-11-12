@@ -2,17 +2,26 @@
 % Please edit documentation in R/rng_pointer.R
 \name{dust_rng_pointer}
 \alias{dust_rng_pointer}
-\title{Create pointer to random number generator
+\title{Create pointer to random number generator stream
 
-For external use, vignette coming soon.}
+This function exists to support use from other packages that wish
+to use dust's random number support, and creates an opaque
+pointer to a set of random number streams.  It is desribed more
+fully in \code{vignette("rng_package.Rmd")}}
 \description{
-Create pointer to random number generator
+Create pointer to random number generator stream
 
-For external use, vignette coming soon.
+This function exists to support use from other packages that wish
+to use dust's random number support, and creates an opaque
+pointer to a set of random number streams.  It is desribed more
+fully in \code{vignette("rng_package.Rmd")}
 
-Create pointer to random number generator
+Create pointer to random number generator stream
 
-For external use, vignette coming soon.
+This function exists to support use from other packages that wish
+to use dust's random number support, and creates an opaque
+pointer to a set of random number streams.  It is desribed more
+fully in \code{vignette("rng_package.Rmd")}
 }
 \examples{
 dust::dust_rng_pointer$new()

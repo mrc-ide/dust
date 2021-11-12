@@ -58,14 +58,20 @@ Failure to run the `GetRNGstate` / `PutRNGstate` will result in the stream not b
 
 ## Basic implementation using dust
 
-One of the design ideas in dust is that there is no single global source of random numbers, so we need to create a source
+The implementation in dust will look very similar to above, but the way that we cope with the random number stream will look quite different.  With the R version above we are looking after R's global stream (stored in the variable `.Random.seed`) and making sure that it is fetched and set on entry and exit to the function.
+
+One of the design ideas in dust is that there is no single global source of random numbers, so we need to create a source that our function can use.  If we were to use the simulation function multiple times we would want the stream to pick up where it left off last time, so the act of calling the function should update the seed as a "side effect".
+
+The way we expose this for use within other packages is that the user (either package developer or user of the package) creates a "pointer" to some random number state.  Passing that state into a C++ function will allow use of the random functions within dust, and will update the state correctly (see the following section for details).
+
+First we create a pointer object:
 
 ```{r}
 rng <- dust:::dust_rng_pointer$new()
 rng
 ```
 
-This object acts as a "handle" to some random number state that can be passed safely to C++ programs; the state will be updated when the program runs as a side effect.  Unlike the `dust::dust_rng` object there are no real useful methods on this object and from the R side we'll treat it as a black box. Importantly the `rng` object knows which algorithm it has been created to use
+Unlike the `dust::dust_rng` object there are no real useful methods on this object and from the R side we'll treat it as a black box. Importantly the `rng` object knows which algorithm it has been created to use
 
 ```{r}
 rng$algorithm
@@ -84,7 +90,7 @@ This snippet looks much the same as above:
 * We've added `[[cpp::linking_to(dust)]]` and included the dust random interface (`dust/r/random.hpp`)
 * The first line of the function safely creates a pointer to the random state data. The template argument here (`<dust::random::xoshiro256plus_state>`) refers to the rng algorithm and matches `rng$algorithm`
 * The second line extracts a reference to the first (C++ indexing starting at 0) random number stream - this pair of lines is roughly equivalent to `GetRNGstate()` except that that the random numbers do not come from some global source
-* After that the listing proceeds as before proceeds as before, except there is no equivalent to `PutRNGstate()`
+* After that the listing proceeds as before proceeds as before, except there is no equivalent to `PutRNGstate()` because the pointer object takes care of this automatically.
 
 
 ```{r}
@@ -202,3 +208,37 @@ bench::mark(
   pi_dust_parallel(1e6, rng, 4),
   check = FALSE)
 ```
+
+## More on the pointer object
+
+This section aims to de-mystify the pointer objects a little.  The dust random number state is a series of integers (by default 64-bit unsigned integers) that are updated each time a state is drawn (see `vignette("rng.Rmd")`). We expose this state to R as a vector of "raw" values (literally a series of bytes of data).
+
+```{r}
+rng <- dust::dust_rng$new(seed = 1)
+rng$state()
+```
+
+When numbers are drawn from the stream, the state is modified as a side-effect:
+
+```{r}
+rng$random_real(20)
+rng$state()
+```
+
+The same happens with our `dust_rng_pointer` objects used above:
+
+```{r}
+ptr <- dust::dust_rng_pointer$new(seed = 1)
+ptr$state()
+```
+
+Note that `ptr` starts with the same state here as `rng` did because we started from the same seed.  When we draw 20 numbers from the stream (by drawing 10 pairs of numbers with our pi-estimation algorithm), we will advance the state
+
+```{r}
+pi_dust(10, ptr)
+ptr$state()
+```
+
+Note that the state here now matches the value returned by `rng`.
+
+Normally nobody needs to know this - treat the pointer as an object that you pass to functions and ignore the details.
