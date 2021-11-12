@@ -1,9 +1,9 @@
 ##' @title Create pointer to random number generator stream
 ##'
-##' This function exists to support use from other packages that wish
-##'   to use dust's random number support, and creates an opaque
-##'   pointer to a set of random number streams.  It is desribed more
-##'   fully in `vignette("rng_package.Rmd")`
+##' @description This function exists to support use from other
+##'   packages that wish to use dust's random number support, and
+##'   creates an opaque pointer to a set of random number streams.  It
+##'   is described more fully in `vignette("rng_package.Rmd")`
 ##'
 ##' @export
 ##' @examples

@@ -321,7 +321,7 @@ plain_output(readLines(file.path(path_pkg, "NAMESPACE")))
 
 Finally, run `cpp11::cpp_register()` before compiling your package so that the relevant interfaces are created (`R/cpp11.R` and `cpp11/cpp11.cpp`).  A similar process would likely work with Rcpp without any dependency on cpp11.
 
-The issue with this example is that every call to `random_normal` must provdide its own `seed` argument, so the random number streams are not continued with each call to the function. This is is not very useful in practice and we describe more fully how to do this properly in `vignette("rng_package.Rmd")`.
+The issue with this example is that every call to `random_normal` must provide its own `seed` argument, so the random number streams are not continued with each call to the function. This is is not very useful in practice and we describe more fully how to do this properly in `vignette("rng_package.Rmd")`.
 
 ### Standalone, parallel with OpenMP
 
