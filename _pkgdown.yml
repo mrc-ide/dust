@@ -53,8 +53,8 @@ articles:
     navbar: Random numbers
     contents:
       - rng
+      - rng_algorithms
       - rng_package
-      - rng_normal
 
   - title: Use cases
     navbar: Dive deeper

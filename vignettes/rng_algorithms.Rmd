@@ -1,5 +1,5 @@
 ---
-title: "Computing normally distributed random numbers"
+title: "Algorithms used to compute random numbers"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Computing normally distributed random numbers}
