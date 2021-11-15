@@ -17,9 +17,9 @@ using dust_rng64 = dust::random::prng<dust::random::generator<double>>;
 using dust_rng32 = dust::random::prng<dust::random::generator<float>>;
 
 template <typename T>
-SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators, bool deterministic) {
+SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_streams, bool deterministic) {
   auto seed = dust::random::r::as_rng_seed<typename T::rng_state>(r_seed);
-  T *rng = new T(n_generators, seed, deterministic);
+  T *rng = new T(n_streams, seed, deterministic);
   return cpp11::external_pointer<T>(rng);
 }
 
@@ -47,15 +47,15 @@ cpp11::sexp sexp_matrix(cpp11::sexp x, int n, int m) {
 template <typename real_type, typename T>
 cpp11::sexp dust_rng_random_real(SEXP ptr, int n, int n_threads) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
-  const int n_generators = rng->size();
+  const int n_streams = rng->size();
 
-  cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_generators);
+  cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_streams);
   double * y = REAL(ret);
 
 #ifdef _OPENMP
    #pragma omp parallel for schedule(static) num_threads(n_threads)
 #endif
-  for (int i = 0; i < n_generators; ++i) {
+  for (int i = 0; i < n_streams; ++i) {
     auto &state = rng->state(i);
     auto y_i = y + n * i;
     for (size_t j = 0; j < (size_t)n; ++j) {
@@ -63,21 +63,21 @@ cpp11::sexp dust_rng_random_real(SEXP ptr, int n, int n_threads) {
     }
   }
 
-  return sexp_matrix(ret, n, n_generators);
+  return sexp_matrix(ret, n, n_streams);
 }
 
 template <typename real_type, dust::random::algorithm::normal A, typename T>
 cpp11::sexp dust_rng_random_normal(SEXP ptr, int n, int n_threads) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
-  const int n_generators = rng->size();
+  const int n_streams = rng->size();
 
-  cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_generators);
+  cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_streams);
   double * y = REAL(ret);
 
 #ifdef _OPENMP
    #pragma omp parallel for schedule(static) num_threads(n_threads)
 #endif
-  for (int i = 0; i < n_generators; ++i) {
+  for (int i = 0; i < n_streams; ++i) {
     auto &state = rng->state(i);
     auto y_i = y + n * i;
     for (size_t j = 0; j < (size_t)n; ++j) {
@@ -85,7 +85,7 @@ cpp11::sexp dust_rng_random_normal(SEXP ptr, int n, int n_threads) {
     }
   }
 
-  return sexp_matrix(ret, n, n_generators);
+  return sexp_matrix(ret, n, n_streams);
 }
 
 struct input_vary {
@@ -180,19 +180,19 @@ cpp11::sexp dust_rng_uniform(SEXP ptr, int n,
                              cpp11::doubles r_max,
                              int n_threads) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
-  const int n_generators = rng->size();
-  cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_generators);
+  const int n_streams = rng->size();
+  cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_streams);
   double * y = REAL(ret);
 
   const double * min = REAL(r_min);
   const double * max = REAL(r_max);
-  auto min_vary = check_input_type(r_min, n, n_generators, "min");
-  auto max_vary = check_input_type(r_max, n, n_generators, "max");
+  auto min_vary = check_input_type(r_min, n, n_streams, "min");
+  auto max_vary = check_input_type(r_max, n, n_streams, "max");
 
 #ifdef _OPENMP
   #pragma omp parallel for schedule(static) num_threads(n_threads)
 #endif
-  for (int i = 0; i < n_generators; ++i) {
+  for (int i = 0; i < n_streams; ++i) {
     auto &state = rng->state(i);
     auto y_i = y + n * i;
     auto min_i = min_vary.generator ? min + min_vary.offset * i : min;
@@ -204,24 +204,24 @@ cpp11::sexp dust_rng_uniform(SEXP ptr, int n,
     }
   }
 
-  return sexp_matrix(ret, n, n_generators);
+  return sexp_matrix(ret, n, n_streams);
 }
 
 template <typename real_type, typename T>
 cpp11::sexp dust_rng_exponential(SEXP ptr, int n, cpp11::doubles r_rate,
                                  int n_threads) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
-  const int n_generators = rng->size();
-  cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_generators);
+  const int n_streams = rng->size();
+  cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_streams);
   double * y = REAL(ret);
 
   const double * rate = REAL(r_rate);
-  auto rate_vary = check_input_type(r_rate, n, n_generators, "rate");
+  auto rate_vary = check_input_type(r_rate, n, n_streams, "rate");
 
 #ifdef _OPENMP
   #pragma omp parallel for schedule(static) num_threads(n_threads)
 #endif
-  for (int i = 0; i < n_generators; ++i) {
+  for (int i = 0; i < n_streams; ++i) {
     auto &state = rng->state(i);
     auto y_i = y + n * i;
     auto rate_i = rate_vary.generator ? rate + rate_vary.offset * i : rate;
@@ -231,7 +231,7 @@ cpp11::sexp dust_rng_exponential(SEXP ptr, int n, cpp11::doubles r_rate,
     }
   }
 
-  return sexp_matrix(ret, n, n_generators);
+  return sexp_matrix(ret, n, n_streams);
 }
 
 
@@ -240,19 +240,19 @@ cpp11::sexp dust_rng_normal(SEXP ptr, int n,
                             cpp11::doubles r_mean, cpp11::doubles r_sd,
                             int n_threads) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
-  const int n_generators = rng->size();
-  cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_generators);
+  const int n_streams = rng->size();
+  cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_streams);
   double * y = REAL(ret);
 
   const double * mean = REAL(r_mean);
   const double * sd = REAL(r_sd);
-  auto mean_vary = check_input_type(r_mean, n, n_generators, "mean");
-  auto sd_vary = check_input_type(r_sd, n, n_generators, "sd");
+  auto mean_vary = check_input_type(r_mean, n, n_streams, "mean");
+  auto sd_vary = check_input_type(r_sd, n, n_streams, "sd");
 
 #ifdef _OPENMP
   #pragma omp parallel for schedule(static) num_threads(n_threads)
 #endif
-  for (int i = 0; i < n_generators; ++i) {
+  for (int i = 0; i < n_streams; ++i) {
     auto &state = rng->state(i);
     auto y_i = y + n * i;
     auto mean_i = mean_vary.generator ? mean + mean_vary.offset * i : mean;
@@ -264,7 +264,7 @@ cpp11::sexp dust_rng_normal(SEXP ptr, int n,
     }
   }
 
-  return sexp_matrix(ret, n, n_generators);
+  return sexp_matrix(ret, n, n_streams);
 }
 
 template <typename real_type, typename T>
@@ -272,21 +272,21 @@ cpp11::sexp dust_rng_binomial(SEXP ptr, int n,
                               cpp11::doubles r_size, cpp11::doubles r_prob,
                               int n_threads) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
-  const int n_generators = rng->size();
-  cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_generators);
+  const int n_streams = rng->size();
+  cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_streams);
   double * y = REAL(ret);
 
   const double * size = REAL(r_size);
   const double * prob = REAL(r_prob);
-  auto size_vary = check_input_type(r_size, n, n_generators, "size");
-  auto prob_vary = check_input_type(r_prob, n, n_generators, "prob");
+  auto size_vary = check_input_type(r_size, n, n_streams, "size");
+  auto prob_vary = check_input_type(r_prob, n, n_streams, "prob");
 
-  dust::utils::openmp_errors errors(n_generators);
+  dust::utils::openmp_errors errors(n_streams);
 
 #ifdef _OPENMP
   #pragma omp parallel for schedule(static) num_threads(n_threads)
 #endif
-  for (int i = 0; i < n_generators; ++i) {
+  for (int i = 0; i < n_streams; ++i) {
     try {
       auto &state = rng->state(i);
       auto y_i = y + n * i;
@@ -304,24 +304,24 @@ cpp11::sexp dust_rng_binomial(SEXP ptr, int n,
 
   errors.report("generators");
 
-  return sexp_matrix(ret, n, n_generators);
+  return sexp_matrix(ret, n, n_streams);
 }
 
 template <typename real_type, typename T>
 cpp11::sexp dust_rng_poisson(SEXP ptr, int n, cpp11::doubles r_lambda,
                              int n_threads) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
-  const int n_generators = rng->size();
-  cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_generators);
+  const int n_streams = rng->size();
+  cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_streams);
   double * y = REAL(ret);
 
   const double * lambda = REAL(r_lambda);
-  auto lambda_vary = check_input_type(r_lambda, n, n_generators, "lambda");
+  auto lambda_vary = check_input_type(r_lambda, n, n_streams, "lambda");
 
 #ifdef _OPENMP
   #pragma omp parallel for schedule(static) num_threads(n_threads)
 #endif
-  for (int i = 0; i < n_generators; ++i) {
+  for (int i = 0; i < n_streams; ++i) {
     auto &state = rng->state(i);
     auto y_i = y + n * i;
     auto lambda_i = lambda_vary.generator ? lambda + lambda_vary.offset * i :
@@ -332,7 +332,7 @@ cpp11::sexp dust_rng_poisson(SEXP ptr, int n, cpp11::doubles r_lambda,
     }
   }
 
-  return sexp_matrix(ret, n, n_generators);
+  return sexp_matrix(ret, n, n_streams);
 }
 
 template <typename real_type, typename T>
@@ -341,12 +341,12 @@ cpp11::sexp dust_rng_multinomial(SEXP ptr, int n,
                                  cpp11::doubles r_prob,
                                  int n_threads) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
-  const int n_generators = rng->size();
+  const int n_streams = rng->size();
 
   const double * size = REAL(r_size);
   const double * prob = REAL(r_prob);
-  auto size_vary = check_input_type(r_size, n, n_generators, "size");
-  auto prob_vary = check_input_type2(r_prob, n, n_generators, "prob");
+  auto size_vary = check_input_type(r_size, n, n_streams, "size");
+  auto prob_vary = check_input_type2(r_prob, n, n_streams, "prob");
   const int len = prob_vary.len;
 
   // Normally we return a block of doubles with the first 'n' entries
@@ -354,15 +354,15 @@ cpp11::sexp dust_rng_multinomial(SEXP ptr, int n,
   // second, and so on. Here the first n * len are the first generator
   // (with the first 'len' being the first sample.
   cpp11::writable::doubles ret =
-    cpp11::writable::doubles(len * n * n_generators);
+    cpp11::writable::doubles(len * n * n_streams);
   double * y = REAL(ret);
 
-  dust::utils::openmp_errors errors(n_generators);
+  dust::utils::openmp_errors errors(n_streams);
 
 #ifdef _OPENMP
   #pragma omp parallel for schedule(static) num_threads(n_threads)
 #endif
-  for (int i = 0; i < n_generators; ++i) {
+  for (int i = 0; i < n_streams; ++i) {
     try {
       auto &state = rng->state(i);
       auto y_i = y + len * n * i;
@@ -381,10 +381,10 @@ cpp11::sexp dust_rng_multinomial(SEXP ptr, int n,
   }
   errors.report("generators");
 
-  if (n_generators == 1) {
+  if (n_streams == 1) {
     ret.attr("dim") = cpp11::writable::integers{len, n};
   } else {
-    ret.attr("dim") = cpp11::writable::integers{len, n, n_generators};
+    ret.attr("dim") = cpp11::writable::integers{len, n, n_streams};
   }
   return ret;
 }
@@ -400,11 +400,11 @@ cpp11::sexp dust_rng_state(SEXP ptr) {
 }
 
 [[cpp11::register]]
-SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators, bool deterministic,
+SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_streams, bool deterministic,
                     bool is_float) {
   return is_float ?
-    dust_rng_alloc<dust_rng32>(r_seed, n_generators, deterministic) :
-    dust_rng_alloc<dust_rng64>(r_seed, n_generators, deterministic);
+    dust_rng_alloc<dust_rng32>(r_seed, n_streams, deterministic) :
+    dust_rng_alloc<dust_rng64>(r_seed, n_streams, deterministic);
 }
 
 [[cpp11::register]]

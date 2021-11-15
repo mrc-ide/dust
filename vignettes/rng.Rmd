@@ -42,8 +42,8 @@ rng$normal(100, 0, 1)
 One feature that we use here is to allow multiple streams of random numbers within a rng object. If running in parallel (either via a dust model or by passing `n_threads`) these different random number streams can be given to different threads.
 
 ```{r}
-rng1 <- dust::dust_rng$new(seed = 1, n_generators = 1)
-rng2 <- dust::dust_rng$new(seed = 1, n_generators = 2)
+rng1 <- dust::dust_rng$new(seed = 1, n_streams = 1)
+rng2 <- dust::dust_rng$new(seed = 1, n_streams = 2)
 rng1$random_real(5)
 rng2$random_real(5)
 ```

@@ -19,7 +19,7 @@ rather than a source of random numbers from R.
 The underlying random number generators are designed to work in
 parallel, and with random access to parameters (see
 \code{vignette("rng")} for more details).  However, this is usually
-done within the context of running a model where each generator
+done within the context of running a model where each particle
 sees its own stream of numbers.  We provide some support for
 running random number generators in parallel, but any speed
 gains from parallelisation are likely to be somewhat eroded by
@@ -30,28 +30,28 @@ All the random distribution functions support an argument
 argument will \emph{silently} have no effect if your installation
 does not support OpenMP (see \link{dust_openmp_support}).
 
-Parallelisation will be performed at the level of the generator,
-with \emph{each} generator drawing \code{n} numbers for a total of \code{n * n_generators} random numbers.  Setting \code{n_threads} to be higher
-than \code{n_generators} will therefore have no effect. If running on
-somebody else's system (e.g., an HPC, CRAN) you must respect the
-various environment variables that control the maximum allowable
-number of threads; consider using \link{dust_openmp_threads} to
-select a safe number.
+Parallelisation will be performed at the level of the stream,
+where we draw \code{n} numbers from \emph{each} stream for a total of \code{n * n_streams} random numbers using \code{n_threads} threads to do this.
+Setting \code{n_threads} to be higher than \code{n_streams} will therefore
+have no effect. If running on somebody else's system (e.g., an
+HPC, CRAN) you must respect the various environment variables
+that control the maximum allowable number of threads; consider
+using \link{dust_openmp_threads} to select a safe number.
 
 With the exception of \code{random_real}, each random number
 distribution accepts parameters; the interpretations of these
-will depend on \code{n}, \code{n_generators} and their rank.
+will depend on \code{n}, \code{n_streams} and their rank.
 \itemize{
 \item If a scalar then we will use the same parameter value for every draw
 from every stream
 \item If a vector with length \code{n} then we will draw \code{n} random
 numbers per stream, and every stream will use the same parameter
-value for every generator for each draw (but a different,
+value for every stream for each draw (but a different,
 shared, parameter value for subsequent draws).
-\item If a matrix is provided with one row and \code{n_generators}
-columns then we use different parameters for each generator, but
+\item If a matrix is provided with one row and \code{n_streams}
+columns then we use different parameters for each stream, but
 the same parameter for each draw.
-\item If a matrix is provided with \code{n} rows and \code{n_generators}
+\item If a matrix is provided with \code{n} rows and \code{n_streams}
 columns then we use a parameter value \verb{[i, j]} for the \code{i}th
 draw on the \code{j}th stream.
 }
@@ -64,19 +64,19 @@ we shift all dimensions by one:
 and there are \code{length(prob)} possible outcomes.
 \item If a matrix with \code{n} columns then vary over each draw (the
 \code{i}th draw using vector \code{prob[, i]} but shared across all
-generators. There are \code{nrow(prob)} possible outcomes.
-\item If a 3d array is provided with 1 column and \code{n_generators}
+streams. There are \code{nrow(prob)} possible outcomes.
+\item If a 3d array is provided with 1 column and \code{n_streams}
 "layers" (the third dimension) then we use then we use different
-parameters for each generator, but the same parameter for each
+parameters for each stream, but the same parameter for each
 draw.
-\item If a 3d array is provided with \code{n} columns and \code{n_generators}
-"layers" then we vary over both draws and generators so that with
+\item If a 3d array is provided with \code{n} columns and \code{n_streams}
+"layers" then we vary over both draws and streams so that with
 use vector \code{prob[, i, j]} for the \code{i}th draw on the \code{j}th
 stream.
 }
 
 The output will not differ based on the number of threads used,
-only on the number of generators.
+only on the number of streams.
 }
 
 \examples{
@@ -138,12 +138,7 @@ rng$multinomial(5, 10, c(0.1, 0.3, 0.5, 0.1))
 \subsection{Method \code{new()}}{
 Create a \code{dust_rng} object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$new(
-  seed,
-  n_generators = 1L,
-  real_type = "double",
-  deterministic = FALSE
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$new(seed, n_streams = 1L, real_type = "double", deterministic = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -151,9 +146,7 @@ Create a \code{dust_rng} object
 \describe{
 \item{\code{seed}}{The seed, as an integer or as a raw vector.}
 
-\item{\code{n_generators}}{The number of generators to use. While this
-function never runs in parallel, this is used to create a set of
-interleaved independent generators as dust would use in a model.}
+\item{\code{n_streams}}{The number of streams to use (see Details)}
 
 \item{\code{real_type}}{The type of floating point number to use. Currently
 only \code{float} and \code{double} are supported (with \code{double} being
@@ -171,7 +164,7 @@ expectations and the state is never changed.}
 \if{html}{\out{<a id="method-size"></a>}}
 \if{latex}{\out{\hypertarget{method-size}{}}}
 \subsection{Method \code{size()}}{
-Number of generators available
+Number of streams available
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng$size()}\if{html}{\out{</div>}}
 }
@@ -181,8 +174,9 @@ Number of generators available
 \if{html}{\out{<a id="method-jump"></a>}}
 \if{latex}{\out{\hypertarget{method-jump}{}}}
 \subsection{Method \code{jump()}}{
-The jump function for the generator, equivalent to
-2^128 numbers drawn from the generator.
+The jump function updates the random number state for
+each stream by advancing it to a state equivalent to
+2^128 numbers drawn from each stream.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng$jump()}\if{html}{\out{</div>}}
 }
@@ -192,8 +186,8 @@ The jump function for the generator, equivalent to
 \if{html}{\out{<a id="method-long_jump"></a>}}
 \if{latex}{\out{\hypertarget{method-long_jump}{}}}
 \subsection{Method \code{long_jump()}}{
-The \code{long_jump} function for the generator, equivalent
-to 2^192 numbers drawn from the generator.
+Longer than \verb{$jump}, the \verb{$long_jump} method is
+equivalent to 2^192 numbers drawn from each stream.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_rng$long_jump()}\if{html}{\out{</div>}}
 }
@@ -211,7 +205,7 @@ Generate \code{n} numbers from a standard uniform distribution
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n}}{Number of samples to draw (per generator)}
+\item{\code{n}}{Number of samples to draw (per stream)}
 
 \item{\code{n_threads}}{Number of threads to use; see Details}
 }
@@ -230,7 +224,7 @@ Generate \code{n} numbers from a standard normal distribution
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n}}{Number of samples to draw (per generator)}
+\item{\code{n}}{Number of samples to draw (per stream)}
 
 \item{\code{n_threads}}{Number of threads to use; see Details}
 
@@ -253,7 +247,7 @@ Generate \code{n} numbers from a uniform distribution
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n}}{Number of samples to draw (per generator)}
+\item{\code{n}}{Number of samples to draw (per stream)}
 
 \item{\code{min}}{The minimum of the distribution (length 1 or n)}
 
@@ -276,7 +270,7 @@ Generate \code{n} numbers from a normal distribution
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n}}{Number of samples to draw (per generator)}
+\item{\code{n}}{Number of samples to draw (per stream)}
 
 \item{\code{mean}}{The mean of the distribution (length 1 or n)}
 
@@ -303,7 +297,7 @@ Generate \code{n} numbers from a binomial distribution
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n}}{Number of samples to draw (per generator)}
+\item{\code{n}}{Number of samples to draw (per stream)}
 
 \item{\code{size}}{The number of trials (zero or more, length 1 or n)}
 
@@ -327,7 +321,7 @@ Generate \code{n} numbers from a Poisson distribution
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n}}{Number of samples to draw (per generator)}
+\item{\code{n}}{Number of samples to draw (per stream)}
 
 \item{\code{lambda}}{The mean (zero or more, length 1 or n)}
 
@@ -348,7 +342,7 @@ Generate \code{n} numbers from a exponential distribution
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n}}{Number of samples to draw (per generator)}
+\item{\code{n}}{Number of samples to draw (per stream)}
 
 \item{\code{rate}}{The rate of the exponential}
 
@@ -371,7 +365,7 @@ In contrast with most of the distributions here, each draw is a
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n}}{The number of samples to draw (per generator)}
+\item{\code{n}}{The number of samples to draw (per stream)}
 
 \item{\code{size}}{The number of trials (zero or more, length 1 or n)}
 
@@ -389,8 +383,8 @@ weights and normalise so that they equal 1 before sampling.}
 \if{html}{\out{<a id="method-state"></a>}}
 \if{latex}{\out{\hypertarget{method-state}{}}}
 \subsection{Method \code{state()}}{
-Returns the state of the random number generator. This returns a
-raw vector of length 32 * n_generators. It is primarily intended for
+Returns the state of the random number stream. This returns a
+raw vector of length 32 * n_streams. It is primarily intended for
 debugging as one cannot (yet) initialise a dust_rng object with this
 state.
 \subsection{Usage}{
