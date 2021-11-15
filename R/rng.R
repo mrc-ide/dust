@@ -121,7 +121,12 @@ dust_rng <- R6::R6Class(
 
     ##' @description Create a `dust_rng` object
     ##'
-    ##' @param seed The seed, as an integer or as a raw vector.
+    ##' @param seed The seed, as an integer, a raw vector or `NULL`.
+    ##'   If an integer we will create a suitable seed via the "splitmix64"
+    ##'   algorithm, if a raw vector it must the correct length (a multiple
+    ##'   of either 32 or 16 for `float = FALSE` or `float = TRUE`
+    ##'   respectively). If `NULL` then we create a seed using R's random
+    ##'   number generator.
     ##'
     ##' @param n_streams The number of streams to use (see Details)
     ##'
@@ -133,7 +138,7 @@ dust_rng <- R6::R6Class(
     ##' @param deterministic Logical, indicating if we should use
     ##'   "deterministic" mode where distributions return their
     ##'   expectations and the state is never changed.
-    initialize = function(seed, n_streams = 1L, real_type = "double",
+    initialize = function(seed = NULL, n_streams = 1L, real_type = "double",
                           deterministic = FALSE) {
       if (!(real_type %in% c("double", "float"))) {
         stop("Invalid value for 'real_type': must be 'double' or 'float'")

@@ -138,13 +138,23 @@ rng$multinomial(5, 10, c(0.1, 0.3, 0.5, 0.1))
 \subsection{Method \code{new()}}{
 Create a \code{dust_rng} object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$new(seed, n_streams = 1L, real_type = "double", deterministic = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$new(
+  seed = NULL,
+  n_streams = 1L,
+  real_type = "double",
+  deterministic = FALSE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{seed}}{The seed, as an integer or as a raw vector.}
+\item{\code{seed}}{The seed, as an integer, a raw vector or \code{NULL}.
+If an integer we will create a suitable seed via the "splitmix64"
+algorithm, if a raw vector it must the correct length (a multiple
+of either 32 or 16 for \code{float = FALSE} or \code{float = TRUE}
+respectively). If \code{NULL} then we create a seed using R's random
+number generator.}
 
 \item{\code{n_streams}}{The number of streams to use (see Details)}
 
