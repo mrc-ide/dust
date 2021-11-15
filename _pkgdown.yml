@@ -1,0 +1,64 @@
+reference:
+  - title: Generate a dust model
+    desc: >-
+      Convert a small section of C++ code into a model that can be run
+      efficiently in parallel.
+    contents:
+      - dust
+      - dust_generate
+      - dust_package
+
+  - title: Interact with the dust model
+    desc: >-
+      Every dust model shares the same (fairly large) set of methods
+    contents:
+      - dust_generator
+  
+  - title: Random numbers
+    desc: >-
+      The core of dust is a parallel random number generator. These
+      are also described in a series of vignettes.
+    contents:
+      - dust_rng
+      - dust_rng_pointer
+      - dust_rng_state_long_jump
+
+  - title: Run in parallel with OpenMP
+    desc: >-
+      Detect OpenMP support
+    contents:
+      - dust_openmp_support
+      - dust_openmp_threads
+
+  - title: Compile on GPUs
+    desc: >-
+      Control compilation options for creating models to run on a GPU
+    contents:
+      - dust_cuda_configuration
+      - dust_cuda_options
+
+  - title: Other
+    contents:
+      - dust_data
+      - dust_example
+
+articles:
+  - title: Introduction
+    navbar: ~
+    contents:
+      - dust
+      - design
+
+  - title: Random numbers
+    navbar: Random numbers
+    contents:
+      - rng
+      - rng_package
+      - rng_normal
+
+  - title: Use cases
+    navbar: Dive deeper
+    contents:
+      - data
+      - gpu
+      - multi
