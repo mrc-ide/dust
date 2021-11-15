@@ -10,7 +10,7 @@
 ##' The underlying random number generators are designed to work in
 ##'   parallel, and with random access to parameters (see
 ##'   `vignette("rng")` for more details).  However, this is usually
-##'   done within the context of running a model where each generator
+##'   done within the context of running a model where each particle
 ##'   sees its own stream of numbers.  We provide some support for
 ##'   running random number generators in parallel, but any speed
 ##'   gains from parallelisation are likely to be somewhat eroded by
@@ -21,32 +21,32 @@
 ##'   argument will *silently* have no effect if your installation
 ##'   does not support OpenMP (see [dust::dust_openmp_support]).
 ##'
-##' Parallelisation will be performed at the level of the generator,
-##'   with *each* generator drawing `n` numbers for a total of `n *
-##'   n_generators` random numbers.  Setting `n_threads` to be higher
-##'   than `n_generators` will therefore have no effect. If running on
-##'   somebody else's system (e.g., an HPC, CRAN) you must respect the
-##'   various environment variables that control the maximum allowable
-##'   number of threads; consider using [dust::dust_openmp_threads] to
-##'   select a safe number.
+##' Parallelisation will be performed at the level of the stream,
+##'   where we draw `n` numbers from *each* stream for a total of `n *
+##'   n_streams` random numbers using `n_threads` threads to do this.
+##'   Setting `n_threads` to be higher than `n_streams` will therefore
+##'   have no effect. If running on somebody else's system (e.g., an
+##'   HPC, CRAN) you must respect the various environment variables
+##'   that control the maximum allowable number of threads; consider
+##'   using [dust::dust_openmp_threads] to select a safe number.
 ##'
 ##' With the exception of `random_real`, each random number
 ##'   distribution accepts parameters; the interpretations of these
-##'   will depend on `n`, `n_generators` and their rank.
+##'   will depend on `n`, `n_streams` and their rank.
 ##'
 ##'   * If a scalar then we will use the same parameter value for every draw
 ##'     from every stream
 ##'
 ##'   * If a vector with length `n` then we will draw `n` random
 ##'     numbers per stream, and every stream will use the same parameter
-##'     value for every generator for each draw (but a different,
+##'     value for every stream for each draw (but a different,
 ##'     shared, parameter value for subsequent draws).
 ##'
-##'   * If a matrix is provided with one row and `n_generators`
-##'     columns then we use different parameters for each generator, but
+##'   * If a matrix is provided with one row and `n_streams`
+##'     columns then we use different parameters for each stream, but
 ##'     the same parameter for each draw.
 ##'
-##'   * If a matrix is provided with `n` rows and `n_generators`
+##'   * If a matrix is provided with `n` rows and `n_streams`
 ##'     columns then we use a parameter value `[i, j]` for the `i`th
 ##'     draw on the `j`th stream.
 ##'
@@ -59,20 +59,20 @@
 ##'
 ##'   * If a matrix with `n` columns then vary over each draw (the
 ##'     `i`th draw using vector `prob[, i]` but shared across all
-##'     generators. There are `nrow(prob)` possible outcomes.
+##'     streams. There are `nrow(prob)` possible outcomes.
 ##'
-##'   * If a 3d array is provided with 1 column and `n_generators`
+##'   * If a 3d array is provided with 1 column and `n_streams`
 ##'     "layers" (the third dimension) then we use then we use different
-##'     parameters for each generator, but the same parameter for each
+##'     parameters for each stream, but the same parameter for each
 ##'     draw.
 ##'
-##'   * If a 3d array is provided with `n` columns and `n_generators`
-##'     "layers" then we vary over both draws and generators so that with
+##'   * If a 3d array is provided with `n` columns and `n_streams`
+##'     "layers" then we vary over both draws and streams so that with
 ##'     use vector `prob[, i, j]` for the `i`th draw on the `j`th
 ##'     stream.
 ##'
 ##' The output will not differ based on the number of threads used,
-##'   only on the number of generators.
+##'   only on the number of streams.
 ##'
 ##' @return A `dust_rng` object, which can be used to drawn random
 ##'   numbers from dust's distributions.
@@ -111,7 +111,7 @@ dust_rng <- R6::R6Class(
 
   private = list(
     ptr = NULL,
-    n_generators = NULL,
+    n_streams = NULL,
     float = NULL
   ),
 
@@ -121,11 +121,14 @@ dust_rng <- R6::R6Class(
 
     ##' @description Create a `dust_rng` object
     ##'
-    ##' @param seed The seed, as an integer or as a raw vector.
+    ##' @param seed The seed, as an integer, a raw vector or `NULL`.
+    ##'   If an integer we will create a suitable seed via the "splitmix64"
+    ##'   algorithm, if a raw vector it must the correct length (a multiple
+    ##'   of either 32 or 16 for `float = FALSE` or `float = TRUE`
+    ##'   respectively). If `NULL` then we create a seed using R's random
+    ##'   number generator.
     ##'
-    ##' @param n_generators The number of generators to use. While this
-    ##'   function never runs in parallel, this is used to create a set of
-    ##'   interleaved independent generators as dust would use in a model.
+    ##' @param n_streams The number of streams to use (see Details)
     ##'
     ##' @param real_type The type of floating point number to use. Currently
     ##'   only `float` and `double` are supported (with `double` being
@@ -135,15 +138,15 @@ dust_rng <- R6::R6Class(
     ##' @param deterministic Logical, indicating if we should use
     ##'   "deterministic" mode where distributions return their
     ##'   expectations and the state is never changed.
-    initialize = function(seed, n_generators = 1L, real_type = "double",
+    initialize = function(seed = NULL, n_streams = 1L, real_type = "double",
                           deterministic = FALSE) {
       if (!(real_type %in% c("double", "float"))) {
         stop("Invalid value for 'real_type': must be 'double' or 'float'")
       }
       private$float <- real_type == "float"
-      private$ptr <- dust_rng_alloc(seed, n_generators, deterministic,
+      private$ptr <- dust_rng_alloc(seed, n_streams, deterministic,
                                     private$float)
-      private$n_generators <- n_generators
+      private$n_streams <- n_streams
 
       if (real_type == "float") {
         size_int_bits <- 32L
@@ -167,20 +170,21 @@ dust_rng <- R6::R6Class(
       lockBinding("info", self)
     },
 
-    ##' @description Number of generators available
+    ##' @description Number of streams available
     size = function() {
-      private$n_generators
+      private$n_streams
     },
 
-    ##' @description The jump function for the generator, equivalent to
-    ##' 2^128 numbers drawn from the generator.
+    ##' @description The jump function updates the random number state for
+    ##'   each stream by advancing it to a state equivalent to
+    ##'   2^128 numbers drawn from each stream.
     jump = function() {
       dust_rng_jump(private$ptr, private$float)
       invisible(self)
     },
 
-    ##' @description The `long_jump` function for the generator, equivalent
-    ##' to 2^192 numbers drawn from the generator.
+    ##' @description Longer than `$jump`, the `$long_jump` method is
+    ##'   equivalent to 2^192 numbers drawn from each stream.
     long_jump = function() {
       dust_rng_long_jump(private$ptr, private$float)
       invisible(self)
@@ -188,7 +192,7 @@ dust_rng <- R6::R6Class(
 
     ##' @description Generate `n` numbers from a standard uniform distribution
     ##'
-    ##' @param n Number of samples to draw (per generator)
+    ##' @param n Number of samples to draw (per stream)
     ##'
     ##' @param n_threads Number of threads to use; see Details
     random_real = function(n, n_threads = 1L) {
@@ -197,7 +201,7 @@ dust_rng <- R6::R6Class(
 
     ##' @description Generate `n` numbers from a standard normal distribution
     ##'
-    ##' @param n Number of samples to draw (per generator)
+    ##' @param n Number of samples to draw (per stream)
     ##'
     ##' @param n_threads Number of threads to use; see Details
     ##'
@@ -211,7 +215,7 @@ dust_rng <- R6::R6Class(
 
     ##' @description Generate `n` numbers from a uniform distribution
     ##'
-    ##' @param n Number of samples to draw (per generator)
+    ##' @param n Number of samples to draw (per stream)
     ##'
     ##' @param min The minimum of the distribution (length 1 or n)
     ##'
@@ -224,7 +228,7 @@ dust_rng <- R6::R6Class(
 
     ##' @description Generate `n` numbers from a normal distribution
     ##'
-    ##' @param n Number of samples to draw (per generator)
+    ##' @param n Number of samples to draw (per stream)
     ##'
     ##' @param mean The mean of the distribution (length 1 or n)
     ##'
@@ -242,7 +246,7 @@ dust_rng <- R6::R6Class(
 
     ##' @description Generate `n` numbers from a binomial distribution
     ##'
-    ##' @param n Number of samples to draw (per generator)
+    ##' @param n Number of samples to draw (per stream)
     ##'
     ##' @param size The number of trials (zero or more, length 1 or n)
     ##'
@@ -256,7 +260,7 @@ dust_rng <- R6::R6Class(
 
     ##' @description Generate `n` numbers from a Poisson distribution
     ##'
-    ##' @param n Number of samples to draw (per generator)
+    ##' @param n Number of samples to draw (per stream)
     ##'
     ##' @param lambda The mean (zero or more, length 1 or n)
     ##'
@@ -267,7 +271,7 @@ dust_rng <- R6::R6Class(
 
     ##' @description Generate `n` numbers from a exponential distribution
     ##'
-    ##' @param n Number of samples to draw (per generator)
+    ##' @param n Number of samples to draw (per stream)
     ##'
     ##' @param rate The rate of the exponential
     ##'
@@ -280,7 +284,7 @@ dust_rng <- R6::R6Class(
     ##'   In contrast with most of the distributions here, each draw is a
     ##'   *vector* with the same length as `prob`.
     ##'
-    ##' @param n The number of samples to draw (per generator)
+    ##' @param n The number of samples to draw (per stream)
     ##'
     ##' @param size The number of trials (zero or more, length 1 or n)
     ##'
@@ -296,8 +300,8 @@ dust_rng <- R6::R6Class(
     },
 
     ##' @description
-    ##' Returns the state of the random number generator. This returns a
-    ##' raw vector of length 32 * n_generators. It is primarily intended for
+    ##' Returns the state of the random number stream. This returns a
+    ##' raw vector of length 32 * n_streams. It is primarily intended for
     ##' debugging as one cannot (yet) initialise a dust_rng object with this
     ##' state.
     state = function() {

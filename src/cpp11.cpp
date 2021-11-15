@@ -70,10 +70,10 @@ extern "C" SEXP _dust_test_rng_pointer_get(SEXP obj, SEXP n_streams) {
   END_CPP11
 }
 // dust_rng.cpp
-SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_generators, bool deterministic, bool is_float);
-extern "C" SEXP _dust_dust_rng_alloc(SEXP r_seed, SEXP n_generators, SEXP deterministic, SEXP is_float) {
+SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_streams, bool deterministic, bool is_float);
+extern "C" SEXP _dust_dust_rng_alloc(SEXP r_seed, SEXP n_streams, SEXP deterministic, SEXP is_float) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<int>>(n_generators), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
+    return cpp11::as_sexp(dust_rng_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<int>>(n_streams), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
   END_CPP11
 }
 // dust_rng.cpp
