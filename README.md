@@ -31,7 +31,7 @@ There are further vignettes describing details:
 
 * `vignette("rng")` on the parallel random number generator used
 * `vignette("rng_algorithms")` on the details of algorithms used to sample from some distributions
-* `vigette("rng_package")` on using the generators from other packages
+* `vignette("rng_package")` on using the generators from other packages
 
 You can also read our open access paper describing `dust` and some related tools that use it:
 
