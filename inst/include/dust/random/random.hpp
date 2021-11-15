@@ -21,12 +21,12 @@ struct default_rng_helper;
 
 template <>
 struct default_rng_helper<double> {
-  typedef xoshiro256plus_state type;
+  using type = xoshiro256plus;
 };
 
 template <>
 struct default_rng_helper<float> {
-  typedef xoshiro128plus_state type;
+  using type = xoshiro128plus;
 };
 
 }

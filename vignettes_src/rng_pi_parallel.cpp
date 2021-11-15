@@ -9,7 +9,7 @@
 [[cpp11::register]]
 double pi_dust_parallel(int n, cpp11::sexp ptr, int n_threads) {
   auto rng =
-    dust::random::r::rng_pointer_get<dust::random::xoshiro256plus_state>(ptr);
+    dust::random::r::rng_pointer_get<dust::random::xoshiro256plus>(ptr);
   const auto n_streams = rng->size();
   int tot = 0;
 #ifdef _OPENMP

@@ -1,3 +1,7 @@
+# dust 0.11.10
+
+* The names of different generator internal states has been simplified to lose the trailing state, e.g. `xoshiro256star_state` becomes `xoshiro256star` (#332)
+
 # dust 0.11.8
 
 * Improved the interface for using dust's random number support from other packages (#329)

@@ -11,7 +11,7 @@
 // The api is:
 //
 // * the dust::random::xoshiro_state type, plus all the
-//   specific versions of it (e.g., xoshiro256starstar_state); these
+//   specific versions of it (e.g., xoshiro256starstar); these
 //   objects can be created but should be considered opaque.
 //
 // * dust::random::random_real which yields a real (of the
