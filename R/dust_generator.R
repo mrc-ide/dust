@@ -200,42 +200,6 @@ dust_generator <- R6::R6Class(
     shape = function() {
     },
 
-    ##' @description
-    ##' Set the "state" vector for all particles, overriding whatever your
-    ##' models `initial()` method provides.
-    ##'
-    ##' @param state The state vector - can be either a numeric vector with the
-    ##' same length as the model's current state (in which case the same
-    ##' state is applied to all particles), or a numeric matrix with as
-    ##' many rows as your model's state and as many columns as you have
-    ##' particles (in which case you can set a number of different starting
-    ##' states at once).
-    ##'
-    ##' @param step If not `NULL`, then this sets the initial step. If this
-    ##' is a vector (with the same length as the number of particles), then
-    ##' particles are started from different initial steps and run up to the
-    ##' largest step given (i.e., `max(step)`)
-    set_state = function(state, step = NULL) {
-    },
-
-    ##' @description
-    ##' Reset the model while preserving the random number stream state
-    ##'
-    ##' @param pars New pars for the model (see constructor)
-    ##' @param step New initial step for the model (see constructor)
-    reset = function(pars, step) {
-    },
-
-    ##' @description
-    ##' Set the 'pars' element in a dust object while holding model state,
-    ##' index, etc constant. In contrast to `$reset`, the old state must
-    ##' be compatible with the new one (e.g., don't change model size), and
-    ##' the index will remain valid.
-    ##'
-    ##' @param pars New pars for the model (see constructor)
-    set_pars = function(pars) {
-    },
-
     ##' @description Update one or more components of the model state.
     ##'   This method can be used to update any or all of `pars`, `state` and
     ##'   `step`.  If both `pars` and `step` are given and `state` is not,

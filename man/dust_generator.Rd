@@ -37,9 +37,6 @@ walk
 \item \href{#method-n_particles}{\code{dust_generator$n_particles()}}
 \item \href{#method-n_particles_each}{\code{dust_generator$n_particles_each()}}
 \item \href{#method-shape}{\code{dust_generator$shape()}}
-\item \href{#method-set_state}{\code{dust_generator$set_state()}}
-\item \href{#method-reset}{\code{dust_generator$reset()}}
-\item \href{#method-set_pars}{\code{dust_generator$set_pars()}}
 \item \href{#method-update_state}{\code{dust_generator$update_state()}}
 \item \href{#method-state}{\code{dust_generator$state()}}
 \item \href{#method-step}{\code{dust_generator$step()}}
@@ -296,73 +293,6 @@ Returns the shape of the particles
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$shape()}\if{html}{\out{</div>}}
 }
 
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set_state"></a>}}
-\if{latex}{\out{\hypertarget{method-set_state}{}}}
-\subsection{Method \code{set_state()}}{
-Set the "state" vector for all particles, overriding whatever your
-models \code{initial()} method provides.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$set_state(state, step = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{state}}{The state vector - can be either a numeric vector with the
-same length as the model's current state (in which case the same
-state is applied to all particles), or a numeric matrix with as
-many rows as your model's state and as many columns as you have
-particles (in which case you can set a number of different starting
-states at once).}
-
-\item{\code{step}}{If not \code{NULL}, then this sets the initial step. If this
-is a vector (with the same length as the number of particles), then
-particles are started from different initial steps and run up to the
-largest step given (i.e., \code{max(step)})}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-reset"></a>}}
-\if{latex}{\out{\hypertarget{method-reset}{}}}
-\subsection{Method \code{reset()}}{
-Reset the model while preserving the random number stream state
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$reset(pars, step)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{pars}}{New pars for the model (see constructor)}
-
-\item{\code{step}}{New initial step for the model (see constructor)}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set_pars"></a>}}
-\if{latex}{\out{\hypertarget{method-set_pars}{}}}
-\subsection{Method \code{set_pars()}}{
-Set the 'pars' element in a dust object while holding model state,
-index, etc constant. In contrast to \verb{$reset}, the old state must
-be compatible with the new one (e.g., don't change model size), and
-the index will remain valid.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$set_pars(pars)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{pars}}{New pars for the model (see constructor)}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-update_state"></a>}}
