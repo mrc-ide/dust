@@ -13,7 +13,7 @@ reference:
       Every dust model shares the same (fairly large) set of methods
     contents:
       - dust_generator
-  
+
   - title: Random numbers
     desc: >-
       The core of dust is a parallel random number generator. These
