@@ -29,6 +29,8 @@ There are further vignettes describing details:
 * `vignette("data")` on running a bootstrap particle filter
 * `vignette("gpu")` on creating and running models on GPUs
 
+And several on the random number generator, around which dust is built:
+
 * `vignette("rng")` on the parallel random number generator used
 * `vignette("rng_algorithms")` on the details of algorithms used to sample from some distributions
 * `vignette("rng_package")` on using the generators from other packages
