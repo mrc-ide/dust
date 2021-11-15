@@ -5,7 +5,7 @@
 [[cpp11::register]]
 double pi_dust(int n, cpp11::sexp ptr) {
   auto rng =
-    dust::random::r::rng_pointer_get<dust::random::xoshiro256plus_state>(ptr);
+    dust::random::r::rng_pointer_get<dust::random::xoshiro256plus>(ptr);
   auto& state = rng->state(0);
   int tot = 0;
   for (int i = 0; i < n; ++i) {

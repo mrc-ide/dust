@@ -246,7 +246,7 @@ in your model will select a reasonable generator.
 If for some reason you want to try a different generator you can directly specify one of the types, for example
 
 ```cc
-typedef dust::random::xoshiro256starstar_state rng_state_type;
+typedef dust::random::xoshiro256starstar rng_state_type;
 ```
 
 which means that whatever real type you use, you want to use the Xoshiro256** generator.

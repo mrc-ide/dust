@@ -88,7 +88,7 @@ cc_output(readLines("rng_pi_dust.cpp"))
 This snippet looks much the same as above:
 
 * We've added `[[cpp::linking_to(dust)]]` and included the dust random interface (`dust/r/random.hpp`)
-* The first line of the function safely creates a pointer to the random state data. The template argument here (`<dust::random::xoshiro256plus_state>`) refers to the rng algorithm and matches `rng$algorithm`
+* The first line of the function safely creates a pointer to the random state data. The template argument here (`<dust::random::xoshiro256plus>`) refers to the rng algorithm and matches `rng$algorithm`
 * The second line extracts a reference to the first (C++ indexing starting at 0) random number stream - this pair of lines is roughly equivalent to `GetRNGstate()` except that that the random numbers do not come from some global source
 * After that the listing proceeds as before proceeds as before, except there is no equivalent to `PutRNGstate()` because the pointer object takes care of this automatically.
 

@@ -39,29 +39,29 @@ std::vector<std::string> test_xoshiro_run(cpp11::environment obj) {
   const auto algorithm = cpp11::as_cpp<std::string>(obj["algorithm"]);
   std::vector<std::string> ret;
   if (algorithm == "xoshiro256starstar") {
-    ret = test_xoshiro_run1<dust::random::xoshiro256starstar_state>(obj);
+    ret = test_xoshiro_run1<dust::random::xoshiro256starstar>(obj);
   } else if (algorithm == "xoshiro256plusplus") {
-    ret = test_xoshiro_run1<dust::random::xoshiro256plusplus_state>(obj);
+    ret = test_xoshiro_run1<dust::random::xoshiro256plusplus>(obj);
   } else if (algorithm == "xoshiro256plus") {
-    ret = test_xoshiro_run1<dust::random::xoshiro256plus_state>(obj);
+    ret = test_xoshiro_run1<dust::random::xoshiro256plus>(obj);
   } else if (algorithm == "xoshiro128starstar") {
-    ret = test_xoshiro_run1<dust::random::xoshiro128starstar_state>(obj);
+    ret = test_xoshiro_run1<dust::random::xoshiro128starstar>(obj);
   } else if (algorithm == "xoshiro128plusplus") {
-    ret = test_xoshiro_run1<dust::random::xoshiro128plusplus_state>(obj);
+    ret = test_xoshiro_run1<dust::random::xoshiro128plusplus>(obj);
   } else if (algorithm == "xoshiro128plus") {
-    ret = test_xoshiro_run1<dust::random::xoshiro128plus_state>(obj);
+    ret = test_xoshiro_run1<dust::random::xoshiro128plus>(obj);
   } else if (algorithm == "xoroshiro128starstar") {
-    ret = test_xoshiro_run1<dust::random::xoroshiro128starstar_state>(obj);
+    ret = test_xoshiro_run1<dust::random::xoroshiro128starstar>(obj);
   } else if (algorithm == "xoroshiro128plusplus") {
-    ret = test_xoshiro_run1<dust::random::xoroshiro128plusplus_state>(obj);
+    ret = test_xoshiro_run1<dust::random::xoroshiro128plusplus>(obj);
   } else if (algorithm == "xoroshiro128plus") {
-    ret = test_xoshiro_run1<dust::random::xoroshiro128plus_state>(obj);
+    ret = test_xoshiro_run1<dust::random::xoroshiro128plus>(obj);
   } else if (algorithm == "xoshiro512starstar") {
-    ret = test_xoshiro_run1<dust::random::xoshiro512starstar_state>(obj);
+    ret = test_xoshiro_run1<dust::random::xoshiro512starstar>(obj);
   } else if (algorithm == "xoshiro512plusplus") {
-    ret = test_xoshiro_run1<dust::random::xoshiro512plusplus_state>(obj);
+    ret = test_xoshiro_run1<dust::random::xoshiro512plusplus>(obj);
   } else if (algorithm == "xoshiro512plus") {
-    ret = test_xoshiro_run1<dust::random::xoshiro512plus_state>(obj);
+    ret = test_xoshiro_run1<dust::random::xoshiro512plus>(obj);
   }
 
   return ret;

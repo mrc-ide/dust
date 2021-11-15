@@ -51,7 +51,7 @@ and then run it with
 
 ```r
 pi_r(1e6)
-#> [1] 3.140756
+#> [1] 3.139764
 ```
 
 The key bits within the code above are that we:
@@ -88,7 +88,7 @@ rng
 #>   Private:
 #>     is_current_: TRUE
 #>     ptr_: externalptr
-#>     state_: 2b af 1c 0b 86 40 6b 1b 5d 9b 94 99 3a 71 ff be 63 09 89 ...
+#>     state_: 17 99 d1 26 21 be f9 23 a5 17 9a 1f cd 97 61 d9 33 88 b6 ...
 ```
 
 Unlike the `dust::dust_rng` object there are no real useful methods on this object and from the R side we'll treat it as a black box. Importantly the `rng` object knows which algorithm it has been created to use
@@ -111,7 +111,7 @@ We can rewrite the pi approximation function as:
 [[cpp11::register]]
 double pi_dust(int n, cpp11::sexp ptr) {
   auto rng =
-    dust::random::r::rng_pointer_get<dust::random::xoshiro256plus_state>(ptr);
+    dust::random::r::rng_pointer_get<dust::random::xoshiro256plus>(ptr);
   auto& state = rng->state(0);
   int tot = 0;
   for (int i = 0; i < n; ++i) {
@@ -128,7 +128,7 @@ double pi_dust(int n, cpp11::sexp ptr) {
 This snippet looks much the same as above:
 
 * We've added `[[cpp::linking_to(dust)]]` and included the dust random interface (`dust/r/random.hpp`)
-* The first line of the function safely creates a pointer to the random state data. The template argument here (`<dust::random::xoshiro256plus_state>`) refers to the rng algorithm and matches `rng$algorithm`
+* The first line of the function safely creates a pointer to the random state data. The template argument here (`<dust::random::xoshiro256plus>`) refers to the rng algorithm and matches `rng$algorithm`
 * The second line extracts a reference to the first (C++ indexing starting at 0) random number stream - this pair of lines is roughly equivalent to `GetRNGstate()` except that that the random numbers do not come from some global source
 * After that the listing proceeds as before proceeds as before, except there is no equivalent to `PutRNGstate()` because the pointer object takes care of this automatically.
 
@@ -143,7 +143,7 @@ and then run it with
 
 ```r
 pi_dust(1e6, rng)
-#> [1] 3.14102
+#> [1] 3.141372
 ```
 
 ## Parallel implementation with dust and OpenMP
@@ -162,7 +162,7 @@ Part of the point of dust's random number generators is that they create indepen
 [[cpp11::register]]
 double pi_dust_parallel(int n, cpp11::sexp ptr, int n_threads) {
   auto rng =
-    dust::random::r::rng_pointer_get<dust::random::xoshiro256plus_state>(ptr);
+    dust::random::r::rng_pointer_get<dust::random::xoshiro256plus>(ptr);
   const auto n_streams = rng->size();
   int tot = 0;
 #ifdef _OPENMP
@@ -202,7 +202,7 @@ Here we've made a number of decisions about how to split the problem up subject 
 ```r
 rng <- dust:::dust_rng_pointer$new(n_streams = 20)
 pi_dust_parallel(1e6, rng, 4)
-#> [1] 3.142025
+#> [1] 3.141179
 ```
 
 Unfortunately [`cpp11::cpp_source` does not support using OpenMP](https://github.com/r-lib/cpp11/issues/243) so in the example above the code will run in serial and we can't see if parallelisation will help.
@@ -259,7 +259,7 @@ And `src/code.cpp` contains the file above but without the `[[cpp11::linking_to(
 [[cpp11::register]]
 double pi_dust_parallel(int n, cpp11::sexp ptr, int n_threads) {
   auto rng =
-    dust::random::r::rng_pointer_get<dust::random::xoshiro256plus_state>(ptr);
+    dust::random::r::rng_pointer_get<dust::random::xoshiro256plus>(ptr);
   const auto n_streams = rng->size();
   int tot = 0;
 #ifdef _OPENMP
@@ -300,10 +300,10 @@ bench::mark(
 #> # A tibble: 4 x 6
 #>   expression                           min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>                      <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 pi_dust_parallel(1e+06, rng, 1)   44.1ms   44.4ms      22.5        0B        0
-#> 2 pi_dust_parallel(1e+06, rng, 2)   22.3ms   22.5ms      44.4        0B        0
-#> 3 pi_dust_parallel(1e+06, rng, 3)   15.7ms   15.8ms      63.2        0B        0
-#> 4 pi_dust_parallel(1e+06, rng, 4)   11.2ms   11.5ms      87.1        0B        0
+#> 1 pi_dust_parallel(1e+06, rng, 1)     45ms   45.2ms      22.1        0B        0
+#> 2 pi_dust_parallel(1e+06, rng, 2)   22.5ms   22.7ms      44.0        0B        0
+#> 3 pi_dust_parallel(1e+06, rng, 3)   15.9ms   16.1ms      62.1        0B        0
+#> 4 pi_dust_parallel(1e+06, rng, 4)   11.5ms   11.6ms      86.3        0B        0
 ```
 
 ## More on the pointer object

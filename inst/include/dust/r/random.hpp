@@ -58,29 +58,29 @@ namespace {
 template<typename T>
 std::string algorithm_name() {
   std::string ret;
-  if (std::is_same<T, xoshiro128plus_state>::value) {
+  if (std::is_same<T, xoshiro128plus>::value) {
     ret = "xoshiro128plus";
-  } else if (std::is_same<T, xoshiro128plusplus_state>::value) {
+  } else if (std::is_same<T, xoshiro128plusplus>::value) {
     ret = "xoshiro128plusplus";
-  } else if (std::is_same<T, xoshiro128starstar_state>::value) {
+  } else if (std::is_same<T, xoshiro128starstar>::value) {
     ret = "xoshiro128starstar";
-  } else if (std::is_same<T, xoroshiro128plus_state>::value) {
+  } else if (std::is_same<T, xoroshiro128plus>::value) {
     ret = "xoroshiro128plus";
-  } else if (std::is_same<T, xoroshiro128plusplus_state>::value) {
+  } else if (std::is_same<T, xoroshiro128plusplus>::value) {
     ret = "xoroshiro128plusplus";
-  } else if (std::is_same<T, xoroshiro128starstar_state>::value) {
+  } else if (std::is_same<T, xoroshiro128starstar>::value) {
     ret = "xoroshiro128starstar";
-  } else if (std::is_same<T, xoshiro256plus_state>::value) {
+  } else if (std::is_same<T, xoshiro256plus>::value) {
     ret = "xoshiro256plus";
-  } else if (std::is_same<T, xoshiro256plusplus_state>::value) {
+  } else if (std::is_same<T, xoshiro256plusplus>::value) {
     ret = "xoshiro256plusplus";
-  } else if (std::is_same<T, xoshiro256starstar_state>::value) {
+  } else if (std::is_same<T, xoshiro256starstar>::value) {
     ret = "xoshiro256starstar";
-  } else if (std::is_same<T, xoshiro512plus_state>::value) {
+  } else if (std::is_same<T, xoshiro512plus>::value) {
     ret = "xoshiro512plus";
-  } else if (std::is_same<T, xoshiro512plusplus_state>::value) {
+  } else if (std::is_same<T, xoshiro512plusplus>::value) {
     ret = "xoshiro512plusplus";
-  } else if (std::is_same<T, xoshiro512starstar_state>::value) {
+  } else if (std::is_same<T, xoshiro512starstar>::value) {
     ret = "xoshiro512starstar";
   }
   return ret;
