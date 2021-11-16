@@ -37,7 +37,12 @@ dust::dust_rng_pointer$new()
 \subsection{Method \code{new()}}{
 Create a new \code{dust_rng_pointer} object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng_pointer$new(seed = NULL, n_streams = 1L, algorithm = "xoshiro256plus")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng_pointer$new(
+  seed = NULL,
+  n_streams = 1L,
+  long_jump = 0L,
+  algorithm = "xoshiro256plus"
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -48,6 +53,11 @@ for details)}
 
 \item{\code{n_streams}}{The number of independent random number streams to
 create}
+
+\item{\code{long_jump}}{Optionally an integer indicating how many
+"long jumps" should be carried out immediatly on creation.
+This can be used to create a distributed parallel random number
+generator (see \link{dust_rng_distributed_state})}
 
 \item{\code{algorithm}}{The random number algorithm to use. The default is
 \code{xoshiro256plus} which is a good general choice}

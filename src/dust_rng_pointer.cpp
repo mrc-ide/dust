@@ -5,38 +5,41 @@
 #endif
 
 #include <cpp11/external_pointer.hpp>
+#include <dust/r/helpers.hpp>
 #include <dust/r/random.hpp>
 
 [[cpp11::register]]
 cpp11::sexp dust_rng_pointer_init(int n_streams, cpp11::sexp seed,
-                                  std::string algorithm) {
+                                  int long_jump, std::string algorithm) {
   cpp11::sexp ret;
+
+  dust::r::validate_size(long_jump, "long_jump");
 
   using namespace dust::random;
   if (algorithm == "xoshiro256starstar") {
-    ret = r::rng_pointer_init<xoshiro256starstar>(n_streams, seed);
+    ret = r::rng_pointer_init<xoshiro256starstar>(n_streams, seed, long_jump);
   } else if (algorithm == "xoshiro256plusplus") {
-    ret = r::rng_pointer_init<xoshiro256plusplus>(n_streams, seed);
+    ret = r::rng_pointer_init<xoshiro256plusplus>(n_streams, seed, long_jump);
   } else if (algorithm == "xoshiro256plus") {
-    ret = r::rng_pointer_init<xoshiro256plus>(n_streams, seed);
+    ret = r::rng_pointer_init<xoshiro256plus>(n_streams, seed, long_jump);
   } else if (algorithm == "xoshiro128starstar") {
-    ret = r::rng_pointer_init<xoshiro128starstar>(n_streams, seed);
+    ret = r::rng_pointer_init<xoshiro128starstar>(n_streams, seed, long_jump);
   } else if (algorithm == "xoshiro128plusplus") {
-    ret = r::rng_pointer_init<xoshiro128plusplus>(n_streams, seed);
+    ret = r::rng_pointer_init<xoshiro128plusplus>(n_streams, seed, long_jump);
   } else if (algorithm == "xoshiro128plus") {
-    ret = r::rng_pointer_init<xoshiro128plus>(n_streams, seed);
+    ret = r::rng_pointer_init<xoshiro128plus>(n_streams, seed, long_jump);
   } else if (algorithm == "xoroshiro128starstar") {
-    ret = r::rng_pointer_init<xoroshiro128starstar>(n_streams, seed);
+    ret = r::rng_pointer_init<xoroshiro128starstar>(n_streams, seed, long_jump);
   } else if (algorithm == "xoroshiro128plusplus") {
-    ret = r::rng_pointer_init<xoroshiro128plusplus>(n_streams, seed);
+    ret = r::rng_pointer_init<xoroshiro128plusplus>(n_streams, seed, long_jump);
   } else if (algorithm == "xoroshiro128plus") {
-    ret = r::rng_pointer_init<xoroshiro128plus>(n_streams, seed);
+    ret = r::rng_pointer_init<xoroshiro128plus>(n_streams, seed, long_jump);
   } else if (algorithm == "xoshiro512starstar") {
-    ret = r::rng_pointer_init<xoshiro512starstar>(n_streams, seed);
+    ret = r::rng_pointer_init<xoshiro512starstar>(n_streams, seed, long_jump);
   } else if (algorithm == "xoshiro512plusplus") {
-    ret = r::rng_pointer_init<xoshiro512plusplus>(n_streams, seed);
+    ret = r::rng_pointer_init<xoshiro512plusplus>(n_streams, seed, long_jump);
   } else if (algorithm == "xoshiro512plus") {
-    ret = r::rng_pointer_init<xoshiro512plus>(n_streams, seed);
+    ret = r::rng_pointer_init<xoshiro512plus>(n_streams, seed, long_jump);
   } else {
     cpp11::stop("Unknown algorithm '%s'", algorithm.c_str());
   }

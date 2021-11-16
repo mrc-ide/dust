@@ -34,11 +34,16 @@ dust_rng_pointer <- R6::R6Class(
     ##' @param n_streams The number of independent random number streams to
     ##'   create
     ##'
+    ##' @param long_jump Optionally an integer indicating how many
+    ##'   "long jumps" should be carried out immediatly on creation.
+    ##'   This can be used to create a distributed parallel random number
+    ##'   generator (see [dust::dust_rng_distributed_state])
+    ##'
     ##' @param algorithm The random number algorithm to use. The default is
     ##'   `xoshiro256plus` which is a good general choice
-    initialize = function(seed = NULL, n_streams = 1L,
+    initialize = function(seed = NULL, n_streams = 1L, long_jump = 0L,
                           algorithm = "xoshiro256plus") {
-      dat <- dust_rng_pointer_init(n_streams, seed, algorithm)
+      dat <- dust_rng_pointer_init(n_streams, seed, long_jump, algorithm)
       private$ptr_ <- dat[[1L]]
       private$state_ <- dat[[2L]]
       private$is_current_ <- TRUE
@@ -54,6 +59,7 @@ dust_rng_pointer <- R6::R6Class(
     ##' ever used the object.
     sync = function() {
       dust_rng_pointer_sync(private, self$algorithm)
+      invisible(self)
     },
 
     ##' @description Return a raw vector of state. This can be used to

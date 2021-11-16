@@ -98,9 +98,14 @@ cpp11::raws rng_state_vector(prng<rng_state_type>* rng) {
 }
 
 template <typename rng_state_type>
-SEXP rng_pointer_init(int n_streams, cpp11::sexp r_seed) {
+SEXP rng_pointer_init(int n_streams, cpp11::sexp r_seed, int long_jump) {
   auto seed = as_rng_seed<rng_state_type>(r_seed);
   auto *rng = new prng<rng_state_type>(n_streams, seed);
+  if (long_jump > 0) {
+    for (int i = 0; i < long_jump; ++i) {
+      rng->long_jump();
+    }
+  }
   auto r_ptr = cpp11::external_pointer<prng<rng_state_type>>(rng);
   auto r_state = rng_state_vector(rng);
   return cpp11::writable::list({r_ptr, r_state});

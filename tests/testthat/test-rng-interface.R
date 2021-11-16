@@ -76,3 +76,15 @@ test_that("Validate pointers on fetch", {
   expect_silent(
     test_rng_pointer_get(obj, 1))
 })
+
+
+test_that("Create pointer with a long jump", {
+  s0 <- dust_rng_pointer$new(1, 4, 0)$state()
+  s1 <- dust_rng_pointer$new(1, 4, 1)$state()
+  s2 <- dust_rng_pointer$new(1, 4, 2)$state()
+
+  cmp <- dust_rng$new(1, 4)
+  expect_equal(s1, cmp$state())
+  expect_equal(s2, cmp$long_jump()$state())
+  expect_equal(s3, cmp$long_jump()$long_jump()$state())
+})

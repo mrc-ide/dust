@@ -48,10 +48,10 @@ extern "C" SEXP _dust_density_poisson(SEXP x, SEXP lambda, SEXP log) {
   END_CPP11
 }
 // dust_rng_pointer.cpp
-cpp11::sexp dust_rng_pointer_init(int n_streams, cpp11::sexp seed, std::string algorithm);
-extern "C" SEXP _dust_dust_rng_pointer_init(SEXP n_streams, SEXP seed, SEXP algorithm) {
+cpp11::sexp dust_rng_pointer_init(int n_streams, cpp11::sexp seed, int long_jump, std::string algorithm);
+extern "C" SEXP _dust_dust_rng_pointer_init(SEXP n_streams, SEXP seed, SEXP long_jump, SEXP algorithm) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_pointer_init(cpp11::as_cpp<cpp11::decay_t<int>>(n_streams), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(seed), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm)));
+    return cpp11::as_sexp(dust_rng_pointer_init(cpp11::as_cpp<cpp11::decay_t<int>>(n_streams), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(seed), cpp11::as_cpp<cpp11::decay_t<int>>(long_jump), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm)));
   END_CPP11
 }
 // dust_rng_pointer.cpp
@@ -1181,7 +1181,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_rng_long_jump",                (DL_FUNC) &_dust_dust_rng_long_jump,                2},
     {"_dust_dust_rng_multinomial",              (DL_FUNC) &_dust_dust_rng_multinomial,              6},
     {"_dust_dust_rng_normal",                   (DL_FUNC) &_dust_dust_rng_normal,                   7},
-    {"_dust_dust_rng_pointer_init",             (DL_FUNC) &_dust_dust_rng_pointer_init,             3},
+    {"_dust_dust_rng_pointer_init",             (DL_FUNC) &_dust_dust_rng_pointer_init,             4},
     {"_dust_dust_rng_pointer_sync",             (DL_FUNC) &_dust_dust_rng_pointer_sync,             2},
     {"_dust_dust_rng_poisson",                  (DL_FUNC) &_dust_dust_rng_poisson,                  5},
     {"_dust_dust_rng_random_normal",            (DL_FUNC) &_dust_dust_rng_random_normal,            5},
