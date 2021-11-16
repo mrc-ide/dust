@@ -238,7 +238,7 @@ We include 12 different algorithms for creating the underlying random integer, f
 Normally you do not need to worry about these details and declaring
 
 ```cc
-typedef dust::random::generator<real_type> rng_state_type;
+using rng_state_type = dust::random::generator<real_type>;
 ```
 
 in your model will select a reasonable generator.
@@ -246,7 +246,7 @@ in your model will select a reasonable generator.
 If for some reason you want to try a different generator you can directly specify one of the types, for example
 
 ```cc
-typedef dust::random::xoshiro256starstar rng_state_type;
+using rng_state_type = dust::random::xoshiro256starstar;
 ```
 
 which means that whatever real type you use, you want to use the Xoshiro256** generator.

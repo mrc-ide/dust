@@ -168,7 +168,7 @@ cpp11::sexp dust_update_state_set(T *obj, SEXP r_pars,
 template <typename T>
 SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
                        SEXP r_set_initial_state) {
-  typedef typename T::real_type real_type;
+  using real_type = typename T::real_type;
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
 
   bool set_initial_state = false;
@@ -314,7 +314,7 @@ void dust_reorder(SEXP ptr, cpp11::sexp r_index) {
 
 template <typename T>
 SEXP dust_resample(SEXP ptr, cpp11::doubles r_weights) {
-  typedef typename T::real_type real_type;
+  using real_type = typename T::real_type;
 
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   size_t n_particles = obj->n_particles();
@@ -339,7 +339,7 @@ SEXP dust_resample(SEXP ptr, cpp11::doubles r_weights) {
 template <typename T>
 SEXP dust_rng_state(SEXP ptr, bool first_only, bool last_only) {
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
-  typedef typename T::rng_state_type rng_state_type;
+  using rng_state_type = typename T::rng_state_type;
   auto state = obj->rng_state();
   if (first_only && last_only) {
     cpp11::stop("Only one of 'first_only' or 'last_only' may be TRUE");
@@ -356,7 +356,7 @@ SEXP dust_rng_state(SEXP ptr, bool first_only, bool last_only) {
 template <typename T>
 void dust_set_rng_state(SEXP ptr, cpp11::raws rng_state) {
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
-  typedef typename T::rng_state_type::int_type int_type;
+  using int_type = typename T::rng_state_type::int_type;
   auto prev_state = obj->rng_state();
   size_t len = prev_state.size() * sizeof(int_type);
   if ((size_t)rng_state.size() != len) {
@@ -377,8 +377,8 @@ void dust_set_n_threads(SEXP ptr, int n_threads) {
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
 void dust_set_data(SEXP ptr, cpp11::list r_data) {
-  typedef typename T::model_type model_type;
-  typedef typename T::data_type data_type;
+  using model_type = typename T::model_type;
+  using data_type = typename T::data_type;
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const size_t n_pars = obj->n_pars_effective();
 
@@ -470,7 +470,6 @@ cpp11::writable::doubles run_filter(T * obj,
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
 cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
                         cpp11::sexp r_step_snapshot) {
-  // typedef typename T::real_type real_type;
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   obj->check_errors();
 

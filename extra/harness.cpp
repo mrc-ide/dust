@@ -4,16 +4,16 @@
 #include <iostream>
 
 #if defined(XOSHIRO256)
-typedef uint64_t int_type;
+using int_type = uint64_t;
 constexpr size_t data_size = 4;
 #elif defined(XOSHIRO128)
-typedef uint32_t int_type;
+using int_type = uint32_t;
 constexpr size_t data_size = 4;
 #elif defined(XOROSHIRO128)
-typedef uint64_t int_type;
+using int_type = uint64_t;
 constexpr size_t data_size = 2;
 #elif defined(XOSHIRO512)
-typedef uint64_t int_type;
+using int_type = uint64_t;
 constexpr size_t data_size = 8;
 #else
 #error "no target defined"

@@ -350,7 +350,22 @@ test_that("Validate changing pars leaves particles in sensible state", {
 test_that("rewrite types", {
   res <- dust_rewrite_real(dust_file("examples/sir.cpp"), "float")
   expect_equal(tools::file_ext(res), "cpp")
-  expect_length(grep("^  typedef float real_type;$", readLines(res)), 1)
+  expect_length(grep("^  using real_type = float;$", readLines(res)), 1)
+})
+
+
+test_that("rewrite types with typedef", {
+  path <- dust_file("examples/sir.cpp")
+  code <- readLines(path)
+  pat <- "using real_type = double"
+  expect_true(any(grepl(pat, code, fixed = TRUE)))
+  code <- sub(pat, "typedef double real_type", code, fixed = TRUE)
+  expect_false(any(grepl(pat, code, fixed = TRUE)))
+  tmp <- tempfile()
+  writeLines(code, tmp)
+  res <- dust_rewrite_real(tmp, "float")
+  expect_match(readLines(res), "^  typedef float real_type;$",
+               all = FALSE)
 })
 
 
@@ -384,4 +399,20 @@ test_that("Don't mangle name in generated package", {
   expect_equal(
     unname(read.dcf(file.path(path, "DESCRIPTION"))[, "Package"]),
     "walk")
+})
+
+
+test_that("Compile model where name and class differ", {
+  skip_for_compilation()
+  filename <- dust_file("examples/walk.cpp")
+  code <- readLines(filename)
+  tmp <- tempfile(fileext = ".cpp")
+  writeLines(c('// [[dust::class("walk")]]',
+               '// [[dust::name("model")]]',
+               code),
+             tmp)
+  res <- dust(tmp, quiet = TRUE)
+  expect_equal(res$public_methods$name(), "model")
+  mod <- res$new(list(sd = 1), 0, 1)
+  expect_s3_class(mod, "dust")
 })

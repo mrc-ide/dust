@@ -1,9 +1,9 @@
 class walk {
 public:
-  typedef double real_type;
-  typedef dust::no_data data_type;
-  typedef dust::no_internal internal_type;
-  typedef dust::random::generator<real_type> rng_state_type;
+  using real_type = double;
+  using data_type = dust::no_data;
+  using internal_type = dust::no_internal;
+  using rng_state_type = dust::random::generator<real_type>;
 
   struct shared_type {
     real_type sd;

@@ -35,7 +35,7 @@ compute version 70 or higher.}
 
 \item{real_type}{Optionally, a string indicating a substitute type to
 swap in for your model's \code{real_type} declaration. If given, then we
-replace the string \verb{typedef (double|float) real_type} with the
+replace the string \verb{using real_type = (double|float)} with the
 given type. This is primarily intended to be used as \verb{gpu = TRUE, real_type = "float"} in order to create model for the GPU
 that will use 32 bit \code{floats} (rather than 64 bit doubles, which
 are much slower). For CPU models decreasing precision of your
@@ -67,19 +67,19 @@ assumed to be the class name)
 \code{model::internal_type}) that contains its internal data that the
 model may change during execution (i.e., that is not shared
 between particles). If no such data is needed, you can do
-\verb{typedef dust::no_internal internal_type} to indicate this.
+\verb{using internal_type = dust::no_internal;} to indicate this.
 \item We also need a type \code{shared_type} that contains \emph{constant} internal
 data is shared between particles (e.g., dimensions, arrays that
 are read but not written). If no such data is needed, you can do
-\verb{typedef dust::no_shared shared_type} to indicate this.
-\item That class must also include a typedef that describes the
+\verb{using share_type = dust::no_shared;} to indicate this.
+\item That class must also include a type alias that describes the
 model's floating point type, \code{real_type}. Most models can include
-\verb{typedef double real_type;} in their public section.
-\item The class must also include a typedef that describes the model's
-\emph{data} type. This interface is subject to change, and for now
-you should include \verb{typedef dust::no_data data_type} which marks
-your class as not supporting data, which disables the
-\code{compare_data} and \code{set_data} methods.
+\verb{using real_type = double;} in their public section.
+\item The class must also include a type alias that describes the model's
+\emph{data} type. If your model does not support data, then write
+\verb{using data_type = dust::no_data;}, which disables the
+\code{compare_data} and \code{set_data} methods.  Otherwise see
+\code{vignette("data")} for more information.
 \item The class must have a constructor that accepts \verb{const dust::pars_type<model>& pars} for your type \code{model}. This will have
 elements \code{shared} and \code{internal} which you can assign into your
 model if needed.

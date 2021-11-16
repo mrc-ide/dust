@@ -169,7 +169,7 @@ this takes advantage of some internal space of the correct size in internal memo
 
 ```c++
 dust::pars_type<model> dust_pars<model>(cpp11::list pars) {
-  typedef typename model::real_type real_type;
+  using real_type = typename model::real_type;
   auto shared = std::make_shared<model::shared_type>();
   shared->n = 10;
   model::internal_type internal{std::vector<model::real_type>(shared->n)};
@@ -210,9 +210,9 @@ which will compile a dust model:
 // [[dust::param(sd, has_default = FALSE, default_value = NULL, rank = 0, min = -Inf, max = Inf, integer = FALSE)]]
 class odin {
 public:
-  typedef double real_type;
-  typedef dust::random::generator<real_type> rng_state_type;
-  typedef dust::no_data data_type;
+  using real_type = typename model::real_type;
+  using rng_state_type = dust::random::generator<real_type> rng_state_type;
+  using data_type = dust::no_data;
   struct shared_type {
     real_type initial_y;
     real_type sd;
@@ -242,7 +242,7 @@ private:
 
 // ...[some utility code excluded]
 dust::pars_type<odin> dust_pars<odin>(cpp11::list user) {
-  typedef typename odin::real_type real_type;
+  using real_type = typename odin::real_type;
   auto shared = std::make_shared<odin::shared_type>();
   odin::internal_type internal;
   shared->initial_y = 0;

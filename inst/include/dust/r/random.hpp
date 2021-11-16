@@ -32,7 +32,7 @@ std::vector<typename rng_state_type::int_type> raw_seed(cpp11::raws seed_data) {
 
 template <typename rng_state_type>
 std::vector<typename rng_state_type::int_type> as_rng_seed(cpp11::sexp r_seed) {
-  typedef typename rng_state_type::int_type int_type;
+  using int_type = typename rng_state_type::int_type;
   auto seed_type = TYPEOF(r_seed);
   std::vector<int_type> seed;
   if (seed_type == INTSXP || seed_type == REALSXP) {

@@ -5,10 +5,9 @@
 
 namespace dust {
 
-struct nothing {};
-typedef nothing no_data;
-typedef nothing no_internal;
-typedef nothing no_shared;
+struct no_data {};
+struct no_internal {};
+struct no_shared {};
 
 template <typename T>
 using shared_ptr = std::shared_ptr<const typename T::shared_type>;
@@ -28,10 +27,10 @@ struct pars_type {
     internal(internal_) {
   }
   pars_type(typename T::shared_type shared_) :
-    pars_type(shared_, dust::nothing()) {
+    pars_type(shared_, dust::no_internal()) {
   }
   pars_type(typename T::internal_type internal_) :
-    pars_type(dust::nothing(), internal_) {
+    pars_type(dust::no_shared(), internal_) {
   }
 };
 

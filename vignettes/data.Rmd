@@ -76,7 +76,7 @@ The first part, the data definition, is the definition
 which replaces the usual
 
 ```cc
-  typedef dust::no_data data_type;
+  using data_type = dust::no_data;
 ```
 
 This structure can contain whatever you want, including things like a `std::vector` of values. In our use we've typically only had `real_type` and `int` though, even for complex models.

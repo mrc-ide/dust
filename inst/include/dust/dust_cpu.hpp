@@ -25,17 +25,17 @@ namespace dust {
 template <typename T>
 class dust_cpu {
 public:
-  typedef T model_type;
-  typedef dust::pars_type<T> pars_type;
-  typedef typename T::real_type real_type;
-  typedef typename T::data_type data_type;
-  typedef typename T::internal_type internal_type;
-  typedef typename T::shared_type shared_type;
-  typedef typename T::rng_state_type rng_state_type;
-  typedef typename rng_state_type::int_type rng_int_type;
+  using model_type = T;
+  using pars_type = dust::pars_type<T>;
+  using real_type = typename T::real_type;
+  using data_type = typename T::data_type;
+  using internal_type = typename T::internal_type;
+  using shared_type = typename T::shared_type;
+  using rng_state_type = typename T::rng_state_type;
+  using rng_int_type = typename rng_state_type::int_type;
 
   // TODO: fix this elsewhere, perhaps (see also cuda/dust_gpu.hpp)
-  typedef dust::filter::filter_state_host<real_type> filter_state_type;
+  using filter_state_type = dust::filter::filter_state_host<real_type>;
 
   dust_cpu(const pars_type& pars, const size_t step, const size_t n_particles,
            const size_t n_threads, const std::vector<rng_int_type>& seed,
@@ -403,7 +403,13 @@ private:
       throw std::invalid_argument(msg.str());
     }
 
-    if (particles_.size() == n_particles) {
+    if (particles_.empty()) {
+      particles_.reserve(n_particles);
+      for (size_t i = 0; i < n_particles; ++i) {
+        particles_.push_back(p);
+      }
+      shared_ = {pars.shared};
+    } else {
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
@@ -411,13 +417,6 @@ private:
         particles_[i].set_pars(p, set_state);
       }
       shared_[0] = pars.shared;
-    } else {
-      particles_.clear();
-      particles_.reserve(n_particles);
-      for (size_t i = 0; i < n_particles; ++i) {
-        particles_.push_back(p);
-      }
-      shared_ = {pars.shared};
     }
     reset_errors();
   }
@@ -437,10 +436,16 @@ private:
       }
       n = p.back().size(); // ensures all particles have same size
     }
-    // TODO: I think that we should disalow this bit of logic and
-    // number of particles should be surely fixed at initial creation?
-    // See #305
-    if (particles_.size() == n_particles_total_) {
+
+    if (particles_.empty()) {
+      particles_.reserve(n_particles * n_pars_);
+      for (size_t i = 0; i < n_pars_; ++i) {
+        for (size_t j = 0; j < n_particles; ++j) {
+          particles_.push_back(p[i]);
+        }
+        shared_.push_back(pars[i].shared);
+      }
+    } else {
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
@@ -449,15 +454,6 @@ private:
       }
       for (size_t i = 0; i < pars.size(); ++i) {
         shared_[i] = pars[i].shared;
-      }
-    } else {
-      particles_.clear();
-      particles_.reserve(n_particles * n_pars_);
-      for (size_t i = 0; i < n_pars_; ++i) {
-        for (size_t j = 0; j < n_particles; ++j) {
-          particles_.push_back(p[i]);
-        }
-        shared_.push_back(pars[i].shared);
       }
     }
     reset_errors();

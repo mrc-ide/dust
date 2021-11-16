@@ -38,8 +38,8 @@ device_ptrs<T> load_shared_state(const int pars_idx,
   ptrs.data = data + pars_idx;
 
 #ifdef __NVCC__
-  typedef typename T::real_type real_type;
-  typedef typename T::data_type data_type;
+  using real_type = typename T::real_type;
+  using data_type = typename T::data_type;
 
   // If we're using it, use the first warp in the block to load the shared pars
   // into __shared__ L1

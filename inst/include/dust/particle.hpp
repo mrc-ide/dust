@@ -10,10 +10,10 @@ namespace dust {
 template <typename T>
 class particle {
 public:
-  typedef dust::pars_type<T> pars_type;
-  typedef typename T::real_type real_type;
-  typedef typename T::data_type data_type;
-  typedef typename T::rng_state_type rng_state_type;
+  using pars_type = dust::pars_type<T>;
+  using real_type = typename T::real_type;
+  using data_type = typename T::data_type;
+  using rng_state_type = typename T::rng_state_type;
 
   particle(pars_type pars, size_t step) :
     model_(pars),
