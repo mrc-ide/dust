@@ -22,7 +22,7 @@ plain_output <- function(x) lang_output(x, "plain")
 
 One of our aims with `dust` was to enable the creation of fast particle filters. Most of the high level interface for this is within the package [`mcstate`](https://mrc-ide.github.io/mcstate/).  Typically, when using a `dust` model with `mcstate`, you would define a function in R which compares the model state at some point in time to some data, returning a likelihood.
 
-It is possible to implement this comparison directly in the dust model, which may slightly speed up the particle filter (because the compare function will be evaluated in parallel, and because of slightly reduced data copying), but also allows running the particle filter on a GPU (see `vignette("cuda")`).
+It is possible to implement this comparison directly in the dust model, which may slightly speed up the particle filter (because the compare function will be evaluated in parallel, and because of slightly reduced data copying), but also allows running the particle filter on a GPU (see `vignette("gpu")`).
 
 This vignette outlines the steps in implementing the comparison directly as part of the model.  This is not required for basic use of dust models, and we would typically recommend this only after your model has stabilised and you are looking to extract potential additional speed-ups or accelerate the model on a GPU.
 
@@ -192,4 +192,4 @@ points(observed ~ step, data, type = "p", pch = 19, col = "blue")
 
 Typically, you would use the much higher level interface in `mcstate` for this, though.
 
-Some additional work is required if you want to run the comparison on a GPU, see `vignette("cuda")` for more details.
+Some additional work is required if you want to run the comparison on a GPU, see `vignette("gpu")` for more details.
