@@ -115,17 +115,6 @@ public:
     }
   }
 
-  void set_step(const std::vector<size_t>& step) {
-    const size_t n_particles = particles_.size();
-    for (size_t i = 0; i < n_particles; ++i) {
-      particles_[i].set_step(step[i]);
-    }
-    const auto r = std::minmax_element(step.begin(), step.end());
-    if (*r.second > *r.first) {
-      run(*r.second);
-    }
-  }
-
   // It's the callee's responsibility to ensure that index is in
   // range [0, n-1]
   void set_index(const std::vector<size_t>& index) {

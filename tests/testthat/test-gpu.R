@@ -958,3 +958,19 @@ test_that("can update parameters and time, resetting state", {
   y2 <- mod2$run(20)
   expect_identical(y1, y2)
 })
+
+
+test_that("Particles are initialised based on time", {
+  skip_for_compilation()
+  path <- "examples/init.cpp"
+  res <- dust(path, quiet = TRUE)
+
+  mod <- res$new(list(sd = 1), 0, 5, gpu_config = 0L)
+  expect_equal(mod$state(), matrix(0, 1, 5))
+  mod$update_state(list(sd = 1), step = 2)
+  expect_equal(mod$state(), matrix(2, 1, 5))
+  mod$update_state(list(sd = 1), step = 3)
+  expect_equal(mod$state(), matrix(3, 1, 5))
+  mod <- res$new(list(sd = 1), 4, 5)
+  expect_equal(mod$state(), matrix(4, 1, 5))
+})
