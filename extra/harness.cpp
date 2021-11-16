@@ -12,8 +12,8 @@ constexpr size_t data_size = 4;
 #elif defined(XOROSHIRO128)
 using int_type = uint64_t;
 constexpr size_t data_size = 2;
-#elif defined(XOSHIRO512
-)using int_type = uint64_t;
+#elif defined(XOSHIRO512)
+using int_type = uint64_t;
 constexpr size_t data_size = 8;
 #else
 #error "no target defined"
