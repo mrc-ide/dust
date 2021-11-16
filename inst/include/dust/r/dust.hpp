@@ -139,6 +139,7 @@ cpp11::sexp dust_update_state_set(T *obj, SEXP r_pars,
                                   const std::vector<size_t>& step,
                                   bool set_initial_state) {
   cpp11::sexp ret = R_NilValue;
+  const size_t step_prev = obj->step();
 
   if (step.size() == 1) { // TODO: can handle this via a bool and int, tidier
     obj->set_step(step[0]);
@@ -147,8 +148,13 @@ cpp11::sexp dust_update_state_set(T *obj, SEXP r_pars,
   if (r_pars != R_NilValue) {
     // NOTE: if initial state is step dependent, then this picks up
     // the step set above.
-    ret = dust_update_state_set_pars(obj, cpp11::as_cpp<cpp11::list>(r_pars),
-                                     set_initial_state);
+    try {
+      ret = dust_update_state_set_pars(obj, cpp11::as_cpp<cpp11::list>(r_pars),
+                                       set_initial_state);
+    } catch (const std::invalid_argument& e) {
+      obj->set_step(step_prev);
+      throw e;
+    }
   }
 
   if (state.size() > 0) { // && !set_initial_state, though that is implied

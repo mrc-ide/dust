@@ -906,7 +906,7 @@ test_that("Can't set vector of times into gpu object", {
   mod <- gen$new(list(len = len), 0, np, seed = 1L, gpu_config = 0L)
   expect_error(
     mod$update_state(step = seq_len(np)),
-    "GPU doesn't support setting vector of steps")
+    "Expected 'step' to be scalar")
 })
 
 
@@ -971,6 +971,6 @@ test_that("Particles are initialised based on time", {
   expect_equal(mod$state(), matrix(2, 1, 5))
   mod$update_state(list(sd = 1), step = 3)
   expect_equal(mod$state(), matrix(3, 1, 5))
-  mod <- res$new(list(sd = 1), 4, 5)
+  mod <- res$new(list(sd = 1), 4, 5, gpu_config = 0L)
   expect_equal(mod$state(), matrix(4, 1, 5))
 })
