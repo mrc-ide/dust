@@ -184,6 +184,10 @@ sir <- R6::R6Class(
       dust_sir_capabilities()[["real_size"]]
     },
 
+    rng_algorithm = function() {
+      dust_sir_capabilities()[["rng_algorithm"]]
+    },
+
     uses_gpu = function(fake_gpu = FALSE) {
       real_gpu <- private$gpu_config_$real_gpu
       !is.null(real_gpu) && (fake_gpu || real_gpu)
@@ -421,6 +425,10 @@ sirs <- R6::R6Class(
       dust_sirs_capabilities()[["real_size"]]
     },
 
+    rng_algorithm = function() {
+      dust_sirs_capabilities()[["rng_algorithm"]]
+    },
+
     uses_gpu = function(fake_gpu = FALSE) {
       real_gpu <- private$gpu_config_$real_gpu
       !is.null(real_gpu) && (fake_gpu || real_gpu)
@@ -655,6 +663,10 @@ variable <- R6::R6Class(
       dust_variable_capabilities()[["real_size"]]
     },
 
+    rng_algorithm = function() {
+      dust_variable_capabilities()[["rng_algorithm"]]
+    },
+
     uses_gpu = function(fake_gpu = FALSE) {
       real_gpu <- private$gpu_config_$real_gpu
       !is.null(real_gpu) && (fake_gpu || real_gpu)
@@ -875,6 +887,10 @@ volatility <- R6::R6Class(
       dust_volatility_capabilities()[["real_size"]]
     },
 
+    rng_algorithm = function() {
+      dust_volatility_capabilities()[["rng_algorithm"]]
+    },
+
     uses_gpu = function(fake_gpu = FALSE) {
       real_gpu <- private$gpu_config_$real_gpu
       !is.null(real_gpu) && (fake_gpu || real_gpu)
@@ -1093,6 +1109,10 @@ walk <- R6::R6Class(
 
     real_size = function() {
       dust_walk_capabilities()[["real_size"]]
+    },
+
+    rng_algorithm = function() {
+      dust_walk_capabilities()[["rng_algorithm"]]
     },
 
     uses_gpu = function(fake_gpu = FALSE) {
