@@ -14,22 +14,22 @@
 ##'   `model::internal_type`) that contains its internal data that the
 ##'   model may change during execution (i.e., that is not shared
 ##'   between particles). If no such data is needed, you can do
-##'   `typedef dust::no_internal internal_type` to indicate this.
+##'   `using internal_type = dust::no_internal;` to indicate this.
 ##'
 ##' * We also need a type `shared_type` that contains *constant* internal
 ##'   data is shared between particles (e.g., dimensions, arrays that
 ##'   are read but not written). If no such data is needed, you can do
-##'   `typedef dust::no_shared shared_type` to indicate this.
+##'   `using share_type = dust::no_shared;` to indicate this.
 ##'
-##' * That class must also include a typedef that describes the
+##' * That class must also include a type alias that describes the
 ##'   model's floating point type, `real_type`. Most models can include
-##'   `typedef double real_type;` in their public section.
+##'   `using real_type = double;` in their public section.
 ##'
-##' * The class must also include a typedef that describes the model's
-##'   *data* type. This interface is subject to change, and for now
-##'   you should include `typedef dust::no_data data_type` which marks
-##'   your class as not supporting data, which disables the
-##'   `compare_data` and `set_data` methods.
+##' * The class must also include a type alias that describes the model's
+##'   *data* type. If your model does not support data, then write
+##'   `using data_type = dust::no_data;`, which disables the
+##'   `compare_data` and `set_data` methods.  Otherwise see
+##'   `vignette("data")` for more information.
 ##'
 ##' * The class must have a constructor that accepts `const
 ##'   dust::pars_type<model>& pars` for your type `model`. This will have
@@ -171,7 +171,7 @@
 ##'
 ##' @param real_type Optionally, a string indicating a substitute type to
 ##'   swap in for your model's `real_type` declaration. If given, then we
-##'   replace the string `typedef (double|float) real_type` with the
+##'   replace the string `using real_type = (double|float)` with the
 ##'   given type. This is primarily intended to be used as `gpu =
 ##'   TRUE, real_type = "float"` in order to create model for the GPU
 ##'   that will use 32 bit `floats` (rather than 64 bit doubles, which
@@ -313,13 +313,16 @@ dust_workdir <- function(path) {
 
 dust_rewrite_real <- function(filename, real_type) {
   dest <- tempfile(fileext = ".cpp")
-  re <- "^(\\s*typedef\\s+)([_a-zA-Z0-9]+)(\\s+real_type.*)"
+  re1 <- "^(\\s*typedef\\s+)([_a-zA-Z0-9]+)(\\s+real_type.*)"
+  re2 <- "^(\\s*using\\s+real_type\\s*=\\s*)([_a-zA-Z0-9]+)(;.*)"
   code <- readLines(filename)
-  i <- grep(re, code)
-  if (length(i) == 0) {
+  i1 <- grep(re1, code)
+  i2 <- grep(re2, code)
+  if (length(i1) == 0 && length(i2) == 0) {
     stop(sprintf("did not find real_type declaration in '%s'", filename))
   }
-  code[i] <- sub(re, sprintf("\\1%s\\3", real_type), code[i])
+  code[i1] <- sub(re1, sprintf("\\1%s\\3", real_type), code[i1])
+  code[i2] <- sub(re2, sprintf("\\1%s\\3", real_type), code[i2])
   writeLines(code, dest)
   dest
 }

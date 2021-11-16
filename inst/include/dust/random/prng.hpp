@@ -12,8 +12,8 @@ namespace random {
 template <typename T>
 class prng {
 public:
-  typedef T rng_state;
-  typedef typename rng_state::int_type int_type;
+  using rng_state = T;
+  using int_type = typename rng_state::int_type;
 
   prng(const size_t n, const int seed, const bool deterministic = false) :
     prng(n, seed_data<T>(seed), deterministic) {

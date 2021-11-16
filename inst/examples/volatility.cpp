@@ -1,11 +1,12 @@
 class volatility {
 public:
-  typedef double real_type;
+  using real_type = double;
+  using internal_type = dust::no_internal;
+  using rng_state_type = dust::random::generator<real_type>;
+
   struct data_type {
     real_type observed;
   };
-  typedef dust::no_internal internal_type;
-  typedef dust::random::generator<real_type> rng_state_type;
 
   struct shared_type {
     real_type alpha;
@@ -54,7 +55,7 @@ namespace dust {
 
 template <>
 dust::pars_type<volatility> dust_pars<volatility>(cpp11::list pars) {
-  typedef volatility::real_type real_type;
+  using real_type = volatility::real_type;
   real_type x0 = 0;
   real_type alpha = with_default(0.91, pars["alpha"]);
   real_type sigma = with_default(1, pars["sigma"]);

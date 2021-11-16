@@ -1,11 +1,12 @@
 class sir {
 public:
-  typedef double real_type;
+  using real_type = double;
+  using internal_type = dust::no_internal;
+  using rng_state_type = dust::random::generator<real_type>;
+  
   struct data_type {
     real_type incidence;
   };
-  typedef dust::no_internal internal_type;
-  typedef dust::random::generator<real_type> rng_state_type;
 
   struct shared_type {
     real_type S0;
@@ -78,7 +79,7 @@ namespace dust {
 
 template <>
 dust::pars_type<sir> dust_pars<sir>(cpp11::list pars) {
-  typedef sir::real_type real_type;
+  using real_type = sir::real_type;
   // Initial state values
   // [[dust::param(I0, required = FALSE)]]
   real_type I0 = with_default(10, pars["I0"]);

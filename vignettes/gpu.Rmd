@@ -165,9 +165,9 @@ The sirs model from above:
 ```cc
 class sirs {
 public:
-  typedef double real_type;
-  typedef dust::no_internal internal_type;
-  typedef dust::random::generator<real_type> rng_state_type;
+  using real_type = double;
+  using internal_type = dust::no_internal;
+  using rng_state_type = dust::random::generator<real_type>;
 
   // __align__(16) is required before the data_type definition when using NVCC
   // This is so when loaded into shared memory it is aligned correctly
@@ -292,7 +292,7 @@ template <>
 void shared_copy<sirs>(dust::shared_ptr<sirs> shared,
                        int * shared_int,
                        sirs::real_type * shared_real) {
-  typedef sirs::real_type real_type;
+  using real_type = sirs::real_type;
   using dust::gpu::shared_copy_data;
   shared_real = shared_copy_data<real_type>(shared_real, shared->alpha);
   shared_real = shared_copy_data<real_type>(shared_real, shared->beta);
@@ -313,7 +313,7 @@ void update_gpu<sirs>(size_t step,
                       sirs::rng_state_type& rng_state,
                       dust::gpu::interleaved<sirs::real_type> state_next) {
   using dust::random::binomial;
-  typedef sirs::real_type real_type;
+  using real_type = sirs::real_type;
   const real_type alpha = shared_real[0];
   const real_type beta = shared_real[1];
   const real_type gamma = shared_real[2];
@@ -344,7 +344,7 @@ sirs::real_type compare_gpu<sirs>(const dust::gpu::interleaved<sirs::real_type> 
                                   const int * shared_int,
                                   const sirs::real_type * shared_real,
                                   sirs::rng_state_type& rng_state) {
-  typedef sirs::real_type real_type;
+  using real_type = sirs::real_type;
   const real_type exp_noise = shared_real[4];
   const real_type incidence_modelled = state[3];
   const real_type incidence_observed = data.incidence;
@@ -388,7 +388,7 @@ template <>
 void shared_copy<sirs>(dust::shared_ptr<sirs> shared,
                        int * shared_int,
                        sirs::real_type * shared_real) {
-  typedef sirs::real_type real_type;
+  using real_type = sirs::real_type;
   using dust::gpu::shared_copy_data;
   shared_real = shared_copy_data<real_type>(shared_real, shared->alpha);
   shared_real = shared_copy_data<real_type>(shared_real, shared->beta);
@@ -409,7 +409,7 @@ template <>
 void shared_copy<sirs>(dust::shared_ptr<sirs> shared,
                        int * shared_int,
                        sirs::real_type * shared_real) {
-  typedef sirs::real_type real_type;
+  using real_type = sirs::real_type;
   shared_real[0] = shared->alpha;
   shared_real[1] = shared->beta;
   shared_real[2] = shared->gamma;
@@ -452,7 +452,7 @@ void update_gpu<sirs>(size_t step,
                       const sirs::real_type * shared_real,
                       sirs::rng_state_type& rng_state,
                       dust::gpu::interleaved<sirs::real_type> state_next) {
-  typedef sirs::real_type real_type;
+  using real_type = sirs::real_type;
   const real_type alpha = shared_real[0];
   const real_type beta = shared_real[1];
   const real_type gamma = shared_real[2];
@@ -522,7 +522,7 @@ sirs::real_type compare_gpu<sirs>(const dust::gpu::interleaved<sirs::real_type> 
                                   const int * shared_int,
                                   const sirs::real_type * shared_real,
                                   sirs::rng_state_type& rng_state) {
-  typedef sirs::real_type real_type;
+  using real_type = sirs::real_type;
   const real_type exp_noise = shared_real[4];
   const real_type incidence_modelled = state[3];
   const real_type incidence_observed = data.incidence;

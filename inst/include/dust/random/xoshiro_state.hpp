@@ -13,7 +13,7 @@ enum class scrambler {starstar, plusplus, plus};
 // Common storage for all generators
 template <typename T, size_t N, scrambler X>
 struct xoshiro_state {
-  typedef T int_type;
+  using int_type = T;
   __host__ __device__ static constexpr size_t size() {
     return N;
   }

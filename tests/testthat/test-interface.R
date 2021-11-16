@@ -350,7 +350,22 @@ test_that("Validate changing pars leaves particles in sensible state", {
 test_that("rewrite types", {
   res <- dust_rewrite_real(dust_file("examples/sir.cpp"), "float")
   expect_equal(tools::file_ext(res), "cpp")
-  expect_length(grep("^  typedef float real_type;$", readLines(res)), 1)
+  expect_length(grep("^  using real_type = float;$", readLines(res)), 1)
+})
+
+
+test_that("rewrite types with typedef", {
+  path <- dust_file("examples/sir.cpp")
+  code <- readLines(path)
+  pat <- "using real_type = double"
+  expect_true(any(grepl(pat, code, fixed = TRUE)))
+  code <- sub(pat, "typedef double real_type", code, fixed = TRUE)
+  expect_false(any(grepl(pat, code, fixed = TRUE)))
+  tmp <- tempfile()
+  writeLines(code, tmp)
+  res <- dust_rewrite_real(tmp, "float")
+  expect_match(readLines(res), "^  typedef float real_type;$",
+               all = FALSE)
 })
 
 

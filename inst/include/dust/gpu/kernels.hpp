@@ -87,9 +87,9 @@ void run_particles(size_t step_start,
                    typename T::rng_state_type::int_type * rng_state,
                    bool use_shared_int,
                    bool use_shared_real) {
-  typedef typename T::real_type real_type;
-  typedef typename T::rng_state_type rng_state_type;
-  typedef typename rng_state_type::int_type rng_int_type;
+  using real_type = typename T::real_type;
+  using rng_state_type = typename T::rng_state_type;
+  using rng_int_type = typename rng_state_type::int_type;
   const size_t n_particles_each = n_particles / n_pars;
 
 #ifdef __CUDA_ARCH__
@@ -180,9 +180,9 @@ __global__
                          bool use_shared_int,
                          bool use_shared_real) {
   // This setup is mostly shared with run_particles
-  typedef typename T::real_type real_type;
-  typedef typename T::rng_state_type rng_state_type;
-  typedef typename rng_state_type::int_type rng_int_type;
+  using real_type = typename T::real_type;
+  using rng_state_type = typename T::rng_state_type;
+  using rng_int_type = typename rng_state_type::int_type;
   const size_t n_particles_each = n_particles / n_pars;
 
 #ifdef __CUDA_ARCH__

@@ -35,7 +35,7 @@ compute version 70 or higher.}
 
 \item{real_type}{Optionally, a string indicating a substitute type to
 swap in for your model's \code{real_type} declaration. If given, then we
-replace the string \verb{typedef (double|float) real_type} with the
+replace the string \verb{using real_type = (double|float)} with the
 given type. This is primarily intended to be used as \verb{gpu = TRUE, real_type = "float"} in order to create model for the GPU
 that will use 32 bit \code{floats} (rather than 64 bit doubles, which
 are much slower). For CPU models decreasing precision of your

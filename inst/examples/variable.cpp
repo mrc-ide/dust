@@ -1,9 +1,9 @@
 class variable {
 public:
-  typedef double real_type;
-  typedef dust::no_data data_type;
-  typedef dust::no_internal internal_type;
-  typedef dust::random::generator<real_type> rng_state_type;
+  using real_type = double;
+  using data_type = dust::no_data;
+  using internal_type = dust::no_internal;
+  using rng_state_type = dust::random::generator<real_type>;
 
   struct shared_type {
     size_t len;
@@ -41,7 +41,7 @@ private:
 namespace dust {
 template <>
 dust::pars_type<variable> dust_pars<variable>(cpp11::list pars) {
-  typedef variable::real_type real_type;
+  using real_type = variable::real_type;
   const size_t len = cpp11::as_cpp<int>(pars["len"]);
   real_type mean = 0, sd = 1;
 
@@ -76,7 +76,7 @@ void shared_copy<variable>(dust::shared_ptr<variable> shared,
                            int * shared_int,
                            variable::real_type * shared_real) {
   using dust::gpu::shared_copy_data;
-  typedef variable::real_type real_type;
+  using real_type = variable::real_type;
   shared_int = shared_copy_data<int>(shared_int, shared->len);
   shared_real = shared_copy_data<real_type>(shared_real, shared->mean);
   shared_real = shared_copy_data<real_type>(shared_real, shared->sd);
@@ -92,7 +92,7 @@ void update_gpu<variable>(size_t step,
                           const variable::real_type * shared_real,
                           variable::rng_state_type& rng_state,
                           dust::gpu::interleaved<variable::real_type> state_next) {
-  typedef variable::real_type real_type;
+  using real_type = variable::real_type;
   const size_t len = shared_int[0];
   const real_type mean = shared_real[0];
   const real_type sd = shared_real[1];
