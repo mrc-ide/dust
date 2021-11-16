@@ -385,3 +385,19 @@ test_that("Don't mangle name in generated package", {
     unname(read.dcf(file.path(path, "DESCRIPTION"))[, "Package"]),
     "walk")
 })
+
+
+test_that("Compile model where name and class differ", {
+  skip_for_compilation()
+  filename <- dust_file("examples/walk.cpp")
+  code <- readLines(filename)
+  tmp <- tempfile(fileext = ".cpp")
+  writeLines(c('// [[dust::class("walk")]]',
+               '// [[dust::name("model")]]',
+               code),
+             tmp)
+  res <- dust(tmp, quiet = TRUE)
+  expect_equal(res$public_methods$name(), "model")
+  mod <- res$new(list(sd = 1), 0, 1)
+  expect_s3_class(mod, "dust")
+})
