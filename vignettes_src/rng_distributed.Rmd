@@ -11,9 +11,11 @@ vignette: >
 
 This vignette assumes some familiarity with the dust approach to random numbers, though we provide pointers below to the relevant documentation for further discussion.
 
-The random number generator in `dust` is well suited to parallel calculations. On a single node we can set up a generator with many streams (either one per core or, typically better, one per logical unit of calculation) and then parallelise the calculation using OpenMP. This is the approach taken by dust objects (`vignette("dust")`) and described for standalone use of the generators (`vignette("rng_package")`).
+The random number generator in `dust` is well suited to parallel calculations. On a single node we can set up a generator with many streams and then parallelise the calculation using OpenMP. The number of streams is either one per core or, typically better, one per logical unit of calculation (which may be the maximum number of threads, for example one stream per loop iteration). This is the approach taken by dust objects (`vignette("dust")`) and described for standalone use of the generators (`vignette("rng_package")`).
 
-Some additional care is required to use multiple nodes for the calculation ("distributed parallel computation"), and this vignette explains the problems and solutions. It applies to both use with `dust` objects and for standalone use of the random number generators.
+When parallelising, you may also have separate 'nodes', which could be separate processors, physical machines, or just processes on the same machine. The difference between threads is that nodes will not share any memory with each other during processing.
+
+Some additional care is required to use multiple nodes for the calculation so their streams do not overlap ("distributed parallel computation"), and this vignette explains the problems and solutions. It applies to both use with `dust` objects and for standalone use of the random number generators.
 
 ## A note on seeding
 
@@ -40,7 +42,7 @@ matrix(r2$state(), 32)
 
 Note here how the first 32 bytes (the first column) are the same as the initial state of the generator `r`, the second set are equal to the state after jumping once. The third is 2 * 2^128 steps ahead and the fourth is 3 * 2^128 steps ahead.
 
-We also have coefficients for a "long jump", which is equivalent to 2^192 steps of the generator. The point of the original jump is that individual draws of random numbers will never overlap; the point of the long jumps is that each long jump is so far that we'll never reach the next one by normal jumping (there are 2^64 ~= 10^19 jumps within a single long jump).
+We also have coefficients for a "long jump", which is equivalent to 2^192 steps of the generator (generator period^[3/4]). The point of the original jump is that individual draws of random numbers will never overlap; the point of the long jumps is that each long jump is so far that we'll never reach the next one by normal jumping (there are 2^64 ~= 10^19 jumps within a single long jump).
 
 ## Distributed seeding
 
@@ -267,7 +269,7 @@ mod$set_data(dust::dust_data(data))
 run_filter(c(0.91, 1), mod)
 ```
 
-We could also write a very simple MCMC algorithm:
+We could also write a very simple MCMC using the Metropolis-Hastings algorithm:
 
 ```{r}
 mcmc <- function(mod, p, n_steps, proposal_sd = 0.02) {
@@ -295,7 +297,7 @@ We can run this for a number of steps and collect up sampled parameters and thei
 ans <- mcmc(mod, c(0.91, 1), 20)
 ```
 
-We are cutting a lot of corners here; we have not specified any priors and are assuming that the distribution can be integrated over the parameters, and our proposal mechanism is extremely simple supporting only orthogonal proposals of the two parameters which are certainly correlated. However, the basic features are shared with any more sophisticated approach.
+(We are cutting a lot of corners with the inference here; we have not specified any priors and are assuming that the distribution can be integrated over the parameters, and our proposal mechanism is extremely simple supporting only orthogonal proposals of the two parameters which are certainly correlated. However, the basic features are shared with any more sophisticated approach.)
 
 Our aim here is now to carry this out in parallel, where we run a chain per node.  To do this we need to do the same basic steps as above. If we want to run 8 chains we'll need 8 seeds, even if we run on fewer nodes:
 
@@ -333,4 +335,4 @@ You should be careful with these approaches to not exceed the compute available 
 
 ---
 
-[^1] It's hard to get a sense of these numbers but `2^128` is about `3 x 10^38` draws. If we draw a billion numbers (10^9) a second (1ns per draw is the rate on a reasonable CPU) we can draw 3 x 10^16 numbers a year, so at this rate it would take this would take 10^22 years to reach the next stream. In contrast, the universe is 13 billion years old (13 x 10^9 years).
+[^1] It's hard to get a sense of these numbers but `2^128` is about `3 x 10^38` draws. If we draw a billion numbers (10^9) a second (1ns per draw is the rate on a reasonable CPU) we can draw 3 x 10^16 numbers a year, so at this rate it would take this would take 10^22 years to reach the next stream. In contrast, the universe is 14 billion years old (1.4 x 10^10 years).
