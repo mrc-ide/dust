@@ -47,11 +47,11 @@ Constructing a generator with more than one stream does this automatically:
 
 
 ```r
-r2 <- dust::dust_rng$new(seed = 1, n_generators = 4)
+r2 <- dust::dust_rng$new(seed = 1, n_streams = 4)
 ```
 
 ```
-## Error in initialize(...): unused argument (n_generators = 4)
+## Error in initialize(...): unused argument (n_streams = 4)
 ```
 
 ```r

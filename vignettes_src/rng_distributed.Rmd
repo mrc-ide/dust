@@ -34,7 +34,7 @@ r$state()
 Constructing a generator with more than one stream does this automatically:
 
 ```{r}
-r2 <- dust::dust_rng$new(seed = 1, n_generators = 4)
+r2 <- dust::dust_rng$new(seed = 1, n_streams = 4)
 matrix(r2$state(), 32)
 ```
 
