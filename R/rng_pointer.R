@@ -35,7 +35,7 @@ dust_rng_pointer <- R6::R6Class(
     ##'   create
     ##'
     ##' @param long_jump Optionally an integer indicating how many
-    ##'   "long jumps" should be carried out immediatly on creation.
+    ##'   "long jumps" should be carried out immediately on creation.
     ##'   This can be used to create a distributed parallel random number
     ##'   generator (see [dust::dust_rng_distributed_state])
     ##'
