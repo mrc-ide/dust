@@ -60,6 +60,7 @@ nontrivial
 nvcc
 odin
 openmp
+parallelisable
 parameterisations
 plusplus
 pseudo
@@ -72,6 +73,7 @@ roxygen
 sd
 sircovid
 sitmo
+splitmix
 src
 standalone
 starstar

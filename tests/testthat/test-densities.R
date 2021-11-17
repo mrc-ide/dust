@@ -50,6 +50,7 @@ test_that("density::binomial agrees", {
 
 
 test_that("density::negative_binomial agrees", {
+  set.seed(1)
   for (is_float in c(FALSE, TRUE)) {
     if (is_float) {
       tolerance <- sqrt(sqrt(.Machine$double.eps))

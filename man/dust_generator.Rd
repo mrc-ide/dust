@@ -50,6 +50,7 @@ walk
 \item \href{#method-has_gpu_support}{\code{dust_generator$has_gpu_support()}}
 \item \href{#method-has_compare}{\code{dust_generator$has_compare()}}
 \item \href{#method-real_size}{\code{dust_generator$real_size()}}
+\item \href{#method-rng_algorithm}{\code{dust_generator$rng_algorithm()}}
 \item \href{#method-uses_gpu}{\code{dust_generator$uses_gpu()}}
 \item \href{#method-n_pars}{\code{dust_generator$n_pars()}}
 \item \href{#method-set_n_threads}{\code{dust_generator$set_n_threads()}}
@@ -535,11 +536,25 @@ as \code{dust_generator$public_methods$has_compare()}
 \if{latex}{\out{\hypertarget{method-real_size}{}}}
 \subsection{Method \code{real_size()}}{
 Return the size of real numbers (in bits). Typically this will be
-64 for double precision and 32 for \code{float}..  This method can also be
+64 for double precision and 32 for \code{float}.  This method can also be
 used as a static method by running it directory as
 \code{dust_generator$public_methods$real_size()}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$real_size()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-rng_algorithm"></a>}}
+\if{latex}{\out{\hypertarget{method-rng_algorithm}{}}}
+\subsection{Method \code{rng_algorithm()}}{
+Return the random number algorithm used. Typically this will be
+\code{xoshiro256plus} for models using double precision reals and
+\code{xoshiro128plus} for single precision (\code{float}). This method can
+also be used as a static method by running it directory as
+\code{dust_generator$public_methods$rng_algorithm()}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$rng_algorithm()}\if{html}{\out{</div>}}
 }
 
 }

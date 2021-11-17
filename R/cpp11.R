@@ -24,8 +24,8 @@ density_poisson <- function(x, lambda, log) {
   .Call(`_dust_density_poisson`, x, lambda, log)
 }
 
-dust_rng_pointer_init <- function(n_streams, seed, algorithm) {
-  .Call(`_dust_dust_rng_pointer_init`, n_streams, seed, algorithm)
+dust_rng_pointer_init <- function(n_streams, seed, long_jump, algorithm) {
+  .Call(`_dust_dust_rng_pointer_init`, n_streams, seed, long_jump, algorithm)
 }
 
 dust_rng_pointer_sync <- function(obj, algorithm) {

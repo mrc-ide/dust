@@ -251,7 +251,11 @@ test_that("run in float mode", {
 
   obj <- res$new(list(sd = 10), 0, 5, seed = 1L)
   expect_equal(obj$real_size(), 32)
-  expect_equal(dust_example("walk")$public_methods$real_size(), 64)
+  expect_equal(obj$rng_algorithm(), "xoshiro128plus")
+
+  cmp <- dust_example("walk")
+  expect_equal(cmp$public_methods$real_size(), 64)
+  expect_equal(cmp$public_methods$rng_algorithm(), "xoshiro256plus")
 
   y <- drop(obj$simulate(1:7))
 

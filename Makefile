@@ -51,10 +51,13 @@ clean:
 vignettes/gpu.Rmd: vignettes_src/gpu.Rmd
 	./scripts/build_vignette gpu
 
+vignettes/rng_distributed.Rmd: vignettes_src/rng_distributed.Rmd
+	./scripts/build_vignette rng_distributed
+
 vignettes/rng_package.Rmd: vignettes_src/rng_package.Rmd
 	./scripts/build_vignette rng_package
 
-vignettes: vignettes/dust.Rmd vignettes/rng.Rmd
+vignettes: vignettes/dust.Rmd vignettes/rng_package.Rmd vignettes/rng_distributed.Rmd
 	${RSCRIPT} -e 'tools::buildVignettes(dir = ".")'
 	mkdir -p inst/doc
 	cp vignettes/*.html vignettes/*.Rmd inst/doc
