@@ -1,6 +1,8 @@
 #ifndef DUST_RANDOM_CUDA_COMPATIBILITY_HPP
 #define DUST_RANDOM_CUDA_COMPATIBILITY_HPP
 
+#include <stdexcept>
+
 // There are 3 different ways we hit this file:
 //
 // *  __CUDA_ARCH__ is defined: we're compiling under nvcc generating
