@@ -175,18 +175,11 @@ template <typename real_type>
 __host__ __device__
 void binomial_validate(int n, real_type p) {
   if (n < 0 || p < 0 || p > 1) {
-#ifdef __CUDA_ARCH__
-    // This is unrecoverable
-    printf("Invalid call to binomial with n = %d, p = %g, q = %g\n",
-           n, p, 1 - p);
-    __trap();
-#else
     char buffer[256];
     snprintf(buffer, 256,
              "Invalid call to binomial with n = %d, p = %g, q = %g",
              n, p, 1 - p);
-    throw std::runtime_error(buffer);
-#endif
+    dust::utils::fatal_error(buffer);
   }
 }
 
