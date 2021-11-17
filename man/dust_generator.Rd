@@ -536,7 +536,7 @@ as \code{dust_generator$public_methods$has_compare()}
 \if{latex}{\out{\hypertarget{method-real_size}{}}}
 \subsection{Method \code{real_size()}}{
 Return the size of real numbers (in bits). Typically this will be
-64 for double precision and 32 for \code{float}..  This method can also be
+64 for double precision and 32 for \code{float}.  This method can also be
 used as a static method by running it directory as
 \code{dust_generator$public_methods$real_size()}
 \subsection{Usage}{
@@ -548,10 +548,11 @@ used as a static method by running it directory as
 \if{html}{\out{<a id="method-rng_algorithm"></a>}}
 \if{latex}{\out{\hypertarget{method-rng_algorithm}{}}}
 \subsection{Method \code{rng_algorithm()}}{
-Return the size of real numbers (in bits). Typically this will be
-64 for double precision and 32 for \code{float}..  This method can also be
-used as a static method by running it directory as
-\code{dust_generator$public_methods$real_size()}
+Return the random number algorithm used. Typically this will be
+\code{xoshiro256plus} for models using double precision reals and
+\code{xoshiro128plus} for single precision (\code{float}). This method can
+also be used as a static method by running it directory as
+\code{dust_generator$public_methods$rng_algorithm()}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$rng_algorithm()}\if{html}{\out{</div>}}
 }
