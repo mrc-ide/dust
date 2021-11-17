@@ -84,7 +84,7 @@ test_that("Create pointer with a long jump", {
   s2 <- dust_rng_pointer$new(1, 4, 2)$state()
 
   cmp <- dust_rng$new(1, 4)
-  expect_equal(s1, cmp$state())
+  expect_equal(s0, cmp$state())
+  expect_equal(s1, cmp$long_jump()$state())
   expect_equal(s2, cmp$long_jump()$state())
-  expect_equal(s3, cmp$long_jump()$long_jump()$state())
 })
