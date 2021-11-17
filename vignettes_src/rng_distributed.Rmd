@@ -1,0 +1,336 @@
+---
+title: "Distributed parallel random numbers"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Distributed parallel random numbers}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<!-- HEADER -->
+
+This vignette assumes some familiarity with the dust approach to random numbers, though we provide pointers below to the relevant documentation for further discussion.
+
+The random number generator in `dust` is well suited to parallel calculations. On a single node we can set up a generator with many streams (either one per core or, typically better, one per logical unit of calculation) and then parallelise the calculation using OpenMP. This is the approach taken by dust objects (`vignette("dust")`) and described for standalone use of the generators (`vignette("rng_package")`).
+
+Some additional care is required to use multiple nodes for the calculation ("distributed parallel computation"), and this vignette explains the problems and solutions. It applies to both use with `dust` objects and for standalone use of the random number generators.
+
+## A note on seeding
+
+To seed multiple streams we begin by seeding the first generator. Practically how this happens can be ignored for now.
+
+```{r}
+r <- dust::dust_rng$new(seed = 1)
+r$state()
+```
+
+To seed the next stream we "jump ahead" in the stream. The generators provide pre-computed coefficients that jump the state of the generator to a state equal to drawing a very large number of steps. For the default generator (`xoshiro256+`) this is 2^128 steps, equal to the square root of the period of the generator (2^256^1).
+
+```{r}
+r$jump()
+r$state()
+```
+
+Constructing a generator with more than one stream does this automatically:
+
+```{r}
+r2 <- dust::dust_rng$new(seed = 1, n_generators = 4)
+matrix(r2$state(), 32)
+```
+
+Note here how the first 32 bytes (the first column) are the same as the initial state of the generator `r`, the second set are equal to the state after jumping once. The third is 2 * 2^128 steps ahead and the fourth is 3 * 2^128 steps ahead.
+
+We also have coefficients for a "long jump", which is equivalent to 2^192 steps of the generator. The point of the original jump is that individual draws of random numbers will never overlap; the point of the long jumps is that each long jump is so far that we'll never reach the next one by normal jumping (there are 2^64 ~= 10^19 jumps within a single long jump).
+
+## Distributed seeding
+
+The basic idea using the above primitives is that we could take a set of "long jumps" to create a set of initial seeds, pass those to each node that will do calculation, then on each node take a set of jumps to create a locally parallel random number generator.
+
+The function `dust::dust_rng_distributed_state` creates a list of random number states that are suitable for use on a series of nodes:
+
+```{r}
+dust::dust_rng_distributed_state(seed = 1, n_streams = 1, n_nodes = 2L)
+```
+
+Each element of this list can be passed through to to `dust::dust_rng_pointer$new` or to create `dust::dust_generator` objects.  It will depend on your application how you do this of course.
+
+We also include the convenience function `dust::dust_rng_distributed_pointer` which returns a list of pointer objects
+
+```{r}
+dust::dust_rng_distributed_pointer(seed = 1, n_streams = 1, n_nodes = 2L)
+```
+
+We will illustrate the idea first with the pi estimation algorithm from `vignette("rng_package")` and to start we will ignore the within-host parallelism (imagine we're trying to distribute the calculation over a set of single core jobs).  Because we need our code available on multiple nodes we can't use `cpp11::source_cpp` and will have to create a package, which will be called `piparallel` as before.
+
+```{r, include = FALSE}
+path <- tempfile()
+dir.create(path)
+dir.create(file.path(path, "src"), FALSE, TRUE)
+
+writeLines(
+  c("Package: piparallel",
+    "LinkingTo: cpp11, dust",
+    "Version: 0.0.1",
+    "SystemRequirements: C++11"),
+  file.path(path, "DESCRIPTION"))
+writeLines(
+  c('useDynLib("piparallel", .registration = TRUE)',
+    'exportPattern("^[[:alpha:]]+")'),
+  file.path(path, "NAMESPACE"))
+writeLines(
+  c("PKG_CXXFLAGS=-DHAVE_INLINE $(SHLIB_OPENMP_CXXFLAGS)",
+    "PKG_LIBS=$(SHLIB_OPENMP_CXXFLAGS)"),
+  file.path(path, "src", "Makevars"))
+code <- grep("cpp11::linking_to", readLines("rng_pi_parallel.cpp"),
+             invert = TRUE, value = TRUE)
+writeLines(code, file.path(path, "src", "code.cpp"))
+cpp11::cpp_register(path)
+
+lib <- tempfile()
+dir.create(lib)
+install.packages(path, lib = lib, repos = NULL, type = "source")
+loadNamespace("piparallel", lib)
+```
+
+As a reminder, to use our pi estimation code on a single node we first create a `dust_rng_pointer` object
+
+```{r}
+rng <- dust:::dust_rng_pointer$new()
+```
+
+We can call the function like so:
+
+```{r}
+piparallel::pi_dust_parallel(1e6, rng, 1)
+```
+
+To do this in parallel, we use the above functions to create a list of pointers:
+
+```{r}
+ptrs <- dust::dust_rng_distributed_pointer(seed = 1, n_streams = 1,
+                                           n_nodes = 4L)
+```
+
+Next, we need a parallel cluster; we'll use the `parallel` package for this and create a cluster of four nodes.  This might be done via a cluster scheduler or the more sophisticated tools in the `future` package.
+
+
+```{r}
+cl <- parallel::makeCluster(4, "PSOCK")
+```
+
+We've installed our package in `lib` so can make sure that's available on each node:
+
+```{r}
+parallel::clusterCall(cl, loadNamespace, "piparallel", lib)
+```
+
+Then we can call our pi estimation function.  We take as arguments the number of iterations, a pointer to random state and the number of threads to use.
+
+```{r}
+ans <- parallel::clusterApply(cl, ptrs, function(r)
+                              piparallel::pi_dust_parallel(1e6, r, 1))
+ans
+```
+
+We now have four estimates of pi which are independent and can be safely averaged:
+
+```{r}
+mean(unlist(ans))
+```
+
+These are the same numbers we would have found had we run things in series locally:
+
+```{r}
+ptrs_local <- dust::dust_rng_distributed_pointer(seed = 1, n_streams = 1,
+                                                 n_nodes = 4L)
+ans_local <- lapply(ptrs_local, function(r)
+                    piparallel::pi_dust_parallel(1e6, r, 1))
+ans_local
+```
+
+If we'd run the `clusterApply` over a different number of nodes, the calculation would also be unchanged.
+
+The same approach works where we want each node to run in parallel. So we might want to distribute calculations over 4 nodes which each have 8 cores say.  Then we'd configure our pointers to have more streams (here using 32 streams as that might represent our upper bound of per-node compute capacity)
+
+```{r}
+ptrs <- dust::dust_rng_distributed_pointer(seed = 1, n_streams = 32,
+                                           n_nodes = 4L)
+```
+
+The state vector for each pointer is now considerably longer:
+
+```{r}
+length(ptrs[[1]]$state())
+```
+
+```{r}
+ans <- lapply(ptrs, function(r)
+              piparallel::pi_dust_parallel(1e6, r, 8))
+ans
+```
+
+As before, this gives us four answers (one per node) but each node ran 32 * 1e6 random draws, spread over 8 threads.
+
+With this set-up we can change the number of nodes and number of threads without affecting the calculation, but spread the work out over the compute that we have available to us.
+
+## Continuing the streams
+
+The above set-up assumes that we want to establish our streams, do some work with them, then throw them away. That is, we never want to run calculations on the same nodes again. To sensibly we have several choices:
+
+**Take another set of long jumps to jump over all partial series used and continue from there.** Possibly the simplest solution; if we have set up initial states for `n` nodes and we have our initial seed we can simply take `n` long jumps to move away from our initial sequence, then configure seeds using the next `n` states.  This can be repeated without practical limit.  It has the advantage that no reverse communication needs to happen about the random number seed - that is, the worker nodes never need to tell our main node where they got to in the sequence.
+
+**Report back the final state reached by each node.** A more involved solution, but possibly more satisfying, involves each node sending back its final state at the end of sampling (along with whatever calculations were being performed). We then pass this state back to the nodes when continuing so that all calculations are taken from an unbroken set of streams.
+
+```{r}
+pi_estimate_continue <- function(n, ptr, n_threads) {
+  value <- piparallel::pi_dust_parallel(n, ptr, n_threads)
+  ptr$sync()
+  list(value = value,
+       ptr = ptr)
+}
+parallel::clusterExport(cl, "pi_estimate_continue")
+```
+
+```{r}
+ptrs <- dust::dust_rng_distributed_pointer(seed = 1, n_streams = 1,
+                                           n_nodes = 4L)
+ans <- parallel::clusterApply(cl, ptrs, function(r)
+                              pi_estimate_continue(1e6, r, 1))
+ans
+```
+
+We can again assemble our answer, which agrees with above
+
+```{r}
+mean(vapply(ans, "[[", numeric(1), "value"))
+```
+
+The state of these pointers now also agrees with above;
+
+```{r}
+ptrs_local[[1]]$state()
+ans[[1]]$ptr$state()
+```
+
+This approach could be useful where the calculation is to be continued (for example iterating until some convergence criteria is met).  The additional work of synchronising and returning the pointer adds complexity though.
+
+## Considerations
+
+Ideally the calculations will not depend on number of nodes used, so you should take the same approach as described in `vignette("rng_package")` and try and identify the "parallelisable" component (which might be larger than the number of nodes) and parallelise based on that.
+
+For example, suppose we want to run a multi-chain MCMC simulation.  Parallelising across chains is an obvious between-node target. We could then send `n` chains over `m` nodes (`m <= n`) and we'd want to arrange our seeds so that we long-jump for each *chain* not over each node as that way no matter how many nodes we had available we'd get the same results.
+
+## Use cases
+
+Here we show a more complete, and less contrived, use case with dust's "volatility" model.  This example picks up from `vignette("data")` and the reader is directed there for a fuller explanation.
+
+```{r}
+volatility <- dust::dust_example("volatility")
+```
+
+The model was written to fit to a time series:
+
+```{r, include = FALSE}
+data <- local({
+  mod <- volatility$new(list(alpha = 0.91, sigma = 1), 0, 1L, seed = 1L)
+  mod$update_state(state = matrix(rnorm(1L, 0, 1L), 1))
+  steps <- seq(0, 100, by = 1)
+  res <- mod$simulate(steps)
+  observed <- res[1, 1, -1] + rnorm(length(steps) - 1, 0, 1)
+  data.frame(step = steps[-1], observed = observed)
+})
+head(data)
+```
+
+The model can run in parallel on a single node to produce a likelihood estimate given parameters, we'll write a small function to do this:
+
+```{r}
+run_filter <- function(pars, mod) {
+  if (any(pars < 0)) {
+    return(-Inf)
+  }
+  pars <- list(alpha = pars[[1]], sigma = pars[[2]])
+  mod$update_state(pars = pars, step = 0)
+  mod$filter()$log_likelihood
+}
+```
+
+We assume that our parameter vector here is a length-2 numeric vector with values `alpha` and `sigma` and ensure that these are positive by returning `-Inf` if invalid values are given.
+
+We can create an instance of the model, set the data, and run the filter (for details see `vignette("data")`)
+
+```{r}
+n_particles <- 128
+n_threads <- 4
+mod <- volatility$new(list(), 0, n_particles, n_threads = n_threads)
+mod$set_data(dust::dust_data(data))
+run_filter(c(0.91, 1), mod)
+```
+
+We could also write a very simple MCMC algorithm:
+
+```{r}
+mcmc <- function(mod, p, n_steps, proposal_sd = 0.02) {
+  ll <- run_filter(p, mod)
+
+  ret <- matrix(NA_real_, n_steps + 1, length(p) + 1)
+  ret[1, ] <- c(p, ll)
+  
+  for (i in seq_len(n_steps)) {
+    p_new <- rnorm(length(p), p, proposal_sd)
+    ll_new <- run_filter(p_new, mod)
+    if (ll_new > ll || runif(1) < exp(ll_new - ll)) {
+      ll <- ll_new
+      p <- p_new
+    }
+    ret[i + 1, ] <- c(p, ll)
+  }
+  ret
+}
+```
+
+We can run this for a number of steps and collect up sampled parameters and their likelihoods
+
+```{r}
+ans <- mcmc(mod, c(0.91, 1), 20)
+```
+
+We are cutting a lot of corners here; we have not specified any priors and are assuming that the distribution can be integrated over the parameters, and our proposal mechanism is extremely simple supporting only orthogonal proposals of the two parameters which are certainly correlated. However, the basic features are shared with any more sophisticated approach.
+
+Our aim here is now to carry this out in parallel, where we run a chain per node.  To do this we need to do the same basic steps as above. If we want to run 8 chains we'll need 8 seeds, even if we run on fewer nodes:
+
+```{r}
+seed <- dust::dust_rng_distributed_state(n_nodes = 8L, algorithm = volatility)
+```
+
+It will also be useful to write a little wrapper function that repeats the setup from above, then runs the MCMC:
+
+```{r}
+run_mcmc <- function(seed, data, ...) {
+  volatility <- dust::dust_example("volatility")
+  mod <- volatility$new(list(), 0, 128, seed = seed, n_threads = 2)
+  mod$set_data(dust::dust_data(data))
+  mcmc(mod, ...)
+}
+```
+
+```{r}
+parallel::clusterExport(cl, c("mcmc", "run_mcmc", "run_filter"))
+ans <- parallel::clusterApply(cl, seed, run_mcmc, data, c(0.91, 1), 20)
+```
+
+This produces a list of samples from each of the 8 chains, run over 4 nodes, each of which ran using 2 threads.  We can scale any of this parallelism (increasing threads until we hit the total number of particles, increasing nodes until we hit the number of chains) but the results will be deterministic (except for the call to `runif` that we use here for the acceptance test within the MCMC).
+
+Note that in creating the seed above we left `n_streams` as the default (1) because the dust model constructor will take care of expanding out per-particle seeds via a series of jumps.
+
+You should be careful with these approaches to not exceed the compute available to you, especially when using a multi-user system such as an HPC.
+
+## Summary
+
+* *Simplest*: create a set of suitable rng seeds on the controlling node and send them to the worker nodes, don't try and continue calculations afterwards.
+* Create a set of pointer objects which could be used on the controlling process first, then sent to the worker nodes
+* *Hardest*: create a set of pointer objects and send them to the worker nodes, then at the end of the calculation synchronise the state and return to the controlling node
+
+---
+
+[^1] It's hard to get a sense of these numbers but `2^128` is about `10^38` draws. If we draw a billion numbers a second (the rate on a reasonable CPU) this would take 3 x 10^21 years to reach the next stream, which is a small fraction of the age of the universe (13 x 10^9 years).
