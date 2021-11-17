@@ -45,7 +45,6 @@ test_that("Fetch types from generators", {
 
   p <- dust_rng_distributed_pointer(1, 3, algorithm = res)
   expect_equal(p[[1]]$algorithm, algorithm)
-  ## This still looks problematic;
   expect_equal(
     p[[1]]$state(),
     dust_rng_pointer$new(1, 3, algorithm = algorithm)$state())

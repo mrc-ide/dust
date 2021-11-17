@@ -333,4 +333,4 @@ You should be careful with these approaches to not exceed the compute available 
 
 ---
 
-[^1] It's hard to get a sense of these numbers but `2^128` is about `10^38` draws. If we draw a billion numbers a second (the rate on a reasonable CPU) this would take 3 x 10^21 years to reach the next stream, which is a small fraction of the age of the universe (13 x 10^9 years).
+[^1] It's hard to get a sense of these numbers but `2^128` is about `3 x 10^38` draws. If we draw a billion numbers (10^9) a second (1ns per draw is the rate on a reasonable CPU) we can draw 3 x 10^16 numbers a year, so at this rate it would take this would take 10^22 years to reach the next stream. In contrast, the universe is 13 billion years old (13 x 10^9 years).
