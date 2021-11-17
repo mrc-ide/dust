@@ -21,6 +21,8 @@ reference:
     contents:
       - dust_rng
       - dust_rng_pointer
+      - dust_rng_distributed_state
+      - dust_rng_distributed_pointer
       - dust_rng_state_long_jump
 
   - title: Run in parallel with OpenMP
@@ -55,8 +57,9 @@ articles:
       - rng
       - rng_algorithms
       - rng_package
+      - rng_distributed
 
-  - title: Use cases
+  - title: Dive deeper
     navbar: Dive deeper
     contents:
       - data
