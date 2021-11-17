@@ -1,3 +1,7 @@
+# dust 0.11.15
+
+* New support for setting up distributed parallel random seeds (`dust::dust_rng_distributed_state` and `dust::dust_rng_distributed_pointer`), and documentation to guide their use (`vignette("rng_distributed")`) (#297)
+
 # dust 0.11.11
 
 * Removed methods `$set_state`, `$reset` and `$set_pars` which were deprecated in favour of `$update_state` in 0.9.21 (#273)
