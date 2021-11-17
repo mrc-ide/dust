@@ -30,29 +30,15 @@ __host__ __device__
 void multinomial(rng_state_type& rng_state, int size, const T& prob,
                  int prob_len, U& ret) {
   real_type p_tot = 0;
-#ifdef __CUDA_ARCH__
   for (int i = 0; i < prob_len; ++i) {
     if (prob[i] < 0) {
-      printf("Negative prob passed to multinomial\n");
-      __trap();
+      dust::utils::fatal_error("Negative prob passed to multinomial");
     }
     p_tot += prob[i];
   }
   if (p_tot == 0) {
-    printf("No positive prob in call to multinomial\n");
-    __trap();
+    dust::utils::fatal_error("No positive prob in call to multinomial");
   }
-#else
-  for (int i = 0; i < prob_len; ++i) {
-    if (prob[i] < 0) {
-      throw std::runtime_error("Negative prob passed to multinomial");
-    }
-    p_tot += prob[i];
-  }
-  if (p_tot == 0) {
-    throw std::runtime_error("No positive prob in call to multinomial");
-  }
-#endif
 
   for (int i = 0; i < prob_len - 1; ++i) {
     if (prob[i] > 0) {
