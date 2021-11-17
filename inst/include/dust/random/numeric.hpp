@@ -96,6 +96,12 @@ __host__ __device__ real_type infinity() {
 #endif
 }
 
+// this is required because std::min is not available on the device
+template <typename real_type>
+__host__ __device__ real_type min(real_type a, real_type b) {
+  return a < b ? a : b;
+}
+
 }
 }
 }
