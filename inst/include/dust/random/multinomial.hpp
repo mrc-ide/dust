@@ -26,23 +26,24 @@ namespace random {
 // with use from odin code.
 template <typename real_type, typename rng_state_type,
           typename T, typename U>
+__host__ __device__
 void multinomial(rng_state_type& rng_state, int size, const T& prob,
                  int prob_len, U& ret) {
   real_type p_tot = 0;
   for (int i = 0; i < prob_len; ++i) {
     if (prob[i] < 0) {
-      throw std::runtime_error("Negative prob passed to multinomial");
+      dust::utils::fatal_error("Negative prob passed to multinomial");
     }
     p_tot += prob[i];
   }
   if (p_tot == 0) {
-    throw std::runtime_error("No positive prob in call to multinomial");
+    dust::utils::fatal_error("No positive prob in call to multinomial");
   }
 
   for (int i = 0; i < prob_len - 1; ++i) {
     if (prob[i] > 0) {
-      const real_type pi = std::min(static_cast<real_type>(prob[i]) / p_tot,
-                                    static_cast<real_type>(1));
+      const real_type pi = utils::min(static_cast<real_type>(prob[i]) / p_tot,
+                                      static_cast<real_type>(1));
       ret[i] = binomial<real_type>(rng_state, size, pi);
       size -= ret[i];
       p_tot -= prob[i];

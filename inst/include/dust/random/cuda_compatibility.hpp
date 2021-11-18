@@ -1,6 +1,8 @@
 #ifndef DUST_RANDOM_CUDA_COMPATIBILITY_HPP
 #define DUST_RANDOM_CUDA_COMPATIBILITY_HPP
 
+#include <stdexcept>
+
 // There are 3 different ways we hit this file:
 //
 // *  __CUDA_ARCH__ is defined: we're compiling under nvcc generating
@@ -38,5 +40,24 @@
 #define CONSTANT const
 #define SYNCWARP
 #endif
+
+namespace dust {
+namespace utils {
+
+// We cannot throw errors in GPU code, we can only send a trap signal,
+// which is unrecoverable.
+__host__ __device__
+inline void fatal_error(const char *message) {
+#ifdef __CUDA_ARCH__
+  printf(message);
+  printf("\n");
+  __trap();
+#else
+  throw std::runtime_error(message);
+#endif
+}
+
+}
+}
 
 #endif
