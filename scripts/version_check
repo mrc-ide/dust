@@ -21,6 +21,9 @@ fi
 
 EXIT_CODE=0
 
+echo "Updating remote git data"
+git fetch
+
 BRANCH_DEFAULT=$(git remote show origin | awk '/HEAD branch/ {print $NF}')
 LAST_TAG=$(git describe --tags --abbrev=0 "origin/${BRANCH_DEFAULT}")
 
@@ -37,9 +40,6 @@ else
         EXIT_CODE=1
     fi
 fi
-
-echo "Updating remote git data"
-git fetch
 
 if git rev-parse "$TAG" >/dev/null 2>&1; then
     echo "[ERROR] Tag $TAG already exists - update version number"
