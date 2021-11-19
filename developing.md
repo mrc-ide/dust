@@ -7,7 +7,12 @@ Adding new methods to the dust object requires a few steps (most of which will b
 * If you make any changes to the dust class interface (updating a method, adding an argument or changing the documentation) you must run `./scripts/update_dust_generator` before running `devtools::document()`. Running `make roxygen` will do this for you
 * The gpu vignette is built offline because it requires access to a CUDA toolchain and compatible device.  The script `./scripts/build_gpu_vignette` will update the version in the package
 
+## Versioning
+
 All PRs, no matter small, must increase the version number. This is enforced by github actions. We aim to use [semanitic versioning](https://semver.org/) as much as is reasonable, but our main aim is that all commits to master are easily findable in future.
+
+* If you make any change you will need to increase the version number in `DESCRIPTION` before the GitHub actions checks will pass
+* If you make any changes in `inst/include/dust` then you also need to run `./scripts/update_version` to reflect this new version number into the header file contents. This is also automatically checked on GitHub actions.
 
 ## Random number library
 
