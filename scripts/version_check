@@ -21,7 +21,10 @@ fi
 
 EXIT_CODE=0
 
-if git diff --quiet origin/master.. -- inst/include; then
+BRANCH_DEFAULT=$(git remote show origin | awk '/HEAD branch/ {print $NF}')
+LAST_TAG=$(git describe --tags --abbrev=0 "origin/${BRANCH_DEFAULT}")
+
+if git diff --quiet $LAST_TAG.. -- inst/include; then
     echo "Include files have not changed since last merge"
 else
     echo "Include files have changed since last merge"
@@ -49,8 +52,6 @@ MAJOR=$(echo $VERSION | cut -d. -f1)
 MINOR=$(echo $VERSION | cut -d. -f2)
 PATCH=$(echo $VERSION | cut -d. -f3)
 
-BRANCH_DEFAULT=$(git remote show origin | awk '/HEAD branch/ {print $NF}')
-LAST_TAG=$(git describe --tags --abbrev=0 "origin/${BRANCH_DEFAULT}")
 LAST_VERSION=$(echo "$LAST_TAG" | sed 's/^v//')
 LAST_MAJOR=$(echo $LAST_VERSION | cut -d. -f1)
 LAST_MINOR=$(echo $LAST_VERSION | cut -d. -f2)
