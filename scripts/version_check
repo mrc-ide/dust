@@ -13,21 +13,36 @@ TAG="v${VERSION}"
 echo "Proposed version number '$VERSION'"
 
 if echo "$VERSION" | grep -Eq "[0-9]+[.][0-9]+[.][0-9]+"; then
-    echo "Version number in correct format"
+    echo "[OK] Version number in correct format"
 else
-    echo "Invalid format version number '$VERSION' must be in format 'x.y.z'"
+    echo "[ERROR] Invalid format version number '$VERSION' must be in format 'x.y.z'"
     exit 1
-    echo "not found"
+fi
+
+EXIT_CODE=0
+
+if git diff --quiet origin/master.. -- inst/include; then
+    echo "Include files have not changed since last merge"
+else
+    echo "Include files have changed since last merge"
+    PATH_VERSION_HPP=inst/include/dust/random/version.hpp
+    VERSION_HPP=$(grep DUST_VERSION_STRING  $PATH_VERSION_HPP | cut -d' '  -f3)
+    if [[ "$VERSION_HPP" == "$VERSION" ]]; then
+        echo "[OK] $PATH_VERSION_HPP matches DESCRIPTION"
+    else
+        echo "[ERROR] $PATH_VERSION_HPP needs updating DESCRIPTION"
+        EXIT_CODE=1
+    fi
 fi
 
 echo "Updating remote git data"
 git fetch
 
 if git rev-parse "$TAG" >/dev/null 2>&1; then
-    echo "Tag $TAG already exists - update version number"
+    echo "[ERROR] Tag $TAG already exists - update version number"
     exit 1
 else
-    echo "Version number not yet present as git tag"
+    echo "[OK] Version number not yet present as git tag"
 fi
 
 MAJOR=$(echo $VERSION | cut -d. -f1)
@@ -42,15 +57,15 @@ LAST_MINOR=$(echo $LAST_VERSION | cut -d. -f2)
 LAST_PATCH=$(echo $LAST_VERSION | cut -d. -f3)
 
 if (( $MAJOR > $LAST_MAJOR )); then
-    echo "Increasing MAJOR version"
-    exit 0
+    echo "[OK] Increasing MAJOR version"
+    exit $EXIT_CODE
 elif (( $MINOR > $LAST_MINOR )); then
-    echo "Increasing MINOR version"
-    exit 0
+    echo "[OK] Increasing MINOR version"
+    exit $EXIT_CODE
 elif (( $PATCH > $LAST_PATCH )); then
-    echo "Increasing PATCH version"
-    exit 0
+    echo "[OK] Increasing PATCH version"
+    exit $EXIT_CODE
 else
-    echo "Version number has not increased relative to $LAST_VERSION"
+    echo "[ERROR] Version number has not increased relative to $LAST_VERSION"
     exit 1
 fi
