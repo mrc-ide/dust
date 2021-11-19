@@ -22,10 +22,12 @@ fi
 EXIT_CODE=0
 
 echo "Updating remote git data"
-git fetch
+git fetch --quiet
 
 BRANCH_DEFAULT=$(git remote show origin | awk '/HEAD branch/ {print $NF}')
 LAST_TAG=$(git describe --tags --abbrev=0 "origin/${BRANCH_DEFAULT}")
+
+echo "Last tag was $LAST_TAG"
 
 if git diff --quiet $LAST_TAG.. -- inst/include; then
     echo "Include files have not changed since last merge"
