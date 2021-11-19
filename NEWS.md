@@ -1,3 +1,7 @@
+# dust 0.11.17
+
+* Remove `dust::dust_rng_state_long_jump` now that we have proper distributed RNG state support (#343)
+
 # dust 0.11.15
 
 * New support for setting up distributed parallel random seeds (`dust::dust_rng_distributed_state` and `dust::dust_rng_distributed_pointer`), and documentation to guide their use (`vignette("rng_distributed")`) (#297)
