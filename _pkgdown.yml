@@ -23,7 +23,6 @@ reference:
       - dust_rng_pointer
       - dust_rng_distributed_state
       - dust_rng_distributed_pointer
-      - dust_rng_state_long_jump
 
   - title: Run in parallel with OpenMP
     desc: >-
