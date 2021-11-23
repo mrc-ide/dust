@@ -1,7 +1,10 @@
 #!/bin/bash
+set -x
 (cd sphinx && doxygen)
 make -C sphinx/examples
 mkdir -p sphinx/_static
 make -C sphinx html
-rm -rf docs/cpp
+rm -rf docs
+Rscript -e 'pkgdown::build_site(devel = FALSE, preview = FALSE, install = FALSE)'
+touch docs/.nojekyll
 cp -r sphinx/_build/html docs/cpp
