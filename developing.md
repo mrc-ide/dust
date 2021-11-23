@@ -1,4 +1,8 @@
-## Developing dust
+# Developing dust
+
+As the project has grown, we've added a few processes around updating parts of the package.
+
+## Adding features
 
 Adding new methods to the dust object requires a few steps (most of which will be caught by CI)
 
