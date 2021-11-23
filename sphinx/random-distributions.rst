@@ -14,7 +14,7 @@ Normal
 
 .. doxygenfunction:: dust::random::normal
 
-The enum `dust::random::algorithm::normal` controls the normal algorithm used for a given draw
+The enum ``dust::random::algorithm::normal`` controls the normal algorithm used for a given draw
 
 .. doxygenenum:: dust::random::algorithm::normal
 
