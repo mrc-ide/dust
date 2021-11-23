@@ -34,11 +34,12 @@ if git diff --quiet $LAST_TAG.. -- inst/include; then
 else
     echo "Include files have changed since last merge"
     PATH_VERSION_HPP=inst/include/dust/random/version.hpp
-    VERSION_HPP=$(grep DUST_VERSION_STRING  $PATH_VERSION_HPP | cut -d' '  -f3)
+    VERSION_HPP=$(grep DUST_VERSION_STRING  $PATH_VERSION_HPP | \
+                      cut -d' '  -f3 | sed -e 's/"//g')
     if [[ "$VERSION_HPP" == "$VERSION" ]]; then
         echo "[OK] $PATH_VERSION_HPP matches DESCRIPTION"
     else
-        echo "[ERROR] $PATH_VERSION_HPP needs updating DESCRIPTION"
+        echo "[ERROR] $PATH_VERSION_HPP needs updating to match DESCRIPTION"
         EXIT_CODE=1
     fi
 fi
