@@ -232,6 +232,24 @@ real_type binomial_stochastic(rng_state_type& rng_state, int n, real_type p) {
   return draw;
 }
 
+/// Draw a binomially distributed random number; the number of
+/// successes given `n` trials each with probability `p`. Generation
+/// is performed using a rejection-sampling algorithm or inversion
+/// depending on the expected mean (`n * p`).
+///
+/// @tparam real_type The underlying real number type, typically
+/// `double` or `float`. A compile-time error will be thrown if you
+/// attempt to use a non-floating point type (based on
+/// `std::is_floating_point).
+///
+/// @tparam rng_state_type The random number state type
+///
+/// @param rng_state Reference to the random number state, will be
+/// modified as a side-effect
+///
+/// @param n The number of trials
+///
+/// @param p The probability of success of each trial
 template <typename real_type, typename rng_state_type>
 __host__ __device__
 real_type binomial(rng_state_type& rng_state, real_type n, real_type p) {

@@ -48,6 +48,15 @@
 namespace dust {
 namespace random {
 
+/// Jump the random number state forward by a number of steps equal to
+/// the square root of the sequence length.  The xoshiro256 generators
+/// have a sequence length of 2^256 and so a jump is equivalent to
+/// 2^128 steps.
+///
+/// @tparam T The random number generator state type; this will be
+/// inferred based on the argument
+///
+/// @param state The random number state, will be updated as a side effect
 template <typename T>
 inline __host__ void jump(T& state) {
   using int_type = typename T::int_type;
@@ -56,6 +65,16 @@ inline __host__ void jump(T& state) {
   rng_jump_state(state, jump);
 }
 
+
+/// Jump the random number state forward by a number of steps equal to
+/// the period raised to 3/4s.  The xoshiro256 generators have a
+/// sequence length of 2^256 and so a jump is equivalent to 2^192
+/// steps.
+///
+/// @tparam T The random number generator state type; this will be
+/// inferred based on the argument
+///
+/// @param state The random number state, will be updated as a side effect
 template <typename T>
 inline __host__ void long_jump(T& state) {
   using int_type = typename T::int_type;
@@ -87,6 +106,12 @@ void rng_jump_state(T& state,
   }
 }
 
+/// @tparam T The generator type
+///
+/// @param state A generator state to write to
+///
+/// @param seed integer seed; any value is suitable as it will be
+/// passed though `splitmix64`
 template <typename T>
 __host__ void seed(T& state, uint64_t seed) {
   constexpr size_t n = T::size();
@@ -97,6 +122,9 @@ __host__ void seed(T& state, uint64_t seed) {
   }
 }
 
+/// @tparam T The generator type
+/// @param seed integer seed
+/// @return A generator state (type `T`)
 template <typename T>
 __host__ T seed(uint64_t seed) {
   T state;
@@ -113,7 +141,17 @@ __host__ std::vector<typename T::int_type> seed_data(uint64_t seed) {
   return ret;
 }
 
-// This is the workhorse function
+/// Generate a real number U(0, 1)
+///
+/// @tparam T The real type to return, typically `double` or `float`;
+/// because this affects the return value only it must be provided.
+///
+/// @tparam U The random number generator state type; this will be
+/// inferred based on the argument
+///
+/// @param state The random number state, will be updated as a side effect
+///
+/// @return A real-valued random number on (0, 1]
 template <typename T, typename U>
 __host__ __device__
 T random_real(U& state) {
@@ -121,6 +159,19 @@ T random_real(U& state) {
   return int_to_real<T>(value);
 }
 
+/// Generate a random integer of a given width
+///
+/// @tparam T The integer type to generate, such as `uint64_t`. Both
+/// signed and unsigned integers can be provided here. Because this
+/// affects the return value only it must be provided.
+///
+/// @tparam U The random number generator state type; this will be
+/// inferred based on the argument
+///
+/// @param state The random number state, will be updated as a side effect
+///
+/// @return An integer valued number, uniformly distributed anywhere
+/// within the range of the given integer type.
 template <typename T, typename U>
 __host__ __device__
 T random_int(U& state) {

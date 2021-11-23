@@ -118,8 +118,25 @@ real_type poisson_hormann(rng_state_type& rng_state, real_type lambda) {
   return x;
 }
 
-// NOTE: we return a real, not an int, as with deterministic mode this
-// will not necessarily be an integer
+/// Draw a Poisson distributed random number given a mean
+/// parameter. Generation is performed using either Knuth's algorithm
+/// (small lambda) or a Hormann's rejection sampling algorithm (large
+/// lambda).
+///
+/// @tparam real_type The underlying real number type, typically
+/// `double` or `float`. A compile-time error will be thrown if you
+/// attempt to use a non-floating point type (based on
+/// `std::is_floating_point).
+///
+/// @tparam rng_state_type The random number state type
+///
+/// @param rng_state Reference to the random number state, will be
+/// modified as a side-effect
+///
+/// @param lambda The mean of the distribution
+///
+/// @return We return a `real_type`, not an `int`, as with
+/// deterministic mode this will not necessarily be an integer
 __nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
 __host__ __device__

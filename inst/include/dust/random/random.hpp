@@ -11,6 +11,8 @@
 #include "dust/random/poisson.hpp"
 #include "dust/random/uniform.hpp"
 
+#include "dust/random/version.hpp"
+
 namespace dust {
 namespace random {
 
