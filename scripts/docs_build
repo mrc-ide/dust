@@ -1,0 +1,7 @@
+#!/bin/bash
+(cd sphinx && doxygen)
+make -C sphinx/examples
+mkdir -p sphinx/_static
+make -C sphinx html
+rm -rf docs/cpp
+cp -r sphinx/_build/html docs/cpp
