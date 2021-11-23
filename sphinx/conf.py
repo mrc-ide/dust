@@ -25,7 +25,7 @@ for i in description:
         version = i.replace("Version:", "").strip()
 
 project = 'dust'
-copyright = '2021, Imperial College of Science, Technology and Medicine'
+project_copyright = '2021, Imperial College of Science, Technology and Medicine'
 author = 'Rich FitzJohn and John Lees'
 release = version
 
