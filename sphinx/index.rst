@@ -6,6 +6,5 @@ dust C++ documentation
    :caption: Contents:
 
    random
-   random-r
 
 This set of pages describes the ``dust`` C++ API in more detail than that discussed in the main ``dust`` documentation.  Principally it covers the random number library.

@@ -1,39 +1,31 @@
 Random number generation
 ========================
 
-To cover: (1) seeding a generator, (2) controlling multiple streams, (3) drawing from different distributions
+To generate random numbers we need to
 
-Seeding
--------
+1. include ``<dust/random/random.hpp>``
+2. decide on the generator algorithm to use
+3. seed a random number state
+4. draw numbers using some distribution function
 
-* ``dust::random::seed`` (two forms)
+A simple complete example looks like
 
-Random number state
--------------------
+.. literalinclude:: examples/random-simple.cpp
 
-* ``dust::random::xoshiro_state`` and type ``int_type``, static method ``size``
-* ``dust::random::next`` (is this public?)
-* ``dust::random::random_real``
-* ``dust::random::random_int``
-* ``dust::random::jump``
-* ``dust::random::long_jump``  
+which produces output:
 
-Parallel random number object
------------------------------
+.. literalinclude:: examples/random-simple.out
+   :language: text
 
-* construct ``prng``
-* methods - ``size``, ``jump`` (delete?), ``long_jump``, ``state``, ``export_state``, ``import_state``, ``deterministic``
+.. toctree::
+   :maxdepth: 1
+   :caption: Contents:
 
-Distributions
--------------
-
-* ``dust::random::binomial``
-* ``dust::random::exponential``
-* ``dust::random::multinomial``
-* ``dust::random::poisson``
-* ``dust::random::uniform``
-
-Version
--------
-
-* ``DUST_VERSION_(MAJOR|MINOR|PATCH|STRING|CODE)``
+   random-state
+   random-seed
+   random-primitive
+   random-distributions
+   random-jump
+   random-parallel
+   random-version
+   random-r

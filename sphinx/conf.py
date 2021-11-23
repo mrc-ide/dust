@@ -60,3 +60,6 @@ html_static_path = ['_static']
 
 breathe_projects = { "dust": "doxygen/xml" }
 breathe_default_project = "dust"
+breathe_show_define_initializer = True
+
+cpp_id_attributes = ["__host__", "__device__", "__nv_exec_check_disable__"]
