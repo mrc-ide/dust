@@ -63,4 +63,4 @@ jobs:
         run: ./scripts/docs_build
 
       - name: Deploy site
-        run: ./scripts/docs_deploy
+        run: ./scripts/docs_push

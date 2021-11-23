@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -e
+
+VERSION=$(git rev-parse --short HEAD)
+REMOTE_URL=$(git config --get remote.origin.url)
+
+rm -rf docs/.git
+git init docs
+
+cp .git/config docs/.git
+
+git -C docs config --local user.email "actions@github.com"
+git -C docs config --local user.name "GitHub Actions"
+git -C docs checkout --orphan gh-pages
+git -C docs add .
+git -C docs commit --no-verify -m "Update docs for version ${VERSION}"
+git -C docs push --force -u origin gh-pages
