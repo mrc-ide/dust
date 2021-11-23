@@ -69,20 +69,10 @@ We do not yet support the full set of distributions provided by R, and the distr
 rng$uniform(10, 3, 6)
 ```
 
-From C++
-
-```cc
-real_type u = dust::random::uniform<real_type>(state, 3, 6);
-```
-
 **Normal distribution** with parameters `mean` and `sd`
 
 ```{r}
 rng$normal(10, 3, 6)
-```
-
-```cc
-real_type z = dust::random::normal<real_type>(state, 3, 6);
 ```
 
 This function supports using the ziggurat algorithm, which will generally be faster:
@@ -91,30 +81,16 @@ This function supports using the ziggurat algorithm, which will generally be fas
 rng$normal(10, 3, 6, algorithm = "ziggurat")
 ```
 
-```cc
-real_type z = dust::random::normal<real_type, dust::random::normal::algorithm::ziggurat>(state, 3, 6);
-```
-
 **Poisson distribution** with mean `lambda`
 
 ```{r}
 rng$poisson(10, 4.5)
 ```
 
-```cc
-real_type n = dust::random::poisson<real_type>(state, 4.5);
-```
-
-(even though this is a logical integer, we return an `int` here)
-
 **Binomial distribution** with mean `size` and `prob`
 
 ```{r}
 rng$binomial(10L, 10, 0.3)
-```
-
-```cc
-real_type n = dust::random::binomial<real_type>(state, 10, 0.3);
 ```
 
 **Exponential distribution** with rate `rate`
@@ -124,27 +100,11 @@ real_type n = dust::random::binomial<real_type>(state, 10, 0.3);
 rng$exponential(10L, 4)
 ```
 
-``cc
-real_type z = dust::random::exponential<real_type>(state, 4);
-``
 
 **Multinomial distribution** with parameters `size` and `prob`
 
 ```{r}
 rng$multinomial(10L, 20, c(0.3, 0.5, 0.2))
-```
-
-Two main interfaces for this from C++
-
-```cc
-std::vector<real_type> prob{0.3, 0.5, 0.2};
-
-// allocating a new vector
-std::vector<real_type> dust::rng::multinomial<real_type>(state, 20, prob);
-
-// set into existing vector
-std::vector<real_type> dest(3);
-dust::rng::multinomial<real_type>(state, 20, prob, dest);
 ```
 
 There are also two special case distributions, the **Standard uniform distribution** (between 0 and 1) - faster than using `$uniform(n, 0, 1)`:
@@ -166,6 +126,8 @@ rng$random_normal(10)
 ```cc
 real_type u = dust::random::random_normal<real_type>(state);
 ```
+
+All of these distributions are available in C++, and this is documented [in the C++ reference documentation](https://mrc-ide.github.io/dust/cpp/random-distributions.html)
 
 ## Performance
 
