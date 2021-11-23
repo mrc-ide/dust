@@ -1,12 +1,15 @@
 on:
   push:
-    branches: master
+    branches:
+      - master
+      - main
+      - i354-cpp-docs
 
 name: pkgdown
 
 jobs:
   pkgdown:
-    runs-on: macOS-latest
+    runs-on: ubuntu-20.04
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -38,6 +41,13 @@ jobs:
 
       - name: Install package
         run: R CMD INSTALL .
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
+      - name: Build site
+        run: |
+          pkgdown::build_site(devel = FALSE, preview = FALSE, install = FALSE, new_process = FALSE)
 
       - name: Deploy package
         run: |
