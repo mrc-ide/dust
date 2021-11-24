@@ -63,3 +63,9 @@ breathe_default_project = "dust"
 breathe_show_define_initializer = True
 
 cpp_id_attributes = ["__host__", "__device__", "__nv_exec_check_disable__"]
+
+# Tell sphinx what the primary language being documented is.
+primary_domain = 'cpp'
+
+# Tell sphinx what the pygments highlight language should be.
+highlight_language = 'cpp'
