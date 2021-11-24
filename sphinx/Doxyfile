@@ -1,0 +1,9 @@
+PROJECT_NAME           = "dust"
+OUTPUT_DIRECTORY       = doxygen
+EXTRACT_ALL            = YES
+INPUT                  = ../inst/include
+FILE_PATTERNS          = *.hpp
+RECURSIVE              = YES
+GENERATE_HTML          = NO
+GENERATE_LATEX         = NO
+GENERATE_XML           = YES

@@ -1,4 +1,8 @@
-## Developing dust
+# Developing dust
+
+As the project has grown, we've added a few processes around updating parts of the package.
+
+## Adding features
 
 Adding new methods to the dust object requires a few steps (most of which will be caught by CI)
 
@@ -29,3 +33,11 @@ As the project has become more complex, keeping the headers under control has be
 * Only include cpp11 (or R) files from files within `dust/r/`; within these files throw errors only with `throw`, not with `cpp11::stop` (these errors will be correctly caught).
 
 The script `scripts/check_headers` will validate that headers are self contained and that only interface headers include `cpp11` files (directly or indirectly).
+
+## Documentation
+
+There are lots of places to consider putting documentation
+
+* Following R package standards, all user facing functions must be documented and have examples, we use roxygen for this (generates files in `man/`).
+* Vignettes form the backbone of the documentation. Mostof these are directly built as normal (in `vignettes/`) but a few are precomputed (see [`vignettes_src/`](vignette_src)) where they need special resources such as access to a GPU or more cores than usually available.
+* The C++ interface is documented using [doxygen](https://www.doxygen.nl/index.html) tags within API functions, and then compiled to html using [sphinx](https://www.sphinx-doc.org/)/[breathe](https://breathe.readthedocs.io/en/latest/).  Running `./scripts/docs_build_cpp` will build these at `sphinx/_build/html` for local development

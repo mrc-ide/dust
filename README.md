@@ -35,6 +35,8 @@ And several on the random number generator, around which dust is built:
 * `vignette("rng_algorithms")` on the details of algorithms used to sample from some distributions
 * `vignette("rng_package")` on using the generators from other packages
 
+The C++ API is documented in a separate [set of documentation](cpp)
+
 You can also read our open access paper describing `dust` and some related tools that use it:
 
 > [FitzJohn, Knock, Whittles, Perez-Guizman, Bhatia, Guntoro, Watson, Whittaker, Ferguson, Cori, Baguelin, Lees 2021: Reproducible parallel inference and simulation of stochastic state space models using odin, dust, and mcstate, Wellcome Open Research 5, 288](https://wellcomeopenresearch.org/articles/5-288/v2)

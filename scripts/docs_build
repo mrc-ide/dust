@@ -1,0 +1,8 @@
+#!/bin/bash
+set -x
+./scripts/docs_build_cpp
+
+rm -rf docs
+Rscript -e 'pkgdown::build_site(devel = FALSE, preview = FALSE, install = FALSE)'
+touch docs/.nojekyll
+cp -r sphinx/_build/html docs/cpp

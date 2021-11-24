@@ -51,7 +51,7 @@ and then run it with
 
 ```r
 pi_r(1e6)
-#> [1] 3.139764
+#> [1] 3.139504
 ```
 
 The key bits within the code above are that we:
@@ -80,7 +80,7 @@ rng
 #> <dust_rng_pointer>
 #>   Public:
 #>     algorithm: xoshiro256plus
-#>     initialize: function (seed = NULL, n_streams = 1L, algorithm = "xoshiro256plus")
+#>     initialize: function (seed = NULL, n_streams = 1L, long_jump = 0L, algorithm = "xoshiro256plus")
 #>     is_current: function ()
 #>     n_streams: 1
 #>     state: function ()
@@ -88,7 +88,7 @@ rng
 #>   Private:
 #>     is_current_: TRUE
 #>     ptr_: externalptr
-#>     state_: 17 99 d1 26 21 be f9 23 a5 17 9a 1f cd 97 61 d9 33 88 b6 ...
+#>     state_: 2f d6 21 97 9b 4f 43 00 59 87 46 42 d6 ff e5 e4 e8 de d7 ...
 ```
 
 Unlike the `dust::dust_rng` object there are no real useful methods on this object and from the R side we'll treat it as a black box. Importantly the `rng` object knows which algorithm it has been created to use
@@ -143,8 +143,10 @@ and then run it with
 
 ```r
 pi_dust(1e6, rng)
-#> [1] 3.141372
+#> [1] 3.14206
 ```
+
+The C++ interface is described in more detail in [the online documentation](https://mrc-ide.github.io/dust/cpp/)
 
 ## Parallel implementation with dust and OpenMP
 
@@ -202,7 +204,7 @@ Here we've made a number of decisions about how to split the problem up subject 
 ```r
 rng <- dust:::dust_rng_pointer$new(n_streams = 20)
 pi_dust_parallel(1e6, rng, 4)
-#> [1] 3.141179
+#> [1] 3.140963
 ```
 
 Unfortunately [`cpp11::cpp_source` does not support using OpenMP](https://github.com/r-lib/cpp11/issues/243) so in the example above the code will run in serial and we can't see if parallelisation will help.
@@ -300,10 +302,10 @@ bench::mark(
 #> # A tibble: 4 x 6
 #>   expression                           min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>                      <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 pi_dust_parallel(1e+06, rng, 1)     45ms   45.2ms      22.1        0B        0
-#> 2 pi_dust_parallel(1e+06, rng, 2)   22.5ms   22.7ms      44.0        0B        0
-#> 3 pi_dust_parallel(1e+06, rng, 3)   15.9ms   16.1ms      62.1        0B        0
-#> 4 pi_dust_parallel(1e+06, rng, 4)   11.5ms   11.6ms      86.3        0B        0
+#> 1 pi_dust_parallel(1e+06, rng, 1)   46.4ms   47.2ms      21.2        0B        0
+#> 2 pi_dust_parallel(1e+06, rng, 2)   23.1ms   23.8ms      42.1        0B        0
+#> 3 pi_dust_parallel(1e+06, rng, 3)   16.1ms   16.2ms      60.6        0B        0
+#> 4 pi_dust_parallel(1e+06, rng, 4)   11.6ms   12.5ms      73.6        0B        0
 ```
 
 ## More on the pointer object

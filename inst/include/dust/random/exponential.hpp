@@ -28,6 +28,21 @@ real_type exponential_rand(rng_state_type& rng_state) {
 #endif
 }
 
+/// Draw a exponentially distributed random number given a rate
+/// parameter. Generation is performed using inversion (faster
+/// algorithms exist but are not yet implemented).
+///
+/// @tparam real_type The underlying real number type, typically
+/// `double` or `float`. A compile-time error will be thrown if you
+/// attempt to use a non-floating point type (based on
+/// `std::is_floating_point).
+///
+/// @tparam rng_state_type The random number state type
+///
+/// @param rng_state Reference to the random number state, will be
+/// modified as a side-effect
+///
+/// @param rate The rate of the process
 __nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
 __host__ __device__

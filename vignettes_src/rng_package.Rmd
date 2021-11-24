@@ -103,6 +103,8 @@ and then run it with
 pi_dust(1e6, rng)
 ```
 
+The C++ interface is described in more detail in [the online documentation](https://mrc-ide.github.io/dust/cpp/)
+
 ## Parallel implementation with dust and OpenMP
 
 Part of the point of dust's random number generators is that they create independent streams of random numbers that can be safely used in parallel.

@@ -9,6 +9,20 @@ vignette: >
 
 <!-- HEADER -->
 
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  error = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
+lang_output <- function(x, lang) {
+  cat(c(sprintf("```%s", lang), x, "```"), sep = "\n")
+}
+cc_output <- function(x) lang_output(x, "cc")
+r_output <- function(x) lang_output(x, "r")
+plain_output <- function(x) lang_output(x, "plain")
+```
+
 This vignette assumes some familiarity with the dust approach to random numbers, though we provide pointers below to the relevant documentation for further discussion.
 
 The random number generator in `dust` is well suited to parallel calculations. On a single node we can set up a generator with many streams and then parallelise the calculation using OpenMP. The number of streams is either one per core or, typically better, one per logical unit of calculation (which may be the maximum number of threads, for example one stream per loop iteration). This is the approach taken by dust objects (`vignette("dust")`) and described for standalone use of the generators (`vignette("rng_package")`).

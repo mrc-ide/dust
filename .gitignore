@@ -22,3 +22,6 @@ vignettes_src/*.md
 
 inst/random/openmp/rnguse
 inst/random/openmp/Makefile
+
+sphinx/doxygen
+sphinx/_build

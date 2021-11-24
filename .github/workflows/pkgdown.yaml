@@ -1,14 +1,17 @@
 on:
   push:
-    branches: master
+    branches:
+      - master
+      - main
 
 name: pkgdown
 
 jobs:
   pkgdown:
-    runs-on: macOS-latest
+    runs-on: ubuntu-20.04
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      RSPM: https://packagemanager.rstudio.com/cran/__linux__/focal/latest
     steps:
       - uses: actions/checkout@v2
 
@@ -30,6 +33,16 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
           restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
 
+      - name: Install system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          set -x
+          while read -r cmd
+          do
+            eval sudo $cmd
+          done < <(Rscript -e 'cat(remotes::system_requirements("ubuntu", "20.04"), sep = "\n")')
+          sudo apt install libcurl4-openssl-dev libharfbuzz-dev
+
       - name: Install dependencies
         run: |
           remotes::install_deps(dependencies = TRUE)
@@ -39,8 +52,14 @@ jobs:
       - name: Install package
         run: R CMD INSTALL .
 
-      - name: Deploy package
+      - name: Install sphinx/doxygen dependencies
         run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
-          Rscript -e 'pkgdown::deploy_to_branch(new_process = FALSE)'
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends doxygen
+          sudo pip3 install --upgrade Sphinx breathe furo pygments
+
+      - name: Build site
+        run: ./scripts/docs_build
+
+      - name: Deploy site
+        run: ./scripts/docs_push

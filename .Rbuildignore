@@ -27,3 +27,4 @@
 ^inst/random/openmp/rnguse$
 ^inst/random/openmp/Makefile$
 ^_pkgdown\.yml$
+^sphinx$

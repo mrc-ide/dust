@@ -30,6 +30,20 @@ std::vector<typename rng_state_type::int_type> raw_seed(cpp11::raws seed_data) {
   return seed;
 }
 
+/// Create a seed vector from an R object
+///
+/// @tparam rng_state_type The random number state type to use; this
+/// is used to work out what type of integer is required and how many
+/// of them.
+///
+/// @param r_seed An R object to use as a seed. Valid options are:
+/// * a scalar integer (or integer-like number) which we pass to
+///   `dust::random::seed`
+/// * a vector of raw values, which we take as a serialised vector of
+///   integers of appropriate width.
+/// * the R value `NULL` (i.e., `R_NilValue`, **not** a C++ `nullptr`),
+///   in which case we draw a random integer from R's random number
+///   generator and pass that to `dust::random::seed`
 template <typename rng_state_type>
 std::vector<typename rng_state_type::int_type> as_rng_seed(cpp11::sexp r_seed) {
   using int_type = typename rng_state_type::int_type;
@@ -109,8 +123,20 @@ SEXP rng_pointer_init(int n_streams, cpp11::sexp r_seed, int long_jump) {
   return cpp11::writable::list({r_ptr, r_state});
 }
 
-// Start with the assumption that we'll pass in the R6 object, might
-// write a simpler version later.
+/// Recieve and check the pointer to rng state.  This checks that the
+/// object is valid, is of the correct state type, has sufficient
+/// streams and has not been invalidated by serialisation.
+///
+/// @tparam rng_state_type The random number state type to use
+///
+/// @param obj An `dust_rng_pointer` object, created in R with
+/// ``dust::dust_rng_pointer``
+///
+/// @param n_streams The number of required streams. Set this to 0 to
+/// disable the check.  If you are going to use 100 streams pass 100
+/// here, and a runtime error will be thrown if the object does not
+/// contain enough streams, which is nicer than a crash when
+/// `prng::state` fails.
 template <typename rng_state_type>
 prng<rng_state_type>* rng_pointer_get(cpp11::environment obj,
                                       int n_streams = 0) {
