@@ -23,10 +23,10 @@ Every random number state uses one of the three scrambler options, described bas
 .. doxygenenum:: dust::random::scrambler
 
 
-Concrete types
---------------
+Random number generation algorithms
+-----------------------------------
 
-We then define 12 user-usable types:
+We then define 12 user-usable types, each representing a different algorithm:
 
 **32-bit generators**, suitable for generating `float` values
 
