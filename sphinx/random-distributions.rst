@@ -1,7 +1,7 @@
 Distributions
 =============
 
-Our distribution support will grow over time. If you need a distribution that is not yet supported please `post an issue <https://github.com/mrc-ide/dust/issues/>`_.
+Our distribution support will grow over time. If you need a distribution that is not yet supported please `post an issue <https://github.com/mrc-ide/dust/issues/>`__.
 
 
 Uniform

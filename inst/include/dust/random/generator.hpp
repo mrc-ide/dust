@@ -50,7 +50,7 @@ namespace random {
 
 /// Jump the random number state forward by a number of steps equal to
 /// the square root of the sequence length.  The xoshiro256 generators
-/// have a sequence length of 2^256 and so a jump is equivalent to
+/// have a sequence length of 2^256 and so each of these jumps is equivalent to
 /// 2^128 steps.
 ///
 /// @tparam T The random number generator state type; this will be
@@ -68,7 +68,7 @@ inline __host__ void jump(T& state) {
 
 /// Jump the random number state forward by a number of steps equal to
 /// the period raised to 3/4s.  The xoshiro256 generators have a
-/// sequence length of 2^256 and so a jump is equivalent to 2^192
+/// sequence length of 2^256 and so each of these jumps is equivalent to 2^192
 /// steps.
 ///
 /// @tparam T The random number generator state type; this will be

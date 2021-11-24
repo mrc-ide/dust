@@ -30,7 +30,7 @@ real_type exponential_rand(rng_state_type& rng_state) {
 
 /// Draw a exponentially distributed random number given a rate
 /// parameter. Generation is performed using inversion (faster
-/// algorithms exist but are not implemented).
+/// algorithms exist but are not yet implemented).
 ///
 /// @tparam real_type The underlying real number type, typically
 /// `double` or `float`. A compile-time error will be thrown if you
