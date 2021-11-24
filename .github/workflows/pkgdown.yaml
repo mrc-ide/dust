@@ -3,7 +3,6 @@ on:
     branches:
       - master
       - main
-      - i354-cpp-docs
 
 name: pkgdown
 
