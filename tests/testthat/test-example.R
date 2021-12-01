@@ -816,3 +816,10 @@ test_that("sirs model has gpu support", {
   expect_false(mod2$uses_gpu())
   expect_true(mod2$uses_gpu(TRUE))
 })
+
+
+test_that("variable model includes info", {
+  gen <- dust_example("variable")
+  model <- gen$new(list(len = 10, sd = 1), 0, 10)
+  expect_equal(model$info(), list(len = 10))
+})

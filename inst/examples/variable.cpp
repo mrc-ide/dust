@@ -59,6 +59,12 @@ dust::pars_type<variable> dust_pars<variable>(cpp11::list pars) {
   return dust::pars_type<variable>(shared);
 }
 
+template <>
+cpp11::sexp dust_info<variable>(const dust::pars_type<variable>& pars) {
+  using namespace cpp11::literals;
+  return cpp11::writable::list({"len"_nm = pars.shared->len});
+}
+
 namespace gpu {
 
 template <>
