@@ -1,0 +1,289 @@
+---
+title: "RNG C++ interface"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{RNG C++ interface}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  error = FALSE,
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5)
+cppdoc::cppdoc_register("dust")
+```
+
+This vignette describes the C++ API to `dust`'s random number generation and distribution library, and is primarily of interest to people who want to repurpose the random number generators for other projects (either from R or as a standalone C++ project).  The section on distributions may be of more general interest, but `dust` will typically take care of handling random number state for you.
+
+To generate random numbers from C++ we need to:
+
+1. include `<dust/random/random.hpp>`
+2. decide on the generator algorithm to use
+3. seed a random number state
+4. draw numbers using some distribution function
+
+A simple complete example looks like:
+
+```{cppdoc}
+cppdoc_example("random-simple")
+```
+
+Below, we cover each of these steps in more detail.
+
+# Random number state
+
+Typically, you don't need to think much about the state used; in the simple example we do
+
+```{cppdoc}
+cppdoc_example("random-simple")
+```
+
+This pattern will typically be sufficient - use `dust::random::generator` to select an appropriate algorithm for your floating point type, and use `auto` to save it.  This will select `dust::random::xoshiro256plus` for `double` and `dust::random::xoshiro128plus` for `float`
+
+## Core state class
+
+Every random number state is built on the same core class
+
+```{cppdoc}
+cppdoc_class("dust::random::xoshiro_state")
+```
+
+Every random number state uses one of the three scrambler options, described based on the mathematical operations they perform when creating the final integer from the generator
+
+```{cppdoc}
+cppdoc_enum("dust::random::scrambler")
+```
+
+## Random number generation algorithms
+
+We then define 12 user-usable types, each representing a different algorithm:
+
+**32-bit generators**, suitable for generating `float` values
+
+```{cppdoc}
+cppdoc_typedef("dust::random::xoshiro128starstar")
+cppdoc_typedef("dust::random::xoshiro128plusplus")
+cppdoc_typedef("dust::random::xoshiro128plus")
+```
+
+**64 bit generators**, suitable for generating either `double` or `float` values, but differing in the size of the internal state:
+
+*128 bits*:
+
+```{cppdoc}
+cppdoc_typedef("dust::random::xoroshiro128starstar")
+cppdoc_typedef("dust::random::xoroshiro128plusplus")
+cppdoc_typedef("dust::random::xoroshiro128plus")
+```
+
+*256 bits*:
+
+```{cppdoc}
+cppdoc_typedef("dust::random::xoshiro256starstar")
+cppdoc_typedef("dust::random::xoshiro256plusplus")
+cppdoc_typedef("dust::random::xoshiro256plus")
+```
+
+*512 bits*:
+
+```{cppdoc}
+cppdoc_typedef("dust::random::xoshiro512starstar")
+cppdoc_typedef("dust::random::xoshiro512plusplus")
+cppdoc_typedef("dust::random::xoshiro512plus")
+```
+
+## Example
+
+```{cppdoc}
+cppdoc_example("random-state")
+```
+
+# Seeding
+
+We can initialise the random number state with any state that is not zero everywhere. Do do this, we take an integer and pass it through the `splitmix64` algorithm until we have enough random state; this depends on the generator involved; a xoshiro512 generator requires more starting seed than a xoshiro128 generator.
+
+These seedings functions are designed so that any single integer may be passed into them.  The first form returns an initialised state:
+
+```{cppdoc}
+cppdoc_function("dust::random::seed", "uint64_t")
+```
+
+The second initialises a state in-place:
+
+```{cppdoc}
+cppdoc_function("dust::random::seed", c("T&", "uint64_t"))
+```
+
+## Example
+
+```{cppdoc}
+cppdoc_example("random-seed")
+```
+
+# Primitive random number generation functions
+
+## Uniform
+
+The workhorse random number generating function is `random_real`:
+
+```{cppdoc}
+cppdoc_function("dust::random::random_real")
+```
+
+## Integer
+
+There is also a low-level function for generating integers of a given width:
+
+```{cppdoc}
+cppdoc_function("dust::random::random_int")
+```
+
+Note that this **does not** generate an arbitrary integer within some specified range; you are limited to C++ integer types.
+
+## Normal
+
+The standard normal distribution also gets special treatment.
+
+```{cppdoc}
+cppdoc_function("dust::random::random_normal")
+```
+
+## Example
+
+```{cppdoc}
+cppdoc_example("random-primitive")
+```
+
+# Distributions
+
+Our distribution support will grow over time. If you need a distribution that is not yet supported please [post an issue](https://github.com/mrc-ide/dust/issues/)
+
+## Uniform
+
+```{cppdoc}
+cppdoc_function("dust::random::uniform")
+```
+
+## Normal
+
+```{cppdoc}
+cppdoc_function("dust::random::normal")
+```
+
+The enum `dust::random::algorithm::normal` controls the normal algorithm used for a given draw
+
+```{cppdoc}
+cppdoc_enum("dust::random::algorithm::normal")
+```
+
+## Binomial
+
+```{cppdoc}
+cppdoc_function("dust::random::binomial")
+```
+
+## Exponential
+
+```{cppdoc}
+cppdoc_function("dust::random::exponential")
+```
+
+## Poisson
+
+```{cppdoc}
+cppdoc_function("dust::random::poisson")
+```
+
+## Multinomial
+
+```{cppdoc}
+cppdoc_function("dust::random::multinomial",
+                args = c("rng_state_type&", "int", "const T&", "int", "U&"))
+```
+
+## Example
+
+```{cppdoc}
+cppdoc_example("random-univariate")
+```
+
+# Advancing the random number state via jumps
+
+There are two functions for jumping the random number state:
+
+```{cppdoc}
+cppdoc_function("dust::random::jump")
+```
+
+```{cppdoc}
+cppdoc_function("dust::random::long_jump")
+```
+
+## Example
+
+```{cppdoc}
+cppdoc_example("random-jump")
+```
+
+# Parallel random number object
+
+```{cppdoc}
+cppdoc_class("dust::random::prng")
+```
+
+## Example
+
+```{cppdoc}
+cppdoc_example("random-prng")
+```
+
+# Query version information
+
+We define several constants that can be used for feature testing and reporting:
+
+```{cppdoc}
+cppdoc_define("DUST_VERSION_MAJOR")
+cppdoc_define("DUST_VERSION_MINOR")
+cppdoc_define("DUST_VERSION_PATCH")
+cppdoc_define("DUST_VERSION_STRING")
+```
+
+The most useful for testing is `DUST_VERSION_CODE` which is built from the major, minor and patch numbers (10000 * major + 100 + minor + patch), so version `1.23.45` would be `12345` and `0.4.8` would be `408`
+
+```{cppdoc}
+cppdoc_define("DUST_VERSION_CODE")
+```
+
+## Example
+
+```{cppdoc}
+cppdoc_example("random-version")
+```
+
+# Random number interface from R
+
+We provide several functions for use from within R packages, all of which are in the namespace `dust::random::r`. These are further described in [the package vignette](https://mrc-ide.github.io/dust/articles/rng_package.html).
+
+To access these functions you must have the `cpp11` package available and include `<dust/r/random.hpp>`.
+
+## Seeding the generator
+
+As a slightly more convienient interace for seeding generators
+
+```{cppdoc}
+cppdoc_function("dust::random::r::as_rng_seed")
+```
+
+Once you have a seed, there's no direct interaction with the dust R API any further - you have a seed and can draw numbers as described elsewhere in this manual.
+
+## Persistent streams
+
+To provide access to [persistent streams](https://mrc-ide.github.io/dust/articles/rng_package.html#basic-implementation-using-dust) (see also [the reference documentation](https://mrc-ide.github.io/dust/reference/dust_rng_pointer.html)
+
+```{cppdoc}
+cppdoc_function("dust::random::r::rng_pointer_get")
+```
