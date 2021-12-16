@@ -36,13 +36,7 @@ Below, we cover each of these steps in more detail.
 
 # Random number state
 
-Typically, you don't need to think much about the state used; in the simple example we do
-
-```{cppdoc}
-cppdoc_example("random-simple")
-```
-
-This pattern will typically be sufficient - use `dust::random::generator` to select an appropriate algorithm for your floating point type, and use `auto` to save it.  This will select `dust::random::xoshiro256plus` for `double` and `dust::random::xoshiro128plus` for `float`
+Typically, you don't need to think much about the state used. The pattern above will typically be sufficient - use `dust::random::generator` to select an appropriate algorithm for your floating point type, and use `auto` to save it.  This will select `dust::random::xoshiro256plus` for `double` and `dust::random::xoshiro128plus` for `float`
 
 ## Core state class
 
