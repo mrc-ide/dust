@@ -198,15 +198,6 @@ public:
     step_ = step;
   }
 
-  // This is prevented in interface.hpp so that we never make it here
-  // (part of requiring that state setting entirely succeeds or
-  // fails). We leave the same error message here though so that it's
-  // easy to locate the interface component; the method must exist or
-  // compilation would fail.
-  void set_step(const std::vector<size_t>& step) {              // # nocov
-    throw std::runtime_error("GPU doesn't support setting vector of steps"); // # nocov
-  }
-
   // It's the callee's responsibility to ensure that index is in
   // range [0, n-1]
   void set_index(const std::vector<size_t>& index) {

@@ -1,3 +1,7 @@
+# dust 0.11.21
+
+* Remove the functionality that allowed a vector of start times to be provided, as we were never using it and it simplifes things to remove it (#310)
+
 # dust 0.11.17
 
 * Remove `dust::dust_rng_state_long_jump` now that we have proper distributed RNG state support (#343)

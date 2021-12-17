@@ -132,28 +132,33 @@ cpp11::sexp dust_update_state_set_pars(T *obj, cpp11::list r_pars,
 
 // There are many components of state (not including rng state which
 // we treat separately), we set components always in the order (1)
-// pars, (2) state, (3) step
+// step, (2) pars, (3) state
 template <typename T, typename real_type>
 cpp11::sexp dust_update_state_set(T *obj, SEXP r_pars,
                                   const std::vector<real_type>& state,
                                   const std::vector<size_t>& step,
                                   bool set_initial_state) {
   cpp11::sexp ret = R_NilValue;
+  const size_t step_prev = obj->step();
+
+  if (step.size() == 1) { // TODO: can handle this via a bool and int, tidier
+    obj->set_step(step[0]);
+  }
+
   if (r_pars != R_NilValue) {
-    // TODO: if initial state is step dependent, this will not work
-    // correctly; we must pass step through here.
-    ret = dust_update_state_set_pars(obj, cpp11::as_cpp<cpp11::list>(r_pars),
-                                     set_initial_state);
+    // NOTE: if initial state is step dependent, then this picks up
+    // the step set above.
+    try {
+      ret = dust_update_state_set_pars(obj, cpp11::as_cpp<cpp11::list>(r_pars),
+                                       set_initial_state);
+    } catch (const std::invalid_argument& e) {
+      obj->set_step(step_prev);
+      throw e;
+    }
   }
 
   if (state.size() > 0) { // && !set_initial_state, though that is implied
     obj->set_state(state);
-  }
-
-  if (step.size() == 1) {
-    obj->set_step(step[0]);
-  } else if (step.size() > 1) {
-    obj->set_step(step);
   }
 
   // If we set both initial conditions and step then we're safe to
@@ -194,17 +199,11 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
   std::vector<real_type> state;
 
   if (r_step != R_NilValue) {
-    // TODO: what about the length and dimensions here? What is the
-    // best thing to take for those? Possibly require an array to
-    // disambiguate?
+    // TODO: simplify this, if possible
     step = dust::r::validate_size(r_step, "step");
     const size_t len = step.size();
-    if (!(len == 1 || len == obj->n_particles())) {
-      cpp11::stop("Expected 'step' to be scalar or length %d",
-                  obj->n_particles());
-    }
-    if (std::is_same<T, dust_gpu<typename T::model_type>>::value && len != 1) {
-      cpp11::stop("GPU doesn't support setting vector of steps");
+    if (len != 1) {
+      cpp11::stop("Expected 'step' to be scalar");
     }
   }
 

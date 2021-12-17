@@ -333,31 +333,13 @@ test_that("cache hits do not compile", {
 })
 
 
-test_that("set model state and time, varying time", {
+test_that("set model state and time, can't vary time", {
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(rep(as.numeric(1:2), each = 10), 10, 2)
   step <- 0:1
-  mod$update_state(state = m, step = step)
-  cmp <- dust_rng$new(1, 1)$normal(10, 0, 1)
-
-  state <- mod$state()
-  expect_equal(mod$step(), 1)
-  expect_equal(state[, 2], m[, 2])
-  expect_equal(state[, 1], m[, 1] + cmp)
-})
-
-
-test_that("setting model state and step requires correct length step", {
-  res <- dust_example("variable")
-  mod <- res$new(list(len = 10), 0, 5, seed = 1L)
-  m <- matrix(rep(as.numeric(1:5), each = 10), 10, 5)
-  expect_error(
-    mod$update_state(state = m, step = 0:3),
-    "Expected 'step' to be scalar or length 5")
-  expect_error(
-    mod$update_state(state = m, step = 0:7),
-    "Expected 'step' to be scalar or length 5")
+  expect_error(mod$update_state(state = m, step = step),
+               "Expected 'step' to be scalar")
 })
 
 
@@ -736,29 +718,6 @@ test_that("can't set data into deterministic models", {
   d <- dust_data(data.frame(step = c(0, 1, 2, 4), incidence = c(0, 0, 2, 4)))
   expect_error(mod$set_data(d),
                "Can't use data with deterministic models")
-})
-
-
-test_that("staggered start times, deterministically", {
-  sir <- dust_example("sir")
-  mod <- sir$new(list(), 0, 10, seed = 1L, deterministic = TRUE)
-
-  state <- mod$state()
-  n <- round(runif(10, -5, 5))
-  state[1, ] <- state[1, ] - n
-  state[2, ] <- state[2, ] + n
-  step <- 1:10
-
-  mod$update_state(state = state, step = step)
-
-  res <- mod$state()
-  f <- function(i) {
-    mod <- sir$new(list(), 0, 1, seed = NULL, deterministic = TRUE)
-    mod$update_state(state = state[, i], step = step[i])
-    mod$run(10)
-  }
-  cmp <- vapply(1:10, f, numeric(5))
-  expect_equal(res, cmp)
 })
 
 
