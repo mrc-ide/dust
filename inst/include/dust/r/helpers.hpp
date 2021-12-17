@@ -68,6 +68,16 @@ std::vector<size_t> validate_size(cpp11::sexp r_x, const char * name) {
   return x;
 }
 
+
+inline
+int r_index_check(int x, int max) {
+  if (x < 1 || x > (int)nmax) {
+    cpp11::stop("All elements of 'index' must lie in [1, %d]", nmax);
+  }
+  return x - 1;
+}
+
+
 // Converts an R vector of integers (in base-1) to a C++ std::vector
 // of size_t values in base-0 having checked that the values of the
 // vectors are approproate; that they will not fall outside of the
@@ -79,11 +89,7 @@ std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax) {
   std::vector<size_t> index;
   index.reserve(n);
   for (int i = 0; i < n; ++i) {
-    int x = r_index_int[i];
-    if (x < 1 || x > (int)nmax) {
-      cpp11::stop("All elements of 'index' must lie in [1, %d]", nmax);
-    }
-    index.push_back(x - 1);
+    index.push_back(r_index_check(x, nmax));
   }
   return index;
 }
@@ -292,11 +298,8 @@ std::vector<size_t> check_reorder_index(cpp11::sexp r_index,
   index.reserve(len);
   for (size_t i = 0, j = 0; i < n_groups; ++i) {
     for (size_t k = 0; k < n_particles; ++j, ++k) {
-      int x = r_index_data[j];
-      if (x < 1 || x > (int)n_particles) {
-        cpp11::stop("All elements of 'index' must lie in [1, %d]", n_particles);
-      }
-      index.push_back(i * n_particles + x - 1);
+      int x = r_index_check(r_index_data[j], n_particles);
+      index.push_back(i * n_particles + x);
     }
   }
 
