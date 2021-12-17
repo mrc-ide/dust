@@ -71,8 +71,8 @@ std::vector<size_t> validate_size(cpp11::sexp r_x, const char * name) {
 
 inline
 int r_index_check(int x, int max) {
-  if (x < 1 || x > (int)nmax) {
-    cpp11::stop("All elements of 'index' must lie in [1, %d]", nmax);
+  if (x < 1 || x > max) {
+    cpp11::stop("All elements of 'index' must lie in [1, %d]", max);
   }
   return x - 1;
 }
@@ -89,7 +89,8 @@ std::vector<size_t> r_index_to_index(cpp11::sexp r_index, size_t nmax) {
   std::vector<size_t> index;
   index.reserve(n);
   for (int i = 0; i < n; ++i) {
-    index.push_back(r_index_check(x, nmax));
+    int x = r_index_check(r_index_int[i], nmax);
+    index.push_back(x);
   }
   return index;
 }
