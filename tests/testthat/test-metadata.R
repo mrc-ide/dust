@@ -209,3 +209,14 @@ test_that("force gpu state", {
     parse_metadata(tmp2),
     "Invalid value for dust::has_gpu_support, expected logical")
 })
+
+
+test_that("Can prevent invalid names", {
+  tmp <- helper_metadata(
+    "// [[dust::name(my.model)]]")
+  on.exit(unlink(tmp))
+  expect_error(
+    parse_metadata(tmp),
+    "'[[dust::name]]' must contain only letters, numbers and underscores",
+    fixed = TRUE)
+})
