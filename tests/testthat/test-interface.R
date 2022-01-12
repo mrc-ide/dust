@@ -444,4 +444,9 @@ test_that("allow compilation of model with underscore in the name", {
   expect_equal(gen$public_methods$name(), "walk_model")
   expect_match(environmentName(gen$parent_env),
                "^dust[[:xdigit:]]+$")
+
+  ## Validate that the dll actually works too
+  mod <- gen$new(list(sd = 1), 0, 1)
+  expect_s3_class(mod, "dust")
+  expect_equal(mod$name(), "walk_model")
 })
