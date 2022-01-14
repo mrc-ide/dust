@@ -1,9 +1,12 @@
 generate_dust <- function(filename, quiet, workdir, cuda, skip_cache, mangle) {
   config <- parse_metadata(filename)
-  if (mangle) {
-    base <- sprintf("%s%s", config$name, hash_file(filename))
-  } else {
+  if (grepl("^[A-Za-z][A-Zxa-z0-9]*$", config$name)) {
     base <- config$name
+  } else {
+    base <- "dust"
+  }
+  if (mangle) {
+    base <- paste0(base, hash_file(filename))
   }
   gpu <- isTRUE(cuda$has_cuda)
   if (gpu) {

@@ -17,8 +17,6 @@ parse_metadata <- function(filename) {
     ret$has_gpu_support <- parse_code_has_gpu_support(readLines(filename))
   }
 
-  assert_valid_name(ret$name)
-
   ret
 }
 
@@ -46,7 +44,12 @@ parse_metadata_simple <- function(data, attribute) {
 
 
 parse_metadata_name <- function(data) {
-  parse_metadata_simple(data, "dust::name")
+  name <- parse_metadata_simple(data, "dust::name")
+  if (!is.null(name) && !grepl("^[A-Za-z][A-Za-z0-9_]*$", name)) {
+    stop(paste("'[[dust::name]]' must contain only letters, numbers and",
+               "underscores, starting with a letter"))
+  }
+  name
 }
 
 

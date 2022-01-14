@@ -1,3 +1,7 @@
+# dust 0.11.22
+
+* Allow model names with underscores (#358, see also [odin.dust#98](https://github.com/mrc-ide/odin.dust/issues/98))
+
 # dust 0.11.21
 
 * Remove the functionality that allowed a vector of start times to be provided, as we were never using it and it simplifes things to remove it (#310)

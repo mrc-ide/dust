@@ -432,3 +432,21 @@ test_that("Particles are initialised based on time", {
   mod <- res$new(list(sd = 1), 4, 5)
   expect_equal(mod$state(), matrix(4, 1, 5))
 })
+
+
+test_that("allow compilation of model with underscore in the name", {
+  skip_for_compilation()
+  code <- readLines(dust_file("examples/walk.cpp"))
+  code <- gsub("walk", "walk_model", code, fixed = TRUE)
+  tmp <- tempfile()
+  writeLines(code, tmp)
+  gen <- dust(tmp, quiet = TRUE)
+  expect_equal(gen$public_methods$name(), "walk_model")
+  expect_match(environmentName(gen$parent_env),
+               "^dust[[:xdigit:]]+$")
+
+  ## Validate that the dll actually works too
+  mod <- gen$new(list(sd = 1), 0, 1)
+  expect_s3_class(mod, "dust")
+  expect_equal(mod$name(), "walk_model")
+})
