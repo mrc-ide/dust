@@ -26,18 +26,12 @@ filter(T * obj,
   std::vector<real_type> weights(n_particles);
   std::vector<size_t> kappa(n_particles);
 
-  // TODO: we should fill these really?
   if (save_trajectories) {
     state.trajectories.resize(obj->n_state(), n_particles, n_data);
 
-    // TODO: consider filling with NA, somehow
-    // std::fill(state.trajectories.begin(), state.trajectories.end(), NA_REAL);
-
-    // TODO: only add the starting point if we need to.
-    //
-    // if (obj->step() <= obj->data().begin()->first()) {
-    obj->state(state.trajectories.value_iterator());
-    // }
+    if (obj->step() <= obj->data().begin()->first) {
+      obj->state(state.trajectories.value_iterator());
+    }
 
     state.trajectories.advance();
   }
@@ -46,7 +40,6 @@ filter(T * obj,
   if (step_snapshot.size() > 0) {
     save_snapshots = true;
     state.snapshots.resize(obj->n_state_full(), n_particles, step_snapshot);
-    // std::fill(state.snapshots.begin(), state.snapshots.end(), NA_REAL);
   }
 
   // TODO: we can jump more efficiently here I belive by jumping ahead

@@ -184,3 +184,62 @@ test_that("Validate step_snapshot", {
     "'step_snapshot[2]' (step 201) was not found in data",
     fixed = TRUE)
 })
+
+
+test_that("Can partially run filter", {
+  dat <- example_filter()
+
+  np <- 10
+  mod <- dat$model$new(list(), 0, np, seed = 10L)
+  expect_error(mod$filter(), "Data has not been set for this object")
+
+  mod$set_data(dat$dat_dust)
+
+  ## We can perform the entire particle filter manually with the C++
+  ## version, and this will run entirely on the dust generator
+  n_data <- length(dat$dat_dust)
+  ll <- numeric(n_data)
+  hv <- array(NA_real_, c(5L, np, n_data + 1L))
+  hi <- matrix(NA_integer_, np, n_data + 1L)
+  hv[, , 1] <- mod$state()
+  hi[, 1] <- seq_len(np)
+  for (i in seq_len(n_data)) {
+    mod$run(dat$dat_dust[[i]][[1]])
+    hv[, , i + 1] <- mod$state()
+    weights <- mod$compare_data()
+    tmp <- scale_log_weights(weights)
+    ll[[i]] <- tmp$average
+    idx <- mod$resample(tmp$weights)
+    hi[, i + 1] <- idx
+  }
+  cmp_log_likelihood <- Reduce(`+`, ll) # naive sum()
+  cmp_trajectories <- filter_trajectories_reorder(hv, hi)
+
+  mod <- dat$model$new(list(), 0, np, seed = 10L)
+  mod$set_data(dat$dat_dust)
+  ans <- vector("list", nrow(dat$dat))
+  for (i in seq_along(ans)) {
+    ans[[i]] <- mod$filter(dat$dat$step[[i]])
+  }
+  expect_equal(vapply(ans, "[[", 1, "log_likelihood"), ll)
+
+  mod <- dat$model$new(list(), 0, np, seed = 10L)
+  mod$set_data(dat$dat_dust)
+  ans <- vector("list", nrow(dat$dat))
+  for (i in seq_along(ans)) {
+    ans[[i]] <- mod$filter(dat$dat$step[[i]], save_trajectories = TRUE)
+  }
+
+  expect_equal(vapply(ans, "[[", 1, "log_likelihood"), ll)
+
+  ## I don't have a good intuition about why we're correct for the
+  ## state at the end, for each time point, but not for the points in
+  ## the middle; it's very likely that because these are the fully
+  ## sorted trajectories that I just don't understand something.
+  traj <- lapply(seq_along(ans), function(i)
+    ans[[i]]$trajectories[, , i + 1])
+  tmp <- lapply(seq_along(ans) + 1, function(i)
+    filter_trajectories_reorder(hv[, , seq_len(i)], hi[, seq_len(i)])[, , i])
+  expect_equal(traj, tmp)
+  expect_equal(ans[[1]]$trajectories[, , 1], cmp_trajectories[, , 1])
+})
