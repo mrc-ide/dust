@@ -11,6 +11,7 @@ namespace filter {
 template <typename T>
 std::vector<typename T::real_type>
 filter(T * obj,
+       size_t step_end,
        filter_state_device<typename T::real_type>& state,
        bool save_trajectories,
        std::vector<size_t> step_snapshot) {
@@ -39,6 +40,11 @@ filter(T * obj,
   }
 
   for (auto & d : obj->data()) {
+    const auto step = d.first;
+    if (step <= obj->step()) {
+      continue;
+    }
+
     // MODEL UPDATE
     obj->run(d.first);
 
@@ -67,6 +73,10 @@ filter(T * obj,
     if (save_snapshots && state.snapshots.is_snapshot_step(d.first)) {
       state.snapshots.store(obj->device_state_full());
       state.snapshots.advance();
+    }
+
+    if (step >= step_end) {
+      break;
     }
   }
 

@@ -269,10 +269,10 @@ extern "C" SEXP _dust_dust_cpu_sir_compare_data(SEXP ptr) {
   END_CPP11
 }
 // sir.cpp
-SEXP dust_cpu_sir_filter(SEXP ptr, bool save_trajectories, cpp11::sexp step_snapshot);
-extern "C" SEXP _dust_dust_cpu_sir_filter(SEXP ptr, SEXP save_trajectories, SEXP step_snapshot) {
+SEXP dust_cpu_sir_filter(SEXP ptr, SEXP step, bool save_trajectories, cpp11::sexp step_snapshot);
+extern "C" SEXP _dust_dust_cpu_sir_filter(SEXP ptr, SEXP step, SEXP save_trajectories, SEXP step_snapshot) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_sir_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot)));
+    return cpp11::as_sexp(dust_cpu_sir_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot)));
   END_CPP11
 }
 // sir.cpp
@@ -397,10 +397,10 @@ extern "C" SEXP _dust_dust_cpu_sirs_compare_data(SEXP ptr) {
   END_CPP11
 }
 // sirs.cpp
-SEXP dust_cpu_sirs_filter(SEXP ptr, bool save_trajectories, cpp11::sexp step_snapshot);
-extern "C" SEXP _dust_dust_cpu_sirs_filter(SEXP ptr, SEXP save_trajectories, SEXP step_snapshot) {
+SEXP dust_cpu_sirs_filter(SEXP ptr, SEXP step, bool save_trajectories, cpp11::sexp step_snapshot);
+extern "C" SEXP _dust_dust_cpu_sirs_filter(SEXP ptr, SEXP step, SEXP save_trajectories, SEXP step_snapshot) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_sirs_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot)));
+    return cpp11::as_sexp(dust_cpu_sirs_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot)));
   END_CPP11
 }
 // sirs.cpp
@@ -511,10 +511,10 @@ extern "C" SEXP _dust_dust_gpu_sirs_compare_data(SEXP ptr) {
   END_CPP11
 }
 // sirs.cpp
-SEXP dust_gpu_sirs_filter(SEXP ptr, bool save_trajectories, cpp11::sexp step_snapshot);
-extern "C" SEXP _dust_dust_gpu_sirs_filter(SEXP ptr, SEXP save_trajectories, SEXP step_snapshot) {
+SEXP dust_gpu_sirs_filter(SEXP ptr, SEXP step, bool save_trajectories, cpp11::sexp step_snapshot);
+extern "C" SEXP _dust_dust_gpu_sirs_filter(SEXP ptr, SEXP step, SEXP save_trajectories, SEXP step_snapshot) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_gpu_sirs_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot)));
+    return cpp11::as_sexp(dust_gpu_sirs_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot)));
   END_CPP11
 }
 // sirs.cpp
@@ -660,10 +660,10 @@ extern "C" SEXP _dust_dust_cpu_variable_compare_data(SEXP ptr) {
   END_CPP11
 }
 // variable.cpp
-SEXP dust_cpu_variable_filter(SEXP ptr, bool save_trajectories, cpp11::sexp step_snapshot);
-extern "C" SEXP _dust_dust_cpu_variable_filter(SEXP ptr, SEXP save_trajectories, SEXP step_snapshot) {
+SEXP dust_cpu_variable_filter(SEXP ptr, SEXP step, bool save_trajectories, cpp11::sexp step_snapshot);
+extern "C" SEXP _dust_dust_cpu_variable_filter(SEXP ptr, SEXP step, SEXP save_trajectories, SEXP step_snapshot) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_variable_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot)));
+    return cpp11::as_sexp(dust_cpu_variable_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot)));
   END_CPP11
 }
 // variable.cpp
@@ -774,10 +774,10 @@ extern "C" SEXP _dust_dust_gpu_variable_compare_data(SEXP ptr) {
   END_CPP11
 }
 // variable.cpp
-SEXP dust_gpu_variable_filter(SEXP ptr, bool save_trajectories, cpp11::sexp step_snapshot);
-extern "C" SEXP _dust_dust_gpu_variable_filter(SEXP ptr, SEXP save_trajectories, SEXP step_snapshot) {
+SEXP dust_gpu_variable_filter(SEXP ptr, SEXP step, bool save_trajectories, cpp11::sexp step_snapshot);
+extern "C" SEXP _dust_dust_gpu_variable_filter(SEXP ptr, SEXP step, SEXP save_trajectories, SEXP step_snapshot) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_gpu_variable_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot)));
+    return cpp11::as_sexp(dust_gpu_variable_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot)));
   END_CPP11
 }
 // variable.cpp
@@ -902,10 +902,10 @@ extern "C" SEXP _dust_dust_cpu_volatility_compare_data(SEXP ptr) {
   END_CPP11
 }
 // volatility.cpp
-SEXP dust_cpu_volatility_filter(SEXP ptr, bool save_trajectories, cpp11::sexp step_snapshot);
-extern "C" SEXP _dust_dust_cpu_volatility_filter(SEXP ptr, SEXP save_trajectories, SEXP step_snapshot) {
+SEXP dust_cpu_volatility_filter(SEXP ptr, SEXP step, bool save_trajectories, cpp11::sexp step_snapshot);
+extern "C" SEXP _dust_dust_cpu_volatility_filter(SEXP ptr, SEXP step, SEXP save_trajectories, SEXP step_snapshot) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_volatility_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot)));
+    return cpp11::as_sexp(dust_cpu_volatility_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot)));
   END_CPP11
 }
 // volatility.cpp
@@ -1030,10 +1030,10 @@ extern "C" SEXP _dust_dust_cpu_walk_compare_data(SEXP ptr) {
   END_CPP11
 }
 // walk.cpp
-SEXP dust_cpu_walk_filter(SEXP ptr, bool save_trajectories, cpp11::sexp step_snapshot);
-extern "C" SEXP _dust_dust_cpu_walk_filter(SEXP ptr, SEXP save_trajectories, SEXP step_snapshot) {
+SEXP dust_cpu_walk_filter(SEXP ptr, SEXP step, bool save_trajectories, cpp11::sexp step_snapshot);
+extern "C" SEXP _dust_dust_cpu_walk_filter(SEXP ptr, SEXP step, SEXP save_trajectories, SEXP step_snapshot) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_walk_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot)));
+    return cpp11::as_sexp(dust_cpu_walk_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot)));
   END_CPP11
 }
 // walk.cpp
@@ -1064,7 +1064,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_density_poisson",                   (DL_FUNC) &_dust_density_poisson,                   3},
     {"_dust_dust_cpu_sir_alloc",                (DL_FUNC) &_dust_dust_cpu_sir_alloc,                8},
     {"_dust_dust_cpu_sir_compare_data",         (DL_FUNC) &_dust_dust_cpu_sir_compare_data,         1},
-    {"_dust_dust_cpu_sir_filter",               (DL_FUNC) &_dust_dust_cpu_sir_filter,               3},
+    {"_dust_dust_cpu_sir_filter",               (DL_FUNC) &_dust_dust_cpu_sir_filter,               4},
     {"_dust_dust_cpu_sir_n_state",              (DL_FUNC) &_dust_dust_cpu_sir_n_state,              1},
     {"_dust_dust_cpu_sir_reorder",              (DL_FUNC) &_dust_dust_cpu_sir_reorder,              2},
     {"_dust_dust_cpu_sir_resample",             (DL_FUNC) &_dust_dust_cpu_sir_resample,             2},
@@ -1080,7 +1080,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_cpu_sir_update_state",         (DL_FUNC) &_dust_dust_cpu_sir_update_state,         5},
     {"_dust_dust_cpu_sirs_alloc",               (DL_FUNC) &_dust_dust_cpu_sirs_alloc,               8},
     {"_dust_dust_cpu_sirs_compare_data",        (DL_FUNC) &_dust_dust_cpu_sirs_compare_data,        1},
-    {"_dust_dust_cpu_sirs_filter",              (DL_FUNC) &_dust_dust_cpu_sirs_filter,              3},
+    {"_dust_dust_cpu_sirs_filter",              (DL_FUNC) &_dust_dust_cpu_sirs_filter,              4},
     {"_dust_dust_cpu_sirs_n_state",             (DL_FUNC) &_dust_dust_cpu_sirs_n_state,             1},
     {"_dust_dust_cpu_sirs_reorder",             (DL_FUNC) &_dust_dust_cpu_sirs_reorder,             2},
     {"_dust_dust_cpu_sirs_resample",            (DL_FUNC) &_dust_dust_cpu_sirs_resample,            2},
@@ -1096,7 +1096,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_cpu_sirs_update_state",        (DL_FUNC) &_dust_dust_cpu_sirs_update_state,        5},
     {"_dust_dust_cpu_variable_alloc",           (DL_FUNC) &_dust_dust_cpu_variable_alloc,           8},
     {"_dust_dust_cpu_variable_compare_data",    (DL_FUNC) &_dust_dust_cpu_variable_compare_data,    1},
-    {"_dust_dust_cpu_variable_filter",          (DL_FUNC) &_dust_dust_cpu_variable_filter,          3},
+    {"_dust_dust_cpu_variable_filter",          (DL_FUNC) &_dust_dust_cpu_variable_filter,          4},
     {"_dust_dust_cpu_variable_n_state",         (DL_FUNC) &_dust_dust_cpu_variable_n_state,         1},
     {"_dust_dust_cpu_variable_reorder",         (DL_FUNC) &_dust_dust_cpu_variable_reorder,         2},
     {"_dust_dust_cpu_variable_resample",        (DL_FUNC) &_dust_dust_cpu_variable_resample,        2},
@@ -1112,7 +1112,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_cpu_variable_update_state",    (DL_FUNC) &_dust_dust_cpu_variable_update_state,    5},
     {"_dust_dust_cpu_volatility_alloc",         (DL_FUNC) &_dust_dust_cpu_volatility_alloc,         8},
     {"_dust_dust_cpu_volatility_compare_data",  (DL_FUNC) &_dust_dust_cpu_volatility_compare_data,  1},
-    {"_dust_dust_cpu_volatility_filter",        (DL_FUNC) &_dust_dust_cpu_volatility_filter,        3},
+    {"_dust_dust_cpu_volatility_filter",        (DL_FUNC) &_dust_dust_cpu_volatility_filter,        4},
     {"_dust_dust_cpu_volatility_n_state",       (DL_FUNC) &_dust_dust_cpu_volatility_n_state,       1},
     {"_dust_dust_cpu_volatility_reorder",       (DL_FUNC) &_dust_dust_cpu_volatility_reorder,       2},
     {"_dust_dust_cpu_volatility_resample",      (DL_FUNC) &_dust_dust_cpu_volatility_resample,      2},
@@ -1128,7 +1128,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_cpu_volatility_update_state",  (DL_FUNC) &_dust_dust_cpu_volatility_update_state,  5},
     {"_dust_dust_cpu_walk_alloc",               (DL_FUNC) &_dust_dust_cpu_walk_alloc,               8},
     {"_dust_dust_cpu_walk_compare_data",        (DL_FUNC) &_dust_dust_cpu_walk_compare_data,        1},
-    {"_dust_dust_cpu_walk_filter",              (DL_FUNC) &_dust_dust_cpu_walk_filter,              3},
+    {"_dust_dust_cpu_walk_filter",              (DL_FUNC) &_dust_dust_cpu_walk_filter,              4},
     {"_dust_dust_cpu_walk_n_state",             (DL_FUNC) &_dust_dust_cpu_walk_n_state,             1},
     {"_dust_dust_cpu_walk_reorder",             (DL_FUNC) &_dust_dust_cpu_walk_reorder,             2},
     {"_dust_dust_cpu_walk_resample",            (DL_FUNC) &_dust_dust_cpu_walk_resample,            2},
@@ -1144,7 +1144,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_cpu_walk_update_state",        (DL_FUNC) &_dust_dust_cpu_walk_update_state,        5},
     {"_dust_dust_gpu_sirs_alloc",               (DL_FUNC) &_dust_dust_gpu_sirs_alloc,               8},
     {"_dust_dust_gpu_sirs_compare_data",        (DL_FUNC) &_dust_dust_gpu_sirs_compare_data,        1},
-    {"_dust_dust_gpu_sirs_filter",              (DL_FUNC) &_dust_dust_gpu_sirs_filter,              3},
+    {"_dust_dust_gpu_sirs_filter",              (DL_FUNC) &_dust_dust_gpu_sirs_filter,              4},
     {"_dust_dust_gpu_sirs_n_state",             (DL_FUNC) &_dust_dust_gpu_sirs_n_state,             1},
     {"_dust_dust_gpu_sirs_reorder",             (DL_FUNC) &_dust_dust_gpu_sirs_reorder,             2},
     {"_dust_dust_gpu_sirs_resample",            (DL_FUNC) &_dust_dust_gpu_sirs_resample,            2},
@@ -1160,7 +1160,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_gpu_sirs_update_state",        (DL_FUNC) &_dust_dust_gpu_sirs_update_state,        5},
     {"_dust_dust_gpu_variable_alloc",           (DL_FUNC) &_dust_dust_gpu_variable_alloc,           8},
     {"_dust_dust_gpu_variable_compare_data",    (DL_FUNC) &_dust_dust_gpu_variable_compare_data,    1},
-    {"_dust_dust_gpu_variable_filter",          (DL_FUNC) &_dust_dust_gpu_variable_filter,          3},
+    {"_dust_dust_gpu_variable_filter",          (DL_FUNC) &_dust_dust_gpu_variable_filter,          4},
     {"_dust_dust_gpu_variable_n_state",         (DL_FUNC) &_dust_dust_gpu_variable_n_state,         1},
     {"_dust_dust_gpu_variable_reorder",         (DL_FUNC) &_dust_dust_gpu_variable_reorder,         2},
     {"_dust_dust_gpu_variable_resample",        (DL_FUNC) &_dust_dust_gpu_variable_resample,        2},

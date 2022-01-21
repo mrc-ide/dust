@@ -43,8 +43,9 @@ SEXP dust_{{target}}_{{name}}_set_data(SEXP ptr, cpp11::list data);
 SEXP dust_{{target}}_{{name}}_compare_data(SEXP ptr);
 
 [[cpp11::register]]
-SEXP dust_{{target}}_{{name}}_filter(SEXP ptr, bool save_trajectories,
-                          cpp11::sexp step_snapshot);
+SEXP dust_{{target}}_{{name}}_filter(SEXP ptr, SEXP step,
+                                     bool save_trajectories,
+                                     cpp11::sexp step_snapshot);
 
 [[cpp11::register]]
 void dust_{{target}}_{{name}}_set_n_threads(SEXP ptr, int n_threads);

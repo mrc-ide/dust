@@ -450,13 +450,15 @@ cpp11::sexp save_snapshots(const filter_state& snapshots, const T *obj,
 // passing two as references.
 template <typename T>
 cpp11::writable::doubles run_filter(T * obj,
+                                    size_t step,
                                     cpp11::sexp& r_trajectories,
                                     cpp11::sexp& r_snapshots,
                                     std::vector<size_t>& step_snapshot,
                                     bool save_trajectories) {
   typename T::filter_state_type filter_state;
   cpp11::writable::doubles log_likelihood =
-    dust::filter::filter(obj, filter_state, save_trajectories, step_snapshot);
+    dust::filter::filter(obj, step, filter_state, save_trajectories,
+                         step_snapshot);
   if (save_trajectories) {
     r_trajectories = dust::r::save_trajectories(filter_state.trajectories, obj);
   }
@@ -467,7 +469,7 @@ cpp11::writable::doubles run_filter(T * obj,
 }
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
-cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
+cpp11::sexp dust_filter(SEXP ptr, SEXP r_step, bool save_trajectories,
                         cpp11::sexp r_step_snapshot) {
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   obj->check_errors();
@@ -476,12 +478,18 @@ cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
     cpp11::stop("Data has not been set for this object");
   }
 
+  size_t step = std::numeric_limits<size_t>::max();
+  if (r_step != R_NilValue) {
+    step = cpp11::as_cpp<int>(r_step);
+    dust::r::validate_size(step, "step");
+  }
+
   std::vector<size_t> step_snapshot =
     dust::r::check_step_snapshot(r_step_snapshot, obj->data());
 
   cpp11::sexp r_trajectories, r_snapshots;
   cpp11::writable::doubles log_likelihood =
-    run_filter<T>(obj, r_trajectories, r_snapshots, step_snapshot,
+    run_filter<T>(obj, step, r_trajectories, r_snapshots, step_snapshot,
                   save_trajectories);
 
   using namespace cpp11::literals;
@@ -510,7 +518,7 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
 }
 
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
-cpp11::sexp dust_filter(SEXP ptr, bool save_trajectories,
+cpp11::sexp dust_filter(SEXP ptr, SEXP step, bool save_trajectories,
                         cpp11::sexp step_snapshot) {
   disable_method("filter");
   return R_NilValue; // #nocov never gets here
