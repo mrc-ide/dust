@@ -483,6 +483,13 @@ cpp11::sexp dust_filter(SEXP ptr, SEXP r_step, bool save_trajectories,
   if (r_step != R_NilValue) {
     step = cpp11::as_cpp<int>(r_step);
     dust::r::validate_size(step, "step");
+    if (step <= obj->step()) {
+      cpp11::stop("'step' must be larger then curent step (%d; was given %d)",
+                  obj->step(), step);
+    }
+    if (obj->data().find(step) == obj->data().end()) {
+      cpp11::stop("'step' was not found in data (was given %d)", step);
+    }
   }
 
   std::vector<size_t> step_snapshot =
