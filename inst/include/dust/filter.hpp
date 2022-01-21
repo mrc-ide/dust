@@ -42,22 +42,18 @@ filter(T * obj,
     state.snapshots.resize(obj->n_state_full(), n_particles, step_snapshot);
   }
 
-  // TODO: we can jump more efficiently here I belive by jumping ahead
-  // but I imagine that this is going to be fine for now.  The most
-  // efficient approach would be to do a binary search for both
-  // beginning and end iterators, then use std::range() here with
-  // those.
-  for (const auto& d : obj->data()) {
-    const auto step = d.first;
-    if (step <= obj->step()) {
-      // TODO: we could do this more efficiently in one go
-      if (save_trajectories) {
-        state.trajectories.advance();
-      }
-      continue;
-    }
+  auto d = obj->data().cbegin();
+  const auto d_end = obj->data().cend();
+
+  while (d->first <= obj->step() && d != d_end) {
+    d++;
+    state.trajectories.advance();
+  }
+
+  for (; d != d_end; ++d) {
+    const auto step = d->first;
     obj->run(step);
-    obj->compare_data(weights, d.second);
+    obj->compare_data(weights, d->second);
 
     // TODO: we should cope better with the case where all weights
     // are 0; I think that is the behaviour in the model (or rather
@@ -88,7 +84,7 @@ filter(T * obj,
       state.trajectories.advance();
     }
 
-    if (save_snapshots && state.snapshots.is_snapshot_step(d.first)) {
+    if (save_snapshots && state.snapshots.is_snapshot_step(step)) {
       obj->state_full(state.snapshots.value_iterator());
       state.snapshots.advance();
     }
