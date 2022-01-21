@@ -243,3 +243,32 @@ test_that("Can partially run filter", {
   expect_equal(traj, tmp)
   expect_equal(ans[[1]]$trajectories[, , 1], cmp_trajectories[, , 1])
 })
+
+
+test_that("can run filter in deterministic mode", {
+  dat <- example_filter()
+
+  pars <- list(exp_noise = Inf)
+
+  mod <- dat$model$new(pars, 0, 1, deterministic = TRUE, seed = 1L)
+  mod$set_data(dat$dat_dust)
+
+  n_data <- length(dat$dat_dust)
+  ll <- numeric(n_data)
+  hv <- array(NA_real_, c(5L, n_data + 1L))
+  hv[, 1] <- mod$state()
+  for (i in seq_len(n_data)) {
+    hv[, i + 1] <- mod$run(dat$dat_dust[[i]][[1]])
+    ll[[i]] <- mod$compare_data()
+  }
+  cmp_log_likelihood <- Reduce(`+`, ll) # naive sum()
+
+  ## Quick check
+  mod$update_state(pars = pars, step = 0)
+  expect_equal(hv, drop(mod$simulate(c(0, dat$dat[, "step"]))))
+
+  mod$update_state(pars = pars, step = 0)
+  res <- mod$filter(save_trajectories = TRUE)
+  expect_equal(res$log_likelihood, res$log_likelihood)
+  expect_equal(drop(res$trajectories), hv)
+})

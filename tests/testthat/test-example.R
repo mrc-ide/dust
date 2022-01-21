@@ -712,15 +712,6 @@ test_that("run simulate deterministically", {
 })
 
 
-test_that("can't set data into deterministic models", {
-  res <- dust_example("sir")
-  mod <- res$new(list(), 0, 100, seed = 1L, deterministic = TRUE)
-  d <- dust_data(data.frame(step = c(0, 1, 2, 4), incidence = c(0, 0, 2, 4)))
-  expect_error(mod$set_data(d),
-               "Can't use data with deterministic models")
-})
-
-
 test_that("update_state controls initial state", {
   gen <- dust_example("sir")
   mod <- gen$new(list(I0 = 1), 0, 1)
