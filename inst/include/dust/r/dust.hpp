@@ -446,26 +446,27 @@ cpp11::sexp save_snapshots(const filter_state& snapshots, const T *obj,
   return(r_snapshots);
 }
 
-// TODO: this should be rewritten to return a list of 3 cpp1::sexp not
-// passing two as references.
 template <typename T>
-cpp11::writable::doubles run_filter(T * obj,
-                                    size_t step,
-                                    cpp11::sexp& r_trajectories,
-                                    cpp11::sexp& r_snapshots,
-                                    std::vector<size_t>& step_snapshot,
-                                    bool save_trajectories) {
+cpp11::sexp run_filter(T * obj, size_t step,
+                       std::vector<size_t>& step_snapshot,
+                       bool save_trajectories) {
   typename T::filter_state_type filter_state;
   cpp11::writable::doubles log_likelihood =
     dust::filter::filter(obj, step, filter_state, save_trajectories,
                          step_snapshot);
+  cpp11::sexp r_trajectories, r_snapshots;
   if (save_trajectories) {
     r_trajectories = dust::r::save_trajectories(filter_state.trajectories, obj);
   }
   if (!step_snapshot.empty()) {
-    r_snapshots = dust::r::save_snapshots(filter_state.snapshots, obj, step_snapshot);
+    r_snapshots = dust::r::save_snapshots(filter_state.snapshots, obj,
+                                          step_snapshot);
   }
-  return log_likelihood;
+
+  using namespace cpp11::literals;
+  return cpp11::writable::list({"log_likelihood"_nm = log_likelihood,
+                                "trajectories"_nm = r_trajectories,
+                                "snapshots"_nm = r_snapshots});
 }
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
@@ -487,15 +488,7 @@ cpp11::sexp dust_filter(SEXP ptr, SEXP r_step, bool save_trajectories,
   std::vector<size_t> step_snapshot =
     dust::r::check_step_snapshot(r_step_snapshot, obj->data());
 
-  cpp11::sexp r_trajectories, r_snapshots;
-  cpp11::writable::doubles log_likelihood =
-    run_filter<T>(obj, step, r_trajectories, r_snapshots, step_snapshot,
-                  save_trajectories);
-
-  using namespace cpp11::literals;
-  return cpp11::writable::list({"log_likelihood"_nm = log_likelihood,
-                                "trajectories"_nm = r_trajectories,
-                                "snapshots"_nm = r_snapshots});
+  return run_filter<T>(obj, step, step_snapshot, save_trajectories);
 }
 
 // Based on the value of the data_type in the underlying model class we
