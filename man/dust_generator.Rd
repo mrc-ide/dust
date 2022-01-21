@@ -658,12 +658,18 @@ next few versions. You \emph{must} reset the dust object using
 \verb{$update_state(pars = ..., step = ...)} before using this method to
 get sensible values.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$filter(save_trajectories = FALSE, step_snapshot = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$filter(
+  step = NULL,
+  save_trajectories = FALSE,
+  step_snapshot = NULL
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{step}}{The step to run to. If \code{NULL}, run to the end.}
+
 \item{\code{save_trajectories}}{Logical, indicating if the filtered particle
 trajectories should be saved. If \code{TRUE} then the \code{trajectories} element
 will be a multidimensional array (\verb{state x <shape> x time})

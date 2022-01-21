@@ -406,6 +406,8 @@ dust_generator <- R6::R6Class(
     ##' `$update_state(pars = ..., step = ...)` before using this method to
     ##' get sensible values.
     ##'
+    ##' @param step The step to run to. If `NULL`, run to the end.
+    ##'
     ##' @param save_trajectories Logical, indicating if the filtered particle
     ##' trajectories should be saved. If `TRUE` then the `trajectories` element
     ##' will be a multidimensional array (`state x <shape> x time`)
@@ -418,7 +420,8 @@ dust_generator <- R6::R6Class(
     ##' match steps given in the `data` object. The return value with be
     ##' a multidimensional array (`state x <shape> x step_snapshot`)
     ##' containing full state values at the requested steps.
-    filter = function(save_trajectories = FALSE, step_snapshot = NULL) {
+    filter = function(step = NULL, save_trajectories = FALSE,
+                      step_snapshot = NULL) {
     },
 
     ##' @description
