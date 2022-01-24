@@ -29,7 +29,11 @@ filter(T * obj,
 
   if (save_trajectories) {
     state.trajectories.resize(obj->n_state(), n_particles, n_data);
-    state.trajectories.store_values(obj->device_state_selected());
+
+    if (obj->step() <= obj->data().begin()->first) {
+      state.trajectories.store_values(obj->device_state_selected());
+    }
+
     state.trajectories.advance();
   }
 
@@ -39,14 +43,18 @@ filter(T * obj,
     state.snapshots.resize(obj->n_state_full(), n_particles, step_snapshot);
   }
 
-  for (auto & d : obj->data()) {
-    const auto step = d.first;
-    if (step <= obj->step()) {
-      continue;
-    }
+  auto d = obj->data().cbegin();
+  const auto d_end = obj->data().cend();
 
+  while (d->first <= obj->step() && d != d_end) {
+    d++;
+    state.trajectories.advance();
+  }
+
+  for (; d != d_end; ++d) {
+    const auto step = d->first;
     // MODEL UPDATE
-    obj->run(d.first);
+    obj->run(step);
 
     // SAVE HISTORY (async)
     if (save_trajectories) {
@@ -54,7 +62,7 @@ filter(T * obj,
     }
 
     // COMPARISON FUNCTION
-    obj->compare_data(weights.weights(), d.second);
+    obj->compare_data(weights.weights(), d->second);
 
     // SCALE WEIGHTS
     weights.scale_log_weights(log_likelihood);
@@ -70,7 +78,7 @@ filter(T * obj,
     }
 
     // SAVE SNAPSHOT
-    if (save_snapshots && state.snapshots.is_snapshot_step(d.first)) {
+    if (save_snapshots && state.snapshots.is_snapshot_step(step)) {
       state.snapshots.store(obj->device_state_full());
       state.snapshots.advance();
     }
