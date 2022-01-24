@@ -306,3 +306,27 @@ test_that("disallow min_log_likelihood (for now)", {
     mod$filter(min_log_likelihood = -5),
     "min_log_likelihood not yet supported")
 })
+
+
+test_that("can partially run filter in deterministic mode", {
+  dat <- example_filter()
+
+  pars <- list(exp_noise = Inf)
+
+  mod <- dat$model$new(pars, 0, 1, deterministic = TRUE, seed = 1L)
+  mod$set_data(dat$dat_dust)
+  mod$update_state(pars = pars, step = 0)
+  cmp <- mod$filter(save_trajectories = TRUE, step_snapshot = c(20, 40))
+
+  mod$update_state(pars = pars, step = 0)
+  res1 <- mod$filter(100, save_trajectories = TRUE, step_snapshot = c(20, 40))
+  res2 <- mod$filter(600, save_trajectories = TRUE)
+
+  expect_equal(res1$log_likelihood + res2$log_likelihood, cmp$log_likelihood)
+
+  expect_equal(res1$trajectories[, , 1:26], cmp$trajectories[, , 1:26])
+  expect_equal(res2$trajectories[, , 27:151], cmp$trajectories[, , 27:151])
+
+  expect_equal(res1$snapshots, cmp$snapshots)
+  expect_null(res2$snapshots)
+})
