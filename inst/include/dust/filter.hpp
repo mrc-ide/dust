@@ -54,7 +54,7 @@ filter(T * obj,
     state.trajectories.advance();
   }
 
-  for (; d != d_end; ++d) {
+  for (; d != d_end && obj->step() < step_end; ++d) {
     const auto step = d->first;
     obj->run(step);
     obj->compare_data(weights, d->second);
@@ -87,10 +87,6 @@ filter(T * obj,
     if (save_snapshots && state.snapshots.is_snapshot_step(step)) {
       obj->state_full(state.snapshots.value_iterator());
       state.snapshots.advance();
-    }
-
-    if (step >= step_end) {
-      break;
     }
   }
 
