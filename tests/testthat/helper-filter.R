@@ -31,6 +31,8 @@ scale_log_weights <- function(w) {
 }
 
 
+## This is closer to the mcstate implementation, but does the
+## value/index lookup in the unexpected order
 filter_trajectories_reorder <- function(value, order) {
   index_particle <- seq_len(ncol(value))
   n_state <- nrow(value)
@@ -50,15 +52,15 @@ filter_trajectories_reorder <- function(value, order) {
 ## The C++ version of the above is closer to this, which might be
 ## useful if we decide to expose getting just one particle's trajectories
 ## (or some set) out of the trajectories.
-filter_trajectories_reorder_cpp <- function(value, order) {
+filter_trajectories_reorder <- function(value, order) {
   n_state <- nrow(value)
   n_particles <- ncol(value)
   n_data <- ncol(order)
   index_particle <- seq_len(ncol(value))
   ret <- array(NA_real_, c(n_state, n_particles, n_data))
   for (i in rev(seq_len(ncol(order)))) {
-    index_particle <- order[index_particle, i]
     ret[, , i] <- value[, index_particle, i]
+    index_particle <- order[index_particle, i]
   }
   ret
 }

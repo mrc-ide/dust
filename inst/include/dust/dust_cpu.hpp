@@ -334,10 +334,11 @@ public:
     rng_.long_jump();
   }
 
+  bool deterministic() const {
+    return rng_.deterministic();
+  }
+
   void set_data(std::map<size_t, std::vector<data_type>> data) {
-    if (rng_.deterministic()) {
-      throw std::runtime_error("Can't use data with deterministic models");
-    }
     data_ = data;
   }
 

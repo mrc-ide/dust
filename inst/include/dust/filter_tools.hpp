@@ -47,6 +47,9 @@ void resample_weight(typename std::vector<real_type>::const_iterator w,
 // value of the average log weight.
 template <typename real_type>
 real_type scale_log_weights(typename std::vector<real_type>::iterator w, size_t n) {
+  if (n == 1) {
+    return *w;
+  }
   real_type max_w = -std::numeric_limits<real_type>::infinity();
   auto wi = w;
   for (size_t i = 0; i < n; ++i, ++wi) {

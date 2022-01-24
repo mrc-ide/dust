@@ -133,17 +133,28 @@ public:
     for (size_t i = 0; i < n_particles_; ++i) {
       index_particle[i] = i;
     }
-    for (size_t k = 0; k < n_data_ + 1; ++k) {
-      size_t i = n_data_ - k;
+    const size_t n_state_particles = n_state_ * n_particles_;
+    for (size_t k = 0; k < offset_; ++k) {
+      size_t i = offset_ - k - 1;
       auto const it_order = order_begin + i * n_particles_;
-      auto const it_value = value_begin + i * n_state_ * n_particles_;
-      auto it_ret = ret + i * n_state_ * n_particles_;
+      auto const it_value = value_begin + i * n_state_particles;
+      auto it_ret = ret + i * n_state_particles;
       for (size_t j = 0; j < n_particles_; ++j) {
-        const size_t idx = *(it_order + index_particle[j]);
-        index_particle[j] = idx;
-        std::copy_n(it_value + idx * n_state_, n_state_,
+        std::copy_n(it_value + index_particle[j] * n_state_,
+                    n_state_,
                     it_ret + j * n_state_);
+        index_particle[j] = *(it_order + index_particle[j]);
       }
+    }
+
+    // In the case where we've not filled all data, the remaining
+    // memory might be uninitialised.  This ensures that it everything
+    // we return has been set by us.  We will ignore this data anyway,
+    // but should not return -1e-308 junk.
+    if (offset_ < n_data_) {
+      std::fill(ret + offset_ * n_state_particles,
+                ret + (n_data_ + 1) * n_state_particles,
+                0);
     }
   }
 

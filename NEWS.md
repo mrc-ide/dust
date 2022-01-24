@@ -1,3 +1,8 @@
+# dust 0.11.23
+
+* Allow use of `$filter()` with deterministic models (that support it)
+* Allow partial running of the filter from the current step up to some step part way through the data (#177)
+
 # dust 0.11.22
 
 * Allow model names with underscores (#358, see also [odin.dust#98](https://github.com/mrc-ide/odin.dust/issues/98))

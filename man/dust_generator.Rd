@@ -658,12 +658,21 @@ next few versions. You \emph{must} reset the dust object using
 \verb{$update_state(pars = ..., step = ...)} before using this method to
 get sensible values.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$filter(save_trajectories = FALSE, step_snapshot = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$filter(
+  step_end = NULL,
+  save_trajectories = FALSE,
+  step_snapshot = NULL,
+  min_log_likelihood = NULL
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{step_end}}{The step to run to. If \code{NULL}, run to the end
+of the last data.  This value must be larger than the current
+model step (\verb{$step()}) and must exactly appear in the data.}
+
 \item{\code{save_trajectories}}{Logical, indicating if the filtered particle
 trajectories should be saved. If \code{TRUE} then the \code{trajectories} element
 will be a multidimensional array (\verb{state x <shape> x time})
@@ -676,6 +685,12 @@ If given it must be strictly increasing vector whose elements
 match steps given in the \code{data} object. The return value with be
 a multidimensional array (\verb{state x <shape> x step_snapshot})
 containing full state values at the requested steps.}
+
+\item{\code{min_log_likelihood}}{Optionally, a numeric value representing
+the smallest likelihood we are interested in. If non-\code{NULL}
+either a scalar value or vector the same length as the number
+of parameter sets. Not yet supported, and included for future
+compatibility.}
 }
 \if{html}{\out{</div>}}
 }

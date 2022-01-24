@@ -406,6 +406,10 @@ dust_generator <- R6::R6Class(
     ##' `$update_state(pars = ..., step = ...)` before using this method to
     ##' get sensible values.
     ##'
+    ##' @param step_end The step to run to. If `NULL`, run to the end
+    ##'   of the last data.  This value must be larger than the current
+    ##'   model step (`$step()`) and must exactly appear in the data.
+    ##'
     ##' @param save_trajectories Logical, indicating if the filtered particle
     ##' trajectories should be saved. If `TRUE` then the `trajectories` element
     ##' will be a multidimensional array (`state x <shape> x time`)
@@ -418,7 +422,14 @@ dust_generator <- R6::R6Class(
     ##' match steps given in the `data` object. The return value with be
     ##' a multidimensional array (`state x <shape> x step_snapshot`)
     ##' containing full state values at the requested steps.
-    filter = function(save_trajectories = FALSE, step_snapshot = NULL) {
+    ##'
+    ##' @param min_log_likelihood Optionally, a numeric value representing
+    ##' the smallest likelihood we are interested in. If non-`NULL`
+    ##' either a scalar value or vector the same length as the number
+    ##' of parameter sets. Not yet supported, and included for future
+    ##' compatibility.
+    filter = function(step_end = NULL, save_trajectories = FALSE,
+                      step_snapshot = NULL, min_log_likelihood = NULL) {
     },
 
     ##' @description

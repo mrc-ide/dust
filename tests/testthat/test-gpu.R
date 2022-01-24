@@ -974,3 +974,33 @@ test_that("Particles are initialised based on time", {
   mod <- res$new(list(sd = 1), 4, 5, gpu_config = 0L)
   expect_equal(mod$state(), matrix(4, 1, 5))
 })
+
+
+test_that("Can partially run filter for the gpu model", {
+  dat <- example_sirs()
+
+  np <- 10
+
+  mod_h <- dat$model$new(list(), 0, np, seed = 10L)
+  mod_h$set_data(dat$dat_dust)
+  ans_h1 <- mod_h$filter(100,
+                         save_trajectories = TRUE,
+                         step_snapshot = c(4, 16))
+  ans_h2 <- mod_h$filter(400,
+                         save_trajectories = TRUE)
+
+  mod_d <- dat$model$new(list(), 0, np, seed = 10L, gpu_config = 0L)
+  mod_d$set_data(dat$dat_dust)
+  ans_d1 <- mod_d$filter(100,
+                         save_trajectories = TRUE,
+                         step_snapshot = c(4, 16))
+  ans_d2 <- mod_d$filter(400,
+                         save_trajectories = TRUE)
+
+  expect_equal(ans_h1$log_likelihood, ans_d1$log_likelihood)
+  expect_equal(ans_h2$log_likelihood, ans_d2$log_likelihood)
+  expect_identical(ans_h1$trajectories, ans_d1$trajectories)
+  expect_identical(ans_h2$trajectories, ans_d2$trajectories)
+  expect_identical(ans_h1$snapshots, ans_d1$snapshots)
+  expect_identical(ans_h2$snapshots, ans_d2$snapshots) # NULL
+})

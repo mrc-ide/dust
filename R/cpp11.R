@@ -148,8 +148,8 @@ dust_cpu_sir_compare_data <- function(ptr) {
   .Call(`_dust_dust_cpu_sir_compare_data`, ptr)
 }
 
-dust_cpu_sir_filter <- function(ptr, save_trajectories, step_snapshot) {
-  .Call(`_dust_dust_cpu_sir_filter`, ptr, save_trajectories, step_snapshot)
+dust_cpu_sir_filter <- function(ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood) {
+  .Call(`_dust_dust_cpu_sir_filter`, ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood)
 }
 
 dust_cpu_sir_set_n_threads <- function(ptr, n_threads) {
@@ -220,8 +220,8 @@ dust_cpu_sirs_compare_data <- function(ptr) {
   .Call(`_dust_dust_cpu_sirs_compare_data`, ptr)
 }
 
-dust_cpu_sirs_filter <- function(ptr, save_trajectories, step_snapshot) {
-  .Call(`_dust_dust_cpu_sirs_filter`, ptr, save_trajectories, step_snapshot)
+dust_cpu_sirs_filter <- function(ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood) {
+  .Call(`_dust_dust_cpu_sirs_filter`, ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood)
 }
 
 dust_cpu_sirs_set_n_threads <- function(ptr, n_threads) {
@@ -284,8 +284,8 @@ dust_gpu_sirs_compare_data <- function(ptr) {
   .Call(`_dust_dust_gpu_sirs_compare_data`, ptr)
 }
 
-dust_gpu_sirs_filter <- function(ptr, save_trajectories, step_snapshot) {
-  .Call(`_dust_dust_gpu_sirs_filter`, ptr, save_trajectories, step_snapshot)
+dust_gpu_sirs_filter <- function(ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood) {
+  .Call(`_dust_dust_gpu_sirs_filter`, ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood)
 }
 
 dust_gpu_sirs_set_n_threads <- function(ptr, n_threads) {
@@ -368,8 +368,8 @@ dust_cpu_variable_compare_data <- function(ptr) {
   .Call(`_dust_dust_cpu_variable_compare_data`, ptr)
 }
 
-dust_cpu_variable_filter <- function(ptr, save_trajectories, step_snapshot) {
-  .Call(`_dust_dust_cpu_variable_filter`, ptr, save_trajectories, step_snapshot)
+dust_cpu_variable_filter <- function(ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood) {
+  .Call(`_dust_dust_cpu_variable_filter`, ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood)
 }
 
 dust_cpu_variable_set_n_threads <- function(ptr, n_threads) {
@@ -432,8 +432,8 @@ dust_gpu_variable_compare_data <- function(ptr) {
   .Call(`_dust_dust_gpu_variable_compare_data`, ptr)
 }
 
-dust_gpu_variable_filter <- function(ptr, save_trajectories, step_snapshot) {
-  .Call(`_dust_dust_gpu_variable_filter`, ptr, save_trajectories, step_snapshot)
+dust_gpu_variable_filter <- function(ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood) {
+  .Call(`_dust_dust_gpu_variable_filter`, ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood)
 }
 
 dust_gpu_variable_set_n_threads <- function(ptr, n_threads) {
@@ -504,8 +504,8 @@ dust_cpu_volatility_compare_data <- function(ptr) {
   .Call(`_dust_dust_cpu_volatility_compare_data`, ptr)
 }
 
-dust_cpu_volatility_filter <- function(ptr, save_trajectories, step_snapshot) {
-  .Call(`_dust_dust_cpu_volatility_filter`, ptr, save_trajectories, step_snapshot)
+dust_cpu_volatility_filter <- function(ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood) {
+  .Call(`_dust_dust_cpu_volatility_filter`, ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood)
 }
 
 dust_cpu_volatility_set_n_threads <- function(ptr, n_threads) {
@@ -576,8 +576,8 @@ dust_cpu_walk_compare_data <- function(ptr) {
   .Call(`_dust_dust_cpu_walk_compare_data`, ptr)
 }
 
-dust_cpu_walk_filter <- function(ptr, save_trajectories, step_snapshot) {
-  .Call(`_dust_dust_cpu_walk_filter`, ptr, save_trajectories, step_snapshot)
+dust_cpu_walk_filter <- function(ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood) {
+  .Call(`_dust_dust_cpu_walk_filter`, ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood)
 }
 
 dust_cpu_walk_set_n_threads <- function(ptr, n_threads) {

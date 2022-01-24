@@ -7,10 +7,10 @@
 namespace dust {
 namespace filter {
 
-// Host version
 template <typename T>
 std::vector<typename T::real_type>
 filter(T * obj,
+       size_t step_end,
        filter_state_host<typename T::real_type>& state,
        bool save_trajectories,
        std::vector<size_t> step_snapshot) {
@@ -27,7 +27,15 @@ filter(T * obj,
 
   if (save_trajectories) {
     state.trajectories.resize(obj->n_state(), n_particles, n_data);
-    obj->state(state.trajectories.value_iterator());
+
+    // On the first step we save the initial conditions; that is
+    // whenever `step_end` falls before the first data point (rhs here
+    // is just the time that the first data point ends at).
+    const auto step_first_data = obj->data().begin()->first;
+    if (obj->step() <= step_first_data) {
+      obj->state(state.trajectories.value_iterator());
+    }
+
     state.trajectories.advance();
   }
 
@@ -37,9 +45,19 @@ filter(T * obj,
     state.snapshots.resize(obj->n_state_full(), n_particles, step_snapshot);
   }
 
-  for (auto & d : obj->data()) {
-    obj->run(d.first);
-    obj->compare_data(weights, d.second);
+  const bool is_stochastic = !obj->deterministic();
+  auto d = obj->data().cbegin();
+  const auto d_end = obj->data().cend();
+
+  while (d->first <= obj->step() && d != d_end) {
+    d++;
+    state.trajectories.advance();
+  }
+
+  for (; d != d_end && obj->step() < step_end; ++d) {
+    const auto step = d->first;
+    obj->run(step);
+    obj->compare_data(weights, d->second);
 
     // TODO: we should cope better with the case where all weights
     // are 0; I think that is the behaviour in the model (or rather
@@ -49,27 +67,24 @@ filter(T * obj,
     // has become impossible but others continue, but that's hard!
     auto wi = weights.begin();
     for (size_t i = 0; i < n_pars; ++i) {
-      log_likelihood_step[i] = scale_log_weights<real_type>(wi, n_particles_each);
-      log_likelihood[i] += log_likelihood_step[i];
+      log_likelihood[i] += scale_log_weights<real_type>(wi, n_particles_each);
       wi += n_particles_each;
     }
 
-    // We could move this below if wanted but we'd have to rewrite
-    // the re-sort algorithm; that would be worth doing I think
-    // https://github.com/mrc-ide/dust/issues/202
-    if (save_trajectories) {
-      obj->state(state.trajectories.value_iterator());
+    if (is_stochastic) {
+      obj->resample(weights, kappa);
     }
 
-    obj->resample(weights, kappa);
-
     if (save_trajectories) {
-      std::copy(kappa.begin(), kappa.end(),
-                state.trajectories.order_iterator());
+      if (is_stochastic) {
+        std::copy(kappa.begin(), kappa.end(),
+                  state.trajectories.order_iterator());
+      }
+      obj->state(state.trajectories.value_iterator());
       state.trajectories.advance();
     }
 
-    if (save_snapshots && state.snapshots.is_snapshot_step(d.first)) {
+    if (save_snapshots && state.snapshots.is_snapshot_step(step)) {
       obj->state_full(state.snapshots.value_iterator());
       state.snapshots.advance();
     }
@@ -77,8 +92,6 @@ filter(T * obj,
 
   return log_likelihood;
 }
-
-
 
 }
 }

@@ -17,12 +17,12 @@ test_that("Can run the filter", {
   hi[, 1] <- seq_len(np)
   for (i in seq_len(n_data)) {
     mod$run(dat$dat_dust[[i]][[1]])
-    hv[, , i + 1] <- mod$state()
     weights <- mod$compare_data()
     tmp <- scale_log_weights(weights)
     ll[[i]] <- tmp$average
     idx <- mod$resample(tmp$weights)
     hi[, i + 1] <- idx
+    hv[, , i + 1] <- mod$state()
   }
   cmp_log_likelihood <- Reduce(`+`, ll) # naive sum()
   cmp_trajectories <- filter_trajectories_reorder(hv, hi)
@@ -183,4 +183,146 @@ test_that("Validate step_snapshot", {
     mod$filter(step_snapshot = c(100, 201, 400)),
     "'step_snapshot[2]' (step 201) was not found in data",
     fixed = TRUE)
+})
+
+
+test_that("Can partially run filter", {
+  dat <- example_filter()
+
+  np <- 10
+  mod <- dat$model$new(list(), 0, np, seed = 10L)
+  expect_error(mod$filter(), "Data has not been set for this object")
+
+  mod$set_data(dat$dat_dust)
+
+  ## We can perform the entire particle filter manually with the C++
+  ## version, and this will run entirely on the dust generator
+  n_data <- length(dat$dat_dust)
+  ll <- numeric(n_data)
+  hv <- array(NA_real_, c(5L, np, n_data + 1L))
+  hi <- matrix(NA_integer_, np, n_data + 1L)
+  hv[, , 1] <- mod$state()
+  hi[, 1] <- seq_len(np)
+  for (i in seq_len(n_data)) {
+    mod$run(dat$dat_dust[[i]][[1]])
+    weights <- mod$compare_data()
+    tmp <- scale_log_weights(weights)
+    ll[[i]] <- tmp$average
+    idx <- mod$resample(tmp$weights)
+    hi[, i + 1] <- idx
+    hv[, , i + 1] <- mod$state()
+  }
+  cmp_log_likelihood <- Reduce(`+`, ll) # naive sum()
+  cmp_trajectories <- filter_trajectories_reorder(hv, hi)
+
+  mod <- dat$model$new(list(), 0, np, seed = 10L)
+  mod$set_data(dat$dat_dust)
+  ans <- vector("list", nrow(dat$dat))
+  for (i in seq_along(ans)) {
+    ans[[i]] <- mod$filter(dat$dat$step[[i]])
+  }
+  expect_equal(vapply(ans, "[[", 1, "log_likelihood"), ll)
+
+  mod <- dat$model$new(list(), 0, np, seed = 10L)
+  mod$set_data(dat$dat_dust)
+  ans <- vector("list", nrow(dat$dat))
+  for (i in seq_along(ans)) {
+    ans[[i]] <- mod$filter(dat$dat$step[[i]], save_trajectories = TRUE)
+  }
+
+  expect_equal(vapply(ans, "[[", 1, "log_likelihood"), ll)
+
+  traj <- lapply(seq_along(ans), function(i)
+    ans[[i]]$trajectories[, , i + 1])
+  tmp <- lapply(seq_along(ans) + 1, function(i)
+    filter_trajectories_reorder(hv[, , seq_len(i)], hi[, seq_len(i)])[, , i])
+  expect_equal(traj, tmp)
+  expect_equal(ans[[1]]$trajectories[, , 1], cmp_trajectories[, , 1])
+})
+
+
+test_that("can run filter in deterministic mode", {
+  dat <- example_filter()
+
+  pars <- list(exp_noise = Inf)
+
+  mod <- dat$model$new(pars, 0, 1, deterministic = TRUE, seed = 1L)
+  mod$set_data(dat$dat_dust)
+
+  n_data <- length(dat$dat_dust)
+  ll <- numeric(n_data)
+  hv <- array(NA_real_, c(5L, n_data + 1L))
+  hv[, 1] <- mod$state()
+  for (i in seq_len(n_data)) {
+    hv[, i + 1] <- mod$run(dat$dat_dust[[i]][[1]])
+    ll[[i]] <- mod$compare_data()
+  }
+  cmp_log_likelihood <- Reduce(`+`, ll) # naive sum()
+
+  ## Quick check
+  mod$update_state(pars = pars, step = 0)
+  expect_equal(hv, drop(mod$simulate(c(0, dat$dat[, "step"]))))
+
+  mod$update_state(pars = pars, step = 0)
+  res <- mod$filter(save_trajectories = TRUE)
+  expect_equal(res$log_likelihood, res$log_likelihood)
+  expect_equal(drop(res$trajectories), hv)
+})
+
+
+test_that("filter validates step", {
+  dat <- example_filter()
+
+  np <- 10
+  mod <- dat$model$new(list(), 0, np, seed = 10L)
+
+  mod$set_data(dat$dat_dust)
+  expect_error(
+    mod$filter(-100),
+    "'step_end' must be non-negative (was given -100)",
+    fixed = TRUE)
+  expect_error(
+    mod$filter(6),
+    "'step_end' was not found in data (was given 6)",
+    fixed = TRUE)
+  mod$run(30)
+  expect_error(
+    mod$filter(12),
+    "'step_end' must be larger than curent step (30; given 12)",
+    fixed = TRUE)
+})
+
+
+test_that("disallow min_log_likelihood (for now)", {
+  dat <- example_filter()
+  np <- 10
+  mod <- dat$model$new(list(), 0, np, seed = 10L)
+  mod$set_data(dat$dat_dust)
+  expect_error(
+    mod$filter(min_log_likelihood = -5),
+    "min_log_likelihood not yet supported")
+})
+
+
+test_that("can partially run filter in deterministic mode", {
+  dat <- example_filter()
+
+  pars <- list(exp_noise = Inf)
+
+  mod <- dat$model$new(pars, 0, 1, deterministic = TRUE, seed = 1L)
+  mod$set_data(dat$dat_dust)
+  mod$update_state(pars = pars, step = 0)
+  cmp <- mod$filter(save_trajectories = TRUE, step_snapshot = c(20, 40))
+
+  mod$update_state(pars = pars, step = 0)
+  res1 <- mod$filter(100, save_trajectories = TRUE, step_snapshot = c(20, 40))
+  res2 <- mod$filter(600, save_trajectories = TRUE)
+
+  expect_equal(res1$log_likelihood + res2$log_likelihood, cmp$log_likelihood)
+
+  expect_equal(res1$trajectories[, , 1:26], cmp$trajectories[, , 1:26])
+  expect_equal(res2$trajectories[, , 27:151], cmp$trajectories[, , 27:151])
+
+  expect_equal(res1$snapshots, cmp$snapshots)
+  expect_null(res2$snapshots)
 })
