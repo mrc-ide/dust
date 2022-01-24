@@ -661,7 +661,8 @@ get sensible values.
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$filter(
   step = NULL,
   save_trajectories = FALSE,
-  step_snapshot = NULL
+  step_snapshot = NULL,
+  min_log_likelihood = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -682,6 +683,12 @@ If given it must be strictly increasing vector whose elements
 match steps given in the \code{data} object. The return value with be
 a multidimensional array (\verb{state x <shape> x step_snapshot})
 containing full state values at the requested steps.}
+
+\item{\code{min_log_likelihood}}{Optionally, a numeric value representing
+the smallest likelihood we are interested in. If non-\code{NULL}
+either a scalar value or vector the same length as the number
+of parameter sets. Not yet supported, and included for future
+compatibility.}
 }
 \if{html}{\out{</div>}}
 }

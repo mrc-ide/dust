@@ -471,7 +471,8 @@ cpp11::sexp run_filter(T * obj, size_t step,
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
 cpp11::sexp dust_filter(SEXP ptr, SEXP r_step, bool save_trajectories,
-                        cpp11::sexp r_step_snapshot) {
+                        cpp11::sexp r_step_snapshot,
+                        cpp11::sexp min_log_likelihood) {
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   obj->check_errors();
 
@@ -494,6 +495,10 @@ cpp11::sexp dust_filter(SEXP ptr, SEXP r_step, bool save_trajectories,
 
   std::vector<size_t> step_snapshot =
     dust::r::check_step_snapshot(r_step_snapshot, obj->data());
+
+  if (min_log_likelihood != R_NilValue) {
+    cpp11::stop("min_log_likelihood not yet supported");
+  }
 
   return run_filter<T>(obj, step, step_snapshot, save_trajectories);
 }
@@ -519,7 +524,8 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
 
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
 cpp11::sexp dust_filter(SEXP ptr, SEXP step, bool save_trajectories,
-                        cpp11::sexp step_snapshot) {
+                        cpp11::sexp step_snapshot,
+                        cpp11::sexp min_log_likelihood) {
   disable_method("filter");
   return R_NilValue; // #nocov never gets here
 }

@@ -295,3 +295,14 @@ test_that("filter validates step", {
     "'step' must be larger then curent step (30; was given 12)",
     fixed = TRUE)
 })
+
+
+test_that("disallow min_log_likelihood (for now)", {
+  dat <- example_filter()
+  np <- 10
+  mod <- dat$model$new(list(), 0, np, seed = 10L)
+  mod$set_data(dat$dat_dust)
+  expect_error(
+    mod$filter(min_log_likelihood = -5),
+    "min_log_likelihood not yet supported")
+})
