@@ -232,10 +232,6 @@ test_that("Can partially run filter", {
 
   expect_equal(vapply(ans, "[[", 1, "log_likelihood"), ll)
 
-  ## I don't have a good intuition about why we're correct for the
-  ## state at the end, for each time point, but not for the points in
-  ## the middle; it's very likely that because these are the fully
-  ## sorted trajectories that I just don't understand something.
   traj <- lapply(seq_along(ans), function(i)
     ans[[i]]$trajectories[, , i + 1])
   tmp <- lapply(seq_along(ans) + 1, function(i)
