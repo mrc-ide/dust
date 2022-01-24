@@ -269,10 +269,10 @@ extern "C" SEXP _dust_dust_cpu_sir_compare_data(SEXP ptr) {
   END_CPP11
 }
 // sir.cpp
-SEXP dust_cpu_sir_filter(SEXP ptr, SEXP step, bool save_trajectories, cpp11::sexp step_snapshot, cpp11::sexp min_log_likelihood);
-extern "C" SEXP _dust_dust_cpu_sir_filter(SEXP ptr, SEXP step, SEXP save_trajectories, SEXP step_snapshot, SEXP min_log_likelihood) {
+SEXP dust_cpu_sir_filter(SEXP ptr, SEXP step_end, bool save_trajectories, cpp11::sexp step_snapshot, cpp11::sexp min_log_likelihood);
+extern "C" SEXP _dust_dust_cpu_sir_filter(SEXP ptr, SEXP step_end, SEXP save_trajectories, SEXP step_snapshot, SEXP min_log_likelihood) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_sir_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(min_log_likelihood)));
+    return cpp11::as_sexp(dust_cpu_sir_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step_end), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(min_log_likelihood)));
   END_CPP11
 }
 // sir.cpp
@@ -397,10 +397,10 @@ extern "C" SEXP _dust_dust_cpu_sirs_compare_data(SEXP ptr) {
   END_CPP11
 }
 // sirs.cpp
-SEXP dust_cpu_sirs_filter(SEXP ptr, SEXP step, bool save_trajectories, cpp11::sexp step_snapshot, cpp11::sexp min_log_likelihood);
-extern "C" SEXP _dust_dust_cpu_sirs_filter(SEXP ptr, SEXP step, SEXP save_trajectories, SEXP step_snapshot, SEXP min_log_likelihood) {
+SEXP dust_cpu_sirs_filter(SEXP ptr, SEXP step_end, bool save_trajectories, cpp11::sexp step_snapshot, cpp11::sexp min_log_likelihood);
+extern "C" SEXP _dust_dust_cpu_sirs_filter(SEXP ptr, SEXP step_end, SEXP save_trajectories, SEXP step_snapshot, SEXP min_log_likelihood) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_sirs_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(min_log_likelihood)));
+    return cpp11::as_sexp(dust_cpu_sirs_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step_end), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(min_log_likelihood)));
   END_CPP11
 }
 // sirs.cpp
@@ -511,10 +511,10 @@ extern "C" SEXP _dust_dust_gpu_sirs_compare_data(SEXP ptr) {
   END_CPP11
 }
 // sirs.cpp
-SEXP dust_gpu_sirs_filter(SEXP ptr, SEXP step, bool save_trajectories, cpp11::sexp step_snapshot, cpp11::sexp min_log_likelihood);
-extern "C" SEXP _dust_dust_gpu_sirs_filter(SEXP ptr, SEXP step, SEXP save_trajectories, SEXP step_snapshot, SEXP min_log_likelihood) {
+SEXP dust_gpu_sirs_filter(SEXP ptr, SEXP step_end, bool save_trajectories, cpp11::sexp step_snapshot, cpp11::sexp min_log_likelihood);
+extern "C" SEXP _dust_dust_gpu_sirs_filter(SEXP ptr, SEXP step_end, SEXP save_trajectories, SEXP step_snapshot, SEXP min_log_likelihood) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_gpu_sirs_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(min_log_likelihood)));
+    return cpp11::as_sexp(dust_gpu_sirs_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step_end), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(min_log_likelihood)));
   END_CPP11
 }
 // sirs.cpp
@@ -660,10 +660,10 @@ extern "C" SEXP _dust_dust_cpu_variable_compare_data(SEXP ptr) {
   END_CPP11
 }
 // variable.cpp
-SEXP dust_cpu_variable_filter(SEXP ptr, SEXP step, bool save_trajectories, cpp11::sexp step_snapshot, cpp11::sexp min_log_likelihood);
-extern "C" SEXP _dust_dust_cpu_variable_filter(SEXP ptr, SEXP step, SEXP save_trajectories, SEXP step_snapshot, SEXP min_log_likelihood) {
+SEXP dust_cpu_variable_filter(SEXP ptr, SEXP step_end, bool save_trajectories, cpp11::sexp step_snapshot, cpp11::sexp min_log_likelihood);
+extern "C" SEXP _dust_dust_cpu_variable_filter(SEXP ptr, SEXP step_end, SEXP save_trajectories, SEXP step_snapshot, SEXP min_log_likelihood) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_variable_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(min_log_likelihood)));
+    return cpp11::as_sexp(dust_cpu_variable_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step_end), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(min_log_likelihood)));
   END_CPP11
 }
 // variable.cpp
@@ -774,10 +774,10 @@ extern "C" SEXP _dust_dust_gpu_variable_compare_data(SEXP ptr) {
   END_CPP11
 }
 // variable.cpp
-SEXP dust_gpu_variable_filter(SEXP ptr, SEXP step, bool save_trajectories, cpp11::sexp step_snapshot, cpp11::sexp min_log_likelihood);
-extern "C" SEXP _dust_dust_gpu_variable_filter(SEXP ptr, SEXP step, SEXP save_trajectories, SEXP step_snapshot, SEXP min_log_likelihood) {
+SEXP dust_gpu_variable_filter(SEXP ptr, SEXP step_end, bool save_trajectories, cpp11::sexp step_snapshot, cpp11::sexp min_log_likelihood);
+extern "C" SEXP _dust_dust_gpu_variable_filter(SEXP ptr, SEXP step_end, SEXP save_trajectories, SEXP step_snapshot, SEXP min_log_likelihood) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_gpu_variable_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(min_log_likelihood)));
+    return cpp11::as_sexp(dust_gpu_variable_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step_end), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(min_log_likelihood)));
   END_CPP11
 }
 // variable.cpp
@@ -902,10 +902,10 @@ extern "C" SEXP _dust_dust_cpu_volatility_compare_data(SEXP ptr) {
   END_CPP11
 }
 // volatility.cpp
-SEXP dust_cpu_volatility_filter(SEXP ptr, SEXP step, bool save_trajectories, cpp11::sexp step_snapshot, cpp11::sexp min_log_likelihood);
-extern "C" SEXP _dust_dust_cpu_volatility_filter(SEXP ptr, SEXP step, SEXP save_trajectories, SEXP step_snapshot, SEXP min_log_likelihood) {
+SEXP dust_cpu_volatility_filter(SEXP ptr, SEXP step_end, bool save_trajectories, cpp11::sexp step_snapshot, cpp11::sexp min_log_likelihood);
+extern "C" SEXP _dust_dust_cpu_volatility_filter(SEXP ptr, SEXP step_end, SEXP save_trajectories, SEXP step_snapshot, SEXP min_log_likelihood) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_volatility_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(min_log_likelihood)));
+    return cpp11::as_sexp(dust_cpu_volatility_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step_end), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(min_log_likelihood)));
   END_CPP11
 }
 // volatility.cpp
@@ -1030,10 +1030,10 @@ extern "C" SEXP _dust_dust_cpu_walk_compare_data(SEXP ptr) {
   END_CPP11
 }
 // walk.cpp
-SEXP dust_cpu_walk_filter(SEXP ptr, SEXP step, bool save_trajectories, cpp11::sexp step_snapshot, cpp11::sexp min_log_likelihood);
-extern "C" SEXP _dust_dust_cpu_walk_filter(SEXP ptr, SEXP step, SEXP save_trajectories, SEXP step_snapshot, SEXP min_log_likelihood) {
+SEXP dust_cpu_walk_filter(SEXP ptr, SEXP step_end, bool save_trajectories, cpp11::sexp step_snapshot, cpp11::sexp min_log_likelihood);
+extern "C" SEXP _dust_dust_cpu_walk_filter(SEXP ptr, SEXP step_end, SEXP save_trajectories, SEXP step_snapshot, SEXP min_log_likelihood) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_walk_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(min_log_likelihood)));
+    return cpp11::as_sexp(dust_cpu_walk_filter(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<SEXP>>(step_end), cpp11::as_cpp<cpp11::decay_t<bool>>(save_trajectories), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(step_snapshot), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(min_log_likelihood)));
   END_CPP11
 }
 // walk.cpp

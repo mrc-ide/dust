@@ -470,7 +470,7 @@ cpp11::sexp run_filter(T * obj, size_t step,
 }
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
-cpp11::sexp dust_filter(SEXP ptr, SEXP r_step, bool save_trajectories,
+cpp11::sexp dust_filter(SEXP ptr, SEXP r_step_end, bool save_trajectories,
                         cpp11::sexp r_step_snapshot,
                         cpp11::sexp min_log_likelihood) {
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
@@ -480,16 +480,16 @@ cpp11::sexp dust_filter(SEXP ptr, SEXP r_step, bool save_trajectories,
     cpp11::stop("Data has not been set for this object");
   }
 
-  size_t step = std::numeric_limits<size_t>::max();
-  if (r_step != R_NilValue) {
-    step = cpp11::as_cpp<int>(r_step);
-    dust::r::validate_size(step, "step");
-    if (step <= obj->step()) {
-      cpp11::stop("'step' must be larger then curent step (%d; was given %d)",
-                  obj->step(), step);
+  size_t step_end = std::numeric_limits<size_t>::max();
+  if (r_step_end != R_NilValue) {
+    step_end = cpp11::as_cpp<int>(r_step_end);
+    dust::r::validate_size(step_end, "step_end");
+    if (step_end <= obj->step()) {
+      cpp11::stop("'step_end' must be larger than curent step (%d; given %d)",
+                  obj->step(), step_end);
     }
-    if (obj->data().find(step) == obj->data().end()) {
-      cpp11::stop("'step' was not found in data (was given %d)", step);
+    if (obj->data().find(step_end) == obj->data().end()) {
+      cpp11::stop("'step_end' was not found in data (was given %d)", step_end);
     }
   }
 
@@ -500,7 +500,7 @@ cpp11::sexp dust_filter(SEXP ptr, SEXP r_step, bool save_trajectories,
     cpp11::stop("min_log_likelihood not yet supported");
   }
 
-  return run_filter<T>(obj, step, step_snapshot, save_trajectories);
+  return run_filter<T>(obj, step_end, step_snapshot, save_trajectories);
 }
 
 // Based on the value of the data_type in the underlying model class we
@@ -523,7 +523,7 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
 }
 
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
-cpp11::sexp dust_filter(SEXP ptr, SEXP step, bool save_trajectories,
+cpp11::sexp dust_filter(SEXP ptr, SEXP step_end, bool save_trajectories,
                         cpp11::sexp step_snapshot,
                         cpp11::sexp min_log_likelihood) {
   disable_method("filter");

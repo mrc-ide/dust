@@ -659,7 +659,7 @@ next few versions. You \emph{must} reset the dust object using
 get sensible values.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$filter(
-  step = NULL,
+  step_end = NULL,
   save_trajectories = FALSE,
   step_snapshot = NULL,
   min_log_likelihood = NULL
@@ -669,7 +669,9 @@ get sensible values.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{step}}{The step to run to. If \code{NULL}, run to the end.}
+\item{\code{step_end}}{The step to run to. If \code{NULL}, run to the end
+of the last data.  This value must be larger than the current
+model step (\verb{$step()}) and must exactly appear in the data.}
 
 \item{\code{save_trajectories}}{Logical, indicating if the filtered particle
 trajectories should be saved. If \code{TRUE} then the \code{trajectories} element

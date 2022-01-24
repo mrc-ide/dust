@@ -63,11 +63,12 @@ SEXP dust_{{target}}_{{name}}_compare_data(SEXP ptr) {
   return dust::r::dust_compare_data<model_{{target}}>(ptr);
 }
 
-SEXP dust_{{target}}_{{name}}_filter(SEXP ptr, SEXP step,
+SEXP dust_{{target}}_{{name}}_filter(SEXP ptr, SEXP step_end,
                                      bool save_trajectories,
                                      cpp11::sexp step_snapshot,
                                      cpp11::sexp min_log_likelihood) {
-  return dust::r::dust_filter<model_{{target}}>(ptr, step, save_trajectories,
+  return dust::r::dust_filter<model_{{target}}>(ptr, step_end,
+                                                save_trajectories,
                                                 step_snapshot,
                                                 min_log_likelihood);
 }

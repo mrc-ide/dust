@@ -50,7 +50,7 @@ SEXP dust_cpu_volatility_set_data(SEXP ptr, cpp11::list data);
 SEXP dust_cpu_volatility_compare_data(SEXP ptr);
 
 [[cpp11::register]]
-SEXP dust_cpu_volatility_filter(SEXP ptr, SEXP step,
+SEXP dust_cpu_volatility_filter(SEXP ptr, SEXP step_end,
                                      bool save_trajectories,
                                      cpp11::sexp step_snapshot,
                                      cpp11::sexp min_log_likelihood);
@@ -208,11 +208,12 @@ SEXP dust_cpu_volatility_compare_data(SEXP ptr) {
   return dust::r::dust_compare_data<model_cpu>(ptr);
 }
 
-SEXP dust_cpu_volatility_filter(SEXP ptr, SEXP step,
+SEXP dust_cpu_volatility_filter(SEXP ptr, SEXP step_end,
                                      bool save_trajectories,
                                      cpp11::sexp step_snapshot,
                                      cpp11::sexp min_log_likelihood) {
-  return dust::r::dust_filter<model_cpu>(ptr, step, save_trajectories,
+  return dust::r::dust_filter<model_cpu>(ptr, step_end,
+                                                save_trajectories,
                                                 step_snapshot,
                                                 min_log_likelihood);
 }

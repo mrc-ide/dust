@@ -283,16 +283,16 @@ test_that("filter validates step", {
   mod$set_data(dat$dat_dust)
   expect_error(
     mod$filter(-100),
-    "'step' must be non-negative (was given -100)",
+    "'step_end' must be non-negative (was given -100)",
     fixed = TRUE)
   expect_error(
     mod$filter(6),
-    "'step' was not found in data (was given 6)",
+    "'step_end' was not found in data (was given 6)",
     fixed = TRUE)
   mod$run(30)
   expect_error(
     mod$filter(12),
-    "'step' must be larger then curent step (30; was given 12)",
+    "'step_end' must be larger than curent step (30; given 12)",
     fixed = TRUE)
 })
 

@@ -212,9 +212,9 @@ sir <- R6::R6Class(
       private$methods_$compare_data(private$ptr_)
     },
 
-    filter = function(step = NULL, save_trajectories = FALSE,
+    filter = function(step_end = NULL, save_trajectories = FALSE,
                       step_snapshot = NULL, min_log_likelihood = NULL) {
-      private$methods_$filter(private$ptr_, step, save_trajectories,
+      private$methods_$filter(private$ptr_, step_end, save_trajectories,
                               step_snapshot, min_log_likelihood)
     },
 
@@ -455,9 +455,9 @@ sirs <- R6::R6Class(
       private$methods_$compare_data(private$ptr_)
     },
 
-    filter = function(step = NULL, save_trajectories = FALSE,
+    filter = function(step_end = NULL, save_trajectories = FALSE,
                       step_snapshot = NULL, min_log_likelihood = NULL) {
-      private$methods_$filter(private$ptr_, step, save_trajectories,
+      private$methods_$filter(private$ptr_, step_end, save_trajectories,
                               step_snapshot, min_log_likelihood)
     },
 
@@ -695,9 +695,9 @@ variable <- R6::R6Class(
       private$methods_$compare_data(private$ptr_)
     },
 
-    filter = function(step = NULL, save_trajectories = FALSE,
+    filter = function(step_end = NULL, save_trajectories = FALSE,
                       step_snapshot = NULL, min_log_likelihood = NULL) {
-      private$methods_$filter(private$ptr_, step, save_trajectories,
+      private$methods_$filter(private$ptr_, step_end, save_trajectories,
                               step_snapshot, min_log_likelihood)
     },
 
@@ -921,9 +921,9 @@ volatility <- R6::R6Class(
       private$methods_$compare_data(private$ptr_)
     },
 
-    filter = function(step = NULL, save_trajectories = FALSE,
+    filter = function(step_end = NULL, save_trajectories = FALSE,
                       step_snapshot = NULL, min_log_likelihood = NULL) {
-      private$methods_$filter(private$ptr_, step, save_trajectories,
+      private$methods_$filter(private$ptr_, step_end, save_trajectories,
                               step_snapshot, min_log_likelihood)
     },
 
@@ -1147,9 +1147,9 @@ walk <- R6::R6Class(
       private$methods_$compare_data(private$ptr_)
     },
 
-    filter = function(step = NULL, save_trajectories = FALSE,
+    filter = function(step_end = NULL, save_trajectories = FALSE,
                       step_snapshot = NULL, min_log_likelihood = NULL) {
-      private$methods_$filter(private$ptr_, step, save_trajectories,
+      private$methods_$filter(private$ptr_, step_end, save_trajectories,
                               step_snapshot, min_log_likelihood)
     },
 
