@@ -30,7 +30,8 @@ filter(T * obj,
   if (save_trajectories) {
     state.trajectories.resize(obj->n_state(), n_particles, n_data);
 
-    if (obj->step() <= obj->data().begin()->first) {
+    const auto step_first_data = obj->data().begin()->first;
+    if (obj->step() <= step_first_data) {
       state.trajectories.store_values(obj->device_state_selected());
     }
 

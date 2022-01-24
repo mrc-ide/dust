@@ -28,7 +28,11 @@ filter(T * obj,
   if (save_trajectories) {
     state.trajectories.resize(obj->n_state(), n_particles, n_data);
 
-    if (obj->step() <= obj->data().begin()->first) {
+    // On the first step we save the initial conditions; that is
+    // whenever `step_end` falls before the first data point (rhs here
+    // is just the time that the first data point ends at).
+    const auto step_first_data = obj->data().begin()->first;
+    if (obj->step() <= step_first_data) {
       obj->state(state.trajectories.value_iterator());
     }
 

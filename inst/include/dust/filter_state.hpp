@@ -147,6 +147,10 @@ public:
       }
     }
 
+    // In the case where we've not filled all data, the remaining
+    // memory might be uninitialised.  This ensures that it everything
+    // we return has been set by us.  We will ignore this data anyway,
+    // but should not return -1e-308 junk.
     if (offset_ < n_data_) {
       std::fill(ret + offset_ * n_state_particles,
                 ret + (n_data_ + 1) * n_state_particles,
