@@ -150,7 +150,7 @@ public:
     if (offset_ < n_data_) {
       std::fill(ret + offset_ * n_state_particles,
                 ret + (n_data_ + 1) * n_state_particles,
-                NA_REAL);
+                0);
     }
   }
 
