@@ -17,12 +17,12 @@ test_that("Can run the filter", {
   hi[, 1] <- seq_len(np)
   for (i in seq_len(n_data)) {
     mod$run(dat$dat_dust[[i]][[1]])
-    hv[, , i + 1] <- mod$state()
     weights <- mod$compare_data()
     tmp <- scale_log_weights(weights)
     ll[[i]] <- tmp$average
     idx <- mod$resample(tmp$weights)
     hi[, i + 1] <- idx
+    hv[, , i + 1] <- mod$state()
   }
   cmp_log_likelihood <- Reduce(`+`, ll) # naive sum()
   cmp_trajectories <- filter_trajectories_reorder(hv, hi)
@@ -205,12 +205,12 @@ test_that("Can partially run filter", {
   hi[, 1] <- seq_len(np)
   for (i in seq_len(n_data)) {
     mod$run(dat$dat_dust[[i]][[1]])
-    hv[, , i + 1] <- mod$state()
     weights <- mod$compare_data()
     tmp <- scale_log_weights(weights)
     ll[[i]] <- tmp$average
     idx <- mod$resample(tmp$weights)
     hi[, i + 1] <- idx
+    hv[, , i + 1] <- mod$state()
   }
   cmp_log_likelihood <- Reduce(`+`, ll) # naive sum()
   cmp_trajectories <- filter_trajectories_reorder(hv, hi)

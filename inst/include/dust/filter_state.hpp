@@ -140,10 +140,10 @@ public:
       auto const it_value = value_begin + i * n_state_particles;
       auto it_ret = ret + i * n_state_particles;
       for (size_t j = 0; j < n_particles_; ++j) {
-        const size_t idx = *(it_order + index_particle[j]);
-        index_particle[j] = idx;
-        std::copy_n(it_value + idx * n_state_, n_state_,
+        std::copy_n(it_value + index_particle[j] * n_state_,
+                    n_state_,
                     it_ret + j * n_state_);
+        index_particle[j] = *(it_order + index_particle[j]);
       }
     }
 

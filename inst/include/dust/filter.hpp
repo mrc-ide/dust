@@ -85,16 +85,10 @@ stochastic(T * obj,
       wi += n_particles_each;
     }
 
-    // We could move this below if wanted but we'd have to rewrite
-    // the re-sort algorithm; that would be worth doing I think
-    // https://github.com/mrc-ide/dust/issues/202
-    if (save_trajectories) {
-      obj->state(state.trajectories.value_iterator());
-    }
-
     obj->resample(weights, kappa);
 
     if (save_trajectories) {
+      obj->state(state.trajectories.value_iterator());
       std::copy(kappa.begin(), kappa.end(),
                 state.trajectories.order_iterator());
       state.trajectories.advance();

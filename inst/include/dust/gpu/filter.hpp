@@ -56,11 +56,6 @@ filter(T * obj,
     // MODEL UPDATE
     obj->run(step);
 
-    // SAVE HISTORY (async)
-    if (save_trajectories) {
-      state.trajectories.store_values(obj->device_state_selected());
-    }
-
     // COMPARISON FUNCTION
     obj->compare_data(weights.weights(), d->second);
 
@@ -71,8 +66,9 @@ filter(T * obj,
     // Normalise the weights and calculate cumulative sum for resample
     obj->resample(weights.weights(), scan);
 
-    // SAVE HISTORY ORDER
+    // SAVE HISTORY (async)
     if (save_trajectories) {
+      state.trajectories.store_values(obj->device_state_selected());
       state.trajectories.store_order(obj->filter_kappa());
       state.trajectories.advance();
     }
