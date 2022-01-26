@@ -72,9 +72,9 @@ filter(T * obj,
     }
 
     if (early_exit(log_likelihood, min_log_likelihood)) {
-      for (size_t i = 0; i < n_pars; ++i) {
-        log_likelihood[i] = -std::numeric_limits<real_type>::infinity();
-      }
+      std::fill(log_likelihood.begin(),
+                log_likelihood.end(),
+                -std::numeric_limits<real_type>::infinity());
       obj->set_step(step_end);
       return log_likelihood;
     }
