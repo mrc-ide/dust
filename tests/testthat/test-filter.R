@@ -411,3 +411,19 @@ test_that("min_log_likelihood must be a sensible length (nested)", {
     "'min_log_likelihood' must have length 1 or 2 (but given 3)",
     fixed = TRUE)
 })
+
+
+test_that("stop the simulation if likelihood becomes impossible", {
+  dat <- example_filter()
+
+  ## Tweak the data so that it returns impossible at some point
+  d <- dat$dat_dust
+  d[[25]][[2]]$incidence <- -5
+
+  np <- 10
+  mod <- dat$model$new(list(exp_noise = -Inf), 0, np, seed = 10L)
+  mod$set_data(d)
+  res <- mod$filter(save_trajectories = TRUE)
+  expect_equal(res$log_likelihood, -Inf)
+  expect_equal(which(res$trajectories[1, 1, ] != 0), 1:25)
+})

@@ -59,12 +59,18 @@ real_type scale_log_weights(typename std::vector<real_type>::iterator w, size_t 
       max_w = std::max(max_w, *wi);
     }
   }
+
+  if (max_w == -std::numeric_limits<real_type>::infinity()) {
+    return max_w;
+  }
+
   real_type tot = 0.0;
   wi = w;
   for (size_t i = 0; i < n; ++i, ++wi) {
     *wi = std::exp(*wi - max_w);
     tot += *wi;
   }
+
   return std::log(tot / n) + max_w;
 }
 
