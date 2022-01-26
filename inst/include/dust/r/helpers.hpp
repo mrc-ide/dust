@@ -357,8 +357,11 @@ check_min_log_likelihood(cpp11::sexp r_min_log_likelihood, size_t n_pars) {
   if (r_min_log_likelihood != R_NilValue) {
     cpp11::doubles r_min_log_likelihood_vec =
       cpp11::as_cpp<cpp11::doubles>(r_min_log_likelihood);
+    if (n_pars == 0) {
+      n_pars = 1;
+    }
     const size_t n_given = r_min_log_likelihood_vec.size();
-    if (n_given > 0 && n_given != n_pars) {
+    if (n_given != 1 && n_given != n_pars) {
       if (n_pars <= 1) { // avoid unfriendly error message
         cpp11::stop("'min_log_likelihood' must have length 1 (but given %d)",
                     n_given);
