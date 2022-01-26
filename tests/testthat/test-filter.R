@@ -387,3 +387,27 @@ test_that("Can exit nested filter early", {
   expect_equal(which(res$trajectories[1, , 1, -1] != 0),
                which(apply(t(ll) >= min, 2, any)))
 })
+
+
+test_that("min_log_likelihood must be a sensible length", {
+  dat <- example_filter()
+  mod <- dat$model$new(list(), 0, 1, seed = 1L, deterministic = TRUE)
+  mod$set_data(dat$dat_dust)
+  expect_error(
+    mod$filter(min_log_likelihood = rep(-300, 2)),
+    "'min_log_likelihood' must have length 1 (but given 2)",
+    fixed = TRUE)
+})
+
+
+test_that("min_log_likelihood must be a sensible length (nested)", {
+  dat <- example_filter()
+  pars <- list(list(beta = 0.2), list(beta = 0.1))
+  mod <- dat$model$new(pars, 0, 1, seed = 1L, deterministic = TRUE,
+                       pars_multi = TRUE)
+  mod$set_data(dust_data(dat$dat, multi = 2))
+  expect_error(
+    mod$filter(min_log_likelihood = rep(-300, 3)),
+    "'min_log_likelihood' must have length 1 or 2 (but given 3)",
+    fixed = TRUE)
+})

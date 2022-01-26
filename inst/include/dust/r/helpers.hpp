@@ -350,6 +350,32 @@ std::vector<size_t> check_step_snapshot(cpp11::sexp r_step_snapshot,
   return step_snapshot;
 }
 
+template <typename real_type>
+std::vector<real_type>
+check_min_log_likelihood(cpp11::sexp r_min_log_likelihood, size_t n_pars) {
+  std::vector<real_type> min_log_likelihood;
+  if (r_min_log_likelihood != R_NilValue) {
+    cpp11::doubles r_min_log_likelihood_vec =
+      cpp11::as_cpp<cpp11::doubles>(r_min_log_likelihood);
+    const size_t n_given = r_min_log_likelihood_vec.size();
+    if (n_given > 0 && n_given != n_pars) {
+      if (n_pars <= 1) { // avoid unfriendly error message
+        cpp11::stop("'min_log_likelihood' must have length 1 (but given %d)",
+                    n_given);
+      } else {
+        cpp11::stop("'min_log_likelihood' must have length 1 or %d (but given %d)",
+                    n_pars, n_given);
+      }
+    }
+    min_log_likelihood.reserve(n_given);
+    for (auto x : r_min_log_likelihood_vec) {
+      min_log_likelihood.push_back(x);
+    }
+  }
+
+  return min_log_likelihood;
+}
+
 template <typename T>
 struct dust_inputs {
   std::vector<dust::pars_type<T>> pars;

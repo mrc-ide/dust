@@ -474,6 +474,7 @@ template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typen
 cpp11::sexp dust_filter(SEXP ptr, SEXP r_step_end, bool save_trajectories,
                         cpp11::sexp r_step_snapshot,
                         cpp11::sexp r_min_log_likelihood) {
+  using real_type = typename T::real_type;
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   obj->check_errors();
 
@@ -497,20 +498,8 @@ cpp11::sexp dust_filter(SEXP ptr, SEXP r_step_end, bool save_trajectories,
   std::vector<size_t> step_snapshot =
     dust::r::check_step_snapshot(r_step_snapshot, obj->data());
 
-  std::vector<typename T::real_type> min_log_likelihood;
-  if (r_min_log_likelihood != R_NilValue) {
-    cpp11::doubles r_min_log_likelihood_vec =
-      cpp11::as_cpp<cpp11::doubles>(r_min_log_likelihood);
-    const size_t n_given = r_min_log_likelihood_vec.size();
-    if (n_given > 1 && n_given != obj->n_pars()) {
-      cpp11::stop("'min_log_likelihood' must have length 1 or %d",
-                  obj->n_pars());
-    }
-    min_log_likelihood.reserve(n_given);
-    for (auto x : r_min_log_likelihood_vec) {
-      min_log_likelihood.push_back(x);
-    }
-  }
+  const auto min_log_likelihood =
+    check_min_log_likelihood<real_type>(r_min_log_likelihood, obj->n_pars());
 
   return run_filter<T>(obj, step_end, step_snapshot, save_trajectories,
                        min_log_likelihood);
