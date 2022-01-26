@@ -14,7 +14,8 @@ filter(T * obj,
        size_t step_end,
        filter_state_device<typename T::real_type>& state,
        bool save_trajectories,
-       std::vector<size_t> step_snapshot) {
+       std::vector<size_t> step_snapshot,
+       const std::vector<typename T::real_type>& min_log_likelihood) {
   using real_type = typename T::real_type;
 
   const size_t n_particles = obj->n_particles();

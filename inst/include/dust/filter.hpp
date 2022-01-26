@@ -13,7 +13,8 @@ filter(T * obj,
        size_t step_end,
        filter_state_host<typename T::real_type>& state,
        bool save_trajectories,
-       std::vector<size_t> step_snapshot) {
+       std::vector<size_t> step_snapshot,
+       const std::vector<typename T::real_type>& min_log_likelihood) {
   using real_type = typename T::real_type;
 
   const size_t n_particles = obj->n_particles();
@@ -21,7 +22,6 @@ filter(T * obj,
   const size_t n_pars = obj->n_pars_effective();
   const size_t n_particles_each = n_particles / n_pars;
   std::vector<real_type> log_likelihood(n_pars);
-  std::vector<real_type> log_likelihood_step(n_pars);
   std::vector<real_type> weights(n_particles);
   std::vector<size_t> kappa(n_particles);
 
@@ -69,6 +69,14 @@ filter(T * obj,
     for (size_t i = 0; i < n_pars; ++i) {
       log_likelihood[i] += scale_log_weights<real_type>(wi, n_particles_each);
       wi += n_particles_each;
+    }
+
+    if (early_exit(log_likelihood, min_log_likelihood)) {
+      for (size_t i = 0; i < n_pars; ++i) {
+        log_likelihood[i] = -std::numeric_limits<real_type>::infinity();
+      }
+      obj->set_step(step_end);
+      return log_likelihood;
     }
 
     if (is_stochastic) {

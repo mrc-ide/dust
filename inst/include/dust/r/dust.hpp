@@ -449,11 +449,12 @@ cpp11::sexp save_snapshots(const filter_state& snapshots, const T *obj,
 template <typename T>
 cpp11::sexp run_filter(T * obj, size_t step,
                        std::vector<size_t>& step_snapshot,
-                       bool save_trajectories) {
+                       bool save_trajectories,
+                       const std::vector<typename T::real_type> min_log_likelihood) {
   typename T::filter_state_type filter_state;
   cpp11::writable::doubles log_likelihood =
     dust::filter::filter(obj, step, filter_state, save_trajectories,
-                         step_snapshot);
+                         step_snapshot, min_log_likelihood);
   cpp11::sexp r_trajectories, r_snapshots;
   if (save_trajectories) {
     r_trajectories = dust::r::save_trajectories(filter_state.trajectories, obj);
@@ -472,7 +473,7 @@ cpp11::sexp run_filter(T * obj, size_t step,
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
 cpp11::sexp dust_filter(SEXP ptr, SEXP r_step_end, bool save_trajectories,
                         cpp11::sexp r_step_snapshot,
-                        cpp11::sexp min_log_likelihood) {
+                        cpp11::sexp r_min_log_likelihood) {
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   obj->check_errors();
 
@@ -480,27 +481,39 @@ cpp11::sexp dust_filter(SEXP ptr, SEXP r_step_end, bool save_trajectories,
     cpp11::stop("Data has not been set for this object");
   }
 
-  size_t step_end = std::numeric_limits<size_t>::max();
+  size_t step_end = std::prev(obj->data().end())->first;
   if (r_step_end != R_NilValue) {
     step_end = cpp11::as_cpp<int>(r_step_end);
     dust::r::validate_size(step_end, "step_end");
-    if (step_end <= obj->step()) {
-      cpp11::stop("'step_end' must be larger than curent step (%d; given %d)",
-                  obj->step(), step_end);
-    }
     if (obj->data().find(step_end) == obj->data().end()) {
       cpp11::stop("'step_end' was not found in data (was given %d)", step_end);
     }
+  }
+  if (step_end <= obj->step()) {
+    cpp11::stop("'step_end' must be larger than curent step (%d; given %d)",
+                obj->step(), step_end);
   }
 
   std::vector<size_t> step_snapshot =
     dust::r::check_step_snapshot(r_step_snapshot, obj->data());
 
-  if (min_log_likelihood != R_NilValue) {
-    cpp11::stop("min_log_likelihood not yet supported");
+  std::vector<typename T::real_type> min_log_likelihood;
+  if (r_min_log_likelihood != R_NilValue) {
+    cpp11::doubles r_min_log_likelihood_vec =
+      cpp11::as_cpp<cpp11::doubles>(r_min_log_likelihood);
+    const size_t n_given = r_min_log_likelihood_vec.size();
+    if (n_given > 1 && n_given != obj->n_pars()) {
+      cpp11::stop("'min_log_likelihood' must have length 1 or %d",
+                  obj->n_pars());
+    }
+    min_log_likelihood.reserve(n_given);
+    for (auto x : r_min_log_likelihood_vec) {
+      min_log_likelihood.push_back(x);
+    }
   }
 
-  return run_filter<T>(obj, step_end, step_snapshot, save_trajectories);
+  return run_filter<T>(obj, step_end, step_snapshot, save_trajectories,
+                       min_log_likelihood);
 }
 
 // Based on the value of the data_type in the underlying model class we

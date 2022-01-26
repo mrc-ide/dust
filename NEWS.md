@@ -1,3 +1,7 @@
+# dust 0.11.24
+
+* Add `min_log_likelihood` support to `$filter()` (#361)
+
 # dust 0.11.23
 
 * Allow use of `$filter()` with deterministic models (that support it)

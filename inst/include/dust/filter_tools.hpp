@@ -69,6 +69,39 @@ real_type scale_log_weights(typename std::vector<real_type>::iterator w, size_t 
 }
 
 
+template <typename real_type>
+bool early_exit(const std::vector<real_type>& log_likelihood,
+                const std::vector<real_type>& min) {
+  for (auto x : log_likelihood) {
+    if (x == -std::numeric_limits<real_type>::infinity()) {
+      return true;
+    }
+  }
+
+  if (min.size() == 0) {
+    return false;
+  }
+
+  if (log_likelihood.size() == 1) {
+    return log_likelihood[0] < min[0];
+  }
+
+  if (min.size() == 1) {
+    const auto log_likelihood_tot = std::accumulate(log_likelihood.begin(),
+                                                    log_likelihood.end(),
+                                                    static_cast<real_type>(0));
+    return log_likelihood_tot < min[0];
+  }
+
+  for (size_t i = 0; i < log_likelihood.size(); ++i) {
+    if (log_likelihood[i] >= min[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 
 }
 }
