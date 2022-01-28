@@ -293,17 +293,6 @@ test_that("filter validates step", {
 })
 
 
-test_that("disallow min_log_likelihood (for now)", {
-  dat <- example_filter()
-  np <- 10
-  mod <- dat$model$new(list(), 0, np, seed = 10L)
-  mod$set_data(dat$dat_dust)
-  expect_error(
-    mod$filter(min_log_likelihood = -5),
-    "min_log_likelihood not yet supported")
-})
-
-
 test_that("can partially run filter in deterministic mode", {
   dat <- example_filter()
 
@@ -325,4 +314,116 @@ test_that("can partially run filter in deterministic mode", {
 
   expect_equal(res1$snapshots, cmp$snapshots)
   expect_null(res2$snapshots)
+})
+
+
+test_that("Can quit filter early", {
+  dat <- example_filter()
+
+  pars <- list(exp_noise = Inf)
+
+  mod <- dat$model$new(pars, 0, 1, deterministic = TRUE, seed = 1L)
+  mod$set_data(dat$dat_dust)
+
+  ll <- numeric(nrow(dat$dat))
+  for (i in seq_along(ll)) {
+    ll[i] <- mod$filter(dat$dat$step[[i]])$log_likelihood
+  }
+  ll <- cumsum(ll)
+
+  mod$update_state(pars = pars, step = 0)
+  res <- mod$filter(save_trajectories = TRUE, min_log_likelihood = -100)
+
+  expect_equal(res$log_likelihood, -Inf)
+  expect_equal(mod$step(), 600)
+
+  ## Trajectories zerod after the point where we fail
+  expect_true(all(res$trajectories[, , which(ll < -100) + 1] == 0))
+  expect_false(any(res$trajectories[, , min(which(ll < -100))] == 0))
+})
+
+
+test_that("Can exit nested filter early", {
+  dat <- example_filter()
+
+  pars <- list(list(beta = 0.2, exp_noise = Inf),
+               list(beta = 0.1, exp_noise = Inf))
+  mod <- dat$model$new(pars, 0, 1, seed = 1L, deterministic = TRUE,
+                       pars_multi = TRUE)
+  mod$set_data(dust_data(dat$dat, multi = 2))
+
+  ll <- matrix(0, nrow(dat$dat), 2)
+
+  for (i in seq_len(nrow(ll))) {
+    ll[i, ] <- mod$filter(dat$dat$step[[i]])$log_likelihood
+  }
+  ll <- apply(ll, 2, cumsum)
+
+  ## If we provide a single number, it's the sum:
+  mod$update_state(pars = pars, step = 0)
+  res <- mod$filter(min_log_likelihood = -300, save_trajectories = TRUE)
+
+  ## Look at the I compartment (always nonzero), drop particle index,
+  ## first parameter set (arbitrary) and discard first point to align
+  ## with ll calculation:
+  expect_equal(which(res$trajectories[1, , 1, -1] != 0),
+               which(rowSums(ll) >= -300))
+  expect_equal(res$log_likelihood, rep(-Inf, 2))
+  expect_equal(mod$step(), 600)
+
+  ## If we provide two numbers it's the one reached second:
+  mod$update_state(pars = pars, step = 0)
+  min <- c(mean(ll[35:36, 1]), mean(ll[55:56, 2]))
+  res <- mod$filter(min_log_likelihood = min,
+                    save_trajectories = TRUE)
+  expect_equal(which(res$trajectories[1, , 1, -1] != 0),
+               which(apply(t(ll) >= min, 2, any)))
+
+  ## And again, but finish with the first particle
+  mod$update_state(pars = pars, step = 0)
+  min <- c(mean(ll[75:76, 1]), mean(ll[55:56, 2]))
+  res <- mod$filter(min_log_likelihood = min,
+                    save_trajectories = TRUE)
+  expect_equal(which(res$trajectories[1, , 1, -1] != 0),
+               which(apply(t(ll) >= min, 2, any)))
+})
+
+
+test_that("min_log_likelihood must be a sensible length", {
+  dat <- example_filter()
+  mod <- dat$model$new(list(), 0, 1, seed = 1L, deterministic = TRUE)
+  mod$set_data(dat$dat_dust)
+  expect_error(
+    mod$filter(min_log_likelihood = rep(-300, 2)),
+    "'min_log_likelihood' must have length 1 (but given 2)",
+    fixed = TRUE)
+})
+
+
+test_that("min_log_likelihood must be a sensible length (nested)", {
+  dat <- example_filter()
+  pars <- list(list(beta = 0.2), list(beta = 0.1))
+  mod <- dat$model$new(pars, 0, 1, seed = 1L, deterministic = TRUE,
+                       pars_multi = TRUE)
+  mod$set_data(dust_data(dat$dat, multi = 2))
+  expect_error(
+    mod$filter(min_log_likelihood = rep(-300, 3)),
+    "'min_log_likelihood' must have length 1 or 2 (but given 3)",
+    fixed = TRUE)
+})
+
+
+test_that("stop the simulation if likelihood becomes impossible", {
+  dat <- example_filter()
+
+  ## Tweak the data so that it returns impossible at some point
+  d <- dat$dat_dust
+  d[[25]][[2]]$incidence <- -5
+
+  np <- 10
+  mod <- dat$model$new(list(exp_noise = -Inf), 0, np, seed = 10L)
+  mod$set_data(d)
+  res <- mod$filter(save_trajectories = TRUE)
+  expect_equal(res$log_likelihood, -Inf)
+  expect_equal(which(res$trajectories[1, 1, ] != 0), 1:25)
 })
