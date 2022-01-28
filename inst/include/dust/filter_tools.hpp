@@ -75,6 +75,27 @@ real_type scale_log_weights(typename std::vector<real_type>::iterator w, size_t 
 }
 
 
+// log_likelihood is a vector over parameter sets (this will be length
+// 1, 2, ...)
+//
+// min is a vector of length 0, 1, or log_likelihood.size()
+//
+// - if min is length 0 we're not doing any early exit and the only
+//   exit condition is that the likelihood has become impossible for
+//   any parameter set.
+//
+// - if log_likelihood is length 1 (single parameter set) then min
+//   must be the same length and we exit simply when the ll drops
+//   below min
+//
+// - if min is a scalar but log_likelihood is a vector, we exit once
+//   the total log likelihood (sum over all parameters) drops below
+//   min
+//
+// - if min is a vector the same length as log_likelihood then we exit
+//   if *all* log likelihoods drop below their min (note this is
+//   slightly different to the -Inf condition, which is *any* below
+//   -Inf)
 template <typename real_type>
 bool early_exit(const std::vector<real_type>& log_likelihood,
                 const std::vector<real_type>& min) {
