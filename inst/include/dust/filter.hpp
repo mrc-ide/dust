@@ -26,7 +26,7 @@ filter(T * obj,
   std::vector<size_t> kappa(n_particles);
 
   if (save_trajectories) {
-    state.trajectories.resize(obj->n_state(), n_particles, n_data);
+    state.trajectories.resize(obj->n_state(), n_particles, n_pars, n_data);
 
     // On the first step we save the initial conditions; that is
     // whenever `step_end` falls before the first data point (rhs here

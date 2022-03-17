@@ -427,3 +427,32 @@ test_that("stop the simulation if likelihood becomes impossible", {
   expect_equal(res$log_likelihood, -Inf)
   expect_equal(which(res$trajectories[1, 1, ] != 0), 1:25)
 })
+
+
+test_that("can run deterministic multiparameter", {
+  dat <- example_filter()
+
+  pars <- list(list(exp_noise = Inf, I0 = 5),
+               list(exp_noise = Inf, I0 = 20))
+
+  data <- dat$dat[1:5, ]
+
+  ## Run one at a time:
+  mod1 <- dat$model$new(pars[[1]], 0, 1, deterministic = TRUE, seed = 1L)
+  mod1$set_data(dust_data(data))
+  mod1$update_state(pars = pars[[1]], step = 0)
+  ans1a <- mod1$filter(save_trajectories = TRUE)
+  mod1$update_state(pars = pars[[2]], step = 0)
+  ans1b <- mod1$filter(save_trajectories = TRUE)
+
+  mod2 <- dat$model$new(pars, 0, 1, deterministic = TRUE, seed = 1L,
+                        pars_multi = TRUE)
+  mod2$set_data(dust_data(data, multi = 2))
+  mod2$update_state(pars = pars, step = 0)
+  ans2 <- mod2$filter(save_trajectories = TRUE)
+
+  expect_identical(ans2$trajectories[2, 1, 1, ],
+                   ans1a$trajectories[2, 1, ])
+  expect_identical(ans2$trajectories[2, 1, 2, ],
+                   ans1b$trajectories[2, 1, ])
+})
