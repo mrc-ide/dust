@@ -132,8 +132,7 @@ public:
                          const RealIt value_begin,
                          const IntIt order_begin) const {
     const size_t n_state_particles = n_state_ * n_particles_;
-    const size_t n_particles_each = n_particles_ / n_pars_;
-    if (n_particles_each == 1) {
+    if (n_particles_ == n_pars_) {
       // No reordering possible, just copy straight through:
       std::copy_n(value_begin, offset_ * n_state_particles, ret);
     } else {
