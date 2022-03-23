@@ -144,12 +144,14 @@ public:
 
       for (size_t k = 0; k < offset_; ++k) {
         size_t i = offset_ - k - 1;
+        auto const it_order = order_begin + i * n_particles_;
         auto const it_value = value_begin + i * n_state_particles;
         auto it_ret = ret + i * n_state_particles;
         for (size_t j = 0; j < n_particles_; ++j) {
           std::copy_n(it_value + index_particle[j] * n_state_,
                       n_state_,
                       it_ret + j * n_state_);
+          index_particle[j] = *(it_order + index_particle[j]);
         }
       }
     }

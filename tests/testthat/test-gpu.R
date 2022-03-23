@@ -530,7 +530,7 @@ test_that("Can run multiple particle filters on the GPU", {
   dat <- example_sirs()
 
   np <- 10
-  pars <- list(list(beta = 0.2), list(beta = 0.1))
+  pars <- list(list(beta = 0.2, I0 = 5), list(beta = 0.1, I0 = 20))
 
   mod_h <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE)
   mod_h$set_data(dust_data(dat$dat, multi = 2))

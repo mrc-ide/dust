@@ -49,7 +49,7 @@ test_that("Can run multiple filters at once", {
   dat <- example_filter()
 
   np <- 10
-  pars <- list(list(beta = 0.2), list(beta = 0.1))
+  pars <- list(list(beta = 0.2, I0 = 5), list(beta = 0.1, I0 = 20))
   mod <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE)
   seed <- mod$rng_state()
   filter_seed <- mod$rng_state(last_only = TRUE)
@@ -68,6 +68,10 @@ test_that("Can run multiple filters at once", {
 
   expect_length(ans$log_likelihood, 2)
   expect_equal(dim(ans$trajectories), c(5, 10, 2, 151))
+
+  expect_identical(
+    mod$state()[, , ],
+    ans$trajectories[, , , 151])
 
   # Results not directly comparable as pars_multi has a shared RNG
   # for the filter, but can compare this RNG state
