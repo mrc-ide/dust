@@ -139,21 +139,17 @@ public:
     } else {
       std::vector<size_t> index_particle(n_particles_);
       for (size_t i = 0; i < n_particles_; ++i) {
-        index_particle[i] = i % n_particles_each;
+        index_particle[i] = i;
       }
 
       for (size_t k = 0; k < offset_; ++k) {
         size_t i = offset_ - k - 1;
-        auto const it_order = order_begin + i * n_particles_;
         auto const it_value = value_begin + i * n_state_particles;
         auto it_ret = ret + i * n_state_particles;
         for (size_t j = 0; j < n_particles_; ++j) {
-          const size_t k = index_particle[j] +
-            (j / n_particles_each) * n_particles_each;
-          std::copy_n(it_value + k * n_state_,
+          std::copy_n(it_value + index_particle[j] * n_state_,
                       n_state_,
                       it_ret + j * n_state_);
-          index_particle[j] = *(it_order + index_particle[j]);
         }
       }
     }
