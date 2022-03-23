@@ -455,4 +455,12 @@ test_that("can run deterministic multiparameter", {
                    ans1a$trajectories[2, 1, ])
   expect_identical(ans2$trajectories[2, 1, 2, ],
                    ans1b$trajectories[2, 1, ])
+
+  expect_equal(
+    ans2$trajectories[, , , 1],
+    cbind(c(1000, 5, 0, 0, 0),
+          c(1000, 20, 0, 0, 0)))
+  expect_identical(
+    mod2$state()[, , ],
+    ans2$trajectories[, , , nrow(data) + 1])
 })
