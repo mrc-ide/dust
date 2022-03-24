@@ -69,9 +69,11 @@ public:
   filter_trajectories_host() {
   }
 
-  void resize(size_t n_state, size_t n_particles, size_t n_data) {
+  void resize(size_t n_state, size_t n_particles, size_t n_pars,
+              size_t n_data) {
     n_state_ = n_state;
     n_particles_ = n_particles;
+    n_pars_ = n_pars;
     n_data_ = n_data;
     offset_ = 0;
 
@@ -129,21 +131,27 @@ public:
   void particle_ancestry(OutIt ret,
                          const RealIt value_begin,
                          const IntIt order_begin) const {
-    std::vector<size_t> index_particle(n_particles_);
-    for (size_t i = 0; i < n_particles_; ++i) {
-      index_particle[i] = i;
-    }
     const size_t n_state_particles = n_state_ * n_particles_;
-    for (size_t k = 0; k < offset_; ++k) {
-      size_t i = offset_ - k - 1;
-      auto const it_order = order_begin + i * n_particles_;
-      auto const it_value = value_begin + i * n_state_particles;
-      auto it_ret = ret + i * n_state_particles;
-      for (size_t j = 0; j < n_particles_; ++j) {
-        std::copy_n(it_value + index_particle[j] * n_state_,
-                    n_state_,
-                    it_ret + j * n_state_);
-        index_particle[j] = *(it_order + index_particle[j]);
+    if (n_particles_ == n_pars_) {
+      // No reordering possible, just copy straight through:
+      std::copy_n(value_begin, offset_ * n_state_particles, ret);
+    } else {
+      std::vector<size_t> index_particle(n_particles_);
+      for (size_t i = 0; i < n_particles_; ++i) {
+        index_particle[i] = i;
+      }
+
+      for (size_t k = 0; k < offset_; ++k) {
+        size_t i = offset_ - k - 1;
+        auto const it_order = order_begin + i * n_particles_;
+        auto const it_value = value_begin + i * n_state_particles;
+        auto it_ret = ret + i * n_state_particles;
+        for (size_t j = 0; j < n_particles_; ++j) {
+          std::copy_n(it_value + index_particle[j] * n_state_,
+                      n_state_,
+                      it_ret + j * n_state_);
+          index_particle[j] = *(it_order + index_particle[j]);
+        }
       }
     }
 
@@ -166,6 +174,7 @@ public:
 protected:
   size_t n_state_;
   size_t n_particles_;
+  size_t n_pars_;
   size_t n_data_;
   size_t offset_;
 

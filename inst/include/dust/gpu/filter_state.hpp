@@ -19,10 +19,12 @@ public:
   }
 #endif
 
-  void resize(size_t n_state, size_t n_particles, size_t n_data) {
+  void resize(size_t n_state, size_t n_particles, size_t n_pars,
+              size_t n_data) {
     pageable();
     this->n_state_ = n_state;
     this->n_particles_ = n_particles;
+    this->n_pars_ = n_pars;
     this->n_data_ = n_data;
     this->offset_ = 0;
 

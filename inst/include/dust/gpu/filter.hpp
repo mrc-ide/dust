@@ -29,7 +29,7 @@ filter(T * obj,
   scan.initialise(n_particles, weights.weights());
 
   if (save_trajectories) {
-    state.trajectories.resize(obj->n_state(), n_particles, n_data);
+    state.trajectories.resize(obj->n_state(), n_particles, n_pars, n_data);
 
     const auto step_first_data = obj->data().begin()->first;
     if (obj->step() <= step_first_data) {

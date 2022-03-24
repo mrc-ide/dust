@@ -49,7 +49,7 @@ test_that("Can run multiple filters at once", {
   dat <- example_filter()
 
   np <- 10
-  pars <- list(list(beta = 0.2), list(beta = 0.1))
+  pars <- list(list(beta = 0.2, I0 = 5), list(beta = 0.1, I0 = 20))
   mod <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE)
   seed <- mod$rng_state()
   filter_seed <- mod$rng_state(last_only = TRUE)
@@ -68,6 +68,10 @@ test_that("Can run multiple filters at once", {
 
   expect_length(ans$log_likelihood, 2)
   expect_equal(dim(ans$trajectories), c(5, 10, 2, 151))
+
+  expect_identical(
+    mod$state()[, , ],
+    ans$trajectories[, , , 151])
 
   # Results not directly comparable as pars_multi has a shared RNG
   # for the filter, but can compare this RNG state
@@ -426,4 +430,41 @@ test_that("stop the simulation if likelihood becomes impossible", {
   res <- mod$filter(save_trajectories = TRUE)
   expect_equal(res$log_likelihood, -Inf)
   expect_equal(which(res$trajectories[1, 1, ] != 0), 1:25)
+})
+
+
+test_that("can run deterministic multiparameter", {
+  dat <- example_filter()
+
+  pars <- list(list(exp_noise = Inf, I0 = 5),
+               list(exp_noise = Inf, I0 = 20))
+
+  data <- dat$dat[1:5, ]
+
+  ## Run one at a time:
+  mod1 <- dat$model$new(pars[[1]], 0, 1, deterministic = TRUE, seed = 1L)
+  mod1$set_data(dust_data(data))
+  mod1$update_state(pars = pars[[1]], step = 0)
+  ans1a <- mod1$filter(save_trajectories = TRUE)
+  mod1$update_state(pars = pars[[2]], step = 0)
+  ans1b <- mod1$filter(save_trajectories = TRUE)
+
+  mod2 <- dat$model$new(pars, 0, 1, deterministic = TRUE, seed = 1L,
+                        pars_multi = TRUE)
+  mod2$set_data(dust_data(data, multi = 2))
+  mod2$update_state(pars = pars, step = 0)
+  ans2 <- mod2$filter(save_trajectories = TRUE)
+
+  expect_identical(ans2$trajectories[2, 1, 1, ],
+                   ans1a$trajectories[2, 1, ])
+  expect_identical(ans2$trajectories[2, 1, 2, ],
+                   ans1b$trajectories[2, 1, ])
+
+  expect_equal(
+    ans2$trajectories[, , , 1],
+    cbind(c(1000, 5, 0, 0, 0),
+          c(1000, 20, 0, 0, 0)))
+  expect_identical(
+    mod2$state()[, , ],
+    ans2$trajectories[, , , nrow(data) + 1])
 })
