@@ -1004,3 +1004,35 @@ test_that("Can partially run filter for the gpu model", {
   expect_identical(ans_h1$snapshots, ans_d1$snapshots)
   expect_identical(ans_h2$snapshots, ans_d2$snapshots) # NULL
 })
+
+
+test_that("Can run on device with different data sets", {
+  dat <- example_sirs()
+
+  np <- 10
+  pars <- list(list(beta = 0.2, I0 = 5), list(beta = 0.1, I0 = 20))
+
+  d <- rbind(
+    data_frame(step = dat$dat$step,
+               incidence = dat$dat$incidence,
+               group = "a"),
+    data_frame(step = dat$dat$step,
+               incidence = round(dat$dat$incidence * 1.2),
+               group = "b"))
+  d$group <- factor(d$group)
+
+  mod_h <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE)
+  mod_h$set_data(dust_data(d, multi = "group"))
+  ans_h <- mod_h$filter(save_trajectories = TRUE,
+                        step_snapshot = c(4, 16))
+
+  mod_d <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE,
+                         gpu_config = 0L)
+  mod_d$set_data(dust_data(d, multi = "group"))
+  ans_d <- mod_d$filter(save_trajectories = TRUE,
+                        step_snapshot = c(4, 16))
+
+  expect_equal(ans_h$log_likelihood, ans_d$log_likelihood)
+  expect_identical(ans_h$trajectories, ans_d$trajectories)
+  expect_identical(ans_h$snapshots, ans_d$snapshots)
+})

@@ -61,3 +61,8 @@ copy_directory <- function(src, as) {
 corrupt_pointer <- function(x) {
   unserialize(serialize(x, NULL))
 }
+
+
+data_frame <- function(...) {
+  data.frame(..., stringsAsFactors = FALSE, check.names = FALSE)
+}
