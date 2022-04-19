@@ -54,8 +54,9 @@ SEXP dust_{{target}}_{{name}}_set_rng_state(SEXP ptr, cpp11::raws rng_state) {
   return R_NilValue;
 }
 
-SEXP dust_{{target}}_{{name}}_set_data(SEXP ptr, cpp11::list data) {
-  dust::r::dust_set_data<model_{{target}}>(ptr, data);
+SEXP dust_{{target}}_{{name}}_set_data(SEXP ptr, cpp11::list data,
+                                       bool shared) {
+  dust::r::dust_set_data<model_{{target}}>(ptr, data, shared);
   return R_NilValue;
 }
 

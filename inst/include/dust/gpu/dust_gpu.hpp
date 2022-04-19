@@ -474,12 +474,12 @@ public:
     n_threads_ = n_threads;
   }
 
-  void set_data(std::map<size_t, std::vector<data_type>>& data) {
+  void set_data(std::map<size_t, std::vector<data_type>>& data, bool shared) {
     std::vector<data_type> flattened_data;
     size_t i = 0;
     for (auto & d_step : data) {
       device_data_offsets_[d_step.first] = i;
-      for (auto & d : d_step.second ) {
+      for (auto & d : d_step.second) {
         flattened_data.push_back(d);
         i++;
       }

@@ -37,7 +37,7 @@ SEXP dust_{{target}}_{{name}}_rng_state(SEXP ptr, bool first_only, bool last_onl
 SEXP dust_{{target}}_{{name}}_set_rng_state(SEXP ptr, cpp11::raws rng_state);
 
 [[cpp11::register]]
-SEXP dust_{{target}}_{{name}}_set_data(SEXP ptr, cpp11::list data);
+SEXP dust_{{target}}_{{name}}_set_data(SEXP ptr, cpp11::list data, bool shared);
 
 [[cpp11::register]]
 SEXP dust_{{target}}_{{name}}_compare_data(SEXP ptr);

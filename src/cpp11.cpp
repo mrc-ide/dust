@@ -255,10 +255,10 @@ extern "C" SEXP _dust_dust_cpu_sir_set_rng_state(SEXP ptr, SEXP rng_state) {
   END_CPP11
 }
 // sir.cpp
-SEXP dust_cpu_sir_set_data(SEXP ptr, cpp11::list data);
-extern "C" SEXP _dust_dust_cpu_sir_set_data(SEXP ptr, SEXP data) {
+SEXP dust_cpu_sir_set_data(SEXP ptr, cpp11::list data, bool shared);
+extern "C" SEXP _dust_dust_cpu_sir_set_data(SEXP ptr, SEXP data, SEXP shared) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_sir_set_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data)));
+    return cpp11::as_sexp(dust_cpu_sir_set_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<bool>>(shared)));
   END_CPP11
 }
 // sir.cpp
@@ -383,10 +383,10 @@ extern "C" SEXP _dust_dust_cpu_sirs_set_rng_state(SEXP ptr, SEXP rng_state) {
   END_CPP11
 }
 // sirs.cpp
-SEXP dust_cpu_sirs_set_data(SEXP ptr, cpp11::list data);
-extern "C" SEXP _dust_dust_cpu_sirs_set_data(SEXP ptr, SEXP data) {
+SEXP dust_cpu_sirs_set_data(SEXP ptr, cpp11::list data, bool shared);
+extern "C" SEXP _dust_dust_cpu_sirs_set_data(SEXP ptr, SEXP data, SEXP shared) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_sirs_set_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data)));
+    return cpp11::as_sexp(dust_cpu_sirs_set_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<bool>>(shared)));
   END_CPP11
 }
 // sirs.cpp
@@ -497,10 +497,10 @@ extern "C" SEXP _dust_dust_gpu_sirs_set_rng_state(SEXP ptr, SEXP rng_state) {
   END_CPP11
 }
 // sirs.cpp
-SEXP dust_gpu_sirs_set_data(SEXP ptr, cpp11::list data);
-extern "C" SEXP _dust_dust_gpu_sirs_set_data(SEXP ptr, SEXP data) {
+SEXP dust_gpu_sirs_set_data(SEXP ptr, cpp11::list data, bool shared);
+extern "C" SEXP _dust_dust_gpu_sirs_set_data(SEXP ptr, SEXP data, SEXP shared) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_gpu_sirs_set_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data)));
+    return cpp11::as_sexp(dust_gpu_sirs_set_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<bool>>(shared)));
   END_CPP11
 }
 // sirs.cpp
@@ -646,10 +646,10 @@ extern "C" SEXP _dust_dust_cpu_variable_set_rng_state(SEXP ptr, SEXP rng_state) 
   END_CPP11
 }
 // variable.cpp
-SEXP dust_cpu_variable_set_data(SEXP ptr, cpp11::list data);
-extern "C" SEXP _dust_dust_cpu_variable_set_data(SEXP ptr, SEXP data) {
+SEXP dust_cpu_variable_set_data(SEXP ptr, cpp11::list data, bool shared);
+extern "C" SEXP _dust_dust_cpu_variable_set_data(SEXP ptr, SEXP data, SEXP shared) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_variable_set_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data)));
+    return cpp11::as_sexp(dust_cpu_variable_set_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<bool>>(shared)));
   END_CPP11
 }
 // variable.cpp
@@ -760,10 +760,10 @@ extern "C" SEXP _dust_dust_gpu_variable_set_rng_state(SEXP ptr, SEXP rng_state) 
   END_CPP11
 }
 // variable.cpp
-SEXP dust_gpu_variable_set_data(SEXP ptr, cpp11::list data);
-extern "C" SEXP _dust_dust_gpu_variable_set_data(SEXP ptr, SEXP data) {
+SEXP dust_gpu_variable_set_data(SEXP ptr, cpp11::list data, bool shared);
+extern "C" SEXP _dust_dust_gpu_variable_set_data(SEXP ptr, SEXP data, SEXP shared) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_gpu_variable_set_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data)));
+    return cpp11::as_sexp(dust_gpu_variable_set_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<bool>>(shared)));
   END_CPP11
 }
 // variable.cpp
@@ -888,10 +888,10 @@ extern "C" SEXP _dust_dust_cpu_volatility_set_rng_state(SEXP ptr, SEXP rng_state
   END_CPP11
 }
 // volatility.cpp
-SEXP dust_cpu_volatility_set_data(SEXP ptr, cpp11::list data);
-extern "C" SEXP _dust_dust_cpu_volatility_set_data(SEXP ptr, SEXP data) {
+SEXP dust_cpu_volatility_set_data(SEXP ptr, cpp11::list data, bool shared);
+extern "C" SEXP _dust_dust_cpu_volatility_set_data(SEXP ptr, SEXP data, SEXP shared) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_volatility_set_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data)));
+    return cpp11::as_sexp(dust_cpu_volatility_set_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<bool>>(shared)));
   END_CPP11
 }
 // volatility.cpp
@@ -1016,10 +1016,10 @@ extern "C" SEXP _dust_dust_cpu_walk_set_rng_state(SEXP ptr, SEXP rng_state) {
   END_CPP11
 }
 // walk.cpp
-SEXP dust_cpu_walk_set_data(SEXP ptr, cpp11::list data);
-extern "C" SEXP _dust_dust_cpu_walk_set_data(SEXP ptr, SEXP data) {
+SEXP dust_cpu_walk_set_data(SEXP ptr, cpp11::list data, bool shared);
+extern "C" SEXP _dust_dust_cpu_walk_set_data(SEXP ptr, SEXP data, SEXP shared) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_walk_set_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data)));
+    return cpp11::as_sexp(dust_cpu_walk_set_data(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<bool>>(shared)));
   END_CPP11
 }
 // walk.cpp
@@ -1070,7 +1070,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_cpu_sir_resample",             (DL_FUNC) &_dust_dust_cpu_sir_resample,             2},
     {"_dust_dust_cpu_sir_rng_state",            (DL_FUNC) &_dust_dust_cpu_sir_rng_state,            3},
     {"_dust_dust_cpu_sir_run",                  (DL_FUNC) &_dust_dust_cpu_sir_run,                  2},
-    {"_dust_dust_cpu_sir_set_data",             (DL_FUNC) &_dust_dust_cpu_sir_set_data,             2},
+    {"_dust_dust_cpu_sir_set_data",             (DL_FUNC) &_dust_dust_cpu_sir_set_data,             3},
     {"_dust_dust_cpu_sir_set_index",            (DL_FUNC) &_dust_dust_cpu_sir_set_index,            2},
     {"_dust_dust_cpu_sir_set_n_threads",        (DL_FUNC) &_dust_dust_cpu_sir_set_n_threads,        2},
     {"_dust_dust_cpu_sir_set_rng_state",        (DL_FUNC) &_dust_dust_cpu_sir_set_rng_state,        2},
@@ -1086,7 +1086,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_cpu_sirs_resample",            (DL_FUNC) &_dust_dust_cpu_sirs_resample,            2},
     {"_dust_dust_cpu_sirs_rng_state",           (DL_FUNC) &_dust_dust_cpu_sirs_rng_state,           3},
     {"_dust_dust_cpu_sirs_run",                 (DL_FUNC) &_dust_dust_cpu_sirs_run,                 2},
-    {"_dust_dust_cpu_sirs_set_data",            (DL_FUNC) &_dust_dust_cpu_sirs_set_data,            2},
+    {"_dust_dust_cpu_sirs_set_data",            (DL_FUNC) &_dust_dust_cpu_sirs_set_data,            3},
     {"_dust_dust_cpu_sirs_set_index",           (DL_FUNC) &_dust_dust_cpu_sirs_set_index,           2},
     {"_dust_dust_cpu_sirs_set_n_threads",       (DL_FUNC) &_dust_dust_cpu_sirs_set_n_threads,       2},
     {"_dust_dust_cpu_sirs_set_rng_state",       (DL_FUNC) &_dust_dust_cpu_sirs_set_rng_state,       2},
@@ -1102,7 +1102,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_cpu_variable_resample",        (DL_FUNC) &_dust_dust_cpu_variable_resample,        2},
     {"_dust_dust_cpu_variable_rng_state",       (DL_FUNC) &_dust_dust_cpu_variable_rng_state,       3},
     {"_dust_dust_cpu_variable_run",             (DL_FUNC) &_dust_dust_cpu_variable_run,             2},
-    {"_dust_dust_cpu_variable_set_data",        (DL_FUNC) &_dust_dust_cpu_variable_set_data,        2},
+    {"_dust_dust_cpu_variable_set_data",        (DL_FUNC) &_dust_dust_cpu_variable_set_data,        3},
     {"_dust_dust_cpu_variable_set_index",       (DL_FUNC) &_dust_dust_cpu_variable_set_index,       2},
     {"_dust_dust_cpu_variable_set_n_threads",   (DL_FUNC) &_dust_dust_cpu_variable_set_n_threads,   2},
     {"_dust_dust_cpu_variable_set_rng_state",   (DL_FUNC) &_dust_dust_cpu_variable_set_rng_state,   2},
@@ -1118,7 +1118,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_cpu_volatility_resample",      (DL_FUNC) &_dust_dust_cpu_volatility_resample,      2},
     {"_dust_dust_cpu_volatility_rng_state",     (DL_FUNC) &_dust_dust_cpu_volatility_rng_state,     3},
     {"_dust_dust_cpu_volatility_run",           (DL_FUNC) &_dust_dust_cpu_volatility_run,           2},
-    {"_dust_dust_cpu_volatility_set_data",      (DL_FUNC) &_dust_dust_cpu_volatility_set_data,      2},
+    {"_dust_dust_cpu_volatility_set_data",      (DL_FUNC) &_dust_dust_cpu_volatility_set_data,      3},
     {"_dust_dust_cpu_volatility_set_index",     (DL_FUNC) &_dust_dust_cpu_volatility_set_index,     2},
     {"_dust_dust_cpu_volatility_set_n_threads", (DL_FUNC) &_dust_dust_cpu_volatility_set_n_threads, 2},
     {"_dust_dust_cpu_volatility_set_rng_state", (DL_FUNC) &_dust_dust_cpu_volatility_set_rng_state, 2},
@@ -1134,7 +1134,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_cpu_walk_resample",            (DL_FUNC) &_dust_dust_cpu_walk_resample,            2},
     {"_dust_dust_cpu_walk_rng_state",           (DL_FUNC) &_dust_dust_cpu_walk_rng_state,           3},
     {"_dust_dust_cpu_walk_run",                 (DL_FUNC) &_dust_dust_cpu_walk_run,                 2},
-    {"_dust_dust_cpu_walk_set_data",            (DL_FUNC) &_dust_dust_cpu_walk_set_data,            2},
+    {"_dust_dust_cpu_walk_set_data",            (DL_FUNC) &_dust_dust_cpu_walk_set_data,            3},
     {"_dust_dust_cpu_walk_set_index",           (DL_FUNC) &_dust_dust_cpu_walk_set_index,           2},
     {"_dust_dust_cpu_walk_set_n_threads",       (DL_FUNC) &_dust_dust_cpu_walk_set_n_threads,       2},
     {"_dust_dust_cpu_walk_set_rng_state",       (DL_FUNC) &_dust_dust_cpu_walk_set_rng_state,       2},
@@ -1150,7 +1150,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_gpu_sirs_resample",            (DL_FUNC) &_dust_dust_gpu_sirs_resample,            2},
     {"_dust_dust_gpu_sirs_rng_state",           (DL_FUNC) &_dust_dust_gpu_sirs_rng_state,           3},
     {"_dust_dust_gpu_sirs_run",                 (DL_FUNC) &_dust_dust_gpu_sirs_run,                 2},
-    {"_dust_dust_gpu_sirs_set_data",            (DL_FUNC) &_dust_dust_gpu_sirs_set_data,            2},
+    {"_dust_dust_gpu_sirs_set_data",            (DL_FUNC) &_dust_dust_gpu_sirs_set_data,            3},
     {"_dust_dust_gpu_sirs_set_index",           (DL_FUNC) &_dust_dust_gpu_sirs_set_index,           2},
     {"_dust_dust_gpu_sirs_set_n_threads",       (DL_FUNC) &_dust_dust_gpu_sirs_set_n_threads,       2},
     {"_dust_dust_gpu_sirs_set_rng_state",       (DL_FUNC) &_dust_dust_gpu_sirs_set_rng_state,       2},
@@ -1166,7 +1166,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_gpu_variable_resample",        (DL_FUNC) &_dust_dust_gpu_variable_resample,        2},
     {"_dust_dust_gpu_variable_rng_state",       (DL_FUNC) &_dust_dust_gpu_variable_rng_state,       3},
     {"_dust_dust_gpu_variable_run",             (DL_FUNC) &_dust_dust_gpu_variable_run,             2},
-    {"_dust_dust_gpu_variable_set_data",        (DL_FUNC) &_dust_dust_gpu_variable_set_data,        2},
+    {"_dust_dust_gpu_variable_set_data",        (DL_FUNC) &_dust_dust_gpu_variable_set_data,        3},
     {"_dust_dust_gpu_variable_set_index",       (DL_FUNC) &_dust_dust_gpu_variable_set_index,       2},
     {"_dust_dust_gpu_variable_set_n_threads",   (DL_FUNC) &_dust_dust_gpu_variable_set_n_threads,   2},
     {"_dust_dust_gpu_variable_set_rng_state",   (DL_FUNC) &_dust_dust_gpu_variable_set_rng_state,   2},

@@ -338,8 +338,9 @@ public:
     return rng_.deterministic();
   }
 
-  void set_data(std::map<size_t, std::vector<data_type>> data) {
+  void set_data(std::map<size_t, std::vector<data_type>> data, bool shared) {
     data_ = data;
+    data_is_shared_ = shared;
   }
 
   std::vector<real_type> compare_data() {
@@ -358,7 +359,8 @@ public:
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
     for (size_t i = 0; i < particles_.size(); ++i) {
-      res[i] = particles_[i].compare_data(data[i / np], rng_.state(i));
+      const size_t j = data_is_shared_ ? 0 : i / np;
+      res[i] = particles_[i].compare_data(data[j], rng_.state(i));
     }
   }
 
@@ -375,6 +377,7 @@ private:
   size_t n_threads_;
   dust::random::prng<rng_state_type> rng_;
   std::map<size_t, std::vector<data_type>> data_;
+  bool data_is_shared_;
   dust::utils::openmp_errors errors_;
 
   std::vector<size_t> index_;

@@ -140,8 +140,8 @@ dust_cpu_sir_set_rng_state <- function(ptr, rng_state) {
   .Call(`_dust_dust_cpu_sir_set_rng_state`, ptr, rng_state)
 }
 
-dust_cpu_sir_set_data <- function(ptr, data) {
-  .Call(`_dust_dust_cpu_sir_set_data`, ptr, data)
+dust_cpu_sir_set_data <- function(ptr, data, shared) {
+  .Call(`_dust_dust_cpu_sir_set_data`, ptr, data, shared)
 }
 
 dust_cpu_sir_compare_data <- function(ptr) {
@@ -212,8 +212,8 @@ dust_cpu_sirs_set_rng_state <- function(ptr, rng_state) {
   .Call(`_dust_dust_cpu_sirs_set_rng_state`, ptr, rng_state)
 }
 
-dust_cpu_sirs_set_data <- function(ptr, data) {
-  .Call(`_dust_dust_cpu_sirs_set_data`, ptr, data)
+dust_cpu_sirs_set_data <- function(ptr, data, shared) {
+  .Call(`_dust_dust_cpu_sirs_set_data`, ptr, data, shared)
 }
 
 dust_cpu_sirs_compare_data <- function(ptr) {
@@ -276,8 +276,8 @@ dust_gpu_sirs_set_rng_state <- function(ptr, rng_state) {
   .Call(`_dust_dust_gpu_sirs_set_rng_state`, ptr, rng_state)
 }
 
-dust_gpu_sirs_set_data <- function(ptr, data) {
-  .Call(`_dust_dust_gpu_sirs_set_data`, ptr, data)
+dust_gpu_sirs_set_data <- function(ptr, data, shared) {
+  .Call(`_dust_dust_gpu_sirs_set_data`, ptr, data, shared)
 }
 
 dust_gpu_sirs_compare_data <- function(ptr) {
@@ -360,8 +360,8 @@ dust_cpu_variable_set_rng_state <- function(ptr, rng_state) {
   .Call(`_dust_dust_cpu_variable_set_rng_state`, ptr, rng_state)
 }
 
-dust_cpu_variable_set_data <- function(ptr, data) {
-  .Call(`_dust_dust_cpu_variable_set_data`, ptr, data)
+dust_cpu_variable_set_data <- function(ptr, data, shared) {
+  .Call(`_dust_dust_cpu_variable_set_data`, ptr, data, shared)
 }
 
 dust_cpu_variable_compare_data <- function(ptr) {
@@ -424,8 +424,8 @@ dust_gpu_variable_set_rng_state <- function(ptr, rng_state) {
   .Call(`_dust_dust_gpu_variable_set_rng_state`, ptr, rng_state)
 }
 
-dust_gpu_variable_set_data <- function(ptr, data) {
-  .Call(`_dust_dust_gpu_variable_set_data`, ptr, data)
+dust_gpu_variable_set_data <- function(ptr, data, shared) {
+  .Call(`_dust_dust_gpu_variable_set_data`, ptr, data, shared)
 }
 
 dust_gpu_variable_compare_data <- function(ptr) {
@@ -496,8 +496,8 @@ dust_cpu_volatility_set_rng_state <- function(ptr, rng_state) {
   .Call(`_dust_dust_cpu_volatility_set_rng_state`, ptr, rng_state)
 }
 
-dust_cpu_volatility_set_data <- function(ptr, data) {
-  .Call(`_dust_dust_cpu_volatility_set_data`, ptr, data)
+dust_cpu_volatility_set_data <- function(ptr, data, shared) {
+  .Call(`_dust_dust_cpu_volatility_set_data`, ptr, data, shared)
 }
 
 dust_cpu_volatility_compare_data <- function(ptr) {
@@ -568,8 +568,8 @@ dust_cpu_walk_set_rng_state <- function(ptr, rng_state) {
   .Call(`_dust_dust_cpu_walk_set_rng_state`, ptr, rng_state)
 }
 
-dust_cpu_walk_set_data <- function(ptr, data) {
-  .Call(`_dust_dust_cpu_walk_set_data`, ptr, data)
+dust_cpu_walk_set_data <- function(ptr, data, shared) {
+  .Call(`_dust_dust_cpu_walk_set_data`, ptr, data, shared)
 }
 
 dust_cpu_walk_compare_data <- function(ptr) {
