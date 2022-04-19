@@ -379,9 +379,6 @@ void dust_set_data(SEXP ptr, cpp11::list r_data, bool shared) {
   using model_type = typename T::model_type;
   using data_type = typename T::data_type;
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
-  if (shared && obj->n_pars() == 0) {
-    cpp11::stop("shared = TRUE makes no sense with a single parameter set");
-  }
   const size_t n_data = shared ? 1 : obj->n_pars_effective();
 
   const size_t len = r_data.size();
