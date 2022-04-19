@@ -29,13 +29,14 @@ device_ptrs<T> load_shared_state(const int pars_idx,
                                  const typename T::real_type * shared_real,
                                  const typename T::data_type * data,
                                  bool use_shared_int,
-                                 bool use_shared_real) {
+                                 bool use_shared_real,
+                                 bool data_is_shared) {
   device_ptrs<T> ptrs;
 
   // Get start address in shared space
   ptrs.shared_int = shared_int + pars_idx * n_shared_int;
   ptrs.shared_real = shared_real + pars_idx * n_shared_real;
-  ptrs.data = data + pars_idx;
+  ptrs.data = data_is_shared ? data : data + pars_idx;
 
 #ifdef __NVCC__
   using real_type = typename T::real_type;

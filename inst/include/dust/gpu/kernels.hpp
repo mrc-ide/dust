@@ -108,7 +108,8 @@ void run_particles(size_t step_start,
                          shared_real,
                          nullptr,
                          use_shared_int,
-                         use_shared_real);
+                         use_shared_real,
+                         false);
 
   int i, max_i;
   if (use_shared_int || use_shared_real) {
@@ -134,6 +135,7 @@ void run_particles(size_t step_start,
                            shared_int,
                            shared_real,
                            nullptr,
+                           false,
                            false,
                            false);
 #endif
@@ -178,7 +180,8 @@ __global__
                          const typename T::data_type * data,
                          typename T::rng_state_type::int_type * rng_state,
                          bool use_shared_int,
-                         bool use_shared_real) {
+                         bool use_shared_real,
+                         bool data_is_shared) {
   // This setup is mostly shared with run_particles
   using real_type = typename T::real_type;
   using rng_state_type = typename T::rng_state_type;
@@ -201,7 +204,8 @@ __global__
                          shared_real,
                          data,
                          use_shared_int,
-                         use_shared_real);
+                         use_shared_real,
+                         data_is_shared);
 
   // Particle index i, and max index to process in the block
   int i, max_i;
@@ -229,7 +233,8 @@ __global__
                            shared_real,
                            data,
                            use_shared_int,
-                           use_shared_real);
+                           use_shared_real,
+                           data_is_shared);
 #endif
     interleaved<real_type> p_state(state, i, n_particles);
     interleaved<int> p_internal_int(internal_int, i, n_particles);

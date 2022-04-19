@@ -486,6 +486,7 @@ public:
     }
     device_data_ = dust::gpu::device_array<data_type>(flattened_data.size());
     device_data_.set_array(flattened_data);
+    data_is_shared_ = shared;
   }
 
   std::vector<real_type> compare_data() {
@@ -519,7 +520,8 @@ public:
                      device_data_.data() + data_offset,
                      device_state_.rng.data(),
                      cuda_pars_.compare.shared_int,
-                     cuda_pars_.compare.shared_real);
+                     cuda_pars_.compare.shared_real,
+                     data_is_shared_);
     kernel_stream_.sync();
 #else
     const bool use_shared_int = false;
@@ -538,7 +540,8 @@ public:
                      device_data_.data() + data_offset,
                      device_state_.rng.data(),
                      use_shared_int,
-                     use_shared_real);
+                     use_shared_real,
+                     data_is_shared_);
 #endif
   }
 
@@ -567,6 +570,7 @@ private:
   std::map<size_t, size_t> device_data_offsets_;
   dust::gpu::cuda_stream kernel_stream_;
   dust::gpu::cuda_stream resample_stream_;
+  bool data_is_shared_;
 
   bool select_needed_;
   bool select_scatter_;
