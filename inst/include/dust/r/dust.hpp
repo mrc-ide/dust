@@ -375,11 +375,11 @@ void dust_set_n_threads(SEXP ptr, int n_threads) {
 }
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
-void dust_set_data(SEXP ptr, cpp11::list r_data, bool shared) {
+void dust_set_data(SEXP ptr, cpp11::list r_data, bool data_is_shared) {
   using model_type = typename T::model_type;
   using data_type = typename T::data_type;
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
-  const size_t n_data = shared ? 1 : obj->n_pars_effective();
+  const size_t n_data = data_is_shared ? 1 : obj->n_pars_effective();
 
   const size_t len = r_data.size();
   std::map<size_t, std::vector<data_type>> data;
@@ -399,7 +399,7 @@ void dust_set_data(SEXP ptr, cpp11::list r_data, bool shared) {
     }
     data[step_i] = data_i;
   }
-  obj->set_data(data, shared);
+  obj->set_data(data, data_is_shared);
 }
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
@@ -514,7 +514,7 @@ inline void disable_method(const char * name) {
 }
 
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
-void dust_set_data(SEXP ptr, cpp11::list r_data, bool shared) {
+void dust_set_data(SEXP ptr, cpp11::list r_data, bool data_is_shared) {
   disable_method("set_data");
 }
 

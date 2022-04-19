@@ -91,6 +91,8 @@ void run_particles(size_t step_start,
   using rng_state_type = typename T::rng_state_type;
   using rng_int_type = typename rng_state_type::int_type;
   const size_t n_particles_each = n_particles / n_pars;
+  const auto data = nullptr;
+  const bool data_is_shared = false;
 
 #ifdef __CUDA_ARCH__
   const int block_per_pars = (n_particles_each + blockDim.x - 1) / blockDim.x;
@@ -106,10 +108,10 @@ void run_particles(size_t step_start,
                          n_shared_real,
                          shared_int,
                          shared_real,
-                         nullptr,
+                         data,             // nullptr
                          use_shared_int,
                          use_shared_real,
-                         false);
+                         data_is_shared);  // false
 
   int i, max_i;
   if (use_shared_int || use_shared_real) {
@@ -134,10 +136,10 @@ void run_particles(size_t step_start,
                            n_shared_real,
                            shared_int,
                            shared_real,
-                           nullptr,
-                           false,
-                           false,
-                           false);
+                           data,             // nullptr
+                           use_shared_int,   // ignored
+                           use_shared_real,  // ignored
+                           data_is_shared);  // false
 #endif
     interleaved<real_type> p_state(state, i, n_particles);
     interleaved<real_type> p_state_next(state_next, i, n_particles);
@@ -165,6 +167,11 @@ void run_particles(size_t step_start,
   }
 }
 
+
+// NOTE: there's an unfortunate overloading here where
+// "data_is_shared" refers to data being shared across parameters,
+// while use_shared_{int,real} refers to whether int and real
+// parameters should be stored in shared memory.
 template <typename T>
 __global__
   void compare_particles(size_t n_particles,
