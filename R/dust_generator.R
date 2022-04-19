@@ -387,7 +387,11 @@ dust_generator <- R6::R6Class(
     ##' parameter sets.
     ##'
     ##' @param data A list of data to set.
-    set_data = function(data) {
+    ##'
+    ##' @param shared Logical, indicating if the data should be shared
+    ##'   across all parameter sets, if your model is initialised to use
+    ##'   more than one parameter set (`pars_multi = TRUE`).
+    set_data = function(data, shared = FALSE) {
     },
 
     ##' @description
