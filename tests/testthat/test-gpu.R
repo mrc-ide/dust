@@ -688,6 +688,24 @@ test_that("Can tune block size", {
 })
 
 
+test_that("correctly organise blocks with multiple parameters", {
+  f <- function(n_pars, n_particles, block_size = 128) {
+    res <- test_cuda_pars(list(device_id = 0, run_block_size = block_size),
+                          n_particles * n_pars, n_particles, n_pars,
+                          4, 1, 1, 0, 100)
+    c(res$run$block_count, res$run$block_size)
+  }
+
+  expect_equal(f(4, 32), c(4, 32))
+  expect_equal(f(4, 34), c(4, 64))
+  expect_equal(f(4, 64), c(4, 64))
+  expect_equal(f(4, 68), c(4, 96))
+  expect_equal(f(4, 128), c(4, 128))
+  expect_equal(f(4, 130), c(8, 128))
+  expect_equal(f(4, 130, 256), c(4, 160))
+})
+
+
 test_that("Can validate block size", {
   n_state <- 100
   n_state_full <- 202
