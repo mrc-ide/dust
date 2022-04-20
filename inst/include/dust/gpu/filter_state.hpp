@@ -44,7 +44,7 @@ public:
                                this->history_value.size() * sizeof(real_type),
                                cudaHostRegisterDefault));
     CUDA_CALL(cudaHostRegister(this->history_order.data(),
-                               this->history_order.size() * sizeof(real_type),
+                               this->history_order.size() * sizeof(size_t),
                                cudaHostRegisterDefault));
 #endif
     page_locked = true;
