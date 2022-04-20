@@ -101,8 +101,8 @@ inline launch_control launch_control_model(size_t n_particles,
 
   const size_t n_pars_effective = n_particles / n_particles_each;
   const int warp_size = dust::gpu::warp_size;
-  const size_t warp_block_size =
-    warp_size * (n_particles_each + warp_size - 1) / warp_size;
+  const size_t warp_block_count = (n_particles_each + warp_size - 1) / warp_size;
+  const size_t warp_block_size = warp_size * warp_block_count;
   const size_t n_shared_int_effective = n_shared_int +
     dust::gpu::utils::align_padding(n_shared_int * int_size,
                                      real_size) / int_size;
@@ -160,8 +160,8 @@ inline launch_control launch_control_model(size_t n_particles,
     // > of 32 up to a max of 128
     ret.block_size = std::min(static_cast<size_t>(block_size), warp_block_size);
     ret.block_count =
-      n_pars_effective * (n_particles_each + ret.block_size - 1) /
-      ret.block_size;
+      n_pars_effective * ((n_particles_each + ret.block_size - 1) /
+                          ret.block_size);
   } else {
     // If not enough particles per pars to make a whole block use
     // shared, or if shared_type too big for L1, turn it off, and run
