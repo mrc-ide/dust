@@ -474,7 +474,8 @@ public:
     n_threads_ = n_threads;
   }
 
-  void set_data(std::map<size_t, std::vector<data_type>>& data, bool shared) {
+  void set_data(std::map<size_t, std::vector<data_type>>& data,
+                bool data_is_shared) {
     std::vector<data_type> flattened_data;
     size_t i = 0;
     for (auto & d_step : data) {
@@ -486,7 +487,7 @@ public:
     }
     device_data_ = dust::gpu::device_array<data_type>(flattened_data.size());
     device_data_.set_array(flattened_data);
-    data_is_shared_ = shared;
+    data_is_shared_ = data_is_shared;
   }
 
   std::vector<real_type> compare_data() {
