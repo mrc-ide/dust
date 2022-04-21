@@ -701,3 +701,30 @@ test_that("Reorder across particles", {
   mod$reorder(i)
   expect_equal(mod$state(), y[, i])
 })
+
+
+test_that("share data across parameter sets", {
+  res <- dust_example("sir")
+
+  np <- 10
+  end <- 150 * 4
+  steps <- seq(0, end, by = 4)
+  ans <- res$new(list(), 0, np, seed = 1L)$simulate(steps)
+  d <- data.frame(step = steps, incidence = ans[5, 1, ])
+
+  ## Use Inf for exp_noise as that gives us deterministic results
+  p <- list(exp_noise = Inf)
+  mod <- res$new(rep(list(p), 3), 0, np, seed = 1L, pars_multi = TRUE)
+  s <- mod$run(36)
+  expect_null(mod$compare_data())
+
+  expect_error(mod$set_data(dust_data(d)), "Expected a list of length 4")
+  mod$set_data(dust_data(d), shared = TRUE)
+
+  ll <- mod$compare_data()
+  expect_equal(dim(ll), c(10, 3))
+
+  ## Confirm that we match the multi-data case:
+  mod$set_data(dust_data(d, multi = 3))
+  expect_identical(ll, mod$compare_data())
+})

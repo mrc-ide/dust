@@ -375,31 +375,31 @@ void dust_set_n_threads(SEXP ptr, int n_threads) {
 }
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
-void dust_set_data(SEXP ptr, cpp11::list r_data) {
+void dust_set_data(SEXP ptr, cpp11::list r_data, bool data_is_shared) {
   using model_type = typename T::model_type;
   using data_type = typename T::data_type;
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
-  const size_t n_pars = obj->n_pars_effective();
+  const size_t n_data = data_is_shared ? 1 : obj->n_pars_effective();
 
   const size_t len = r_data.size();
   std::map<size_t, std::vector<data_type>> data;
 
   for (size_t i = 0; i < len; ++i) {
     cpp11::list el = r_data[i];
-    if (el.size() != static_cast<int>(n_pars) + 1) {
+    if (el.size() != static_cast<int>(n_data) + 1) {
       cpp11::stop("Expected a list of length %d for element %d of 'data'",
-                  n_pars + 1, i + 1);
+                  n_data + 1, i + 1);
     }
     const size_t step_i = cpp11::as_cpp<int>(el[0]);
     std::vector<data_type> data_i;
-    data_i.reserve(n_pars);
-    for (size_t j = 0; j < n_pars; ++j) {
+    data_i.reserve(n_data);
+    for (size_t j = 0; j < n_data; ++j) {
       // TODO: no reason why dust_data<T> could not work here, really?
       data_i.push_back(dust_data<model_type>(cpp11::as_cpp<cpp11::list>(el[j + 1])));
     }
     data[step_i] = data_i;
   }
-  obj->set_data(data);
+  obj->set_data(data, data_is_shared);
 }
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
@@ -514,7 +514,7 @@ inline void disable_method(const char * name) {
 }
 
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
-void dust_set_data(SEXP ptr, cpp11::list r_data) {
+void dust_set_data(SEXP ptr, cpp11::list r_data, bool data_is_shared) {
   disable_method("set_data");
 }
 

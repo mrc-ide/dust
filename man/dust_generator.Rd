@@ -623,13 +623,17 @@ construct suitable data and a description of the required format. You
 will probably want to use that here, and definitely if using multiple
 parameter sets.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$set_data(data)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$set_data(data, shared = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{data}}{A list of data to set.}
+
+\item{\code{shared}}{Logical, indicating if the data should be shared
+across all parameter sets, if your model is initialised to use
+more than one parameter set (\code{pars_multi = TRUE}).}
 }
 \if{html}{\out{</div>}}
 }

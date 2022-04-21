@@ -91,6 +91,8 @@ void run_particles(size_t step_start,
   using rng_state_type = typename T::rng_state_type;
   using rng_int_type = typename rng_state_type::int_type;
   const size_t n_particles_each = n_particles / n_pars;
+  const auto data = nullptr;
+  const bool data_is_shared = false;
 
 #ifdef __CUDA_ARCH__
   const int block_per_pars = (n_particles_each + blockDim.x - 1) / blockDim.x;
@@ -106,9 +108,10 @@ void run_particles(size_t step_start,
                          n_shared_real,
                          shared_int,
                          shared_real,
-                         nullptr,
+                         data,             // nullptr
                          use_shared_int,
-                         use_shared_real);
+                         use_shared_real,
+                         data_is_shared);  // false
 
   int i, max_i;
   if (use_shared_int || use_shared_real) {
@@ -133,9 +136,10 @@ void run_particles(size_t step_start,
                            n_shared_real,
                            shared_int,
                            shared_real,
-                           nullptr,
-                           false,
-                           false);
+                           data,             // nullptr
+                           use_shared_int,   // ignored
+                           use_shared_real,  // ignored
+                           data_is_shared);  // false
 #endif
     interleaved<real_type> p_state(state, i, n_particles);
     interleaved<real_type> p_state_next(state_next, i, n_particles);
@@ -163,6 +167,11 @@ void run_particles(size_t step_start,
   }
 }
 
+
+// NOTE: there's an unfortunate overloading here where
+// "data_is_shared" refers to data being shared across parameters,
+// while use_shared_{int,real} refers to whether int and real
+// parameters should be stored in shared memory.
 template <typename T>
 __global__
   void compare_particles(size_t n_particles,
@@ -178,7 +187,8 @@ __global__
                          const typename T::data_type * data,
                          typename T::rng_state_type::int_type * rng_state,
                          bool use_shared_int,
-                         bool use_shared_real) {
+                         bool use_shared_real,
+                         bool data_is_shared) {
   // This setup is mostly shared with run_particles
   using real_type = typename T::real_type;
   using rng_state_type = typename T::rng_state_type;
@@ -201,7 +211,8 @@ __global__
                          shared_real,
                          data,
                          use_shared_int,
-                         use_shared_real);
+                         use_shared_real,
+                         data_is_shared);
 
   // Particle index i, and max index to process in the block
   int i, max_i;
@@ -229,7 +240,8 @@ __global__
                            shared_real,
                            data,
                            use_shared_int,
-                           use_shared_real);
+                           use_shared_real,
+                           data_is_shared);
 #endif
     interleaved<real_type> p_state(state, i, n_particles);
     interleaved<int> p_internal_int(internal_int, i, n_particles);
