@@ -338,9 +338,10 @@ public:
     return rng_.deterministic();
   }
 
-  void set_data(std::map<size_t, std::vector<data_type>> data, bool shared) {
+  void set_data(std::map<size_t, std::vector<data_type>> data,
+                bool data_is_shared) {
     data_ = data;
-    data_is_shared_ = shared;
+    data_is_shared_ = data_is_shared;
   }
 
   std::vector<real_type> compare_data() {
