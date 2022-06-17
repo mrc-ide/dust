@@ -129,3 +129,8 @@ simple_cache <- R6::R6Class(
       !skip && key %in% names(private$contents)
     }
   ))
+
+
+substitute_ <- function (expr, env) {
+  eval(substitute(substitute(y, env), list(y = expr)))
+}

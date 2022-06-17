@@ -39,7 +39,8 @@
     ptr_ = NULL,
     gpu_config_ = NULL,
     methods_ = NULL,
-    param_ = {{param}}
+    param_ = {{param}},
+    reload = {{reload}}
   ),
 
   public = list(
@@ -105,6 +106,7 @@
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
                           gpu_config = NULL) {
+      private$reload()
       if (is.null(gpu_config)) {
         private$methods_ <- {{methods_cpu}}
       } else {
