@@ -4,12 +4,13 @@
 \alias{dust_repair_environment}
 \title{Repair dust environment}
 \usage{
-dust_repair_environment(generator, quiet = NULL)
+dust_repair_environment(generator, quiet = FALSE)
 }
 \arguments{
 \item{generator}{The dust generateor}
 
-\item{quiet}{}
+\item{quiet}{Logical, indicating if we should be quiet (default
+prints some progress information)}
 }
 \value{
 Nothing, called for its side effects

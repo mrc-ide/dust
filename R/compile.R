@@ -19,7 +19,7 @@ generate_dust <- function(filename, quiet, workdir, cuda, skip_cache, mangle) {
 
   path <- dust_workdir(workdir)
   model <- read_lines(filename)
-  reload <- list(path = path, base = base, quiet = quiet)
+  reload <- list(path = path, base = base)
   data <- dust_template_data(model, config, cuda, reload)
 
   ## These two are used in the non-package version only
@@ -166,6 +166,7 @@ dust_template_data <- function(model, config, cuda, reload_data) {
        reload = reload)
 }
 
+
 load_temporary_package <- function(path, base, quiet) {
   pkg <- pkgload::load_all(path, compile = FALSE, recompile = FALSE,
                            warn_conflicts = FALSE, export_all = FALSE,
@@ -174,6 +175,7 @@ load_temporary_package <- function(path, base, quiet) {
   detach(paste0("package:", base), character.only = TRUE)
   pkg$env
 }
+
 
 ##' Repair the environment of a dust object created by [[dust::dust]]
 ##' and then saved and reloaded by [[saveRDS]] and
@@ -202,7 +204,6 @@ dust_repair_environment <- function(generator, quiet = FALSE) {
 
   base <- data$base
   path <- data$path
-  quiet <- quiet %||% data$quiet
   if (!pkgload::is_dev_package(base)) {
     env <- load_temporary_package(path, base, quiet)
   } else {
