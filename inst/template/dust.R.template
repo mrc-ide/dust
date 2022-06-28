@@ -106,7 +106,6 @@
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
                           gpu_config = NULL) {
-      private$reload()
       if (is.null(gpu_config)) {
         private$methods_ <- {{methods_cpu}}
       } else {

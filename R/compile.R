@@ -91,8 +91,15 @@ compile_and_load <- function(filename, quiet = FALSE, workdir = NULL,
 
     pkgbuild::compile_dll(path, compile_attributes = TRUE,
                           quiet = quiet, debug = FALSE)
+    tmp <- pkgload::load_all(path, compile = FALSE, recompile = FALSE,
+                             warn_conflicts = FALSE, export_all = FALSE,
+                             helpers = FALSE, attach_testthat = FALSE,
+                             quiet = quiet)
+    ## Don't pollute the search path
+    detach(paste0("package:", res$data$base), character.only = TRUE)
+    res$env <- tmp$env
+    ## res$env <- load_temporary_package(path, res$data$base, quiet)
     res$dll <- file.path(path, "src", paste0(res$key, .Platform$dynlib.ext))
-    res$env <- load_dust_temporary_package(path, res$data$base, quiet)
     res$gen <- res$env[[res$data$name]]
 
     cache$models$set(res$key, res, skip_cache)
@@ -148,14 +155,9 @@ dust_template_data <- function(model, config, cuda, reload_data) {
 
 
   if (is.null(reload_data)) {
-    reload <- "function() NULL"
+    reload <- "NULL"
   } else {
-    reload_body <- substitute_(body(load_dust_temporary_package),
-                               reload_data)
-    reload <- deparse(reload_body)
-    reload[[1]] <- "function() {"
-    ## reload[-1] <- paste0("        ", reload[-1])
-    reload <- paste(reload, collapse = "\n")
+    reload <- paste(deparse(reload_data), collapse = "\n")
   }
 
   list(model = model,
@@ -172,16 +174,69 @@ dust_template_data <- function(model, config, cuda, reload_data) {
 }
 
 
-load_dust_temporary_package <- function(path, base, quiet = TRUE) {
-  if (pkgload::is_dev_package(base)) {
-    env <- .getNamespace(base)
-  } else {
-    pkg <- pkgload::load_all(path, compile = FALSE, recompile = FALSE,
-                             warn_conflicts = FALSE, export_all = FALSE,
-                             helpers = FALSE, attach_testthat = FALSE,
-                             quiet = quiet)
-    detach(paste0("package:", base), character.only = TRUE)
-    env <- pkg$env
+## reload_dust_temporary_package <- function(generator, path, base, quiet = TRUE) {
+##   if (!pkgload::is_dev_package(base)) {
+##     pkg <- pkgload::load_all(path, compile = FALSE, recompile = FALSE,
+##                              warn_conflicts = FALSE, export_all = FALSE,
+##                              helpers = FALSE, attach_testthat = FALSE,
+##                              quiet = quiet)
+##     detach(paste0("package:", base), character.only = TRUE)
+##     env <- .getNamespace(base)
+##     browser()
+##     ## This doesn't work because 
+##     generator$parent_env <- .getNamespace(base)
+##   }
+## }
+
+
+load_temporary_package <- function(path, base, quiet) {
+  pkg <- pkgload::load_all(path, compile = FALSE, recompile = FALSE,
+                           warn_conflicts = FALSE, export_all = FALSE,
+                           helpers = FALSE, attach_testthat = FALSE,
+                           quiet = quiet)
+  detach(paste0("package:", base), character.only = TRUE)
+  pkg$env
+}
+
+
+## dust_reload_error <- function() {
+##   msg <- paste(
+##     "You have just loaded a dust object, probably via readRDS, that",
+##     "was compiled interactively with dust::dust - we've set your model",
+##     "up to run now, but you must reload the object again now")
+##   structure(list(message = msg),
+##             class = c("dust_reload_error", "condition"))
+## }
+
+##' Repair the environment of a dust object created by [[dust::dust]]
+##' and then saved and reloaded by [[saveRDS]] and
+##' [[readRDS]]. Because we use a fake temporary package to hold the
+##' generated code, it will not ordinarily be loaded properly without
+##' using this.
+##'
+##' @title Repair dust environment
+##'
+##' @param generator The dust generateor
+##'
+##' @param quiet 
+##'
+##' @return 
+##'
+##' @author Rich FitzJohn
+dust_repair_environment <- function(generator, quiet = NULL) {
+  assert_is(generator, "dust_generator")
+  data <- generator$private_fields$reload
+  if (is.null(data)) {
+    stop("Generator is not repairable")
   }
-  invisible(env)
+
+  base <- data$base
+  path <- data$path
+  quiet <- quiet %||% data$quiet
+  if (!pkgload::is_dev_package(base)) {
+    env <- load_temporary_package(path, base, quiet)
+  } else {
+    env <- .getNamespace(base)
+  }
+  generator$parent_env <- env
 }
