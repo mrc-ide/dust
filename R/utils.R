@@ -131,6 +131,6 @@ simple_cache <- R6::R6Class(
   ))
 
 
-substitute_ <- function (expr, env) {
+substitute_ <- function(expr, env) {
   eval(substitute(substitute(y, env), list(y = expr)))
 }
