@@ -91,14 +91,7 @@ compile_and_load <- function(filename, quiet = FALSE, workdir = NULL,
 
     pkgbuild::compile_dll(path, compile_attributes = TRUE,
                           quiet = quiet, debug = FALSE)
-    tmp <- pkgload::load_all(path, compile = FALSE, recompile = FALSE,
-                             warn_conflicts = FALSE, export_all = FALSE,
-                             helpers = FALSE, attach_testthat = FALSE,
-                             quiet = quiet)
-    ## Don't pollute the search path
-    detach(paste0("package:", res$data$base), character.only = TRUE)
-    res$env <- tmp$env
-    ## res$env <- load_temporary_package(path, res$data$base, quiet)
+    res$env <- load_temporary_package(path, res$data$base, quiet)
     res$dll <- file.path(path, "src", paste0(res$key, .Platform$dynlib.ext))
     res$gen <- res$env[[res$data$name]]
 
