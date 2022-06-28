@@ -450,3 +450,72 @@ test_that("allow compilation of model with underscore in the name", {
   expect_s3_class(mod, "dust")
   expect_equal(mod$name(), "walk_model")
 })
+
+
+test_that("Can save a model and reload it after repair", {
+  skip_if_not_installed("callr")
+  skip_on_os("windows") # windows gha does not install dust
+  ## Can't use a model that overlaps with the dust names
+  tmp <- tempfile()
+  code <- readLines(dust_file("examples/walk.cpp"))
+  writeLines(c("// [[dust::name('walk2')]]", code), tmp)
+  gen <- dust(tmp, quiet = TRUE)
+  tmp_rds <- tempfile()
+  suppressWarnings(saveRDS(gen, tmp_rds))
+
+  ## Fails to load because the package environment is not present, and
+  ## so can't find the alloc function
+  expect_error(callr::r(function(path) {
+    gen <- readRDS(path)
+    gen$new(list(sd = 1), 0, 1, seed = 1)$run(10)
+  }, list(tmp_rds)), "dust_cpu_walk2_alloc")
+
+  ## If we repair the environment it works fine though
+  res <- callr::r(function(path) {
+    gen <- readRDS(path)
+    dust::dust_repair_environment(gen)
+    gen$new(list(sd = 1), 0, 1, seed = 1)$run(10)
+  }, list(tmp_rds))
+
+  cmp <- gen$new(list(sd = 1), 0, 1, seed = 1)$run(10)
+  expect_equal(res, cmp)
+})
+
+
+test_that("package-derived models are not repairable", {
+  skip_if_not_installed("mockery")
+  walk <- dust_example("walk")
+  mock_is_dev_package <- mockery::mock()
+  mockery::stub(dust_repair_environment, "pkgload::is_dev_package",
+                mock_is_dev_package)
+  expect_message(
+    dust_repair_environment(walk),
+    "Generator does not need repair")
+  expect_silent(
+    dust_repair_environment(walk, TRUE))
+  expect_null(walk$private_fields$reload_)
+  mockery::expect_called(mock_is_dev_package, 0)
+})
+
+
+test_that("Can repair generators", {
+  ## Can't use a model that overlaps with the dust names
+  tmp <- tempfile()
+  code <- readLines(dust_file("examples/walk.cpp"))
+  writeLines(c("// [[dust::name('walkRepair')]]", code), tmp)
+  gen <- dust(tmp, quiet = TRUE)
+
+  base <- gen$private_fields$reload_$base
+  expect_match(base, "^walkRepair[[:xdigit:]]{8}$")
+
+  ## Same effect as serialisation
+  gen$parent_env <- globalenv()
+  pkgload::unload(base)
+
+  expect_message(dust_repair_environment(gen), "Loading")
+  expect_equal(environmentName(gen$parent_env), base)
+
+  gen$parent_env <- globalenv()
+  expect_message(dust_repair_environment(gen), "was already loaded")
+  expect_equal(environmentName(gen$parent_env), base)
+})

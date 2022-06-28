@@ -35,6 +35,7 @@ LinkingTo:
 Suggests:
     bench,
     brio,
+    callr,
     decor,
     fs,
     knitr,

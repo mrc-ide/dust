@@ -173,22 +173,6 @@ dust_template_data <- function(model, config, cuda, reload_data) {
        reload = reload)
 }
 
-
-## reload_dust_temporary_package <- function(generator, path, base, quiet = TRUE) {
-##   if (!pkgload::is_dev_package(base)) {
-##     pkg <- pkgload::load_all(path, compile = FALSE, recompile = FALSE,
-##                              warn_conflicts = FALSE, export_all = FALSE,
-##                              helpers = FALSE, attach_testthat = FALSE,
-##                              quiet = quiet)
-##     detach(paste0("package:", base), character.only = TRUE)
-##     env <- .getNamespace(base)
-##     browser()
-##     ## This doesn't work because 
-##     generator$parent_env <- .getNamespace(base)
-##   }
-## }
-
-
 load_temporary_package <- function(path, base, quiet) {
   pkg <- pkgload::load_all(path, compile = FALSE, recompile = FALSE,
                            warn_conflicts = FALSE, export_all = FALSE,
@@ -197,16 +181,6 @@ load_temporary_package <- function(path, base, quiet) {
   detach(paste0("package:", base), character.only = TRUE)
   pkg$env
 }
-
-
-## dust_reload_error <- function() {
-##   msg <- paste(
-##     "You have just loaded a dust object, probably via readRDS, that",
-##     "was compiled interactively with dust::dust - we've set your model",
-##     "up to run now, but you must reload the object again now")
-##   structure(list(message = msg),
-##             class = c("dust_reload_error", "condition"))
-## }
 
 ##' Repair the environment of a dust object created by [[dust::dust]]
 ##' and then saved and reloaded by [[saveRDS]] and
@@ -218,13 +192,18 @@ load_temporary_package <- function(path, base, quiet) {
 ##'
 ##' @param generator The dust generateor
 ##'
-##' @param quiet 
+##' @param quiet Logical, indicating if we should be quiet (default
+##'   prints some progress information)
 ##'
 ##' @return Nothing, called for its side effects
-dust_repair_environment <- function(generator, quiet = NULL) {
+##' @export
+dust_repair_environment <- function(generator, quiet = FALSE) {
   assert_is(generator, "dust_generator")
-  data <- generator$private_fields$reload
+  data <- generator$private_fields$reload_
   if (is.null(data)) {
+    if (!quiet) {
+      message("Generator does not need repair")
+    }
     return(invisible())
   }
 
@@ -239,5 +218,7 @@ dust_repair_environment <- function(generator, quiet = NULL) {
     }
     env <- .getNamespace(base)
   }
-  generator$parent_env <- env
+  if (!identical(env, generator$parent_env)) {
+    generator$parent_env <- env
+  }
 }
