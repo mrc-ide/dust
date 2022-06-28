@@ -111,6 +111,7 @@ test_that("validate package interface", {
   writeLines(glue_whisker(template,
                           list(name = "testing", param = "NULL",
                                has_gpu_support = "FALSE",
+                               reload = "NULL",
                                methods_cpu = "list()",
                                methods_gpu = "list()")),
              tmp)
