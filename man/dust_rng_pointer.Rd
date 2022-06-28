@@ -25,15 +25,15 @@ dust::dust_rng_pointer$new()
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{dust_rng_pointer$new()}}
-\item \href{#method-sync}{\code{dust_rng_pointer$sync()}}
-\item \href{#method-state}{\code{dust_rng_pointer$state()}}
-\item \href{#method-is_current}{\code{dust_rng_pointer$is_current()}}
+\item \href{#method-dust_rng_pointer-new}{\code{dust_rng_pointer$new()}}
+\item \href{#method-dust_rng_pointer-sync}{\code{dust_rng_pointer$sync()}}
+\item \href{#method-dust_rng_pointer-state}{\code{dust_rng_pointer$state()}}
+\item \href{#method-dust_rng_pointer-is_current}{\code{dust_rng_pointer$is_current()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-dust_rng_pointer-new"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng_pointer-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new \code{dust_rng_pointer} object
 \subsection{Usage}{
@@ -66,8 +66,8 @@ generator (see \link{dust_rng_distributed_state})}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-sync"></a>}}
-\if{latex}{\out{\hypertarget{method-sync}{}}}
+\if{html}{\out{<a id="method-dust_rng_pointer-sync"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng_pointer-sync}{}}}
 \subsection{Method \code{sync()}}{
 Synchronise the R copy of the random number state.
 Typically this is only needed before serialisation if you have
@@ -78,8 +78,8 @@ ever used the object.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-state"></a>}}
-\if{latex}{\out{\hypertarget{method-state}{}}}
+\if{html}{\out{<a id="method-dust_rng_pointer-state"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng_pointer-state}{}}}
 \subsection{Method \code{state()}}{
 Return a raw vector of state. This can be used to
 create other generators with the same state.
@@ -89,8 +89,8 @@ create other generators with the same state.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-is_current"></a>}}
-\if{latex}{\out{\hypertarget{method-is_current}{}}}
+\if{html}{\out{<a id="method-dust_rng_pointer-is_current"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng_pointer-is_current}{}}}
 \subsection{Method \code{is_current()}}{
 Return a logical, indicating if the random number
 state that would be returned by \code{state()} is "current" (i.e., the

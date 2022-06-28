@@ -47,7 +47,8 @@ dust_generator <- R6::R6Class(
     ptr_ = NULL,
     gpu_config_ = NULL,
     methods_ = NULL,
-    param_ = NULL
+    param_ = NULL,
+    reload = NULL
   ),
 
   public = list(

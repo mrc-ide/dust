@@ -33,9 +33,11 @@ has been created.
 
 Your package needs a \code{src/Makevars} file to enable openmp (if your
 system supports it). If it is not present then a suitable Makevars
-will be written, containing\preformatted{PKG_CXXFLAGS=$(SHLIB_OPENMP_CXXFLAGS)
+will be written, containing
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{PKG_CXXFLAGS=$(SHLIB_OPENMP_CXXFLAGS)
 PKG_LIBS=$(SHLIB_OPENMP_CXXFLAGS)
-}
+}\if{html}{\out{</div>}}
 
 following "Writing R Extensions" (see section "OpenMP support").
 If your package does contain a \code{src/Makevars} file we do not
@@ -44,9 +46,11 @@ contain these lines or similar.
 
 You also need to make sure that your package loads the dynamic
 library; if you are using roxygen, then you might create a file
-(say, \code{R/zzz.R}) containing\preformatted{#' @useDynLib packagename, .registration = TRUE
+(say, \code{R/zzz.R}) containing
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#' @useDynLib packagename, .registration = TRUE
 NULL
-}
+}\if{html}{\out{</div>}}
 
 substituting \code{packagename} for your package name as
 appropriate. This will create an entry in \code{NAMESPACE}.

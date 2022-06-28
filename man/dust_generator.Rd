@@ -25,44 +25,44 @@ walk
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{dust_generator$new()}}
-\item \href{#method-name}{\code{dust_generator$name()}}
-\item \href{#method-param}{\code{dust_generator$param()}}
-\item \href{#method-run}{\code{dust_generator$run()}}
-\item \href{#method-simulate}{\code{dust_generator$simulate()}}
-\item \href{#method-set_index}{\code{dust_generator$set_index()}}
-\item \href{#method-index}{\code{dust_generator$index()}}
-\item \href{#method-n_threads}{\code{dust_generator$n_threads()}}
-\item \href{#method-n_state}{\code{dust_generator$n_state()}}
-\item \href{#method-n_particles}{\code{dust_generator$n_particles()}}
-\item \href{#method-n_particles_each}{\code{dust_generator$n_particles_each()}}
-\item \href{#method-shape}{\code{dust_generator$shape()}}
-\item \href{#method-update_state}{\code{dust_generator$update_state()}}
-\item \href{#method-state}{\code{dust_generator$state()}}
-\item \href{#method-step}{\code{dust_generator$step()}}
-\item \href{#method-reorder}{\code{dust_generator$reorder()}}
-\item \href{#method-resample}{\code{dust_generator$resample()}}
-\item \href{#method-info}{\code{dust_generator$info()}}
-\item \href{#method-pars}{\code{dust_generator$pars()}}
-\item \href{#method-rng_state}{\code{dust_generator$rng_state()}}
-\item \href{#method-set_rng_state}{\code{dust_generator$set_rng_state()}}
-\item \href{#method-has_openmp}{\code{dust_generator$has_openmp()}}
-\item \href{#method-has_gpu_support}{\code{dust_generator$has_gpu_support()}}
-\item \href{#method-has_compare}{\code{dust_generator$has_compare()}}
-\item \href{#method-real_size}{\code{dust_generator$real_size()}}
-\item \href{#method-rng_algorithm}{\code{dust_generator$rng_algorithm()}}
-\item \href{#method-uses_gpu}{\code{dust_generator$uses_gpu()}}
-\item \href{#method-n_pars}{\code{dust_generator$n_pars()}}
-\item \href{#method-set_n_threads}{\code{dust_generator$set_n_threads()}}
-\item \href{#method-set_data}{\code{dust_generator$set_data()}}
-\item \href{#method-compare_data}{\code{dust_generator$compare_data()}}
-\item \href{#method-filter}{\code{dust_generator$filter()}}
-\item \href{#method-gpu_info}{\code{dust_generator$gpu_info()}}
+\item \href{#method-dust-new}{\code{dust_generator$new()}}
+\item \href{#method-dust-name}{\code{dust_generator$name()}}
+\item \href{#method-dust-param}{\code{dust_generator$param()}}
+\item \href{#method-dust-run}{\code{dust_generator$run()}}
+\item \href{#method-dust-simulate}{\code{dust_generator$simulate()}}
+\item \href{#method-dust-set_index}{\code{dust_generator$set_index()}}
+\item \href{#method-dust-index}{\code{dust_generator$index()}}
+\item \href{#method-dust-n_threads}{\code{dust_generator$n_threads()}}
+\item \href{#method-dust-n_state}{\code{dust_generator$n_state()}}
+\item \href{#method-dust-n_particles}{\code{dust_generator$n_particles()}}
+\item \href{#method-dust-n_particles_each}{\code{dust_generator$n_particles_each()}}
+\item \href{#method-dust-shape}{\code{dust_generator$shape()}}
+\item \href{#method-dust-update_state}{\code{dust_generator$update_state()}}
+\item \href{#method-dust-state}{\code{dust_generator$state()}}
+\item \href{#method-dust-step}{\code{dust_generator$step()}}
+\item \href{#method-dust-reorder}{\code{dust_generator$reorder()}}
+\item \href{#method-dust-resample}{\code{dust_generator$resample()}}
+\item \href{#method-dust-info}{\code{dust_generator$info()}}
+\item \href{#method-dust-pars}{\code{dust_generator$pars()}}
+\item \href{#method-dust-rng_state}{\code{dust_generator$rng_state()}}
+\item \href{#method-dust-set_rng_state}{\code{dust_generator$set_rng_state()}}
+\item \href{#method-dust-has_openmp}{\code{dust_generator$has_openmp()}}
+\item \href{#method-dust-has_gpu_support}{\code{dust_generator$has_gpu_support()}}
+\item \href{#method-dust-has_compare}{\code{dust_generator$has_compare()}}
+\item \href{#method-dust-real_size}{\code{dust_generator$real_size()}}
+\item \href{#method-dust-rng_algorithm}{\code{dust_generator$rng_algorithm()}}
+\item \href{#method-dust-uses_gpu}{\code{dust_generator$uses_gpu()}}
+\item \href{#method-dust-n_pars}{\code{dust_generator$n_pars()}}
+\item \href{#method-dust-set_n_threads}{\code{dust_generator$set_n_threads()}}
+\item \href{#method-dust-set_data}{\code{dust_generator$set_data()}}
+\item \href{#method-dust-compare_data}{\code{dust_generator$compare_data()}}
+\item \href{#method-dust-filter}{\code{dust_generator$filter()}}
+\item \href{#method-dust-gpu_info}{\code{dust_generator$gpu_info()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-dust-new"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new model. Note that the behaviour of this object
 created by this function will change considerably based on
@@ -141,8 +141,8 @@ list will be added in a future version!}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-name"></a>}}
-\if{latex}{\out{\hypertarget{method-name}{}}}
+\if{html}{\out{<a id="method-dust-name"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-name}{}}}
 \subsection{Method \code{name()}}{
 Returns friendly model name
 \subsection{Usage}{
@@ -151,8 +151,8 @@ Returns friendly model name
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-param"></a>}}
-\if{latex}{\out{\hypertarget{method-param}{}}}
+\if{html}{\out{<a id="method-dust-param"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-param}{}}}
 \subsection{Method \code{param()}}{
 Returns parameter information, if provided by the model. This
 describes the contents of pars passed to the constructor or to
@@ -164,8 +164,8 @@ on the model.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-run"></a>}}
-\if{latex}{\out{\hypertarget{method-run}{}}}
+\if{html}{\out{<a id="method-dust-run"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-run}{}}}
 \subsection{Method \code{run()}}{
 Run the model up to a point in time, returning the filtered state
 at that point.
@@ -183,8 +183,8 @@ step(), silently nothing will happen)}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-simulate"></a>}}
-\if{latex}{\out{\hypertarget{method-simulate}{}}}
+\if{html}{\out{<a id="method-dust-simulate"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-simulate}{}}}
 \subsection{Method \code{simulate()}}{
 Iterate all particles forward in time over a series of steps,
 collecting output as they go. This is a helper around \verb{$run()}
@@ -214,8 +214,8 @@ not wanted).}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set_index"></a>}}
-\if{latex}{\out{\hypertarget{method-set_index}{}}}
+\if{html}{\out{<a id="method-dust-set_index"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-set_index}{}}}
 \subsection{Method \code{set_index()}}{
 Set the "index" vector that is used to return a subset of pars
 after using \code{run()}. If this is not used then \code{run()} returns
@@ -236,8 +236,8 @@ validated, and an error thrown if an invalid index is given).}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-index"></a>}}
-\if{latex}{\out{\hypertarget{method-index}{}}}
+\if{html}{\out{<a id="method-dust-index"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-index}{}}}
 \subsection{Method \code{index()}}{
 Returns the \code{index} as set by \verb{$set_index}
 \subsection{Usage}{
@@ -246,8 +246,8 @@ Returns the \code{index} as set by \verb{$set_index}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-n_threads"></a>}}
-\if{latex}{\out{\hypertarget{method-n_threads}{}}}
+\if{html}{\out{<a id="method-dust-n_threads"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-n_threads}{}}}
 \subsection{Method \code{n_threads()}}{
 Returns the number of threads that the model was constructed with
 \subsection{Usage}{
@@ -256,8 +256,8 @@ Returns the number of threads that the model was constructed with
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-n_state"></a>}}
-\if{latex}{\out{\hypertarget{method-n_state}{}}}
+\if{html}{\out{<a id="method-dust-n_state"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-n_state}{}}}
 \subsection{Method \code{n_state()}}{
 Returns the length of the per-particle state
 \subsection{Usage}{
@@ -266,8 +266,8 @@ Returns the length of the per-particle state
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-n_particles"></a>}}
-\if{latex}{\out{\hypertarget{method-n_particles}{}}}
+\if{html}{\out{<a id="method-dust-n_particles"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-n_particles}{}}}
 \subsection{Method \code{n_particles()}}{
 Returns the number of particles
 \subsection{Usage}{
@@ -276,8 +276,8 @@ Returns the number of particles
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-n_particles_each"></a>}}
-\if{latex}{\out{\hypertarget{method-n_particles_each}{}}}
+\if{html}{\out{<a id="method-dust-n_particles_each"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-n_particles_each}{}}}
 \subsection{Method \code{n_particles_each()}}{
 Returns the number of particles per parameter set
 \subsection{Usage}{
@@ -286,8 +286,8 @@ Returns the number of particles per parameter set
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-shape"></a>}}
-\if{latex}{\out{\hypertarget{method-shape}{}}}
+\if{html}{\out{<a id="method-dust-shape"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-shape}{}}}
 \subsection{Method \code{shape()}}{
 Returns the shape of the particles
 \subsection{Usage}{
@@ -296,8 +296,8 @@ Returns the shape of the particles
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-update_state"></a>}}
-\if{latex}{\out{\hypertarget{method-update_state}{}}}
+\if{html}{\out{<a id="method-dust-update_state"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-update_state}{}}}
 \subsection{Method \code{update_state()}}{
 Update one or more components of the model state.
 This method can be used to update any or all of \code{pars}, \code{state} and
@@ -340,8 +340,8 @@ is non-\code{NULL}.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-state"></a>}}
-\if{latex}{\out{\hypertarget{method-state}{}}}
+\if{html}{\out{<a id="method-dust-state"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-state}{}}}
 \subsection{Method \code{state()}}{
 Return full model state
 \subsection{Usage}{
@@ -357,8 +357,8 @@ Return full model state
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-step"></a>}}
-\if{latex}{\out{\hypertarget{method-step}{}}}
+\if{html}{\out{<a id="method-dust-step"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-step}{}}}
 \subsection{Method \code{step()}}{
 Return current model step
 \subsection{Usage}{
@@ -367,8 +367,8 @@ Return current model step
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-reorder"></a>}}
-\if{latex}{\out{\hypertarget{method-reorder}{}}}
+\if{html}{\out{<a id="method-dust-reorder"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-reorder}{}}}
 \subsection{Method \code{reorder()}}{
 Reorder particles.
 \subsection{Usage}{
@@ -386,8 +386,8 @@ take.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-resample"></a>}}
-\if{latex}{\out{\hypertarget{method-resample}{}}}
+\if{html}{\out{<a id="method-dust-resample"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-resample}{}}}
 \subsection{Method \code{resample()}}{
 Resample particles according to some weight.
 \subsection{Usage}{
@@ -408,8 +408,8 @@ long as all particles or be a matrix.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-info"></a>}}
-\if{latex}{\out{\hypertarget{method-info}{}}}
+\if{html}{\out{<a id="method-dust-info"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-info}{}}}
 \subsection{Method \code{info()}}{
 Returns information about the pars that your model was created with.
 Only returns non-NULL if the model provides a \code{dust_info} template
@@ -420,8 +420,8 @@ specialisation.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-pars"></a>}}
-\if{latex}{\out{\hypertarget{method-pars}{}}}
+\if{html}{\out{<a id="method-dust-pars"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-pars}{}}}
 \subsection{Method \code{pars()}}{
 Returns the \code{pars} object that your model was constructed with.
 \subsection{Usage}{
@@ -430,8 +430,8 @@ Returns the \code{pars} object that your model was constructed with.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-rng_state"></a>}}
-\if{latex}{\out{\hypertarget{method-rng_state}{}}}
+\if{html}{\out{<a id="method-dust-rng_state"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-rng_state}{}}}
 \subsection{Method \code{rng_state()}}{
 Returns the state of the random number generator. This returns a
 raw vector of length 32 * n_particles. This can be useful for
@@ -457,8 +457,8 @@ first random number state}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set_rng_state"></a>}}
-\if{latex}{\out{\hypertarget{method-set_rng_state}{}}}
+\if{html}{\out{<a id="method-dust-set_rng_state"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-set_rng_state}{}}}
 \subsection{Method \code{set_rng_state()}}{
 Set the random number state for this model. This
 replaces the RNG state that the model is using with a state of
@@ -481,8 +481,8 @@ constructor, this \emph{must} be a raw vector of the expected length.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-has_openmp"></a>}}
-\if{latex}{\out{\hypertarget{method-has_openmp}{}}}
+\if{html}{\out{<a id="method-dust-has_openmp"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-has_openmp}{}}}
 \subsection{Method \code{has_openmp()}}{
 Returns a logical, indicating if this model was compiled with
 "OpenMP" support, in which case it will react to the \code{n_threads}
@@ -495,8 +495,8 @@ as \code{dust_generator$public_methods$has_openmp()}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-has_gpu_support"></a>}}
-\if{latex}{\out{\hypertarget{method-has_gpu_support}{}}}
+\if{html}{\out{<a id="method-dust-has_gpu_support"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-has_gpu_support}{}}}
 \subsection{Method \code{has_gpu_support()}}{
 Returns a logical, indicating if this model was compiled with
 "CUDA" support, in which case it will react to the \code{device}
@@ -518,8 +518,8 @@ version of the model but running on the CPU)}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-has_compare"></a>}}
-\if{latex}{\out{\hypertarget{method-has_compare}{}}}
+\if{html}{\out{<a id="method-dust-has_compare"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-has_compare}{}}}
 \subsection{Method \code{has_compare()}}{
 Returns a logical, indicating if this model was compiled with
 "compare" support, in which case the \code{set_data} and \code{compare_data}
@@ -532,8 +532,8 @@ as \code{dust_generator$public_methods$has_compare()}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-real_size"></a>}}
-\if{latex}{\out{\hypertarget{method-real_size}{}}}
+\if{html}{\out{<a id="method-dust-real_size"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-real_size}{}}}
 \subsection{Method \code{real_size()}}{
 Return the size of real numbers (in bits). Typically this will be
 64 for double precision and 32 for \code{float}.  This method can also be
@@ -545,8 +545,8 @@ used as a static method by running it directory as
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-rng_algorithm"></a>}}
-\if{latex}{\out{\hypertarget{method-rng_algorithm}{}}}
+\if{html}{\out{<a id="method-dust-rng_algorithm"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-rng_algorithm}{}}}
 \subsection{Method \code{rng_algorithm()}}{
 Return the random number algorithm used. Typically this will be
 \code{xoshiro256plus} for models using double precision reals and
@@ -559,8 +559,8 @@ also be used as a static method by running it directory as
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-uses_gpu"></a>}}
-\if{latex}{\out{\hypertarget{method-uses_gpu}{}}}
+\if{html}{\out{<a id="method-dust-uses_gpu"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-uses_gpu}{}}}
 \subsection{Method \code{uses_gpu()}}{
 Check if the model is running on a GPU
 \subsection{Usage}{
@@ -578,8 +578,8 @@ version of the model but running on the CPU)}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-n_pars"></a>}}
-\if{latex}{\out{\hypertarget{method-n_pars}{}}}
+\if{html}{\out{<a id="method-dust-n_pars"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-n_pars}{}}}
 \subsection{Method \code{n_pars()}}{
 Returns the number of distinct pars elements required. This is \code{0}
 where the object was initialised with \code{pars_multi = FALSE} and
@@ -591,8 +591,8 @@ is accepted, you must provide an unnamed list of length \verb{$n_pars()}.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set_n_threads"></a>}}
-\if{latex}{\out{\hypertarget{method-set_n_threads}{}}}
+\if{html}{\out{<a id="method-dust-set_n_threads"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-set_n_threads}{}}}
 \subsection{Method \code{set_n_threads()}}{
 Change the number of threads that the dust object will use. Your
 model must be compiled with "OpenMP" support for this to have an
@@ -613,8 +613,8 @@ requested (based on environment variables and OpenMP support).}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set_data"></a>}}
-\if{latex}{\out{\hypertarget{method-set_data}{}}}
+\if{html}{\out{<a id="method-dust-set_data"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-set_data}{}}}
 \subsection{Method \code{set_data()}}{
 Set "data" into the model for use with the \verb{$compare_data()} method.
 This is not supported by all models, depending on if they define a
@@ -639,8 +639,8 @@ more than one parameter set (\code{pars_multi = TRUE}).}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-compare_data"></a>}}
-\if{latex}{\out{\hypertarget{method-compare_data}{}}}
+\if{html}{\out{<a id="method-dust-compare_data"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-compare_data}{}}}
 \subsection{Method \code{compare_data()}}{
 Compare the current model state against the data as set by
 \code{set_data}. If there is no data set, or no data corresponding to
@@ -654,8 +654,8 @@ this function may be result in a different answer.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-filter"></a>}}
-\if{latex}{\out{\hypertarget{method-filter}{}}}
+\if{html}{\out{<a id="method-dust-filter"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-filter}{}}}
 \subsection{Method \code{filter()}}{
 Run a particle filter. The interface here will change a lot over the
 next few versions. You \emph{must} reset the dust object using
@@ -700,8 +700,8 @@ compatibility.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-gpu_info"></a>}}
-\if{latex}{\out{\hypertarget{method-gpu_info}{}}}
+\if{html}{\out{<a id="method-dust-gpu_info"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-gpu_info}{}}}
 \subsection{Method \code{gpu_info()}}{
 Return information about GPU devices, if the model
 has been compiled with CUDA/GPU support. This can be called as a

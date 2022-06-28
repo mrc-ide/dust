@@ -220,14 +220,12 @@ load_temporary_package <- function(path, base, quiet) {
 ##'
 ##' @param quiet 
 ##'
-##' @return 
-##'
-##' @author Rich FitzJohn
+##' @return Nothing, called for its side effects
 dust_repair_environment <- function(generator, quiet = NULL) {
   assert_is(generator, "dust_generator")
   data <- generator$private_fields$reload
   if (is.null(data)) {
-    stop("Generator is not repairable")
+    return(invisible())
   }
 
   base <- data$base
@@ -236,6 +234,9 @@ dust_repair_environment <- function(generator, quiet = NULL) {
   if (!pkgload::is_dev_package(base)) {
     env <- load_temporary_package(path, base, quiet)
   } else {
+    if (!quiet) {
+      message(sprintf("'%s' was already loaded", base))
+    }
     env <- .getNamespace(base)
   }
   generator$parent_env <- env

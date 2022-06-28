@@ -80,8 +80,10 @@ precedence. The default location is stored with
 \code{tools::R_user_dir("dust", "data")}, but this functionality is
 only available on R >= 4.0.0.
 
-To install CUB you can do:\preformatted{dust:::cuda_install_cub(NULL)
-}
+To install CUB you can do:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{dust:::cuda_install_cub(NULL)
+}\if{html}{\out{</div>}}
 
 which will install CUB into the default path (provide a path on
 older versions of R and set this path as DUST_PATH_CUB_INCLUDE).
