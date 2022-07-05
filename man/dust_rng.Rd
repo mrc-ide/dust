@@ -117,24 +117,24 @@ rng$multinomial(5, 10, c(0.1, 0.3, 0.5, 0.1))
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{dust_rng$new()}}
-\item \href{#method-size}{\code{dust_rng$size()}}
-\item \href{#method-jump}{\code{dust_rng$jump()}}
-\item \href{#method-long_jump}{\code{dust_rng$long_jump()}}
-\item \href{#method-random_real}{\code{dust_rng$random_real()}}
-\item \href{#method-random_normal}{\code{dust_rng$random_normal()}}
-\item \href{#method-uniform}{\code{dust_rng$uniform()}}
-\item \href{#method-normal}{\code{dust_rng$normal()}}
-\item \href{#method-binomial}{\code{dust_rng$binomial()}}
-\item \href{#method-poisson}{\code{dust_rng$poisson()}}
-\item \href{#method-exponential}{\code{dust_rng$exponential()}}
-\item \href{#method-multinomial}{\code{dust_rng$multinomial()}}
-\item \href{#method-state}{\code{dust_rng$state()}}
+\item \href{#method-dust_rng-new}{\code{dust_rng$new()}}
+\item \href{#method-dust_rng-size}{\code{dust_rng$size()}}
+\item \href{#method-dust_rng-jump}{\code{dust_rng$jump()}}
+\item \href{#method-dust_rng-long_jump}{\code{dust_rng$long_jump()}}
+\item \href{#method-dust_rng-random_real}{\code{dust_rng$random_real()}}
+\item \href{#method-dust_rng-random_normal}{\code{dust_rng$random_normal()}}
+\item \href{#method-dust_rng-uniform}{\code{dust_rng$uniform()}}
+\item \href{#method-dust_rng-normal}{\code{dust_rng$normal()}}
+\item \href{#method-dust_rng-binomial}{\code{dust_rng$binomial()}}
+\item \href{#method-dust_rng-poisson}{\code{dust_rng$poisson()}}
+\item \href{#method-dust_rng-exponential}{\code{dust_rng$exponential()}}
+\item \href{#method-dust_rng-multinomial}{\code{dust_rng$multinomial()}}
+\item \href{#method-dust_rng-state}{\code{dust_rng$state()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-dust_rng-new"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng-new}{}}}
 \subsection{Method \code{new()}}{
 Create a \code{dust_rng} object
 \subsection{Usage}{
@@ -171,8 +171,8 @@ expectations and the state is never changed.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-size"></a>}}
-\if{latex}{\out{\hypertarget{method-size}{}}}
+\if{html}{\out{<a id="method-dust_rng-size"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng-size}{}}}
 \subsection{Method \code{size()}}{
 Number of streams available
 \subsection{Usage}{
@@ -181,8 +181,8 @@ Number of streams available
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-jump"></a>}}
-\if{latex}{\out{\hypertarget{method-jump}{}}}
+\if{html}{\out{<a id="method-dust_rng-jump"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng-jump}{}}}
 \subsection{Method \code{jump()}}{
 The jump function updates the random number state for
 each stream by advancing it to a state equivalent to
@@ -193,8 +193,8 @@ each stream by advancing it to a state equivalent to
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-long_jump"></a>}}
-\if{latex}{\out{\hypertarget{method-long_jump}{}}}
+\if{html}{\out{<a id="method-dust_rng-long_jump"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng-long_jump}{}}}
 \subsection{Method \code{long_jump()}}{
 Longer than \verb{$jump}, the \verb{$long_jump} method is
 equivalent to 2^192 numbers drawn from each stream.
@@ -204,8 +204,8 @@ equivalent to 2^192 numbers drawn from each stream.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-random_real"></a>}}
-\if{latex}{\out{\hypertarget{method-random_real}{}}}
+\if{html}{\out{<a id="method-dust_rng-random_real"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng-random_real}{}}}
 \subsection{Method \code{random_real()}}{
 Generate \code{n} numbers from a standard uniform distribution
 \subsection{Usage}{
@@ -223,8 +223,8 @@ Generate \code{n} numbers from a standard uniform distribution
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-random_normal"></a>}}
-\if{latex}{\out{\hypertarget{method-random_normal}{}}}
+\if{html}{\out{<a id="method-dust_rng-random_normal"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng-random_normal}{}}}
 \subsection{Method \code{random_normal()}}{
 Generate \code{n} numbers from a standard normal distribution
 \subsection{Usage}{
@@ -246,8 +246,8 @@ faster.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-uniform"></a>}}
-\if{latex}{\out{\hypertarget{method-uniform}{}}}
+\if{html}{\out{<a id="method-dust_rng-uniform"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng-uniform}{}}}
 \subsection{Method \code{uniform()}}{
 Generate \code{n} numbers from a uniform distribution
 \subsection{Usage}{
@@ -269,8 +269,8 @@ Generate \code{n} numbers from a uniform distribution
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-normal"></a>}}
-\if{latex}{\out{\hypertarget{method-normal}{}}}
+\if{html}{\out{<a id="method-dust_rng-normal"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng-normal}{}}}
 \subsection{Method \code{normal()}}{
 Generate \code{n} numbers from a normal distribution
 \subsection{Usage}{
@@ -296,8 +296,8 @@ faster.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-binomial"></a>}}
-\if{latex}{\out{\hypertarget{method-binomial}{}}}
+\if{html}{\out{<a id="method-dust_rng-binomial"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng-binomial}{}}}
 \subsection{Method \code{binomial()}}{
 Generate \code{n} numbers from a binomial distribution
 \subsection{Usage}{
@@ -320,8 +320,8 @@ Generate \code{n} numbers from a binomial distribution
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-poisson"></a>}}
-\if{latex}{\out{\hypertarget{method-poisson}{}}}
+\if{html}{\out{<a id="method-dust_rng-poisson"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng-poisson}{}}}
 \subsection{Method \code{poisson()}}{
 Generate \code{n} numbers from a Poisson distribution
 \subsection{Usage}{
@@ -341,8 +341,8 @@ Generate \code{n} numbers from a Poisson distribution
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-exponential"></a>}}
-\if{latex}{\out{\hypertarget{method-exponential}{}}}
+\if{html}{\out{<a id="method-dust_rng-exponential"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng-exponential}{}}}
 \subsection{Method \code{exponential()}}{
 Generate \code{n} numbers from a exponential distribution
 \subsection{Usage}{
@@ -362,8 +362,8 @@ Generate \code{n} numbers from a exponential distribution
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-multinomial"></a>}}
-\if{latex}{\out{\hypertarget{method-multinomial}{}}}
+\if{html}{\out{<a id="method-dust_rng-multinomial"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng-multinomial}{}}}
 \subsection{Method \code{multinomial()}}{
 Generate \code{n} draws from a multinomial distribution.
 In contrast with most of the distributions here, each draw is a
@@ -390,8 +390,8 @@ weights and normalise so that they equal 1 before sampling.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-state"></a>}}
-\if{latex}{\out{\hypertarget{method-state}{}}}
+\if{html}{\out{<a id="method-dust_rng-state"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng-state}{}}}
 \subsection{Method \code{state()}}{
 Returns the state of the random number stream. This returns a
 raw vector of length 32 * n_streams. It is primarily intended for

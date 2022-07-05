@@ -201,7 +201,7 @@ package_validate_namespace_usedynlib <- function(exprs, name) {
 package_generate <- function(filename) {
   config <- parse_metadata(filename)
   model <- read_lines(filename)
-  data <- dust_template_data(model, config, NULL)
+  data <- dust_template_data(model, config, NULL, NULL)
 
   code <- dust_code(data, config)
 

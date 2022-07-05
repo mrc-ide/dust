@@ -39,7 +39,8 @@
     ptr_ = NULL,
     gpu_config_ = NULL,
     methods_ = NULL,
-    param_ = {{param}}
+    param_ = {{param}},
+    reload_ = {{reload}}
   ),
 
   public = list(

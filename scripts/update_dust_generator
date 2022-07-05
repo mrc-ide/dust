@@ -6,6 +6,7 @@ template_r <- paste(drop_internal_comments(
 
 txt <- glue_whisker(template_r, list(name = "dust_generator",
                                      param = "NULL",
+                                     reload = "NULL",
                                      has_gpu_support = "",
                                      methods_cpu = "",
                                      methods_gpu = ""))

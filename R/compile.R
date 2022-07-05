@@ -17,14 +17,15 @@ generate_dust <- function(filename, quiet, workdir, cuda, skip_cache, mangle) {
     return(cache$models$get(base, skip_cache))
   }
 
+  path <- dust_workdir(workdir)
   model <- read_lines(filename)
-  data <- dust_template_data(model, config, cuda)
+  reload <- list(path = path, base = base)
+  data <- dust_template_data(model, config, cuda, reload)
 
   ## These two are used in the non-package version only
   data$base <- base
   data$path_dust_include <- dust_file("include")
 
-  path <- dust_workdir(workdir)
   dir.create(file.path(path, "R"), FALSE, TRUE)
   dir.create(file.path(path, "src"), FALSE, TRUE)
 
@@ -90,15 +91,8 @@ compile_and_load <- function(filename, quiet = FALSE, workdir = NULL,
 
     pkgbuild::compile_dll(path, compile_attributes = TRUE,
                           quiet = quiet, debug = FALSE)
-    tmp <- pkgload::load_all(path, compile = FALSE, recompile = FALSE,
-                             warn_conflicts = FALSE, export_all = FALSE,
-                             helpers = FALSE, attach_testthat = FALSE,
-                             quiet = quiet)
-    ## Don't pollute the search path
-    detach(paste0("package:", res$data$base), character.only = TRUE)
-
+    res$env <- load_temporary_package(path, res$data$base, quiet)
     res$dll <- file.path(path, "src", paste0(res$key, .Platform$dynlib.ext))
-    res$env <- tmp$env
     res$gen <- res$env[[res$data$name]]
 
     cache$models$set(res$key, res, skip_cache)
@@ -132,7 +126,7 @@ glue_whisker <- function(template, data) {
 }
 
 
-dust_template_data <- function(model, config, cuda) {
+dust_template_data <- function(model, config, cuda, reload_data) {
   methods <- function(target) {
     nms <- c("alloc", "run", "simulate", "set_index", "n_state",
              "update_state", "state", "step", "reorder", "resample",
@@ -152,6 +146,13 @@ dust_template_data <- function(model, config, cuda) {
       "        })", sep = "\n")
   }
 
+
+  if (is.null(reload_data)) {
+    reload <- "NULL"
+  } else {
+    reload <- paste(deparse(reload_data), collapse = "\n")
+  }
+
   list(model = model,
        name = config$name,
        class = config$class,
@@ -161,5 +162,57 @@ dust_template_data <- function(model, config, cuda) {
        container = "dust_cpu",
        has_gpu_support = as.character(config$has_gpu_support),
        methods_cpu = methods_cpu,
-       methods_gpu = methods_gpu)
+       methods_gpu = methods_gpu,
+       reload = reload)
+}
+
+
+load_temporary_package <- function(path, base, quiet) {
+  pkg <- pkgload::load_all(path, compile = FALSE, recompile = FALSE,
+                           warn_conflicts = FALSE, export_all = FALSE,
+                           helpers = FALSE, attach_testthat = FALSE,
+                           quiet = quiet)
+  detach(paste0("package:", base), character.only = TRUE)
+  pkg$env
+}
+
+
+##' Repair the environment of a dust object created by [[dust::dust]]
+##' and then saved and reloaded by [[saveRDS]] and
+##' [[readRDS]]. Because we use a fake temporary package to hold the
+##' generated code, it will not ordinarily be loaded properly without
+##' using this.
+##'
+##' @title Repair dust environment
+##'
+##' @param generator The dust generateor
+##'
+##' @param quiet Logical, indicating if we should be quiet (default
+##'   prints some progress information)
+##'
+##' @return Nothing, called for its side effects
+##' @export
+dust_repair_environment <- function(generator, quiet = FALSE) {
+  assert_is(generator, "dust_generator")
+  data <- generator$private_fields$reload_
+  if (is.null(data)) {
+    if (!quiet) {
+      message("Generator does not need repair")
+    }
+    return(invisible())
+  }
+
+  base <- data$base
+  path <- data$path
+  if (!pkgload::is_dev_package(base)) {
+    env <- load_temporary_package(path, base, quiet)
+  } else {
+    if (!quiet) {
+      message(sprintf("'%s' was already loaded", base))
+    }
+    env <- .getNamespace(base)
+  }
+  if (!identical(env, generator$parent_env)) {
+    generator$parent_env <- env
+  }
 }

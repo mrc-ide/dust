@@ -113,14 +113,16 @@ parallel.
 
 You must also provide a data/parameter-wrangling function for
 producing an object of type \verb{dust::pars_type<model>} from an R list.  We
-use cpp11 for this.  Your function will look like:\preformatted{namespace dust \{
+use cpp11 for this.  Your function will look like:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{namespace dust \{
 template <>
 dust::pars_type<model> dust_pars<model>(cpp11::list pars) \{
   // ...
   return dust::pars_type<model>(shared, internal);
 \}
 \}
-}
+}\if{html}{\out{</div>}}
 
 With the body interacting with \code{pars} to create an object of type
 \code{model::shared_type} and \code{model::internal_type} before returning the
@@ -134,13 +136,15 @@ you may use the single-argument constructor overload to
 
 Your model \emph{may} provided a template specialisation
 \verb{dust::dust_info<model>()} returning a \code{cpp11::sexp} for
-returning arbitrary information back to the R session:\preformatted{namespace dust \{
+returning arbitrary information back to the R session:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{namespace dust \{
 template <>
 cpp11::sexp dust_info<model>(const dust::pars_type<sir>& pars) \{
   return cpp11::wrap(...);
 \}
 \}
-}
+}\if{html}{\out{</div>}}
 
 What you do with this is up to you. If not present then the
 \code{info()} method on the created object will return \code{NULL}.
