@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+set -ex
 ./scripts/docs_build_cpp
 
 rm -rf docs
