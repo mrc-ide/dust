@@ -3,7 +3,7 @@ on:
     branches:
       - master
       - main
-      - mrc-3221
+      - mrc-3377
 
 name: pkgdown
 
