@@ -96,6 +96,9 @@
 ##' # Binomially distributed random numbers with size and prob
 ##' rng$binomial(5, 10, 0.3)
 ##'
+##' # Hypergeometric distributed random numbers with parameters n1, n2 and k
+##' rng$hypergeometric(5, 6, 10, 4)
+##'
 ##' # Poisson distributed random numbers with mean lambda
 ##' rng$poisson(5, 2)
 ##'
