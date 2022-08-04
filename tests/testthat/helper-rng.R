@@ -145,7 +145,7 @@ hypergeometric_r <- function(random_real) {
         dt <- if (t < 0) xk * quad(t) / (1.0 + t) else xk * quad(t)
         de <- if (e < 0) nm * quad(e) / (1.0 + e) else nm * quad(e)
 
-        if (av < ub - 0.25 * (dr + ds + dt + de) + (y + m)*(gl - gu) - 0.0078) {
+        if (av < ub - 0.25 * (dr + ds + dt + de) + (y + m) * (gl - gu) - 0.0078) {
           x <- y
           break
         }

@@ -272,7 +272,8 @@ dust_rng <- R6::R6Class(
     ##'
     ##' @param n_threads Number of threads to use; see Details
     hypergeometric = function(n, n1, n2, k, n_threads = 1L) {
-      dust_rng_hypergeometric(private$ptr, n, n1, n2, k, n_threads, private$float)
+      dust_rng_hypergeometric(private$ptr, n, n1, n2, k, n_threads,
+                              private$float)
     },
 
     ##' @description Generate `n` numbers from a Poisson distribution
