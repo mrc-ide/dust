@@ -1094,3 +1094,41 @@ test_that("deterministic hypergeometric returns mean", {
   expect_equal(rng_f$state(), state_f)
   expect_equal(rng_d$state(), state_d)
 })
+
+
+test_that("hypergeometric random numbers prevent bad inputs", {
+  r <- dust_rng$new(1)
+  expect_equal(r$hypergeometric(1, 0, 0, 0), 0)
+
+  expect_error(
+    r$hypergeometric(1, -1, 5, 2),
+    "Invalid call to hypergeometric with n1 = -1, n2 = 5, k = 2")
+  expect_error(
+    r$hypergeometric(1, 5, -1, 2),
+    "Invalid call to hypergeometric with n1 = 5, n2 = -1, k = 2")
+  expect_error(
+    r$hypergeometric(1, 5, 3, -2),
+    "Invalid call to hypergeometric with n1 = 5, n2 = 3, k = -2")
+  expect_error(
+    r$hypergeometric(1, 5, 3, 10),
+    "Invalid call to hypergeometric with n1 = 5, n2 = 3, k = 10")
+})
+
+
+test_that("fast exits do not draw random numbers", {
+  r <- dust_rng$new(1)
+  s <- r$state()
+
+  ## If there's nothing sampled from nothing, return nothing
+  expect_equal(r$hypergeometric(1, 0, 0, 0), 0)
+  ## If there's nothing sampled from something, return nothing
+  expect_equal(r$hypergeometric(1, 10, 5, 0), 0)
+  ## If there's nothing to choose from, take the only option
+  expect_equal(r$hypergeometric(1, 10, 0, 2), 2)
+  expect_equal(r$hypergeometric(1, 0, 10, 2), 0)
+  ## If we select everything, return everything
+  expect_equal(r$hypergeometric(1, 10, 5, 15), 10)
+  expect_equal(r$hypergeometric(1, 5, 10, 15), 5)
+
+  expect_identical(r$state(), s)
+})

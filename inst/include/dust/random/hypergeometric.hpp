@@ -12,6 +12,16 @@ namespace dust {
 namespace random {
 namespace {
 
+inline void hypergeometric_validate(int n1, int n2, int n, int k) {
+  if (n1 < 0 || n2 < 0 || k < 0 || k > n) {
+    char buffer[256];
+    snprintf(buffer, 256,
+             "Invalid call to hypergeometric with n1 = %d, n2 = %d, k = %d",
+             n1, n2, k);
+    dust::utils::fatal_error(buffer);
+  }
+}
+
 template <typename real_type, typename rng_state_type>
 int hypergeometric_hip(rng_state_type& rng_state, int n1, int n2, int n, int k);
 template <typename real_type, typename rng_state_type>
@@ -240,9 +250,7 @@ template <typename real_type, typename rng_state_type>
 __host__ __device__
 real_type hypergeometric_stochastic(rng_state_type& rng_state, int n1, int n2, int k) {
   const int n = n1 + n2;
-  if (n1 < 0 || n2 < 0 || k > n) {
-    throw std::runtime_error("Invalid parameters");
-  }
+  hypergeometric_validate(n1, n2, n, k);
 
   int sign_x = 1;
   int offset_x = 0;
@@ -258,18 +266,29 @@ real_type hypergeometric_stochastic(rng_state_type& rng_state, int n1, int n2, i
     k = n - k;
   }
 
-  constexpr real_type hin_threshold = 10;
-  const int m = std::floor((k + 1) * (n1 + 1) / (real_type)(n + 2));
-  const int x = (m < hin_threshold) ?
-    hypergeometric_hip<real_type>(rng_state, n1, n2, n, k) :
-    hypergeometric_h2pe<real_type>(rng_state, n1, n2, n, k, m);
+  int x;
+  // Same fast exits as for the binomial case
+  if (k == 0 || n1 == 0) {
+    x = 0;
+  } else if (k == n) {
+    x = k;
+  } else {
+    constexpr real_type hin_threshold = 10;
+    const int m = std::floor((k + 1) * (n1 + 1) / (real_type)(n + 2));
+    x = (m < hin_threshold) ?
+      hypergeometric_hip<real_type>(rng_state, n1, n2, n, k) :
+      hypergeometric_h2pe<real_type>(rng_state, n1, n2, n, k, m);
+  }
 
   return offset_x + sign_x * x;
 }
 
 template <typename real_type>
 __host__ real_type hypergeometric_deterministic(real_type n1, real_type n2, real_type k) {
-  return n1 * k / (n1 + n2);
+  const real_type n = n1 + n2;
+  hypergeometric_validate(static_cast<int>(n1), static_cast<int>(n2),
+                          static_cast<int>(n), static_cast<int>(k));
+  return n1 * k / n;
 }
 
 /// Draw random number from the hypergeometric distribution. This is
@@ -311,7 +330,6 @@ real_type hypergeometric(rng_state_type& rng_state, real_type n1, real_type n2, 
 
 }
 }
-
 
 
 #endif
