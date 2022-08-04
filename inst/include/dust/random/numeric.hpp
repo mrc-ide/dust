@@ -72,6 +72,11 @@ __host__ __device__ real_type lgamma(real_type x) {
 #endif
 }
 
+template <typename real_type>
+real_type lfactorial(int x) {
+  return lgamma(static_cast<real_type>(x + 1));
+}
+
 #ifdef __NVCC__
 template <typename real_type>
 real_type infinity_nvcc();

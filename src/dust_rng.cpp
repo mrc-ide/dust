@@ -389,6 +389,50 @@ cpp11::sexp dust_rng_multinomial(SEXP ptr, int n,
   return ret;
 }
 
+template <typename real_type, typename T>
+cpp11::sexp dust_rng_hypergeometric(SEXP ptr, int n,
+                                    cpp11::doubles r_n1, cpp11::doubles r_n2,
+                                    cpp11::doubles r_k, int n_threads) {
+  T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
+  const int n_streams = rng->size();
+  cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_streams);
+  double * y = REAL(ret);
+  
+  const double * n1 = REAL(r_n1);
+  const double * n2 = REAL(r_n2);
+  const double * k = REAL(r_k);
+  auto n1_vary = check_input_type(r_n1, n, n_streams, "n1");
+  auto n2_vary = check_input_type(r_n2, n, n_streams, "n1");
+  auto k_vary = check_input_type(r_k, n, n_streams, "k");
+
+  dust::utils::openmp_errors errors(n_streams);
+
+#ifdef _OPENMP
+  #pragma omp parallel for schedule(static) num_threads(n_threads)
+#endif
+  for (int i = 0; i < n_streams; ++i) {
+    try {
+      auto &state = rng->state(i);
+      auto y_i = y + n * i;
+      auto n1_i = n1_vary.generator ? n1 + n1_vary.offset * i : n1;
+      auto n2_i = n2_vary.generator ? n2 + n2_vary.offset * i : n2;
+      auto k_i = k_vary.generator ? k + k_vary.offset * i : k;
+      for (size_t j = 0; j < (size_t)n; ++j) {
+        auto n1_ij = n1_vary.draw ? n1_i[j] : n1_i[0];
+        auto n2_ij = n2_vary.draw ? n2_i[j] : n2_i[0];
+        auto k_ij = k_vary.draw ? k_i[j] : k_i[0];
+        y_i[j] = dust::random::hypergeometric<real_type>(state, n1_ij, n2_ij, k_ij);
+      }
+    } catch (std::exception const& e) {
+      errors.capture(e, i);
+    }
+  }
+
+  errors.report("generators");
+
+  return sexp_matrix(ret, n, n_streams);
+}
+
 template <typename T>
 cpp11::sexp dust_rng_state(SEXP ptr) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
@@ -511,6 +555,17 @@ cpp11::sexp dust_rng_binomial(SEXP ptr, int n,
   return is_float ?
     dust_rng_binomial<float, dust_rng32>(ptr, n, r_size, r_prob, n_threads) :
     dust_rng_binomial<double, dust_rng64>(ptr, n, r_size, r_prob, n_threads);
+}
+
+[[cpp11::register]]
+cpp11::sexp dust_rng_hypergeometric(SEXP ptr, int n,
+                                    cpp11::doubles r_n1,
+                                    cpp11::doubles r_n2,
+                                    cpp11::doubles r_k,
+                                    int n_threads, bool is_float) {
+  return is_float ?
+    dust_rng_hypergeometric<float, dust_rng32>(ptr, n, r_n1, r_n2, r_k, n_threads) :
+    dust_rng_hypergeometric<double, dust_rng64>(ptr, n, r_n1, r_n2, r_k, n_threads);
 }
 
 [[cpp11::register]]

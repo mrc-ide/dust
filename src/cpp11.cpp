@@ -135,6 +135,13 @@ extern "C" SEXP _dust_dust_rng_binomial(SEXP ptr, SEXP n, SEXP r_size, SEXP r_pr
   END_CPP11
 }
 // dust_rng.cpp
+cpp11::sexp dust_rng_hypergeometric(SEXP ptr, int n, cpp11::doubles r_n1, cpp11::doubles r_n2, cpp11::doubles r_k, int n_threads, bool is_float);
+extern "C" SEXP _dust_dust_rng_hypergeometric(SEXP ptr, SEXP n, SEXP r_n1, SEXP r_n2, SEXP r_k, SEXP n_threads, SEXP is_float) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_rng_hypergeometric(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_n1), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_n2), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_k), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
+  END_CPP11
+}
+// dust_rng.cpp
 cpp11::sexp dust_rng_poisson(SEXP ptr, int n, cpp11::doubles r_lambda, int n_threads, bool is_float);
 extern "C" SEXP _dust_dust_rng_poisson(SEXP ptr, SEXP n, SEXP r_lambda, SEXP n_threads, SEXP is_float) {
   BEGIN_CPP11
@@ -1177,6 +1184,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_rng_alloc",                    (DL_FUNC) &_dust_dust_rng_alloc,                    4},
     {"_dust_dust_rng_binomial",                 (DL_FUNC) &_dust_dust_rng_binomial,                 6},
     {"_dust_dust_rng_exponential",              (DL_FUNC) &_dust_dust_rng_exponential,              5},
+    {"_dust_dust_rng_hypergeometric",           (DL_FUNC) &_dust_dust_rng_hypergeometric,           7},
     {"_dust_dust_rng_jump",                     (DL_FUNC) &_dust_dust_rng_jump,                     2},
     {"_dust_dust_rng_long_jump",                (DL_FUNC) &_dust_dust_rng_long_jump,                2},
     {"_dust_dust_rng_multinomial",              (DL_FUNC) &_dust_dust_rng_multinomial,              6},
