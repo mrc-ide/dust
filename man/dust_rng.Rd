@@ -126,6 +126,7 @@ rng$multinomial(5, 10, c(0.1, 0.3, 0.5, 0.1))
 \item \href{#method-dust_rng-uniform}{\code{dust_rng$uniform()}}
 \item \href{#method-dust_rng-normal}{\code{dust_rng$normal()}}
 \item \href{#method-dust_rng-binomial}{\code{dust_rng$binomial()}}
+\item \href{#method-dust_rng-hypergeometric}{\code{dust_rng$hypergeometric()}}
 \item \href{#method-dust_rng-poisson}{\code{dust_rng$poisson()}}
 \item \href{#method-dust_rng-exponential}{\code{dust_rng$exponential()}}
 \item \href{#method-dust_rng-multinomial}{\code{dust_rng$multinomial()}}
@@ -313,6 +314,33 @@ Generate \code{n} numbers from a binomial distribution
 
 \item{\code{prob}}{The probability of success on each trial
 (between 0 and 1, length 1 or n)}
+
+\item{\code{n_threads}}{Number of threads to use; see Details}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dust_rng-hypergeometric"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng-hypergeometric}{}}}
+\subsection{Method \code{hypergeometric()}}{
+Generate \code{n} numbers from a hypergeometric distribution
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$hypergeometric(n, n1, n2, k, n_threads = 1L)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{n}}{Number of samples to draw (per stream)}
+
+\item{\code{n1}}{The number of white balls in the urn (called n in
+R's \link{rhyper})}
+
+\item{\code{n2}}{The number of black balls in the urn (called m in
+R's \link{rhyper})}
+
+\item{\code{k}}{The number of balls to draw}
 
 \item{\code{n_threads}}{Number of threads to use; see Details}
 }
