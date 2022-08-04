@@ -988,3 +988,73 @@ test_that("We can compile the standalone program", {
   cmp <- colSums(dust_rng$new(42, 5)$uniform(10, 0, 1))
   expect_equal(ans, cmp)
 })
+
+
+test_that("hypergeometric reference implementation agrees with R", {
+  testthat::skip_on_cran() # subject to change beyond our control
+  hypergeometric <- hypergeometric_r(function() runif(1))
+
+  ## There are three branches to consider:
+  ## Case 1, use HIP (inversion) algorithm
+  m <- 7
+  n <- 10
+  k <- 8
+
+  set.seed(1)
+  r1 <- rhyper(500, m, n, k)
+  set.seed(1)
+  r2 <- replicate(500, hypergeometric(m, n, k))
+  expect_equal(r1, r2)
+
+  ## Case 2, use H2PE algorithm, simple exit
+  m <- 70
+  n <- 100
+  k <- 80
+  set.seed(1)
+  r1 <- rhyper(500, m, n, k)
+  set.seed(1)
+  r2 <- replicate(500, hypergeometric(m, n, k))
+  expect_equal(r1, r2)
+
+  ## Case 3, use H2PE algorithm, squeezing exit
+  m <- 700
+  n <- 1000
+  k <- 800
+  set.seed(1)
+  r1 <- rhyper(500, m, n, k)
+  set.seed(1)
+  r2 <- replicate(500, hypergeometric(m, n, k))
+  expect_equal(r1, r2)
+})
+
+
+test_that("dust agrees with hypergeometric reference implementation", {
+  rng1 <- dust_rng$new(seed = 1L)
+  rng2 <- dust_rng$new(seed = 1L)
+  hypergeometric <- hypergeometric_r(function() rng1$random_real(1))
+
+  ## Same three cases as above:
+  ## Case 1, use HIP (inversion) algorithm
+  m <- 7
+  n <- 10
+  k <- 8
+  r1 <- replicate(500, hypergeometric(m, n, k))
+  r2 <- rng2$hypergeometric(500, m, n, k)
+  expect_equal(r1, r2)
+
+  ## Case 2, use H2PE algorithm, simple exit
+  m <- 70
+  n <- 100
+  k <- 80
+  r1 <- replicate(500, hypergeometric(m, n, k))
+  r2 <- rng2$hypergeometric(500, m, n, k)
+  expect_equal(r1, r2)
+
+  ## Case 3, use H2PE algorithm, squeezing exit
+  m <- 700
+  n <- 1000
+  k <- 800
+  r1 <- replicate(500, hypergeometric(m, n, k))
+  r2 <- rng2$hypergeometric(500, m, n, k)
+  expect_equal(r1, r2)
+})
