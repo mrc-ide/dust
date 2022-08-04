@@ -1058,3 +1058,39 @@ test_that("dust agrees with hypergeometric reference implementation", {
   r2 <- rng2$hypergeometric(500, m, n, k)
   expect_equal(r1, r2)
 })
+
+
+test_that("symmetry property around n1/n2 and k holds", {
+  n1 <- 7
+  n2 <- 15
+  k <- 5
+  n <- n1 + n2
+  r1 <- dust_rng$new(seed = 1L)$hypergeometric(500, n1, n2, k)
+  r2 <- dust_rng$new(seed = 1L)$hypergeometric(500, n2, n1, k)
+  r3 <- dust_rng$new(seed = 1L)$hypergeometric(500, n1, n2, n - k)
+  r4 <- dust_rng$new(seed = 1L)$hypergeometric(500, n2, n1, n - k)
+  expect_equal(r2, k - r1)
+  expect_equal(r3, n1 - r1)
+  expect_equal(r4, r1 + n2 - k)
+})
+
+
+test_that("deterministic hypergeometric returns mean", {
+  n_reps <- 10
+  n1 <- as.numeric(sample(10, n_reps, replace = TRUE))
+  n2 <- as.numeric(sample(10, n_reps, replace = TRUE))
+  n <- n1 + n2
+  k <- floor(runif(n_reps, 0, n))
+
+  rng_f <- dust_rng$new(1, real_type = "float", deterministic = TRUE)
+  rng_d <- dust_rng$new(1, real_type = "double", deterministic = TRUE)
+  state_f <- rng_f$state()
+  state_d <- rng_d$state()
+
+  expect_equal(rng_f$hypergeometric(n_reps, n1, n2, k), k * n1 / n,
+               tolerance = 1e-6)
+  expect_equal(rng_d$hypergeometric(n_reps, n1, n2, k), k * n1 / n)
+
+  expect_equal(rng_f$state(), state_f)
+  expect_equal(rng_d$state(), state_d)
+})
