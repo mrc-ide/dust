@@ -104,7 +104,7 @@ hypergeometric_r <- function(random_real) {
             f <- f * i * (n2 - k + i) / ((n1 - i + 1) * (k - i + 1))
           }
         }
-        
+
         if (v <= f) {
           x <- y # done here
           break
@@ -152,7 +152,7 @@ hypergeometric_r <- function(random_real) {
 
         ## Step 4.3: Final Acceptance/Rejection Test
         av_critical <- a -
-          lfactorial(y) - lfactorial(n1 - y) - lfactorial(k - y) - 
+          lfactorial(y) - lfactorial(n1 - y) - lfactorial(k - y) -
           lfactorial((n2 - k) + y)
         if (log(v) <= av_critical) {
           x <- y
@@ -182,20 +182,20 @@ hypergeometric_r <- function(random_real) {
       if (i <= min_top) {
         result <- result * i
       }
-      
+
       if (i <= min_bottom) {
         result <- result / i
       }
-      
+
       if (i <= max_top) {
         result <- result * i
       }
-      
+
       if (i <= max_bottom) {
         result <- result / i
       }
     }
-    
+
     result
   }
 
