@@ -25,7 +25,7 @@ inline void hypergeometric_validate(int n1, int n2, int n, int k) {
 }
 
 template <typename real_type, typename rng_state_type>
-int hypergeometric_hip(rng_state_type& rng_state, int n1, int n2, int n, int k);
+int hypergeometric_hin(rng_state_type& rng_state, int n1, int n2, int n, int k);
 template <typename real_type, typename rng_state_type>
 int hypergeometric_h2pe(rng_state_type& rng_state, int n1, int n2, int n, int k, int m);
 template <typename real_type>
@@ -36,7 +36,7 @@ T quad(T x);
 __nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
 __host__ __device__
-int hypergeometric_hip(rng_state_type& rng_state, int n1, int n2, int n, int k) {
+int hypergeometric_hin(rng_state_type& rng_state, int n1, int n2, int n, int k) {
   real_type p;
   int x;
   if (k < n2) {
@@ -279,16 +279,15 @@ real_type hypergeometric_stochastic(rng_state_type& rng_state, int n1, int n2, i
   }
 
   int x;
-  // Same fast exits as for the binomial case
+  // Same fast exits as for the binomial case, n == k case handled by
+  // the transformation above.
   if (k == 0 || n1 == 0) {
     x = 0;
-  } else if (k == n) {
-    x = k;
   } else {
     constexpr real_type hin_threshold = 10;
     const int m = std::floor((k + 1) * (n1 + 1) / (real_type)(n + 2));
     x = (m < hin_threshold) ?
-      hypergeometric_hip<real_type>(rng_state, n1, n2, n, k) :
+      hypergeometric_hin<real_type>(rng_state, n1, n2, n, k) :
       hypergeometric_h2pe<real_type>(rng_state, n1, n2, n, k, m);
   }
 
