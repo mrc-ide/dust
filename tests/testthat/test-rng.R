@@ -1006,6 +1006,18 @@ test_that("hypergeometric reference implementation agrees with R", {
   r2 <- replicate(500, hypergeometric(m, n, k))
   expect_equal(r1, r2)
 
+  ## Case 1a, HIP but sample exactly half
+  m <- 5
+  n <- 5
+  k <- 5
+  set.seed(1)
+  r1 <- rhyper(5000, m, n, k)
+  set.seed(1)
+  r2 <- replicate(5000, hypergeometric(m, n, k))
+  ## Here, we differ only because of the sign but as black and white
+  ## are exchangeable here this is equivalent.
+  expect_equal(r1, 5 - r2)
+
   ## Case 2, use H2PE algorithm, simple exit
   m <- 70
   n <- 100
@@ -1038,6 +1050,14 @@ test_that("dust agrees with hypergeometric reference implementation", {
   m <- 7
   n <- 10
   k <- 8
+  r1 <- replicate(500, hypergeometric(m, n, k))
+  r2 <- rng2$hypergeometric(500, m, n, k)
+  expect_equal(r1, r2)
+
+  ## Case 1a, HIP but sample exactly half
+  m <- 5
+  n <- 5
+  k <- 5
   r1 <- replicate(500, hypergeometric(m, n, k))
   r2 <- rng2$hypergeometric(500, m, n, k)
   expect_equal(r1, r2)

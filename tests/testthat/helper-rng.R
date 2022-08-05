@@ -9,6 +9,8 @@ hypergeometric_r <- function(random_real) {
       p <- fraction_of_products_of_factorials(n2, n - k, n, n2 - k)
       x <- 0
     } else {
+      ## We only hit this branch I think where n1 == n2 == k (and m <
+      ## 10) so this is not well travelled.
       p <- fraction_of_products_of_factorials(n1, k, n, k - n2)
       x <- (k - n2)
     }
