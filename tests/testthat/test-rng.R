@@ -1132,3 +1132,19 @@ test_that("fast exits do not draw random numbers", {
 
   expect_identical(r$state(), s)
 })
+
+## Add a test where k >= n2 but we use the small (hip) branch, compare
+## both implementations.
+
+## Triggering the min bottom case on h2pe looks hard; we probably
+## should just refactor this to use something less branchy for the GPU
+## anyway.
+
+## The false positive on the double loop could be fixed by refactoring
+## once we hit the missed branches.
+
+
+## Case 1a, use HIP but sample more than half?
+hypergeometric <- hypergeometric_r(function() runif(1))
+hypergeometric(5, 5, 5)
+hypergeometric(5, 10, 9)

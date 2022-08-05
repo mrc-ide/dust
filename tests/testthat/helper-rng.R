@@ -1,10 +1,10 @@
 ## This is a direct R translation of the Rust implementation of the
-## HIP/H2PE algorithm described in the paper, set up so that the
+## HIN/H2PE algorithm described in the paper, set up so that the
 ## source of uniform random numbers can be controlled. With this we
 ## can crossreference this translation against R's version of the same
 ## algorithm (see ?rhyper) and then against our C++ implementation.
 hypergeometric_r <- function(random_real) {
-  hypergeometric_hip <- function(random_real, n1, n2, n, k) {
+  hypergeometric_hin <- function(random_real, n1, n2, n, k) {
     if (k < n2) {
       p <- fraction_of_products_of_factorials(n2, n - k, n, n2 - k)
       x <- 0
@@ -212,7 +212,7 @@ hypergeometric_r <- function(random_real) {
     hin_threshold <- 10.0
     m <- floor((k + 1) * (n1 + 1) / (n + 2))
     if (m < hin_threshold) {
-      x <- hypergeometric_hip(random_real, n1, n2, n, k)
+      x <- hypergeometric_hin(random_real, n1, n2, n, k)
     } else {
       x <- hypergeometric_h2pe(random_real, n1, n2, n, k, m)
     }
