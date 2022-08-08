@@ -8,6 +8,11 @@
 #include "dust/random/generator.hpp"
 #include "dust/random/numeric.hpp"
 
+// Implementation follows Kachitvichyanukul & Schmeiser (1985)
+// https://www.tandfonline.com/doi/abs/10.1080/00949658508810839
+// and follows the Rust implementation
+// https://docs.rs/rand_distr/latest/src/rand_distr/hypergeometric.rs
+// but adapted to fit our needs.
 namespace dust {
 namespace random {
 namespace {
@@ -120,7 +125,10 @@ int hypergeometric_h2pe(rng_state_type& rng_state, int n1, int n2, int n, int k,
   const real_type p3 = p2 + k_r / lambda_r;
 
   real_type x; // final result
-  for (;;) {
+  // We get a false-negative coverage report on this line, which is
+  // very definitely hit. I presume the compiler is converting it into
+  // something wildly different?
+  for (;;) { // #nocov
     const auto vy = h2pe_sample(rng_state, n1, n2, k, p1, p2, p3,
                                 x_l, x_r, lambda_l, lambda_r);
     const real_type v = vy.first;
@@ -334,11 +342,12 @@ __host__ __device__
 real_type hypergeometric(rng_state_type& rng_state, real_type n1, real_type n2, real_type k) {
   static_assert(std::is_floating_point<real_type>::value,
                 "Only valid for floating-point types; use hypergeometric<real_type>()");
-  // There are some issues around multiple returns that probably
-  // require a second push to get this working on a GPU. Unlikely to
-  // be a lot of work, but better not to assume that it does. Proper
-  // testing of the algorithm under single precision would also be
-  // wise to prevent possible infinite loops.
+  // There are some issues around multiple returns and use of
+  // std::pair that probably require some additional work to get this
+  // behaving well on a GPU. Unlikely to be a lot of work, but better
+  // not to assume that it does. Proper testing of the algorithm under
+  // single precision would also be wise to prevent possible infinite
+  // loops, that's easiest to do once we have some real use-cases.
 #ifdef __CUDA_ARCH__
   static_assert("hypergeomeric() not implemented for GPU targets");
 #endif

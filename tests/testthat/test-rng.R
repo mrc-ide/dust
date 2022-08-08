@@ -990,6 +990,18 @@ test_that("We can compile the standalone program", {
 })
 
 
+## Testing for the hypergeometric is a little different to above as it
+## turns out that despite the very different underlying
+## implementations, the algorithm in the paper
+## (https://www.tandfonline.com/doi/abs/10.1080/00949658508810839) has
+## been followed pretty exactly. So if we were willing to assume that
+## the R version is correct we can just check that the stream of
+## numbers is exactly the same.
+##
+## We do this twice - once between R's rhyper and a direct
+## reimplementation of the Rust code in R (within helper-rng) using
+## R's RNG stream, then again between our R reimplementation and
+## dust's idiomatic C++ version.
 test_that("hypergeometric reference implementation agrees with R", {
   testthat::skip_on_cran() # subject to change beyond our control
   hypergeometric <- hypergeometric_r(function() runif(1))
