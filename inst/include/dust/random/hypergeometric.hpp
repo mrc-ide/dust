@@ -28,7 +28,7 @@ inline void hypergeometric_validate(int n1, int n2, int n, int k) {
 }
 
 template <typename real_type>
-using h2pe_sample_result = std::pair<real_type, real_type>;
+using h2pe_sample_result = std::pair<real_type, int>;
 template <typename real_type>
 using h2pe_test_result = std::pair<bool, real_type>;
 
@@ -40,15 +40,14 @@ template <typename real_type, typename rng_state_type>
 h2pe_sample_result<real_type>
 h2pe_sample(rng_state_type& rng_state, int n1, int n2, int k,
             real_type p1, real_type p2, real_type p3,
-            real_type x_l, real_type x_r, real_type lambda_l,
-            real_type lambda_r);
+            int x_l, int x_r, real_type lambda_l, real_type lambda_r);
 
 template <typename real_type>
 h2pe_test_result<real_type> h2pe_test_recursive(int n1, int n2, int k, int m,
-                                                real_type y, real_type v);
+                                                int y, real_type v);
 template <typename real_type>
 h2pe_test_result<real_type> h2pe_test_squeeze(int n1, int n2, int k, int m,
-                                              real_type y, real_type v,
+                                              int y, real_type v,
                                               real_type a);
 template <typename real_type>
 real_type fraction_of_products_of_factorials(int a, int b, int c, int d);
@@ -95,10 +94,8 @@ int hypergeometric_h2pe(rng_state_type& rng_state, int n1, int n2, int n, int k,
   const real_type d =
     std::floor(1.5 * std::sqrt(d_numerator / d_denominator)) + 0.5;
 
-  // I think that here x_l and x_r are really integers and therefore
-  // some of the +1.0s become +1s
-  const real_type x_l = m - d + 0.5;
-  const real_type x_r = m + d + 0.5;
+  const int x_l = m - d + 0.5;
+  const int x_r = m + d + 0.5;
 
   const real_type k_l = std::exp(a -
                                  utils::lfactorial<real_type>(x_l) -
@@ -106,10 +103,10 @@ int hypergeometric_h2pe(rng_state_type& rng_state, int n1, int n2, int n, int k,
                                  utils::lfactorial<real_type>(k - x_l) -
                                  utils::lfactorial<real_type>((n2 - k)  + x_l));
   const real_type k_r = std::exp(a -
-                                 utils::lfactorial<real_type>(x_r - 1.0) -
-                                 utils::lfactorial<real_type>(n1 - x_r + 1.0) -
-                                 utils::lfactorial<real_type>(k - x_r + 1.0) -
-                                 utils::lfactorial<real_type>((n2 - k)  + x_r - 1.0));
+                                 utils::lfactorial<real_type>(x_r - 1) -
+                                 utils::lfactorial<real_type>(n1 - x_r + 1) -
+                                 utils::lfactorial<real_type>(k - x_r + 1) -
+                                 utils::lfactorial<real_type>((n2 - k)  + x_r - 1));
 
   const real_type ll_numerator = x_l * ((n2 - k) + x_l);
   const real_type ll_denominator = (n1 - x_l + 1.0) * (k - x_l + 1.0);
@@ -122,7 +119,7 @@ int hypergeometric_h2pe(rng_state_type& rng_state, int n1, int n2, int n, int k,
   // Comment in the Rust version:
   // > the paper literally gives `p2 + kL/lambdaL` where it (probably)
   // > should have been `p2 = p1 + kL/lambdaL` another print error?!
-  const real_type p1 = 2.0 * d;
+  const real_type p1 = 2 * d;
   const real_type p2 = p1 + k_l / lambda_l;
   const real_type p3 = p2 + k_r / lambda_r;
 
@@ -131,9 +128,9 @@ int hypergeometric_h2pe(rng_state_type& rng_state, int n1, int n2, int n, int k,
     const auto vy = h2pe_sample(rng_state, n1, n2, k, p1, p2, p3,
                                 x_l, x_r, lambda_l, lambda_r);
     const real_type v = vy.first;
-    const real_type y = vy.second;
+    const int y = vy.second;
 
-    const auto result = (m < 100.0 || y <= 50.0) ?
+    const auto result = (m < 100 || y <= 50) ?
       h2pe_test_recursive(n1, n2, k, m, y, v) :
       h2pe_test_squeeze(n1, n2, k, m, y, v, a);
     if (result.first) {
@@ -149,9 +146,9 @@ template <typename real_type, typename rng_state_type>
 h2pe_sample_result<real_type>
 h2pe_sample(rng_state_type& rng_state, int n1, int n2, int k,
             real_type p1, real_type p2, real_type p3,
-            real_type x_l, real_type x_r, real_type lambda_l,
+            int x_l, int x_r, real_type lambda_l,
             real_type lambda_r) {
-  real_type y; // will become x on exit
+  int y;
   real_type v;
   // We get a false-negative coverage report on this line, which is
   // very definitely hit. I presume the compiler is converting it into
@@ -163,7 +160,7 @@ h2pe_sample(rng_state_type& rng_state, int n1, int n2, int k,
     v = random_real<real_type>(rng_state);
     if (u <= p1) {
       // Region 1, central bell (step 1)
-      y = std::floor(x_l + u); // could make x and y int
+      y = std::floor(x_l + u);
       break;
     } else if (u <= p2) {
       // Region 2, left exponential tail (step 2)
@@ -187,7 +184,7 @@ h2pe_sample(rng_state_type& rng_state, int n1, int n2, int k,
 // Step 4.1: Evaluate f(y) via recursive relationship
 template <typename real_type>
 h2pe_test_result<real_type> h2pe_test_recursive(int n1, int n2, int k, int m,
-                                                real_type y, real_type v) {
+                                                int y, real_type v) {
   real_type f = 1;
   if (m < y) {
     for (int i = m + 1; i <= y; ++i) {
@@ -208,12 +205,12 @@ h2pe_test_result<real_type> h2pe_test_recursive(int n1, int n2, int k, int m,
 // Step 4.2: Squeezing
 template <typename real_type>
 h2pe_test_result<real_type> h2pe_test_squeeze(int n1, int n2, int k, int m,
-                                              real_type y, real_type v,
+                                              int y, real_type v,
                                               real_type a) {
-  const real_type y1 = y + 1.0;
+  const real_type y1 = y + 1;
   const real_type ym = y - m;
-  const real_type yn = n1 - y + 1.0;
-  const real_type yk = k - y + 1.0;
+  const real_type yn = n1 - y + 1;
+  const real_type yk = k - y + 1;
   const real_type nk = n2 - k + y1;
   const real_type r = -ym / y1;
   const real_type s = ym / yn;
