@@ -12,8 +12,6 @@ namespace dust {
 namespace random {
 namespace {
 
-__nv_exec_check_disable__
-__host__ __device__
 inline void hypergeometric_validate(int n1, int n2, int n, int k) {
   if (n1 < 0 || n2 < 0 || k < 0 || k > n) {
     char buffer[256];
@@ -52,9 +50,7 @@ real_type fraction_of_products_of_factorials(int a, int b, int c, int d);
 template <typename T>
 T quad(T x);
 
-__nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
-__host__ __device__
 int hypergeometric_hin(rng_state_type& rng_state, int n1, int n2, int n, int k) {
   real_type p;
   int x;
@@ -78,9 +74,7 @@ int hypergeometric_hin(rng_state_type& rng_state, int n1, int n2, int n, int k) 
   return x;
 }
 
-__nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
-__host__ __device__
 int hypergeometric_h2pe(rng_state_type& rng_state, int n1, int n2, int n, int k, int m) {
   const real_type a = utils::lfactorial<real_type>(m) +
     utils::lfactorial<real_type>(n1 - m) +
@@ -255,9 +249,7 @@ h2pe_test_result<real_type> h2pe_test_squeeze(int n1, int n2, int k, int m,
   return h2pe_test_result<real_type>{false, y};
 }
 
-__nv_exec_check_disable__
 template <typename real_type>
-__host__ __device__
 real_type fraction_of_products_of_factorials(int a, int b, int c, int d) {
   return std::exp(utils::lfactorial<real_type>(a) +
                   utils::lfactorial<real_type>(b) -
@@ -265,9 +257,7 @@ real_type fraction_of_products_of_factorials(int a, int b, int c, int d) {
                   utils::lfactorial<real_type>(d));
 }
 
-__nv_exec_check_disable__
 template <typename T>
-__host__ __device__
 T quad(T x) {
   return x * x * x * x;
 }
@@ -276,9 +266,7 @@ T quad(T x) {
 
 // NOTE: we return a real, not an int, as with deterministic mode this
 // will not necessarily be an integer
-__nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
-__host__ __device__
 real_type hypergeometric_stochastic(rng_state_type& rng_state, int n1, int n2, int k) {
   const int n = n1 + n2;
   hypergeometric_validate(n1, n2, n, k);
@@ -313,9 +301,8 @@ real_type hypergeometric_stochastic(rng_state_type& rng_state, int n1, int n2, i
   return offset_x + sign_x * x;
 }
 
-__nv_exec_check_disable__
 template <typename real_type>
-__host__ real_type hypergeometric_deterministic(real_type n1, real_type n2, real_type k) {
+real_type hypergeometric_deterministic(real_type n1, real_type n2, real_type k) {
   const real_type n = n1 + n2;
   hypergeometric_validate(static_cast<int>(n1), static_cast<int>(n2),
                           static_cast<int>(n), static_cast<int>(k));
@@ -347,11 +334,18 @@ __host__ __device__
 real_type hypergeometric(rng_state_type& rng_state, real_type n1, real_type n2, real_type k) {
   static_assert(std::is_floating_point<real_type>::value,
                 "Only valid for floating-point types; use hypergeometric<real_type>()");
-#ifndef __CUDA_ARCH__
+  // There are some issues around multiple returns that probably
+  // require a second push to get this working on a GPU. Unlikely to
+  // be a lot of work, but better not to assume that it does. Proper
+  // testing of the algorithm under single precision would also be
+  // wise to prevent possible infinite loops.
+#ifdef __CUDA_ARCH__
+  static_assert("hypergeomeric() not implemented for GPU targets");
+#endif
+
   if (rng_state.deterministic) {
     return hypergeometric_deterministic<real_type>(n1, n2, k);
   }
-#endif
   // Avoid integer truncation (which a cast to int would cause) in
   // case of numerical error, instead taking the slightly lower but
   // more accurate round route. This means that `n - eps` becomes
