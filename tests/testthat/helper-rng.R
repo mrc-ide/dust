@@ -65,18 +65,103 @@ hypergeometric_r <- function(random_real) {
     p3 <- p2 + k_r / lambda_r
 
     repeat {
-      vy <- h2pe_sample(n1, n2, k, p1, p2, p3, x_l, x_r, lambda_l, lambda_r)
-      v <- vy[[1]]
-      y <- vy[[2]]
-
-      if (m < 100.0 || y <= 50.0) {
-        res <- h2pe_test(n1, n2, k, m, y, v)
-      } else {
-        res <- h2pe_squeeze(n1, n2, k, m, y, v, a)
+      ## this loop aims to set v, y
+      repeat {
+        ## Here, it looks like I have the correct number for v
+        u <- random_real() * p3 # U(0, p3) for region selection
+        v <- random_real()      # U(0, 1)  for accept/reject
+        if (u <= p1) {
+          ## Region 1, central bell
+          y <- floor(x_l + u)
+          break
+        } else if (u <= p2) {
+          ## Region 2, left exponential tail
+          y <- floor(x_l + log(v) / lambda_l)
+          if (y >= max(0, k - n2)) {
+            v <- v * (u - p1) * lambda_l
+            break
+          }
+        } else {
+          ## Region 3, right exponential tail
+          y <- floor(x_r - log(v) / lambda_r)
+          if (y <= min(n1, k)) {
+            v <- v * (u - p2) * lambda_r
+            break
+          }
+        }
       }
-      if (res[[1]]) {
-        x <- res[[2]]
-        break
+
+      ## this block aims to set y as x
+      if (m < 100.0 || y <= 50.0) {
+        f <- 1.0
+        if (m < y) {
+          for (i in seq(m + 1, y)) {
+            f <- f * (n1 - i + 1) * (k - i + 1) / ((n2 - k + i) *  i)
+          }
+        } else if (m > y) {
+          for (i in seq(y + 1, m)) {
+            ## The rust version does not have the + 1 on both parts of
+            ## the denominator, added in the R version and a fixable
+            ## bug in the Rust version.
+            f <- f * i * (n2 - k + i) / ((n1 - i + 1) * (k - i + 1))
+          }
+        }
+
+        if (v <= f) {
+          x <- y # done here
+          break
+        }
+      } else {
+        ## Step 4.2: Squeezing
+        y1 <- y + 1.0
+        ym <- y - m
+        yn <- n1 - y + 1.0
+        yk <- k - y + 1.0
+        nk <- n2 - k + y1
+        r <- -ym / y1
+        s <- ym / yn
+        t <- ym / yk
+        e <- -ym / nk
+        g <- yn * yk / (y1 * nk) - 1.0
+        dg <- if (g < 0.0) 1 + g else 1
+
+        gu <- g * (1.0 + g * (-0.5 + g / 3.0))
+        gl <- gu - quad(g) / (4.0 * dg) # different but equivalent
+        xm <- m + 0.5
+        xn <- n1 - m + 0.5
+        xk <- k - m + 0.5
+        nm <- n2 - k + xm
+        ub <-
+          xm * r * (1.0 + r * (-0.5 + r / 3.0)) +
+          xn * s * (1.0 + s * (-0.5 + s / 3.0)) +
+          xk * t * (1.0 + t * (-0.5 + t / 3.0)) +
+          nm * e * (1.0 + e * (-0.5 + e / 3.0)) +
+          y * gu - m * gl + 0.0034
+        av <- log(v)
+        if (av > ub) {
+          next
+        }
+
+        dr <- if (r < 0) xm * quad(r) / (1.0 + r) else xm * quad(r)
+        ds <- if (s < 0) xn * quad(s) / (1.0 + s) else xn * quad(s)
+        dt <- if (t < 0) xk * quad(t) / (1.0 + t) else xk * quad(t)
+        de <- if (e < 0) nm * quad(e) / (1.0 + e) else nm * quad(e)
+
+        ok <- av < ub - 0.25 * (dr + ds + dt + de) + (y + m) * (gl - gu) -
+          0.0078
+        if (ok) {
+          x <- y
+          break
+        }
+
+        ## Step 4.3: Final Acceptance/Rejection Test
+        av_critical <- a -
+          lfactorial(y) - lfactorial(n1 - y) - lfactorial(k - y) -
+          lfactorial((n2 - k) + y)
+        if (log(v) <= av_critical) {
+          x <- y
+          break
+        }
       }
     }
     x
@@ -91,107 +176,6 @@ hypergeometric_r <- function(random_real) {
   ## for at fairly extreme parameter sizes
   fraction_of_products_of_factorials <- function(a, b, c, d) {
     exp(lfactorial(a) + lfactorial(b) - lfactorial(c) - lfactorial(d))
-  }
-
-  h2pe_sample <- function(n1, n2, k, p1, p2, p3, x_l, x_r, lambda_l, lambda_r) {
-    repeat {
-      ## Here, it looks like I have the correct number for v
-      u <- random_real() * p3 # U(0, p3) for region selection
-      v <- random_real()      # U(0, 1)  for accept/reject
-      if (u <= p1) {
-        ## Region 1, central bell
-        y <- floor(x_l + u)
-        break
-      } else if (u <= p2) {
-        ## Region 2, left exponential tail
-        y <- floor(x_l + log(v) / lambda_l)
-        if (y >= max(0, k - n2)) {
-          v <- v * (u - p1) * lambda_l
-          break
-        }
-      } else {
-        ## Region 3, right exponential tail
-        y <- floor(x_r - log(v) / lambda_r)
-        if (y <= min(n1, k)) {
-          v <- v * (u - p2) * lambda_r
-          break
-        }
-      }
-    }
-    c(v, y)
-  }
-
-  h2pe_test <- function(n1, n2, k, m, y, v, ...) {
-    f <- 1.0
-    if (m < y) {
-      for (i in seq(m + 1, y)) {
-        f <- f * (n1 - i + 1) * (k - i + 1) / ((n2 - k + i) *  i)
-      }
-    } else if (m > y) {
-      for (i in seq(y + 1, m)) {
-        ## The rust version does not have the + 1 on both parts of
-        ## the denominator, added in the R version and a fixable
-        ## bug in the Rust version.
-        f <- f * i * (n2 - k + i) / ((n1 - i + 1) * (k - i + 1))
-      }
-    }
-
-    if (v <= f) {
-      return(list(TRUE, y))
-    }
-    return(list(FALSE, NA_real_))
-  }
-
-  ## Step 4.2: Squeezing
-  h2pe_squeeze <- function(n1, n2, k, m, y, v, a, ...) {
-    y1 <- y + 1.0
-    ym <- y - m
-    yn <- n1 - y + 1.0
-    yk <- k - y + 1.0
-    nk <- n2 - k + y1
-    r <- -ym / y1
-    s <- ym / yn
-    t <- ym / yk
-    e <- -ym / nk
-    g <- yn * yk / (y1 * nk) - 1.0
-    dg <- if (g < 0.0) 1 + g else 1
-
-    gu <- g * (1.0 + g * (-0.5 + g / 3.0))
-    gl <- gu - quad(g) / (4.0 * dg) # different but equivalent
-    xm <- m + 0.5
-    xn <- n1 - m + 0.5
-    xk <- k - m + 0.5
-    nm <- n2 - k + xm
-    ub <-
-      xm * r * (1.0 + r * (-0.5 + r / 3.0)) +
-      xn * s * (1.0 + s * (-0.5 + s / 3.0)) +
-      xk * t * (1.0 + t * (-0.5 + t / 3.0)) +
-      nm * e * (1.0 + e * (-0.5 + e / 3.0)) +
-      y * gu - m * gl + 0.0034
-    av <- log(v)
-    if (av > ub) {
-      return(c(FALSE, NA_real_))
-    }
-
-    dr <- if (r < 0) xm * quad(r) / (1.0 + r) else xm * quad(r)
-    ds <- if (s < 0) xn * quad(s) / (1.0 + s) else xn * quad(s)
-    dt <- if (t < 0) xk * quad(t) / (1.0 + t) else xk * quad(t)
-    de <- if (e < 0) nm * quad(e) / (1.0 + e) else nm * quad(e)
-
-    ok <- av < ub - 0.25 * (dr + ds + dt + de) + (y + m) * (gl - gu) -
-      0.0078
-    if (ok) {
-      return(list(TRUE, y))
-    }
-
-    ## Step 4.3: Final Acceptance/Rejection Test
-    av_critical <- a -
-      lfactorial(y) - lfactorial(n1 - y) - lfactorial(k - y) -
-      lfactorial((n2 - k) + y)
-    if (log(v) <= av_critical) {
-      return(c(TRUE, y))
-    }
-    list(FALSE, NA_real_)
   }
 
   function(n1, n2, k) {
