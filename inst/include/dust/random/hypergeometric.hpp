@@ -55,6 +55,8 @@ real_type fraction_of_products_of_factorials(int a, int b, int c, int d);
 template <typename T>
 T quad(T x);
 
+// Generate hypergeometric random number via inversion (HIN), p 130 of
+// reference.
 template <typename real_type, typename rng_state_type>
 int hypergeometric_hin(rng_state_type& rng_state, int n1, int n2, int n, int k) {
   real_type p;
@@ -72,8 +74,7 @@ int hypergeometric_hin(rng_state_type& rng_state, int n1, int n2, int n, int k) 
     // Comment in the Rust version:
     // > the paper erroneously uses `until n < p`, which doesn't make any sense
     u -= p;
-    p *= ((n1 - x) * (k - x));
-    p /= ((x + 1) * (n2 - k + 1 + x));
+    p *= ((n1 - x) * (k - x)) / ((x + 1) * (n2 - k + 1 + x));
     ++x;
   }
   return x;
@@ -81,6 +82,7 @@ int hypergeometric_hin(rng_state_type& rng_state, int n1, int n2, int n, int k) 
 
 template <typename real_type, typename rng_state_type>
 int hypergeometric_h2pe(rng_state_type& rng_state, int n1, int n2, int n, int k, int m) {
+  // Step 0 set up constants
   const real_type a = utils::lfactorial<real_type>(m) +
     utils::lfactorial<real_type>(n1 - m) +
     utils::lfactorial<real_type>(k - m) +
@@ -125,10 +127,7 @@ int hypergeometric_h2pe(rng_state_type& rng_state, int n1, int n2, int n, int k,
   const real_type p3 = p2 + k_r / lambda_r;
 
   real_type x; // final result
-  // We get a false-negative coverage report on this line, which is
-  // very definitely hit. I presume the compiler is converting it into
-  // something wildly different?
-  for (;;) { // #nocov
+  for (;;) {
     const auto vy = h2pe_sample(rng_state, n1, n2, k, p1, p2, p3,
                                 x_l, x_r, lambda_l, lambda_r);
     const real_type v = vy.first;
@@ -145,6 +144,7 @@ int hypergeometric_h2pe(rng_state_type& rng_state, int n1, int n2, int n, int k,
   return x;
 }
 
+// Steps 1-3
 template <typename real_type, typename rng_state_type>
 h2pe_sample_result<real_type>
 h2pe_sample(rng_state_type& rng_state, int n1, int n2, int k,
@@ -153,24 +153,27 @@ h2pe_sample(rng_state_type& rng_state, int n1, int n2, int k,
             real_type lambda_r) {
   real_type y; // will become x on exit
   real_type v;
-  for (;;) {
+  // We get a false-negative coverage report on this line, which is
+  // very definitely hit. I presume the compiler is converting it into
+  // something wildly different (though not on the similar case above)?
+  for (;;) { // #nocov
     // U(0, p3) for region selection
     const real_type u = random_real<real_type>(rng_state) * p3;
     // U(0, 1) for accept/reject
     v = random_real<real_type>(rng_state);
     if (u <= p1) {
-      // Region 1, central bell
+      // Region 1, central bell (step 1)
       y = std::floor(x_l + u); // could make x and y int
       break;
     } else if (u <= p2) {
-      // Region 2, left exponential tail
+      // Region 2, left exponential tail (step 2)
       y = std::floor(x_l + std::log(v) / lambda_l);
       if (y >= std::max(0, k - n2)) {
         v *= (u - p1) * lambda_l;
         break;
       }
     } else {
-      // Region 3, right exponential tail
+      // Region 3, right exponential tail (step 3)
       y = std::floor(x_r - std::log(v) / lambda_r);
       if (y <= std::min(n1, k)) {
         v *= (u - p2) * lambda_r;
@@ -181,6 +184,7 @@ h2pe_sample(rng_state_type& rng_state, int n1, int n2, int k,
   return h2pe_sample_result<real_type>{v, y};
 }
 
+// Step 4.1: Evaluate f(y) via recursive relationship
 template <typename real_type>
 h2pe_test_result<real_type> h2pe_test_recursive(int n1, int n2, int k, int m,
                                                 real_type y, real_type v) {
@@ -257,6 +261,9 @@ h2pe_test_result<real_type> h2pe_test_squeeze(int n1, int n2, int k, int m,
   return h2pe_test_result<real_type>{false, y};
 }
 
+// This is subject to overflow for very large inputs with very small
+// mode (on the order of n = 1e9, m < 10)
+// https://bugs.r-project.org/show_bug.cgi?id=16489
 template <typename real_type>
 real_type fraction_of_products_of_factorials(int a, int b, int c, int d) {
   return std::exp(utils::lfactorial<real_type>(a) +
