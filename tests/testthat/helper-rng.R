@@ -171,36 +171,11 @@ hypergeometric_r <- function(random_real) {
     x * x * x * x
   }
 
+  ## https://bugs.r-project.org/show_bug.cgi?id=16489 This should do
+  ## the same exact thing as the Rust version without scaling, except
+  ## for at fairly extreme parameter sizes
   fraction_of_products_of_factorials <- function(a, b, c, d) {
-    min_top <- min(a, b)
-    min_bottom <- min(c, d)
-    ##  the factorial of this will cancel out:
-    min_all <- min(min_top, min_bottom)
-
-    max_top <- max(a, b)
-    max_bottom <- max(c, d)
-    max_all <- max(max_top, max_bottom)
-
-    result <- 1.0
-    for (i in seq(min_all + 1, max_all)) {
-      if (i <= min_top) {
-        result <- result * i
-      }
-
-      if (i <= min_bottom) {
-        result <- result / i
-      }
-
-      if (i <= max_top) {
-        result <- result * i
-      }
-
-      if (i <= max_bottom) {
-        result <- result / i
-      }
-    }
-
-    result
+    exp(lfactorial(a) + lfactorial(b) - lfactorial(c) - lfactorial(d))
   }
 
   function(n1, n2, k) {

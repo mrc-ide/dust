@@ -214,36 +214,10 @@ __nv_exec_check_disable__
 template <typename real_type>
 __host__ __device__
 real_type fraction_of_products_of_factorials(int a, int b, int c, int d) {
-  const int min_top = std::min(a, b);
-  const int min_bottom = std::min(c, d);
-  // Comment in the rust:
-  // > the factorial of this will cancel out:
-  const int min_all = std::min(min_top, min_bottom);
-
-  const int max_top = std::max(a, b);
-  const int max_bottom = std::max(c, d);
-  const int max_all = std::max(max_top, max_bottom);
-
-  real_type result = 1;
-  for (int i = min_all + 1; i <= max_all; ++i) {
-    if (i <= min_top) {
-      result *= i;
-    }
-        
-    if (i <= min_bottom) {
-      result /= i;
-    }
-    
-    if (i <= max_top) {
-      result *= i;
-    }
-        
-    if (i <= max_bottom) {
-      result /= i;
-    }
-  }
-    
-  return result;
+  return std::exp(utils::lfactorial<real_type>(a) +
+                  utils::lfactorial<real_type>(b) -
+                  utils::lfactorial<real_type>(c) -
+                  utils::lfactorial<real_type>(d));
 }
 
 __nv_exec_check_disable__
