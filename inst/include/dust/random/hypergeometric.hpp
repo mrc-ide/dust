@@ -24,10 +24,29 @@ inline void hypergeometric_validate(int n1, int n2, int n, int k) {
   }
 }
 
+template <typename real_type>
+using h2pe_sample_result = std::pair<real_type, real_type>;
+template <typename real_type>
+using h2pe_test_result = std::pair<bool, real_type>;
+
 template <typename real_type, typename rng_state_type>
 int hypergeometric_hin(rng_state_type& rng_state, int n1, int n2, int n, int k);
 template <typename real_type, typename rng_state_type>
 int hypergeometric_h2pe(rng_state_type& rng_state, int n1, int n2, int n, int k, int m);
+template <typename real_type, typename rng_state_type>
+h2pe_sample_result<real_type>
+h2pe_sample(rng_state_type& rng_state, int n1, int n2, int k,
+            real_type p1, real_type p2, real_type p3,
+            real_type x_l, real_type x_r, real_type lambda_l,
+            real_type lambda_r);
+
+template <typename real_type>
+h2pe_test_result<real_type> h2pe_test_recursive(int n1, int n2, int k, int m,
+                                                real_type y, real_type v);
+template <typename real_type>
+h2pe_test_result<real_type> h2pe_test_squeeze(int n1, int n2, int k, int m,
+                                              real_type y, real_type v,
+                                              real_type a);
 template <typename real_type>
 real_type fraction_of_products_of_factorials(int a, int b, int c, int d);
 template <typename T>
@@ -106,108 +125,134 @@ int hypergeometric_h2pe(rng_state_type& rng_state, int n1, int n2, int n, int k,
   const real_type p2 = p1 + k_l / lambda_l;
   const real_type p3 = p2 + k_r / lambda_r;
 
-  int x = 0; // final value
+  real_type x; // final result
+  for (;;) {
+    const auto vy = h2pe_sample(rng_state, n1, n2, k, p1, p2, p3,
+                                x_l, x_r, lambda_l, lambda_r);
+    const real_type v = vy.first;
+    const real_type y = vy.second;
+
+    const auto result = (m < 100.0 || y <= 50.0) ?
+      h2pe_test_recursive(n1, n2, k, m, y, v) :
+      h2pe_test_squeeze(n1, n2, k, m, y, v, a);
+    if (result.first) {
+      x = result.second;
+      break;
+    }
+  }
+  return x;
+}
+
+template <typename real_type, typename rng_state_type>
+h2pe_sample_result<real_type>
+h2pe_sample(rng_state_type& rng_state, int n1, int n2, int k,
+            real_type p1, real_type p2, real_type p3,
+            real_type x_l, real_type x_r, real_type lambda_l,
+            real_type lambda_r) {
   real_type y; // will become x on exit
   real_type v;
-  for (;;) { // repeat
-    for (;;) { // repeat
-      // U(0, p3) for region selection
-      const real_type u = random_real<real_type>(rng_state) * p3;
-      // U(0, 1) for accept/reject
-      v = random_real<real_type>(rng_state);
-      if (u <= p1) {
-        // Region 1, central bell
-        y = std::floor(x_l + u); // could make x and y int
-        break;
-      } else if (u <= p2) {
-        // Region 2, left exponential tail
-        y = std::floor(x_l + std::log(v) / lambda_l);
-        if (y >= std::max(0, k - n2)) {
-          v *= (u - p1) * lambda_l;
-          break;
-        }
-      } else {
-        // Region 3, right exponential tail
-        y = std::floor(x_r - std::log(v) / lambda_r);
-        if (y <= std::min(n1, k)) {
-          v *= (u - p2) * lambda_r;
-          break;
-        }
-      }
-    }
-
-    if (m < 100.0 || y <= 50.0) {
-      real_type f = 1;
-      if (m < y) {
-        for (int i = m + 1; i <= y; ++i) {
-          f *= (n1 - i + 1) * (k - i + 1) / (real_type)((n2 - k + i) *  i);
-        }
-      } else if (m > y) {
-        for (int i = y + 1; i <= m; ++i) {
-          // The rust version does not have the + 1 on both parts of
-          // the denominator, added in the R version and a fixable
-          // bug in the Rust version.
-          f *= i * (n2 - k + i) / (real_type)((n1 - i + 1) * (k - i + 1));
-        }
-      }
-      if (v <= f) {
-        x = y; // done here
+  for (;;) {
+    // U(0, p3) for region selection
+    const real_type u = random_real<real_type>(rng_state) * p3;
+    // U(0, 1) for accept/reject
+    v = random_real<real_type>(rng_state);
+    if (u <= p1) {
+      // Region 1, central bell
+      y = std::floor(x_l + u); // could make x and y int
+      break;
+    } else if (u <= p2) {
+      // Region 2, left exponential tail
+      y = std::floor(x_l + std::log(v) / lambda_l);
+      if (y >= std::max(0, k - n2)) {
+        v *= (u - p1) * lambda_l;
         break;
       }
     } else {
-      // Step 4.2: Squeezing
-      const real_type y1 = y + 1.0;
-      const real_type ym = y - m;
-      const real_type yn = n1 - y + 1.0;
-      const real_type yk = k - y + 1.0;
-      const real_type nk = n2 - k + y1;
-      const real_type r = -ym / y1;
-      const real_type s = ym / yn;
-      const real_type t = ym / yk;
-      const real_type e = -ym / nk;
-      const real_type g = yn * yk / (y1 * nk) - 1.0;
-      const real_type dg = g < 0.0 ? 1 + g : 1;
-
-      const real_type gu = g * (1.0 + g * (-0.5 + g / 3.0));
-      const real_type gl = gu - quad(g) / (4.0 * dg);
-      const real_type xm = m + 0.5;
-      const real_type xn = n1 - m + 0.5;
-      const real_type xk = k - m + 0.5;
-      const real_type nm = n2 - k + xm;
-      const real_type ub =
-        xm * r * (1.0 + r * (-0.5 + r / 3.0)) +
-        xn * s * (1.0 + s * (-0.5 + s / 3.0)) +
-        xk * t * (1.0 + t * (-0.5 + t / 3.0)) +
-        nm * e * (1.0 + e * (-0.5 + e / 3.0)) +
-        y * gu - m * gl + 0.0034;
-      const real_type av = std::log(v);
-      if (av > ub) {
-        continue;
-      }
-
-      const real_type dr = r < 0 ? xm * quad(r) / (1.0 + r) : xm * quad(r);
-      const real_type ds = s < 0 ? xn * quad(s) / (1.0 + s) : xn * quad(s);
-      const real_type dt = t < 0 ? xk * quad(t) / (1.0 + t) : xk * quad(t);
-      const real_type de = e < 0 ? nm * quad(e) / (1.0 + e) : nm * quad(e);
-
-      if (av < ub - 0.25 * (dr + ds + dt + de) + (y + m) * (gl - gu) - 0.0078) {
-        x = y;
-        break;
-      }
-
-      // Step 4.3: Final Acceptance/Rejection Test
-      const real_type av_critical = a -
-        utils::lfactorial<real_type>(y) -
-        utils::lfactorial<real_type>(n1 - y) -
-        utils::lfactorial<real_type>(k - y) - 
-        utils::lfactorial<real_type>((n2 - k) + y);
-      if (log(v) <= av_critical) {
-        x = y;
+      // Region 3, right exponential tail
+      y = std::floor(x_r - std::log(v) / lambda_r);
+      if (y <= std::min(n1, k)) {
+        v *= (u - p2) * lambda_r;
         break;
       }
     }
   }
-  return x;
+  return h2pe_sample_result<real_type>{v, y};
+}
+
+template <typename real_type>
+h2pe_test_result<real_type> h2pe_test_recursive(int n1, int n2, int k, int m,
+                                                real_type y, real_type v) {
+  real_type f = 1;
+  if (m < y) {
+    for (int i = m + 1; i <= y; ++i) {
+      f *= (n1 - i + 1) * (k - i + 1) / (real_type)((n2 - k + i) *  i);
+    }
+  } else if (m > y) {
+    for (int i = y + 1; i <= m; ++i) {
+      // The rust version does not have the + 1 on both parts of
+      // the denominator, added in the R version and a fixable
+      // bug in the Rust version.
+      f *= i * (n2 - k + i) / (real_type)((n1 - i + 1) * (k - i + 1));
+    }
+  }
+  const bool accept = v <= f;
+  return h2pe_test_result<real_type>{accept, y};
+}
+
+// Step 4.2: Squeezing
+template <typename real_type>
+h2pe_test_result<real_type> h2pe_test_squeeze(int n1, int n2, int k, int m,
+                                              real_type y, real_type v,
+                                              real_type a) {
+  const real_type y1 = y + 1.0;
+  const real_type ym = y - m;
+  const real_type yn = n1 - y + 1.0;
+  const real_type yk = k - y + 1.0;
+  const real_type nk = n2 - k + y1;
+  const real_type r = -ym / y1;
+  const real_type s = ym / yn;
+  const real_type t = ym / yk;
+  const real_type e = -ym / nk;
+  const real_type g = yn * yk / (y1 * nk) - 1.0;
+  const real_type dg = g < 0.0 ? 1 + g : 1;
+
+  const real_type gu = g * (1.0 + g * (-0.5 + g / 3.0));
+  const real_type gl = gu - quad(g) / (4.0 * dg);
+  const real_type xm = m + 0.5;
+  const real_type xn = n1 - m + 0.5;
+  const real_type xk = k - m + 0.5;
+  const real_type nm = n2 - k + xm;
+  const real_type ub =
+    xm * r * (1.0 + r * (-0.5 + r / 3.0)) +
+    xn * s * (1.0 + s * (-0.5 + s / 3.0)) +
+    xk * t * (1.0 + t * (-0.5 + t / 3.0)) +
+    nm * e * (1.0 + e * (-0.5 + e / 3.0)) +
+    y * gu - m * gl + 0.0034;
+  const real_type av = std::log(v);
+  if (av > ub) {
+    return h2pe_test_result<real_type>{false, 0};
+  }
+
+  const real_type dr = r < 0 ? xm * quad(r) / (1.0 + r) : xm * quad(r);
+  const real_type ds = s < 0 ? xn * quad(s) / (1.0 + s) : xn * quad(s);
+  const real_type dt = t < 0 ? xk * quad(t) / (1.0 + t) : xk * quad(t);
+  const real_type de = e < 0 ? nm * quad(e) / (1.0 + e) : nm * quad(e);
+
+  if (av < ub - 0.25 * (dr + ds + dt + de) + (y + m) * (gl - gu) - 0.0078) {
+    return h2pe_test_result<real_type>{true, y};
+  }
+
+  // Step 4.3: Final Acceptance/Rejection Test
+  const real_type av_critical = a -
+    utils::lfactorial<real_type>(y) -
+    utils::lfactorial<real_type>(n1 - y) -
+    utils::lfactorial<real_type>(k - y) - 
+    utils::lfactorial<real_type>((n2 - k) + y);
+  if (log(v) <= av_critical) {
+    return h2pe_test_result<real_type>{true, y};
+  }
+
+  return h2pe_test_result<real_type>{false, y};
 }
 
 __nv_exec_check_disable__
