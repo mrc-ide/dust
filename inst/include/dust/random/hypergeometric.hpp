@@ -74,7 +74,7 @@ int hypergeometric_hin(rng_state_type& rng_state, int n1, int n2, int n, int k) 
     // Comment in the Rust version:
     // > the paper erroneously uses `until n < p`, which doesn't make any sense
     u -= p;
-    p *= ((n1 - x) * (k - x)) / ((x + 1) * (n2 - k + 1 + x));
+    p *= ((n1 - x) * (k - x)) / ((x + 1.0) * (n2 - k + 1.0 + x));
     ++x;
   }
   return x;
