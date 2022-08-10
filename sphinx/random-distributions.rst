@@ -24,7 +24,7 @@ Binomial
 .. doxygenfunction:: dust::random::binomial
 
 Hypergeometric
---------
+--------------
 
 .. doxygenfunction:: dust::random::hypergeometric
 
