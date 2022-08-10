@@ -1164,3 +1164,17 @@ test_that("fast exits do not draw random numbers", {
 
   expect_identical(r$state(), s)
 })
+
+
+test_that("numbers on different streams behave as expected", {
+  r <- dust_rng$new(2, seed = 1)
+  m <- 9
+  n <- 3
+  k <- 7
+  res <- r$hypergeometric(10, m, n, k)
+  expect_equal(dim(res), c(10, 2))
+  expect_equal(res[, 1],
+               dust_rng$new(1, seed = 1)$hypergeometric(10, m, n, k))
+  expect_equal(res[, 2],
+               dust_rng$new(1, seed = 1)$jump()$hypergeometric(10, m, n, k))
+})
