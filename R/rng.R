@@ -96,6 +96,9 @@
 ##' # Binomially distributed random numbers with size and prob
 ##' rng$binomial(5, 10, 0.3)
 ##'
+##' # Hypergeometric distributed random numbers with parameters n1, n2 and k
+##' rng$hypergeometric(5, 6, 10, 4)
+##'
 ##' # Poisson distributed random numbers with mean lambda
 ##' rng$poisson(5, 2)
 ##'
@@ -256,6 +259,24 @@ dust_rng <- R6::R6Class(
     ##' @param n_threads Number of threads to use; see Details
     binomial = function(n, size, prob, n_threads = 1L) {
       dust_rng_binomial(private$ptr, n, size, prob, n_threads, private$float)
+    },
+
+    ##' @description Generate `n` numbers from a hypergeometric distribution
+    ##'
+    ##' @param n Number of samples to draw (per stream)
+    ##'
+    ##' @param n1 The number of white balls in the urn (called n in
+    ##'   R's [rhyper])
+    ##'
+    ##' @param n2 The number of black balls in the urn (called m in
+    ##'   R's [rhyper])
+    ##'
+    ##' @param k The number of balls to draw
+    ##'
+    ##' @param n_threads Number of threads to use; see Details
+    hypergeometric = function(n, n1, n2, k, n_threads = 1L) {
+      dust_rng_hypergeometric(private$ptr, n, n1, n2, k, n_threads,
+                              private$float)
     },
 
     ##' @description Generate `n` numbers from a Poisson distribution

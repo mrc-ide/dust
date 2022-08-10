@@ -42,4 +42,9 @@ int main() {
     numbers[i] = dust::random::binomial<double>(state, 10, 0.3);
   }
   show_numbers(numbers, "Binomial(10, 0.3)");
+
+  for (size_t i = 0; i < n; ++i) {
+    numbers[i] = dust::random::hypergeomeric<double>(state, 10, 3, 7);
+  }
+  show_numbers(numbers, "Hypergeometric(10, 3, 7)");
 }

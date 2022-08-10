@@ -93,6 +93,12 @@ rng$poisson(10, 4.5)
 rng$binomial(10L, 10, 0.3)
 ```
 
+**Hypergeometric distribution** with parameters `n1` (number of white balls), `n2` (number of black balls) and `k` (number of samples)
+
+```{r}
+rng$hypergeometric(10L, 3, 10, 4)
+```
+
 **Exponential distribution** with rate `rate`
 
 

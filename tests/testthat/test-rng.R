@@ -988,3 +988,193 @@ test_that("We can compile the standalone program", {
   cmp <- colSums(dust_rng$new(42, 5)$uniform(10, 0, 1))
   expect_equal(ans, cmp)
 })
+
+
+## Testing for the hypergeometric is a little different to above as it
+## turns out that despite the very different underlying
+## implementations, the algorithm in the paper
+## (https://www.tandfonline.com/doi/abs/10.1080/00949658508810839) has
+## been followed pretty exactly. So if we were willing to assume that
+## the R version is correct we can just check that the stream of
+## numbers is exactly the same.
+##
+## We do this twice - once between R's rhyper and a direct
+## reimplementation of the Rust code in R (within helper-rng) using
+## R's RNG stream, then again between our R reimplementation and
+## dust's idiomatic C++ version.
+test_that("hypergeometric reference implementation agrees with R", {
+  testthat::skip_on_cran() # subject to change beyond our control
+  hypergeometric <- hypergeometric_r(function() runif(1))
+
+  ## There are three branches to consider:
+  ## Case 1, use HIP (inversion) algorithm
+  m <- 7
+  n <- 10
+  k <- 8
+
+  set.seed(1)
+  r1 <- rhyper(500, m, n, k)
+  set.seed(1)
+  r2 <- replicate(500, hypergeometric(m, n, k))
+  expect_equal(r1, r2)
+
+  ## Case 1a, HIP but sample exactly half
+  m <- 5
+  n <- 5
+  k <- 5
+  set.seed(1)
+  r1 <- rhyper(5000, m, n, k)
+  set.seed(1)
+  r2 <- replicate(5000, hypergeometric(m, n, k))
+  ## Here, we differ only because of the sign but as black and white
+  ## are exchangeable here this is equivalent.
+  expect_equal(r1, 5 - r2)
+
+  ## Case 2, use H2PE algorithm, simple exit
+  m <- 70
+  n <- 100
+  k <- 80
+  set.seed(1)
+  r1 <- rhyper(500, m, n, k)
+  set.seed(1)
+  r2 <- replicate(500, hypergeometric(m, n, k))
+  expect_equal(r1, r2)
+
+  ## Case 3, use H2PE algorithm, squeezing exit
+  m <- 700
+  n <- 1000
+  k <- 800
+  set.seed(1)
+  r1 <- rhyper(500, m, n, k)
+  set.seed(1)
+  r2 <- replicate(500, hypergeometric(m, n, k))
+  expect_equal(r1, r2)
+})
+
+
+test_that("dust agrees with hypergeometric reference implementation", {
+  rng1 <- dust_rng$new(seed = 1L)
+  rng2 <- dust_rng$new(seed = 1L)
+  hypergeometric <- hypergeometric_r(function() rng1$random_real(1))
+
+  ## Same three cases as above:
+  ## Case 1, use HIP (inversion) algorithm
+  m <- 7
+  n <- 10
+  k <- 8
+  r1 <- replicate(500, hypergeometric(m, n, k))
+  r2 <- rng2$hypergeometric(500, m, n, k)
+  expect_equal(r1, r2)
+
+  ## Case 1a, HIP but sample exactly half
+  m <- 5
+  n <- 5
+  k <- 5
+  r1 <- replicate(500, hypergeometric(m, n, k))
+  r2 <- rng2$hypergeometric(500, m, n, k)
+  expect_equal(r1, r2)
+
+  ## Case 2, use H2PE algorithm, simple exit
+  m <- 70
+  n <- 100
+  k <- 80
+  r1 <- replicate(500, hypergeometric(m, n, k))
+  r2 <- rng2$hypergeometric(500, m, n, k)
+  expect_equal(r1, r2)
+
+  ## Case 3, use H2PE algorithm, squeezing exit
+  m <- 700
+  n <- 1000
+  k <- 800
+  r1 <- replicate(500, hypergeometric(m, n, k))
+  r2 <- rng2$hypergeometric(500, m, n, k)
+  expect_equal(r1, r2)
+})
+
+
+test_that("symmetry property around n1/n2 and k holds", {
+  n1 <- 7
+  n2 <- 15
+  k <- 5
+  n <- n1 + n2
+  r1 <- dust_rng$new(seed = 1L)$hypergeometric(500, n1, n2, k)
+  r2 <- dust_rng$new(seed = 1L)$hypergeometric(500, n2, n1, k)
+  r3 <- dust_rng$new(seed = 1L)$hypergeometric(500, n1, n2, n - k)
+  r4 <- dust_rng$new(seed = 1L)$hypergeometric(500, n2, n1, n - k)
+  expect_equal(r2, k - r1)
+  expect_equal(r3, n1 - r1)
+  expect_equal(r4, r1 + n2 - k)
+})
+
+
+test_that("deterministic hypergeometric returns mean", {
+  n_reps <- 10
+  n1 <- as.numeric(sample(10, n_reps, replace = TRUE))
+  n2 <- as.numeric(sample(10, n_reps, replace = TRUE))
+  n <- n1 + n2
+  k <- floor(runif(n_reps, 0, n))
+
+  rng_f <- dust_rng$new(1, real_type = "float", deterministic = TRUE)
+  rng_d <- dust_rng$new(1, real_type = "double", deterministic = TRUE)
+  state_f <- rng_f$state()
+  state_d <- rng_d$state()
+
+  expect_equal(rng_f$hypergeometric(n_reps, n1, n2, k), k * n1 / n,
+               tolerance = 1e-6)
+  expect_equal(rng_d$hypergeometric(n_reps, n1, n2, k), k * n1 / n)
+
+  expect_equal(rng_f$state(), state_f)
+  expect_equal(rng_d$state(), state_d)
+})
+
+
+test_that("hypergeometric random numbers prevent bad inputs", {
+  r <- dust_rng$new(1)
+  expect_equal(r$hypergeometric(1, 0, 0, 0), 0)
+
+  expect_error(
+    r$hypergeometric(1, -1, 5, 2),
+    "Invalid call to hypergeometric with n1 = -1, n2 = 5, k = 2")
+  expect_error(
+    r$hypergeometric(1, 5, -1, 2),
+    "Invalid call to hypergeometric with n1 = 5, n2 = -1, k = 2")
+  expect_error(
+    r$hypergeometric(1, 5, 3, -2),
+    "Invalid call to hypergeometric with n1 = 5, n2 = 3, k = -2")
+  expect_error(
+    r$hypergeometric(1, 5, 3, 10),
+    "Invalid call to hypergeometric with n1 = 5, n2 = 3, k = 10")
+})
+
+
+test_that("fast exits do not draw random numbers", {
+  r <- dust_rng$new(1)
+  s <- r$state()
+
+  ## If there's nothing sampled from nothing, return nothing
+  expect_equal(r$hypergeometric(1, 0, 0, 0), 0)
+  ## If there's nothing sampled from something, return nothing
+  expect_equal(r$hypergeometric(1, 10, 5, 0), 0)
+  ## If there's nothing to choose from, take the only option
+  expect_equal(r$hypergeometric(1, 10, 0, 2), 2)
+  expect_equal(r$hypergeometric(1, 0, 10, 2), 0)
+  ## If we select everything, return everything
+  expect_equal(r$hypergeometric(1, 10, 5, 15), 10)
+  expect_equal(r$hypergeometric(1, 5, 10, 15), 5)
+
+  expect_identical(r$state(), s)
+})
+
+
+test_that("numbers on different streams behave as expected", {
+  r <- dust_rng$new(2, seed = 1)
+  m <- 9
+  n <- 3
+  k <- 7
+  res <- r$hypergeometric(10, m, n, k)
+  expect_equal(dim(res), c(10, 2))
+  expect_equal(res[, 1],
+               dust_rng$new(1, seed = 1)$hypergeometric(10, m, n, k))
+  expect_equal(res[, 2],
+               dust_rng$new(1, seed = 1)$jump()$hypergeometric(10, m, n, k))
+})

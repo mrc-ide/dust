@@ -1,7 +1,7 @@
 Distributions
 =============
 
-Our distribution support will grow over time. If you need a distribution that is not yet supported please `post an issue <https://github.com/mrc-ide/dust/issues/>`__.
+Our distribution support will grow over time. If you need a distribution that is not yet supported please `post an issue <https://github.com/mrc-ide/dust/issues/>`.
 
 
 Uniform
@@ -22,6 +22,11 @@ Binomial
 --------
 
 .. doxygenfunction:: dust::random::binomial
+
+Hypergeometric
+--------
+
+.. doxygenfunction:: dust::random::hypergeometric
 
 Exponential
 -----------
