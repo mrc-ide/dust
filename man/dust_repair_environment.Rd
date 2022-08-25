@@ -7,7 +7,7 @@
 dust_repair_environment(generator, quiet = FALSE)
 }
 \arguments{
-\item{generator}{The dust generateor}
+\item{generator}{The dust generator (also works with mode generators)}
 
 \item{quiet}{Logical, indicating if we should be quiet (default
 prints some progress information)}

@@ -42,7 +42,7 @@ Suggests:
     mockery,
     rmarkdown,
     testthat (>= 3.0.0)
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
 Config/testthat/edition: 3
