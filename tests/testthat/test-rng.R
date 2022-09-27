@@ -1235,3 +1235,34 @@ test_that("dust agrees with gamma reference implementation", {
   r2 <- replicate(n, gamma(a, b))
   expect_equal(r1, r2)
 })
+
+test_that("deterministic gamma returns mean", {
+  n_reps <- 10
+  a <- as.numeric(sample(10, n_reps, replace = TRUE))
+  b <- as.numeric(sample(10, n_reps, replace = TRUE))
+
+  rng_f <- dust_rng$new(1, real_type = "float", deterministic = TRUE)
+  rng_d <- dust_rng$new(1, real_type = "double", deterministic = TRUE)
+  state_f <- rng_f$state()
+  state_d <- rng_d$state()
+
+  expect_equal(rng_f$gamma(n_reps, a, b), a * b,
+               tolerance = 1e-6)
+  expect_equal(rng_d$gamma(n_reps, a, b), a * b)
+
+  expect_equal(rng_f$state(), state_f)
+  expect_equal(rng_d$state(), state_d)
+})
+
+test_that("gamma random numbers prevent bad inputs", {
+  r <- dust_rng$new(1)
+  expect_equal(r$gamma(1, 0, 0), 0)
+  expect_equal(r$gamma(1, Inf, Inf), Inf)
+
+  expect_error(
+    r$gamma(1, -1.1, 5.1),
+    "Invalid call to gamma with a = -1.1, b = 5.1")
+  expect_error(
+    r$gamma(1, 5.1, -1.1),
+    "Invalid call to gamma with a = 5.1, b = -1.1")
+})

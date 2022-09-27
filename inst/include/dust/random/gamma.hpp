@@ -19,6 +19,17 @@ namespace dust {
 namespace random {
 namespace {
 
+template <typename real_type>
+void gamma_validate(real_type a, real_type b) {
+  if (a < 0.0 || b < 0.0) {
+    char buffer[256];
+    snprintf(buffer, 256,
+             "Invalid call to gamma with a = %g, b = %g",
+             a, b);
+    dust::utils::fatal_error(buffer);
+  }
+}
+
 // Generate gamma random number via GS, p 228 of reference.
 template <typename real_type, typename rng_state_type>
 real_type gamma_gs(rng_state_type& rng_state, real_type a) {
@@ -57,19 +68,15 @@ real_type gamma_gd(rng_state_type& rng_state, real_type a) {
   const real_type a6 = -0.1367177;
   const real_type a7 = 0.1233795;
 
-  real_type aa = 0.;
-  real_type aaa = 0.;
   real_type s, s2, d;    /* no. 1 (step 1) */
   real_type q0, b, si, c;/* no. 2 (step 4) */
     
   real_type e, p, q, r, t, u, v, w, x, ret_val;
 
-  if (a != aa) {
-  	aa = a;
-  	s2 = a - 0.5;
-  	s = sqrt(s2);
-  	d = sqrt(2) * 4 - s * 12.0;
-  }
+  s2 = a - 0.5;
+  s = sqrt(s2);
+  d = sqrt(2) * 4 - s * 12.0;
+
   /* Step 2: t = standard normal deviate,
            x = (s,1/2) -normal deviate. */
 
@@ -87,29 +94,26 @@ real_type gamma_gd(rng_state_type& rng_state, real_type a) {
     return ret_val;
   }
 
-  /* Step 4: recalculations of q0, b, si, c if necessary */
-  if (a != aaa) {
-    aaa = a;
-    r = 1.0 / a;
-    q0 = ((((((q7 * r + q6) * r + q5) * r + q4) * r + q3) * r + q2) * r + q1) * r;
+  /* Step 4: calculations of q0, b, si, c */
+  r = 1.0 / a;
+  q0 = ((((((q7 * r + q6) * r + q5) * r + q4) * r + q3) * r + q2) * r + q1) * r;
 
-  	/* Approximation depending on size of parameter a */
-  	/* The constants in the expressions for b, si and c */
-  	/* were established by numerical experiments */
+  /* Approximation depending on size of parameter a */
+  /* The constants in the expressions for b, si and c */
+  /* were established by numerical experiments */
 
-  	if (a <= 3.686) {
-      b = 0.463 + s + 0.178 * s2;
-      si = 1.235;
-      c = 0.195 / s - 0.079 + 0.16 * s;
-  	} else if (a <= 13.022) {
-      b = 1.654 + 0.0076 * s2;
-      si = 1.68 / s + 0.275;
-      c = 0.062 / s + 0.024;
-  	} else {
-      b = 1.77;
-      si = 0.75;
-      c = 0.1515 / s;
-  	}
+  if (a <= 3.686) {
+    b = 0.463 + s + 0.178 * s2;
+    si = 1.235;
+    c = 0.195 / s - 0.079 + 0.16 * s;
+  } else if (a <= 13.022) {
+    b = 1.654 + 0.0076 * s2;
+    si = 1.68 / s + 0.275;
+    c = 0.062 / s + 0.024;
+  } else {
+    b = 1.77;
+    si = 0.75;
+    c = 0.1515 / s;
   }
 
   /* Step 5: no quotient test if x not positive */
@@ -169,6 +173,12 @@ real_type gamma_gd(rng_state_type& rng_state, real_type a) {
 
 }
 
+template <typename real_type>
+real_type gamma_deterministic(real_type a, real_type b) {
+  return a * b;
+}
+
+
 /// Draw random number from the gamma distribution.
 /// @tparam real_type The underlying real number type, typically
 /// `double` or `float`. A compile-time error will be thrown if you
@@ -188,17 +198,22 @@ __host__ __device__
 real_type gamma(rng_state_type& rng_state, real_type a, real_type b) {
   static_assert(std::is_floating_point<real_type>::value,
                 "Only valid for floating-point types; use gamma<real_type>()");
-  // There are some issues around multiple returns and use of
-  // std::pair that probably require some additional work to get this
-  // behaving well on a GPU. Unlikely to be a lot of work, but better
-  // not to assume that it does. Proper testing of the algorithm under
-  // single precision would also be wise to prevent possible infinite
-  // loops, that's easiest to do once we have some real use-cases.
+
+  gamma_validate(a, b);
+
 #ifdef __CUDA_ARCH__
   static_assert("gamma() not implemented for GPU targets");
 #endif
 
-  if (a >= 1.0){
+  if (a == 0 || b == 0) {
+    return 0;
+  }
+
+  if (rng_state.deterministic) {
+    return gamma_deterministic<real_type>(a, b);
+  }
+
+  if (a >= 1.0) {
     return gamma_gd<real_type>(rng_state, a) * b;
   }
 
