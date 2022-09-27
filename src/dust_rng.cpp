@@ -433,6 +433,46 @@ cpp11::sexp dust_rng_hypergeometric(SEXP ptr, int n,
   return sexp_matrix(ret, n, n_streams);
 }
 
+
+template <typename real_type, typename T>
+cpp11::sexp dust_rng_gamma(SEXP ptr, int n,
+                           cpp11::doubles r_a, cpp11::doubles r_b, int n_threads) {
+  T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
+  const int n_streams = rng->size();
+  cpp11::writable::doubles ret = cpp11::writable::doubles(n * n_streams);
+  double * y = REAL(ret);
+  
+  const double * a = REAL(r_a);
+  const double * b = REAL(r_b);
+  auto a_vary = check_input_type(r_a, n, n_streams, "a");
+  auto b_vary = check_input_type(r_b, n, n_streams, "b");
+
+  dust::utils::openmp_errors errors(n_streams);
+
+#ifdef _OPENMP
+  #pragma omp parallel for schedule(static) num_threads(n_threads)
+#endif
+  for (int i = 0; i < n_streams; ++i) {
+    try {
+      auto &state = rng->state(i);
+      auto y_i = y + n * i;
+      auto a_i = a_vary.generator ? a + a_vary.offset * i : a;
+      auto b_i = b_vary.generator ? b + b_vary.offset * i : b;
+      for (size_t j = 0; j < (size_t)n; ++j) {
+        auto a_ij = a_vary.draw ? a_i[j] : a_i[0];
+        auto b_ij = b_vary.draw ? b_i[j] : b_i[0];
+        y_i[j] = dust::random::gamma<real_type>(state, a_ij, b_ij);
+      }
+    } catch (std::exception const& e) {
+      errors.capture(e, i);
+    }
+  }
+
+  errors.report("generators");
+
+  return sexp_matrix(ret, n, n_streams);
+}
+
 template <typename T>
 cpp11::sexp dust_rng_state(SEXP ptr) {
   T *rng = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
@@ -567,6 +607,16 @@ cpp11::sexp dust_rng_hypergeometric(SEXP ptr, int n,
     dust_rng_hypergeometric<float, dust_rng32>(ptr, n, r_n1, r_n2, r_k, n_threads) :
     dust_rng_hypergeometric<double, dust_rng64>(ptr, n, r_n1, r_n2, r_k, n_threads);
 }
+
+[[cpp11::register]]
+cpp11::sexp dust_rng_gamma(SEXP ptr, int n,
+                           cpp11::doubles r_a, cpp11::doubles r_b,
+                           int n_threads, bool is_float) {
+  return is_float ?
+    dust_rng_gamma<float, dust_rng32>(ptr, n, r_a, r_b, n_threads) :
+    dust_rng_gamma<double, dust_rng64>(ptr, n, r_a, r_b, n_threads);
+}
+
 
 [[cpp11::register]]
 cpp11::sexp dust_rng_poisson(SEXP ptr, int n,

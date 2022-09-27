@@ -7,6 +7,7 @@
 #include "dust/random/binomial.hpp"
 #include "dust/random/exponential.hpp"
 #include "dust/random/hypergeometric.hpp"
+#include "dust/random/gamma.hpp"
 #include "dust/random/multinomial.hpp"
 #include "dust/random/normal.hpp"
 #include "dust/random/poisson.hpp"

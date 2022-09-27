@@ -194,3 +194,20 @@ hypergeometric_r <- function(random_real) {
     x
   }
 }
+
+gamma_r <- function(random_real, random_exp) {
+  gamma_gs <- function(a, scale) {
+    b <- 1 + a * (exp(-1))
+    while(TRUE) {
+      p <- b * random_real()
+      if (p > 1) {
+        x <- -log((b - p) / a)
+        if (random_exp() > (1 - a) * log(x)) break
+      } else {
+        x <- exp(log(p) / a)
+        if (random_exp() >= x) break
+      }
+    }
+    x * scale
+  }
+}
