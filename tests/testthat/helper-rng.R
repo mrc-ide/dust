@@ -4,6 +4,7 @@
 ## can crossreference this translation against R's version of the same
 ## algorithm (see ?rhyper) and then against our C++ implementation.
 hypergeometric_r <- function(random_real) {
+
   hypergeometric_hin <- function(random_real, n1, n2, n, k) {
     if (k < n2) {
       p <- fraction_of_products_of_factorials(n2, n - k, n, n2 - k)
@@ -30,9 +31,9 @@ hypergeometric_r <- function(random_real) {
     a <- lfactorial(m) +
       lfactorial(n1 - m) +
       lfactorial(k - m) +
-      lfactorial((n2 - k)  + m)
+      lfactorial((n2 - k) + m)
 
-    numerator <- (n - k) * k * n1  * n2
+    numerator <- (n - k) * k * n1 * n2
     denominator <- (n - 1) * n * n
     d <- floor(1.5 * sqrt(numerator / denominator)) + 0.5
 
@@ -40,15 +41,15 @@ hypergeometric_r <- function(random_real) {
     x_r <- m + d + 0.5
 
     k_l <- exp(a -
-               lfactorial(x_l) -
-               lfactorial(n1 - x_l) -
-               lfactorial(k - x_l) -
-               lfactorial((n2 - k)  + x_l))
+                 lfactorial(x_l) -
+                 lfactorial(n1 - x_l) -
+                 lfactorial(k - x_l) -
+                 lfactorial((n2 - k) + x_l))
     k_r <- exp(a -
-               lfactorial(x_r - 1.0) -
-               lfactorial(n1 - x_r + 1.0) -
-               lfactorial(k - x_r + 1.0) -
-               lfactorial((n2 - k)  + x_r - 1.0))
+                 lfactorial(x_r - 1.0) -
+                 lfactorial(n1 - x_r + 1.0) -
+                 lfactorial(k - x_r + 1.0) -
+                 lfactorial((n2 - k) + x_r - 1.0))
 
     numerator <- x_l * ((n2 - k) + x_l)
     denominator <- (n1 - x_l + 1.0) * (k - x_l + 1.0)
@@ -96,7 +97,7 @@ hypergeometric_r <- function(random_real) {
         f <- 1.0
         if (m < y) {
           for (i in seq(m + 1, y)) {
-            f <- f * (n1 - i + 1) * (k - i + 1) / ((n2 - k + i) *  i)
+            f <- f * (n1 - i + 1) * (k - i + 1) / ((n2 - k + i) * i)
           }
         } else if (m > y) {
           for (i in seq(y + 1, m)) {
@@ -133,10 +134,10 @@ hypergeometric_r <- function(random_real) {
         nm <- n2 - k + xm
         ub <-
           xm * r * (1.0 + r * (-0.5 + r / 3.0)) +
-          xn * s * (1.0 + s * (-0.5 + s / 3.0)) +
-          xk * t * (1.0 + t * (-0.5 + t / 3.0)) +
-          nm * e * (1.0 + e * (-0.5 + e / 3.0)) +
-          y * gu - m * gl + 0.0034
+            xn * s * (1.0 + s * (-0.5 + s / 3.0)) +
+            xk * t * (1.0 + t * (-0.5 + t / 3.0)) +
+            nm * e * (1.0 + e * (-0.5 + e / 3.0)) +
+            y * gu - m * gl + 0.0034
         av <- log(v)
         if (av > ub) {
           next
@@ -156,7 +157,9 @@ hypergeometric_r <- function(random_real) {
 
         ## Step 4.3: Final Acceptance/Rejection Test
         av_critical <- a -
-          lfactorial(y) - lfactorial(n1 - y) - lfactorial(k - y) -
+          lfactorial(y) -
+          lfactorial(n1 - y) -
+          lfactorial(k - y) -
           lfactorial((n2 - k) + y)
         if (log(v) <= av_critical) {
           x <- y
@@ -172,7 +175,9 @@ hypergeometric_r <- function(random_real) {
   }
 
   fraction_of_products_of_factorials <- function(a, b, c, d) {
-    exp(lfactorial(a) + lfactorial(b) - lfactorial(c) - lfactorial(d))
+    exp(lfactorial(a) + lfactorial(b) -
+          lfactorial(c) -
+          lfactorial(d))
   }
 
   function(n1, n2, k) {
@@ -195,10 +200,11 @@ hypergeometric_r <- function(random_real) {
   }
 }
 
-gamma_r <- function(random_real, random_exp) {
-  gamma_gs <- function(a, scale) {
+gamma_r <- function(random_real, random_exp, random_normal) {
+
+  gamma_gs <- function(a) {
     b <- 1 + a * (exp(-1))
-    while(TRUE) {
+    while (TRUE) {
       p <- b * random_real()
       if (p > 1) {
         x <- -log((b - p) / a)
@@ -208,6 +214,134 @@ gamma_r <- function(random_real, random_exp) {
         if (random_exp() >= x) break
       }
     }
-    x * scale
+    x
+  }
+
+  gamma_gd <- function(a) {
+    q1 <- 0.04166669
+    q2 <- 0.02083148
+    q3 <- 0.00801191
+    q4 <- 0.00144121
+    q5 <- -7.388e-5
+    q6 <- 2.4511e-4
+    q7 <- 2.424e-4
+
+    a1 <- 0.3333333
+    a2 <- -0.250003
+    a3 <- 0.2000062
+    a4 <- -0.1662921
+    a5 <- 0.1423657
+    a6 <- -0.1367177
+    a7 <- 0.1233795
+
+    aa <- 0
+    aaa <- 0
+
+    if (a != aa) {
+      aa <- a
+      s2 <- a - 0.5
+      s <- sqrt(s2)
+      d <- 4 * sqrt(2) - s * 12.0
+    }
+
+    t <- random_normal()
+    x <- s + 0.5 * t
+    ret_val <- x * x
+    if (t >= 0.0) {
+      return(ret_val)
+    }
+
+    u <- random_real()
+    if (d * u <= t * t * t) {
+      return(ret_val)
+    }
+
+    if (a != aaa) {
+      aaa <- a
+      r <- 1.0 / a
+      q0 <- ((((((q7 * r + q6) * r + q5) * r + q4) * r + q3) * r
+        + q2) * r + q1) * r
+
+      if (a <= 3.686) {
+        b <- 0.463 + s + 0.178 * s2
+        si <- 1.235
+        c <- 0.195 / s - 0.079 + 0.16 * s
+      } else if (a <<- 13.022) {
+        b <- 1.654 + 0.0076 * s2
+        si <- 1.68 / s + 0.275
+        c <- 0.062 / s + 0.024
+      } else {
+        b <- 1.77
+        si <- 0.75
+        c <- 0.1515 / s
+      }
+    }
+
+    if (x > 0.0) {
+      v <- t / (s + s)
+      if (abs(v) <= 0.25) {
+        q <- q0 + 0.5 *
+          t *
+          t *
+          ((((((a7 * v + a6) * v + a5) * v + a4) * v
+            + a3) * v + a2) * v + a1) *
+          v
+      } else {
+        q <- q0 - s * t +
+          0.25 * t * t +
+          (s2 + s2) * log(1.0 + v)
+      }
+
+      if (log(1.0 - u) <= q)
+        return(ret_val)
+    }
+
+    while (TRUE) {
+
+      e <- random_exp()
+      u <- random_real()
+      u <- u + u - 1.0;
+      if (u < 0.0) {
+        t <- b - si * e
+      } else {
+        t <- b + si * e
+      }
+      if (t >= -0.71874483771719) {
+        v <- t / (s + s);
+        if (abs(v) <= 0.25) {
+          q <- q0 + 0.5 *
+            t *
+            t *
+            ((((((a7 * v + a6) * v + a5) * v + a4) * v + a3) * v
+              + a2) * v + a1) *
+            v
+        }
+        else {
+          q <- q0 - s * t +
+            0.25 * t * t +
+            (s2 + s2) * log(1.0 + v)
+        }
+
+        if (q > 0.0) {
+          w <- expm1(q)
+
+          if (c * abs(u) <= w * exp(e - 0.5 * t * t)) break
+        }
+      }
+    }
+    x <- s + 0.5 * t;
+    x * x
+  }
+
+  function(a, b) {
+    if (a < 0 || b < 0) {
+      stop("Invalid parameters")
+    }
+    if (a >= 1) {
+      x <- gamma_gd(a)
+    } else {
+      x <- gamma_gs(a)
+    }
+    x * b
   }
 }

@@ -1181,7 +1181,9 @@ test_that("numbers on different streams behave as expected", {
 
 test_that("gamma reference implementation agrees with R", {
   testthat::skip_on_cran() # subject to change beyond our control
-  gamma <- gamma_r(function() runif(1), function() rexp(1))
+  gamma <- gamma_r(function() runif(1),
+                   function() rexp(1),
+                   function() rnorm(1))
 
   ## There are two branches to consider:
   ## Case 1, 0 < a < 1, use GS algorithm
@@ -1195,22 +1197,41 @@ test_that("gamma reference implementation agrees with R", {
   r2 <- replicate(n, gamma(a, b))
   expect_equal(r1, r2)
 
+  ## Case 2, a >= 1, use GD algorithm
+  n <- 10
+  a <- 1.5
+  b <- 2
+
+  set.seed(1)
+  r1 <- rgamma(n, a, scale = b)
+  set.seed(1)
+  r2 <- replicate(n, gamma(a, b))
+  expect_equal(r1, r2)
 })
 
 test_that("dust agrees with gamma reference implementation", {
   rng1 <- dust_rng$new(seed = 1L)
   rng2 <- dust_rng$new(seed = 1L)
   gamma <- gamma_r(function() rng1$random_real(1),
-                   function() rng1$exponential(1, 1))
+                   function() rng1$exponential(1, 1),
+                   function() rng1$normal(1, 0, 1))
 
-  ## Same three cases as above:
+  ## Same two cases as above:
   ## Case 1, use GS algorithm
   n <- 10
   a <- 0.5
   b <- 2
 
-  r1 <- replicate(n, gamma(a, scale = b))
-  r2 <- rng2$gamma(n, a, b)
+  r1 <- rng2$gamma(n, a, b)
+  r2 <- replicate(n, gamma(a, b))
   expect_equal(r1, r2)
 
+  ## Case 2, a >= 1, use GD algorithm
+  n <- 10
+  a <- 1.5
+  b <- 2
+
+  r1 <- rng2$gamma(n, a, b)
+  r2 <- replicate(n, gamma(a, b))
+  expect_equal(r1, r2)
 })
