@@ -1199,7 +1199,19 @@ test_that("gamma reference implementation agrees with R", {
 
   ## Case 2, a >= 1, use GD algorithm
   n <- 10
-  a <- 1.5
+
+  # small a
+  a <- 1.01
+  b <- 2
+
+  set.seed(1)
+  r1 <- rgamma(n, a, scale = b)
+  set.seed(1)
+  r2 <- replicate(n, gamma(a, b))
+  expect_equal(r1, r2)
+
+  # large a
+  a <- 50
   b <- 2
 
   set.seed(1)
@@ -1228,7 +1240,17 @@ test_that("dust agrees with gamma reference implementation", {
 
   ## Case 2, a >= 1, use GD algorithm
   n <- 10
-  a <- 1.5
+
+  # small a
+  a <- 1.01
+  b <- 2
+
+  r1 <- rng2$gamma(n, a, b)
+  r2 <- replicate(n, gamma(a, b))
+  expect_equal(r1, r2)
+
+  # large a
+  a <- 50
   b <- 2
 
   r1 <- rng2$gamma(n, a, b)

@@ -75,7 +75,7 @@ real_type gamma_gd(rng_state_type& rng_state, real_type a) {
 
   s2 = a - 0.5;
   s = sqrt(s2);
-  d = sqrt(2) * 4 - s * 12.0;
+  d = sqrt(32) - s * 12.0;
 
   /* Step 2: t = standard normal deviate,
            x = (s,1/2) -normal deviate. */
@@ -135,8 +135,8 @@ real_type gamma_gd(rng_state_type& rng_state, real_type a) {
 
     while (TRUE) {
       /* Step 8: e = standard exponential deviate
-       *	u =  0,1 -uniform deviate
-       *	t = (b,si)-double exponential (laplace) sample */
+       *	u =  0,1 - uniform deviate
+       *	t = (b,si) - double exponential (laplace) sample */
       e = exponential_rand<real_type>(rng_state);
       u = uniform<real_type>(rng_state, 0, 1);
       u = u + u - 1.0;
