@@ -72,6 +72,10 @@ dust_rng_binomial <- function(ptr, n, r_size, r_prob, n_threads, is_float) {
   .Call(`_dust_dust_rng_binomial`, ptr, n, r_size, r_prob, n_threads, is_float)
 }
 
+dust_rng_nbinomial <- function(ptr, n, r_size, r_prob, n_threads, is_float) {
+  .Call(`_dust_dust_rng_nbinomial`, ptr, n, r_size, r_prob, n_threads, is_float)
+}
+
 dust_rng_hypergeometric <- function(ptr, n, r_n1, r_n2, r_k, n_threads, is_float) {
   .Call(`_dust_dust_rng_hypergeometric`, ptr, n, r_n1, r_n2, r_k, n_threads, is_float)
 }

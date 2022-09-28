@@ -1288,3 +1288,28 @@ test_that("gamma random numbers prevent bad inputs", {
     r$gamma(1, 5.1, -1.1),
     "Invalid call to gamma with a = 5.1, b = -1.1")
 })
+
+test_that("can generate negative binomial numbers", {
+  m <- 1000000
+  n <- 958
+  p <- 0.004145
+  yf <- dust_rng$new(1)$nbinomial(m, n, p)
+
+  expect_equal(mean(yf), (1 - p) * n / p, tolerance = 1e-3)
+  expect_equal(var(yf), ((1 - p) * n ) / p^2, tolerance = 1e-2)
+})
+
+test_that("negative binomial prevents bad inputs", {
+  expect_error(dust_rng$new(1)$nbinomial(1, 10, 0),
+               "Invalid call to nbinomial with size = 10, prob = 0")
+  expect_error(dust_rng$new(1)$nbinomial(1, 0, 0.5),
+               "Invalid call to nbinomial with size = 0, prob = 0.5")
+  expect_error(dust_rng$new(1)$nbinomial(1, 10, 1.5),
+               "Invalid call to nbinomial with size = 10, prob = 1.5")
+  expect_error(dust_rng$new(1)$nbinomial(1, 10, Inf),
+               "Invalid call to nbinomial with size = 10, prob = inf")
+
+  # this is coming out as -2147483648; in general, rng$poisson for sufficiently
+  # large lambda (e.g. rng$poisson(1, 1e+10)) is this negative value
+  # dust_rng$new(1)$nbinomial(1, Inf, 0.4)
+})
