@@ -300,14 +300,14 @@ gamma_r <- function(random_real, random_exp, random_normal) {
 
       e <- random_exp()
       u <- random_real()
-      u <- u + u - 1.0;
+      u <- u + u - 1.0
       if (u < 0.0) {
         t <- b - si * e
       } else {
         t <- b + si * e
       }
       if (t >= -0.71874483771719) {
-        v <- t / (s + s);
+        v <- t / (s + s)
         if (abs(v) <= 0.25) {
           q <- q0 + 0.5 *
             t *
@@ -315,8 +315,7 @@ gamma_r <- function(random_real, random_exp, random_normal) {
             ((((((a7 * v + a6) * v + a5) * v + a4) * v + a3) * v
               + a2) * v + a1) *
             v
-        }
-        else {
+        } else {
           q <- q0 - s * t +
             0.25 * t * t +
             (s2 + s2) * log(1.0 + v)
@@ -329,7 +328,7 @@ gamma_r <- function(random_real, random_exp, random_normal) {
         }
       }
     }
-    x <- s + 0.5 * t;
+    x <- s + 0.5 * t
     x * x
   }
 

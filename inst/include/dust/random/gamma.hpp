@@ -51,7 +51,6 @@ real_type gamma_gs(rng_state_type& rng_state, real_type a) {
 // Generate gamma random number via GD, p 53 of reference.
 template <typename real_type, typename rng_state_type>
 real_type gamma_gd(rng_state_type& rng_state, real_type a) {
-
   const real_type q1 = 0.04166669;
   const real_type q2 = 0.02083148;
   const real_type q3 = 0.00801191;
