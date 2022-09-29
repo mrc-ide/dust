@@ -271,7 +271,8 @@ dust_rng <- R6::R6Class(
     ##'
     ##' @param n Number of samples to draw (per stream)
     ##'
-    ##' @param size The target number of successful trials (zero or more, length 1 or n)
+    ##' @param size The target number of successful trials
+    ##'   (zero or more, length 1 or n)
     ##'
     ##' @param prob The probability of success on each trial
     ##'   (between 0 and 1, length 1 or n)

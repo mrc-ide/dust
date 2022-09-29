@@ -1296,7 +1296,7 @@ test_that("can generate negative binomial numbers", {
   yf <- dust_rng$new(1)$nbinomial(m, n, p)
 
   expect_equal(mean(yf), (1 - p) * n / p, tolerance = 1e-3)
-  expect_equal(var(yf), ((1 - p) * n ) / p^2, tolerance = 1e-2)
+  expect_equal(var(yf), ((1 - p) * n) / p^2, tolerance = 1e-2)
 })
 
 test_that("negative binomial prevents bad inputs", {
