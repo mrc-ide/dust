@@ -2,6 +2,7 @@ test_that("parse sir model metadata", {
   meta <- parse_metadata(dust_file("examples/sir.cpp"))
   expect_equal(meta$class, "sir")
   expect_equal(meta$name, "sir")
+  expect_equal(meta$time_type, "discrete")
   expect_equal(
     meta$param,
     list(I0 = list(required = FALSE),
@@ -218,5 +219,31 @@ test_that("Can prevent invalid names", {
   expect_error(
     parse_metadata(tmp),
     "'[[dust::name]]' must contain only letters, numbers and underscores",
+    fixed = TRUE)
+})
+
+
+test_that("Can parse metadata for continuous time models", {
+  meta <- parse_metadata(dust_file("examples/logistic.cpp"))
+  expect_equal(meta$class, "logistic")
+  expect_equal(meta$name, "logistic")
+  expect_equal(meta$time_type, "continuous")
+  expect_equal(
+    meta$param,
+    list(r1 = list(required = TRUE),
+         K1 = list(required = TRUE),
+         r2 = list(required = TRUE),
+         K2 = list(required = TRUE)))
+})
+
+
+test_that("Validate time type where given", {
+  tmp <- helper_metadata(
+    "// [[dust::time_type(surreal)]]")
+  on.exit(unlink(tmp))
+  expect_error(
+    parse_metadata(tmp),
+    paste("Invalid value for dust::time_type, expected one of",
+          "'continuous', 'discrete'"),
     fixed = TRUE)
 })

@@ -3,6 +3,7 @@ parse_metadata <- function(filename) {
   ret <- list(name = parse_metadata_name(data),
               class = parse_metadata_class(data),
               param = parse_metadata_param(data),
+              time_type = parse_metadata_time_type(data),
               has_gpu_support = parse_metadata_has_gpu_support(data))
 
   if (is.null(ret$class)) {
@@ -55,6 +56,19 @@ parse_metadata_name <- function(data) {
 
 parse_metadata_class <- function(data) {
   parse_metadata_simple(data, "dust::class")
+}
+
+
+parse_metadata_time_type <- function(data) {
+  value <- parse_metadata_simple(data, "dust::time_type") %||% "discrete"
+  if (!is.null(value)) {
+    valid <- c("continuous", "discrete")
+    if (!(value %in% valid)) {
+      stop(sprintf("Invalid value for dust::time_type, expected one of %s",
+                   paste(squote(valid), collapse = ", ")))
+    }
+  }
+  value
 }
 
 
