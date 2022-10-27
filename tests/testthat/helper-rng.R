@@ -4,7 +4,6 @@
 ## can crossreference this translation against R's version of the same
 ## algorithm (see ?rhyper) and then against our C++ implementation.
 hypergeometric_r <- function(random_real) {
-
   hypergeometric_hin <- function(random_real, n1, n2, n, k) {
     if (k < n2) {
       p <- fraction_of_products_of_factorials(n2, n - k, n, n2 - k)
@@ -31,9 +30,9 @@ hypergeometric_r <- function(random_real) {
     a <- lfactorial(m) +
       lfactorial(n1 - m) +
       lfactorial(k - m) +
-      lfactorial((n2 - k) + m)
+      lfactorial((n2 - k)  + m)
 
-    numerator <- (n - k) * k * n1 * n2
+    numerator <- (n - k) * k * n1  * n2
     denominator <- (n - 1) * n * n
     d <- floor(1.5 * sqrt(numerator / denominator)) + 0.5
 
@@ -44,12 +43,12 @@ hypergeometric_r <- function(random_real) {
                  lfactorial(x_l) -
                  lfactorial(n1 - x_l) -
                  lfactorial(k - x_l) -
-                 lfactorial((n2 - k) + x_l))
+                 lfactorial((n2 - k)  + x_l))
     k_r <- exp(a -
                  lfactorial(x_r - 1.0) -
                  lfactorial(n1 - x_r + 1.0) -
                  lfactorial(k - x_r + 1.0) -
-                 lfactorial((n2 - k) + x_r - 1.0))
+                 lfactorial((n2 - k)  + x_r - 1.0))
 
     numerator <- x_l * ((n2 - k) + x_l)
     denominator <- (n1 - x_l + 1.0) * (k - x_l + 1.0)
@@ -97,7 +96,7 @@ hypergeometric_r <- function(random_real) {
         f <- 1.0
         if (m < y) {
           for (i in seq(m + 1, y)) {
-            f <- f * (n1 - i + 1) * (k - i + 1) / ((n2 - k + i) * i)
+            f <- f * (n1 - i + 1) * (k - i + 1) / ((n2 - k + i) *  i)
           }
         } else if (m > y) {
           for (i in seq(y + 1, m)) {
@@ -157,9 +156,7 @@ hypergeometric_r <- function(random_real) {
 
         ## Step 4.3: Final Acceptance/Rejection Test
         av_critical <- a -
-          lfactorial(y) -
-          lfactorial(n1 - y) -
-          lfactorial(k - y) -
+          lfactorial(y) - lfactorial(n1 - y) - lfactorial(k - y) -
           lfactorial((n2 - k) + y)
         if (log(v) <= av_critical) {
           x <- y
@@ -175,9 +172,7 @@ hypergeometric_r <- function(random_real) {
   }
 
   fraction_of_products_of_factorials <- function(a, b, c, d) {
-    exp(lfactorial(a) + lfactorial(b) -
-          lfactorial(c) -
-          lfactorial(d))
+    exp(lfactorial(a) + lfactorial(b) - lfactorial(c) - lfactorial(d))
   }
 
   function(n1, n2, k) {
