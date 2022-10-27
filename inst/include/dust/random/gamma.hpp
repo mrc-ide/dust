@@ -55,7 +55,7 @@ template <typename real_type, typename rng_state_type>
 real_type gamma_small(rng_state_type& rng_state, real_type a) {
   real_type inv_shape = 1 / a;
   real_type u = uniform<real_type>(rng_state, 0, 1);
-  return gamma_large(rng_state, a + 1.0) * pow(u, inv_shape);
+  return gamma_large(rng_state, a + 1.0) * std::pow(u, inv_shape);
 }
 
 template <typename real_type>
