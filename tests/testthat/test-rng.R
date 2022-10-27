@@ -1207,6 +1207,10 @@ test_that("can draw gamma random numbers", {
   expect_equal(mean(ans1), a * b, tolerance = 1e-3)
   expect_equal(var(ans1), a * b^2, tolerance = 1e-3)
 
+  ans_f <- dust_rng$new(1, real_type = "float")$gamma(n, a, b)
+  expect_equal(mean(ans_f), a * b, tolerance = 1e-3)
+  expect_equal(var(ans_f), a * b^2, tolerance = 1e-3)
+
   ## a < 1
   a <- 0.5
 
@@ -1216,6 +1220,10 @@ test_that("can draw gamma random numbers", {
 
   expect_equal(mean(ans3), a * b, tolerance = 1e-3)
   expect_equal(var(ans3), a * b^2, tolerance = 1e-3)
+
+  ans_f <- dust_rng$new(1, real_type = "float")$gamma(n, a, b)
+  expect_equal(mean(ans_f), a * b, tolerance = 1e-3)
+  expect_equal(var(ans_f), a * b^2, tolerance = 1e-3)
 })
 
 
