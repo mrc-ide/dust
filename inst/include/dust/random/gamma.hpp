@@ -35,7 +35,7 @@ template <typename real_type, typename rng_state_type>
 real_type gamma_large(rng_state_type& rng_state, real_type a) {
   real_type d = a - 1.0 / 3.0;
   real_type c = 1.0 / sqrt(9.0 * d);
-  while(true) {
+  while (true) {
     real_type x = normal<real_type>(rng_state, 0, 1);
     real_type v_cbrt = 1.0 + c * x;
     if (v_cbrt <= 0.0) {
