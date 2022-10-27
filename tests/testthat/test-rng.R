@@ -1211,7 +1211,7 @@ test_that("can draw gamma random numbers", {
   expect_equal(mean(ans_f), a * b, tolerance = 1e-3)
   expect_equal(var(ans_f), a * b^2, tolerance = 1e-3)
 
-  ## a < 1
+  ## when a < 1
   a <- 0.5
 
   ans3 <- dust_rng$new(1)$gamma(n, a, b)
