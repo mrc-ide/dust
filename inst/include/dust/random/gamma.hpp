@@ -21,19 +21,19 @@ namespace random {
 namespace {
 
 template <typename real_type>
-void gamma_validate(real_type a, real_type b) {
-  if (a < 0.0 || b < 0.0) {
+void gamma_validate(real_type shape, real_type scale) {
+  if (shape < 0.0 || scale < 0.0) {
     char buffer[256];
     snprintf(buffer, 256,
-             "Invalid call to gamma with a = %g, b = %g",
-             a, b);
+             "Invalid call to gamma with shape = %g, scale = %g",
+             shape, scale);
     dust::utils::fatal_error(buffer);
   }
 }
 
 template <typename real_type, typename rng_state_type>
-real_type gamma_large(rng_state_type& rng_state, real_type a) {
-  real_type d = a - 1.0 / 3.0;
+real_type gamma_large(rng_state_type& rng_state, real_type shape) {
+  real_type d = shape - 1.0 / 3.0;
   real_type c = 1.0 / sqrt(9.0 * d);
   while(true) {
     real_type x = normal<real_type>(rng_state, 0, 1);
@@ -52,15 +52,15 @@ real_type gamma_large(rng_state_type& rng_state, real_type a) {
 }
 
 template <typename real_type, typename rng_state_type>
-real_type gamma_small(rng_state_type& rng_state, real_type a) {
-  real_type inv_shape = 1 / a;
+real_type gamma_small(rng_state_type& rng_state, real_type shape) {
+  real_type inv_shape = 1 / shape;
   real_type u = uniform<real_type>(rng_state, 0, 1);
-  return gamma_large(rng_state, a + 1.0) * pow(u, inv_shape);
+  return gamma_large(rng_state, shape + 1.0) * pow(u, inv_shape);
 }
 
 template <typename real_type>
-real_type gamma_deterministic(real_type a, real_type b) {
-  return a * b;
+real_type gamma_deterministic(real_type shape, real_type scale) {
+  return shape * scale;
 }
 
 /// Draw random number from the gamma distribution.
@@ -79,33 +79,33 @@ real_type gamma_deterministic(real_type a, real_type b) {
 /// @param b Scale
 template <typename real_type, typename rng_state_type>
 __host__ __device__
-real_type gamma(rng_state_type& rng_state, real_type a, real_type b) {
+real_type gamma(rng_state_type& rng_state, real_type shape, real_type scale) {
   static_assert(std::is_floating_point<real_type>::value,
                 "Only valid for floating-point types; use gamma<real_type>()");
 
-  gamma_validate(a, b);
+  gamma_validate(shape, scale);
 
 #ifdef __CUDA_ARCH__
   static_assert("gamma() not implemented for GPU targets");
 #endif
 
-  if (a == 0 || b == 0) {
+  if (shape == 0 || scale == 0) {
     return 0;
   }
 
   if (rng_state.deterministic) {
-    return gamma_deterministic<real_type>(a, b);
+    return gamma_deterministic<real_type>(shape, scale);
   }
 
-  if (a < 1) {
-    return gamma_small<real_type>(rng_state, a) * b;
+  if (shape < 1) {
+    return gamma_small<real_type>(rng_state, shape) * scale;
   }
 
-  if (a == 1) {
-    return exponential(rng_state, 1 / b);
+  if (shape == 1) {
+    return exponential(rng_state, 1 / scale);
   }
 
-  return gamma_large<real_type>(rng_state, a) * b;
+  return gamma_large<real_type>(rng_state, shape) * scale;
 }
 
 }
