@@ -35,7 +35,7 @@ template <typename real_type, typename rng_state_type>
 real_type gamma_large(rng_state_type& rng_state, real_type shape) {
   real_type d = shape - 1.0 / 3.0;
   real_type c = 1.0 / sqrt(9.0 * d);
-  while(true) {
+  while (true) {
     real_type x = normal<real_type>(rng_state, 0, 1);
     real_type v_cbrt = 1.0 + c * x;
     if (v_cbrt <= 0.0) {
@@ -45,7 +45,7 @@ real_type gamma_large(rng_state_type& rng_state, real_type shape) {
     real_type u = uniform<real_type>(rng_state, 0, 1);
     real_type x_sqr = x * x;
     if (u < 1.0 - 0.0331 * x_sqr * x_sqr ||
-      log(u) < 0.5 * x_sqr + d * (1.0 - v + log(v))) {
+      std::log(u) < 0.5 * x_sqr + d * (1.0 - v + std::log(v))) {
       return d * v;
     }
   }
@@ -55,7 +55,7 @@ template <typename real_type, typename rng_state_type>
 real_type gamma_small(rng_state_type& rng_state, real_type shape) {
   real_type inv_shape = 1 / shape;
   real_type u = uniform<real_type>(rng_state, 0, 1);
-  return gamma_large(rng_state, shape + 1.0) * pow(u, inv_shape);
+  return gamma_large(rng_state, shape + 1.0) * std::pow(u, inv_shape);
 }
 
 template <typename real_type>
