@@ -1195,7 +1195,7 @@ test_that("gamma for a = 1 is the same as exponential", {
 
 
 test_that("can draw gamma random numbers", {
-  ## a > 1
+  ## when a > 1
   a <- 5
   b <- 3
   n <- 10000000
