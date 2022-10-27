@@ -45,7 +45,7 @@ real_type gamma_large(rng_state_type& rng_state, real_type a) {
     real_type u = uniform<real_type>(rng_state, 0, 1);
     real_type x_sqr = x * x;
     if (u < 1.0 - 0.0331 * x_sqr * x_sqr ||
-      log(u) < 0.5 * x_sqr + d * (1.0 - v + log(v))) {
+      std::log(u) < 0.5 * x_sqr + d * (1.0 - v + std::log(v))) {
       return d * v;
     }
   }
