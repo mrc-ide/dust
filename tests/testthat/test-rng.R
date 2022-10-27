@@ -1253,8 +1253,8 @@ test_that("gamma random numbers prevent bad inputs", {
 
   expect_error(
     r$gamma(1, -1.1, 5.1),
-    "Invalid call to gamma with a = -1.1, b = 5.1")
+    "Invalid call to gamma with shape = -1.1, scale = 5.1")
   expect_error(
     r$gamma(1, 5.1, -1.1),
-    "Invalid call to gamma with a = 5.1, b = -1.1")
+    "Invalid call to gamma with shape = 5.1, scale = -1.1")
 })
