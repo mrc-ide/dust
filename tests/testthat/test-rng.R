@@ -1195,11 +1195,10 @@ test_that("gamma for a = 1 is the same as exponential", {
 
 
 test_that("can draw gamma random numbers", {
-
-  # a > 1
+  ## a > 1
   a <- 5
   b <- 3
-  n <- 10000
+  n <- 10000000
 
   ans1 <- dust_rng$new(1)$gamma(n, a, b)
   ans2 <- dust_rng$new(1)$gamma(n, a, b)
@@ -1208,7 +1207,7 @@ test_that("can draw gamma random numbers", {
   expect_equal(mean(ans1), a * b, tolerance = 1e-3)
   expect_equal(var(ans1), a * b^2, tolerance = 1e-3)
 
-  # a < 1
+  ## a < 1
   a <- 0.5
 
   ans3 <- dust_rng$new(1)$gamma(n, a, b)

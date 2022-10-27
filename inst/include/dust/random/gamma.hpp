@@ -11,10 +11,11 @@
 #include "dust/random/uniform.hpp"
 #include "dust/random/normal.hpp"
 
-// For 'shape >= 1' follows Ahrens, J. H. and Dieter, U. (1982). Generating gamma variates by
-// a modified rejection technique. For '0 < shape < 1' uses Ahrens, J. H. and Dieter,
-// U. (1974). Computer methods for sampling from gamma, beta, Poisson and binomial distributions.
-// and follows the R implementation: https://github.com/wch/r-source/blob/trunk/src/nmath/rgamma.c
+// Algorithm from George Marsaglia and Wai Wan Tsang. 2000. "A Simple Method
+// for Generating Gamma Variables" *ACM Trans. Math. Softw.* 26, 3 (September 2000),
+// 363-372. DOI:[10.1145/358407.358414](https://doi.acm.org/10.1145/358407.358414)
+// and follows the Rust implementation https://docs.rs/rand/0.5.0/src/rand/distributions/gamma.rs.html
+// but adapted to fit our needs.
 namespace dust {
 namespace random {
 namespace {
@@ -32,8 +33,8 @@ void gamma_validate(real_type a, real_type b) {
 
 template <typename real_type, typename rng_state_type>
 real_type gamma_large(rng_state_type& rng_state, real_type a) {
-  real_type d = a - 1 / 3;
-  real_type c = 1 / sqrt(9 * d);
+  real_type d = a - 1.0 / 3.0;
+  real_type c = 1.0 / sqrt(9.0 * d);
   while(true) {
     real_type x = normal<real_type>(rng_state, 0, 1);
     real_type v_cbrt = 1.0 + c * x;
