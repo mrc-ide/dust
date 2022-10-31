@@ -304,13 +304,13 @@ dust_rng <- R6::R6Class(
     ##'
     ##' @param n Number of samples to draw (per stream)
     ##'
-    ##' @param a Shape
+    ##' @param shape Shape
     ##'
-    ##' @param b Scale
+    ##' @param scale Scale
     ##''
     ##' @param n_threads Number of threads to use; see Details
-    gamma = function(n, a, b, n_threads = 1L) {
-      dust_rng_gamma(private$ptr, n, a, b, n_threads,
+    gamma = function(n, shape, scale, n_threads = 1L) {
+      dust_rng_gamma(private$ptr, n, shape, scale, n_threads,
                               private$float)
     },
 

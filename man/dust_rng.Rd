@@ -360,7 +360,7 @@ R's \link{rhyper})}
 \subsection{Method \code{gamma()}}{
 Generate \code{n} numbers from a gamma distribution
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_rng$gamma(n, a, b, n_threads = 1L)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$gamma(n, shape, scale, n_threads = 1L)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -368,9 +368,9 @@ Generate \code{n} numbers from a gamma distribution
 \describe{
 \item{\code{n}}{Number of samples to draw (per stream)}
 
-\item{\code{a}}{Shape}
+\item{\code{shape}}{Shape}
 
-\item{\code{b}}{Scale
+\item{\code{scale}}{Scale
 '}
 
 \item{\code{n_threads}}{Number of threads to use; see Details}

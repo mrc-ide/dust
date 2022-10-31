@@ -1179,84 +1179,53 @@ test_that("numbers on different streams behave as expected", {
                dust_rng$new(1, seed = 1)$jump()$hypergeometric(10, m, n, k))
 })
 
-test_that("gamma reference implementation agrees with R", {
-  testthat::skip_on_cran() # subject to change beyond our control
-  gamma <- gamma_r(function() runif(1),
-                   function() rexp(1),
-                   function() rnorm(1))
 
-  ## There are two branches to consider:
-  ## Case 1, 0 < a < 1, use GS algorithm
-  n <- 10
-  a <- 0.5
-  b <- 2
-
-  set.seed(1)
-  r1 <- rgamma(n, a, scale = b)
-  set.seed(1)
-  r2 <- replicate(n, gamma(a, b))
-  expect_equal(r1, r2)
-
-  ## Case 2, a >= 1, use GD algorithm
-  n <- 10
-
-  # small a
-  a <- 1.01
-  b <- 2
-
-  set.seed(1)
-  r1 <- rgamma(n, a, scale = b)
-  set.seed(1)
-  r2 <- replicate(n, gamma(a, b))
-  expect_equal(r1, r2)
-
-  # large a
-  a <- 50
-  b <- 2
-
-  set.seed(1)
-  r1 <- rgamma(n, a, scale = b)
-  set.seed(1)
-  r2 <- replicate(n, gamma(a, b))
-  expect_equal(r1, r2)
-})
-
-test_that("dust agrees with gamma reference implementation", {
+test_that("gamma for a = 1 is the same as exponential", {
   rng1 <- dust_rng$new(seed = 1L)
   rng2 <- dust_rng$new(seed = 1L)
-  gamma <- gamma_r(function() rng1$random_real(1),
-                   function() rng1$exponential(1, 1),
-                   function() rng1$normal(1, 0, 1))
 
-  ## Same two cases as above:
-  ## Case 1, use GS algorithm
   n <- 10
-  a <- 0.5
-  b <- 2
+  b <- 3
 
-  r1 <- rng2$gamma(n, a, b)
-  r2 <- replicate(n, gamma(a, b))
-  expect_equal(r1, r2)
+  gamma <- rng1$gamma(n, 1, b)
+  exp <- rng2$exponential(n, 1 / b)
 
-  ## Case 2, a >= 1, use GD algorithm
-  n <- 10
-
-  # small a
-  a <- 1.01
-  b <- 2
-
-  r1 <- rng2$gamma(n, a, b)
-  r2 <- replicate(n, gamma(a, b))
-  expect_equal(r1, r2)
-
-  # large a
-  a <- 50
-  b <- 2
-
-  r1 <- rng2$gamma(n, a, b)
-  r2 <- replicate(n, gamma(a, b))
-  expect_equal(r1, r2)
+  expect_equal(gamma, exp)
 })
+
+
+test_that("can draw gamma random numbers", {
+  ## when a > 1
+  a <- 5
+  b <- 3
+  n <- 10000000
+
+  ans1 <- dust_rng$new(1)$gamma(n, a, b)
+  ans2 <- dust_rng$new(1)$gamma(n, a, b)
+  expect_identical(ans1, ans2)
+
+  expect_equal(mean(ans1), a * b, tolerance = 1e-3)
+  expect_equal(var(ans1), a * b^2, tolerance = 1e-3)
+
+  ans_f <- dust_rng$new(1, real_type = "float")$gamma(n, a, b)
+  expect_equal(mean(ans_f), a * b, tolerance = 1e-3)
+  expect_equal(var(ans_f), a * b^2, tolerance = 1e-3)
+
+  ## when a < 1
+  a <- 0.5
+
+  ans3 <- dust_rng$new(1)$gamma(n, a, b)
+  ans4 <- dust_rng$new(1)$gamma(n, a, b)
+  expect_identical(ans3, ans4)
+
+  expect_equal(mean(ans3), a * b, tolerance = 1e-3)
+  expect_equal(var(ans3), a * b^2, tolerance = 1e-3)
+
+  ans_f <- dust_rng$new(1, real_type = "float")$gamma(n, a, b)
+  expect_equal(mean(ans_f), a * b, tolerance = 1e-3)
+  expect_equal(var(ans_f), a * b^2, tolerance = 1e-3)
+})
+
 
 test_that("deterministic gamma returns mean", {
   n_reps <- 10
@@ -1276,6 +1245,7 @@ test_that("deterministic gamma returns mean", {
   expect_equal(rng_d$state(), state_d)
 })
 
+
 test_that("gamma random numbers prevent bad inputs", {
   r <- dust_rng$new(1)
   expect_equal(r$gamma(1, 0, 0), 0)
@@ -1283,10 +1253,10 @@ test_that("gamma random numbers prevent bad inputs", {
 
   expect_error(
     r$gamma(1, -1.1, 5.1),
-    "Invalid call to gamma with a = -1.1, b = 5.1")
+    "Invalid call to gamma with shape = -1.1, scale = 5.1")
   expect_error(
     r$gamma(1, 5.1, -1.1),
-    "Invalid call to gamma with a = 5.1, b = -1.1")
+    "Invalid call to gamma with shape = 5.1, scale = -1.1")
 })
 
 test_that("can generate negative binomial numbers", {

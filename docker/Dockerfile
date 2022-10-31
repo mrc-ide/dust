@@ -28,8 +28,5 @@ RUN install2.r --error \
         roxygen2 \
         testthat
 
-# The binary version of cpp11 on Rstudio package manager is lagging
-RUN Rscript -e 'remotes::install_github("r-lib/cpp11")'
-
 COPY . /src
 RUN R CMD INSTALL /src && rm -rf /src
