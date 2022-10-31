@@ -319,7 +319,7 @@ dust_rng <- R6::R6Class(
     ##' @param n Number of samples to draw (per stream)
     ##'
     ##' @param lambda The mean (zero or more, length 1 or n). Only valid for
-    ## lambda <= 10^7
+    ##' lambda <= 10^7
     ##'
     ##' @param n_threads Number of threads to use; see Details
     poisson = function(n, lambda, n_threads = 1L) {
