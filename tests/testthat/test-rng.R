@@ -188,6 +188,15 @@ test_that("Big poisson numbers", {
 })
 
 
+test_that("Poisson numbers only valid for 0 <= lambda <= 10e7", {
+  n <- 100
+  lambda <- 10e7+1
+
+  expect_error(dust_rng$new(1)$poisson(n, lambda),
+               "Invalid call to Poisson")
+})
+
+
 test_that("Short circuit exit does not update rng state", {
   rng <- dust_rng$new(1)
   s <- rng$state()
@@ -1278,8 +1287,6 @@ test_that("negative binomial prevents bad inputs", {
                "Invalid call to nbinomial with size = 10, prob = 1.5")
   expect_error(dust_rng$new(1)$nbinomial(1, 10, Inf),
                "Invalid call to nbinomial with size = 10, prob = inf")
-
-  # this is coming out as -2147483648; in general, rng$poisson for sufficiently
-  # large lambda (e.g. rng$poisson(1, 1e+10)) is this negative value
-  # dust_rng$new(1)$nbinomial(1, Inf, 0.4)
+  expect_error(dust_rng$new(1)$nbinomial(1, Inf, 0.4),
+               "Invalid call to nbinomial with size = inf, prob = 0.4")
 })
