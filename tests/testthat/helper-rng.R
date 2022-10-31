@@ -40,15 +40,15 @@ hypergeometric_r <- function(random_real) {
     x_r <- m + d + 0.5
 
     k_l <- exp(a -
-                 lfactorial(x_l) -
-                 lfactorial(n1 - x_l) -
-                 lfactorial(k - x_l) -
-                 lfactorial((n2 - k)  + x_l))
+               lfactorial(x_l) -
+               lfactorial(n1 - x_l) -
+               lfactorial(k - x_l) -
+               lfactorial((n2 - k)  + x_l))
     k_r <- exp(a -
-                 lfactorial(x_r - 1.0) -
-                 lfactorial(n1 - x_r + 1.0) -
-                 lfactorial(k - x_r + 1.0) -
-                 lfactorial((n2 - k)  + x_r - 1.0))
+               lfactorial(x_r - 1.0) -
+               lfactorial(n1 - x_r + 1.0) -
+               lfactorial(k - x_r + 1.0) -
+               lfactorial((n2 - k)  + x_r - 1.0))
 
     numerator <- x_l * ((n2 - k) + x_l)
     denominator <- (n1 - x_l + 1.0) * (k - x_l + 1.0)
@@ -133,10 +133,10 @@ hypergeometric_r <- function(random_real) {
         nm <- n2 - k + xm
         ub <-
           xm * r * (1.0 + r * (-0.5 + r / 3.0)) +
-            xn * s * (1.0 + s * (-0.5 + s / 3.0)) +
-            xk * t * (1.0 + t * (-0.5 + t / 3.0)) +
-            nm * e * (1.0 + e * (-0.5 + e / 3.0)) +
-            y * gu - m * gl + 0.0034
+          xn * s * (1.0 + s * (-0.5 + s / 3.0)) +
+          xk * t * (1.0 + t * (-0.5 + t / 3.0)) +
+          nm * e * (1.0 + e * (-0.5 + e / 3.0)) +
+          y * gu - m * gl + 0.0034
         av <- log(v)
         if (av > ub) {
           next
