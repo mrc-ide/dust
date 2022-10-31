@@ -133,6 +133,11 @@ rng$random_normal(10)
 real_type u = dust::random::random_normal<real_type>(state);
 ```
 
+**Gamma distribution** parameterized by `shape` and `scale`
+```{r}
+rng$gamma(10L, 2, 5)
+```
+
 All of these distributions are available in C++, and this is documented [in the C++ reference documentation](https://mrc-ide.github.io/dust/cpp/random-distributions.html)
 
 ## Performance

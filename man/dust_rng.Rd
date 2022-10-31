@@ -100,6 +100,9 @@ rng$binomial(5, 10, 0.3)
 # Hypergeometric distributed random numbers with parameters n1, n2 and k
 rng$hypergeometric(5, 6, 10, 4)
 
+# Gamma distributed random numbers with parameters a and b
+rng$gamma(5, 0.5, 2)
+
 # Poisson distributed random numbers with mean lambda
 rng$poisson(5, 2)
 
@@ -130,6 +133,7 @@ rng$multinomial(5, 10, c(0.1, 0.3, 0.5, 0.1))
 \item \href{#method-dust_rng-normal}{\code{dust_rng$normal()}}
 \item \href{#method-dust_rng-binomial}{\code{dust_rng$binomial()}}
 \item \href{#method-dust_rng-hypergeometric}{\code{dust_rng$hypergeometric()}}
+\item \href{#method-dust_rng-gamma}{\code{dust_rng$gamma()}}
 \item \href{#method-dust_rng-poisson}{\code{dust_rng$poisson()}}
 \item \href{#method-dust_rng-exponential}{\code{dust_rng$exponential()}}
 \item \href{#method-dust_rng-multinomial}{\code{dust_rng$multinomial()}}
@@ -344,6 +348,30 @@ R's \link{rhyper})}
 R's \link{rhyper})}
 
 \item{\code{k}}{The number of balls to draw}
+
+\item{\code{n_threads}}{Number of threads to use; see Details}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dust_rng-gamma"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng-gamma}{}}}
+\subsection{Method \code{gamma()}}{
+Generate \code{n} numbers from a gamma distribution
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$gamma(n, shape, scale, n_threads = 1L)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{n}}{Number of samples to draw (per stream)}
+
+\item{\code{shape}}{Shape}
+
+\item{\code{scale}}{Scale
+'}
 
 \item{\code{n_threads}}{Number of threads to use; see Details}
 }

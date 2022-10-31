@@ -47,6 +47,28 @@ extern "C" SEXP _dust_density_poisson(SEXP x, SEXP lambda, SEXP log) {
     return cpp11::as_sexp(density_poisson(cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(x), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(lambda), cpp11::as_cpp<cpp11::decay_t<bool>>(log)));
   END_CPP11
 }
+// dust_rng_pointer.cpp
+cpp11::sexp dust_rng_pointer_init(int n_streams, cpp11::sexp seed, int long_jump, std::string algorithm);
+extern "C" SEXP _dust_dust_rng_pointer_init(SEXP n_streams, SEXP seed, SEXP long_jump, SEXP algorithm) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_rng_pointer_init(cpp11::as_cpp<cpp11::decay_t<int>>(n_streams), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(seed), cpp11::as_cpp<cpp11::decay_t<int>>(long_jump), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm)));
+  END_CPP11
+}
+// dust_rng_pointer.cpp
+void dust_rng_pointer_sync(cpp11::environment obj, std::string algorithm);
+extern "C" SEXP _dust_dust_rng_pointer_sync(SEXP obj, SEXP algorithm) {
+  BEGIN_CPP11
+    dust_rng_pointer_sync(cpp11::as_cpp<cpp11::decay_t<cpp11::environment>>(obj), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm));
+    return R_NilValue;
+  END_CPP11
+}
+// dust_rng_pointer.cpp
+double test_rng_pointer_get(cpp11::environment obj, int n_streams);
+extern "C" SEXP _dust_test_rng_pointer_get(SEXP obj, SEXP n_streams) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(test_rng_pointer_get(cpp11::as_cpp<cpp11::decay_t<cpp11::environment>>(obj), cpp11::as_cpp<cpp11::decay_t<int>>(n_streams)));
+  END_CPP11
+}
 // dust_rng.cpp
 SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_streams, bool deterministic, bool is_float);
 extern "C" SEXP _dust_dust_rng_alloc(SEXP r_seed, SEXP n_streams, SEXP deterministic, SEXP is_float) {
@@ -120,6 +142,13 @@ extern "C" SEXP _dust_dust_rng_hypergeometric(SEXP ptr, SEXP n, SEXP r_n1, SEXP 
   END_CPP11
 }
 // dust_rng.cpp
+cpp11::sexp dust_rng_gamma(SEXP ptr, int n, cpp11::doubles r_a, cpp11::doubles r_b, int n_threads, bool is_float);
+extern "C" SEXP _dust_dust_rng_gamma(SEXP ptr, SEXP n, SEXP r_a, SEXP r_b, SEXP n_threads, SEXP is_float) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_rng_gamma(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<int>>(n), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_a), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(r_b), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
+  END_CPP11
+}
+// dust_rng.cpp
 cpp11::sexp dust_rng_poisson(SEXP ptr, int n, cpp11::doubles r_lambda, int n_threads, bool is_float);
 extern "C" SEXP _dust_dust_rng_poisson(SEXP ptr, SEXP n, SEXP r_lambda, SEXP n_threads, SEXP is_float) {
   BEGIN_CPP11
@@ -138,28 +167,6 @@ cpp11::sexp dust_rng_state(SEXP ptr, bool is_float);
 extern "C" SEXP _dust_dust_rng_state(SEXP ptr, SEXP is_float) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
-  END_CPP11
-}
-// dust_rng_pointer.cpp
-cpp11::sexp dust_rng_pointer_init(int n_streams, cpp11::sexp seed, int long_jump, std::string algorithm);
-extern "C" SEXP _dust_dust_rng_pointer_init(SEXP n_streams, SEXP seed, SEXP long_jump, SEXP algorithm) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_pointer_init(cpp11::as_cpp<cpp11::decay_t<int>>(n_streams), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(seed), cpp11::as_cpp<cpp11::decay_t<int>>(long_jump), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm)));
-  END_CPP11
-}
-// dust_rng_pointer.cpp
-void dust_rng_pointer_sync(cpp11::environment obj, std::string algorithm);
-extern "C" SEXP _dust_dust_rng_pointer_sync(SEXP obj, SEXP algorithm) {
-  BEGIN_CPP11
-    dust_rng_pointer_sync(cpp11::as_cpp<cpp11::decay_t<cpp11::environment>>(obj), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm));
-    return R_NilValue;
-  END_CPP11
-}
-// dust_rng_pointer.cpp
-double test_rng_pointer_get(cpp11::environment obj, int n_streams);
-extern "C" SEXP _dust_test_rng_pointer_get(SEXP obj, SEXP n_streams) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(test_rng_pointer_get(cpp11::as_cpp<cpp11::decay_t<cpp11::environment>>(obj), cpp11::as_cpp<cpp11::decay_t<int>>(n_streams)));
   END_CPP11
 }
 // openmp.cpp
@@ -1184,6 +1191,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_rng_alloc",                    (DL_FUNC) &_dust_dust_rng_alloc,                    4},
     {"_dust_dust_rng_binomial",                 (DL_FUNC) &_dust_dust_rng_binomial,                 6},
     {"_dust_dust_rng_exponential",              (DL_FUNC) &_dust_dust_rng_exponential,              5},
+    {"_dust_dust_rng_gamma",                    (DL_FUNC) &_dust_dust_rng_gamma,                    6},
     {"_dust_dust_rng_hypergeometric",           (DL_FUNC) &_dust_dust_rng_hypergeometric,           7},
     {"_dust_dust_rng_jump",                     (DL_FUNC) &_dust_dust_rng_jump,                     2},
     {"_dust_dust_rng_long_jump",                (DL_FUNC) &_dust_dust_rng_long_jump,                2},

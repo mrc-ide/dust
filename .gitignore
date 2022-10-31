@@ -17,7 +17,7 @@ pkgdown
 inst/include/cub
 *.gcov
 vignettes_src/*.md
-
+.idea
 .vscode/
 
 inst/random/openmp/rnguse
