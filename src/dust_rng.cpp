@@ -359,19 +359,27 @@ cpp11::sexp dust_rng_poisson(SEXP ptr, int n, cpp11::doubles r_lambda,
   const double * lambda = REAL(r_lambda);
   auto lambda_vary = check_input_type(r_lambda, n, n_streams, "lambda");
 
+  dust::utils::openmp_errors errors(n_streams);
+
 #ifdef _OPENMP
   #pragma omp parallel for schedule(static) num_threads(n_threads)
 #endif
   for (int i = 0; i < n_streams; ++i) {
-    auto &state = rng->state(i);
-    auto y_i = y + n * i;
-    auto lambda_i = lambda_vary.generator ? lambda + lambda_vary.offset * i :
-      lambda;
-    for (size_t j = 0; j < (size_t)n; ++j) {
-      auto lambda_ij = lambda_vary.draw ? lambda_i[j] : lambda_i[0];
-      y_i[j] = dust::random::poisson<real_type>(state, lambda_ij);
+    try {
+      auto &state = rng->state(i);
+      auto y_i = y + n * i;
+      auto lambda_i = lambda_vary.generator ? lambda + lambda_vary.offset * i :
+        lambda;
+      for (size_t j = 0; j < (size_t)n; ++j) {
+        auto lambda_ij = lambda_vary.draw ? lambda_i[j] : lambda_i[0];
+        y_i[j] = dust::random::poisson<real_type>(state, lambda_ij);
+      }
+    } catch (std::exception const& e) {
+      errors.capture(e, i);
     }
   }
+
+  errors.report("generators");
 
   return sexp_matrix(ret, n, n_streams);
 }

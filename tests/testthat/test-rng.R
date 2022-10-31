@@ -190,9 +190,11 @@ test_that("Big poisson numbers", {
 
 test_that("Poisson numbers only valid for 0 <= lambda <= 10e7", {
   n <- 100
-  lambda <- 10e7 + 1
 
-  expect_error(dust_rng$new(1)$poisson(n, lambda),
+  expect_error(dust_rng$new(1)$poisson(n, 1e9),
+               "Invalid call to Poisson")
+
+  expect_error(dust_rng$new(1)$poisson(n, -1),
                "Invalid call to Poisson")
 })
 
