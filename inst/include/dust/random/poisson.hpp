@@ -96,7 +96,7 @@ real_type poisson_hormann(rng_state_type& rng_state, real_type lambda) {
     real_type v = random_real<real_type>(rng_state);
 
     real_type u_shifted = 0.5 - std::fabs(u);
-    int k = floor((2 * a / u_shifted + b) * u + lambda + 0.43);
+    real_type k = floor((2 * a / u_shifted + b) * u + lambda + 0.43);
 
     if (k > utils::integer_max()) {
       // retry in case of overflow.
