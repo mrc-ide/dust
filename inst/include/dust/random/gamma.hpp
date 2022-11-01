@@ -63,6 +63,8 @@ real_type gamma_deterministic(real_type shape, real_type scale) {
   return shape * scale;
 }
 
+}
+
 /// Draw random number from the gamma distribution.
 /// @tparam real_type The underlying real number type, typically
 /// `double` or `float`. A compile-time error will be thrown if you
@@ -108,7 +110,6 @@ real_type gamma(rng_state_type& rng_state, real_type shape, real_type scale) {
   return gamma_large<real_type>(rng_state, shape) * scale;
 }
 
-}
 }
 }
 

@@ -23,6 +23,8 @@ void nbinomial_validate(real_type size, real_type prob) {
   }
 }
 
+}
+
 template <typename real_type, typename rng_state_type>
 real_type nbinomial(rng_state_type& rng_state, real_type size, real_type prob) {
 #ifdef __CUDA_ARCH__
@@ -36,7 +38,6 @@ real_type nbinomial(rng_state_type& rng_state, real_type size, real_type prob) {
     return (prob == 1) ? 0 : poisson(rng_state, gamma(rng_state, size, (1 - prob) / prob));
 }
 
-}
 }
 }
 #endif
