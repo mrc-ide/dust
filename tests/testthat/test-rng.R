@@ -1270,6 +1270,7 @@ test_that("gamma random numbers prevent bad inputs", {
     "Invalid call to gamma with shape = 5.1, scale = -1.1")
 })
 
+
 test_that("can generate negative binomial numbers", {
   m <- 1000000
   n <- 958
@@ -1279,6 +1280,20 @@ test_that("can generate negative binomial numbers", {
   expect_equal(mean(yf), (1 - p) * n / p, tolerance = 1e-3)
   expect_equal(var(yf), ((1 - p) * n) / p^2, tolerance = 1e-2)
 })
+
+
+test_that("deterministic negative binomial returns mean", {
+  m <- 100
+  p <- as.numeric(sample(10, m, replace = TRUE)) / 10
+  n <- as.numeric(sample(10, m, replace = TRUE))
+
+  rng_f <- dust_rng$new(1, real_type = "float", deterministic = TRUE)
+  rng_d <- dust_rng$new(1, real_type = "double", deterministic = TRUE)
+
+  expect_equal(rng_f$nbinomial(m, n, p), (1 - p) * n / p, tolerance = 1e-6)
+  expect_equal(rng_d$nbinomial(m, n, p), (1 - p) * n / p)
+})
+
 
 test_that("negative binomial prevents bad inputs", {
   expect_error(dust_rng$new(1)$nbinomial(1, 10, 0),
