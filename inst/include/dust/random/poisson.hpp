@@ -11,7 +11,7 @@ namespace random {
 
 template <typename real_type>
 void poisson_validate(real_type lambda) {
-  if (!R_FINITE(lambda) || lambda < 0 || lambda > 10e7) {
+  if (!std::isfinite(lambda) || lambda < 0 || lambda > 10e7) {
     char buffer[256];
     snprintf(buffer, 256,
              "Invalid call to Poisson with lambda = %g",
