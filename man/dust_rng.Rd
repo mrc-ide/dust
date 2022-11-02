@@ -97,6 +97,9 @@ rng$normal(5, 4, 2)
 # Binomially distributed random numbers with size and prob
 rng$binomial(5, 10, 0.3)
 
+# Negative binomially distributed random numbers with size and prob
+rng$nbinomial(5, 10, 0.3)
+
 # Hypergeometric distributed random numbers with parameters n1, n2 and k
 rng$hypergeometric(5, 6, 10, 4)
 
@@ -132,6 +135,7 @@ rng$multinomial(5, 10, c(0.1, 0.3, 0.5, 0.1))
 \item \href{#method-dust_rng-uniform}{\code{dust_rng$uniform()}}
 \item \href{#method-dust_rng-normal}{\code{dust_rng$normal()}}
 \item \href{#method-dust_rng-binomial}{\code{dust_rng$binomial()}}
+\item \href{#method-dust_rng-nbinomial}{\code{dust_rng$nbinomial()}}
 \item \href{#method-dust_rng-hypergeometric}{\code{dust_rng$hypergeometric()}}
 \item \href{#method-dust_rng-gamma}{\code{dust_rng$gamma()}}
 \item \href{#method-dust_rng-poisson}{\code{dust_rng$poisson()}}
@@ -328,6 +332,31 @@ Generate \code{n} numbers from a binomial distribution
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dust_rng-nbinomial"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng-nbinomial}{}}}
+\subsection{Method \code{nbinomial()}}{
+Generate \code{n} numbers from a negative binomial distribution
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$nbinomial(n, size, prob, n_threads = 1L)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{n}}{Number of samples to draw (per stream)}
+
+\item{\code{size}}{The target number of successful trials
+(zero or more, length 1 or n)}
+
+\item{\code{prob}}{The probability of success on each trial
+(between 0 and 1, length 1 or n)}
+
+\item{\code{n_threads}}{Number of threads to use; see Details}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-dust_rng-hypergeometric"></a>}}
 \if{latex}{\out{\hypertarget{method-dust_rng-hypergeometric}{}}}
 \subsection{Method \code{hypergeometric()}}{
@@ -392,7 +421,7 @@ Generate \code{n} numbers from a Poisson distribution
 \describe{
 \item{\code{n}}{Number of samples to draw (per stream)}
 
-\item{\code{lambda}}{The mean (zero or more, length 1 or n)}
+\item{\code{lambda}}{The mean (zero or more, length 1 or n). Only valid for}
 
 \item{\code{n_threads}}{Number of threads to use; see Details}
 }

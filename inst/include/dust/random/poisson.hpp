@@ -9,6 +9,17 @@
 namespace dust {
 namespace random {
 
+template <typename real_type>
+void poisson_validate(real_type lambda) {
+  if (!R_FINITE(lambda) || lambda < 0 || lambda > 10e7) {
+    char buffer[256];
+    snprintf(buffer, 256,
+             "Invalid call to Poisson with lambda = %g",
+             lambda);
+    dust::utils::fatal_error(buffer);
+  }
+}
+
 __nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
 __host__ __device__
@@ -85,7 +96,7 @@ real_type poisson_hormann(rng_state_type& rng_state, real_type lambda) {
     real_type v = random_real<real_type>(rng_state);
 
     real_type u_shifted = 0.5 - std::fabs(u);
-    int k = floor((2 * a / u_shifted + b) * u + lambda + 0.43);
+    real_type k = floor((2 * a / u_shifted + b) * u + lambda + 0.43);
 
     if (k > utils::integer_max()) {
       // retry in case of overflow.
@@ -143,6 +154,8 @@ __host__ __device__
 real_type poisson(rng_state_type& rng_state, real_type lambda) {
   static_assert(std::is_floating_point<real_type>::value,
                 "Only valid for floating-point types; use poisson<real_type>()");
+
+  poisson_validate(lambda);
   real_type x = 0;
   if (lambda == 0) {
     // do nothing, but leave this branch in to help the GPU

@@ -5,6 +5,7 @@
 #include "dust/random/prng.hpp"
 
 #include "dust/random/binomial.hpp"
+#include "dust/random/nbinomial.hpp"
 #include "dust/random/exponential.hpp"
 #include "dust/random/hypergeometric.hpp"
 #include "dust/random/gamma.hpp"
