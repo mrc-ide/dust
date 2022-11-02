@@ -140,11 +140,11 @@ test_that("Can save out state during a run", {
   mod <- dat$model$new(list(), 0, np, seed = 10L)
   mod$set_data(dat$dat_dust)
 
-  step_snapshot <- c(100L, 200L, 400L)
+  time_snapshot <- c(100L, 200L, 400L)
 
   ## We can perform the entire particle filter manually with the C
   ## version, and this will run entirely on the dust generator
-  s <- array(NA_real_, c(5L, np, length(step_snapshot)))
+  s <- array(NA_real_, c(5L, np, length(time_snapshot)))
 
   for (i in seq_along(dat$dat_dust)) {
     to <- dat$dat_dust[[i]][[1]]
@@ -153,7 +153,7 @@ test_that("Can save out state during a run", {
     tmp <- scale_log_weights(weights)
     idx <- mod$resample(tmp$weights)
 
-    j <- match(to, step_snapshot)
+    j <- match(to, time_snapshot)
     if (!is.na(j)) {
       s[, , j] <- mod$state()
     }
@@ -161,31 +161,31 @@ test_that("Can save out state during a run", {
 
   mod <- dat$model$new(list(), 0, np, seed = 10L)
   mod$set_data(dat$dat_dust)
-  ans <- mod$filter(step_snapshot = step_snapshot)
+  ans <- mod$filter(time_snapshot = time_snapshot)
   expect_equal(ans$snapshots, s)
 })
 
 
-test_that("Validate step_snapshot", {
+test_that("Validate time_snapshot", {
   dat <- example_filter()
   mod <- dat$model$new(list(), 0, 10, seed = 10L)
 
   mod$set_data(dat$dat_dust)
   expect_error(
-    mod$filter(step_snapshot = c(100.1, 200.1, 400.1)),
-    "All elements of 'step_snapshot' must be integer-like")
+    mod$filter(time_snapshot = c(100.1, 200.1, 400.1)),
+    "All elements of 'time_snapshot' must be integer-like")
   expect_error(
-    mod$filter(step_snapshot = c(100, -200, 400)),
-    "'step_snapshot' must be positive")
+    mod$filter(time_snapshot = c(100, -200, 400)),
+    "'time_snapshot' must be positive")
   expect_error(
-    mod$filter(step_snapshot = c(100, 400, 200)),
-    "'step_snapshot' must be strictly increasing")
+    mod$filter(time_snapshot = c(100, 400, 200)),
+    "'time_snapshot' must be strictly increasing")
   expect_error(
-    mod$filter(step_snapshot = c(100, 200, 200)),
-    "'step_snapshot' must be strictly increasing")
+    mod$filter(time_snapshot = c(100, 200, 200)),
+    "'time_snapshot' must be strictly increasing")
   expect_error(
-    mod$filter(step_snapshot = c(100, 201, 400)),
-    "'step_snapshot[2]' (step 201) was not found in data",
+    mod$filter(time_snapshot = c(100, 201, 400)),
+    "'time_snapshot[2]' (time 201) was not found in data",
     fixed = TRUE)
 })
 
@@ -223,7 +223,7 @@ test_that("Can partially run filter", {
   mod$set_data(dat$dat_dust)
   ans <- vector("list", nrow(dat$dat))
   for (i in seq_along(ans)) {
-    ans[[i]] <- mod$filter(dat$dat$step[[i]])
+    ans[[i]] <- mod$filter(dat$dat$time[[i]])
   }
   expect_equal(vapply(ans, "[[", 1, "log_likelihood"), ll)
 
@@ -231,7 +231,7 @@ test_that("Can partially run filter", {
   mod$set_data(dat$dat_dust)
   ans <- vector("list", nrow(dat$dat))
   for (i in seq_along(ans)) {
-    ans[[i]] <- mod$filter(dat$dat$step[[i]], save_trajectories = TRUE)
+    ans[[i]] <- mod$filter(dat$dat$time[[i]], save_trajectories = TRUE)
   }
 
   expect_equal(vapply(ans, "[[", 1, "log_likelihood"), ll)
@@ -264,17 +264,17 @@ test_that("can run filter in deterministic mode", {
   cmp_log_likelihood <- Reduce(`+`, ll) # naive sum()
 
   ## Quick check
-  mod$update_state(pars = pars, step = 0)
-  expect_equal(hv, drop(mod$simulate(c(0, dat$dat[, "step"]))))
+  mod$update_state(pars = pars, time = 0)
+  expect_equal(hv, drop(mod$simulate(c(0, dat$dat[, "time"]))))
 
-  mod$update_state(pars = pars, step = 0)
+  mod$update_state(pars = pars, time = 0)
   res <- mod$filter(save_trajectories = TRUE)
   expect_equal(res$log_likelihood, res$log_likelihood)
   expect_equal(drop(res$trajectories), hv)
 })
 
 
-test_that("filter validates step", {
+test_that("filter validates time", {
   dat <- example_filter()
 
   np <- 10
@@ -283,16 +283,16 @@ test_that("filter validates step", {
   mod$set_data(dat$dat_dust)
   expect_error(
     mod$filter(-100),
-    "'step_end' must be non-negative (was given -100)",
+    "'time_end' must be non-negative (was given -100)",
     fixed = TRUE)
   expect_error(
     mod$filter(6),
-    "'step_end' was not found in data (was given 6)",
+    "'time_end' was not found in data (was given 6)",
     fixed = TRUE)
   mod$run(30)
   expect_error(
     mod$filter(12),
-    "'step_end' must be larger than curent step (30; given 12)",
+    "'time_end' must be larger than curent time (30; given 12)",
     fixed = TRUE)
 })
 
@@ -304,11 +304,11 @@ test_that("can partially run filter in deterministic mode", {
 
   mod <- dat$model$new(pars, 0, 1, deterministic = TRUE, seed = 1L)
   mod$set_data(dat$dat_dust)
-  mod$update_state(pars = pars, step = 0)
-  cmp <- mod$filter(save_trajectories = TRUE, step_snapshot = c(20, 40))
+  mod$update_state(pars = pars, time = 0)
+  cmp <- mod$filter(save_trajectories = TRUE, time_snapshot = c(20, 40))
 
-  mod$update_state(pars = pars, step = 0)
-  res1 <- mod$filter(100, save_trajectories = TRUE, step_snapshot = c(20, 40))
+  mod$update_state(pars = pars, time = 0)
+  res1 <- mod$filter(100, save_trajectories = TRUE, time_snapshot = c(20, 40))
   res2 <- mod$filter(600, save_trajectories = TRUE)
 
   expect_equal(res1$log_likelihood + res2$log_likelihood, cmp$log_likelihood)
@@ -331,15 +331,15 @@ test_that("Can quit filter early", {
 
   ll <- numeric(nrow(dat$dat))
   for (i in seq_along(ll)) {
-    ll[i] <- mod$filter(dat$dat$step[[i]])$log_likelihood
+    ll[i] <- mod$filter(dat$dat$time[[i]])$log_likelihood
   }
   ll <- cumsum(ll)
 
-  mod$update_state(pars = pars, step = 0)
+  mod$update_state(pars = pars, time = 0)
   res <- mod$filter(save_trajectories = TRUE, min_log_likelihood = -100)
 
   expect_equal(res$log_likelihood, -Inf)
-  expect_equal(mod$step(), 600)
+  expect_equal(mod$time(), 600)
 
   ## Trajectories zerod after the point where we fail
   expect_true(all(res$trajectories[, , which(ll < -100) + 1] == 0))
@@ -359,12 +359,12 @@ test_that("Can exit nested filter early", {
   ll <- matrix(0, nrow(dat$dat), 2)
 
   for (i in seq_len(nrow(ll))) {
-    ll[i, ] <- mod$filter(dat$dat$step[[i]])$log_likelihood
+    ll[i, ] <- mod$filter(dat$dat$time[[i]])$log_likelihood
   }
   ll <- apply(ll, 2, cumsum)
 
   ## If we provide a single number, it's the sum:
-  mod$update_state(pars = pars, step = 0)
+  mod$update_state(pars = pars, time = 0)
   res <- mod$filter(min_log_likelihood = -300, save_trajectories = TRUE)
 
   ## Look at the I compartment (always nonzero), drop particle index,
@@ -373,10 +373,10 @@ test_that("Can exit nested filter early", {
   expect_equal(which(res$trajectories[1, , 1, -1] != 0),
                which(rowSums(ll) >= -300))
   expect_equal(res$log_likelihood, rep(-Inf, 2))
-  expect_equal(mod$step(), 600)
+  expect_equal(mod$time(), 600)
 
   ## If we provide two numbers it's the one reached second:
-  mod$update_state(pars = pars, step = 0)
+  mod$update_state(pars = pars, time = 0)
   min <- c(mean(ll[35:36, 1]), mean(ll[55:56, 2]))
   res <- mod$filter(min_log_likelihood = min,
                     save_trajectories = TRUE)
@@ -384,7 +384,7 @@ test_that("Can exit nested filter early", {
                which(apply(t(ll) >= min, 2, any)))
 
   ## And again, but finish with the first particle
-  mod$update_state(pars = pars, step = 0)
+  mod$update_state(pars = pars, time = 0)
   min <- c(mean(ll[75:76, 1]), mean(ll[55:56, 2]))
   res <- mod$filter(min_log_likelihood = min,
                     save_trajectories = TRUE)
@@ -444,15 +444,15 @@ test_that("can run deterministic multiparameter", {
   ## Run one at a time:
   mod1 <- dat$model$new(pars[[1]], 0, 1, deterministic = TRUE, seed = 1L)
   mod1$set_data(dust_data(data))
-  mod1$update_state(pars = pars[[1]], step = 0)
+  mod1$update_state(pars = pars[[1]], time = 0)
   ans1a <- mod1$filter(save_trajectories = TRUE)
-  mod1$update_state(pars = pars[[2]], step = 0)
+  mod1$update_state(pars = pars[[2]], time = 0)
   ans1b <- mod1$filter(save_trajectories = TRUE)
 
   mod2 <- dat$model$new(pars, 0, 1, deterministic = TRUE, seed = 1L,
                         pars_multi = TRUE)
   mod2$set_data(dust_data(data, multi = 2))
-  mod2$update_state(pars = pars, step = 0)
+  mod2$update_state(pars = pars, time = 0)
   ans2 <- mod2$filter(save_trajectories = TRUE)
 
   expect_identical(ans2$trajectories[2, 1, 1, ],

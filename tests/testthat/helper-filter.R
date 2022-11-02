@@ -2,9 +2,9 @@ example_filter <- function() {
   model <- dust_example("sir")
   np <- 10
   end <- 150 * 4
-  steps <- seq(0, end, by = 4)
-  ans <- model$new(list(), 0, np, seed = 1L)$simulate(steps)
-  dat <- data.frame(step = steps[-1], incidence = ans[5, 1, -1])
+  times <- seq(0, end, by = 4)
+  ans <- model$new(list(), 0, np, seed = 1L)$simulate(times)
+  dat <- data.frame(time = times[-1], incidence = ans[5, 1, -1])
   dat_dust <- dust_data(dat)
   list(model = model, dat = dat, dat_dust = dat_dust)
 }
@@ -13,9 +13,9 @@ example_sirs <- function() {
   model <- dust_example("sirs")
   np <- 10
   end <- 150 * 4
-  steps <- seq(0, end, by = 4)
-  ans <- model$new(list(), 0, np, seed = 1L)$simulate(steps)
-  dat <- data.frame(step = steps[-1], incidence = ans[4, 1, -1])
+  times <- seq(0, end, by = 4)
+  ans <- model$new(list(), 0, np, seed = 1L)$simulate(times)
+  dat <- data.frame(time = times[-1], incidence = ans[4, 1, -1])
   dat_dust <- dust_data(dat)
   list(model = model, dat = dat, dat_dust = dat_dust)
 }
@@ -100,10 +100,10 @@ example_volatility <- function(pars = NULL) {
   set.seed(1) # random for init and obs
   mod <- volatility$new(list(alpha = 0.91, sigma = 1), 0, 1L, seed = 1L)
   mod$update_state(state = matrix(rnorm(1L, 0, 1L), 1))
-  steps <- seq(0, 100, by = 1)
-  res <- mod$simulate(steps)
-  observed <- res[1, 1, -1] + rnorm(length(steps) - 1, 0, 1)
-  data <- data.frame(step = steps[-1], observed = observed)
+  times <- seq(0, 100, by = 1)
+  res <- mod$simulate(times)
+  observed <- res[1, 1, -1] + rnorm(length(times) - 1, 0, 1)
+  data <- data.frame(time = times[-1], observed = observed)
 
   compare <- function(state, observed, pars) {
     dnorm(observed$observed, pars$gamma * drop(state), pars$tau, log = TRUE)

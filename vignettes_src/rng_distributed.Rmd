@@ -40,7 +40,7 @@ r <- dust::dust_rng$new(seed = 1)
 r$state()
 ```
 
-To seed the next stream we "jump ahead" in the stream. The generators provide pre-computed coefficients that jump the state of the generator to a state equal to drawing a very large number of steps. For the default generator (`xoshiro256+`) this is 2^128 steps, equal to the square root of the period of the generator (2^256^1).
+To seed the next stream we "jump ahead" in the stream. The generators provide pre-computed coefficients that jump the state of the generator to a state equal to drawing a very large number of random numbers (or equivalently steps of the Markov chains). For the default generator (`xoshiro256+`) this is 2^128 draws, equal to the square root of the period of the generator (2^256^1).
 
 ```{r}
 r$jump()
@@ -250,10 +250,10 @@ The model was written to fit to a time series:
 data <- local({
   mod <- volatility$new(list(alpha = 0.91, sigma = 1), 0, 1L, seed = 1L)
   mod$update_state(state = matrix(rnorm(1L, 0, 1L), 1))
-  steps <- seq(0, 100, by = 1)
-  res <- mod$simulate(steps)
-  observed <- res[1, 1, -1] + rnorm(length(steps) - 1, 0, 1)
-  data.frame(step = steps[-1], observed = observed)
+  times <- seq(0, 100, by = 1)
+  res <- mod$simulate(times)
+  observed <- res[1, 1, -1] + rnorm(length(times) - 1, 0, 1)
+  data.frame(time = times[-1], observed = observed)
 })
 head(data)
 ```
@@ -266,7 +266,7 @@ run_filter <- function(pars, mod) {
     return(-Inf)
   }
   pars <- list(alpha = pars[[1]], sigma = pars[[2]])
-  mod$update_state(pars = pars, step = 0)
+  mod$update_state(pars = pars, time = 0)
   mod$filter()$log_likelihood
 }
 ```

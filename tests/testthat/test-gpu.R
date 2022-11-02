@@ -435,15 +435,15 @@ test_that("Can use sirs gpu model", {
 test_that("Can simulate sirs gpu model", {
   res <- dust_example("sirs")
 
-  steps <- seq(0, 100, by = 10)
+  times <- seq(0, 100, by = 10)
   np <- 20
   mod_d <- res$new(list(), 0, np, seed = 1L, gpu_config = 0L)
   mod_d$set_index(c(1, 3))
-  y <- mod_d$simulate(steps)
-  expect_equal(dim(y), c(2, np, length(steps)))
+  y <- mod_d$simulate(times)
+  expect_equal(dim(y), c(2, np, length(times)))
 
   mod_h <- res$new(list(), 0, np, seed = 1L)
-  expect_identical(mod_h$simulate(steps)[c(1, 3), , , drop = FALSE], y)
+  expect_identical(mod_h$simulate(times)[c(1, 3), , , drop = FALSE], y)
 })
 
 
@@ -474,12 +474,12 @@ test_that("Can run a single particle filter on the GPU", {
   mod_h <- dat$model$new(list(), 0, np, seed = 10L)
   mod_h$set_data(dat$dat_dust)
   ans_h <- mod_h$filter(save_trajectories = TRUE,
-                        step_snapshot = c(4, 16))
+                        time_snapshot = c(4, 16))
 
   mod_d <- dat$model$new(list(), 0, np, seed = 10L, gpu_config = 0L)
   mod_d$set_data(dat$dat_dust)
   ans_d <- mod_d$filter(save_trajectories = TRUE,
-                        step_snapshot = c(4, 16))
+                        time_snapshot = c(4, 16))
 
   expect_equal(ans_h$log_likelihood, ans_d$log_likelihood)
   expect_identical(ans_h$trajectories, ans_d$trajectories)
@@ -513,12 +513,12 @@ test_that("Can run GPU kernels using shared memory", {
   mod_h <- dat$model$new(list(), 0, np, seed = 10L)
   mod_h$set_data(dat$dat_dust)
   ans_h <- mod_h$filter(save_trajectories = TRUE,
-                        step_snapshot = c(4, 16))
+                        time_snapshot = c(4, 16))
 
   mod_d <- dat$model$new(list(), 0, np, seed = 10L, gpu_config = 0L)
   mod_d$set_data(dat$dat_dust)
   ans_d <- mod_d$filter(save_trajectories = TRUE,
-                        step_snapshot = c(4, 16))
+                        time_snapshot = c(4, 16))
 
   expect_equal(ans_h$log_likelihood, ans_d$log_likelihood)
   expect_identical(ans_h$trajectories, ans_d$trajectories)
@@ -535,13 +535,13 @@ test_that("Can run multiple particle filters on the GPU", {
   mod_h <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE)
   mod_h$set_data(dust_data(dat$dat, multi = 2))
   ans_h <- mod_h$filter(save_trajectories = TRUE,
-                        step_snapshot = c(4, 16))
+                        time_snapshot = c(4, 16))
 
   mod_d <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE,
                          gpu_config = 0L)
   mod_d$set_data(dust_data(dat$dat, multi = 2))
   ans_d <- mod_d$filter(save_trajectories = TRUE,
-                        step_snapshot = c(4, 16))
+                        time_snapshot = c(4, 16))
 
   expect_equal(ans_h$log_likelihood, ans_d$log_likelihood)
   expect_identical(ans_h$trajectories, ans_d$trajectories)
@@ -571,17 +571,17 @@ test_that("Can run and simulate with nontrivial index", {
     mod2$run(13))
 
   # Test simulate
-  steps <- seq(0, 100, by = 10)
+  times <- seq(0, 100, by = 10)
 
   mod3 <- gen$new(list(len = len), 0, np, seed = 1L)
   mod4 <- gen$new(list(len = len), 0, np, seed = 1L, gpu_config = 0L)
   mod3$set_index(index)
   mod4$set_index(index)
 
-  y3 <- mod3$simulate(steps)
-  y4 <- mod4$simulate(steps)
+  y3 <- mod3$simulate(times)
+  y4 <- mod4$simulate(times)
 
-  expect_equal(dim(y3), c(length(index), np, length(steps)))
+  expect_equal(dim(y3), c(length(index), np, length(times)))
   expect_identical(y3, y4)
 })
 
@@ -773,10 +773,10 @@ test_that("Can reset time", {
   y1 <- mod1$run(5)
   y2 <- mod2$run(5)
 
-  mod1$update_state(step = 0)
-  mod2$update_state(step = 0)
+  mod1$update_state(time = 0)
+  mod2$update_state(time = 0)
   expect_identical(mod1$state(), mod2$state())
-  expect_identical(mod2$step(), 0L)
+  expect_identical(mod2$time(), 0L)
 
   y1 <- mod1$run(10)
   y2 <- mod2$run(10)
@@ -797,11 +797,11 @@ test_that("can update parameters and time, resetting state", {
   expect_equal(y1, y2)
 
   ## Doing this totally breaks the stepping...
-  mod1$update_state(pars = pb, step = 0)
-  mod2$update_state(pars = pb, step = 0)
+  mod1$update_state(pars = pb, time = 0)
+  mod2$update_state(pars = pb, time = 0)
 
   expect_identical(mod1$state(), mod2$state())
-  expect_equal(mod2$step(), 0)
+  expect_equal(mod2$time(), 0)
   y1 <- mod1$run(20)
   y2 <- mod2$run(20)
   expect_identical(y1, y2)
@@ -923,8 +923,8 @@ test_that("Can't set vector of times into gpu object", {
   gen <- dust_example("variable")
   mod <- gen$new(list(len = len), 0, np, seed = 1L, gpu_config = 0L)
   expect_error(
-    mod$update_state(step = seq_len(np)),
-    "Expected 'step' to be scalar")
+    mod$update_state(time = seq_len(np)),
+    "Expected 'time' to be scalar")
 })
 
 
@@ -967,11 +967,11 @@ test_that("can update parameters and time, resetting state", {
   expect_equal(y1, y2)
 
   ## Doing this totally breaks the stepping...
-  mod1$update_state(pars = pb, step = 0)
-  mod2$update_state(pars = pb, step = 0)
+  mod1$update_state(pars = pb, time = 0)
+  mod2$update_state(pars = pb, time = 0)
 
   expect_identical(mod1$state(), mod2$state())
-  expect_equal(mod2$step(), 0)
+  expect_equal(mod2$time(), 0)
   y1 <- mod1$run(20)
   y2 <- mod2$run(20)
   expect_identical(y1, y2)
@@ -985,9 +985,9 @@ test_that("Particles are initialised based on time", {
 
   mod <- res$new(list(sd = 1), 0, 5, gpu_config = 0L)
   expect_equal(mod$state(), matrix(0, 1, 5))
-  mod$update_state(list(sd = 1), step = 2)
+  mod$update_state(list(sd = 1), time = 2)
   expect_equal(mod$state(), matrix(2, 1, 5))
-  mod$update_state(list(sd = 1), step = 3)
+  mod$update_state(list(sd = 1), time = 3)
   expect_equal(mod$state(), matrix(3, 1, 5))
   mod <- res$new(list(sd = 1), 4, 5, gpu_config = 0L)
   expect_equal(mod$state(), matrix(4, 1, 5))
@@ -1003,7 +1003,7 @@ test_that("Can partially run filter for the gpu model", {
   mod_h$set_data(dat$dat_dust)
   ans_h1 <- mod_h$filter(100,
                          save_trajectories = TRUE,
-                         step_snapshot = c(4, 16))
+                         time_snapshot = c(4, 16))
   ans_h2 <- mod_h$filter(400,
                          save_trajectories = TRUE)
 
@@ -1011,7 +1011,7 @@ test_that("Can partially run filter for the gpu model", {
   mod_d$set_data(dat$dat_dust)
   ans_d1 <- mod_d$filter(100,
                          save_trajectories = TRUE,
-                         step_snapshot = c(4, 16))
+                         time_snapshot = c(4, 16))
   ans_d2 <- mod_d$filter(400,
                          save_trajectories = TRUE)
 
@@ -1031,10 +1031,10 @@ test_that("Can run on device with different data sets", {
   pars <- list(list(beta = 0.2, I0 = 5), list(beta = 0.1, I0 = 20))
 
   d <- rbind(
-    data_frame(step = dat$dat$step,
+    data_frame(time = dat$dat$time,
                incidence = dat$dat$incidence,
                group = "a"),
-    data_frame(step = dat$dat$step,
+    data_frame(time = dat$dat$time,
                incidence = round(dat$dat$incidence * 1.2),
                group = "b"))
   d$group <- factor(d$group)
@@ -1042,13 +1042,13 @@ test_that("Can run on device with different data sets", {
   mod_h <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE)
   mod_h$set_data(dust_data(d, multi = "group"))
   ans_h <- mod_h$filter(save_trajectories = TRUE,
-                        step_snapshot = c(4, 16))
+                        time_snapshot = c(4, 16))
 
   mod_d <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE,
                          gpu_config = 0L)
   mod_d$set_data(dust_data(d, multi = "group"))
   ans_d <- mod_d$filter(save_trajectories = TRUE,
-                        step_snapshot = c(4, 16))
+                        time_snapshot = c(4, 16))
 
   expect_equal(ans_h$log_likelihood, ans_d$log_likelihood)
   expect_identical(ans_h$trajectories, ans_d$trajectories)
@@ -1065,18 +1065,18 @@ test_that("Can run multiple particle filters with shared data on the GPU", {
   mod_cmp <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE)
   mod_cmp$set_data(dust_data(dat$dat, multi = 2))
   ans_cmp <- mod_cmp$filter(save_trajectories = TRUE,
-                            step_snapshot = c(4, 16))
+                            time_snapshot = c(4, 16))
 
   mod_h <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE)
   mod_h$set_data(dust_data(dat$dat), shared = TRUE)
   ans_h <- mod_h$filter(save_trajectories = TRUE,
-                        step_snapshot = c(4, 16))
+                        time_snapshot = c(4, 16))
 
   mod_d <- dat$model$new(pars, 0, np, seed = 10L, pars_multi = TRUE,
                          gpu_config = 0L)
   mod_d$set_data(dust_data(dat$dat), shared = TRUE)
   ans_d <- mod_d$filter(save_trajectories = TRUE,
-                        step_snapshot = c(4, 16))
+                        time_snapshot = c(4, 16))
 
   expect_equal(ans_h$log_likelihood, ans_cmp$log_likelihood)
   expect_identical(ans_h$trajectories, ans_cmp$trajectories)

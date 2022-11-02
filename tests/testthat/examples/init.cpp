@@ -19,11 +19,11 @@ public:
     return 1;
   }
 
-  std::vector<real_type> initial(size_t step) {
-    return std::vector<real_type>{static_cast<real_type>(step)};
+  std::vector<real_type> initial(size_t time) {
+    return std::vector<real_type>{static_cast<real_type>(time)};
   }
 
-  void update(size_t step, const real_type * state, rng_state_type& rng_state,
+  void update(size_t time, const real_type * state, rng_state_type& rng_state,
               real_type * state_next) {
     state_next[0] = state[0] +
       dust::random::normal<real_type>(rng_state, 0, shared->sd);
@@ -64,7 +64,7 @@ void shared_copy<walk>(dust::shared_ptr<walk> shared,
 
 template <>
 __device__
-void update_gpu<walk>(size_t step,
+void update_gpu<walk>(size_t time,
                       const dust::gpu::interleaved<walk::real_type> state,
                       dust::gpu::interleaved<int> internal_int,
                       dust::gpu::interleaved<walk::real_type> internal_real,

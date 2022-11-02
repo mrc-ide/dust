@@ -38,13 +38,13 @@ To demonstrate the approach, we simulate some data from the model itself:
 data <- local({
   mod <- volatility$new(list(alpha = 0.91, sigma = 1), 0, 1L, seed = 1L)
   mod$update_state(state = matrix(rnorm(1L, 0, 1L), 1))
-  steps <- seq(0, 100, by = 1)
-  res <- mod$simulate(steps)
-  observed <- res[1, 1, -1] + rnorm(length(steps) - 1, 0, 1)
-  data.frame(step = steps[-1], observed = observed)
+  times <- seq(0, 100, by = 1)
+  res <- mod$simulate(times)
+  observed <- res[1, 1, -1] + rnorm(length(times) - 1, 0, 1)
+  data.frame(time = times[-1], observed = observed)
 })
 head(data)
-plot(observed ~ step, data, type = "o", pch = 19, las = 1)
+plot(observed ~ time, data, type = "o", pch = 19, las = 1)
 ```
 
 As in the [`mcstate` vignette](https://mrc-ide.github.io/mcstate/articles/kalman.html) we need some way of comparing model output to data.  The likelihood function used there is:
@@ -173,7 +173,7 @@ volatility_compare(y, data[1, ], list(tau = 1, gamma = 1))
 You can also run a basic bootstrap particle filter using this approach:
 
 ```{r}
-mod$update_state(pars = list(alpha = 0.91, sigma = 1), step = 0)
+mod$update_state(pars = list(alpha = 0.91, sigma = 1), time = 0)
 res <- mod$filter(save_trajectories = TRUE)
 ```
 
@@ -187,7 +187,7 @@ and, as we provided `save_trajectories = TRUE`, filtered trajectories during the
 
 ```{r}
 matplot(t(drop(res$trajectories)), type = "l", lty = 1, col = "#00000022")
-points(observed ~ step, data, type = "p", pch = 19, col = "blue")
+points(observed ~ time, data, type = "p", pch = 19, col = "blue")
 ```
 
 Typically, you would use the much higher level interface in `mcstate` for this, though.

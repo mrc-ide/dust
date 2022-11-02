@@ -7,7 +7,7 @@ test_that("create trivial multi dust object", {
   expect_identical(obj2$param(), obj1$param())
   expect_identical(obj2$n_threads(), obj1$n_threads())
   expect_identical(obj2$has_openmp(), obj1$has_openmp())
-  expect_identical(obj2$step(), obj1$step())
+  expect_identical(obj2$time(), obj1$time())
 
   expect_equal(obj2$pars(), list(obj1$pars()))
   expect_equal(obj2$info(), list(obj1$info()))
@@ -64,12 +64,12 @@ test_that("Can reset particles and resume continues with rng", {
 
   ns <- 5
   y1 <- obj$run(ns)
-  expect_equal(obj$step(), ns)
+  expect_equal(obj$time(), ns)
 
-  obj$update_state(pars = pars2, step = 0)
-  expect_equal(obj$step(), 0)
+  obj$update_state(pars = pars2, time = 0)
+  expect_equal(obj$time(), 0)
   y2 <- obj$run(ns)
-  expect_equal(obj$step(), ns)
+  expect_equal(obj$time(), ns)
 
   ## Then draw the random numbers:
   rng <- dust_rng$new(1, nd * np)
@@ -264,7 +264,7 @@ test_that("Can change pars", {
 
   obj$update_state(pars = p2, set_initial_state = FALSE)
   expect_equal(obj$state(), y1)
-  expect_equal(obj$step(), 1)
+  expect_equal(obj$time(), 1)
   expect_equal(obj$pars(), p2)
 
   y2 <- obj$run(2)
@@ -295,7 +295,7 @@ test_that("Can't change parameter size on reset or set_pars", {
   obj <- res$new(pars, 0, 10, seed = 1L, pars_multi = TRUE)
   pars2 <- rep(list(list(len = 8)), 5)
   expect_error(
-    obj$update_state(pars = pars2, step = 0),
+    obj$update_state(pars = pars2, time = 0),
     paste("'pars' created inconsistent state size:",
           "expected length 7 but parameter set 1 created length 8"))
   expect_error(
@@ -305,7 +305,7 @@ test_that("Can't change parameter size on reset or set_pars", {
   pars3 <- pars
   pars3[[3]] <- pars2[[3]]
   expect_error(
-    obj$update_state(pars = pars3, step = 0),
+    obj$update_state(pars = pars3, time = 0),
     paste("'pars' created inconsistent state size:",
           "expected length 7 but parameter set 3 created length 8"))
   expect_error(
@@ -320,7 +320,7 @@ test_that("Validate parameter suitability", {
   pars <- rep(list(list(len = 7)), 6)
   obj <- res$new(pars, 0, 10, seed = 1L, pars_multi = TRUE)
 
-  expect_error(obj$update_state(pars = pars[-1], step = 0),
+  expect_error(obj$update_state(pars = pars[-1], time = 0),
                "Expected a list of length 6 for 'pars'")
   expect_error(obj$update_state(pars[-1], set_initial_state = FALSE),
                "Expected a list of length 6 for 'pars'")
@@ -330,7 +330,7 @@ test_that("Validate parameter suitability", {
     "Expected an unnamed list for 'pars' (given 'pars_multi')",
     fixed = TRUE)
   expect_error(
-    obj$update_state(pars = pars[[1]], step = 0),
+    obj$update_state(pars = pars[[1]], time = 0),
     "Expected an unnamed list for 'pars' (given 'pars_multi')",
     fixed = TRUE)
 
@@ -339,7 +339,7 @@ test_that("Validate parameter suitability", {
     obj$update_state(pars2, set_initial_state = FALSE),
     "Expected a list with no dimension attribute for 'pars'")
   expect_error(
-    obj$update_state(pars = pars2, step = 0),
+    obj$update_state(pars = pars2, time = 0),
     "Expected a list with no dimension attribute for 'pars'")
 })
 
@@ -349,9 +349,9 @@ test_that("compare with multi pars", {
 
   np <- 10
   end <- 150 * 4
-  steps <- seq(0, end, by = 4)
-  ans <- res$new(list(), 0, np, seed = 1L)$simulate(steps)
-  d <- data.frame(step = steps, incidence = ans[5, 1, ])
+  times <- seq(0, end, by = 4)
+  ans <- res$new(list(), 0, np, seed = 1L)$simulate(times)
+  d <- data.frame(time = times, incidence = ans[5, 1, ])
 
   ## Use Inf for exp_noise as that gives us deterministic results
   p <- list(exp_noise = Inf)
@@ -381,9 +381,9 @@ test_that("validate setting data by length", {
 
   np <- 10
   end <- 150 * 4
-  steps <- seq(0, end, by = 4)
-  ans <- res$new(list(), 0, np, seed = 1L)$simulate(steps)
-  d <- data.frame(step = steps, incidence = ans[5, 1, ])
+  times <- seq(0, end, by = 4)
+  ans <- res$new(list(), 0, np, seed = 1L)$simulate(times)
+  d <- data.frame(time = times, incidence = ans[5, 1, ])
 
   mod <- res$new(rep(list(list()), 3), 0, np, seed = 1L, pars_multi = TRUE)
   expect_error(
@@ -408,10 +408,10 @@ test_that("compare with multi pars and different data", {
 
   np <- 10
   end <- 150 * 4
-  steps <- seq(0, end, by = 4)
-  ans <- res$new(list(), 0, np, seed = 1L)$simulate(steps)
-  d <- data.frame(step = steps,
-                  group = factor(rep(c("a", "b", "c"), each = length(steps))),
+  times <- seq(0, end, by = 4)
+  ans <- res$new(list(), 0, np, seed = 1L)$simulate(times)
+  d <- data.frame(time = times,
+                  group = factor(rep(c("a", "b", "c"), each = length(times))),
                   incidence = c(ans[5, 1, ], ans[5, 2, ], ans[5, 3, ]))
 
   ## Use Inf for exp_noise as that gives us deterministic results
@@ -708,9 +708,9 @@ test_that("share data across parameter sets", {
 
   np <- 10
   end <- 150 * 4
-  steps <- seq(0, end, by = 4)
-  ans <- res$new(list(), 0, np, seed = 1L)$simulate(steps)
-  d <- data.frame(step = steps, incidence = ans[5, 1, ])
+  times <- seq(0, end, by = 4)
+  ans <- res$new(list(), 0, np, seed = 1L)$simulate(times)
+  d <- data.frame(time = times, incidence = ans[5, 1, ])
 
   ## Use Inf for exp_noise as that gives us deterministic results
   p <- list(exp_noise = Inf)

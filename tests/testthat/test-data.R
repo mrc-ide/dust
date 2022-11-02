@@ -1,5 +1,5 @@
 test_that("Can construct dust_data", {
-  d <- data.frame(step = seq(0, 50, by = 10), a = runif(6), b = runif(6))
+  d <- data.frame(time = seq(0, 50, by = 10), a = runif(6), b = runif(6))
   res <- dust_data(d)
   expect_type(res, "list")
   expect_null(names(res))
@@ -10,26 +10,26 @@ test_that("Can construct dust_data", {
 })
 
 
-test_that("Can validate step", {
-  d <- data.frame(step = seq(0, 50, by = 10), a = runif(6), b = runif(6))
+test_that("Can validate time", {
+  d <- data.frame(time = seq(0, 50, by = 10), a = runif(6), b = runif(6))
   expect_error(
     dust_data(d, "col"),
     "'col' is not a column in d")
 
-  d$step[[4]] <- -40
+  d$time[[4]] <- -40
   expect_error(
     dust_data(d),
-    "All elements in column 'step' must be nonnegative")
+    "All elements in column 'time' must be nonnegative")
 
-  d$step[[4]] <- 40.1
+  d$time[[4]] <- 40.1
   expect_error(
     dust_data(d),
-    "All elements in column 'step' must be integer-like")
+    "All elements in column 'time' must be integer-like")
 
-  d$step[[4]] <- 50
+  d$time[[4]] <- 50
   expect_error(
     dust_data(d),
-    "All elements in column 'step' must be unique")
+    "All elements in column 'time' must be unique")
 })
 
 
@@ -42,7 +42,7 @@ test_that("rounding errors are converted to integers", {
 
 
 test_that("multiple data, shared", {
-  d <- data.frame(step = seq(0, 50, by = 10), a = runif(6), b = runif(6))
+  d <- data.frame(time = seq(0, 50, by = 10), a = runif(6), b = runif(6))
   res <- dust_data(d, multi = 3L)
 
   expect_type(res, "list")
@@ -55,7 +55,7 @@ test_that("multiple data, shared", {
 
 
 test_that("multiple data, different", {
-  d <- data.frame(step = rep(seq(0, 50, by = 10), 3),
+  d <- data.frame(time = rep(seq(0, 50, by = 10), 3),
                   group = factor(rep(c("a", "b", "c"), each = 6)),
                   a = runif(18), b = runif(18))
 
@@ -68,19 +68,19 @@ test_that("multiple data, different", {
   expect_identical(res[[4]][[3]], as.list(d[10, ]))
   expect_identical(res[[4]][[4]], as.list(d[16, ]))
 
-  ## Order of the grouping variable is not important so long as steps
+  ## Order of the grouping variable is not important so long as times
   ## are consistent:
   expect_identical(
     dust_data(d[order(d$group, decreasing = TRUE), ], multi = "group"),
     res)
   expect_identical(
-    dust_data(d[order(d$step, d$group), ], multi = "group"),
+    dust_data(d[order(d$time, d$group), ], multi = "group"),
     res)
 })
 
 
 test_that("validate multiple data", {
-  d <- data.frame(step = rep(seq(0, 50, by = 10), 3),
+  d <- data.frame(time = rep(seq(0, 50, by = 10), 3),
                   group = factor(rep(c("a", "b", "c"), each = 6)),
                   a = runif(18), b = runif(18))
   expect_error(

@@ -194,7 +194,7 @@ public:
     return 4;
   }
 
-  std::vector<real_type> initial(size_t step) {
+  std::vector<real_type> initial(size_t time) {
     std::vector<real_type> state(4);
     state[0] = shared->S0;
     state[1] = shared->I0;
@@ -203,7 +203,7 @@ public:
     return state;
   }
 
-  void update(size_t step, const real_type * state, rng_state_type& rng_state,
+  void update(size_t time, const real_type * state, rng_state_type& rng_state,
               real_type * state_next) {
     real_type S = state[0];
     real_type I = state[1];
@@ -222,7 +222,7 @@ public:
     state_next[0] = S - n_SI + n_RS;
     state_next[1] = I + n_SI - n_IR;
     state_next[2] = R + n_IR - n_RS;
-    state_next[3] = (step % shared->freq == 0) ? n_SI : state[3] + n_SI;
+    state_next[3] = (time % shared->freq == 0) ? n_SI : state[3] + n_SI;
   }
 
   real_type compare_data(const real_type * state, const data_type& data,
@@ -304,7 +304,7 @@ void shared_copy<sirs>(dust::shared_ptr<sirs> shared,
 
 template <>
 __device__
-void update_gpu<sirs>(size_t step,
+void update_gpu<sirs>(size_t time,
                       const dust::gpu::interleaved<sirs::real_type> state,
                       dust::gpu::interleaved<int> internal_int,
                       dust::gpu::interleaved<sirs::real_type> internal_real,
@@ -332,7 +332,7 @@ void update_gpu<sirs>(size_t step,
   state_next[0] = S - n_SI + n_RS;
   state_next[1] = I + n_SI - n_IR;
   state_next[2] = R + n_IR - n_RS;
-  state_next[3] = (step % freq == 0) ? n_SI : state[3] + n_SI;
+  state_next[3] = (time % freq == 0) ? n_SI : state[3] + n_SI;
 }
 
 template <>
@@ -422,7 +422,7 @@ void shared_copy<sirs>(dust::shared_ptr<sirs> shared,
 
 The `dust::shared_copy_data` template has specialisations where the object being copied is a vector.
 
-There are two methods that are not used here, but could be included, to define the size of per-particle internal storage space. This is required if your model needs to store intermediate calculations during the `update` step if those will not fit on the stack.
+There are two methods that are not used here, but could be included, to define the size of per-particle internal storage space. This is required if your model needs to store intermediate calculations during the `update` time if those will not fit on the stack.
 
 ```cc
 namespace dust {
@@ -444,7 +444,7 @@ Most interestingly we have the `update_gpu` method that actually does the update
 ```cc
 template <>
 __device__
-void update_gpu<sirs>(size_t step,
+void update_gpu<sirs>(size_t time,
                       const dust::gpu::interleaved<sirs::real_type> state,
                       dust::gpu::interleaved<int> internal_int,
                       dust::gpu::interleaved<sirs::real_type> internal_real,
@@ -471,14 +471,14 @@ void update_gpu<sirs>(size_t step,
   state_next[0] = S - n_SI + n_RS;
   state_next[1] = I + n_SI - n_IR;
   state_next[2] = R + n_IR - n_RS;
-  state_next[3] = (step % freq == 0) ? n_SI : state[3] + n_SI;
+  state_next[3] = (time % freq == 0) ? n_SI : state[3] + n_SI;
 }
 ```
 
 Note that this totally duplicates the logic from the CPU version (which was a method of the `sirs` object)
 
 ```cc
-  void update(size_t step, const real_type * state, rng_state_type& rng_state,
+  void update(size_t time, const real_type * state, rng_state_type& rng_state,
               real_type * state_next) {
     real_type S = state[0];
     real_type I = state[1];
@@ -497,7 +497,7 @@ Note that this totally duplicates the logic from the CPU version (which was a me
     state_next[0] = S - n_SI + n_RS;
     state_next[1] = I + n_SI - n_IR;
     state_next[2] = R + n_IR - n_RS;
-    state_next[3] = (step % shared->freq == 0) ? n_SI : state[3] + n_SI;
+    state_next[3] = (time % shared->freq == 0) ? n_SI : state[3] + n_SI;
   }
 ```
 
