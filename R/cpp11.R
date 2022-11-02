@@ -108,32 +108,32 @@ dust_sir_gpu_info <- function() {
   .Call(`_dust_dust_sir_gpu_info`)
 }
 
-dust_cpu_sir_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
-  .Call(`_dust_dust_cpu_sir_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
+dust_cpu_sir_alloc <- function(r_pars, pars_multi, time, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
+  .Call(`_dust_dust_cpu_sir_alloc`, r_pars, pars_multi, time, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
 }
 
-dust_cpu_sir_run <- function(ptr, step_end) {
-  .Call(`_dust_dust_cpu_sir_run`, ptr, step_end)
+dust_cpu_sir_run <- function(ptr, time_end) {
+  .Call(`_dust_dust_cpu_sir_run`, ptr, time_end)
 }
 
-dust_cpu_sir_simulate <- function(ptr, step_end) {
-  .Call(`_dust_dust_cpu_sir_simulate`, ptr, step_end)
+dust_cpu_sir_simulate <- function(ptr, time_end) {
+  .Call(`_dust_dust_cpu_sir_simulate`, ptr, time_end)
 }
 
 dust_cpu_sir_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_cpu_sir_set_index`, ptr, r_index)
 }
 
-dust_cpu_sir_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state) {
-  .Call(`_dust_dust_cpu_sir_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state)
+dust_cpu_sir_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state) {
+  .Call(`_dust_dust_cpu_sir_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state)
 }
 
 dust_cpu_sir_state <- function(ptr, r_index) {
   .Call(`_dust_dust_cpu_sir_state`, ptr, r_index)
 }
 
-dust_cpu_sir_step <- function(ptr) {
-  .Call(`_dust_dust_cpu_sir_step`, ptr)
+dust_cpu_sir_time <- function(ptr) {
+  .Call(`_dust_dust_cpu_sir_time`, ptr)
 }
 
 dust_cpu_sir_reorder <- function(ptr, r_index) {
@@ -160,8 +160,8 @@ dust_cpu_sir_compare_data <- function(ptr) {
   .Call(`_dust_dust_cpu_sir_compare_data`, ptr)
 }
 
-dust_cpu_sir_filter <- function(ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood) {
-  .Call(`_dust_dust_cpu_sir_filter`, ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood)
+dust_cpu_sir_filter <- function(ptr, time_end, save_trajectories, time_snapshot, min_log_likelihood) {
+  .Call(`_dust_dust_cpu_sir_filter`, ptr, time_end, save_trajectories, time_snapshot, min_log_likelihood)
 }
 
 dust_cpu_sir_set_n_threads <- function(ptr, n_threads) {
@@ -180,32 +180,32 @@ dust_sirs_gpu_info <- function() {
   .Call(`_dust_dust_sirs_gpu_info`)
 }
 
-dust_cpu_sirs_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
-  .Call(`_dust_dust_cpu_sirs_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
+dust_cpu_sirs_alloc <- function(r_pars, pars_multi, time, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
+  .Call(`_dust_dust_cpu_sirs_alloc`, r_pars, pars_multi, time, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
 }
 
-dust_cpu_sirs_run <- function(ptr, step_end) {
-  .Call(`_dust_dust_cpu_sirs_run`, ptr, step_end)
+dust_cpu_sirs_run <- function(ptr, time_end) {
+  .Call(`_dust_dust_cpu_sirs_run`, ptr, time_end)
 }
 
-dust_cpu_sirs_simulate <- function(ptr, step_end) {
-  .Call(`_dust_dust_cpu_sirs_simulate`, ptr, step_end)
+dust_cpu_sirs_simulate <- function(ptr, time_end) {
+  .Call(`_dust_dust_cpu_sirs_simulate`, ptr, time_end)
 }
 
 dust_cpu_sirs_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_cpu_sirs_set_index`, ptr, r_index)
 }
 
-dust_cpu_sirs_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state) {
-  .Call(`_dust_dust_cpu_sirs_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state)
+dust_cpu_sirs_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state) {
+  .Call(`_dust_dust_cpu_sirs_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state)
 }
 
 dust_cpu_sirs_state <- function(ptr, r_index) {
   .Call(`_dust_dust_cpu_sirs_state`, ptr, r_index)
 }
 
-dust_cpu_sirs_step <- function(ptr) {
-  .Call(`_dust_dust_cpu_sirs_step`, ptr)
+dust_cpu_sirs_time <- function(ptr) {
+  .Call(`_dust_dust_cpu_sirs_time`, ptr)
 }
 
 dust_cpu_sirs_reorder <- function(ptr, r_index) {
@@ -232,8 +232,8 @@ dust_cpu_sirs_compare_data <- function(ptr) {
   .Call(`_dust_dust_cpu_sirs_compare_data`, ptr)
 }
 
-dust_cpu_sirs_filter <- function(ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood) {
-  .Call(`_dust_dust_cpu_sirs_filter`, ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood)
+dust_cpu_sirs_filter <- function(ptr, time_end, save_trajectories, time_snapshot, min_log_likelihood) {
+  .Call(`_dust_dust_cpu_sirs_filter`, ptr, time_end, save_trajectories, time_snapshot, min_log_likelihood)
 }
 
 dust_cpu_sirs_set_n_threads <- function(ptr, n_threads) {
@@ -244,32 +244,32 @@ dust_cpu_sirs_n_state <- function(ptr) {
   .Call(`_dust_dust_cpu_sirs_n_state`, ptr)
 }
 
-dust_gpu_sirs_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
-  .Call(`_dust_dust_gpu_sirs_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
+dust_gpu_sirs_alloc <- function(r_pars, pars_multi, time, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
+  .Call(`_dust_dust_gpu_sirs_alloc`, r_pars, pars_multi, time, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
 }
 
-dust_gpu_sirs_run <- function(ptr, step_end) {
-  .Call(`_dust_dust_gpu_sirs_run`, ptr, step_end)
+dust_gpu_sirs_run <- function(ptr, time_end) {
+  .Call(`_dust_dust_gpu_sirs_run`, ptr, time_end)
 }
 
-dust_gpu_sirs_simulate <- function(ptr, step_end) {
-  .Call(`_dust_dust_gpu_sirs_simulate`, ptr, step_end)
+dust_gpu_sirs_simulate <- function(ptr, time_end) {
+  .Call(`_dust_dust_gpu_sirs_simulate`, ptr, time_end)
 }
 
 dust_gpu_sirs_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_gpu_sirs_set_index`, ptr, r_index)
 }
 
-dust_gpu_sirs_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state) {
-  .Call(`_dust_dust_gpu_sirs_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state)
+dust_gpu_sirs_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state) {
+  .Call(`_dust_dust_gpu_sirs_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state)
 }
 
 dust_gpu_sirs_state <- function(ptr, r_index) {
   .Call(`_dust_dust_gpu_sirs_state`, ptr, r_index)
 }
 
-dust_gpu_sirs_step <- function(ptr) {
-  .Call(`_dust_dust_gpu_sirs_step`, ptr)
+dust_gpu_sirs_time <- function(ptr) {
+  .Call(`_dust_dust_gpu_sirs_time`, ptr)
 }
 
 dust_gpu_sirs_reorder <- function(ptr, r_index) {
@@ -296,8 +296,8 @@ dust_gpu_sirs_compare_data <- function(ptr) {
   .Call(`_dust_dust_gpu_sirs_compare_data`, ptr)
 }
 
-dust_gpu_sirs_filter <- function(ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood) {
-  .Call(`_dust_dust_gpu_sirs_filter`, ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood)
+dust_gpu_sirs_filter <- function(ptr, time_end, save_trajectories, time_snapshot, min_log_likelihood) {
+  .Call(`_dust_dust_gpu_sirs_filter`, ptr, time_end, save_trajectories, time_snapshot, min_log_likelihood)
 }
 
 dust_gpu_sirs_set_n_threads <- function(ptr, n_threads) {
@@ -328,32 +328,32 @@ dust_variable_gpu_info <- function() {
   .Call(`_dust_dust_variable_gpu_info`)
 }
 
-dust_cpu_variable_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
-  .Call(`_dust_dust_cpu_variable_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
+dust_cpu_variable_alloc <- function(r_pars, pars_multi, time, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
+  .Call(`_dust_dust_cpu_variable_alloc`, r_pars, pars_multi, time, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
 }
 
-dust_cpu_variable_run <- function(ptr, step_end) {
-  .Call(`_dust_dust_cpu_variable_run`, ptr, step_end)
+dust_cpu_variable_run <- function(ptr, time_end) {
+  .Call(`_dust_dust_cpu_variable_run`, ptr, time_end)
 }
 
-dust_cpu_variable_simulate <- function(ptr, step_end) {
-  .Call(`_dust_dust_cpu_variable_simulate`, ptr, step_end)
+dust_cpu_variable_simulate <- function(ptr, time_end) {
+  .Call(`_dust_dust_cpu_variable_simulate`, ptr, time_end)
 }
 
 dust_cpu_variable_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_cpu_variable_set_index`, ptr, r_index)
 }
 
-dust_cpu_variable_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state) {
-  .Call(`_dust_dust_cpu_variable_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state)
+dust_cpu_variable_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state) {
+  .Call(`_dust_dust_cpu_variable_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state)
 }
 
 dust_cpu_variable_state <- function(ptr, r_index) {
   .Call(`_dust_dust_cpu_variable_state`, ptr, r_index)
 }
 
-dust_cpu_variable_step <- function(ptr) {
-  .Call(`_dust_dust_cpu_variable_step`, ptr)
+dust_cpu_variable_time <- function(ptr) {
+  .Call(`_dust_dust_cpu_variable_time`, ptr)
 }
 
 dust_cpu_variable_reorder <- function(ptr, r_index) {
@@ -380,8 +380,8 @@ dust_cpu_variable_compare_data <- function(ptr) {
   .Call(`_dust_dust_cpu_variable_compare_data`, ptr)
 }
 
-dust_cpu_variable_filter <- function(ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood) {
-  .Call(`_dust_dust_cpu_variable_filter`, ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood)
+dust_cpu_variable_filter <- function(ptr, time_end, save_trajectories, time_snapshot, min_log_likelihood) {
+  .Call(`_dust_dust_cpu_variable_filter`, ptr, time_end, save_trajectories, time_snapshot, min_log_likelihood)
 }
 
 dust_cpu_variable_set_n_threads <- function(ptr, n_threads) {
@@ -392,32 +392,32 @@ dust_cpu_variable_n_state <- function(ptr) {
   .Call(`_dust_dust_cpu_variable_n_state`, ptr)
 }
 
-dust_gpu_variable_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
-  .Call(`_dust_dust_gpu_variable_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
+dust_gpu_variable_alloc <- function(r_pars, pars_multi, time, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
+  .Call(`_dust_dust_gpu_variable_alloc`, r_pars, pars_multi, time, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
 }
 
-dust_gpu_variable_run <- function(ptr, step_end) {
-  .Call(`_dust_dust_gpu_variable_run`, ptr, step_end)
+dust_gpu_variable_run <- function(ptr, time_end) {
+  .Call(`_dust_dust_gpu_variable_run`, ptr, time_end)
 }
 
-dust_gpu_variable_simulate <- function(ptr, step_end) {
-  .Call(`_dust_dust_gpu_variable_simulate`, ptr, step_end)
+dust_gpu_variable_simulate <- function(ptr, time_end) {
+  .Call(`_dust_dust_gpu_variable_simulate`, ptr, time_end)
 }
 
 dust_gpu_variable_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_gpu_variable_set_index`, ptr, r_index)
 }
 
-dust_gpu_variable_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state) {
-  .Call(`_dust_dust_gpu_variable_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state)
+dust_gpu_variable_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state) {
+  .Call(`_dust_dust_gpu_variable_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state)
 }
 
 dust_gpu_variable_state <- function(ptr, r_index) {
   .Call(`_dust_dust_gpu_variable_state`, ptr, r_index)
 }
 
-dust_gpu_variable_step <- function(ptr) {
-  .Call(`_dust_dust_gpu_variable_step`, ptr)
+dust_gpu_variable_time <- function(ptr) {
+  .Call(`_dust_dust_gpu_variable_time`, ptr)
 }
 
 dust_gpu_variable_reorder <- function(ptr, r_index) {
@@ -444,8 +444,8 @@ dust_gpu_variable_compare_data <- function(ptr) {
   .Call(`_dust_dust_gpu_variable_compare_data`, ptr)
 }
 
-dust_gpu_variable_filter <- function(ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood) {
-  .Call(`_dust_dust_gpu_variable_filter`, ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood)
+dust_gpu_variable_filter <- function(ptr, time_end, save_trajectories, time_snapshot, min_log_likelihood) {
+  .Call(`_dust_dust_gpu_variable_filter`, ptr, time_end, save_trajectories, time_snapshot, min_log_likelihood)
 }
 
 dust_gpu_variable_set_n_threads <- function(ptr, n_threads) {
@@ -464,32 +464,32 @@ dust_volatility_gpu_info <- function() {
   .Call(`_dust_dust_volatility_gpu_info`)
 }
 
-dust_cpu_volatility_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
-  .Call(`_dust_dust_cpu_volatility_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
+dust_cpu_volatility_alloc <- function(r_pars, pars_multi, time, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
+  .Call(`_dust_dust_cpu_volatility_alloc`, r_pars, pars_multi, time, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
 }
 
-dust_cpu_volatility_run <- function(ptr, step_end) {
-  .Call(`_dust_dust_cpu_volatility_run`, ptr, step_end)
+dust_cpu_volatility_run <- function(ptr, time_end) {
+  .Call(`_dust_dust_cpu_volatility_run`, ptr, time_end)
 }
 
-dust_cpu_volatility_simulate <- function(ptr, step_end) {
-  .Call(`_dust_dust_cpu_volatility_simulate`, ptr, step_end)
+dust_cpu_volatility_simulate <- function(ptr, time_end) {
+  .Call(`_dust_dust_cpu_volatility_simulate`, ptr, time_end)
 }
 
 dust_cpu_volatility_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_cpu_volatility_set_index`, ptr, r_index)
 }
 
-dust_cpu_volatility_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state) {
-  .Call(`_dust_dust_cpu_volatility_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state)
+dust_cpu_volatility_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state) {
+  .Call(`_dust_dust_cpu_volatility_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state)
 }
 
 dust_cpu_volatility_state <- function(ptr, r_index) {
   .Call(`_dust_dust_cpu_volatility_state`, ptr, r_index)
 }
 
-dust_cpu_volatility_step <- function(ptr) {
-  .Call(`_dust_dust_cpu_volatility_step`, ptr)
+dust_cpu_volatility_time <- function(ptr) {
+  .Call(`_dust_dust_cpu_volatility_time`, ptr)
 }
 
 dust_cpu_volatility_reorder <- function(ptr, r_index) {
@@ -516,8 +516,8 @@ dust_cpu_volatility_compare_data <- function(ptr) {
   .Call(`_dust_dust_cpu_volatility_compare_data`, ptr)
 }
 
-dust_cpu_volatility_filter <- function(ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood) {
-  .Call(`_dust_dust_cpu_volatility_filter`, ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood)
+dust_cpu_volatility_filter <- function(ptr, time_end, save_trajectories, time_snapshot, min_log_likelihood) {
+  .Call(`_dust_dust_cpu_volatility_filter`, ptr, time_end, save_trajectories, time_snapshot, min_log_likelihood)
 }
 
 dust_cpu_volatility_set_n_threads <- function(ptr, n_threads) {
@@ -536,32 +536,32 @@ dust_walk_gpu_info <- function() {
   .Call(`_dust_dust_walk_gpu_info`)
 }
 
-dust_cpu_walk_alloc <- function(r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
-  .Call(`_dust_dust_cpu_walk_alloc`, r_pars, pars_multi, step, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
+dust_cpu_walk_alloc <- function(r_pars, pars_multi, time, r_n_particles, n_threads, r_seed, deterministic, gpu_config) {
+  .Call(`_dust_dust_cpu_walk_alloc`, r_pars, pars_multi, time, r_n_particles, n_threads, r_seed, deterministic, gpu_config)
 }
 
-dust_cpu_walk_run <- function(ptr, step_end) {
-  .Call(`_dust_dust_cpu_walk_run`, ptr, step_end)
+dust_cpu_walk_run <- function(ptr, time_end) {
+  .Call(`_dust_dust_cpu_walk_run`, ptr, time_end)
 }
 
-dust_cpu_walk_simulate <- function(ptr, step_end) {
-  .Call(`_dust_dust_cpu_walk_simulate`, ptr, step_end)
+dust_cpu_walk_simulate <- function(ptr, time_end) {
+  .Call(`_dust_dust_cpu_walk_simulate`, ptr, time_end)
 }
 
 dust_cpu_walk_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_cpu_walk_set_index`, ptr, r_index)
 }
 
-dust_cpu_walk_update_state <- function(ptr, r_pars, r_state, r_step, r_set_initial_state) {
-  .Call(`_dust_dust_cpu_walk_update_state`, ptr, r_pars, r_state, r_step, r_set_initial_state)
+dust_cpu_walk_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state) {
+  .Call(`_dust_dust_cpu_walk_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state)
 }
 
 dust_cpu_walk_state <- function(ptr, r_index) {
   .Call(`_dust_dust_cpu_walk_state`, ptr, r_index)
 }
 
-dust_cpu_walk_step <- function(ptr) {
-  .Call(`_dust_dust_cpu_walk_step`, ptr)
+dust_cpu_walk_time <- function(ptr) {
+  .Call(`_dust_dust_cpu_walk_time`, ptr)
 }
 
 dust_cpu_walk_reorder <- function(ptr, r_index) {
@@ -588,8 +588,8 @@ dust_cpu_walk_compare_data <- function(ptr) {
   .Call(`_dust_dust_cpu_walk_compare_data`, ptr)
 }
 
-dust_cpu_walk_filter <- function(ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood) {
-  .Call(`_dust_dust_cpu_walk_filter`, ptr, step_end, save_trajectories, step_snapshot, min_log_likelihood)
+dust_cpu_walk_filter <- function(ptr, time_end, save_trajectories, time_snapshot, min_log_likelihood) {
+  .Call(`_dust_dust_cpu_walk_filter`, ptr, time_end, save_trajectories, time_snapshot, min_log_likelihood)
 }
 
 dust_cpu_walk_set_n_threads <- function(ptr, n_threads) {

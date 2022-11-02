@@ -20,7 +20,7 @@ public:
     return 2;
   }
 
-  std::vector<real_type> initial(size_t step) {
+  std::vector<real_type> initial(size_t time) {
 #ifdef _OPENMP
     static bool has_openmp = true;
 #else
@@ -30,7 +30,7 @@ public:
     return ret;
   }
 
-  void update(size_t step, const real_type * state, rng_state_type& rng_state,
+  void update(size_t time, const real_type * state, rng_state_type& rng_state,
               real_type * state_next) {
     real_type mean = state[0];
     state_next[0] = dust::random::normal<real_type>(rng_state, mean, shared->sd);

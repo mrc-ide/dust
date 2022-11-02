@@ -12,6 +12,19 @@ common set of "methods".  To create a dust model of your own,
 see \link{dust} and to interact with some built-in ones see
 \code{\link[=dust_example]{dust_example()}}
 }
+\section{Time}{
+
+
+For discrete time models, dust has an internal "time", which was
+called \code{step} in version \verb{0.11.x} and below.  This must always
+be non-negative (i.e., zero or more) and always increases in
+unit increments.  Typically a model will remap this internal
+time onto a more meaningful time in model space, e.g. by applying
+the transform \code{model_time = offset + time * dt}; with this approach
+you can start at any real valued time and scale the unit increments
+to control the model dynamics.
+}
+
 \examples{
 # An example dust object from the package:
 walk <- dust::dust_example("walk")
@@ -39,7 +52,7 @@ walk
 \item \href{#method-dust-shape}{\code{dust_generator$shape()}}
 \item \href{#method-dust-update_state}{\code{dust_generator$update_state()}}
 \item \href{#method-dust-state}{\code{dust_generator$state()}}
-\item \href{#method-dust-step}{\code{dust_generator$step()}}
+\item \href{#method-dust-time}{\code{dust_generator$time()}}
 \item \href{#method-dust-reorder}{\code{dust_generator$reorder()}}
 \item \href{#method-dust-resample}{\code{dust_generator$resample()}}
 \item \href{#method-dust-info}{\code{dust_generator$info()}}
@@ -78,7 +91,7 @@ is the same size.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$new(
   pars,
-  step,
+  time,
   n_particles,
   n_threads = 1L,
   seed = NULL,
@@ -96,7 +109,7 @@ object, but the required elements will depend on the details of
 your model. If \code{pars_multi} is \code{TRUE}, then this must be an
 \emph{unnamed} list of \code{pars} objects (see Details).}
 
-\item{\code{step}}{Initial step - must be nonnegative}
+\item{\code{time}}{Initial time - must be nonnegative}
 
 \item{\code{n_particles}}{Number of particles to create - must be at
 least 1}
@@ -170,14 +183,14 @@ on the model.
 Run the model up to a point in time, returning the filtered state
 at that point.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$run(step_end)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$run(time_end)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{step_end}}{Step to run to (if less than or equal to the current
-step(), silently nothing will happen)}
+\item{\code{time_end}}{Time to run to (if less than or equal to the current
+time(), silently nothing will happen)}
 }
 \if{html}{\out{</div>}}
 }
@@ -186,25 +199,25 @@ step(), silently nothing will happen)}
 \if{html}{\out{<a id="method-dust-simulate"></a>}}
 \if{latex}{\out{\hypertarget{method-dust-simulate}{}}}
 \subsection{Method \code{simulate()}}{
-Iterate all particles forward in time over a series of steps,
+Iterate all particles forward in time over a series of times,
 collecting output as they go. This is a helper around \verb{$run()}
 where you want to run to a series of points in time and save
 output. The returned object will be filtered by your active index,
-so that it has shape (\code{n_state} x \code{n_particles} x \code{length(step_end)})
+so that it has shape (\code{n_state} x \code{n_particles} x \code{length(time_end)})
 for single-parameter objects, and (\code{n_state} x \code{n_particles} x
-\code{n_pars} x \code{length(step_end)}) for multiparameter objects. Note that
+\code{n_pars} x \code{length(time_end)}) for multiparameter objects. Note that
 this method is very similar to \verb{$run()} except that the rank of
-the returned array is one less. For a scalar \code{step_end} you would
+the returned array is one less. For a scalar \code{time_end} you would
 ordinarily want to use \verb{$run()} but the resulting numbers would
 be identical.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$simulate(step_end)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$simulate(time_end)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{step_end}}{A vector of time points that the simulation should
+\item{\code{time_end}}{A vector of time points that the simulation should
 report output at. This the first time must be at least the same
 as the current time, and every subsequent time must be equal or
 greater than those before it (ties are allowed though probably
@@ -301,7 +314,7 @@ Returns the shape of the particles
 \subsection{Method \code{update_state()}}{
 Update one or more components of the model state.
 This method can be used to update any or all of \code{pars}, \code{state} and
-\code{step}.  If both \code{pars} and \code{step} are given and \code{state} is not,
+\code{time}.  If both \code{pars} and \code{time} are given and \code{state} is not,
 then by default we will update the model internal state according
 to your model's initial conditions - use \code{set_initial_state = FALSE}
 to prevent this.
@@ -309,7 +322,7 @@ to prevent this.
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$update_state(
   pars = NULL,
   state = NULL,
-  step = NULL,
+  time = NULL,
   set_initial_state = NULL
 )}\if{html}{\out{</div>}}
 }
@@ -326,10 +339,10 @@ many rows as your model's state and as many columns as you have
 particles (in which case you can set a number of different starting
 states at once).}
 
-\item{\code{step}}{New initial step for the model. If this
+\item{\code{time}}{New initial time for the model. If this
 is a vector (with the same length as the number of particles), then
-particles are started from different initial steps and run up to the
-largest step given (i.e., \code{max(step)})}
+particles are started from different initial times and run up to the
+largest time given (i.e., \code{max(time)})}
 
 \item{\code{set_initial_state}}{Control if the model initial state
 should be set while setting parameters. It is an error for
@@ -357,12 +370,12 @@ Return full model state
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-dust-step"></a>}}
-\if{latex}{\out{\hypertarget{method-dust-step}{}}}
-\subsection{Method \code{step()}}{
-Return current model step
+\if{html}{\out{<a id="method-dust-time"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-time}{}}}
+\subsection{Method \code{time()}}{
+Return current model time
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dust_generator$step()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$time()}\if{html}{\out{</div>}}
 }
 
 }
@@ -659,13 +672,13 @@ this function may be result in a different answer.
 \subsection{Method \code{filter()}}{
 Run a particle filter. The interface here will change a lot over the
 next few versions. You \emph{must} reset the dust object using
-\verb{$update_state(pars = ..., step = ...)} before using this method to
+\verb{$update_state(pars = ..., time = ...)} before using this method to
 get sensible values.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$filter(
-  step_end = NULL,
+  time_end = NULL,
   save_trajectories = FALSE,
-  step_snapshot = NULL,
+  time_snapshot = NULL,
   min_log_likelihood = NULL
 )}\if{html}{\out{</div>}}
 }
@@ -673,9 +686,9 @@ get sensible values.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{step_end}}{The step to run to. If \code{NULL}, run to the end
+\item{\code{time_end}}{The time to run to. If \code{NULL}, run to the end
 of the last data.  This value must be larger than the current
-model step (\verb{$step()}) and must exactly appear in the data.}
+model time (\verb{$time()}) and must exactly appear in the data.}
 
 \item{\code{save_trajectories}}{Logical, indicating if the filtered particle
 trajectories should be saved. If \code{TRUE} then the \code{trajectories} element
@@ -683,12 +696,12 @@ will be a multidimensional array (\verb{state x <shape> x time})
 containing the state values, selected according to the index set
 with \verb{$set_index()}.}
 
-\item{\code{step_snapshot}}{Optional integer vector indicating steps
+\item{\code{time_snapshot}}{Optional integer vector indicating times
 that we should record a snapshot of the full particle filter state.
 If given it must be strictly increasing vector whose elements
-match steps given in the \code{data} object. The return value with be
-a multidimensional array (\verb{state x <shape> x step_snapshot})
-containing full state values at the requested steps.}
+match times given in the \code{data} object. The return value with be
+a multidimensional array (\verb{state x <shape> x time_snapshot})
+containing full state values at the requested times.}
 
 \item{\code{min_log_likelihood}}{Optionally, a numeric value representing
 the smallest likelihood we are interested in. If non-\code{NULL}

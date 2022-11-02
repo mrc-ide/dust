@@ -42,13 +42,13 @@
 ##'   run.
 ##'
 ##' * The model must have a method `initial` (which may not be
-##'   `const`), taking a step number (`size_t`) and returning a
+##'   `const`), taking a time step number (`size_t`) and returning a
 ##'   `std::vector<real_type>` of initial state for the model.
 ##'
 ##' * The model must have a method `update` taking arguments:
-##'   - `size_t step`: the step number
+##'   - `size_t time`: the time step number
 ##'   - `const double * state`: the state at the beginning of the
-##'      step
+##'      time step
 ##'   - `dust::rng_state_type<real_type>& rng_state`: the dust random number
 ##'     generator state - this *must* be a reference, as it will be modified
 ##'     as random numbers are drawn
@@ -209,7 +209,7 @@
 ##' # Print the object and you can see the methods that it provides
 ##' model
 ##'
-##' # Create a model with standard deviation of 1, initial step zero
+##' # Create a model with standard deviation of 1, initial time step zero
 ##' # and 30 particles
 ##' obj <- model$new(list(sd = 1), 0, 30)
 ##' obj
@@ -217,10 +217,10 @@
 ##' # Curent state is all zero
 ##' obj$state()
 ##'
-##' # Current step is also zero
-##' obj$step()
+##' # Current time is also zero
+##' obj$time()
 ##'
-##' # Run the model up to step 100
+##' # Run the model up to time step 100
 ##' obj$run(100)
 ##'
 ##' # Reorder/resample the particles:

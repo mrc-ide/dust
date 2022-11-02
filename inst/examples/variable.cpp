@@ -18,7 +18,7 @@ public:
     return shared->len;
   }
 
-  std::vector<real_type> initial(size_t step) {
+  std::vector<real_type> initial(size_t time) {
     std::vector<real_type> ret;
     for (size_t i = 0; i < shared->len; ++i) {
       ret.push_back(i + 1);
@@ -26,7 +26,7 @@ public:
     return ret;
   }
 
-  void update(size_t step, const real_type * state, rng_state_type& rng_state,
+  void update(size_t time, const real_type * state, rng_state_type& rng_state,
               real_type * state_next) {
     for (size_t i = 0; i < shared->len; ++i) {
       state_next[i] = state[i] +
@@ -90,7 +90,7 @@ void shared_copy<variable>(dust::shared_ptr<variable> shared,
 
 template <>
 __device__
-void update_gpu<variable>(size_t step,
+void update_gpu<variable>(size_t time,
                           const dust::gpu::interleaved<variable::real_type> state,
                           dust::gpu::interleaved<int> internal_int,
                           dust::gpu::interleaved<variable::real_type> internal_real,

@@ -42,7 +42,7 @@ public:
   // TODO: fix this elsewhere, perhaps (see also dust/dust_cpu.hpp)
   using filter_state_type = dust::filter::filter_state_device<real_type>;
 
-  dust_gpu(const pars_type& pars, const size_t step, const size_t n_particles,
+  dust_gpu(const pars_type& pars, const size_t time, const size_t n_particles,
            const size_t n_threads, const std::vector<rng_int_type>& seed,
            const gpu::gpu_config& gpu_config) :
     n_pars_(0),
@@ -55,12 +55,12 @@ public:
     gpu_config_(gpu_config),
     select_needed_(true),
     select_scatter_(false),
-    step_(step) {
+    time_(time) {
     initialise_device_state(std::vector<pars_type>(1, pars), seed);
     shape_ = {n_particles};
   }
 
-  dust_gpu(const std::vector<pars_type>& pars, const size_t step,
+  dust_gpu(const std::vector<pars_type>& pars, const size_t time,
            const size_t n_particles, const size_t n_threads,
            const std::vector<rng_int_type>& seed,
            const std::vector<size_t>& shape,
@@ -75,7 +75,7 @@ public:
     gpu_config_(gpu_config),
     select_needed_(true),
     select_scatter_(false),
-    step_(step) {
+    time_(time) {
     initialise_device_state(pars, seed);
     // constructing the shape here is harder than above.
     if (n_particles > 0) {
@@ -129,13 +129,13 @@ public:
 
   // NOTE: this is _just_ the offsets. However, when this is used
   // within the filter code we only care about the first part of the
-  // map (i.e., the step to stop at) so it's ok.
+  // map (i.e., the time to stop at) so it's ok.
   const std::map<size_t, size_t>& data() const {
     return device_data_offsets_;
   }
 
-  size_t step() const {
-    return step_;
+  size_t time() const {
+    return time_;
   }
 
   const std::vector<size_t>& shape() const {
@@ -194,8 +194,8 @@ public:
     select_needed_ = true;
   }
 
-  void set_step(const size_t step) {
-    step_ = step;
+  void set_time(const size_t time) {
+    time_ = time;
   }
 
   // It's the callee's responsibility to ensure that index is in
@@ -213,15 +213,15 @@ public:
       dust::gpu::launch_control_simple(block_size, n_particles * n_state());
   }
 
-  void run(const size_t step_end) {
-    if (step_end > step_) {
-      const size_t step_start = step_;
+  void run(const size_t time_end) {
+    if (time_end > time_) {
+      const size_t time_start = time_;
 #ifdef __NVCC__
       dust::gpu::run_particles<T><<<cuda_pars_.run.block_count,
                                      cuda_pars_.run.block_size,
                                      cuda_pars_.run.shared_size_bytes,
                                      kernel_stream_.stream()>>>(
-                      step_start, step_end, n_particles_total_,
+                      time_start, time_end, n_particles_total_,
                       n_pars_effective(),
                       device_state_.y.data(),
                       device_state_.y_next.data(),
@@ -238,7 +238,7 @@ public:
 #else
       const bool use_shared_int = false;
       const bool use_shared_real = false;
-      dust::gpu::run_particles<T>(step_start, step_end, n_particles_total_,
+      dust::gpu::run_particles<T>(time_start, time_end, n_particles_total_,
                       n_pars_effective(),
                       device_state_.y.data(),
                       device_state_.y_next.data(),
@@ -256,27 +256,27 @@ public:
       // In the inner loop, the swap will keep the locally scoped
       // interleaved variables updated, but the interleaved variables
       // passed in have not yet been updated.  If an even number of
-      // steps have been run state will have been swapped back into the
-      // original place, but an on odd number of steps the passed
+      // time steps have been run state will have been swapped back into the
+      // original place, but an on odd number of time steps the passed
       // variables need to be swapped.
-      if ((step_end - step_start) % 2 == 1) {
+      if ((time_end - time_start) % 2 == 1) {
         device_state_.swap();
       }
 
       select_needed_ = true;
-      step_ = step_end;
+      time_ = time_end;
     }
   }
 
-  std::vector<real_type> simulate(const std::vector<size_t>& step_end) {
-    const size_t n_time = step_end.size();
+  std::vector<real_type> simulate(const std::vector<size_t>& time_end) {
+    const size_t n_time = time_end.size();
     // The filter snapshot class can be used to store the indexed state
     // (implements async copy, swap space, and deinterleaving)
     // Filter trajectories not used as we don't need order here
     dust::filter::filter_snapshots_device<real_type> state_store;
-    state_store.resize(n_state(), n_particles(), step_end);
+    state_store.resize(n_state(), n_particles(), time_end);
     for (size_t t = 0; t < n_time; ++t) {
-      run(step_end[t]);
+      run(time_end[t]);
       state_store.store(device_state_selected());
       state_store.advance();
     }
@@ -478,9 +478,9 @@ public:
                 bool data_is_shared) {
     std::vector<data_type> flattened_data;
     size_t i = 0;
-    for (auto & d_step : data) {
-      device_data_offsets_[d_step.first] = i;
-      for (auto & d : d_step.second) {
+    for (auto & d_time : data) {
+      device_data_offsets_[d_time.first] = i;
+      for (auto & d : d_time.second) {
         flattened_data.push_back(d);
         i++;
       }
@@ -492,7 +492,7 @@ public:
 
   std::vector<real_type> compare_data() {
     std::vector<real_type> res;
-    auto d = device_data_offsets_.find(step());
+    auto d = device_data_offsets_.find(time());
     if (d != device_data_offsets_.end()) {
       res.resize(n_particles());
       compare_data(device_state_.compare_res, d->second);
@@ -575,7 +575,7 @@ private:
 
   bool select_needed_;
   bool select_scatter_;
-  size_t step_;
+  size_t time_;
 
   // Naming of functions:
   //
@@ -590,7 +590,7 @@ private:
   void initialise_device_state(const std::vector<pars_type>& pars,
                                const std::vector<rng_int_type>& seed) {
     if (n_state_full_ == 0) {
-      const dust::particle<T> p(pars[0], step_);
+      const dust::particle<T> p(pars[0], time_);
       n_state_full_ = p.size();
       n_state_ = n_state_full_;
     }
@@ -633,7 +633,7 @@ private:
     size_t n = n_particles() == 0 ? 0 : n_state_full();
     std::vector<dust::particle<T>> p;
     for (size_t i = 0; i < n_pars_effective(); ++i) {
-      p.push_back(dust::particle<T>(pars[i], step_));
+      p.push_back(dust::particle<T>(pars[i], time_));
       if (n > 0 && p.back().size() != n) {
         std::stringstream msg;
         msg << "'pars' created inconsistent state size: " <<
@@ -673,7 +673,7 @@ private:
 #endif
     for (size_t i = 0; i < n_pars; ++i) {
       for (size_t j = 0; j < n_particles(); ++j) {
-        dust::particle<T> p(pars[i], step_);
+        dust::particle<T> p(pars[i], time_);
         p.state_full(state_host[i * n_particles() + j].begin());
       }
     }

@@ -29,7 +29,7 @@ public:
     return 4;
   }
 
-  std::vector<real_type> initial(size_t step) {
+  std::vector<real_type> initial(size_t time) {
     std::vector<real_type> state(4);
     state[0] = shared->S0;
     state[1] = shared->I0;
@@ -38,7 +38,7 @@ public:
     return state;
   }
 
-  void update(size_t step, const real_type * state, rng_state_type& rng_state,
+  void update(size_t time, const real_type * state, rng_state_type& rng_state,
               real_type * state_next) {
     real_type S = state[0];
     real_type I = state[1];
@@ -57,7 +57,7 @@ public:
     state_next[0] = S - n_SI + n_RS;
     state_next[1] = I + n_SI - n_IR;
     state_next[2] = R + n_IR - n_RS;
-    state_next[3] = (step % shared->freq == 0) ? n_SI : state[3] + n_SI;
+    state_next[3] = (time % shared->freq == 0) ? n_SI : state[3] + n_SI;
   }
 
   real_type compare_data(const real_type * state, const data_type& data,
@@ -139,7 +139,7 @@ void shared_copy<sirs>(dust::shared_ptr<sirs> shared,
 
 template <>
 __device__
-void update_gpu<sirs>(size_t step,
+void update_gpu<sirs>(size_t time,
                       const dust::gpu::interleaved<sirs::real_type> state,
                       dust::gpu::interleaved<int> internal_int,
                       dust::gpu::interleaved<sirs::real_type> internal_real,
@@ -167,7 +167,7 @@ void update_gpu<sirs>(size_t step,
   state_next[0] = S - n_SI + n_RS;
   state_next[1] = I + n_SI - n_IR;
   state_next[2] = R + n_IR - n_RS;
-  state_next[3] = (step % freq == 0) ? n_SI : state[3] + n_SI;
+  state_next[3] = (time % freq == 0) ? n_SI : state[3] + n_SI;
 }
 
 template <>

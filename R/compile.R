@@ -129,7 +129,7 @@ glue_whisker <- function(template, data) {
 dust_template_data <- function(model, config, cuda, reload_data) {
   methods <- function(target) {
     nms <- c("alloc", "run", "simulate", "set_index", "n_state",
-             "update_state", "state", "step", "reorder", "resample",
+             "update_state", "state", "time", "reorder", "resample",
              "rng_state", "set_rng_state", "set_n_threads",
              "set_data", "compare_data", "filter")
     m <- sprintf("%s = dust_%s_%s_%s", nms, target, config$name, nms)

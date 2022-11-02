@@ -5,7 +5,7 @@
 ##'
 ##' * `sir`: a basic SIR (Susceptible, Infected, Resistant)
 ##'   epidemiological model.  Draws from the binomial distribution to
-##'   update the population between each step.
+##'   update the population between each time step.
 ##'
 ##' * `sirs`: an SIRS model, the SIR model with an added R->S transition.
 ##'  This has a non-zero steady state, so can be run indefinitely for testing.
@@ -32,17 +32,17 @@
 ##' sir <- dust::dust_example("sir")
 ##' sir
 ##'
-##' # Initialise the model at step 0 with 50 independent trajectories
+##' # Initialise the model at time step 0 with 50 independent trajectories
 ##' mod <- sir$new(list(), 0, 50)
 ##'
-##' # Run the model for 400 steps, collecting "infected" every 4th step
-##' steps <- seq(0, 400, by = 4)
+##' # Run the model for 400 steps, collecting "infected" every 4th time step
+##' times <- seq(0, 400, by = 4)
 ##' mod$set_index(2L)
-##' y <- mod$simulate(steps)
+##' y <- mod$simulate(times)
 ##'
 ##' # A plot of our epidemic
-##' matplot(steps, t(drop(y)), type = "l", lty = 1, col = "#00000044",
-##'         las = 1, xlab = "Step", ylab = "Number infected")
+##' matplot(times, t(drop(y)), type = "l", lty = 1, col = "#00000044",
+##'         las = 1, xlab = "Time", ylab = "Number infected")
 dust_example <- function(name) {
   ## NOTE: the documentation does not mention 'variable' as it's
   ## primarily for testing the package behaviour as the number of

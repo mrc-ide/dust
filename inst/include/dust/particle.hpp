@@ -15,17 +15,17 @@ public:
   using data_type = typename T::data_type;
   using rng_state_type = typename T::rng_state_type;
 
-  particle(pars_type pars, size_t step) :
+  particle(pars_type pars, size_t time) :
     model_(pars),
-    step_(step),
-    y_(model_.initial(step_)),
+    time_(time),
+    y_(model_.initial(time_)),
     y_swap_(model_.size()) {
   }
 
-  void run(const size_t step_end, rng_state_type& rng_state) {
-    while (step_ < step_end) {
-      model_.update(step_, y_.data(), rng_state, y_swap_.data());
-      step_++;
+  void run(const size_t time_end, rng_state_type& rng_state) {
+    while (time_ < time_end) {
+      model_.update(time_, y_.data(), rng_state, y_swap_.data());
+      time_++;
       std::swap(y_, y_swap_);
     }
   }
@@ -47,16 +47,16 @@ public:
     return y_.size();
   }
 
-  size_t step() const {
-    return step_;
+  size_t time() const {
+    return time_;
   }
 
   void swap() {
     std::swap(y_, y_swap_);
   }
 
-  void set_step(const size_t step) {
-    step_ = step;
+  void set_time(const size_t time) {
+    time_ = time;
   }
 
   void set_state(const particle<T>& other) {
@@ -65,9 +65,9 @@ public:
 
   void set_pars(const particle<T>& other, bool set_state) {
     model_ = other.model_;
-    step_ = other.step_;
+    time_ = other.time_;
     if (set_state) {
-      y_ = model_.initial(step_);
+      y_ = model_.initial(time_);
     }
   }
 
@@ -83,7 +83,7 @@ public:
 
 private:
   T model_;
-  size_t step_;
+  size_t time_;
 
   std::vector<real_type> y_;
   std::vector<real_type> y_swap_;

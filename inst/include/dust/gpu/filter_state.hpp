@@ -134,16 +134,16 @@ public:
   }
 #endif
 
-  void resize(size_t n_state, size_t n_particles, std::vector<size_t> steps) {
+  void resize(size_t n_state, size_t n_particles, std::vector<size_t> times) {
     pageable();
     this->n_state_ = n_state;
     this->n_particles_ = n_particles;
-    this->n_steps_ = steps.size();
+    this->n_times_ = times.size();
     this->offset_ = 0;
-    this->steps_ = steps;
+    this->times_ = times;
 
-    assert_has_storage(this->n_state_ , this->n_particles_, this->n_steps_);
-    this->state_.resize(this->n_state_ * this->n_particles_ * this->n_steps_);
+    assert_has_storage(this->n_state_ , this->n_particles_, this->n_times_);
+    this->state_.resize(this->n_state_ * this->n_particles_ * this->n_times_);
 
     state_swap = dust::gpu::device_array<real_type>(this->n_state_ * this->n_particles_);
 
@@ -172,7 +172,7 @@ public:
   void history(Iterator dest) const {
     // Destride and copy into iterator
     // TODO: openmp here? collapse(2)
-    for (size_t i = 0; i < this->n_steps_; ++i) {
+    for (size_t i = 0; i < this->n_times_; ++i) {
       for (size_t j = 0; j < this->n_particles_; ++j) {
         for (size_t k = 0; k < this->n_state_; ++k) {
           *(dest +
