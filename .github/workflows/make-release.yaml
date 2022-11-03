@@ -18,7 +18,7 @@ jobs:
         config:
           - {os: macOS-latest,   r: 'release'}
           - {os: windows-latest, r: 'release'}
-          # - {os: macOS-latest,   r: 'oldrel'}
+          - {os: macOS-latest,   r: 'oldrel'}
           - {os: windows-latest, r: 'oldrel'}
 
     env:
@@ -83,8 +83,9 @@ jobs:
           ls -R
           cp pkg/pkg-macOS-latest-release/${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}.tar.gz .
           cp pkg/pkg-macOS-latest-release/${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}.tgz .
+          cp pkg/pkg-macOS-latest-oldrel/${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}.tgz . ${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}_oldrel.tgz
           cp pkg/pkg-windows-latest-release/${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}.zip .
-          cp pkg/pkg-windows-latest-oldrel/${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}.zip ${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}_oldrel.tgz
+          cp pkg/pkg-windows-latest-oldrel/${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}.zip ${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}_oldrel.zip
           ls dust*
 
       - name: Create release
