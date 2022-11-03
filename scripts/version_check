@@ -40,6 +40,7 @@ else
         echo "[OK] $PATH_VERSION_HPP matches DESCRIPTION"
     else
         echo "[ERROR] $PATH_VERSION_HPP needs updating to match DESCRIPTION"
+        echo "        to fix run ./scripts/update_version"
         EXIT_CODE=1
     fi
 fi

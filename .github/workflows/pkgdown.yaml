@@ -1,20 +1,26 @@
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
-    branches:
-      - master
-      - main
-      - mrc-3377
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  release:
+    types: [published]
+  workflow_dispatch:
 
 name: pkgdown
 
 jobs:
   pkgdown:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+    # Only restrict concurrency for non-PR jobs
+    concurrency:
+      group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      RSPM: https://packagemanager.rstudio.com/cran/__linux__/focal/latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -27,9 +33,6 @@ jobs:
           extra-packages: any::pkgdown, local::.
           needs: website
 
-      - name: Install package
-        run: R CMD INSTALL .
-
       - name: Install sphinx/doxygen dependencies
         run: |
           sudo apt-get update
@@ -39,5 +42,11 @@ jobs:
       - name: Build site
         run: ./scripts/docs_build
 
-      - name: Deploy site
-        run: ./scripts/docs_push
+      - name: Deploy to GitHub pages 🚀
+        if: github.event_name != 'pull_request'
+        uses: JamesIves/github-pages-deploy-action@v4.4.1
+        with:
+          clean: false
+          branch: gh-pages
+          folder: docs
+          single-commit: true
