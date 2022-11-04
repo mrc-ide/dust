@@ -94,8 +94,9 @@ dust_data <- function(object, name_time = "time", multi = NULL) {
     }
     itimes <- itimes[[1L]]
     rows_grouped <- unname(split(rows, group))
-    ret <- lapply(seq_along(itimes), function(i)
-      c(list(itimes[[i]]), lapply(rows_grouped, "[[", i)))
+    ret <- lapply(seq_along(itimes), function(i) {
+      c(list(itimes[[i]]), lapply(rows_grouped, "[[", i))
+    })
   } else {
     stop("Invalid option for 'multi'; must be NULL, integer or character")
   }
