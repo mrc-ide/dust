@@ -12,7 +12,7 @@ namespace gpu {
 // within the file in that we expect that the user will specialise it.
 template <typename T>
 __device__
-void update_gpu(size_t step,
+void update_gpu(size_t time,
                 const interleaved<typename T::real_type> state,
                 interleaved<int> internal_int,
                 interleaved<typename T::real_type> internal_real,
@@ -73,8 +73,8 @@ void scatter_device(const size_t* index,
 
 template <typename T>
 __global__
-void run_particles(size_t step_start,
-                   size_t step_end,
+void run_particles(size_t time_start,
+                   size_t time_end,
                    size_t n_particles,
                    size_t n_pars,
                    typename T::real_type * state,
@@ -148,8 +148,8 @@ void run_particles(size_t step_start,
     interleaved<rng_int_type> p_rng(rng_state, i, n_particles);
 
     rng_state_type rng_block = get_rng_state<rng_state_type>(p_rng);
-    for (size_t step = step_start; step < step_end; ++step) {
-      update_gpu<T>(step,
+    for (size_t time = time_start; time < time_end; ++time) {
+      update_gpu<T>(time,
                     p_state,
                     p_internal_int,
                     p_internal_real,

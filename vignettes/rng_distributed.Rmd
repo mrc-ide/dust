@@ -31,7 +31,7 @@ r$state()
 #> [26] 49 ee d9 dd 95 81 e2
 ```
 
-To seed the next stream we "jump ahead" in the stream. The generators provide pre-computed coefficients that jump the state of the generator to a state equal to drawing a very large number of steps. For the default generator (`xoshiro256+`) this is 2^128 steps, equal to the square root of the period of the generator (2^256^1).
+To seed the next stream we "jump ahead" in the stream. The generators provide pre-computed coefficients that jump the state of the generator to a state equal to drawing a very large number of random numbers (or equivalently steps of the Markov chains). For the default generator (`xoshiro256+`) this is 2^128 draws, equal to the square root of the period of the generator (2^256^1).
 
 
 ```r
@@ -429,7 +429,7 @@ run_filter <- function(pars, mod) {
     return(-Inf)
   }
   pars <- list(alpha = pars[[1]], sigma = pars[[2]])
-  mod$update_state(pars = pars, step = 0)
+  mod$update_state(pars = pars, time = 0)
   mod$filter()$log_likelihood
 }
 ```
@@ -453,13 +453,13 @@ We could also write a very simple MCMC using the Metropolis-Hastings algorithm:
 
 
 ```r
-mcmc <- function(mod, p, n_steps, proposal_sd = 0.02) {
+mcmc <- function(mod, p, n_times, proposal_sd = 0.02) {
   ll <- run_filter(p, mod)
 
-  ret <- matrix(NA_real_, n_steps + 1, length(p) + 1)
+  ret <- matrix(NA_real_, n_times + 1, length(p) + 1)
   ret[1, ] <- c(p, ll)
 
-  for (i in seq_len(n_steps)) {
+  for (i in seq_len(n_times)) {
     p_new <- rnorm(length(p), p, proposal_sd)
     ll_new <- run_filter(p_new, mod)
     if (ll_new > ll || runif(1) < exp(ll_new - ll)) {

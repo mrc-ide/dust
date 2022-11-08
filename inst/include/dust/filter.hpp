@@ -10,10 +10,10 @@ namespace filter {
 template <typename T>
 std::vector<typename T::real_type>
 filter(T * obj,
-       size_t step_end,
+       size_t time_end,
        filter_state_host<typename T::real_type>& state,
        bool save_trajectories,
-       std::vector<size_t> step_snapshot,
+       std::vector<size_t> time_snapshot,
        const std::vector<typename T::real_type>& min_log_likelihood) {
   using real_type = typename T::real_type;
 
@@ -28,11 +28,11 @@ filter(T * obj,
   if (save_trajectories) {
     state.trajectories.resize(obj->n_state(), n_particles, n_pars, n_data);
 
-    // On the first step we save the initial conditions; that is
-    // whenever `step_end` falls before the first data point (rhs here
+    // On the first time we save the initial conditions; that is
+    // whenever `time_end` falls before the first data point (rhs here
     // is just the time that the first data point ends at).
-    const auto step_first_data = obj->data().begin()->first;
-    if (obj->step() <= step_first_data) {
+    const auto time_first_data = obj->data().begin()->first;
+    if (obj->time() <= time_first_data) {
       obj->state(state.trajectories.value_iterator());
     }
 
@@ -40,23 +40,23 @@ filter(T * obj,
   }
 
   bool save_snapshots = false;
-  if (step_snapshot.size() > 0) {
+  if (time_snapshot.size() > 0) {
     save_snapshots = true;
-    state.snapshots.resize(obj->n_state_full(), n_particles, step_snapshot);
+    state.snapshots.resize(obj->n_state_full(), n_particles, time_snapshot);
   }
 
   const bool is_stochastic = !obj->deterministic();
   auto d = obj->data().cbegin();
   const auto d_end = obj->data().cend();
 
-  while (d->first <= obj->step() && d != d_end) {
+  while (d->first <= obj->time() && d != d_end) {
     d++;
     state.trajectories.advance();
   }
 
-  for (; d != d_end && obj->step() < step_end; ++d) {
-    const auto step = d->first;
-    obj->run(step);
+  for (; d != d_end && obj->time() < time_end; ++d) {
+    const auto time = d->first;
+    obj->run(time);
     obj->compare_data(weights, d->second);
 
     // TODO: we should cope better with the case where all weights
@@ -75,7 +75,7 @@ filter(T * obj,
       std::fill(log_likelihood.begin(),
                 log_likelihood.end(),
                 -std::numeric_limits<real_type>::infinity());
-      obj->set_step(step_end);
+      obj->set_time(time_end);
       return log_likelihood;
     }
 
@@ -92,7 +92,7 @@ filter(T * obj,
       state.trajectories.advance();
     }
 
-    if (save_snapshots && state.snapshots.is_snapshot_step(step)) {
+    if (save_snapshots && state.snapshots.is_snapshot_time(time)) {
       obj->state_full(state.snapshots.value_iterator());
       state.snapshots.advance();
     }

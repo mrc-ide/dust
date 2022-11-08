@@ -212,7 +212,7 @@ test_that("resetting preserves index names", {
     mod$run(0),
     matrix(c(1, 3, 5), 3, 5, dimnames = list(c("x", "y", "z"), NULL)))
 
-  mod$update_state(pars = list(len = 10), step = 0)
+  mod$update_state(pars = list(len = 10), time = 0)
   expect_equal(
     mod$run(0),
     matrix(c(1, 3, 5), 3, 5, dimnames = list(c("x", "y", "z"), NULL)))
@@ -226,7 +226,7 @@ test_that("Can't change dimensionality on reset/set_pars", {
   mod$update_state(state = y)
 
   expect_error(
-    mod$update_state(pars = list(len = 5), step = 0),
+    mod$update_state(pars = list(len = 5), time = 0),
     paste("'pars' created inconsistent state size:",
           "expected length 10 but created length 5"))
   expect_error(
@@ -236,7 +236,7 @@ test_that("Can't change dimensionality on reset/set_pars", {
 
   ## No change to model state
   expect_identical(mod$state(), y)
-  expect_identical(mod$step(), 10L)
+  expect_identical(mod$time(), 10L)
 })
 
 
@@ -289,11 +289,11 @@ test_that("number of threads must be positive", {
 })
 
 
-test_that("step must be nonnegative", {
+test_that("time must be nonnegative", {
   res <- dust_example("walk")
   expect_error(
     res$new(list(), -1, 4),
-    "'step' must be non-negative")
+    "'time' must be non-negative")
 })
 
 
@@ -316,7 +316,7 @@ test_that("can change pars", {
 
   obj$update_state(pars = list(sd = 2), set_initial_state = FALSE)
   expect_equal(obj$state(), y1)
-  expect_equal(obj$step(), 1)
+  expect_equal(obj$time(), 1)
   expect_equal(obj$pars(), list(sd = 2))
 
   y2 <- obj$run(2)
@@ -426,9 +426,9 @@ test_that("Particles are initialised based on time", {
 
   mod <- res$new(list(sd = 1), 0, 5)
   expect_equal(mod$state(), matrix(0, 1, 5))
-  mod$update_state(list(sd = 1), step = 2)
+  mod$update_state(list(sd = 1), time = 2)
   expect_equal(mod$state(), matrix(2, 1, 5))
-  mod$update_state(list(sd = 1), step = 3)
+  mod$update_state(list(sd = 1), time = 3)
   expect_equal(mod$state(), matrix(3, 1, 5))
   mod <- res$new(list(sd = 1), 4, 5)
   expect_equal(mod$state(), matrix(4, 1, 5))

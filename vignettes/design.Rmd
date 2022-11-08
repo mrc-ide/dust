@@ -31,7 +31,7 @@ update_walk <- function(state, pars) {
 }
 ```
 
-and then iterating it for 20 steps with:
+and then iterating it for 20 time steps with:
 
 ```{r}
 y <- 0
@@ -41,7 +41,7 @@ for (i in 1:20) {
 }
 ```
 
-At the end of this process, the variable `y` contains a new value, corresponding to 20 steps with our stochastic update function.
+At the end of this process, the variable `y` contains a new value, corresponding to 20 time steps with our stochastic update function.
 
 So why does `dust` apparently require thousands of lines of code to do this?
 
@@ -145,7 +145,7 @@ The internal state is the the hardest to understand in this set. Suppose that we
     std::vector<real_type> samples;
   };
   // ...
-  void update(size_t step, const real_type * state, rng_state_type& rng_state,
+  void update(size_t time, const real_type * state, rng_state_type& rng_state,
               real_type * state_next) {
     for (size_t i = 0; i < shared->n; ++i) {
       internal.samples[i] = dust::random::uniform(rng_state, 0, 1)
@@ -225,12 +225,12 @@ public:
   size_t size() {
     return 1;
   }
-  std::vector<real_type> initial(size_t step) {
+  std::vector<real_type> initial(size_t time) {
     std::vector<real_type> state(1);
     state[0] = shared->initial_y;
     return state;
   }
-  void update(size_t step, const real_type * state, rng_state_type& rng_state, real_type * state_next) {
+  void update(size_t time, const real_type * state, rng_state_type& rng_state, real_type * state_next) {
     const real_type y = state[0];
     state_next[0] = dust::random::uniform<real_type>(rng_state, y, shared->sd);
   }

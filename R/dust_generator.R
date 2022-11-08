@@ -20,6 +20,17 @@
 ##'   see [dust::dust] and to interact with some built-in ones see
 ##'   [dust::dust_example()]
 ##'
+##' @section Time:
+##'
+##' For discrete time models, dust has an internal "time", which was
+##' called `step` in version `0.11.x` and below.  This must always
+##' be non-negative (i.e., zero or more) and always increases in
+##' unit increments.  Typically a model will remap this internal
+##' time onto a more meaningful time in model space, e.g. by applying
+##' the transform `model_time = offset + time * dt`; with this approach
+##' you can start at any real valued time and scale the unit increments
+##' to control the model dynamics.
+##'
 ##' @return A `dust_generator` object
 ##'
 ##' @examples
@@ -70,7 +81,7 @@ dust_generator <- R6::R6Class(
     ##' your model. If `pars_multi` is `TRUE`, then this must be an
     ##' *unnamed* list of `pars` objects (see Details).
     ##'
-    ##' @param step Initial step - must be nonnegative
+    ##' @param time Initial time - must be nonnegative
     ##'
     ##' @param n_particles Number of particles to create - must be at
     ##' least 1
@@ -110,7 +121,7 @@ dust_generator <- R6::R6Class(
     ##' For additional control, provide a list with elements `device_id`
     ##' and `run_block_size`. Further options (and validation) of this
     ##' list will be added in a future version!
-    initialize = function(pars, step, n_particles, n_threads = 1L,
+    initialize = function(pars, time, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
                           gpu_config = NULL) {
@@ -133,30 +144,30 @@ dust_generator <- R6::R6Class(
     ##' Run the model up to a point in time, returning the filtered state
     ##' at that point.
     ##'
-    ##' @param step_end Step to run to (if less than or equal to the current
-    ##'   step(), silently nothing will happen)
-    run = function(step_end) {
+    ##' @param time_end Time to run to (if less than or equal to the current
+    ##'   time(), silently nothing will happen)
+    run = function(time_end) {
     },
 
     ##' @description
-    ##' Iterate all particles forward in time over a series of steps,
+    ##' Iterate all particles forward in time over a series of times,
     ##' collecting output as they go. This is a helper around `$run()`
     ##' where you want to run to a series of points in time and save
     ##' output. The returned object will be filtered by your active index,
-    ##' so that it has shape (`n_state` x `n_particles` x `length(step_end)`)
+    ##' so that it has shape (`n_state` x `n_particles` x `length(time_end)`)
     ##' for single-parameter objects, and (`n_state` x `n_particles` x
-    ##' `n_pars` x `length(step_end)`) for multiparameter objects. Note that
+    ##' `n_pars` x `length(time_end)`) for multiparameter objects. Note that
     ##' this method is very similar to `$run()` except that the rank of
-    ##' the returned array is one less. For a scalar `step_end` you would
+    ##' the returned array is one less. For a scalar `time_end` you would
     ##' ordinarily want to use `$run()` but the resulting numbers would
     ##' be identical.
     ##'
-    ##' @param step_end A vector of time points that the simulation should
+    ##' @param time_end A vector of time points that the simulation should
     ##'   report output at. This the first time must be at least the same
     ##'   as the current time, and every subsequent time must be equal or
     ##'   greater than those before it (ties are allowed though probably
     ##'   not wanted).
-    simulate = function(step_end) {
+    simulate = function(time_end) {
     },
 
     ##' @description
@@ -203,17 +214,17 @@ dust_generator <- R6::R6Class(
 
     ##' @description Update one or more components of the model state.
     ##'   This method can be used to update any or all of `pars`, `state` and
-    ##'   `step`.  If both `pars` and `step` are given and `state` is not,
+    ##'   `time`.  If both `pars` and `time` are given and `state` is not,
     ##'   then by default we will update the model internal state according
     ##'   to your model's initial conditions - use `set_initial_state = FALSE`
     ##'   to prevent this.
     ##'
     ##' @param pars New pars for the model (see constructor)
     ##'
-    ##' @param step New initial step for the model. If this
+    ##' @param time New initial time for the model. If this
     ##'   is a vector (with the same length as the number of particles), then
-    ##'   particles are started from different initial steps and run up to the
-    ##'   largest step given (i.e., `max(step)`)
+    ##'   particles are started from different initial times and run up to the
+    ##'   largest time given (i.e., `max(time)`)
     ##'
     ##' @param state The state vector - can be either a numeric vector with the
     ##'   same length as the model's current state (in which case the same
@@ -226,7 +237,7 @@ dust_generator <- R6::R6Class(
     ##'   should be set while setting parameters. It is an error for
     ##'   this to be `TRUE` when either `pars` is `NULL` or when `state`
     ##'   is non-`NULL`.
-    update_state = function(pars = NULL, state = NULL, step = NULL,
+    update_state = function(pars = NULL, state = NULL, time = NULL,
                             set_initial_state = NULL) {
     },
 
@@ -237,8 +248,8 @@ dust_generator <- R6::R6Class(
     },
 
     ##' @description
-    ##' Return current model step
-    step = function() {
+    ##' Return current model time
+    time = function() {
     },
 
     ##' @description
@@ -408,12 +419,12 @@ dust_generator <- R6::R6Class(
     ##' @description
     ##' Run a particle filter. The interface here will change a lot over the
     ##' next few versions. You *must* reset the dust object using
-    ##' `$update_state(pars = ..., step = ...)` before using this method to
+    ##' `$update_state(pars = ..., time = ...)` before using this method to
     ##' get sensible values.
     ##'
-    ##' @param step_end The step to run to. If `NULL`, run to the end
+    ##' @param time_end The time to run to. If `NULL`, run to the end
     ##'   of the last data.  This value must be larger than the current
-    ##'   model step (`$step()`) and must exactly appear in the data.
+    ##'   model time (`$time()`) and must exactly appear in the data.
     ##'
     ##' @param save_trajectories Logical, indicating if the filtered particle
     ##' trajectories should be saved. If `TRUE` then the `trajectories` element
@@ -421,20 +432,20 @@ dust_generator <- R6::R6Class(
     ##' containing the state values, selected according to the index set
     ##' with `$set_index()`.
     ##'
-    ##' @param step_snapshot Optional integer vector indicating steps
+    ##' @param time_snapshot Optional integer vector indicating times
     ##' that we should record a snapshot of the full particle filter state.
     ##' If given it must be strictly increasing vector whose elements
-    ##' match steps given in the `data` object. The return value with be
-    ##' a multidimensional array (`state x <shape> x step_snapshot`)
-    ##' containing full state values at the requested steps.
+    ##' match times given in the `data` object. The return value with be
+    ##' a multidimensional array (`state x <shape> x time_snapshot`)
+    ##' containing full state values at the requested times.
     ##'
     ##' @param min_log_likelihood Optionally, a numeric value representing
     ##' the smallest likelihood we are interested in. If non-`NULL`
     ##' either a scalar value or vector the same length as the number
     ##' of parameter sets. Not yet supported, and included for future
     ##' compatibility.
-    filter = function(step_end = NULL, save_trajectories = FALSE,
-                      step_snapshot = NULL, min_log_likelihood = NULL) {
+    filter = function(time_end = NULL, save_trajectories = FALSE,
+                      time_snapshot = NULL, min_log_likelihood = NULL) {
     },
 
     ##' @description

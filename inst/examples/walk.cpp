@@ -16,12 +16,12 @@ public:
     return 1;
   }
 
-  std::vector<real_type> initial(size_t step) {
+  std::vector<real_type> initial(size_t time) {
     std::vector<real_type> ret = {0};
     return ret;
   }
 
-  void update(size_t step, const real_type * state, rng_state_type& rng_state,
+  void update(size_t time, const real_type * state, rng_state_type& rng_state,
               real_type * state_next) {
     state_next[0] = state[0] +
       dust::random::normal<real_type>(rng_state, 0, shared->sd);

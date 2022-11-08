@@ -33,7 +33,7 @@ The `dust` package provides tools to help write stochastic models that can be ev
 
 ## A simple example - random walk
 
-Consider a unbiased random walk; at each time step we move our position with a draw from a normal distribution with mean 0 and some standard deviation. We consider a single individual moving but will eventually simulate a family of these individuals, each independent. All simulations have a sense of time - a unitless measure of time "step" will be used but it's up to you how it is interpreted (step is a non-negative integer, implemented using `size_t`).
+Consider a unbiased random walk; at each time step we move our position with a draw from a normal distribution with mean 0 and some standard deviation. We consider a single individual moving but will eventually simulate a family of these individuals, each independent. All simulations have a sense of time - a unitless measure of time "step" will be used but it's up to you how it is interpreted (time is a non-negative integer, implemented using `size_t`).
 
 ### Model code
 
@@ -83,7 +83,7 @@ walk
 Create an instance of the model using `walk$new`. There are three required arguments:
 
 * `pars`: passed to `dust_pars` to initialise the model
-* `step`: the initial step (0 seems like a sensible choice here given our model has no internal sense of time)
+* `time`: the initial time (0 seems like a sensible choice here given our model has no internal sense of time)
 * `n_particles`: the number of particles to create
 
 ```{r walk_create}
@@ -99,7 +99,7 @@ model$state()
 
 Here there is one row per model state variable (there is only one here) and one column per particle (there are 20)
 
-and we can run the model for 100 steps, which returns the state at the end of the walk (and not at any intermediate steps):
+and we can run the model for 100 time steps, which returns the state at the end of the walk (and not at any intermediate times):
 
 ```{r walk_run_1}
 model$run(100)
@@ -111,7 +111,7 @@ We can also directly retrieve the state from our object
 model$state()
 ```
 
-At this point our particles have been run for 100 steps with standard deviation 1 at each step so they [will be distributed following Normal(0, 10)](https://en.wikipedia.org/wiki/Random_walk#Gaussian_random_walk).  This is easier to see if we simulate a lot of particles, here 20,000:
+At this point our particles have been run for 100 time steps with standard deviation 1 at each step so they [will be distributed following Normal(0, 10)](https://en.wikipedia.org/wiki/Random_walk#Gaussian_random_walk).  This is easier to see if we simulate a lot of particles, here 20,000:
 
 ```{r walk_simulate_many}
 model <- walk$new(list(sd = 1), 0, 20000)
@@ -238,16 +238,16 @@ model$state(c(S = 1L, R = 3L))
 
 Again, this copies names from the index if they are present.
 
-In order to run the simulation beginning-to-end, we use the `$simulate` method on a dust object, which runs over a set of steps and records the state at each.
+In order to run the simulation beginning-to-end, we use the `$simulate` method on a dust object, which runs over a set of time steps and records the state at each.
 
 ```{r sir_run_collect}
 model <- sir$new(list(), 0, 200)
 model$set_index(2L)
-steps <- seq(0, 600, by = 5)
-state <- model$simulate(steps)
+times <- seq(0, 600, by = 5)
+state <- model$simulate(times)
 ```
 
-The output here is a 1 x 200 x 121 matrix (n state x n particles x n steps)
+The output here is a 1 x 200 x 121 matrix (n state x n particles x n times)
 
 ```{r sir_run_dim}
 dim(state)
@@ -259,13 +259,13 @@ we need to drop the first dimension and transpose the others for ease of plottin
 traces <- t(drop(state))
 ```
 
-Plotting this over time (with 4 steps per day - see the sir code above)
+Plotting this over time (with 4 time steps per day - see the sir code above)
 
 ```{r sir_average}
-time <- steps / 4
-matplot(time, traces, type = "l", lty = 1, col = "#00000022",
-        xlab = "Time", ylab = "Number infected (I)")
-lines(time, rowMeans(traces), col = "red", lwd = 2)
+day <- times / 4
+matplot(day, traces, type = "l", lty = 1, col = "#00000022",
+        xlab = "Day", ylab = "Number infected (I)")
+lines(day, rowMeans(traces), col = "red", lwd = 2)
 ```
 
 ## Other methods
@@ -316,12 +316,12 @@ When this reordering happens, only the model state is copied around; the `intern
 
 ### Set particle state
 
-A particle state is determined by three mutable things; `pars`, `state` and `step`; these can all be updated for a model after it has been created.  We have found setting one or more of these at a time important;
+A particle state is determined by three mutable things; `pars`, `state` and `time`; these can all be updated for a model after it has been created.  We have found setting one or more of these at a time important;
 
-* Resetting the model with a new set of parameters (`pars`), initial conditions (`state`) and times (`step`)
+* Resetting the model with a new set of parameters (`pars`), initial conditions (`state`) and times (`time`)
 * Changing `pars` at some point in the simulation to introduce some new aspect of the model
 * Changing `state` to manually move around some individuals within a model
-* Setting `step` along with `state` when initialising the model from a previously saved state
+* Setting `time` along with `state` when initialising the model from a previously saved state
 
 The `update_state` method allows setting any or all of these components.
 
@@ -336,22 +336,22 @@ model$state()
 Now, when we run the model, far more of the epidemics fail to take off as the infected individual goes disappears before infecting anyone.
 
 ```{r}
-steps <- seq(0, 600, by = 5)
-state <- model$simulate(steps)
-time <- steps / 4
-matplot(time, t(state[2, , ]), type = "l", lty = 1, col = "#00000022",
-        xlab = "Time", ylab = "Number infected (I)")
+times <- seq(0, 600, by = 5)
+state <- model$simulate(times)
+day <- times / 4
+matplot(day, t(state[2, , ]), type = "l", lty = 1, col = "#00000022",
+        xlab = "Day", ylab = "Number infected (I)")
 ```
 
-You can optionally set the initial step at the same time as the state. This is useful if your model depends on time (e.g., you use the step in a calculation by transforming it into some measure of time).
+You can optionally set the initial time along with the state. This is useful if your model depends on time (e.g., you use the time step in a calculation by transforming it into some more meaningful measure of time).
 
 You can also set the initial state to a range of different values. Suppose we set the initial number of infections to be Poisson distributed with a mean of 10, we might write:
 
 ```{r}
 I0 <- rpois(20, 10)
 state0 <- rbind(1010 - I0, I0, 0, 0, 0, deparse.level = 0)
-model$update_state(state = state0, step = 0L)
-model$step()
+model$update_state(state = state0, time = 0L)
+model$time()
 model$state()
 ```
 
@@ -359,7 +359,7 @@ model$state()
 
 One particularly common case is to "reset" the model in order to run it again. you should not simply recreate the model from its constructor as that will re-seed a new set of random state -- it would be preferable continue with the generator state in your old model.
 
-Suppose we run our model with sd of 1 for 100 steps
+Suppose we run our model with sd of 1 for 100 time steps
 
 ```{r}
 model <- walk$new(list(sd = 1), 0, 10, seed = 1L)
@@ -369,7 +369,7 @@ y1 <- model$run(100)
 we then use `reset` to set new parameters into the model and set the time back to zero and can run again
 
 ```{r}
-model$update_state(pars = list(sd = 2), step = 0)
+model$update_state(pars = list(sd = 2), time = 0)
 y2 <- model$run(100)
 ```
 

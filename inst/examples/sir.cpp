@@ -27,12 +27,12 @@ public:
     return 5;
   }
 
-  std::vector<real_type> initial(size_t step) {
+  std::vector<real_type> initial(size_t time) {
     std::vector<real_type> ret = {shared->S0, shared->I0, shared->R0, 0, 0};
     return ret;
   }
 
-  void update(size_t step, const real_type * state, rng_state_type& rng_state,
+  void update(size_t time, const real_type * state, rng_state_type& rng_state,
               real_type * state_next) {
     real_type S = state[0];
     real_type I = state[1];
@@ -54,7 +54,7 @@ public:
     state_next[3] = cumulative_incidence + n_SI;
     // Little trick here to compute daily incidence by accumulating
     // incidence from the first day.
-    state_next[4] = (step % shared->freq == 0) ? n_SI : state[4] + n_SI;
+    state_next[4] = (time % shared->freq == 0) ? n_SI : state[4] + n_SI;
   }
 
   real_type compare_data(const real_type * state, const data_type& data,
@@ -117,7 +117,7 @@ cpp11::sexp dust_info<sir>(const dust::pars_type<sir>& pars) {
 
 // The way that this is going to work is we will process a list
 // *outside* of the C that will take (say) a df and convert it
-// row-wise into a list with elements `step` and `data`, we will pass
+// row-wise into a list with elements `time` and `data`, we will pass
 // that in here. Then this function will be called once per data
 // element to create the struct that will be used for future work.
 template <>

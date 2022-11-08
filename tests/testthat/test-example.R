@@ -28,13 +28,13 @@ test_that("Update particle state and resume continues with rng", {
   obj <- res$new(list(sd = sd1), 0, 10, seed = 1L)
 
   y1 <- obj$run(5)
-  expect_equal(obj$step(), 5)
+  expect_equal(obj$time(), 5)
 
-  obj$update_state(pars = list(sd = sd2), step = 0)
+  obj$update_state(pars = list(sd = sd2), time = 0)
 
-  expect_equal(obj$step(), 0)
+  expect_equal(obj$time(), 0)
   y2 <- obj$run(5)
-  expect_equal(obj$step(), 5)
+  expect_equal(obj$time(), 5)
 
   ## Then draw the random numbers:
   cmp <- dust_rng$new(1, 10)$normal(10, 0, 1)
@@ -55,10 +55,10 @@ test_that("Basic sir model", {
   ans <- vector("list", 150)
   for (i in seq_along(ans)) {
     value <- obj$run(i * 4)
-    ans[[i]] <- list(value = value, state = obj$state(), step = obj$step())
+    ans[[i]] <- list(value = value, state = obj$state(), time = obj$time())
   }
 
-  step <- vapply(ans, function(x) x$step, numeric(1))
+  time <- vapply(ans, function(x) x$time, numeric(1))
   state_s <- t(vapply(ans, function(x) x$state[1, ], numeric(100)))
   state_i <- t(vapply(ans, function(x) x$state[2, ], numeric(100)))
   state_r <- t(vapply(ans, function(x) x$state[3, ], numeric(100)))
@@ -72,7 +72,7 @@ test_that("Basic sir model", {
   expect_false(all(state_i[-n, ] - state_i[-1, ] <= 0))
   expect_false(all(state_i[-n, ] - state_i[-1, ] >= 0))
   expect_identical(value, state_s)
-  expect_equal(step, seq(4, by = 4, length.out = n))
+  expect_equal(time, seq(4, by = 4, length.out = n))
 
   expect_equal(state_cum, 1000 - state_s)
   expect_equal(state_inc[-1, ], diff(state_cum))
@@ -114,7 +114,7 @@ test_that("update_state with pars does not clear the index", {
   mod <- res$new(list(len = 10), 0, 1, seed = 1L)
   mod$set_index(2:4)
   expect_equal(mod$run(0), matrix(2:4))
-  mod$update_state(pars = list(len = 10), step = 0)
+  mod$update_state(pars = list(len = 10), time = 0)
   expect_equal(mod$run(0), matrix(2:4))
 })
 
@@ -270,7 +270,7 @@ test_that("update_state with pars changes info", {
   expect_equal(obj$info(),
                list(vars = c("S", "I", "R", "cases_cumul", "cases_inc"),
                     pars = list(beta = 0.2, gamma = 0.1)))
-  obj$update_state(pars = list(beta = 0.1), step = 0)
+  obj$update_state(pars = list(beta = 0.1), time = 0)
   expect_equal(obj$info(),
                list(vars = c("S", "I", "R", "cases_cumul", "cases_inc"),
                     pars = list(beta = 0.1, gamma = 0.1)))
@@ -337,9 +337,9 @@ test_that("set model state and time, can't vary time", {
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(rep(as.numeric(1:2), each = 10), 10, 2)
-  step <- 0:1
-  expect_error(mod$update_state(state = m, step = step),
-               "Expected 'step' to be scalar")
+  time <- 0:1
+  expect_error(mod$update_state(state = m, time = time),
+               "Expected 'time' to be scalar")
 })
 
 
@@ -347,11 +347,11 @@ test_that("set model state and time, constant time", {
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(runif(20), 10, 2)
-  step <- 10L
-  mod$update_state(state = m, step = step)
+  time <- 10L
+  mod$update_state(state = m, time = time)
 
   state <- mod$state()
-  expect_equal(mod$step(), 10)
+  expect_equal(mod$time(), 10)
   expect_equal(state, m)
 })
 
@@ -359,12 +359,12 @@ test_that("set model state and time, constant time", {
 test_that("set model time but not state", {
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
-  expect_null(mod$update_state(state = NULL, step = NULL))
-  expect_equal(mod$step(), 0)
+  expect_null(mod$update_state(state = NULL, time = NULL))
+  expect_equal(mod$time(), 0)
   expect_equal(mod$state(), matrix(1:10, 10, 2))
 
-  expect_null(mod$update_state(state = NULL, step = 10L))
-  expect_equal(mod$step(), 10)
+  expect_null(mod$update_state(state = NULL, time = 10L))
+  expect_equal(mod$time(), 10)
   expect_equal(mod$state(), matrix(1:10, 10, 2))
 })
 
@@ -373,17 +373,17 @@ test_that("NULL state leaves state untouched", {
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 2, seed = 1L)
   m <- matrix(runif(20), 10, 2)
-  mod$update_state(state = m, step = NULL)
+  mod$update_state(state = m, time = NULL)
   expect_equal(mod$state(), m)
-  expect_equal(mod$step(), 0)
+  expect_equal(mod$time(), 0)
 
-  mod$update_state(state = NULL, step = 10L)
+  mod$update_state(state = NULL, time = 10L)
   expect_equal(mod$state(), m)
-  expect_equal(mod$step(), 10)
+  expect_equal(mod$time(), 10)
 
-  mod$update_state(state = NULL, step = NULL)
+  mod$update_state(state = NULL, time = NULL)
   expect_equal(mod$state(), m)
-  expect_equal(mod$step(), 10)
+  expect_equal(mod$time(), 10)
 })
 
 
@@ -450,18 +450,18 @@ test_that("Can run compare_data", {
 
   np <- 10
   end <- 150 * 4
-  steps <- seq(0, end, by = 4)
-  ans <- res$new(list(), 0, np, seed = 1L)$simulate(steps)
+  times <- seq(0, end, by = 4)
+  ans <- res$new(list(), 0, np, seed = 1L)$simulate(times)
 
   ## Confirm the incidence calculation is correct:
   expect_equal(
     rowSums(ans[5, , ]),
-    1000 - ans[1, , length(steps)])
+    1000 - ans[1, , length(times)])
   expect_equal(
     t(apply(ans[5, , ], 1, cumsum)),
     ans[4, , ])
 
-  d <- dust_data(data.frame(step = steps, incidence = ans[5, 1, ]))
+  d <- dust_data(data.frame(time = times, incidence = ans[5, 1, ]))
 
   ## Use Inf for exp_noise as that gives us deterministic results
   mod <- res$new(list(exp_noise = Inf), 0, np, seed = 1L)
@@ -541,7 +541,7 @@ test_that("volality compare is correct", {
                dat$compare(y, dat$data[1, ], pars))
 
   f <- function() {
-    mod$update_state(pars = pars, step = 0L)
+    mod$update_state(pars = pars, time = 0L)
     mod$filter()$log_likelihood
   }
   ll <- replicate(200, f())
@@ -556,19 +556,19 @@ test_that("volality compare is correct", {
 test_that("can simulate, respecting index", {
   res <- dust_example("sir")
 
-  steps <- seq(0, 100, by = 10)
+  times <- seq(0, 100, by = 10)
   np <- 20
   mod <- res$new(list(), 0, np, seed = 1L)
-  y <- mod$simulate(steps)
-  expect_equal(dim(y), c(5, np, length(steps)))
+  y <- mod$simulate(times)
+  expect_equal(dim(y), c(5, np, length(times)))
 
   mod2 <- res$new(list(), 0, np, seed = 1L)
   mod2$set_index(5)
-  expect_identical(mod2$simulate(steps), y[5, , , drop = FALSE])
+  expect_identical(mod2$simulate(times), y[5, , , drop = FALSE])
 })
 
 
-test_that("validate simulate steps", {
+test_that("validate simulate times", {
   res <- dust_example("sir")
 
   np <- 20
@@ -578,19 +578,19 @@ test_that("validate simulate steps", {
 
   expect_error(
     mod$simulate(integer(0)),
-    "'step_end' must have at least one element")
+    "'time_end' must have at least one element")
   expect_error(
     mod$simulate(0:10),
-    "'step_end[1]' must be at least 10", fixed = TRUE)
+    "'time_end[1]' must be at least 10", fixed = TRUE)
   expect_error(
     mod$simulate(10:5),
-    "'step_end' must be non-decreasing (error on element 2)", fixed = TRUE)
+    "'time_end' must be non-decreasing (error on element 2)", fixed = TRUE)
   expect_error(
     mod$simulate(c(10, 20, 30, 20, 50)),
-    "'step_end' must be non-decreasing (error on element 4)", fixed = TRUE)
+    "'time_end' must be non-decreasing (error on element 4)", fixed = TRUE)
 
   ## Unchanged
-  expect_equal(mod$step(), 10)
+  expect_equal(mod$time(), 10)
   expect_equal(mod$state(), y)
 })
 
@@ -632,17 +632,17 @@ test_that("throw when triggering invalid binomials", {
     err$message,
     "- 9: Invalid call to binomial with n = -10, p =")
   expect_equal(mod$state()[, c(4, 9)], s[, c(4, 9)])
-  expect_error(mod$step(), "Errors pending; reset required")
+  expect_error(mod$time(), "Errors pending; reset required")
   expect_error(mod$run(10), "Errors pending; reset required")
   expect_error(mod$simulate(10:20), "Errors pending; reset required")
   expect_error(mod$compare_data(), "Errors pending; reset required")
   expect_error(mod$filter(), "Errors pending; reset required")
 
   ## This will clear the errors:
-  mod$update_state(state = abs(s), step = 0)
+  mod$update_state(state = abs(s), time = 0)
   ## And we can run again:
   expect_silent(mod$run(10))
-  expect_equal(mod$step(), 10)
+  expect_equal(mod$time(), 10)
 })
 
 
@@ -674,7 +674,7 @@ test_that("more binomial errors", {
 })
 
 
-test_that("steps must not be negative", {
+test_that("times must not be negative", {
   res <- dust_example("sir")
   y0 <- matrix(1, 1, 5)
   pars <- rep(list(list(sd = 1)), 5)
@@ -682,7 +682,7 @@ test_that("steps must not be negative", {
   mod <- res$new(list(), 0, 1)
   expect_error(
     mod$simulate(c(0:10, -5)),
-    "All elements of 'step_end' must be non-negative")
+    "All elements of 'time_end' must be non-negative")
 })
 
 
@@ -717,12 +717,12 @@ test_that("update_state controls initial state", {
   mod <- gen$new(list(I0 = 1), 0, 1)
   expect_equal(mod$state(), rbind(1000, 1, 0, 0, 0))
 
-  ## By default, update state when pars and step given
-  mod$update_state(list(I0 = 2), step = 0)
+  ## By default, update state when pars and time given
+  mod$update_state(list(I0 = 2), time = 0)
   expect_equal(mod$state(), rbind(1000, 2, 0, 0, 0))
 
   ## Allow turning this behaviour off:
-  mod$update_state(list(I0 = 3, step = 0), set_initial_state = FALSE)
+  mod$update_state(list(I0 = 3, time = 0), set_initial_state = FALSE)
   expect_equal(mod$state(), rbind(1000, 2, 0, 0, 0))
 
   ## Not changed when given just pars

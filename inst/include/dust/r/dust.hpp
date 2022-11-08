@@ -25,7 +25,7 @@ namespace dust {
 namespace r {
 
 template <typename T>
-cpp11::list dust_cpu_alloc(cpp11::list r_pars, bool pars_multi, int step,
+cpp11::list dust_cpu_alloc(cpp11::list r_pars, bool pars_multi, int time,
                            cpp11::sexp r_n_particles, int n_threads,
                            cpp11::sexp r_seed, bool deterministic,
                            cpp11::sexp r_gpu_config) {
@@ -33,18 +33,18 @@ cpp11::list dust_cpu_alloc(cpp11::list r_pars, bool pars_multi, int step,
   cpp11::sexp info;
   if (pars_multi) {
     auto inputs =
-      dust::r::process_inputs_multi<T>(r_pars, step, r_n_particles,
+      dust::r::process_inputs_multi<T>(r_pars, time, r_n_particles,
                                        n_threads, r_seed);
     info = inputs.info;
-    d = new dust_cpu<T>(inputs.pars, inputs.step, inputs.n_particles,
+    d = new dust_cpu<T>(inputs.pars, inputs.time, inputs.n_particles,
                         inputs.n_threads, inputs.seed, deterministic,
                         inputs.shape);
   } else {
     auto inputs =
-      dust::r::process_inputs_single<T>(r_pars, step, r_n_particles,
+      dust::r::process_inputs_single<T>(r_pars, time, r_n_particles,
                                         n_threads, r_seed);
     info = inputs.info;
-    d = new dust_cpu<T>(inputs.pars[0], inputs.step, inputs.n_particles,
+    d = new dust_cpu<T>(inputs.pars[0], inputs.time, inputs.n_particles,
                         inputs.n_threads, inputs.seed, deterministic);
   }
   cpp11::external_pointer<dust_cpu<T>> ptr(d, true, false);
@@ -56,7 +56,7 @@ cpp11::list dust_cpu_alloc(cpp11::list r_pars, bool pars_multi, int step,
 }
 
 template <typename T>
-cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi, int step,
+cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi, int time,
                            cpp11::sexp r_n_particles, int n_threads,
                            cpp11::sexp r_seed, bool deterministic,
                            cpp11::sexp r_gpu_config) {
@@ -70,18 +70,18 @@ cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi, int step,
   cpp11::sexp info;
   if (pars_multi) {
     auto inputs =
-      dust::r::process_inputs_multi<T>(r_pars, step, r_n_particles,
+      dust::r::process_inputs_multi<T>(r_pars, time, r_n_particles,
                                        n_threads, r_seed);
     info = inputs.info;
-    d = new dust_gpu<T>(inputs.pars, inputs.step, inputs.n_particles,
+    d = new dust_gpu<T>(inputs.pars, inputs.time, inputs.n_particles,
                         inputs.n_threads, inputs.seed,
                         inputs.shape, gpu_config);
   } else {
     auto inputs =
-      dust::r::process_inputs_single<T>(r_pars, step, r_n_particles,
+      dust::r::process_inputs_single<T>(r_pars, time, r_n_particles,
                                         n_threads, r_seed);
     info = inputs.info;
-    d = new dust_gpu<T>(inputs.pars[0], inputs.step, inputs.n_particles,
+    d = new dust_gpu<T>(inputs.pars[0], inputs.time, inputs.n_particles,
                         inputs.n_threads, inputs.seed, gpu_config);
   }
   cpp11::external_pointer<dust_gpu<T>> ptr(d, true, false);
@@ -132,27 +132,27 @@ cpp11::sexp dust_update_state_set_pars(T *obj, cpp11::list r_pars,
 
 // There are many components of state (not including rng state which
 // we treat separately), we set components always in the order (1)
-// step, (2) pars, (3) state
+// time, (2) pars, (3) state
 template <typename T, typename real_type>
 cpp11::sexp dust_update_state_set(T *obj, SEXP r_pars,
                                   const std::vector<real_type>& state,
-                                  const std::vector<size_t>& step,
+                                  const std::vector<size_t>& time,
                                   bool set_initial_state) {
   cpp11::sexp ret = R_NilValue;
-  const size_t step_prev = obj->step();
+  const size_t time_prev = obj->time();
 
-  if (step.size() == 1) { // TODO: can handle this via a bool and int, tidier
-    obj->set_step(step[0]);
+  if (time.size() == 1) { // TODO: can handle this via a bool and int, tidier
+    obj->set_time(time[0]);
   }
 
   if (r_pars != R_NilValue) {
-    // NOTE: if initial state is step dependent, then this picks up
-    // the step set above.
+    // NOTE: if initial state is time dependent, then this picks up
+    // the time set above.
     try {
       ret = dust_update_state_set_pars(obj, cpp11::as_cpp<cpp11::list>(r_pars),
                                        set_initial_state);
     } catch (const std::invalid_argument& e) {
-      obj->set_step(step_prev);
+      obj->set_time(time_prev);
       throw e;
     }
   }
@@ -161,9 +161,9 @@ cpp11::sexp dust_update_state_set(T *obj, SEXP r_pars,
     obj->set_state(state);
   }
 
-  // If we set both initial conditions and step then we're safe to
+  // If we set both initial conditions and time then we're safe to
   // continue here.
-  if ((set_initial_state || state.size() > 0) && step.size() > 0) {
+  if ((set_initial_state || state.size() > 0) && time.size() > 0) {
     obj->reset_errors();
   }
 
@@ -171,7 +171,7 @@ cpp11::sexp dust_update_state_set(T *obj, SEXP r_pars,
 }
 
 template <typename T>
-SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
+SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_time,
                        SEXP r_set_initial_state) {
   using real_type = typename T::real_type;
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
@@ -179,7 +179,7 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
   bool set_initial_state = false;
   if (r_set_initial_state == R_NilValue) {
     set_initial_state = r_state == R_NilValue &&
-      r_pars != R_NilValue && r_step != R_NilValue;
+      r_pars != R_NilValue && r_time != R_NilValue;
   } else {
     set_initial_state = cpp11::as_cpp<bool>(r_set_initial_state);
   }
@@ -193,17 +193,17 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
 
   // Do the validation on both arguments first so that we leave this
   // function having dealt with both or neither (i.e., do not fail on
-  // step after succeeding on state).
+  // time after succeeding on state).
 
-  std::vector<size_t> step;
+  std::vector<size_t> time;
   std::vector<real_type> state;
 
-  if (r_step != R_NilValue) {
+  if (r_time != R_NilValue) {
     // TODO: simplify this, if possible
-    step = dust::r::validate_size(r_step, "step");
-    const size_t len = step.size();
+    time = dust::r::validate_size(r_time, "time");
+    const size_t len = time.size();
     if (len != 1) {
-      cpp11::stop("Expected 'step' to be scalar");
+      cpp11::stop("Expected 'time' to be scalar");
     }
   }
 
@@ -214,15 +214,15 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_step,
                                             obj->pars_are_shared());
   }
 
-  return dust_update_state_set(obj, r_pars, state, step, set_initial_state);
+  return dust_update_state_set(obj, r_pars, state, time, set_initial_state);
 }
 
 template <typename T>
-cpp11::sexp dust_run(SEXP ptr, int step_end) {
-  dust::r::validate_size(step_end, "step_end");
+cpp11::sexp dust_run(SEXP ptr, int time_end) {
+  dust::r::validate_size(time_end, "time_end");
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   obj->check_errors();
-  obj->run(step_end);
+  obj->run(time_end);
 
   // TODO: the allocation should come from the dust object, *or* we
   // should be able to do this with a pointer to the C array. The
@@ -236,26 +236,26 @@ cpp11::sexp dust_run(SEXP ptr, int step_end) {
 }
 
 template <typename T>
-cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_step_end) {
+cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_time_end) {
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   obj->check_errors();
-  const std::vector<size_t> step_end =
-    dust::r::validate_size(r_step_end, "step_end");
-  const size_t n_time = step_end.size();
+  const std::vector<size_t> time_end =
+    dust::r::validate_size(r_time_end, "time_end");
+  const size_t n_time = time_end.size();
   if (n_time == 0) {
-    cpp11::stop("'step_end' must have at least one element");
+    cpp11::stop("'time_end' must have at least one element");
   }
-  if (step_end[0] < obj->step()) {
-    cpp11::stop("'step_end[1]' must be at least %d", obj->step());
+  if (time_end[0] < obj->time()) {
+    cpp11::stop("'time_end[1]' must be at least %d", obj->time());
   }
   for (size_t i = 1; i < n_time; ++i) {
-    if (step_end[i] < step_end[i - 1]) {
-      cpp11::stop("'step_end' must be non-decreasing (error on element %d)",
+    if (time_end[i] < time_end[i - 1]) {
+      cpp11::stop("'time_end' must be non-decreasing (error on element %d)",
                   i + 1);
     }
   }
 
-  std::vector<typename T::real_type> dat = obj->simulate(step_end);
+  std::vector<typename T::real_type> dat = obj->simulate(time_end);
 
   return dust::r::state_array(dat, obj->n_state(), obj->shape(),
                               n_time);
@@ -297,10 +297,10 @@ SEXP dust_state(SEXP ptr, SEXP r_index) {
 }
 
 template <typename T>
-size_t dust_step(SEXP ptr) {
+size_t dust_time(SEXP ptr) {
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   obj->check_errors();
-  return obj->step();
+  return obj->time();
 }
 
 template <typename T>
@@ -390,14 +390,14 @@ void dust_set_data(SEXP ptr, cpp11::list r_data, bool data_is_shared) {
       cpp11::stop("Expected a list of length %d for element %d of 'data'",
                   n_data + 1, i + 1);
     }
-    const size_t step_i = cpp11::as_cpp<int>(el[0]);
+    const size_t time_i = cpp11::as_cpp<int>(el[0]);
     std::vector<data_type> data_i;
     data_i.reserve(n_data);
     for (size_t j = 0; j < n_data; ++j) {
       // TODO: no reason why dust_data<T> could not work here, really?
       data_i.push_back(dust_data<model_type>(cpp11::as_cpp<cpp11::list>(el[j + 1])));
     }
-    data[step_i] = data_i;
+    data[time_i] = data_i;
   }
   obj->set_data(data, data_is_shared);
 }
@@ -436,32 +436,32 @@ cpp11::sexp save_trajectories(const filter_state& trajectories,
 
 template <typename filter_state, typename T>
 cpp11::sexp save_snapshots(const filter_state& snapshots, const T *obj,
-                           const std::vector<size_t>& step_snapshot) {
+                           const std::vector<size_t>& time_snapshot) {
   cpp11::writable::doubles snapshots_data(snapshots.size());
   snapshots.history(REAL(snapshots_data));
   snapshots_data.attr("dim") =
     dust::r::state_array_dim(obj->n_state_full(), obj->shape(),
-                             step_snapshot.size());
+                             time_snapshot.size());
   cpp11::sexp r_snapshots = snapshots_data;
   return(r_snapshots);
 }
 
 template <typename T>
-cpp11::sexp run_filter(T * obj, size_t step,
-                       std::vector<size_t>& step_snapshot,
+cpp11::sexp run_filter(T * obj, size_t time,
+                       std::vector<size_t>& time_snapshot,
                        bool save_trajectories,
                        const std::vector<typename T::real_type> min_log_likelihood) {
   typename T::filter_state_type filter_state;
   cpp11::writable::doubles log_likelihood =
-    dust::filter::filter(obj, step, filter_state, save_trajectories,
-                         step_snapshot, min_log_likelihood);
+    dust::filter::filter(obj, time, filter_state, save_trajectories,
+                         time_snapshot, min_log_likelihood);
   cpp11::sexp r_trajectories, r_snapshots;
   if (save_trajectories) {
     r_trajectories = dust::r::save_trajectories(filter_state.trajectories, obj);
   }
-  if (!step_snapshot.empty()) {
+  if (!time_snapshot.empty()) {
     r_snapshots = dust::r::save_snapshots(filter_state.snapshots, obj,
-                                          step_snapshot);
+                                          time_snapshot);
   }
 
   using namespace cpp11::literals;
@@ -471,8 +471,8 @@ cpp11::sexp run_filter(T * obj, size_t step,
 }
 
 template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
-cpp11::sexp dust_filter(SEXP ptr, SEXP r_step_end, bool save_trajectories,
-                        cpp11::sexp r_step_snapshot,
+cpp11::sexp dust_filter(SEXP ptr, SEXP r_time_end, bool save_trajectories,
+                        cpp11::sexp r_time_snapshot,
                         cpp11::sexp r_min_log_likelihood) {
   using real_type = typename T::real_type;
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
@@ -482,26 +482,26 @@ cpp11::sexp dust_filter(SEXP ptr, SEXP r_step_end, bool save_trajectories,
     cpp11::stop("Data has not been set for this object");
   }
 
-  size_t step_end = std::prev(obj->data().end())->first;
-  if (r_step_end != R_NilValue) {
-    step_end = cpp11::as_cpp<int>(r_step_end);
-    dust::r::validate_size(step_end, "step_end");
-    if (obj->data().find(step_end) == obj->data().end()) {
-      cpp11::stop("'step_end' was not found in data (was given %d)", step_end);
+  size_t time_end = std::prev(obj->data().end())->first;
+  if (r_time_end != R_NilValue) {
+    time_end = cpp11::as_cpp<int>(r_time_end);
+    dust::r::validate_size(time_end, "time_end");
+    if (obj->data().find(time_end) == obj->data().end()) {
+      cpp11::stop("'time_end' was not found in data (was given %d)", time_end);
     }
   }
-  if (step_end <= obj->step()) {
-    cpp11::stop("'step_end' must be larger than curent step (%d; given %d)",
-                obj->step(), step_end);
+  if (time_end <= obj->time()) {
+    cpp11::stop("'time_end' must be larger than curent time (%d; given %d)",
+                obj->time(), time_end);
   }
 
-  std::vector<size_t> step_snapshot =
-    dust::r::check_step_snapshot(r_step_snapshot, obj->data());
+  std::vector<size_t> time_snapshot =
+    dust::r::check_time_snapshot(r_time_snapshot, obj->data());
 
   const auto min_log_likelihood =
     check_min_log_likelihood<real_type>(r_min_log_likelihood, obj->n_pars());
 
-  return run_filter<T>(obj, step_end, step_snapshot, save_trajectories,
+  return run_filter<T>(obj, time_end, time_snapshot, save_trajectories,
                        min_log_likelihood);
 }
 
@@ -525,8 +525,8 @@ cpp11::sexp dust_compare_data(SEXP ptr) {
 }
 
 template <typename T, typename std::enable_if<std::is_same<dust::no_data, typename T::data_type>::value, int>::type = 0>
-cpp11::sexp dust_filter(SEXP ptr, SEXP step_end, bool save_trajectories,
-                        cpp11::sexp step_snapshot,
+cpp11::sexp dust_filter(SEXP ptr, SEXP time_end, bool save_trajectories,
+                        cpp11::sexp time_snapshot,
                         cpp11::sexp min_log_likelihood) {
   disable_method("filter");
   return R_NilValue; // #nocov never gets here

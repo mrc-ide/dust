@@ -321,33 +321,33 @@ std::vector<real_type> check_resample_weights(cpp11::doubles r_weights,
 }
 
 template <typename T>
-std::vector<size_t> check_step_snapshot(cpp11::sexp r_step_snapshot,
+std::vector<size_t> check_time_snapshot(cpp11::sexp r_time_snapshot,
                                         const std::map<size_t, T>& data) {
-  std::vector<size_t> step_snapshot;
-  if (r_step_snapshot == R_NilValue) {
-    return step_snapshot;
+  std::vector<size_t> time_snapshot;
+  if (r_time_snapshot == R_NilValue) {
+    return time_snapshot;
   }
 
-  cpp11::integers r_step_snapshot_int =
-    as_integer(r_step_snapshot, "step_snapshot");
+  cpp11::integers r_time_snapshot_int =
+    as_integer(r_time_snapshot, "time_snapshot");
 
-  step_snapshot.reserve(r_step_snapshot_int.size());
-  for (int i = 0; i < r_step_snapshot_int.size(); ++i) {
-    const int step = r_step_snapshot_int[i];
-    if (step < 0) {
-      cpp11::stop("'step_snapshot' must be positive");
+  time_snapshot.reserve(r_time_snapshot_int.size());
+  for (int i = 0; i < r_time_snapshot_int.size(); ++i) {
+    const int time = r_time_snapshot_int[i];
+    if (time < 0) {
+      cpp11::stop("'time_snapshot' must be positive");
     }
-    if (i > 0 && step <= r_step_snapshot_int[i - 1]) {
-      cpp11::stop("'step_snapshot' must be strictly increasing");
+    if (i > 0 && time <= r_time_snapshot_int[i - 1]) {
+      cpp11::stop("'time_snapshot' must be strictly increasing");
     }
-    if (data.find(step) == data.end()) {
-      cpp11::stop("'step_snapshot[%d]' (step %d) was not found in data",
-                  i + 1, step);
+    if (data.find(time) == data.end()) {
+      cpp11::stop("'time_snapshot[%d]' (time %d) was not found in data",
+                  i + 1, time);
     }
-    step_snapshot.push_back(step);
+    time_snapshot.push_back(time);
   }
 
-  return step_snapshot;
+  return time_snapshot;
 }
 
 template <typename real_type>
@@ -382,7 +382,7 @@ check_min_log_likelihood(cpp11::sexp r_min_log_likelihood, size_t n_pars) {
 template <typename T>
 struct dust_inputs {
   std::vector<dust::pars_type<T>> pars;
-  size_t step;
+  size_t time;
   size_t n_particles;
   size_t n_threads;
   std::vector<typename T::rng_state_type::int_type> seed;
@@ -391,10 +391,10 @@ struct dust_inputs {
 };
 
 template <typename T>
-dust_inputs<T> process_inputs_single(cpp11::list r_pars, int step,
+dust_inputs<T> process_inputs_single(cpp11::list r_pars, int time,
                                      cpp11::sexp r_n_particles,
                                      int n_threads, cpp11::sexp r_seed) {
-  dust::r::validate_size(step, "step");
+  dust::r::validate_size(time, "time");
   dust::r::validate_positive(n_threads, "n_threads");
   std::vector<typename T::rng_state_type::int_type> seed =
     dust::random::r::as_rng_seed<typename T::rng_state_type>(r_seed);
@@ -407,7 +407,7 @@ dust_inputs<T> process_inputs_single(cpp11::list r_pars, int step,
   std::vector<size_t> shape; // empty
   return dust_inputs<T>{
     pars,
-    static_cast<size_t>(step),
+    static_cast<size_t>(time),
     static_cast<size_t>(n_particles),
     static_cast<size_t>(n_threads),
     seed,
@@ -416,10 +416,10 @@ dust_inputs<T> process_inputs_single(cpp11::list r_pars, int step,
 }
 
 template <typename T>
-dust_inputs<T> process_inputs_multi(cpp11::list r_pars, int step,
+dust_inputs<T> process_inputs_multi(cpp11::list r_pars, int time,
                                     cpp11::sexp r_n_particles,
                                     int n_threads, cpp11::sexp r_seed) {
-  dust::r::validate_size(step, "step");
+  dust::r::validate_size(time, "time");
   dust::r::validate_positive(n_threads, "n_threads");
   std::vector<typename T::rng_state_type::int_type> seed =
     dust::random::r::as_rng_seed<typename T::rng_state_type>(r_seed);
@@ -448,7 +448,7 @@ dust_inputs<T> process_inputs_multi(cpp11::list r_pars, int step,
   }
   return dust_inputs<T>{
     pars,
-    static_cast<size_t>(step),
+    static_cast<size_t>(time),
     static_cast<size_t>(n_particles),
     static_cast<size_t>(n_threads),
     seed,

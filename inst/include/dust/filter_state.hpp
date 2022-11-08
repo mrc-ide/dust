@@ -10,8 +10,8 @@ namespace dust {
 namespace filter {
 
 inline void assert_has_storage(size_t n_state, size_t n_particles,
-                               size_t n_steps) {
-  if (n_state == 0 || n_particles == 0 || n_steps == 0) {
+                               size_t n_times) {
+  if (n_state == 0 || n_particles == 0 || n_times == 0) {
     throw std::runtime_error("Invalid size (zero) for filter state"); // #nocov
   }
 }
@@ -22,19 +22,19 @@ public:
   filter_snapshots_host() {
   }
 
-  void resize(size_t n_state, size_t n_particles, std::vector<size_t> steps) {
+  void resize(size_t n_state, size_t n_particles, std::vector<size_t> times) {
     n_state_ = n_state;
     n_particles_ = n_particles;
-    n_steps_ = steps.size();
+    n_times_ = times.size();
     offset_ = 0;
-    steps_ = steps;
+    times_ = times;
 
-    assert_has_storage(n_state_ , n_particles_, n_steps_);
-    state_.resize(n_state_ * n_particles_ * n_steps_);
+    assert_has_storage(n_state_ , n_particles_, n_times_);
+    state_.resize(n_state_ * n_particles_ * n_times_);
   }
 
-  bool is_snapshot_step(size_t step) {
-    return offset_ < n_steps_ && steps_[offset_] == step;
+  bool is_snapshot_time(size_t time) {
+    return offset_ < n_times_ && times_[offset_] == time;
   }
 
   void advance() {
@@ -57,9 +57,9 @@ public:
 protected:
   size_t n_state_;
   size_t n_particles_;
-  size_t n_steps_;
+  size_t n_times_;
   size_t offset_;
-  std::vector<size_t> steps_;
+  std::vector<size_t> times_;
   std::vector<real_type> state_;
 };
 
@@ -115,7 +115,7 @@ public:
   // resample as that is prohibitively expensive.
   //
   // So to output sensible history we start with a particle and we
-  // look to see where it "came from" in the previous step
+  // look to see where it "came from" in the previous time step
   // (history_index) and propagate this backward in time to
   // reconstruct what is in effect a multifurcating tree.
   // This is analogous to the particle ancestor concept in the

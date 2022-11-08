@@ -4,12 +4,12 @@
 \alias{dust_data}
 \title{Process data for dust}
 \usage{
-dust_data(object, name_step = "step", multi = NULL)
+dust_data(object, name_time = "time", multi = NULL)
 }
 \arguments{
 \item{object}{An object, at this point must be a \link{data.frame}}
 
-\item{name_step}{The name of the data column within \code{object}; this
+\item{name_time}{The name of the data column within \code{object}; this
 column must be integer-like and every integer must be
 nonnegative and unique}
 
@@ -25,23 +25,28 @@ the subsequent elements are data for that time step.
 \description{
 Prepare data for use with the \verb{$set_data()} method. This is not
 required for use but tries to simplify the most common use case
-where you have a \link{data.frame} with some column indicating "model
-step" (\code{name_step}), and other columns that might be use in your
-\code{data_compare} function. Each row will be turned into a named R
-list, which your \code{dust_data} function can then work with to get
+where you have a \link{data.frame} with some column indicating "dust
+time step" (\code{name_time}), and other columns that might be use in
+your \code{data_compare} function. Each row will be turned into a named
+R list, which your \code{dust_data} function can then work with to get
 this time-steps values. See Details for use with multi-pars
 objects.
 }
 \details{
+Note that here "dust time step" (\code{name_time}) refers to the \emph{dust}
+time step (which will be a non-negative integer) and not the
+rescaled value of time that you probably use within the model. See
+\link{dust_generator} for more information.
+
 The data object as accepted by \code{data_set} must be a \link{list} and
-each element must itself be a list with two elements; the model
-\code{step} at which the data applies and any R object that corresponds
+each element must itself be a list with two elements; the dust
+\code{time} at which the data applies and any R object that corresponds
 to data at that point. We expect that most of the time this second
 element will be a key-value list with scalar keys, but more
 flexibility may be required.
 
 For multi-data objects, the final format is a bit more awkward;
-each time step we have a list with elements \code{step}, \code{data_1},
+each time step we have a list with elements \code{time}, \code{data_1},
 \code{data_2}, ..., \code{data_n} for \code{n} parameters. There are two ways of
 creating this that might be useful: \emph{sharing} the data across all
 parameters and using some column as a grouping value.
@@ -62,6 +67,6 @@ the integers \code{1:n}).
 }
 }
 \examples{
-d <- data.frame(step = seq(0, 50, by = 10), a = runif(6), b = runif(6))
+d <- data.frame(time = seq(0, 50, by = 10), a = runif(6), b = runif(6))
 dust::dust_data(d)
 }

@@ -11,10 +11,10 @@ namespace filter {
 template <typename T>
 std::vector<typename T::real_type>
 filter(T * obj,
-       size_t step_end,
+       size_t time_end,
        filter_state_device<typename T::real_type>& state,
        bool save_trajectories,
-       std::vector<size_t> step_snapshot,
+       std::vector<size_t> time_snapshot,
        const std::vector<typename T::real_type>& min_log_likelihood) {
   using real_type = typename T::real_type;
 
@@ -31,8 +31,8 @@ filter(T * obj,
   if (save_trajectories) {
     state.trajectories.resize(obj->n_state(), n_particles, n_pars, n_data);
 
-    const auto step_first_data = obj->data().begin()->first;
-    if (obj->step() <= step_first_data) {
+    const auto time_first_data = obj->data().begin()->first;
+    if (obj->time() <= time_first_data) {
       state.trajectories.store_values(obj->device_state_selected());
     }
 
@@ -40,23 +40,23 @@ filter(T * obj,
   }
 
   bool save_snapshots = false;
-  if (step_snapshot.size() > 0) {
+  if (time_snapshot.size() > 0) {
     save_snapshots = true;
-    state.snapshots.resize(obj->n_state_full(), n_particles, step_snapshot);
+    state.snapshots.resize(obj->n_state_full(), n_particles, time_snapshot);
   }
 
   auto d = obj->data().cbegin();
   const auto d_end = obj->data().cend();
 
-  while (d->first <= obj->step() && d != d_end) {
+  while (d->first <= obj->time() && d != d_end) {
     d++;
     state.trajectories.advance();
   }
 
-  for (; d != d_end && obj->step() < step_end; ++d) {
-    const auto step = d->first;
+  for (; d != d_end && obj->time() < time_end; ++d) {
+    const auto time = d->first;
     // MODEL UPDATE
-    obj->run(step);
+    obj->run(time);
 
     // COMPARISON FUNCTION
     obj->compare_data(weights.weights(), d->second);
@@ -76,7 +76,7 @@ filter(T * obj,
     }
 
     // SAVE SNAPSHOT
-    if (save_snapshots && state.snapshots.is_snapshot_step(step)) {
+    if (save_snapshots && state.snapshots.is_snapshot_time(time)) {
       state.snapshots.store(obj->device_state_full());
       state.snapshots.advance();
     }

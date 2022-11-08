@@ -1,3 +1,9 @@
+# dust 0.12.0
+
+* Breaking change, with `step` (and so on with `step_end`) changing to `time` everywhere, in order to smooth the inclusion of continuous time models. This affects quite a few methods:
+  * `step()` and `set_step()` become `time()` and `set_time()`
+  * `update_state()`'s argument changes from `step` to `time`
+
 # dust 0.11.24
 
 * Add `min_log_likelihood` support to `$filter()` (#361)

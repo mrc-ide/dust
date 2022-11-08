@@ -37,7 +37,7 @@ public:
   // TODO: fix this elsewhere, perhaps (see also cuda/dust_gpu.hpp)
   using filter_state_type = dust::filter::filter_state_host<real_type>;
 
-  dust_cpu(const pars_type& pars, const size_t step, const size_t n_particles,
+  dust_cpu(const pars_type& pars, const size_t time, const size_t n_particles,
            const size_t n_threads, const std::vector<rng_int_type>& seed,
            const bool deterministic) :
     n_pars_(0),
@@ -47,12 +47,12 @@ public:
     n_threads_(n_threads),
     rng_(n_particles_total_ + 1, seed, deterministic), // +1 for filter
     errors_(n_particles_total_) {
-    initialise(pars, step, n_particles, true);
+    initialise(pars, time, n_particles, true);
     initialise_index();
     shape_ = {n_particles};
   }
 
-  dust_cpu(const std::vector<pars_type>& pars, const size_t step,
+  dust_cpu(const std::vector<pars_type>& pars, const size_t time,
            const size_t n_particles, const size_t n_threads,
            const std::vector<rng_int_type>& seed,
            const bool deterministic,
@@ -64,7 +64,7 @@ public:
     n_threads_(n_threads),
     rng_(n_particles_total_ + 1, seed, deterministic),  // +1 for filter
     errors_(n_particles_total_) {
-    initialise(pars, step, n_particles_each_, true);
+    initialise(pars, time, n_particles_each_, true);
     initialise_index();
     // constructing the shape here is harder than above.
     if (n_particles > 0) {
@@ -77,12 +77,12 @@ public:
 
   void set_pars(const pars_type& pars, bool set_state) {
     const size_t n_particles = particles_.size();
-    initialise(pars, step(), n_particles, set_state);
+    initialise(pars, time(), n_particles, set_state);
   }
 
   void set_pars(const std::vector<pars_type>& pars, bool set_state) {
     const size_t n_particles = particles_.size();
-    initialise(pars, step(), n_particles / pars.size(), set_state);
+    initialise(pars, time(), n_particles / pars.size(), set_state);
   }
 
   // It's the callee's responsibility to ensure this is the correct length:
@@ -105,13 +105,13 @@ public:
     }
   }
 
-  void set_step(const size_t step) {
+  void set_time(const size_t time) {
     const size_t n_particles = particles_.size();
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
     for (size_t i = 0; i < n_particles; ++i) {
-      particles_[i].set_step(step);
+      particles_[i].set_time(time);
     }
   }
 
@@ -121,13 +121,13 @@ public:
     index_ = index;
   }
 
-  void run(const size_t step_end) {
+  void run(const size_t time_end) {
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
     for (size_t i = 0; i < particles_.size(); ++i) {
       try {
-        particles_[i].run(step_end, rng_.state(i));
+        particles_[i].run(time_end, rng_.state(i));
       } catch (std::exception const& e) {
         errors_.capture(e, i);
       }
@@ -135,8 +135,8 @@ public:
     errors_.report();
   }
 
-  std::vector<real_type> simulate(const std::vector<size_t>& step_end) {
-    const size_t n_time = step_end.size();
+  std::vector<real_type> simulate(const std::vector<size_t>& time_end) {
+    const size_t n_time = time_end.size();
     std::vector<real_type> ret(n_particles() * n_state() * n_time);
 
 #ifdef _OPENMP
@@ -145,7 +145,7 @@ public:
     for (size_t i = 0; i < particles_.size(); ++i) {
       try {
         for (size_t t = 0; t < n_time; ++t) {
-          particles_[i].run(step_end[t], rng_.state(i));
+          particles_[i].run(time_end[t], rng_.state(i));
           size_t offset = t * n_state() * n_particles() + i * n_state();
           particles_[i].state(index_, ret.begin() + offset);
         }
@@ -298,8 +298,8 @@ public:
     return data_;
   }
 
-  size_t step() const {
-    return particles_.front().step();
+  size_t time() const {
+    return particles_.front().time();
   }
 
   const std::vector<size_t>& shape() const {
@@ -346,7 +346,7 @@ public:
 
   std::vector<real_type> compare_data() {
     std::vector<real_type> res;
-    auto d = data_.find(step());
+    auto d = data_.find(time());
     if (d != data_.end()) {
       res.resize(particles_.size());
       compare_data(res, d->second);
@@ -385,10 +385,10 @@ private:
   std::vector<dust::particle<T>> particles_;
   std::vector<dust::shared_ptr<T>> shared_;
 
-  void initialise(const pars_type& pars, const size_t step,
+  void initialise(const pars_type& pars, const size_t time,
                   const size_t n_particles, bool set_state) {
     const size_t n = particles_.size() == 0 ? 0 : n_state_full();
-    dust::particle<T> p(pars, step);
+    dust::particle<T> p(pars, time);
     if (n > 0 && p.size() != n) {
       std::stringstream msg;
       msg << "'pars' created inconsistent state size: " <<
@@ -415,12 +415,12 @@ private:
     reset_errors();
   }
 
-  void initialise(const std::vector<pars_type>& pars, const size_t step,
+  void initialise(const std::vector<pars_type>& pars, const size_t time,
                   const size_t n_particles, bool set_state) {
     size_t n = particles_.size() == 0 ? 0 : n_state_full();
     std::vector<dust::particle<T>> p;
     for (size_t i = 0; i < n_pars_; ++i) {
-      p.push_back(dust::particle<T>(pars[i], step));
+      p.push_back(dust::particle<T>(pars[i], time));
       if (n > 0 && p.back().size() != n) {
         std::stringstream msg;
         msg << "'pars' created inconsistent state size: " <<
