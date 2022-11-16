@@ -24,6 +24,13 @@ reference:
       - dust_rng_distributed_state
       - dust_rng_distributed_pointer
 
+  - title: ODE models
+    desc: >-
+      Additional support for ODE (ordinary differential equation)
+      models
+    contents:
+      - dust_ode_control
+
   - title: Run in parallel with OpenMP
     desc: >-
       Detect OpenMP support
