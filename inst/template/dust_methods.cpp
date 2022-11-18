@@ -24,9 +24,9 @@ SEXP dust_{{target}}_{{name}}_set_index(SEXP ptr, cpp11::sexp r_index) {
 }
 
 SEXP dust_{{target}}_{{name}}_update_state(SEXP ptr, SEXP r_pars, SEXP r_state,
-                                SEXP r_time, SEXP r_set_initial_state) {
+                                           SEXP r_time, SEXP r_set_initial_state, SEXP index, SEXP reset_step_size) {
   return dust::r::dust_update_state<model_{{target}}>(ptr, r_pars, r_state, r_time,
-                                               r_set_initial_state);
+                                                      r_set_initial_state, index, reset_step_size);
 }
 
 SEXP dust_{{target}}_{{name}}_state(SEXP ptr, SEXP r_index) {

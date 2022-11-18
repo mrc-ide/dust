@@ -164,6 +164,32 @@ test_that("set model state with a matrix", {
 })
 
 
+test_that("set model state with an index", {
+  res <- dust_example("variable")
+  mod <- res$new(list(len = 10), 0, n_particles = 2, seed = 1L)
+  y <- mod$state()
+  index <- c(2, 5, 8)
+  s <- runif(3)
+  mod$update_state(state = s, index = index)
+  cmp <- y
+  cmp[index, ] <- s
+  expect_equal(mod$state(), cmp)
+})
+
+
+test_that("set model state as a matrix with an index", {
+  res <- dust_example("variable")
+  mod <- res$new(list(len = 10), 0, n_particles = 2, seed = 1L)
+  y <- mod$state()
+  index <- c(2, 5, 8)
+  s <- matrix(runif(6), 3, 2)
+  mod$update_state(state = s, index = index)
+  cmp <- y
+  cmp[index, ] <- s
+  expect_equal(mod$state(), cmp)
+})
+
+
 test_that("reorder", {
   res <- dust_example("walk")
 

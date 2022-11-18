@@ -77,6 +77,13 @@ public:
     }
   }
 
+  void set_state(typename std::vector<real_type>::const_iterator state,
+                 const std::vector<size_t>& index) {
+    for (size_t i = 0; i < index.size(); ++i, ++state) {
+      y_[index[i]] = *state;
+    }
+  }
+
   real_type compare_data(const data_type& data, rng_state_type& rng_state) {
     return model_.compare_data(y_.data(), data, rng_state);
   }

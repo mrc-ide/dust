@@ -170,7 +170,11 @@ public:
   //   and all particles get the state
   // * if is_matrix is true, state must be length (n_state_full() *
   //   n_particles()) and every particle gets a different state.
-  void set_state(const std::vector<real_type>& state) {
+  void set_state(const std::vector<real_type>& state,
+                 const std::vector<size_t>& index) {
+    if (index.size() != 0) {
+      throw std::runtime_error("Can't use index with gpu models");
+    }
     const size_t n_particles = n_particles_total_;
     const size_t n_state = n_state_full();
     const bool individual = state.size() == n_state * n_particles;

@@ -137,7 +137,8 @@ template <typename T, typename real_type>
 cpp11::sexp dust_update_state_set(T *obj, SEXP r_pars,
                                   const std::vector<real_type>& state,
                                   const std::vector<size_t>& time,
-                                  bool set_initial_state) {
+                                  bool set_initial_state,
+                                  const std::vector<size_t>& index) {
   cpp11::sexp ret = R_NilValue;
   const size_t time_prev = obj->time();
 
@@ -158,7 +159,7 @@ cpp11::sexp dust_update_state_set(T *obj, SEXP r_pars,
   }
 
   if (state.size() > 0) { // && !set_initial_state, though that is implied
-    obj->set_state(state);
+    obj->set_state(state, index);
   }
 
   // If we set both initial conditions and time then we're safe to
@@ -172,23 +173,31 @@ cpp11::sexp dust_update_state_set(T *obj, SEXP r_pars,
 
 template <typename T>
 SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_time,
-                       SEXP r_set_initial_state) {
+                       SEXP r_set_initial_state, SEXP r_index,
+                       SEXP reset_step_size) {
   using real_type = typename T::real_type;
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
 
+  const bool has_time = r_time != R_NilValue;
+  const bool has_pars = r_pars != R_NilValue;
+  const bool has_state = r_state != R_NilValue;
+  const bool has_index = r_index != R_NilValue;
+
   bool set_initial_state = false;
   if (r_set_initial_state == R_NilValue) {
-    set_initial_state = r_state == R_NilValue &&
-      r_pars != R_NilValue && r_time != R_NilValue;
+    set_initial_state = !has_state && has_pars && has_time;
   } else {
     set_initial_state = cpp11::as_cpp<bool>(r_set_initial_state);
   }
 
-  if (set_initial_state && r_pars == R_NilValue) {
+  if (set_initial_state && !has_pars) {
     cpp11::stop("Can't use 'set_initial_state' without providing 'pars'");
   }
-  if (set_initial_state && r_state != R_NilValue) {
+  if (set_initial_state && has_state) {
     cpp11::stop("Can't use both 'set_initial_state' and provide 'state'");
+  }
+  if (has_index && !has_state) {
+    cpp11::stop("Can't provide 'index' without providing 'state'");
   }
 
   // Do the validation on both arguments first so that we leave this
@@ -198,7 +207,7 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_time,
   std::vector<size_t> time;
   std::vector<real_type> state;
 
-  if (r_time != R_NilValue) {
+  if (has_time) {
     // TODO: simplify this, if possible
     time = dust::r::validate_size(r_time, "time");
     const size_t len = time.size();
@@ -207,14 +216,24 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_time,
     }
   }
 
-  if (r_state != R_NilValue) {
+  std::vector<size_t> index;
+
+  if (has_state) {
+    if (has_index) {
+      index = dust::r::r_index_to_index(r_index, obj->n_state_full());
+      if (index.size() == 0) {
+        cpp11::stop("Expected at least one element in 'index'");
+      }
+    }
+    const size_t expected_len = has_index ? index.size() : obj->n_state_full();
     state = dust::r::check_state<real_type>(r_state,
-                                            obj->n_state_full(),
+                                            expected_len,
                                             obj->shape(),
                                             obj->pars_are_shared());
   }
 
-  return dust_update_state_set(obj, r_pars, state, time, set_initial_state);
+  return dust_update_state_set(obj, r_pars, state, time, set_initial_state,
+                               index);
 }
 
 template <typename T>

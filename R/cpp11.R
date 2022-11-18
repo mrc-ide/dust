@@ -124,8 +124,8 @@ dust_cpu_sir_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_cpu_sir_set_index`, ptr, r_index)
 }
 
-dust_cpu_sir_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state) {
-  .Call(`_dust_dust_cpu_sir_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state)
+dust_cpu_sir_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state, index, reset_step_size) {
+  .Call(`_dust_dust_cpu_sir_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state, index, reset_step_size)
 }
 
 dust_cpu_sir_state <- function(ptr, r_index) {
@@ -196,8 +196,8 @@ dust_cpu_sirs_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_cpu_sirs_set_index`, ptr, r_index)
 }
 
-dust_cpu_sirs_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state) {
-  .Call(`_dust_dust_cpu_sirs_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state)
+dust_cpu_sirs_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state, index, reset_step_size) {
+  .Call(`_dust_dust_cpu_sirs_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state, index, reset_step_size)
 }
 
 dust_cpu_sirs_state <- function(ptr, r_index) {
@@ -260,8 +260,8 @@ dust_gpu_sirs_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_gpu_sirs_set_index`, ptr, r_index)
 }
 
-dust_gpu_sirs_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state) {
-  .Call(`_dust_dust_gpu_sirs_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state)
+dust_gpu_sirs_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state, index, reset_step_size) {
+  .Call(`_dust_dust_gpu_sirs_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state, index, reset_step_size)
 }
 
 dust_gpu_sirs_state <- function(ptr, r_index) {
@@ -344,8 +344,8 @@ dust_cpu_variable_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_cpu_variable_set_index`, ptr, r_index)
 }
 
-dust_cpu_variable_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state) {
-  .Call(`_dust_dust_cpu_variable_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state)
+dust_cpu_variable_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state, index, reset_step_size) {
+  .Call(`_dust_dust_cpu_variable_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state, index, reset_step_size)
 }
 
 dust_cpu_variable_state <- function(ptr, r_index) {
@@ -408,8 +408,8 @@ dust_gpu_variable_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_gpu_variable_set_index`, ptr, r_index)
 }
 
-dust_gpu_variable_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state) {
-  .Call(`_dust_dust_gpu_variable_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state)
+dust_gpu_variable_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state, index, reset_step_size) {
+  .Call(`_dust_dust_gpu_variable_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state, index, reset_step_size)
 }
 
 dust_gpu_variable_state <- function(ptr, r_index) {
@@ -480,8 +480,8 @@ dust_cpu_volatility_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_cpu_volatility_set_index`, ptr, r_index)
 }
 
-dust_cpu_volatility_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state) {
-  .Call(`_dust_dust_cpu_volatility_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state)
+dust_cpu_volatility_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state, index, reset_step_size) {
+  .Call(`_dust_dust_cpu_volatility_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state, index, reset_step_size)
 }
 
 dust_cpu_volatility_state <- function(ptr, r_index) {
@@ -552,8 +552,8 @@ dust_cpu_walk_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_cpu_walk_set_index`, ptr, r_index)
 }
 
-dust_cpu_walk_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state) {
-  .Call(`_dust_dust_cpu_walk_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state)
+dust_cpu_walk_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state, index, reset_step_size) {
+  .Call(`_dust_dust_cpu_walk_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state, index, reset_step_size)
 }
 
 dust_cpu_walk_state <- function(ptr, r_index) {
