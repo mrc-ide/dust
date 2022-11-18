@@ -421,7 +421,8 @@ Generate \code{n} numbers from a Poisson distribution
 \describe{
 \item{\code{n}}{Number of samples to draw (per stream)}
 
-\item{\code{lambda}}{The mean (zero or more, length 1 or n). Only valid for}
+\item{\code{lambda}}{The mean (zero or more, length 1 or n). Only valid for
+lambda <= 10^7}
 
 \item{\code{n_threads}}{Number of threads to use; see Details}
 }

@@ -323,7 +323,9 @@ to prevent this.
   pars = NULL,
   state = NULL,
   time = NULL,
-  set_initial_state = NULL
+  set_initial_state = NULL,
+  index = NULL,
+  reset_step_size = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -348,6 +350,13 @@ largest time given (i.e., \code{max(time)})}
 should be set while setting parameters. It is an error for
 this to be \code{TRUE} when either \code{pars} is \code{NULL} or when \code{state}
 is non-\code{NULL}.}
+
+\item{\code{index}}{Index to filter partial state updating}
+
+\item{\code{reset_step_size}}{Logical, indicating if we should
+reset the initial step size. This only has an effect with
+ode models and is silently ignored in discrete time models
+where the step size is constant.}
 }
 \if{html}{\out{</div>}}
 }
