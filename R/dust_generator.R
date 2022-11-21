@@ -237,8 +237,22 @@ dust_generator <- R6::R6Class(
     ##'   should be set while setting parameters. It is an error for
     ##'   this to be `TRUE` when either `pars` is `NULL` or when `state`
     ##'   is non-`NULL`.
+    ##'
+    ##' @param index Used in conjunction with `state`, use this to set a
+    ##'   fraction of the model state; the `index` vector provided must
+    ##'   be the same length as the number of provided states, and
+    ##'   indicates the index within the model state that should be updated.
+    ##'   For example, if your model has states `[a, b, c, d]` and
+    ##'   you provide an index of `[1, 3]` then of `state` was `[10, 20]`
+    ##'   you would set `a` to 10 and `c` to 20.
+    ##'
+    ##' @param reset_step_size Logical, indicating if we should
+    ##'   reset the initial step size. This only has an effect with
+    ##'   ode models and is silently ignored in discrete time models
+    ##'   where the step size is constant.
     update_state = function(pars = NULL, state = NULL, time = NULL,
-                            set_initial_state = NULL) {
+                            set_initial_state = NULL, index = NULL,
+                            reset_step_size = NULL) {
     },
 
     ##' @description

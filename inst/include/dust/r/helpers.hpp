@@ -46,6 +46,17 @@ void validate_size(int x, const char * name) {
 }
 
 inline
+bool validate_logical(SEXP x, bool default_value, const char * name) {
+  if (x == R_NilValue) {
+    return default_value;
+  }
+  if (TYPEOF(x) != LGLSXP || LENGTH(x) != 1) { // TODO: ideally check not missing
+    cpp11::stop("'%s' must be a non-missing scalar logical");
+  }
+  return INTEGER(x)[0];
+}
+
+inline
 void validate_positive(int x, const char *name) {
   if (x <= 0) {
     cpp11::stop("'%s' must be positive (was given %d)", name, x);

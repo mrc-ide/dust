@@ -1,3 +1,7 @@
+# dust 0.12.1
+
+* The `update_state()` method gains an `index` argument for setting just some variables in an update.
+
 # dust 0.12.0
 
 * Breaking change, with `step` (and so on with `step_end`) changing to `time` everywhere, in order to smooth the inclusion of continuous time models. This affects quite a few methods:
