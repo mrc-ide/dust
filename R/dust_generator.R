@@ -238,7 +238,13 @@ dust_generator <- R6::R6Class(
     ##'   this to be `TRUE` when either `pars` is `NULL` or when `state`
     ##'   is non-`NULL`.
     ##'
-    ##' @param index Index to filter partial state updating
+    ##' @param index Used in conjunction with `state`, use this to set a
+    ##'   fraction of the model state; the `index` vector provided must
+    ##'   be the same length as the number of provided states, and
+    ##'   indicates the index within the model state that should be updated.
+    ##'   For example, if your model has states `[a, b, c, d]` and
+    ##'   you provide an index of `[1, 3]` then of `state` was `[10, 20]`
+    ##'   you would set `a` to 10 and `c` to 20.
     ##'
     ##' @param reset_step_size Logical, indicating if we should
     ##'   reset the initial step size. This only has an effect with

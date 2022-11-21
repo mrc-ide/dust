@@ -351,7 +351,13 @@ should be set while setting parameters. It is an error for
 this to be \code{TRUE} when either \code{pars} is \code{NULL} or when \code{state}
 is non-\code{NULL}.}
 
-\item{\code{index}}{Index to filter partial state updating}
+\item{\code{index}}{Used in conjunction with \code{state}, use this to set a
+fraction of the model state; the \code{index} vector provided must
+be the same length as the number of provided states, and
+indicates the index within the model state that should be updated.
+For example, if your model has states \verb{[a, b, c, d]} and
+you provide an index of \verb{[1, 3]} then of \code{state} was \verb{[10, 20]}
+you would set \code{a} to 10 and \code{c} to 20.}
 
 \item{\code{reset_step_size}}{Logical, indicating if we should
 reset the initial step size. This only has an effect with
