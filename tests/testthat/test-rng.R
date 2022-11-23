@@ -713,9 +713,9 @@ test_that("Can vary parameters by generator for multinomial", {
   prob <- prob / rep(colSums(prob), each = np)
 
   state <- matrix(dust_rng$new(ng, seed = 1L)$state(), ncol = ng)
-  cmp <- vapply(seq_len(ng), function(i)
-    dust_rng$new(1, seed = state[, i])$multinomial(n, size, prob[, , i]),
-    matrix(numeric(), np, n))
+  cmp <- vapply(seq_len(ng), function(i) {
+    dust_rng$new(1, seed = state[, i])$multinomial(n, size, prob[, , i])
+  }, matrix(numeric(), np, n))
 
   res <- dust_rng$new(ng, seed = 1L)$multinomial(n, size, prob)
   expect_equal(res, cmp)
@@ -734,9 +734,9 @@ test_that("Can vary parameters for multinomial, multiple generators", {
   ## generators. This test exploits the fact that we alredy worked out
   ## we could vary a parameter over draws with a single generator.
   state <- matrix(dust_rng$new(ng, seed = 1L)$state(), ncol = ng)
-  cmp <- vapply(seq_len(ng), function(i)
-    dust_rng$new(1, seed = state[, i])$multinomial(n, size, prob[, , i]),
-    matrix(numeric(), np, n))
+  cmp <- vapply(seq_len(ng), function(i) {
+    dust_rng$new(1, seed = state[, i])$multinomial(n, size, prob[, , i])
+  }, matrix(numeric(), np, n))
 
   res <- dust_rng$new(ng, seed = 1L)$multinomial(n, size, prob)
   expect_equal(res, cmp)
