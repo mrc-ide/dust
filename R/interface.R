@@ -184,6 +184,13 @@
 ##'   this when your model pulls in C++ code that is packaged within
 ##'   another package's header-only library.
 ##'
+##' @param cpp_std The C++ standard to use. This will be be set into
+##'   the `DESCRIPTION` of the package as the `SystemRequirements`
+##'   field. Sensible options are `C++11`, `C++14` etc. See the
+##'   section "Using C++ code" in "Writing R extensions". The minimum
+##'   allowed version is C++11 but R supports much more recent
+##'   versions now (especially more recent versions of R).
+##'
 ##' @param skip_cache Logical, indicating if the cache of previously
 ##'   compiled models should be skipped. If `TRUE` then your model will
 ##'   not be looked for in the cache, nor will it be added to the
@@ -234,10 +241,11 @@
 ##' # See the state again
 ##' obj$state()
 dust <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
-                 real_type = NULL, linking_to = NULL, skip_cache = FALSE) {
+                 real_type = NULL, linking_to = NULL, cpp_std = NULL,
+                 skip_cache = FALSE) {
   filename <- dust_prepare(filename, real_type)
   compile_and_load(filename, quiet, workdir, cuda_check(gpu), linking_to,
-                   skip_cache)
+                   cpp_std, skip_cache)
 }
 
 
@@ -271,11 +279,12 @@ dust <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
 ##' dir(file.path(path, "R"))
 ##' dir(file.path(path, "src"))
 dust_generate <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
-                          real_type = NULL, linking_to = NULL, mangle = FALSE) {
+                          real_type = NULL, linking_to = NULL, cpp_std = NULL,
+                          mangle = FALSE) {
   filename <- dust_prepare(filename, real_type)
   skip_cache <- TRUE
   res <- generate_dust(filename, quiet, workdir, cuda_check(gpu), linking_to,
-                       skip_cache, mangle)
+                       cpp_std, skip_cache, mangle)
   cpp11::cpp_register(res$path, quiet = quiet)
   res$path
 }

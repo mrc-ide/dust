@@ -1,4 +1,4 @@
-generate_dust <- function(filename, quiet, workdir, cuda, linking_to,
+generate_dust <- function(filename, quiet, workdir, cuda, linking_to, cpp_std,
                           skip_cache, mangle) {
   config <- parse_metadata(filename)
   if (grepl("^[A-Za-z][A-Zxa-z0-9]*$", config$name)) {
@@ -21,7 +21,7 @@ generate_dust <- function(filename, quiet, workdir, cuda, linking_to,
   path <- dust_workdir(workdir)
   model <- read_lines(filename)
   reload <- list(path = path, base = base)
-  data <- dust_template_data(model, config, cuda, reload, linking_to)
+  data <- dust_template_data(model, config, cuda, reload, linking_to, cpp_std)
 
   ## These two are used in the non-package version only
   data$base <- base
@@ -84,10 +84,10 @@ dust_code <- function(data, config) {
 
 
 compile_and_load <- function(filename, quiet = FALSE, workdir = NULL,
-                             cuda = NULL, linking_to = NULL,
+                             cuda = NULL, linking_to = NULL, cpp_std = NULL,
                              skip_cache = FALSE) {
   mangle <- TRUE
-  res <- generate_dust(filename, quiet, workdir, cuda, linking_to,
+  res <- generate_dust(filename, quiet, workdir, cuda, linking_to, cpp_std,
                        skip_cache, mangle)
 
   if (is.null(res$env)) {
@@ -130,7 +130,8 @@ glue_whisker <- function(template, data) {
 }
 
 
-dust_template_data <- function(model, config, cuda, reload_data, linking_to) {
+dust_template_data <- function(model, config, cuda, reload_data, linking_to,
+                               cpp_std) {
   methods <- function(target) {
     nms <- c("alloc", "run", "simulate", "set_index", "n_state",
              "update_state", "state", "time", "reorder", "resample",
@@ -162,6 +163,8 @@ dust_template_data <- function(model, config, cuda, reload_data, linking_to) {
   }
   linking_to <- paste(union("cpp11", linking_to), collapse = ", ")
 
+  cpp_std <- validate_cpp_std(cpp_std)
+
   list(model = model,
        name = config$name,
        class = config$class,
@@ -173,7 +176,8 @@ dust_template_data <- function(model, config, cuda, reload_data, linking_to) {
        methods_cpu = methods_cpu,
        methods_gpu = methods_gpu,
        reload = reload,
-       linking_to = linking_to)
+       linking_to = linking_to,
+       cpp_std = cpp_std)
 }
 
 
@@ -225,4 +229,22 @@ dust_repair_environment <- function(generator, quiet = FALSE) {
   if (!identical(env, generator$parent_env)) {
     generator$parent_env <- env
   }
+}
+
+
+is_valid_cpp_std <- function(cpp_std) {
+  grepl("\\bC\\+\\+[0-9][0-9a-z]\\b", cpp_std, ignore.case = TRUE)
+}
+
+
+validate_cpp_std <- function(cpp_std) {
+  cpp_std <- cpp_std %||% "C++11"
+  assert_is(cpp_std, "character")
+  if (length(cpp_std) != 1L) {
+    stop("Expected a scalar character for 'cpp_std'")
+  }
+  if (!is_valid_cpp_std(cpp_std)) {
+    stop("'cpp_std' does not look like a valid C++ standard name (e.g., C++14)")
+  }
+  cpp_std
 }
