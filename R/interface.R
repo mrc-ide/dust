@@ -179,6 +179,11 @@
 ##'   real type will typically just decrease precision for no
 ##'   additional performance.
 ##'
+##' @param linking_to Optionally, a character vector of additional
+##'   packages to add to the `DESCRIPTION`'s `LinkingTo` field. Use
+##'   this when your model pulls in C++ code that is packaged within
+##'   another package's header-only library.
+##'
 ##' @param skip_cache Logical, indicating if the cache of previously
 ##'   compiled models should be skipped. If `TRUE` then your model will
 ##'   not be looked for in the cache, nor will it be added to the
@@ -229,9 +234,9 @@
 ##' # See the state again
 ##' obj$state()
 dust <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
-                 real_type = NULL, skip_cache = FALSE) {
+                 real_type = NULL, linking_to = NULL, skip_cache = FALSE) {
   filename <- dust_prepare(filename, real_type)
-  compile_and_load(filename, quiet, workdir, cuda_check(gpu),
+  compile_and_load(filename, quiet, workdir, cuda_check(gpu), linking_to,
                    skip_cache)
 }
 
@@ -266,9 +271,11 @@ dust <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
 ##' dir(file.path(path, "R"))
 ##' dir(file.path(path, "src"))
 dust_generate <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
-                          real_type = NULL, mangle = FALSE) {
+                          real_type = NULL, linking_to = NULL, mangle = FALSE) {
   filename <- dust_prepare(filename, real_type)
-  res <- generate_dust(filename, quiet, workdir, cuda_check(gpu), TRUE, mangle)
+  skip_cache <- TRUE
+  res <- generate_dust(filename, quiet, workdir, cuda_check(gpu), linking_to,
+                       skip_cache, mangle)
   cpp11::cpp_register(res$path, quiet = quiet)
   res$path
 }

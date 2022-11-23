@@ -83,7 +83,7 @@ test_that("Can generate cuda compatible code", {
 
   workdir <- tempfile()
   res <- generate_dust(dust_file("examples/sirs.cpp"), TRUE, workdir, cuda,
-                       TRUE, TRUE)
+                       NULL, TRUE, TRUE)
 
   expect_setequal(
     dir(file.path(res$path, "src")),
