@@ -236,10 +236,12 @@ test_that("Can partially run filter", {
 
   expect_equal(vapply(ans, "[[", 1, "log_likelihood"), ll)
 
-  traj <- lapply(seq_along(ans), function(i)
-    ans[[i]]$trajectories[, , i + 1])
-  tmp <- lapply(seq_along(ans) + 1, function(i)
-    filter_trajectories_reorder(hv[, , seq_len(i)], hi[, seq_len(i)])[, , i])
+  traj <- lapply(seq_along(ans), function(i) {
+    ans[[i]]$trajectories[, , i + 1]
+  })
+  tmp <- lapply(seq_along(ans) + 1, function(i) {
+    filter_trajectories_reorder(hv[, , seq_len(i)], hi[, seq_len(i)])[, , i]
+  })
   expect_equal(traj, tmp)
   expect_equal(ans[[1]]$trajectories[, , 1], cmp_trajectories[, , 1])
 })

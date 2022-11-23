@@ -124,9 +124,10 @@ parse_metadata_param1 <- function(i, data) {
       call. = FALSE)
   }
 
-  list(name = as.character(x[[1]]),
-       data = lapply(x[-1], function(el)
-         if (is.symbol(el)) as.character(el) else el))
+  data <- lapply(x[-1], function(el) {
+    if (is.symbol(el)) as.character(el) else el
+  })
+  list(name = as.character(x[[1]]), data = data)
 }
 
 
