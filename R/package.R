@@ -201,7 +201,7 @@ package_validate_namespace_usedynlib <- function(exprs, name) {
 package_generate <- function(filename) {
   config <- parse_metadata(filename)
   model <- read_lines(filename)
-  data <- dust_template_data(model, config, NULL, NULL, NULL)
+  data <- dust_template_data(model, config, NULL, NULL, NULL, NULL)
 
   code <- dust_code(data, config)
 
@@ -228,8 +228,7 @@ package_validate_uses_cpp11 <- function(path) {
   makevars <- file.path(path, "src", "Makevars")
 
   has_cpp11_desc <- desc$has_fields("SystemRequirements") &&
-    grepl("\\bC\\+\\+[0-9][0-9a-z]\\b", desc$get_field("SystemRequirements"),
-          ignore.case = TRUE)
+    is_valid_cpp_std(desc$get_field("SystemRequirements"))
   has_cpp11_makevars <-
     file.exists(makevars) && any(grepl("^CXX_STD\\b", readLines(makevars)))
 
