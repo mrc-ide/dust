@@ -290,6 +290,9 @@ test_that("Can generate test package code", {
   expect_setequal(
     dir(file.path(res$path, "src")),
     c("dust.cu", "dust.hpp", "Makevars"))
+  desc <- read.dcf(file.path(res$path, "DESCRIPTION"))
+  expect_setequal(colnames(desc),
+                  c("Package", "LinkingTo", "Version", "SystemRequirements"))
   txt <- readLines(file.path(res$path, "src", "Makevars"))
   expect_match(txt, "-L/path/to/cuda", all = FALSE, fixed = TRUE)
   expect_false(any(grepl("gencode", txt)))
