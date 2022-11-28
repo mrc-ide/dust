@@ -100,7 +100,7 @@ cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi, int time,
   cpp11::sexp ret_r_gpu_config =
     dust::gpu::r::gpu_config_as_sexp(gpu_config);
 
-  return cpp11::writable::list({ptr, info, r_shape, ret_r_gpu_config});
+  return cpp11::writable::list({ptr, info, r_shape, ret_r_gpu_config, r_ode_control});
 }
 
 template <typename T>
