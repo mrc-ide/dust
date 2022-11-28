@@ -594,6 +594,12 @@ void set_stochasic_schedule(SEXP ptr, SEXP time) {
   }
 }
 
+template <typename T>
+void ode_statistics(SEXP ptr) {
+  T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
+  cpp11::stop("'ode_statistics' not supported in discrete-time models");
+}
+
 }
 }
 

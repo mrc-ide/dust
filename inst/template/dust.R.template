@@ -226,6 +226,14 @@
     },
 
     ##' @description
+    ##' Return statistics about the integration, for ODE models.
+    ##' For discrete time models this makes little sense and so errors
+    ##' if used.
+    ode_statistics = function() {
+      private$methods_$ode_statistics(private$ptr_)
+    },
+
+    ##' @description
     ##' Returns the number of threads that the model was constructed with
     n_threads = function() {
       private$n_threads_
