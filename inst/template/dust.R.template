@@ -307,6 +307,20 @@
       private$methods_$time(private$ptr_)
     },
 
+    ##' For ODE models, sets the schedule at which stochastic events are
+    ##' handled. The timing here is quite subtle - an event happens
+    ##' immediately *after* the time (so at `time + eps`). If your model
+    ##' runs up to `time` an event is not triggered, but as soon as that
+    ##' time is passed, by any amount of time, the event will trigger. It
+    ##' is an error to set this to a non-`NULL` value in a discrete time
+    ##' model; later we may generalise the approach here.
+    ##'
+    ##' @param time A vector of times to run the stochastic update at
+    set_stochastic_schedule = function(time) {
+      private$methods_$set_stochastic_schedule(private$ptr, time)
+      invisible()
+    },
+
     ##' @description
     ##' Reorder particles.
     ##' @param index An integer vector, with values between 1 and n_particles,

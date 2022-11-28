@@ -54,3 +54,6 @@ void dust_{{target}}_{{name}}_set_n_threads(SEXP ptr, int n_threads);
 
 [[cpp11::register]]
 int dust_{{target}}_{{name}}_n_state(SEXP ptr);
+
+[[cpp11::register]]
+void dust_{{target}}_{{name}}_set_stochastic_schedule(SEXP ptr, SEXP time);

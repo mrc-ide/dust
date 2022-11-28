@@ -81,3 +81,7 @@ void dust_{{target}}_{{name}}_set_n_threads(SEXP ptr, int n_threads) {
 int dust_{{target}}_{{name}}_n_state(SEXP ptr) {
   return dust::r::dust_n_state<model_{{target}}>(ptr);
 }
+
+void dust_{{target}}_{{name}}_set_stochastic_schedule(SEXP ptr, SEXP time) {
+  dust::r::dust_set_stochastic_schedule<model_{{target}}>(ptr, time);
+}

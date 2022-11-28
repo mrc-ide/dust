@@ -566,3 +566,13 @@ test_that("Can validate C++ standard", {
     "'cpp_std' does not look like a valid C++ standard name (e.g., C++14)",
     fixed = TRUE)
 })
+
+
+test_that("Can't set the stochastic schedule", {
+  res <- dust_example("walk")
+  res$new(list(sd = 1), 0, 1)
+  expect_silent(res$set_stochastic_schedule(NULL))
+  expect_error(
+    res$set_stochastic_schedule(1:10),
+    "'set_stochastic_schedule' not supported in discrete-time models")
+})

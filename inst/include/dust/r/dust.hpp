@@ -582,6 +582,14 @@ int dust_n_state(SEXP ptr) {
   return obj->n_state_full();
 }
 
+template <typename T>
+void set_stochasic_schedule(SEXP ptr, SEXP time) {
+  T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
+  if (time != R_NilValue) {
+    cpp11::stop("'set_stochastic_schedule' not supported in discrete-time models");
+  }
+}
+
 }
 }
 
