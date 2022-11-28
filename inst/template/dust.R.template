@@ -49,6 +49,7 @@
     shape_ = NULL,
     ptr_ = NULL,
     gpu_config_ = NULL,
+    ode_control_ = NULL,
     methods_ = NULL,
     param_ = {{param}},
     reload_ = {{reload}}
@@ -113,17 +114,22 @@
     ##' For additional control, provide a list with elements `device_id`
     ##' and `run_block_size`. Further options (and validation) of this
     ##' list will be added in a future version!
+    ##'
+    ##' @param ode_control For ODE models, control over the integration;
+    ##' must be a `dust_ode_control` model, produced by
+    ##' [dust::dust_ode_control()]. It is an error to provide a non-`NULL`
+    ##' value for discrete time models.
     initialize = function(pars, time, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
-                          gpu_config = NULL) {
+                          gpu_config = NULL, ode_control = NULL) {
       if (is.null(gpu_config)) {
         private$methods_ <- {{methods_cpu}}
       } else {
         private$methods_ <- {{methods_gpu}}
       }
       res <- private$methods_$alloc(pars, pars_multi, time, n_particles,
-                        n_threads, seed, deterministic, gpu_config)
+                        n_threads, seed, deterministic, gpu_config, ode_control)
       private$pars_ <- pars
       private$pars_multi_ <- pars_multi
       private$n_threads_ <- n_threads
@@ -131,6 +137,7 @@
       private$info_ <- res[[2L]]
       private$shape_ <- res[[3L]]
       private$gpu_config_ <- res[[4L]]
+      private$ode_control_ <- res[[5L]]
       private$n_particles_ <- prod(private$shape_)
       if (pars_multi) {
         private$n_particles_each_ <- private$n_particles_ / length(pars)
@@ -209,6 +216,13 @@
     ##' Returns the `index` as set by `$set_index`
     index = function() {
       private$index_
+    },
+
+    ##' @description
+    ##' Return the ODE control set into the object on creation.
+    ##' For discrete-time models this always returns `NULL`.
+    ode_control = function() {
+      private$ode_control_
     },
 
     ##' @description

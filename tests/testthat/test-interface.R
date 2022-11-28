@@ -570,9 +570,24 @@ test_that("Can validate C++ standard", {
 
 test_that("Can't set the stochastic schedule", {
   res <- dust_example("walk")
-  res$new(list(sd = 1), 0, 1)
-  expect_silent(res$set_stochastic_schedule(NULL))
+  mod <- res$new(list(sd = 1), 0, 1)
+  expect_silent(mod$set_stochastic_schedule(NULL))
   expect_error(
-    res$set_stochastic_schedule(1:10),
+    mod$set_stochastic_schedule(1:10),
     "'set_stochastic_schedule' not supported in discrete-time models")
+})
+
+
+test_that("Can't pass in ode control", {
+  res <- dust_example("walk")
+  expect_error(
+    res$new(list(sd = 1), 0, 1, ode_control = dust_ode_control()),
+    "'ode_control' must be NULL for discrete time models")
+})
+
+
+test_that("ode_control returns NULL for discrete time models", {
+  res <- dust_example("walk")
+  mod <- res$new(list(sd = 1), 0, 1)
+  expect_null(mod$ode_control())
 })
