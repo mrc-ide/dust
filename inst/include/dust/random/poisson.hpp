@@ -9,7 +9,9 @@
 namespace dust {
 namespace random {
 
+__nv_exec_check_disable__
 template <typename real_type>
+__host__ __device__
 void poisson_validate(real_type lambda) {
   if (!std::isfinite(lambda) || lambda < 0 || lambda > 10e7) {
     char buffer[256];
