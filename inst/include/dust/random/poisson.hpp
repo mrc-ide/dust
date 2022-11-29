@@ -84,21 +84,24 @@ real_type poisson_hormann(rng_state_type& rng_state, real_type lambda) {
   // Constants used to define the dominating distribution. Names taken
   // from Hormann's paper. Constants were chosen to define the tightest
   // G(u) for the inverse Poisson CDF.
-  const real_type b = 0.931 + 2.53 * std::sqrt(lambda);
-  const real_type a = -0.059 + 0.02483 * b;
+  const real_type b = static_cast<real_type>(0.931) +
+    static_cast<real_type>(2.53) * std::sqrt(lambda);
+  const real_type a = static_cast<real_type>(-0.059) +
+    static_cast<real_type>(0.02483) * b;
 
   // This is the inverse acceptance rate. At a minimum (when rate = 10),
   // this corresponds to ~75% acceptance. As the rate becomes larger, this
   // approaches ~89%.
-  const real_type inv_alpha = 1.1239 + 1.1328 / (b - 3.4);
+  const real_type inv_alpha = static_cast<real_type>(1.1239) +
+    static_cast<real_type>(1.1328) / (b - static_cast<real_type>(3.4));
 
   while (true) {
     real_type u = random_real<real_type>(rng_state);
-    u -= 0.5;
+    u -= static_cast<real_type>(0.5);
     real_type v = random_real<real_type>(rng_state);
 
-    real_type u_shifted = 0.5 - std::fabs(u);
-    real_type k = floor((2 * a / u_shifted + b) * u + lambda + 0.43);
+    real_type u_shifted = static_cast<real_type>(0.5) - std::fabs(u);
+    real_type k = floor((2 * a / u_shifted + b) * u + lambda + static_cast<real_type>(0.43));
 
     if (k > utils::integer_max()) {
       // retry in case of overflow.
@@ -109,12 +112,13 @@ real_type poisson_hormann(rng_state_type& rng_state, real_type lambda) {
     // find a rectangle (-u_r, u_r) x (0, v_r) under the curve, such
     // that if v <= v_r and |u| <= u_r, then we can accept.
     // Here v_r = 0.9227 - 3.6224 / (b - 2) and u_r = 0.43.
-    if (u_shifted >= 0.07 && v <= 0.9277 - 3.6224 / (b - 2)) {
+    if (u_shifted >= static_cast<real_type>(0.07) &&
+        v <= static_cast<real_type>(0.9277) - static_cast<real_type>(3.6224) / (b - 2)) {
       x = k;
       break;
     }
 
-    if (k < 0 || (u_shifted < 0.013 && v > u_shifted)) {
+    if (k < 0 || (u_shifted < static_cast<real_type>(0.013) && v > u_shifted)) {
       continue;
     }
 
