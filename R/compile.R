@@ -1,4 +1,5 @@
-generate_dust <- function(filename, quiet, workdir, cuda, skip_cache, mangle) {
+generate_dust <- function(filename, quiet, workdir, cuda, linking_to,
+                          skip_cache, mangle) {
   config <- parse_metadata(filename)
   if (grepl("^[A-Za-z][A-Zxa-z0-9]*$", config$name)) {
     base <- config$name
@@ -20,7 +21,7 @@ generate_dust <- function(filename, quiet, workdir, cuda, skip_cache, mangle) {
   path <- dust_workdir(workdir)
   model <- read_lines(filename)
   reload <- list(path = path, base = base)
-  data <- dust_template_data(model, config, cuda, reload)
+  data <- dust_template_data(model, config, cuda, reload, linking_to)
 
   ## These two are used in the non-package version only
   data$base <- base
@@ -83,8 +84,11 @@ dust_code <- function(data, config) {
 
 
 compile_and_load <- function(filename, quiet = FALSE, workdir = NULL,
-                             cuda = NULL, skip_cache = FALSE) {
-  res <- generate_dust(filename, quiet, workdir, cuda, skip_cache, TRUE)
+                             cuda = NULL, linking_to = NULL,
+                             skip_cache = FALSE) {
+  mangle <- TRUE
+  res <- generate_dust(filename, quiet, workdir, cuda, linking_to,
+                       skip_cache, mangle)
 
   if (is.null(res$env)) {
     path <- res$path
@@ -126,7 +130,7 @@ glue_whisker <- function(template, data) {
 }
 
 
-dust_template_data <- function(model, config, cuda, reload_data) {
+dust_template_data <- function(model, config, cuda, reload_data, linking_to) {
   methods <- function(target) {
     nms <- c("alloc", "run", "simulate", "set_index", "n_state",
              "update_state", "state", "time", "reorder", "resample",
@@ -153,6 +157,11 @@ dust_template_data <- function(model, config, cuda, reload_data) {
     reload <- paste(deparse(reload_data), collapse = "\n")
   }
 
+  if (!is.null(linking_to)) {
+    assert_is(linking_to, "character")
+  }
+  linking_to <- paste(union("cpp11", linking_to), collapse = ", ")
+
   list(model = model,
        name = config$name,
        class = config$class,
@@ -163,7 +172,8 @@ dust_template_data <- function(model, config, cuda, reload_data) {
        has_gpu_support = as.character(config$has_gpu_support),
        methods_cpu = methods_cpu,
        methods_gpu = methods_gpu,
-       reload = reload)
+       reload = reload,
+       linking_to = linking_to)
 }
 
 

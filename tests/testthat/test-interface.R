@@ -20,7 +20,7 @@ test_that("Interface passes arguments as expected", {
   mockery::expect_called(mock_compile_and_load, 1L)
   expect_equal(
     mockery::mock_args(mock_compile_and_load)[[1]],
-    list(filename, TRUE, workdir, NULL, FALSE))
+    list(filename, TRUE, workdir, NULL, NULL, FALSE))
 })
 
 
@@ -386,10 +386,32 @@ test_that("create temporary package", {
   expect_match(
     read.dcf(file.path(path, "DESCRIPTION"))[, "Package"],
     "^walk[[:xdigit:]]{8}$")
+  desc <- as.list(read.dcf(file.path(path, "DESCRIPTION"))[1, ])
+  expect_equal(desc[["LinkingTo"]], "cpp11")
   pkg <- pkgload::load_all(path, quiet = TRUE, export_all = FALSE)
   expect_s3_class(pkg$env$walk, "dust_generator")
   obj <- pkg$env$walk$new(list(sd = 1), 0L, 100L)
   expect_s3_class(obj, "dust")
+})
+
+
+test_that("link to more packages at compilation", {
+  skip_on_cran()
+  filename <- dust_file("examples/walk.cpp")
+  path <- dust_generate(filename, quiet = TRUE, mangle = FALSE,
+                        linking_to = c("pkg1", "pkg2"))
+  desc <- as.list(read.dcf(file.path(path, "DESCRIPTION"))[1, ])
+  expect_equal(desc[["LinkingTo"]], "cpp11, pkg1, pkg2")
+})
+
+
+test_that("don't repeat cpp11 if given twice", {
+  skip_on_cran()
+  filename <- dust_file("examples/walk.cpp")
+  path <- dust_generate(filename, quiet = TRUE, mangle = FALSE,
+                        linking_to = c("pkg1", "cpp11", "pkg2"))
+  desc <- as.list(read.dcf(file.path(path, "DESCRIPTION"))[1, ])
+  expect_equal(desc[["LinkingTo"]], "cpp11, pkg1, pkg2")
 })
 
 

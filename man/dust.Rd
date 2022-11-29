@@ -10,6 +10,7 @@ dust(
   workdir = NULL,
   gpu = FALSE,
   real_type = NULL,
+  linking_to = NULL,
   skip_cache = FALSE
 )
 }
@@ -41,6 +42,11 @@ that will use 32 bit \code{floats} (rather than 64 bit doubles, which
 are much slower). For CPU models decreasing precision of your
 real type will typically just decrease precision for no
 additional performance.}
+
+\item{linking_to}{Optionally, a character vector of additional
+packages to add to the \code{DESCRIPTION}'s \code{LinkingTo} field. Use
+this when your model pulls in C++ code that is packaged within
+another package's header-only library.}
 
 \item{skip_cache}{Logical, indicating if the cache of previously
 compiled models should be skipped. If \code{TRUE} then your model will
