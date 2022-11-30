@@ -11,6 +11,7 @@ dust(
   gpu = FALSE,
   real_type = NULL,
   linking_to = NULL,
+  cpp_std = NULL,
   skip_cache = FALSE
 )
 }
@@ -47,6 +48,13 @@ additional performance.}
 packages to add to the \code{DESCRIPTION}'s \code{LinkingTo} field. Use
 this when your model pulls in C++ code that is packaged within
 another package's header-only library.}
+
+\item{cpp_std}{The C++ standard to use. This will be be set into
+the \code{DESCRIPTION} of the package as the \code{SystemRequirements}
+field. Sensible options are \code{C++11}, \code{C++14} etc. See the
+section "Using C++ code" in "Writing R extensions". The minimum
+allowed version is C++11 but R supports much more recent
+versions now (especially more recent versions of R).}
 
 \item{skip_cache}{Logical, indicating if the cache of previously
 compiled models should be skipped. If \code{TRUE} then your model will

@@ -20,7 +20,7 @@ test_that("Interface passes arguments as expected", {
   mockery::expect_called(mock_compile_and_load, 1L)
   expect_equal(
     mockery::mock_args(mock_compile_and_load)[[1]],
-    list(filename, TRUE, workdir, NULL, NULL, FALSE))
+    list(filename, TRUE, workdir, NULL, NULL, NULL, FALSE))
 })
 
 
@@ -388,6 +388,7 @@ test_that("create temporary package", {
     "^walk[[:xdigit:]]{8}$")
   desc <- as.list(read.dcf(file.path(path, "DESCRIPTION"))[1, ])
   expect_equal(desc[["LinkingTo"]], "cpp11")
+  expect_equal(desc[["SystemRequirements"]], "C++11")
   pkg <- pkgload::load_all(path, quiet = TRUE, export_all = FALSE)
   expect_s3_class(pkg$env$walk, "dust_generator")
   obj <- pkg$env$walk$new(list(sd = 1), 0L, 100L)
@@ -404,7 +405,6 @@ test_that("link to more packages at compilation", {
   expect_equal(desc[["LinkingTo"]], "cpp11, pkg1, pkg2")
 })
 
-
 test_that("don't repeat cpp11 if given twice", {
   skip_on_cran()
   filename <- dust_file("examples/walk.cpp")
@@ -414,6 +414,14 @@ test_that("don't repeat cpp11 if given twice", {
   expect_equal(desc[["LinkingTo"]], "cpp11, pkg1, pkg2")
 })
 
+test_that("change C++ standard compilation", {
+  skip_on_cran()
+  filename <- dust_file("examples/walk.cpp")
+  path <- dust_generate(filename, quiet = TRUE, mangle = FALSE,
+                        cpp_std = "C++17")
+  desc <- as.list(read.dcf(file.path(path, "DESCRIPTION"))[1, ])
+  expect_equal(desc[["SystemRequirements"]], "C++17")
+})
 
 test_that("Don't mangle name in generated package", {
   skip_on_cran()
@@ -541,4 +549,20 @@ test_that("Can repair generators", {
   gen$parent_env <- globalenv()
   expect_message(dust_repair_environment(gen), "was already loaded")
   expect_equal(environmentName(gen$parent_env), base)
+})
+
+
+test_that("Can validate C++ standard", {
+  expect_equal(validate_cpp_std(NULL), "C++11")
+  expect_equal(validate_cpp_std("C++11"), "C++11")
+  expect_equal(validate_cpp_std("c++11"), "c++11")
+  expect_equal(validate_cpp_std("c++17"), "c++17")
+  expect_error(validate_cpp_std(c("c++11", "C++17")),
+               "Expected a scalar character for 'cpp_std'")
+  expect_error(validate_cpp_std(11),
+               "'cpp_std' must be a character")
+  expect_error(
+    validate_cpp_std("c++recent"),
+    "'cpp_std' does not look like a valid C++ standard name (e.g., C++14)",
+    fixed = TRUE)
 })
