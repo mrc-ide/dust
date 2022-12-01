@@ -10,6 +10,7 @@
 #endif
 
 #include "dust/random/generator.hpp"
+#include "dust/random/math.hpp"
 
 namespace dust {
 namespace random {
@@ -31,7 +32,7 @@ real_type random_normal_box_muller(rng_state_type& rng_state) {
   } while (u1 <= epsilon);
 
   SYNCWARP
-  return std::sqrt(-2 * std::log(u1)) * std::cos(two_pi * u2);
+  return dust::math::sqrt(-2 * dust::math::log(u1)) * std::cos(two_pi * u2);
 }
 
 

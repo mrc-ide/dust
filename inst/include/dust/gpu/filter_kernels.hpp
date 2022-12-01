@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include "dust/gpu/cuda.hpp"
+#include "dust/random/math.hpp"
 
 namespace dust {
 
@@ -19,7 +20,7 @@ __global__ void exp_weights(const size_t n_particles,
   for (size_t i = 0; i < n_particles; ++i) {
 #endif
     const size_t pars_idx = i / n_particles_each;
-    weights[i] = std::exp(weights[i] - max_weights[pars_idx]);
+    weights[i] = dust::math::exp(weights[i] - max_weights[pars_idx]);
   }
 }
 

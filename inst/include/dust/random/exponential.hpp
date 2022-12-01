@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include <dust/random/generator.hpp>
+#include <dust/random/math.hpp>
 
 namespace dust {
 namespace random {
@@ -21,10 +22,10 @@ template <typename real_type, typename rng_state_type>
 __host__ __device__
 real_type exponential_rand(rng_state_type& rng_state) {
 #ifdef __CUDA_ARCH__
-  return -std::log(random_real<real_type>(rng_state));
+  return -dust::math::log(random_real<real_type>(rng_state));
 #else
   return rng_state.deterministic ? 1 :
-    -std::log(random_real<real_type>(rng_state));
+    -dust::math::log(random_real<real_type>(rng_state));
 #endif
 }
 

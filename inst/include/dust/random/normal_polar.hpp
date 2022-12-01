@@ -1,9 +1,8 @@
 #ifndef DUST_RANDOM_NORMAL_POLAR_HPP
 #define DUST_RANDOM_NORMAL_POLAR_HPP
 
-#include <cmath>
-
 #include "dust/random/generator.hpp"
+#include "dust/random/math.hpp"
 
 namespace dust {
 namespace random {
@@ -20,7 +19,7 @@ real_type random_normal_polar(rng_state_type& rng_state) {
   } while (s > 1);
   SYNCWARP
 
-  return x * std::sqrt(-2 * std::log(s) / s);
+  return x * dust::math::sqrt(-2 * dust::math::log(s) / s);
 }
 
 }

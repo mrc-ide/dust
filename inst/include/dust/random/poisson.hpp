@@ -5,6 +5,7 @@
 
 #include "dust/random/generator.hpp"
 #include "dust/random/numeric.hpp"
+#include "dust/random/math.hpp"
 
 namespace dust {
 namespace random {
@@ -35,7 +36,7 @@ real_type poisson_knuth(rng_state_type& rng_state, real_type lambda) {
   // Thus to simulate a Poisson draw, we can draw X_i ~ Exp(lambda),
   // and N ~ Poisson(lambda), where N is the least number such that
   // \sum_i^N X_i > 1.
-  const real_type exp_neg_rate = std::exp(-lambda);
+  const real_type exp_neg_rate = dust::math::exp(-lambda);
 
   real_type prod = 1;
 
@@ -79,13 +80,13 @@ real_type poisson_hormann(rng_state_type& rng_state, real_type lambda) {
   // G(u) = (2 * a / (2 - |u|) + b) * u + c
 
   int x = 0;
-  const real_type log_rate = std::log(lambda);
+  const real_type log_rate = dust::math::log(lambda);
 
   // Constants used to define the dominating distribution. Names taken
   // from Hormann's paper. Constants were chosen to define the tightest
   // G(u) for the inverse Poisson CDF.
   const real_type b = static_cast<real_type>(0.931) +
-    static_cast<real_type>(2.53) * std::sqrt(lambda);
+    static_cast<real_type>(2.53) * dust::math::sqrt(lambda);
   const real_type a = static_cast<real_type>(-0.059) +
     static_cast<real_type>(0.02483) * b;
 
@@ -124,7 +125,7 @@ real_type poisson_hormann(rng_state_type& rng_state, real_type lambda) {
 
     // The expression below is equivalent to the computation of step 2)
     // in transformed rejection (v <= alpha * F'(G(u)) * G'(u)).
-    real_type s = std::log(v * inv_alpha / (a / (u_shifted * u_shifted) + b));
+    real_type s = dust::math::log(v * inv_alpha / (a / (u_shifted * u_shifted) + b));
     real_type t = -lambda + k * log_rate -
       utils::lgamma(static_cast<real_type>(k + 1));
     if (s <= t) {
