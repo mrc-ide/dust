@@ -73,5 +73,5 @@ You want [the `-warn-double-usage`](https://docs.nvidia.com/cuda/cuda-compiler-d
 ```
 gpu <- dust::dust_cuda_options(fast_math = TRUE, profile = FALSE,
                                quiet = FALSE, debug = FALSE,
-                               flags = "-Xptxas -warn-double-usage")
+                               flags = "-Xptxas -warn-double-usage -src-in-ptx")
 ```
