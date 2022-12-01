@@ -2,13 +2,13 @@
 
 ## Missing: beta
 ## TODO: tgamma?
-fn1 <- c("abs", "round", "ceil", "floor", "trunc", "sqrt",
+fn1 <- c("round", "ceil", "floor", "trunc", "sqrt",
          "exp", "expm1", "log", "log2", "log10", "log1p",
          "cos", "sin", "tan",
-         "acos", "asin", "atan", "atan2",
+         "acos", "asin", "atan",
          "cosh", "sinh", "tanh",
          "acosh", "asinh", "atanh")
-fn2 <- c("pow", "atan2") # (x, y), (y, x)
+fn2 <- c("atan2")
 
 template1 <- "template <typename T>
 __host__ __device__

@@ -18,6 +18,44 @@ namespace math {
 {{functions}}
 
 // Functions written by hand because they don't generalise usefully
+
+// Special beacuse we nee
+template <typename T, typename U>
+__host__ __device__
+T pow(T x, U y) {
+  return std::pow(x, y);
+}
+
+#ifdef __CUDA_ARCH__
+template <>
+__device__
+inline float pow(float x, float y) {
+  return ::powf(x, y);
+}
+
+template <>
+__device__
+inline float pow(float x, int y) {
+  // could possibly use fast power here (see binomial.hpp)
+  return ::ipowf(x, static_cast<float>(y));
+}
+#endif
+
+// Special because name does not follow pattern:
+template <typename T>
+__host__ __device__
+T abs(T x) {
+  return std::abs(x);
+}
+
+#ifdef __CUDA_ARCH__
+template <>
+__device__
+inline float abs(float x) {
+  return ::fabsf(x);
+}
+#endif
+
 template <typename T>
 __host__ __device__
 T min(T a, T b) {

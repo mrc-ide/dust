@@ -17,20 +17,6 @@ namespace math {
 // the dust source repo
 template <typename T>
 __host__ __device__
-T abs(T x) {
-  return std::abs(x);
-}
-
-#ifdef __CUDA_ARCH__
-template <>
-__device__
-inline float abs(float x) {
-  return ::absf(x);
-}
-#endif
-
-template <typename T>
-__host__ __device__
 T round(T x) {
   return std::round(x);
 }
@@ -269,20 +255,6 @@ inline float atan(float x) {
 
 template <typename T>
 __host__ __device__
-T atan2(T x) {
-  return std::atan2(x);
-}
-
-#ifdef __CUDA_ARCH__
-template <>
-__device__
-inline float atan2(float x) {
-  return ::atan2f(x);
-}
-#endif
-
-template <typename T>
-__host__ __device__
 T cosh(T x) {
   return std::cosh(x);
 }
@@ -367,20 +339,6 @@ inline float atanh(float x) {
 
 template <typename T>
 __host__ __device__
-T pow(T x, T y) {
-  return std::pow(x, y);
-}
-
-#ifdef __CUDA_ARCH__
-template <>
-__device__
-inline float pow(float x, float y) {
-  return ::powf(x, y);
-}
-#endif
-
-template <typename T>
-__host__ __device__
 T atan2(T x, T y) {
   return std::atan2(x, y);
 }
@@ -394,6 +352,44 @@ inline float atan2(float x, float y) {
 #endif
 
 // Functions written by hand because they don't generalise usefully
+
+// Special beacuse we nee
+template <typename T, typename U>
+__host__ __device__
+T pow(T x, U y) {
+  return std::pow(x, y);
+}
+
+#ifdef __CUDA_ARCH__
+template <>
+__device__
+inline float pow(float x, float y) {
+  return ::powf(x, y);
+}
+
+template <>
+__device__
+inline float pow(float x, int y) {
+  // could possibly use fast power here (see binomial.hpp)
+  return ::ipowf(x, static_cast<float>(y));
+}
+#endif
+
+// Special because name does not follow pattern:
+template <typename T>
+__host__ __device__
+T abs(T x) {
+  return std::abs(x);
+}
+
+#ifdef __CUDA_ARCH__
+template <>
+__device__
+inline float abs(float x) {
+  return ::fabsf(x);
+}
+#endif
+
 template <typename T>
 __host__ __device__
 T min(T a, T b) {
