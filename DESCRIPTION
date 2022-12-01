@@ -1,6 +1,6 @@
 Package: dust
 Title: Iterate Multiple Realisations of Stochastic Models
-Version: 0.12.6
+Version: 0.12.7
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     email = "rich.fitzjohn@gmail.com"),
              person("Alex", "Hill", role = "aut"),
@@ -20,7 +20,7 @@ Description: An Engine for simulation of stochastic models. Includes
     FitzJohn et al 2021 <doi:10.12688/wellcomeopenres.16466.2>.
 URL: https://github.com/mrc-ide/dust
 BugReports: https://github.com/mrc-ide/dust/issues
-SystemRequirements: C++14
+SystemRequirements: C++11
 License: MIT + file LICENSE
 Encoding: UTF-8
 Language: en-GB
