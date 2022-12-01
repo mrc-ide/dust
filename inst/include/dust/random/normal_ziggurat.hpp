@@ -1,9 +1,8 @@
 #ifndef DUST_RANDOM_NORMAL_ZIGGURAT_HPP
 #define DUST_RANDOM_NORMAL_ZIGGURAT_HPP
 
-#include <cmath>
-
 #include "dust/random/generator.hpp"
+#include "dust/random/math.hpp"
 #include "dust/random/normal_ziggurat_tables.hpp"
 
 namespace dust {
