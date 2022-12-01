@@ -136,15 +136,6 @@ real_type lfactorial(int x) {
   return lgamma(static_cast<real_type>(x + 1));
 }
 
-template <typename T>
-constexpr T epsilon = std::numeric_limits<T>::epsilon();
-
-template <typename T>
-constexpr T infinity = std::numeric_limits<T>::infinity();
-
-template <typename T>
-constexpr T max_value = std::numeric_limits<T>::max();
-
 }
 }
 
