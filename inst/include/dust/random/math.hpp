@@ -371,7 +371,7 @@ template <>
 __device__
 inline float pow(float x, int y) {
   // could possibly use fast power here (see binomial.hpp)
-  return ::ipowf(x, static_cast<float>(y));
+  return ::powf(x, static_cast<float>(y));
 }
 #endif
 
