@@ -1,7 +1,8 @@
 #!/usr/bin/env Rscript
 
 ## Missing: beta
-fn1 <- c("abs", "round", "floor", "trunc", "sqrt",
+## TODO: tgamma?
+fn1 <- c("abs", "round", "ceil", "floor", "trunc", "sqrt",
          "exp", "expm1", "log", "log2", "log10", "log1p",
          "cos", "sin", "tan",
          "acos", "asin", "atan", "atan2",

@@ -45,6 +45,20 @@ inline float round(float x) {
 
 template <typename T>
 __host__ __device__
+T ceil(T x) {
+  return std::ceil(x);
+}
+
+#ifdef __CUDA_ARCH__
+template <>
+__device__
+inline float ceil(float x) {
+  return ::ceilf(x);
+}
+#endif
+
+template <typename T>
+__host__ __device__
 T floor(T x) {
   return std::floor(x);
 }
