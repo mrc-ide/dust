@@ -397,7 +397,7 @@ T min(T a, T b) {
 }
 
 template <typename T>
-__device__
+__host__ __device__
 T max(T a, T b) {
   return a > b ? a : b;
 }
