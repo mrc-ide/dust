@@ -71,7 +71,14 @@ Using `printf()` within kernels works fine, though it does make a mess of the sc
 You want [the `-warn-double-usage`](https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#ptxas-options-warn-on-double-precision-use) argument, passed via `-Xptxas`.
 
 ```
-gpu <- dust::dust_cuda_options(fast_math = TRUE, profile = FALSE,
-                               quiet = FALSE, debug = FALSE,
-                               flags = "-Xptxas -warn-double-usage -src-in-ptx")
+gpu <- dust::dust_cuda_options(
+  fast_math = TRUE, profile = FALSE, quiet = FALSE, debug = FALSE,
+  flags = paste("--keep --source-in-ptx --generate-line-info",
+                "-Xptxas -warn-double-usage"))
 ```
+
+The additional flags are required to make this nice to use:
+
+* `--source-in-ptx`: interleaves the source with the ptx so you know where the f64 calls come from
+* `--keep`: retains the ptx so that you can read it (otherwise it is deleted)
+*` --generate-line-info` is required for the `--source-in-ptx` option to do anything
