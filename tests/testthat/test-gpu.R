@@ -1089,3 +1089,17 @@ test_that("Can run multiple particle filters with shared data on the GPU", {
   expect_identical(ans_h$trajectories, ans_d$trajectories)
   expect_identical(ans_h$snapshots, ans_d$snapshots)
 })
+
+
+test_that("don't duplicate gencode flags", {
+  info <- list(
+    has_cuda = TRUE,
+    cuda_version = numeric_version("10.1.0"),
+    devices = data.frame(id = c(0, 1, 2), version = c(75L, 86L, 86L)),
+    path_cuda_lib = "/path/to/cuda",
+    path_cub_include = "/path/to/cub")
+  cuda <- cuda_options(info, FALSE, FALSE, FALSE, NULL)
+  expect_equal(
+    cuda$flags$gencode,
+    "-gencode=arch=compute_75,code=sm_75 -gencode=arch=compute_86,code=sm_86")
+})
