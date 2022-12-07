@@ -10,6 +10,7 @@
 #include "dust/random/exponential.hpp"
 #include "dust/random/uniform.hpp"
 #include "dust/random/normal.hpp"
+#include "dust/random/math.hpp"
 
 // Algorithm from George Marsaglia and Wai Wan Tsang. 2000. "A Simple Method
 // for Generating Gamma Variables" *ACM Trans. Math. Softw.* 26, 3 (September 2000),
@@ -45,7 +46,7 @@ real_type gamma_large(rng_state_type& rng_state, real_type shape) {
     real_type u = random_real<real_type>(rng_state);
     real_type x_sqr = x * x;
     if (u < 1.0 - 0.0331 * x_sqr * x_sqr ||
-      std::log(u) < 0.5 * x_sqr + d * (1.0 - v + std::log(v))) {
+      dust::math::log(u) < 0.5 * x_sqr + d * (1.0 - v + dust::math::log(v))) {
       return d * v;
     }
   }
@@ -55,7 +56,7 @@ template <typename real_type, typename rng_state_type>
 real_type gamma_small(rng_state_type& rng_state, real_type shape) {
   real_type inv_shape = 1 / shape;
   real_type u = random_real<real_type>(rng_state);
-  return gamma_large(rng_state, shape + 1.0) * std::pow(u, inv_shape);
+  return gamma_large(rng_state, shape + 1.0) * dust::math::pow(u, inv_shape);
 }
 
 template <typename real_type>

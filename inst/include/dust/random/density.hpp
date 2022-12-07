@@ -7,6 +7,7 @@
 
 #include "dust/random/cuda_compatibility.hpp"
 #include "dust/random/numeric.hpp"
+#include "dust/random/math.hpp"
 
 namespace dust {
 namespace density {
@@ -33,7 +34,7 @@ __host__ __device__ inline float norm_integral() {
 __nv_exec_check_disable__
 template <typename T>
 __host__ __device__ T maybe_log(T x, bool log) {
-  return log ? x : std::exp(x);
+  return log ? x : dust::math::exp(x);
 }
 
 template <typename T>
@@ -62,8 +63,8 @@ __host__ __device__ T binomial(int x, int size, T prob, bool log) {
     ret = 0;
   } else {
     ret = lchoose<T>(size, x) +
-      x * std::log(prob) +
-      (size - x) * std::log(1 - prob);
+      x * dust::math::log(prob) +
+      (size - x) * dust::math::log(1 - prob);
   }
 
   SYNCWARP
@@ -83,7 +84,7 @@ __host__ __device__ T normal(T x, T mu, T sd, bool log) {
     ret = dirac_delta(x - mu, log); // This does maybe_log
   } else {
     const T dx = x - mu;
-    ret = - dx * dx / (2 * sd * sd) - norm_integral<T>() - std::log(sd);
+    ret = - dx * dx / (2 * sd * sd) - norm_integral<T>() - dust::math::log(sd);
     ret = maybe_log(ret, log);
   }
 
@@ -112,15 +113,15 @@ __host__ __device__ T negative_binomial_mu(int x, T size, T mu, bool log) {
     // taking 100 * floating point eps as the change over.
     const T ratio = random::utils::epsilon<T>() * 100;
     if (mu < ratio * size) {
-      const T log_prob = std::log(mu / (1 + mu / size));
+      const T log_prob = dust::math::log(mu / (1 + mu / size));
       ret = x * log_prob - mu - random::utils::lgamma(static_cast<T>(x + 1)) +
-        std::log1p(x * (x - 1) / (2 * size));
+        dust::math::log1p(x * (x - 1) / (2 * size));
     } else {
       const T prob = size / (size + mu);
       ret = random::utils::lgamma(static_cast<T>(x + size)) -
         random::utils::lgamma(static_cast<T>(size)) -
         random::utils::lgamma(static_cast<T>(x + 1)) +
-        size * std::log(prob) + x * std::log(1 - prob);
+        size * dust::math::log(prob) + x * dust::math::log(1 - prob);
     }
   }
 
@@ -171,7 +172,7 @@ __host__ __device__ T poisson(int x, T lambda, bool log) {
   if (x == 0 && lambda == 0) {
     ret = 0;
   } else {
-    ret = x * std::log(lambda) - lambda -
+    ret = x * dust::math::log(lambda) - lambda -
       random::utils::lgamma(static_cast<T>(x + 1));
   }
 

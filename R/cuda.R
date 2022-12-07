@@ -321,9 +321,9 @@ cuda_options <- function(info, debug, profile, fast_math, flags) {
     nvcc_flags <- paste(nvcc_flags, paste(flags, collapse = " "))
   }
 
+  versions <- unique(info$devices$version)
   gencode <- paste(
-    sprintf("-gencode=arch=compute_%d,code=sm_%d",
-            info$devices$version, info$devices$version),
+    sprintf("-gencode=arch=compute_%d,code=sm_%d", versions, versions),
     collapse = " ")
 
   info$flags <- list(

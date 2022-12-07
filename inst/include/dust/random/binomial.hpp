@@ -5,6 +5,7 @@
 
 #include "dust/random/binomial_gamma_tables.hpp"
 #include "dust/random/generator.hpp"
+#include "dust/random/math.hpp"
 
 namespace dust {
 namespace random {
@@ -118,7 +119,7 @@ real_type btrs(rng_state_type& rng_state, int n_int, real_type p) {
   const real_type half = 0.5;
 
   // This is spq in the paper.
-  const real_type stddev = std::sqrt(n * p * (1 - p));
+  const real_type stddev = dust::math::sqrt(n * p * (1 - p));
 
   // Other coefficients for Transformed Rejection sampling.
   const real_type b = static_cast<real_type>(1.15) + static_cast<real_type>(2.53) * stddev;
@@ -136,7 +137,7 @@ real_type btrs(rng_state_type& rng_state, int n_int, real_type p) {
     real_type u = random_real<real_type>(rng_state);
     real_type v = random_real<real_type>(rng_state);
     u -= half;
-    real_type us = half - std::fabs(u);
+    real_type us = half - dust::math::abs(u);
     real_type k = std::floor((2 * a / us + b) * u + c);
 
     // Region for which the box is tight, and we
@@ -156,11 +157,11 @@ real_type btrs(rng_state_type& rng_state, int n_int, real_type p) {
     // This deviates from Hormann's BRTS algorithm, as there is a log missing.
     // For all (u, v) pairs outside of the bounding box, this calculates the
     // transformed-reject ratio.
-    v = std::log(v * alpha / (a / (us * us) + b));
+    v = dust::math::log(v * alpha / (a / (us * us) + b));
     real_type upperbound =
-      ((m + half) * std::log((m + 1) / (r * (n - m + 1))) +
-       (n + one) * std::log((n - m + 1) / (n - k + 1)) +
-       (k + half) * std::log(r * (n - k + 1) / (k + 1)) +
+      ((m + half) * dust::math::log((m + 1) / (r * (n - m + 1))) +
+       (n + one) * dust::math::log((n - m + 1) / (n - k + 1)) +
+       (k + half) * dust::math::log(r * (n - k + 1) / (k + 1)) +
        stirling_approx_tail(m) + stirling_approx_tail(n - m) -
        stirling_approx_tail(k) - stirling_approx_tail(n - k));
     if (v <= upperbound) {
