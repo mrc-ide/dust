@@ -137,7 +137,7 @@ real_type btrs(rng_state_type& rng_state, int n_int, real_type p) {
     real_type u = random_real<real_type>(rng_state);
     real_type v = random_real<real_type>(rng_state);
     u -= half;
-    real_type us = half - std::fabs(u);
+    real_type us = half - dust::math::abs(u);
     real_type k = std::floor((2 * a / us + b) * u + c);
 
     // Region for which the box is tight, and we

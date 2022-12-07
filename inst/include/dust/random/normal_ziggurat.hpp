@@ -93,7 +93,7 @@ real_type random_normal_ziggurat(rng_state_type& rng_state) {
     const auto i = ziggurat_layer_draw(rng_state, value, n);
     const auto u0 = 2 * int_to_real<real_type>(value) - 1;
 
-    if (std::fabs(u0) < y[i]) {
+    if (dust::math::abs(u0) < y[i]) {
       ret = u0 * x[i];
       break;
     }

@@ -101,7 +101,7 @@ real_type poisson_hormann(rng_state_type& rng_state, real_type lambda) {
     u -= static_cast<real_type>(0.5);
     real_type v = random_real<real_type>(rng_state);
 
-    real_type u_shifted = static_cast<real_type>(0.5) - std::fabs(u);
+    real_type u_shifted = static_cast<real_type>(0.5) - dust::math::abs(u);
     real_type k = floor((2 * a / u_shifted + b) * u + lambda + static_cast<real_type>(0.43));
 
     if (k > utils::integer_max()) {
