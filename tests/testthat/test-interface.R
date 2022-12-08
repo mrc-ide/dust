@@ -593,7 +593,7 @@ test_that("ode_control returns NULL for discrete time models", {
 })
 
 
-test_that("error to provide ode control to discrete time models" {
+test_that("error to provide ode control to discrete time models", {
   res <- dust_example("walk")
   expect_error(
     res$new(list(sd = 1), 0, 1, ode_control = dust_ode_control()),
