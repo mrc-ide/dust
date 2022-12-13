@@ -57,6 +57,7 @@ dust_generator <- R6::R6Class(
     shape_ = NULL,
     ptr_ = NULL,
     gpu_config_ = NULL,
+    ode_control_ = NULL,
     methods_ = NULL,
     param_ = NULL,
     reload_ = NULL
@@ -121,10 +122,15 @@ dust_generator <- R6::R6Class(
     ##' For additional control, provide a list with elements `device_id`
     ##' and `run_block_size`. Further options (and validation) of this
     ##' list will be added in a future version!
+    ##'
+    ##' @param ode_control For ODE models, control over the integration;
+    ##' must be a `dust_ode_control` model, produced by
+    ##' [dust::dust_ode_control()]. It is an error to provide a non-`NULL`
+    ##' value for discrete time models.
     initialize = function(pars, time, n_particles, n_threads = 1L,
                           seed = NULL, pars_multi = FALSE,
                           deterministic = FALSE,
-                          gpu_config = NULL) {
+                          gpu_config = NULL, ode_control = NULL) {
     },
 
     ##' @description
@@ -185,6 +191,19 @@ dust_generator <- R6::R6Class(
     ##' @description
     ##' Returns the `index` as set by `$set_index`
     index = function() {
+    },
+
+    ##' @description
+    ##' Return the ODE control set into the object on creation.
+    ##' For discrete-time models this always returns `NULL`.
+    ode_control = function() {
+    },
+
+    ##' @description
+    ##' Return statistics about the integration, for ODE models.
+    ##' For discrete time models this makes little sense and so errors
+    ##' if used.
+    ode_statistics = function() {
     },
 
     ##' @description
@@ -264,6 +283,18 @@ dust_generator <- R6::R6Class(
     ##' @description
     ##' Return current model time
     time = function() {
+    },
+
+    ##' For ODE models, sets the schedule at which stochastic events are
+    ##' handled. The timing here is quite subtle - an event happens
+    ##' immediately *after* the time (so at `time + eps`). If your model
+    ##' runs up to `time` an event is not triggered, but as soon as that
+    ##' time is passed, by any amount of time, the event will trigger. It
+    ##' is an error to set this to a non-`NULL` value in a discrete time
+    ##' model; later we may generalise the approach here.
+    ##'
+    ##' @param time A vector of times to run the stochastic update at
+    set_stochastic_schedule = function(time) {
     },
 
     ##' @description

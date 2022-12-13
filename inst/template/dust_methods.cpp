@@ -4,10 +4,10 @@ using model_{{target}} = dust::{{container}}<{{class}}>;
 SEXP dust_{{target}}_{{name}}_alloc(cpp11::list r_pars, bool pars_multi, size_t time,
                              cpp11::sexp r_n_particles, size_t n_threads,
                              cpp11::sexp r_seed, bool deterministic,
-                             cpp11::sexp gpu_config) {
+                             cpp11::sexp gpu_config, cpp11::sexp ode_control) {
   return dust::r::dust_{{target}}_alloc<{{class}}>(r_pars, pars_multi, time, r_n_particles,
                                         n_threads, r_seed, deterministic,
-                                        gpu_config);
+                                        gpu_config, ode_control);
 }
 
 SEXP dust_{{target}}_{{name}}_run(SEXP ptr, size_t time_end) {
@@ -80,4 +80,12 @@ void dust_{{target}}_{{name}}_set_n_threads(SEXP ptr, int n_threads) {
 
 int dust_{{target}}_{{name}}_n_state(SEXP ptr) {
   return dust::r::dust_n_state<model_{{target}}>(ptr);
+}
+
+void dust_{{target}}_{{name}}_set_stochastic_schedule(SEXP ptr, SEXP time) {
+  dust::r::dust_set_stochastic_schedule<model_{{target}}>(ptr, time);
+}
+
+void dust_{{target}}_{{name}}_ode_statistics(SEXP ptr) {
+  dust::r::dust_ode_statistics<model_{{target}}>(ptr);
 }

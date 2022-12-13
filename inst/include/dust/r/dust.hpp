@@ -28,8 +28,12 @@ template <typename T>
 cpp11::list dust_cpu_alloc(cpp11::list r_pars, bool pars_multi, int time,
                            cpp11::sexp r_n_particles, int n_threads,
                            cpp11::sexp r_seed, bool deterministic,
-                           cpp11::sexp r_gpu_config) {
+                           cpp11::sexp r_gpu_config,
+                           cpp11::sexp r_ode_control) {
   dust_cpu<T> *d = nullptr;
+  if (r_ode_control != R_NilValue) {
+    cpp11::stop("'ode_control' must be NULL for discrete time models");
+  }
   cpp11::sexp info;
   if (pars_multi) {
     auto inputs =
@@ -52,18 +56,22 @@ cpp11::list dust_cpu_alloc(cpp11::list r_pars, bool pars_multi, int time,
   cpp11::writable::integers r_shape =
     dust::r::vector_size_to_int(d->shape());
 
-  return cpp11::writable::list({ptr, info, r_shape, R_NilValue});
+  return cpp11::writable::list({ptr, info, r_shape, R_NilValue, r_ode_control});
 }
 
 template <typename T>
 cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi, int time,
                            cpp11::sexp r_n_particles, int n_threads,
                            cpp11::sexp r_seed, bool deterministic,
-                           cpp11::sexp r_gpu_config) {
+                           cpp11::sexp r_gpu_config,
+                           cpp11::sexp r_ode_control) {
   const dust::gpu::gpu_config gpu_config =
     dust::gpu::r::gpu_config(r_gpu_config);
   if (deterministic) {
     cpp11::stop("Deterministic models not supported on gpu");
+  }
+  if (r_ode_control != R_NilValue) {
+    cpp11::stop("'ode_control' must be NULL for discrete time models");
   }
 
   dust_gpu<T> *d = nullptr;
@@ -92,7 +100,7 @@ cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi, int time,
   cpp11::sexp ret_r_gpu_config =
     dust::gpu::r::gpu_config_as_sexp(gpu_config);
 
-  return cpp11::writable::list({ptr, info, r_shape, ret_r_gpu_config});
+  return cpp11::writable::list({ptr, info, r_shape, ret_r_gpu_config, r_ode_control});
 }
 
 template <typename T>
@@ -580,6 +588,18 @@ template <typename T>
 int dust_n_state(SEXP ptr) {
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   return obj->n_state_full();
+}
+
+template <typename T>
+void dust_set_stochastic_schedule(SEXP ptr, SEXP time) {
+  if (time != R_NilValue) {
+    cpp11::stop("'set_stochastic_schedule' not supported in discrete-time models");
+  }
+}
+
+template <typename T>
+void dust_ode_statistics(SEXP ptr) {
+  cpp11::stop("'ode_statistics' not supported in discrete-time models");
 }
 
 }

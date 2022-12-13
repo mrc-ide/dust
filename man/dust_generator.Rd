@@ -45,6 +45,8 @@ walk
 \item \href{#method-dust-simulate}{\code{dust_generator$simulate()}}
 \item \href{#method-dust-set_index}{\code{dust_generator$set_index()}}
 \item \href{#method-dust-index}{\code{dust_generator$index()}}
+\item \href{#method-dust-ode_control}{\code{dust_generator$ode_control()}}
+\item \href{#method-dust-ode_statistics}{\code{dust_generator$ode_statistics()}}
 \item \href{#method-dust-n_threads}{\code{dust_generator$n_threads()}}
 \item \href{#method-dust-n_state}{\code{dust_generator$n_state()}}
 \item \href{#method-dust-n_particles}{\code{dust_generator$n_particles()}}
@@ -53,6 +55,7 @@ walk
 \item \href{#method-dust-update_state}{\code{dust_generator$update_state()}}
 \item \href{#method-dust-state}{\code{dust_generator$state()}}
 \item \href{#method-dust-time}{\code{dust_generator$time()}}
+\item \href{#method-dust-set_stochastic_schedule}{\code{dust_generator$set_stochastic_schedule()}}
 \item \href{#method-dust-reorder}{\code{dust_generator$reorder()}}
 \item \href{#method-dust-resample}{\code{dust_generator$resample()}}
 \item \href{#method-dust-info}{\code{dust_generator$info()}}
@@ -97,7 +100,8 @@ is the same size.
   seed = NULL,
   pars_multi = FALSE,
   deterministic = FALSE,
-  gpu_config = NULL
+  gpu_config = NULL,
+  ode_control = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -149,6 +153,11 @@ this can be called before object creation as
 For additional control, provide a list with elements \code{device_id}
 and \code{run_block_size}. Further options (and validation) of this
 list will be added in a future version!}
+
+\item{\code{ode_control}}{For ODE models, control over the integration;
+must be a \code{dust_ode_control} model, produced by
+\code{\link[=dust_ode_control]{dust_ode_control()}}. It is an error to provide a non-\code{NULL}
+value for discrete time models.}
 }
 \if{html}{\out{</div>}}
 }
@@ -255,6 +264,29 @@ validated, and an error thrown if an invalid index is given).}
 Returns the \code{index} as set by \verb{$set_index}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$index()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dust-ode_control"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-ode_control}{}}}
+\subsection{Method \code{ode_control()}}{
+Return the ODE control set into the object on creation.
+For discrete-time models this always returns \code{NULL}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$ode_control()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dust-ode_statistics"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-ode_statistics}{}}}
+\subsection{Method \code{ode_statistics()}}{
+Return statistics about the integration, for ODE models.
+For discrete time models this makes little sense and so errors
+if used.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$ode_statistics()}\if{html}{\out{</div>}}
 }
 
 }
@@ -389,10 +421,33 @@ Return full model state
 \if{latex}{\out{\hypertarget{method-dust-time}{}}}
 \subsection{Method \code{time()}}{
 Return current model time
+For ODE models, sets the schedule at which stochastic events are
+handled. The timing here is quite subtle - an event happens
+immediately \emph{after} the time (so at \code{time + eps}). If your model
+runs up to \code{time} an event is not triggered, but as soon as that
+time is passed, by any amount of time, the event will trigger. It
+is an error to set this to a non-\code{NULL} value in a discrete time
+model; later we may generalise the approach here.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$time()}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dust-set_stochastic_schedule"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-set_stochastic_schedule}{}}}
+\subsection{Method \code{set_stochastic_schedule()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$set_stochastic_schedule(time)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{time}}{A vector of times to run the stochastic update at}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-dust-reorder"></a>}}

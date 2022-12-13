@@ -3,7 +3,7 @@
 SEXP dust_{{target}}_{{name}}_alloc(cpp11::list r_pars, bool pars_multi, size_t time,
                          cpp11::sexp r_n_particles, size_t n_threads,
                          cpp11::sexp r_seed, bool deterministic,
-                         cpp11::sexp gpu_config);
+                         cpp11::sexp gpu_config, cpp11::sexp ode_control);
 
 [[cpp11::register]]
 SEXP dust_{{target}}_{{name}}_run(SEXP ptr, size_t time_end);
@@ -54,3 +54,9 @@ void dust_{{target}}_{{name}}_set_n_threads(SEXP ptr, int n_threads);
 
 [[cpp11::register]]
 int dust_{{target}}_{{name}}_n_state(SEXP ptr);
+
+[[cpp11::register]]
+void dust_{{target}}_{{name}}_set_stochastic_schedule(SEXP ptr, SEXP time);
+
+[[cpp11::register]]
+void dust_{{target}}_{{name}}_ode_statistics(SEXP ptr);

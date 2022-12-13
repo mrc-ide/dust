@@ -1103,3 +1103,12 @@ test_that("don't duplicate gencode flags", {
     cuda$flags$gencode,
     "-gencode=arch=compute_75,code=sm_75 -gencode=arch=compute_86,code=sm_86")
 })
+
+
+test_that("don't accept ode control for gpu models", {
+  gen <- dust_example("variable")
+  expect_error(
+    gen$new(list(len = 4), 0, 100, seed = 1L, gpu_config = 0L,
+            ode_control = dust_ode_control()),
+    "'ode_control' must be NULL for discrete time models")
+})

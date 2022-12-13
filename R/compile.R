@@ -136,7 +136,8 @@ dust_template_data <- function(model, config, cuda, reload_data, linking_to,
     nms <- c("alloc", "run", "simulate", "set_index", "n_state",
              "update_state", "state", "time", "reorder", "resample",
              "rng_state", "set_rng_state", "set_n_threads",
-             "set_data", "compare_data", "filter")
+             "set_data", "compare_data", "filter", "set_stochastic_schedule",
+             "ode_statistics")
     m <- sprintf("%s = dust_%s_%s_%s", nms, target, config$name, nms)
     sprintf("list(\n%s)",  paste("          ", m, collapse = ",\n"))
   }
