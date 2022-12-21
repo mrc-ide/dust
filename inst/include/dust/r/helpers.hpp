@@ -294,7 +294,7 @@ inline size_t validate_time(cpp11::sexp r_time, size_t time_min,
   dust::r::validate_size(time_int, name);
   const size_t time = static_cast<size_t>(time_int);
   if (time < time_min) {
-    cpp11::stop("%s must be at least %s",
+    cpp11::stop("'%s' must be at least %s",
                 name, std::to_string(time_min).c_str());
   }
   return time;
@@ -305,7 +305,7 @@ inline double validate_time(cpp11::sexp r_time, double time_min,
                             const char* name) {
   const double time = cpp11::as_cpp<double>(r_time);
   if (time < time_min) {
-    cpp11::stop("%s must be at least %s",
+    cpp11::stop("'%s' must be at least %s",
                 name, std::to_string(time_min).c_str());
   }
   return time;

@@ -159,6 +159,17 @@ test_that("set rng state", {
 })
 
 
+test_that("starting time for run must be at least the last run time", {
+  res <- dust_example("walk")
+  obj <- res$new(list(sd = 1), 0L, 5)
+  y <- obj$run(5)
+  expect_identical(obj$run(5), y)
+  expect_error(obj$run(4), "'time_end' must be at least 5")
+  expect_identical(obj$time(), 5)
+  expect_identical(obj$state(), y)
+})
+
+
 test_that("set rng state", {
   res <- dust_example("walk")
   seed <- 1
