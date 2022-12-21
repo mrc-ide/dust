@@ -165,7 +165,7 @@ test_that("starting time for run must be at least the last run time", {
   y <- obj$run(5)
   expect_identical(obj$run(5), y)
   expect_error(obj$run(4), "'time_end' must be at least 5")
-  expect_identical(obj$time(), 5)
+  expect_identical(obj$time(), 5L)
   expect_identical(obj$state(), y)
 })
 
