@@ -1,21 +1,21 @@
 /// IMPORTANT; changes here must be reflected in inst/template/dust_methods.hpp
 using model_{{target}} = dust::{{container}}<{{class}}>;
 
-SEXP dust_{{target}}_{{name}}_alloc(cpp11::list r_pars, bool pars_multi, size_t time,
-                             cpp11::sexp r_n_particles, size_t n_threads,
+SEXP dust_{{target}}_{{name}}_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_time,
+                             cpp11::sexp r_n_particles, int n_threads,
                              cpp11::sexp r_seed, bool deterministic,
                              cpp11::sexp gpu_config, cpp11::sexp ode_control) {
-  return dust::r::dust_{{target}}_alloc<{{class}}>(r_pars, pars_multi, time, r_n_particles,
+  return dust::r::dust_{{target}}_alloc<{{class}}>(r_pars, pars_multi, r_time, r_n_particles,
                                         n_threads, r_seed, deterministic,
                                         gpu_config, ode_control);
 }
 
-SEXP dust_{{target}}_{{name}}_run(SEXP ptr, size_t time_end) {
-  return dust::r::dust_run<model_{{target}}>(ptr, time_end);
+SEXP dust_{{target}}_{{name}}_run(SEXP ptr, cpp11::sexp r_time_end) {
+  return dust::r::dust_run<model_{{target}}>(ptr, r_time_end);
 }
 
-SEXP dust_{{target}}_{{name}}_simulate(SEXP ptr, cpp11::sexp time_end) {
-  return dust::r::dust_simulate<model_{{target}}>(ptr, time_end);
+SEXP dust_{{target}}_{{name}}_simulate(SEXP ptr, cpp11::sexp r_time_end) {
+  return dust::r::dust_simulate<model_{{target}}>(ptr, r_time_end);
 }
 
 SEXP dust_{{target}}_{{name}}_set_index(SEXP ptr, cpp11::sexp r_index) {
@@ -33,7 +33,7 @@ SEXP dust_{{target}}_{{name}}_state(SEXP ptr, SEXP r_index) {
   return dust::r::dust_state<model_{{target}}>(ptr, r_index);
 }
 
-size_t dust_{{target}}_{{name}}_time(SEXP ptr) {
+SEXP dust_{{target}}_{{name}}_time(SEXP ptr) {
   return dust::r::dust_time<model_{{target}}>(ptr);
 }
 

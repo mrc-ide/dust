@@ -1,12 +1,12 @@
 /// IMPORTANT; changes here must be reflected in inst/template/dust_methods.cpp
 [[cpp11::register]]
-SEXP dust_{{target}}_{{name}}_alloc(cpp11::list r_pars, bool pars_multi, size_t time,
-                         cpp11::sexp r_n_particles, size_t n_threads,
+SEXP dust_{{target}}_{{name}}_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_time,
+                         cpp11::sexp r_n_particles, int n_threads,
                          cpp11::sexp r_seed, bool deterministic,
                          cpp11::sexp gpu_config, cpp11::sexp ode_control);
 
 [[cpp11::register]]
-SEXP dust_{{target}}_{{name}}_run(SEXP ptr, size_t time_end);
+SEXP dust_{{target}}_{{name}}_run(SEXP ptr, cpp11::sexp r_time_end);
 
 [[cpp11::register]]
 SEXP dust_{{target}}_{{name}}_simulate(SEXP ptr, cpp11::sexp time_end);
@@ -23,7 +23,7 @@ SEXP dust_{{target}}_{{name}}_update_state(SEXP ptr, SEXP r_pars, SEXP r_state,
 SEXP dust_{{target}}_{{name}}_state(SEXP ptr, SEXP r_index);
 
 [[cpp11::register]]
-size_t dust_{{target}}_{{name}}_time(SEXP ptr);
+SEXP dust_{{target}}_{{name}}_time(SEXP ptr);
 
 [[cpp11::register]]
 void dust_{{target}}_{{name}}_reorder(SEXP ptr, cpp11::sexp r_index);

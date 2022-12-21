@@ -38,6 +38,29 @@ cpp11::integers as_integer(cpp11::sexp x, const char * name) {
   }
 }
 
+// Originally from mode, would be nice if this was not needed.
+template <typename T, typename U>
+std::vector<T> copy_vector(U x) {
+  std::vector<T> ret;
+  const auto len = x.size();
+  ret.reserve(len);
+  for (int i = 0; i < len; ++i) {
+    ret.push_back(x[i]);
+  }
+  return ret;
+}
+
+inline std::vector<double> as_vector_double(cpp11::sexp x, const char * name) {
+  if (TYPEOF(x) != INTSXP || TYPEOF(x) != REALSXP) {
+    cpp11::stop("Expected a numeric vector for '%s'", name);
+  }
+  if (TYPEOF(x) == INTSXP) {
+    return copy_vector<double>(cpp11::as_cpp<cpp11::integers>(x));
+  } else {
+    return copy_vector<double>(cpp11::as_cpp<cpp11::doubles>(x));
+  }
+}
+
 inline
 void validate_size(int x, const char * name) {
   if (x < 0) {
@@ -220,6 +243,72 @@ cpp11::writable::integers vector_size_to_int(const std::vector<size_t> & x) {
   cpp11::writable::integers ret(x.size());
   std::copy(x.begin(), x.end(), ret.begin());
   return ret;
+}
+
+
+template <typename T, typename U>
+T validate_time(cpp11::sexp time, U time_min, const char* name);
+
+// This bit makes sure that time vectors have at least one point and
+// that they have non-decreasing times; this all holds true regardless
+// of the actual types.
+template <typename T>
+void validate_time_vector(std::vector<T> time, T time_min, const char *name) {
+  const size_t n_time = time.size();
+  if (n_time == 0) {
+    cpp11::stop("'%s' must have at least one element", name);
+  }
+  if (time[0] < time_min) {
+    cpp11::stop("%s[1] must be at least %s",
+                name, std::to_string(time_min).c_str());
+  }
+  for (size_t i = 1; i < n_time; ++i) {
+    if (time[i] < time[i - 1]) {
+      cpp11::stop("'%s' must be non-decreasing (error on element %d)",
+                  i + 1);
+    }
+  }
+}
+
+template <>
+inline std::vector<size_t> validate_time(cpp11::sexp r_time, size_t time_min,
+                                         const char* name) {
+  const std::vector<size_t> time = validate_size(r_time, name);
+  validate_time_vector<size_t>(time, time_min, name);
+  return time;
+}
+
+// Used only in ode models
+template <>
+inline std::vector<double> validate_time(cpp11::sexp r_time, double time_min,
+                                         const char *name) {
+  const std::vector<double> time = as_vector_double(r_time, name);
+  validate_time_vector<double>(time, time_min, name);
+  return time;
+}
+
+template <>
+inline size_t validate_time(cpp11::sexp r_time, size_t time_min,
+                            const char* name) {
+  const int time_int = cpp11::as_cpp<int>(r_time);
+  dust::r::validate_size(time_int, name);
+  const size_t time = static_cast<size_t>(time_int);
+  if (time < time_min) {
+    cpp11::stop("%s must be at least %s",
+                name, std::to_string(time_min).c_str());
+  }
+  return time;
+}
+
+template <>
+inline double validate_time(cpp11::sexp r_time, double time_min,
+                            const char* name) {
+  const double time = cpp11::as_cpp<double>(r_time);
+  if (time < time_min) {
+    cpp11::stop("%s must be at least %s",
+                name, std::to_string(time_min).c_str());
+  }
+  return time;
 }
 
 inline void check_pars_multi(cpp11::list r_pars,

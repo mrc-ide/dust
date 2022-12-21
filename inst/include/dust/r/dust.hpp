@@ -25,12 +25,15 @@ namespace dust {
 namespace r {
 
 template <typename T>
-cpp11::list dust_cpu_alloc(cpp11::list r_pars, bool pars_multi, int time,
+cpp11::list dust_cpu_alloc(cpp11::list r_pars, bool pars_multi,
+                           cpp11::sexp r_time,
                            cpp11::sexp r_n_particles, int n_threads,
                            cpp11::sexp r_seed, bool deterministic,
                            cpp11::sexp r_gpu_config,
                            cpp11::sexp r_ode_control) {
   dust_cpu<T> *d = nullptr;
+  const size_t t0 = 0;
+  const auto time = dust::r::validate_time<size_t>(r_time, t0, "time");
   if (r_ode_control != R_NilValue) {
     cpp11::stop("'ode_control' must be NULL for discrete time models");
   }
@@ -60,7 +63,8 @@ cpp11::list dust_cpu_alloc(cpp11::list r_pars, bool pars_multi, int time,
 }
 
 template <typename T>
-cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi, int time,
+cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi,
+                           cpp11::sexp r_time,
                            cpp11::sexp r_n_particles, int n_threads,
                            cpp11::sexp r_seed, bool deterministic,
                            cpp11::sexp r_gpu_config,
@@ -75,6 +79,8 @@ cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi, int time,
   }
 
   dust_gpu<T> *d = nullptr;
+  const size_t t0 = 0;
+  const auto time = dust::r::validate_time<size_t>(r_time, t0, "time");
   cpp11::sexp info;
   if (pars_multi) {
     auto inputs =
@@ -245,9 +251,11 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_time,
 }
 
 template <typename T>
-cpp11::sexp dust_run(SEXP ptr, int time_end) {
-  dust::r::validate_size(time_end, "time_end");
+cpp11::sexp dust_run(SEXP ptr, cpp11::sexp r_time_end) {
+  using time_type = typename T::time_type;
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
+  const auto time_end =
+    dust::r::validate_time<time_type>(r_time_end, obj->time(), "time_end");
   obj->check_errors();
   obj->run(time_end);
 
@@ -265,27 +273,14 @@ cpp11::sexp dust_run(SEXP ptr, int time_end) {
 template <typename T>
 cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_time_end) {
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
+  using time_type = typename T::time_type;
+  const auto time_end =
+    dust::r::validate_time<std::vector<time_type>>(r_time_end, obj->time(), "time_end");
   obj->check_errors();
-  const std::vector<size_t> time_end =
-    dust::r::validate_size(r_time_end, "time_end");
-  const size_t n_time = time_end.size();
-  if (n_time == 0) {
-    cpp11::stop("'time_end' must have at least one element");
-  }
-  if (time_end[0] < obj->time()) {
-    cpp11::stop("'time_end[1]' must be at least %d", obj->time());
-  }
-  for (size_t i = 1; i < n_time; ++i) {
-    if (time_end[i] < time_end[i - 1]) {
-      cpp11::stop("'time_end' must be non-decreasing (error on element %d)",
-                  i + 1);
-    }
-  }
-
-  std::vector<typename T::real_type> dat = obj->simulate(time_end);
+  auto dat = obj->simulate(time_end);
 
   return dust::r::state_array(dat, obj->n_state(), obj->shape(),
-                              n_time);
+                              time_end.size());
 }
 
 template <typename T>
@@ -324,10 +319,10 @@ SEXP dust_state(SEXP ptr, SEXP r_index) {
 }
 
 template <typename T>
-size_t dust_time(SEXP ptr) {
+SEXP dust_time(SEXP ptr) {
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   obj->check_errors();
-  return obj->time();
+  return cpp11::as_sexp(obj->time());
 }
 
 template <typename T>
