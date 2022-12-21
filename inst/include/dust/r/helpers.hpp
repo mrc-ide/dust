@@ -259,7 +259,7 @@ void validate_time_vector(std::vector<T> time, T time_min, const char *name) {
     cpp11::stop("'%s' must have at least one element", name);
   }
   if (time[0] < time_min) {
-    cpp11::stop("%s[1] must be at least %s",
+    cpp11::stop("'%s[1]' must be at least %s",
                 name, std::to_string(time_min).c_str());
   }
   for (size_t i = 1; i < n_time; ++i) {
