@@ -265,7 +265,7 @@ void validate_time_vector(std::vector<T> time, T time_min, const char *name) {
   for (size_t i = 1; i < n_time; ++i) {
     if (time[i] < time[i - 1]) {
       cpp11::stop("'%s' must be non-decreasing (error on element %d)",
-                  i + 1);
+                  name, i + 1);
     }
   }
 }
