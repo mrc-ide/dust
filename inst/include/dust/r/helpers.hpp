@@ -51,7 +51,7 @@ std::vector<T> copy_vector(U x) {
 }
 
 inline std::vector<double> as_vector_double(cpp11::sexp x, const char * name) {
-  if (TYPEOF(x) != INTSXP || TYPEOF(x) != REALSXP) {
+  if (TYPEOF(x) != INTSXP && TYPEOF(x) != REALSXP) {
     cpp11::stop("Expected a numeric vector for '%s'", name);
   }
   if (TYPEOF(x) == INTSXP) {
