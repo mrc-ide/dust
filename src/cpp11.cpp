@@ -47,28 +47,6 @@ extern "C" SEXP _dust_density_poisson(SEXP x, SEXP lambda, SEXP log) {
     return cpp11::as_sexp(density_poisson(cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(x), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(lambda), cpp11::as_cpp<cpp11::decay_t<bool>>(log)));
   END_CPP11
 }
-// dust_rng_pointer.cpp
-cpp11::sexp dust_rng_pointer_init(int n_streams, cpp11::sexp seed, int long_jump, std::string algorithm);
-extern "C" SEXP _dust_dust_rng_pointer_init(SEXP n_streams, SEXP seed, SEXP long_jump, SEXP algorithm) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_pointer_init(cpp11::as_cpp<cpp11::decay_t<int>>(n_streams), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(seed), cpp11::as_cpp<cpp11::decay_t<int>>(long_jump), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm)));
-  END_CPP11
-}
-// dust_rng_pointer.cpp
-void dust_rng_pointer_sync(cpp11::environment obj, std::string algorithm);
-extern "C" SEXP _dust_dust_rng_pointer_sync(SEXP obj, SEXP algorithm) {
-  BEGIN_CPP11
-    dust_rng_pointer_sync(cpp11::as_cpp<cpp11::decay_t<cpp11::environment>>(obj), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm));
-    return R_NilValue;
-  END_CPP11
-}
-// dust_rng_pointer.cpp
-double test_rng_pointer_get(cpp11::environment obj, int n_streams);
-extern "C" SEXP _dust_test_rng_pointer_get(SEXP obj, SEXP n_streams) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(test_rng_pointer_get(cpp11::as_cpp<cpp11::decay_t<cpp11::environment>>(obj), cpp11::as_cpp<cpp11::decay_t<int>>(n_streams)));
-  END_CPP11
-}
 // dust_rng.cpp
 SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_streams, bool deterministic, bool is_float);
 extern "C" SEXP _dust_dust_rng_alloc(SEXP r_seed, SEXP n_streams, SEXP deterministic, SEXP is_float) {
@@ -176,6 +154,28 @@ extern "C" SEXP _dust_dust_rng_state(SEXP ptr, SEXP is_float) {
     return cpp11::as_sexp(dust_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
   END_CPP11
 }
+// dust_rng_pointer.cpp
+cpp11::sexp dust_rng_pointer_init(int n_streams, cpp11::sexp seed, int long_jump, std::string algorithm);
+extern "C" SEXP _dust_dust_rng_pointer_init(SEXP n_streams, SEXP seed, SEXP long_jump, SEXP algorithm) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_rng_pointer_init(cpp11::as_cpp<cpp11::decay_t<int>>(n_streams), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(seed), cpp11::as_cpp<cpp11::decay_t<int>>(long_jump), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm)));
+  END_CPP11
+}
+// dust_rng_pointer.cpp
+void dust_rng_pointer_sync(cpp11::environment obj, std::string algorithm);
+extern "C" SEXP _dust_dust_rng_pointer_sync(SEXP obj, SEXP algorithm) {
+  BEGIN_CPP11
+    dust_rng_pointer_sync(cpp11::as_cpp<cpp11::decay_t<cpp11::environment>>(obj), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm));
+    return R_NilValue;
+  END_CPP11
+}
+// dust_rng_pointer.cpp
+double test_rng_pointer_get(cpp11::environment obj, int n_streams);
+extern "C" SEXP _dust_test_rng_pointer_get(SEXP obj, SEXP n_streams) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(test_rng_pointer_get(cpp11::as_cpp<cpp11::decay_t<cpp11::environment>>(obj), cpp11::as_cpp<cpp11::decay_t<int>>(n_streams)));
+  END_CPP11
+}
 // openmp.cpp
 cpp11::writable::list cpp_openmp_info();
 extern "C" SEXP _dust_cpp_openmp_info() {
@@ -198,17 +198,17 @@ extern "C" SEXP _dust_dust_sir_gpu_info() {
   END_CPP11
 }
 // sir.cpp
-SEXP dust_cpu_sir_alloc(cpp11::list r_pars, bool pars_multi, size_t time, cpp11::sexp r_n_particles, size_t n_threads, cpp11::sexp r_seed, bool deterministic, cpp11::sexp gpu_config, cpp11::sexp ode_control);
-extern "C" SEXP _dust_dust_cpu_sir_alloc(SEXP r_pars, SEXP pars_multi, SEXP time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
+SEXP dust_cpu_sir_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_time, cpp11::sexp r_n_particles, int n_threads, cpp11::sexp r_seed, bool deterministic, cpp11::sexp gpu_config, cpp11::sexp ode_control);
+extern "C" SEXP _dust_dust_cpu_sir_alloc(SEXP r_pars, SEXP pars_multi, SEXP r_time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_sir_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
+    return cpp11::as_sexp(dust_cpu_sir_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
   END_CPP11
 }
 // sir.cpp
-SEXP dust_cpu_sir_run(SEXP ptr, size_t time_end);
-extern "C" SEXP _dust_dust_cpu_sir_run(SEXP ptr, SEXP time_end) {
+SEXP dust_cpu_sir_run(SEXP ptr, cpp11::sexp r_time_end);
+extern "C" SEXP _dust_dust_cpu_sir_run(SEXP ptr, SEXP r_time_end) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_sir_run(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<size_t>>(time_end)));
+    return cpp11::as_sexp(dust_cpu_sir_run(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time_end)));
   END_CPP11
 }
 // sir.cpp
@@ -240,7 +240,7 @@ extern "C" SEXP _dust_dust_cpu_sir_state(SEXP ptr, SEXP r_index) {
   END_CPP11
 }
 // sir.cpp
-size_t dust_cpu_sir_time(SEXP ptr);
+SEXP dust_cpu_sir_time(SEXP ptr);
 extern "C" SEXP _dust_dust_cpu_sir_time(SEXP ptr) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_cpu_sir_time(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
@@ -342,17 +342,17 @@ extern "C" SEXP _dust_dust_sirs_gpu_info() {
   END_CPP11
 }
 // sirs.cpp
-SEXP dust_cpu_sirs_alloc(cpp11::list r_pars, bool pars_multi, size_t time, cpp11::sexp r_n_particles, size_t n_threads, cpp11::sexp r_seed, bool deterministic, cpp11::sexp gpu_config, cpp11::sexp ode_control);
-extern "C" SEXP _dust_dust_cpu_sirs_alloc(SEXP r_pars, SEXP pars_multi, SEXP time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
+SEXP dust_cpu_sirs_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_time, cpp11::sexp r_n_particles, int n_threads, cpp11::sexp r_seed, bool deterministic, cpp11::sexp gpu_config, cpp11::sexp ode_control);
+extern "C" SEXP _dust_dust_cpu_sirs_alloc(SEXP r_pars, SEXP pars_multi, SEXP r_time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_sirs_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
+    return cpp11::as_sexp(dust_cpu_sirs_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
   END_CPP11
 }
 // sirs.cpp
-SEXP dust_cpu_sirs_run(SEXP ptr, size_t time_end);
-extern "C" SEXP _dust_dust_cpu_sirs_run(SEXP ptr, SEXP time_end) {
+SEXP dust_cpu_sirs_run(SEXP ptr, cpp11::sexp r_time_end);
+extern "C" SEXP _dust_dust_cpu_sirs_run(SEXP ptr, SEXP r_time_end) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_sirs_run(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<size_t>>(time_end)));
+    return cpp11::as_sexp(dust_cpu_sirs_run(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time_end)));
   END_CPP11
 }
 // sirs.cpp
@@ -384,7 +384,7 @@ extern "C" SEXP _dust_dust_cpu_sirs_state(SEXP ptr, SEXP r_index) {
   END_CPP11
 }
 // sirs.cpp
-size_t dust_cpu_sirs_time(SEXP ptr);
+SEXP dust_cpu_sirs_time(SEXP ptr);
 extern "C" SEXP _dust_dust_cpu_sirs_time(SEXP ptr) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_cpu_sirs_time(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
@@ -472,17 +472,17 @@ extern "C" SEXP _dust_dust_cpu_sirs_ode_statistics(SEXP ptr) {
   END_CPP11
 }
 // sirs.cpp
-SEXP dust_gpu_sirs_alloc(cpp11::list r_pars, bool pars_multi, size_t time, cpp11::sexp r_n_particles, size_t n_threads, cpp11::sexp r_seed, bool deterministic, cpp11::sexp gpu_config, cpp11::sexp ode_control);
-extern "C" SEXP _dust_dust_gpu_sirs_alloc(SEXP r_pars, SEXP pars_multi, SEXP time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
+SEXP dust_gpu_sirs_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_time, cpp11::sexp r_n_particles, int n_threads, cpp11::sexp r_seed, bool deterministic, cpp11::sexp gpu_config, cpp11::sexp ode_control);
+extern "C" SEXP _dust_dust_gpu_sirs_alloc(SEXP r_pars, SEXP pars_multi, SEXP r_time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_gpu_sirs_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
+    return cpp11::as_sexp(dust_gpu_sirs_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
   END_CPP11
 }
 // sirs.cpp
-SEXP dust_gpu_sirs_run(SEXP ptr, size_t time_end);
-extern "C" SEXP _dust_dust_gpu_sirs_run(SEXP ptr, SEXP time_end) {
+SEXP dust_gpu_sirs_run(SEXP ptr, cpp11::sexp r_time_end);
+extern "C" SEXP _dust_dust_gpu_sirs_run(SEXP ptr, SEXP r_time_end) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_gpu_sirs_run(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<size_t>>(time_end)));
+    return cpp11::as_sexp(dust_gpu_sirs_run(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time_end)));
   END_CPP11
 }
 // sirs.cpp
@@ -514,7 +514,7 @@ extern "C" SEXP _dust_dust_gpu_sirs_state(SEXP ptr, SEXP r_index) {
   END_CPP11
 }
 // sirs.cpp
-size_t dust_gpu_sirs_time(SEXP ptr);
+SEXP dust_gpu_sirs_time(SEXP ptr);
 extern "C" SEXP _dust_dust_gpu_sirs_time(SEXP ptr) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_gpu_sirs_time(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
@@ -637,17 +637,17 @@ extern "C" SEXP _dust_dust_variable_gpu_info() {
   END_CPP11
 }
 // variable.cpp
-SEXP dust_cpu_variable_alloc(cpp11::list r_pars, bool pars_multi, size_t time, cpp11::sexp r_n_particles, size_t n_threads, cpp11::sexp r_seed, bool deterministic, cpp11::sexp gpu_config, cpp11::sexp ode_control);
-extern "C" SEXP _dust_dust_cpu_variable_alloc(SEXP r_pars, SEXP pars_multi, SEXP time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
+SEXP dust_cpu_variable_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_time, cpp11::sexp r_n_particles, int n_threads, cpp11::sexp r_seed, bool deterministic, cpp11::sexp gpu_config, cpp11::sexp ode_control);
+extern "C" SEXP _dust_dust_cpu_variable_alloc(SEXP r_pars, SEXP pars_multi, SEXP r_time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_variable_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
+    return cpp11::as_sexp(dust_cpu_variable_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
   END_CPP11
 }
 // variable.cpp
-SEXP dust_cpu_variable_run(SEXP ptr, size_t time_end);
-extern "C" SEXP _dust_dust_cpu_variable_run(SEXP ptr, SEXP time_end) {
+SEXP dust_cpu_variable_run(SEXP ptr, cpp11::sexp r_time_end);
+extern "C" SEXP _dust_dust_cpu_variable_run(SEXP ptr, SEXP r_time_end) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_variable_run(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<size_t>>(time_end)));
+    return cpp11::as_sexp(dust_cpu_variable_run(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time_end)));
   END_CPP11
 }
 // variable.cpp
@@ -679,7 +679,7 @@ extern "C" SEXP _dust_dust_cpu_variable_state(SEXP ptr, SEXP r_index) {
   END_CPP11
 }
 // variable.cpp
-size_t dust_cpu_variable_time(SEXP ptr);
+SEXP dust_cpu_variable_time(SEXP ptr);
 extern "C" SEXP _dust_dust_cpu_variable_time(SEXP ptr) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_cpu_variable_time(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
@@ -767,17 +767,17 @@ extern "C" SEXP _dust_dust_cpu_variable_ode_statistics(SEXP ptr) {
   END_CPP11
 }
 // variable.cpp
-SEXP dust_gpu_variable_alloc(cpp11::list r_pars, bool pars_multi, size_t time, cpp11::sexp r_n_particles, size_t n_threads, cpp11::sexp r_seed, bool deterministic, cpp11::sexp gpu_config, cpp11::sexp ode_control);
-extern "C" SEXP _dust_dust_gpu_variable_alloc(SEXP r_pars, SEXP pars_multi, SEXP time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
+SEXP dust_gpu_variable_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_time, cpp11::sexp r_n_particles, int n_threads, cpp11::sexp r_seed, bool deterministic, cpp11::sexp gpu_config, cpp11::sexp ode_control);
+extern "C" SEXP _dust_dust_gpu_variable_alloc(SEXP r_pars, SEXP pars_multi, SEXP r_time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_gpu_variable_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
+    return cpp11::as_sexp(dust_gpu_variable_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
   END_CPP11
 }
 // variable.cpp
-SEXP dust_gpu_variable_run(SEXP ptr, size_t time_end);
-extern "C" SEXP _dust_dust_gpu_variable_run(SEXP ptr, SEXP time_end) {
+SEXP dust_gpu_variable_run(SEXP ptr, cpp11::sexp r_time_end);
+extern "C" SEXP _dust_dust_gpu_variable_run(SEXP ptr, SEXP r_time_end) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_gpu_variable_run(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<size_t>>(time_end)));
+    return cpp11::as_sexp(dust_gpu_variable_run(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time_end)));
   END_CPP11
 }
 // variable.cpp
@@ -809,7 +809,7 @@ extern "C" SEXP _dust_dust_gpu_variable_state(SEXP ptr, SEXP r_index) {
   END_CPP11
 }
 // variable.cpp
-size_t dust_gpu_variable_time(SEXP ptr);
+SEXP dust_gpu_variable_time(SEXP ptr);
 extern "C" SEXP _dust_dust_gpu_variable_time(SEXP ptr) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_gpu_variable_time(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
@@ -911,17 +911,17 @@ extern "C" SEXP _dust_dust_volatility_gpu_info() {
   END_CPP11
 }
 // volatility.cpp
-SEXP dust_cpu_volatility_alloc(cpp11::list r_pars, bool pars_multi, size_t time, cpp11::sexp r_n_particles, size_t n_threads, cpp11::sexp r_seed, bool deterministic, cpp11::sexp gpu_config, cpp11::sexp ode_control);
-extern "C" SEXP _dust_dust_cpu_volatility_alloc(SEXP r_pars, SEXP pars_multi, SEXP time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
+SEXP dust_cpu_volatility_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_time, cpp11::sexp r_n_particles, int n_threads, cpp11::sexp r_seed, bool deterministic, cpp11::sexp gpu_config, cpp11::sexp ode_control);
+extern "C" SEXP _dust_dust_cpu_volatility_alloc(SEXP r_pars, SEXP pars_multi, SEXP r_time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_volatility_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
+    return cpp11::as_sexp(dust_cpu_volatility_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
   END_CPP11
 }
 // volatility.cpp
-SEXP dust_cpu_volatility_run(SEXP ptr, size_t time_end);
-extern "C" SEXP _dust_dust_cpu_volatility_run(SEXP ptr, SEXP time_end) {
+SEXP dust_cpu_volatility_run(SEXP ptr, cpp11::sexp r_time_end);
+extern "C" SEXP _dust_dust_cpu_volatility_run(SEXP ptr, SEXP r_time_end) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_volatility_run(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<size_t>>(time_end)));
+    return cpp11::as_sexp(dust_cpu_volatility_run(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time_end)));
   END_CPP11
 }
 // volatility.cpp
@@ -953,7 +953,7 @@ extern "C" SEXP _dust_dust_cpu_volatility_state(SEXP ptr, SEXP r_index) {
   END_CPP11
 }
 // volatility.cpp
-size_t dust_cpu_volatility_time(SEXP ptr);
+SEXP dust_cpu_volatility_time(SEXP ptr);
 extern "C" SEXP _dust_dust_cpu_volatility_time(SEXP ptr) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_cpu_volatility_time(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
@@ -1055,17 +1055,17 @@ extern "C" SEXP _dust_dust_walk_gpu_info() {
   END_CPP11
 }
 // walk.cpp
-SEXP dust_cpu_walk_alloc(cpp11::list r_pars, bool pars_multi, size_t time, cpp11::sexp r_n_particles, size_t n_threads, cpp11::sexp r_seed, bool deterministic, cpp11::sexp gpu_config, cpp11::sexp ode_control);
-extern "C" SEXP _dust_dust_cpu_walk_alloc(SEXP r_pars, SEXP pars_multi, SEXP time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
+SEXP dust_cpu_walk_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_time, cpp11::sexp r_n_particles, int n_threads, cpp11::sexp r_seed, bool deterministic, cpp11::sexp gpu_config, cpp11::sexp ode_control);
+extern "C" SEXP _dust_dust_cpu_walk_alloc(SEXP r_pars, SEXP pars_multi, SEXP r_time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_walk_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<size_t>>(time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<size_t>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
+    return cpp11::as_sexp(dust_cpu_walk_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
   END_CPP11
 }
 // walk.cpp
-SEXP dust_cpu_walk_run(SEXP ptr, size_t time_end);
-extern "C" SEXP _dust_dust_cpu_walk_run(SEXP ptr, SEXP time_end) {
+SEXP dust_cpu_walk_run(SEXP ptr, cpp11::sexp r_time_end);
+extern "C" SEXP _dust_dust_cpu_walk_run(SEXP ptr, SEXP r_time_end) {
   BEGIN_CPP11
-    return cpp11::as_sexp(dust_cpu_walk_run(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<size_t>>(time_end)));
+    return cpp11::as_sexp(dust_cpu_walk_run(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time_end)));
   END_CPP11
 }
 // walk.cpp
@@ -1097,7 +1097,7 @@ extern "C" SEXP _dust_dust_cpu_walk_state(SEXP ptr, SEXP r_index) {
   END_CPP11
 }
 // walk.cpp
-size_t dust_cpu_walk_time(SEXP ptr);
+SEXP dust_cpu_walk_time(SEXP ptr);
 extern "C" SEXP _dust_dust_cpu_walk_time(SEXP ptr) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_cpu_walk_time(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
