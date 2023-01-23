@@ -150,11 +150,11 @@ cpp11::sexp dust_update_state_set_pars(T *obj, cpp11::list r_pars,
 template <typename T, typename real_type>
 cpp11::sexp dust_update_state_set(T *obj, SEXP r_pars,
                                   const std::vector<real_type>& state,
-                                  const std::vector<size_t>& time,
+                                  const std::vector<typename T::time_type>& time,
                                   bool set_initial_state,
                                   const std::vector<size_t>& index) {
   cpp11::sexp ret = R_NilValue;
-  const size_t time_prev = obj->time();
+  const auto time_prev = obj->time();
 
   if (time.size() == 1) { // TODO: can handle this via a bool and int, tidier
     obj->set_time(time[0]);
@@ -218,12 +218,12 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_time,
   // function having dealt with both or neither (i.e., do not fail on
   // time after succeeding on state).
 
-  std::vector<size_t> time;
+  std::vector<typename T::time_type> time;
   std::vector<real_type> state;
 
   if (has_time) {
-    // TODO: simplify this, if possible
-    time = dust::r::validate_size(r_time, "time");
+    const time_type t0 = 0;
+    time = dust::r::validate_time<time_type>(r_time, t0, "time");
     const size_t len = time.size();
     if (len != 1) {
       cpp11::stop("Expected 'time' to be scalar");
@@ -400,6 +400,7 @@ template <typename T, typename std::enable_if<!std::is_same<dust::no_data, typen
 void dust_set_data(SEXP ptr, cpp11::list r_data, bool data_is_shared) {
   using model_type = typename T::model_type;
   using data_type = typename T::data_type;
+  using time_type = typename T::time_type;
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const size_t n_data = data_is_shared ? 1 : obj->n_pars_effective();
 
@@ -412,7 +413,7 @@ void dust_set_data(SEXP ptr, cpp11::list r_data, bool data_is_shared) {
       cpp11::stop("Expected a list of length %d for element %d of 'data'",
                   n_data + 1, i + 1);
     }
-    const size_t time_i = cpp11::as_cpp<int>(el[0]);
+    const time_type time_i = cpp11::as_cpp<int>(el[0]);
     std::vector<data_type> data_i;
     data_i.reserve(n_data);
     for (size_t j = 0; j < n_data; ++j) {
@@ -456,6 +457,8 @@ cpp11::sexp save_trajectories(const filter_state& trajectories,
   return(r_trajectories);
 }
 
+// TODO: there's general work here to get the filter working, but mode
+// models are safe from this at the moment as they don't support data.
 template <typename filter_state, typename T>
 cpp11::sexp save_snapshots(const filter_state& snapshots, const T *obj,
                            const std::vector<size_t>& time_snapshot) {
