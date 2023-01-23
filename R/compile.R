@@ -141,9 +141,14 @@ dust_template_data <- function(model, config, cuda, reload_data, linking_to,
     m <- sprintf("%s = dust_%s_%s_%s", nms, target, config$name, nms)
     sprintf("list(\n%s)",  paste("          ", m, collapse = ",\n"))
   }
-  methods_cpu <- methods("cpu")
+  target <- if (config$time_type == "discrete") "cpu" else "ode"
+  container <- sprintf("dust_%s", target)
+  methods_cpu <- methods(target)
 
   if (config$has_gpu_support) {
+    ## TODO: make sure in the config nobody tries for ode + gpu, that
+    ## won't work; don't error here, but earlier.
+    stopifnot(config$time_type == "discrete")
     methods_gpu <- methods("gpu")
   } else {
     methods_gpu <- paste(
@@ -171,8 +176,8 @@ dust_template_data <- function(model, config, cuda, reload_data, linking_to,
        class = config$class,
        param = deparse_param(config$param),
        cuda = cuda$flags,
-       target = "cpu",
-       container = "dust_cpu",
+       target = target,
+       container = container,
        has_gpu_support = as.character(config$has_gpu_support),
        methods_cpu = methods_cpu,
        methods_gpu = methods_gpu,
