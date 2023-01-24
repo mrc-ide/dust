@@ -190,6 +190,7 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_time,
                        SEXP r_set_initial_state, SEXP r_index,
                        SEXP reset_step_size) {
   using real_type = typename T::real_type;
+  using time_type = typename T::time_type;
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
 
   const bool has_time = r_time != R_NilValue;
@@ -218,12 +219,12 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_time,
   // function having dealt with both or neither (i.e., do not fail on
   // time after succeeding on state).
 
-  std::vector<typename T::time_type> time;
+  std::vector<time_type> time;
   std::vector<real_type> state;
 
   if (has_time) {
     const time_type t0 = 0;
-    time = dust::r::validate_time<time_type>(r_time, t0, "time");
+    time = dust::r::validate_time<std::vector<time_type>>(r_time, t0, "time");
     const size_t len = time.size();
     if (len != 1) {
       cpp11::stop("Expected 'time' to be scalar");
