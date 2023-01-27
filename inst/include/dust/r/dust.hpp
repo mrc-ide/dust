@@ -607,8 +607,9 @@ void dust_set_stochastic_schedule(SEXP ptr, SEXP time) {
 }
 
 template <typename T, typename std::enable_if<std::is_same<size_t, typename T::time_type>::value, int>::type = 0>
-void dust_ode_statistics(SEXP ptr) {
+SEXP dust_ode_statistics(SEXP ptr) {
   cpp11::stop("'ode_statistics' not supported in discrete-time models");
+  return R_NilValue; // # nocov
 }
 
 }
