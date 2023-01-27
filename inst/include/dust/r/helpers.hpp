@@ -2,6 +2,7 @@
 #define DUST_R_HELPERS_HPP
 
 #include <map>
+#include <sstream>
 #include <vector>
 
 #include <cpp11/doubles.hpp>
@@ -145,20 +146,21 @@ inline
 void check_dimensions_rank(size_t dim_len, size_t shape_len, bool is_list,
                            const char * name) {
   if (dim_len != shape_len) {
+    std::stringstream msg;
     if (shape_len == 1) {
       if (is_list) {
-        cpp11::stop("Expected a list with no dimension attribute for '%s'",
-                    name);
+        msg << "Expected a list with no dimension attribute";
       } else {
-        cpp11::stop("Expected a vector for '%s'", name);
+        msg << "Expected a vector";
       }
     } else if (shape_len == 2 && !is_list) {
-      cpp11::stop("Expected a matrix for '%s'", name);
+      msg << "Expected a matrix";
     } else {
-      const char * type = is_list ? "a list array" : "an array";
-      cpp11::stop("Expected %s of rank %d for '%s'",
-                  type, shape_len, name);
+      const char * what = is_list ? "a list array" : "an array";
+      msg << "Expected " << what << " of rank " << shape_len;
     }
+    msg << " for '" << name << "'";
+    throw std::invalid_argument(msg.str());
   }
 }
 
@@ -170,18 +172,20 @@ void check_dimensions_size(cpp11::integers dim,
   for (size_t i = 0; i < shape.size(); ++i) {
     const size_t found = dim[i], expected = shape[i];
     if (found != expected) {
+      std::stringstream msg;
       if (shape.size() == 1) {
-        const char * type = is_list ? "list" : "vector";
-        cpp11::stop("Expected a %s of length %d for '%s' but given %d",
-                    type, expected, name, found);
+        const char * what = is_list ? "list" : "vector";
+        msg << "Expected a " << what << " of length " << expected <<
+          " for '" << name << "' but given " << found;
       } else if (shape.size() == 2 && !is_list) {
         const char * what = i == 0 ? "rows" : "cols";
-        cpp11::stop("Expected a matrix with %d %s for '%s' but given %d",
-                    expected, what, name, found);
+        msg << "Expected a matrix with " << expected << " " << what <<
+          " for '" << name << "' but given " << found;
       } else {
-        cpp11::stop("Expected dimension %d of '%s' to be %d but given %d",
-                    i + 1, name, expected, found);
+        msg << "Expected dimension " << i + 1 << " of '" << name <<
+          "' to be " << expected << " but given " << found;
       }
+      throw std::invalid_argument(msg.str());
     }
   }
 }
@@ -315,7 +319,7 @@ inline void check_pars_multi(cpp11::list r_pars,
                              std::vector<size_t> shape,
                              const bool pars_are_shared) {
   if (r_pars.attr("names") != R_NilValue) {
-    cpp11::stop("Expected an unnamed list for 'pars' (given 'pars_multi')");
+    throw std::invalid_argument("Expected an unnamed list for 'pars' (given 'pars_multi')");
   }
   if (pars_are_shared) {
     shape = std::vector<size_t>(shape.begin() + 1, shape.end());
@@ -327,10 +331,10 @@ inline void check_pars_multi(cpp11::list r_pars,
 // dim, not check it. There are far fewer constraints in this case.
 inline void check_pars_multi(cpp11::list r_pars) {
   if (r_pars.attr("names") != R_NilValue) {
-    cpp11::stop("Expected an unnamed list for 'pars' (given 'pars_multi')");
+    throw std::invalid_argument("Expected an unnamed list for 'pars' (given 'pars_multi')");
   }
   if (r_pars.size() == 0) {
-    cpp11::stop("Expected 'pars' to have at least one element");
+    throw std::invalid_argument("Expected 'pars' to have at least one element");
   }
 }
 
