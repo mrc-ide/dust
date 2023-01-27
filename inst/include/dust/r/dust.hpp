@@ -171,9 +171,9 @@ cpp11::sexp dust_update_state_set(T *obj, SEXP r_pars,
     try {
       ret = dust_update_state_set_pars(obj, cpp11::as_cpp<cpp11::list>(r_pars),
                                        set_initial_state);
-    } catch (const std::exception& e) { // todo: add test - see mode
+    } catch (const std::exception& e) {
       obj->set_time(time_prev);
-      throw e;
+      throw std::runtime_error(e.what());
     }
   }
 
