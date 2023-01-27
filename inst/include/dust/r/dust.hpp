@@ -144,6 +144,10 @@ cpp11::sexp dust_update_state_set_pars(T *obj, cpp11::list r_pars,
   return ret;
 }
 
+template <typename T, typename std::enable_if<std::is_same<size_t, typename T::time_type>::value, int>::type = 0>
+void dust_initialise(T *obj, bool reset_step_size) {
+}
+
 // There are many components of state (not including rng state which
 // we treat separately), we set components always in the order (1)
 // time, (2) pars, (3) state
@@ -152,7 +156,8 @@ cpp11::sexp dust_update_state_set(T *obj, SEXP r_pars,
                                   const std::vector<real_type>& state,
                                   const std::vector<typename T::time_type>& time,
                                   bool set_initial_state,
-                                  const std::vector<size_t>& index) {
+                                  const std::vector<size_t>& index,
+                                  const bool reset_step_size) {
   cpp11::sexp ret = R_NilValue;
   const auto time_prev = obj->time();
 
@@ -166,7 +171,7 @@ cpp11::sexp dust_update_state_set(T *obj, SEXP r_pars,
     try {
       ret = dust_update_state_set_pars(obj, cpp11::as_cpp<cpp11::list>(r_pars),
                                        set_initial_state);
-    } catch (const std::invalid_argument& e) {
+    } catch (const std::exception& e) { // todo: add test - see mode
       obj->set_time(time_prev);
       throw e;
     }
@@ -175,6 +180,8 @@ cpp11::sexp dust_update_state_set(T *obj, SEXP r_pars,
   if (state.size() > 0) { // && !set_initial_state, though that is implied
     obj->set_state(state, index);
   }
+
+  dust_initialise(obj, reset_step_size);
 
   // If we set both initial conditions and time then we're safe to
   // continue here.
@@ -188,7 +195,7 @@ cpp11::sexp dust_update_state_set(T *obj, SEXP r_pars,
 template <typename T>
 SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_time,
                        SEXP r_set_initial_state, SEXP r_index,
-                       SEXP reset_step_size) {
+                       SEXP r_reset_step_size) {
   using real_type = typename T::real_type;
   using time_type = typename T::time_type;
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
@@ -197,6 +204,9 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_time,
   const bool has_pars = r_pars != R_NilValue;
   const bool has_state = r_state != R_NilValue;
   const bool has_index = r_index != R_NilValue;
+
+  // Updates with mode merge, this is just a placeholder
+  const auto reset_step_size = false;
 
   bool set_initial_state = false;
   if (r_set_initial_state == R_NilValue) {
@@ -235,12 +245,12 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_time,
 
   if (has_state) {
     if (has_index) {
-      index = dust::r::r_index_to_index(r_index, obj->n_state_full());
+      index = dust::r::r_index_to_index(r_index, obj->n_variables());
       if (index.size() == 0) {
         cpp11::stop("Expected at least one element in 'index'");
       }
     }
-    const size_t expected_len = has_index ? index.size() : obj->n_state_full();
+    const size_t expected_len = has_index ? index.size() : obj->n_variables();
     state = dust::r::check_state<real_type>(r_state,
                                             expected_len,
                                             obj->shape(),
@@ -248,7 +258,7 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_time,
   }
 
   return dust_update_state_set(obj, r_pars, state, time, set_initial_state,
-                               index);
+                               index, reset_step_size);
 }
 
 template <typename T>
@@ -589,14 +599,14 @@ int dust_n_state(SEXP ptr) {
   return obj->n_state_full();
 }
 
-template <typename T>
+template <typename T, typename std::enable_if<std::is_same<size_t, typename T::time_type>::value, int>::type = 0>
 void dust_set_stochastic_schedule(SEXP ptr, SEXP time) {
   if (time != R_NilValue) {
     cpp11::stop("'set_stochastic_schedule' not supported in discrete-time models");
   }
 }
 
-template <typename T>
+template <typename T, typename std::enable_if<std::is_same<size_t, typename T::time_type>::value, int>::type = 0>
 void dust_ode_statistics(SEXP ptr) {
   cpp11::stop("'ode_statistics' not supported in discrete-time models");
 }
