@@ -152,6 +152,11 @@ template <typename T, typename std::enable_if<std::is_same<size_t, typename T::t
 void dust_initialise(T *obj, bool reset_step_size) {
 }
 
+template <typename T, typename std::enable_if<std::is_same<double, typename T::time_type>::value, int>::type = 0>
+void dust_initialise(T *obj, bool reset_step_size) {
+  obj->initialise(reset_step_size);
+}
+
 // There are many components of state (not including rng state which
 // we treat separately), we set components always in the order (1)
 // time, (2) pars, (3) state
@@ -614,6 +619,43 @@ template <typename T, typename std::enable_if<std::is_same<size_t, typename T::t
 SEXP dust_ode_statistics(SEXP ptr) {
   cpp11::stop("'ode_statistics' not supported in discrete-time models");
   return R_NilValue; // # nocov
+}
+
+// new below here:
+template <typename T, typename std::enable_if<std::is_same<double, typename T::time_type>::value, int>::type = 0>
+cpp11::sexp dust_ode_statistics(SEXP ptr) {
+  T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
+  const auto n_particles = obj->n_particles();
+  std::vector<size_t> dat(3 * n_particles);
+  obj->statistics(dat);
+  auto ret = dust::r::stats_array(dat, n_particles);
+  auto step_times = obj->debug_step_times();
+  if (obj->ctl().debug_record_step_times) {
+    auto step_times = obj->debug_step_times();
+    cpp11::writable::list r_step_times(step_times.size());
+    for (size_t i = 0; i < n_particles; ++i) {
+      r_step_times[i] = cpp11::as_sexp(step_times[i]);
+    }
+    ret.attr("step_times") = r_step_times;
+  }
+  return ret;
+}
+
+template <typename T, typename std::enable_if<std::is_same<double, typename T::time_type>::value, int>::type = 0>
+void dust_set_stochastic_schedule(SEXP ptr, SEXP r_time) {
+  T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
+
+  std::vector<double> time;
+  if (r_time != R_NilValue) {
+    time = cpp11::as_cpp<std::vector<double>>(cpp11::as_doubles(r_time));
+    for (size_t i = 1; i < time.size(); ++i) {
+      if (time[i] <= time[i - 1]) {
+        cpp11::stop("schedule must be strictly increasing; see time[%d]",
+                    i + 1);
+      }
+    }
+  }
+  obj->set_stochastic_schedule(time);
 }
 
 }
