@@ -334,7 +334,8 @@ test_that("Error if particle re-ordering index is wrong length", {
   initial_time <- 1
   mod <- gen$new(pars, initial_time, n_particles)
 
-  expect_error(mod$reorder(c(5, 4, 3)), "'index' must be a vector of length 5")
+  expect_error(mod$reorder(c(5, 4, 3)),
+               "Expected a vector of length 5 for 'index' but given 3")
 })
 
 test_that("Error if particle re-ordering index is out of range", {

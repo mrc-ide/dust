@@ -291,7 +291,7 @@ cpp11::sexp control(const mode::control ctl) {
                                     "step_size_max"_nm = ctl.step_size_max,
                                     "debug_record_step_times"_nm = ctl.debug_record_step_times});
 
-  ret.attr("class") = "mode_control";
+  ret.attr("class") = "dust_ode_control";
   return ret;
 }
 

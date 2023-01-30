@@ -2,7 +2,7 @@ test_that("Can compile a simple model", {
   ex <- example_logistic()
   n_particles <- 10
   mod <- ex$generator$new(ex$pars, pi, n_particles)
-  expect_s3_class(mod, "mode")
+  expect_s3_class(mod, "dust")
   expect_equal(mod$time(), pi)
   expect_equal(mod$pars(), ex$pars)
   expect_equal(mod$info(), c("N1", "N2"))
@@ -200,31 +200,6 @@ test_that("End time must be later than initial time", {
   expect_error(mod$run(2), e, fixed = TRUE)
 })
 
-test_that("cache hits don't compile", {
-  skip_if_not_installed("mockery")
-
-  ## Simple logisitic model, but with a random suffix
-  code <- readLines(dust_file("examples/ode/logistic.cpp"))
-  path <- tempfile(pattern = "logistic")
-  name <- basename(path)
-  writeLines(gsub("logistic", name, code), path)
-  hash <- hash_file(path)
-
-  expect_false(paste0(name, hash) %in% names(cache))
-  gen <- dust(path, quiet = TRUE)
-  expect_true(paste0(name, hash) %in% names(cache))
-
-  mock_compile_mode <- mockery::mock(cache[[paste0(name, hash)]])
-  mockery::stub(mode, "compile_mode", mock_compile_mode)
-  gen2 <- dust(path, quiet = TRUE)
-  mockery::expect_called(mock_compile_mode, 0)
-  expect_identical(gen2, gen)
-
-  gen3 <- dust(path, quiet = TRUE, skip_cache = TRUE)
-  mockery::expect_called(mock_compile_mode, 1)
-  expect_identical(gen3, gen)
-})
-
 test_that("Can retrieve statistics", {
   ex <- example_logistic()
   n_particles <- 5
@@ -233,7 +208,7 @@ test_that("Can retrieve statistics", {
   expect_equal(dim(stats), c(3, n_particles))
   expect_equal(row.names(stats),
                c("n_steps", "n_steps_accepted", "n_steps_rejected"))
-  expect_s3_class(stats, "mode_statistics")
+  expect_s3_class(stats, "ode_statistics")
   expect_true(all(stats == 0))
   lapply(1:10, function(t) mod$run(t))
   stats <- mod$ode_statistics()
@@ -251,7 +226,7 @@ test_that("Can retrieve statistics", {
   expect_equal(dim(stats), c(3, n_particles))
   expect_equal(row.names(stats),
                c("n_steps", "n_steps_accepted", "n_steps_rejected"))
-  expect_s3_class(stats, "mode_statistics")
+  expect_s3_class(stats, "ode_statistics")
   expect_true(all(stats == 0))
   lapply(1:10, function(t) mod$run(t))
   stats <- mod$ode_statistics()
@@ -489,7 +464,7 @@ test_that("can get rng state", {
     "Only one of 'first_only' or 'last_only' may be TRUE")
   expect_error(
     mod$rng_state(last_only = TRUE),
-    "'last_only' not supported for mode models")
+    "'last_only' not yet supported for continuous-time models")
 })
 
 
@@ -522,7 +497,7 @@ test_that("Can get information about steps", {
   expect_equal(dim(stats), c(3, n_particles))
   expect_equal(row.names(stats),
                c("n_steps", "n_steps_accepted", "n_steps_rejected"))
-  expect_s3_class(stats, "mode_statistics")
+  expect_s3_class(stats, "ode_statistics")
   expect_true(all(stats == 0))
 
   ## But we also have this:
@@ -646,7 +621,7 @@ test_that("Can save a model and reload it after repair", {
   expect_error(callr::r(function(path, pars) {
     gen <- readRDS(path)
     gen$new(pars, 0, 1, seed = 1)$run(10)
-  }, list(tmp_rds, pars)), "mode_logistic_alloc")
+  }, list(tmp_rds, pars)), "dust_ode_logistic_alloc")
 
   ## If we repair the environment it works fine though
   res <- callr::r(function(path, pars) {
@@ -693,7 +668,7 @@ test_that("dummy data methods error on use", {
   n_particles <- 10
   mod <- ex$generator$new(ex$pars, pi, n_particles)
   expect_error(mod$resample(rep(1, n_particles)),
-               "Can't use resample with mode models")
+               "Can't yet use resample with continuous-time models")
   expect_error(
     mod$set_data(list(list(1, list()))),
     "The 'set_data' method is not supported for this class")
@@ -712,7 +687,11 @@ test_that("dummy data methods error on use", {
 test_that("can retrieve empty params", {
   ex <- example_logistic()
   mod <- ex$generator$new(ex$pars, 0, 10)
-  expect_null(mod$param())
+  expect_mapequal(mod$param(),
+                  list(r1 = list(required = TRUE),
+                       K1 = list(required = TRUE),
+                       r2 = list(required = TRUE),
+                       K2 = list(required = TRUE)))
 })
 
 

@@ -583,6 +583,19 @@ inline std::vector<size_t> sequence(size_t n) {
   return ret;
 }
 
+inline
+bool validate_reset_step_size(SEXP r_time,
+                              SEXP r_pars,
+                              SEXP r_reset_step_size) {
+  bool reset_step_size = false;
+  if (r_reset_step_size == R_NilValue) {
+    reset_step_size = r_time != R_NilValue || r_pars != R_NilValue;
+  } else {
+    reset_step_size = cpp11::as_cpp<bool>(r_reset_step_size);
+  }
+  return reset_step_size;
+}
+
 }
 }
 

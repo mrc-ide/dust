@@ -214,8 +214,8 @@ SEXP dust_update_state(SEXP ptr, SEXP r_pars, SEXP r_state, SEXP r_time,
   const bool has_state = r_state != R_NilValue;
   const bool has_index = r_index != R_NilValue;
 
-  // Updates with mode merge, this is just a placeholder
-  const auto reset_step_size = false;
+  const auto reset_step_size =
+    dust::r::validate_reset_step_size(r_time, r_pars, r_reset_step_size);
 
   bool set_initial_state = false;
   if (r_set_initial_state == R_NilValue) {
@@ -357,6 +357,10 @@ template <typename T>
 SEXP dust_resample(SEXP ptr, cpp11::doubles r_weights) {
   using real_type = typename T::real_type;
 
+  if (std::is_same<double, typename T::time_type>::value) {
+    cpp11::stop("Can't yet use resample with continuous-time models");
+  }
+
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   size_t n_particles = obj->n_particles();
   size_t n_pars = obj->n_pars_effective();
@@ -384,6 +388,13 @@ SEXP dust_rng_state(SEXP ptr, bool first_only, bool last_only) {
   auto state = obj->rng_state();
   if (first_only && last_only) {
     cpp11::stop("Only one of 'first_only' or 'last_only' may be TRUE");
+  }
+  if (last_only && std::is_same<double, typename T::time_type>::value) {
+    // This is used in dust when we have n + 1 rng streams, with the
+    // last one being the particle filter stream - we don't have that
+    // set up here yet, so just error instead. See mrc-3360 for
+    // details.
+    cpp11::stop("'last_only' not yet supported for continuous-time models");
   }
   size_t n = (first_only || last_only) ?
     rng_state_type::size() : state.size();
