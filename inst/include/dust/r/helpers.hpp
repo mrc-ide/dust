@@ -560,6 +560,29 @@ dust_inputs<T> process_inputs_multi(cpp11::list r_pars, int time,
     info};
 }
 
+inline cpp11::sexp stats_array(const std::vector<size_t>& dat,
+                               size_t n_particles) {
+  cpp11::writable::integers ret(dat.size());
+  std::copy(dat.begin(), dat.end(), ret.begin());
+  ret.attr("dim") = cpp11::writable::integers{3, static_cast<int>(n_particles)};
+  ret.attr("class") = "ode_statistics";
+  auto row_names = cpp11::writable::strings{"n_steps",
+                                            "n_steps_accepted",
+                                            "n_steps_rejected"};
+  ret.attr("dimnames") = cpp11::writable::list{row_names, R_NilValue};
+  return ret;
+}
+
+// Can replace with std::make_integer_sequence(n) with C++14
+inline std::vector<size_t> sequence(size_t n) {
+  std::vector<size_t> ret;
+  ret.reserve(n);
+  for (size_t i = 0; i < n; ++i) {
+    ret.push_back(i);
+  }
+  return ret;
+}
+
 }
 }
 
