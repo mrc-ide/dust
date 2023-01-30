@@ -59,4 +59,4 @@ int dust_{{target}}_{{name}}_n_state(SEXP ptr);
 void dust_{{target}}_{{name}}_set_stochastic_schedule(SEXP ptr, SEXP time);
 
 [[cpp11::register]]
-void dust_{{target}}_{{name}}_ode_statistics(SEXP ptr);
+SEXP dust_{{target}}_{{name}}_ode_statistics(SEXP ptr);
