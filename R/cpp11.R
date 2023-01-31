@@ -177,7 +177,7 @@ dust_cpu_sir_set_stochastic_schedule <- function(ptr, time) {
 }
 
 dust_cpu_sir_ode_statistics <- function(ptr) {
-  invisible(.Call(`_dust_dust_cpu_sir_ode_statistics`, ptr))
+  .Call(`_dust_dust_cpu_sir_ode_statistics`, ptr)
 }
 
 dust_sirs_capabilities <- function() {
@@ -257,7 +257,7 @@ dust_cpu_sirs_set_stochastic_schedule <- function(ptr, time) {
 }
 
 dust_cpu_sirs_ode_statistics <- function(ptr) {
-  invisible(.Call(`_dust_dust_cpu_sirs_ode_statistics`, ptr))
+  .Call(`_dust_dust_cpu_sirs_ode_statistics`, ptr)
 }
 
 dust_gpu_sirs_alloc <- function(r_pars, pars_multi, r_time, r_n_particles, n_threads, r_seed, deterministic, gpu_config, ode_control) {
@@ -329,7 +329,7 @@ dust_gpu_sirs_set_stochastic_schedule <- function(ptr, time) {
 }
 
 dust_gpu_sirs_ode_statistics <- function(ptr) {
-  invisible(.Call(`_dust_dust_gpu_sirs_ode_statistics`, ptr))
+  .Call(`_dust_dust_gpu_sirs_ode_statistics`, ptr)
 }
 
 test_cuda_pars <- function(r_gpu_config, n_particles, n_particles_each, n_state, n_state_full, n_shared_int, n_shared_real, data_size, shared_size) {
@@ -421,7 +421,7 @@ dust_cpu_variable_set_stochastic_schedule <- function(ptr, time) {
 }
 
 dust_cpu_variable_ode_statistics <- function(ptr) {
-  invisible(.Call(`_dust_dust_cpu_variable_ode_statistics`, ptr))
+  .Call(`_dust_dust_cpu_variable_ode_statistics`, ptr)
 }
 
 dust_gpu_variable_alloc <- function(r_pars, pars_multi, r_time, r_n_particles, n_threads, r_seed, deterministic, gpu_config, ode_control) {
@@ -493,7 +493,7 @@ dust_gpu_variable_set_stochastic_schedule <- function(ptr, time) {
 }
 
 dust_gpu_variable_ode_statistics <- function(ptr) {
-  invisible(.Call(`_dust_dust_gpu_variable_ode_statistics`, ptr))
+  .Call(`_dust_dust_gpu_variable_ode_statistics`, ptr)
 }
 
 dust_volatility_capabilities <- function() {
@@ -573,7 +573,7 @@ dust_cpu_volatility_set_stochastic_schedule <- function(ptr, time) {
 }
 
 dust_cpu_volatility_ode_statistics <- function(ptr) {
-  invisible(.Call(`_dust_dust_cpu_volatility_ode_statistics`, ptr))
+  .Call(`_dust_dust_cpu_volatility_ode_statistics`, ptr)
 }
 
 dust_walk_capabilities <- function() {
@@ -653,5 +653,5 @@ dust_cpu_walk_set_stochastic_schedule <- function(ptr, time) {
 }
 
 dust_cpu_walk_ode_statistics <- function(ptr) {
-  invisible(.Call(`_dust_dust_cpu_walk_ode_statistics`, ptr))
+  .Call(`_dust_dust_cpu_walk_ode_statistics`, ptr)
 }

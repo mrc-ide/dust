@@ -320,11 +320,10 @@ extern "C" SEXP _dust_dust_cpu_sir_set_stochastic_schedule(SEXP ptr, SEXP time) 
   END_CPP11
 }
 // sir.cpp
-void dust_cpu_sir_ode_statistics(SEXP ptr);
+SEXP dust_cpu_sir_ode_statistics(SEXP ptr);
 extern "C" SEXP _dust_dust_cpu_sir_ode_statistics(SEXP ptr) {
   BEGIN_CPP11
-    dust_cpu_sir_ode_statistics(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr));
-    return R_NilValue;
+    return cpp11::as_sexp(dust_cpu_sir_ode_statistics(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
   END_CPP11
 }
 // sirs.cpp
@@ -464,11 +463,10 @@ extern "C" SEXP _dust_dust_cpu_sirs_set_stochastic_schedule(SEXP ptr, SEXP time)
   END_CPP11
 }
 // sirs.cpp
-void dust_cpu_sirs_ode_statistics(SEXP ptr);
+SEXP dust_cpu_sirs_ode_statistics(SEXP ptr);
 extern "C" SEXP _dust_dust_cpu_sirs_ode_statistics(SEXP ptr) {
   BEGIN_CPP11
-    dust_cpu_sirs_ode_statistics(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr));
-    return R_NilValue;
+    return cpp11::as_sexp(dust_cpu_sirs_ode_statistics(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
   END_CPP11
 }
 // sirs.cpp
@@ -594,11 +592,10 @@ extern "C" SEXP _dust_dust_gpu_sirs_set_stochastic_schedule(SEXP ptr, SEXP time)
   END_CPP11
 }
 // sirs.cpp
-void dust_gpu_sirs_ode_statistics(SEXP ptr);
+SEXP dust_gpu_sirs_ode_statistics(SEXP ptr);
 extern "C" SEXP _dust_dust_gpu_sirs_ode_statistics(SEXP ptr) {
   BEGIN_CPP11
-    dust_gpu_sirs_ode_statistics(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr));
-    return R_NilValue;
+    return cpp11::as_sexp(dust_gpu_sirs_ode_statistics(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
   END_CPP11
 }
 // test_cuda_launch_control.cpp
@@ -759,11 +756,10 @@ extern "C" SEXP _dust_dust_cpu_variable_set_stochastic_schedule(SEXP ptr, SEXP t
   END_CPP11
 }
 // variable.cpp
-void dust_cpu_variable_ode_statistics(SEXP ptr);
+SEXP dust_cpu_variable_ode_statistics(SEXP ptr);
 extern "C" SEXP _dust_dust_cpu_variable_ode_statistics(SEXP ptr) {
   BEGIN_CPP11
-    dust_cpu_variable_ode_statistics(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr));
-    return R_NilValue;
+    return cpp11::as_sexp(dust_cpu_variable_ode_statistics(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
   END_CPP11
 }
 // variable.cpp
@@ -889,11 +885,10 @@ extern "C" SEXP _dust_dust_gpu_variable_set_stochastic_schedule(SEXP ptr, SEXP t
   END_CPP11
 }
 // variable.cpp
-void dust_gpu_variable_ode_statistics(SEXP ptr);
+SEXP dust_gpu_variable_ode_statistics(SEXP ptr);
 extern "C" SEXP _dust_dust_gpu_variable_ode_statistics(SEXP ptr) {
   BEGIN_CPP11
-    dust_gpu_variable_ode_statistics(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr));
-    return R_NilValue;
+    return cpp11::as_sexp(dust_gpu_variable_ode_statistics(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
   END_CPP11
 }
 // volatility.cpp
@@ -1033,11 +1028,10 @@ extern "C" SEXP _dust_dust_cpu_volatility_set_stochastic_schedule(SEXP ptr, SEXP
   END_CPP11
 }
 // volatility.cpp
-void dust_cpu_volatility_ode_statistics(SEXP ptr);
+SEXP dust_cpu_volatility_ode_statistics(SEXP ptr);
 extern "C" SEXP _dust_dust_cpu_volatility_ode_statistics(SEXP ptr) {
   BEGIN_CPP11
-    dust_cpu_volatility_ode_statistics(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr));
-    return R_NilValue;
+    return cpp11::as_sexp(dust_cpu_volatility_ode_statistics(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
   END_CPP11
 }
 // walk.cpp
@@ -1177,11 +1171,10 @@ extern "C" SEXP _dust_dust_cpu_walk_set_stochastic_schedule(SEXP ptr, SEXP time)
   END_CPP11
 }
 // walk.cpp
-void dust_cpu_walk_ode_statistics(SEXP ptr);
+SEXP dust_cpu_walk_ode_statistics(SEXP ptr);
 extern "C" SEXP _dust_dust_cpu_walk_ode_statistics(SEXP ptr) {
   BEGIN_CPP11
-    dust_cpu_walk_ode_statistics(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr));
-    return R_NilValue;
+    return cpp11::as_sexp(dust_cpu_walk_ode_statistics(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr)));
   END_CPP11
 }
 
