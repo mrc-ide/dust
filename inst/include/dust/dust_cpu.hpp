@@ -286,6 +286,10 @@ public:
     return particles_.front().size();
   }
 
+  size_t n_variables() const {
+    return n_state_full();
+  }
+
   size_t n_pars() const {
     return n_pars_;
   }

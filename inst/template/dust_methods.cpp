@@ -86,6 +86,6 @@ void dust_{{target}}_{{name}}_set_stochastic_schedule(SEXP ptr, SEXP time) {
   dust::r::dust_set_stochastic_schedule<model_{{target}}>(ptr, time);
 }
 
-void dust_{{target}}_{{name}}_ode_statistics(SEXP ptr) {
-  dust::r::dust_ode_statistics<model_{{target}}>(ptr);
+SEXP dust_{{target}}_{{name}}_ode_statistics(SEXP ptr) {
+  return dust::r::dust_ode_statistics<model_{{target}}>(ptr);
 }

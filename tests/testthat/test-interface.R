@@ -610,3 +610,12 @@ test_that("ode_statistics use is an error for discrete time models", {
   expect_error(mod$ode_statistics(),
                "'ode_statistics' not supported in discrete-time models")
 })
+
+
+test_that("don't update time if error initialising particles", {
+  res <- dust_example("walk")
+  mod <- res$new(list(sd = 1), 0, 1)
+  mod$run(5)
+  expect_error(mod$update_state(pars = list(), time = 0))
+  expect_equal(mod$time(), 5)
+})

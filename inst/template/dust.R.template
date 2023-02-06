@@ -339,7 +339,7 @@
     ##'
     ##' @param time A vector of times to run the stochastic update at
     set_stochastic_schedule = function(time) {
-      private$methods_$set_stochastic_schedule(private$ptr, time)
+      private$methods_$set_stochastic_schedule(private$ptr_, time)
       invisible()
     },
 

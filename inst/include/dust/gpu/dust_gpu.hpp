@@ -112,6 +112,10 @@ public:
     return n_state_full_;
   }
 
+  size_t n_variables() const {
+    return n_state_full();
+  }
+
   size_t n_pars() const {
     return n_pars_;
   }
