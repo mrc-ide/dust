@@ -1,16 +1,16 @@
-logistic_analytic <- function(r, K, times, y0) {
-  sapply(times, function(t) K / (1 + (K / y0 - 1) * exp(-r * t)))
+logistic_analytic <- function(r, k, times, y0) {
+  sapply(times, function(t) k / (1 + (k / y0 - 1) * exp(-r * t)))
 }
 
 logistic_rhs <- function(t, y0, parms) {
-  K <- parms$K
+  k <- parms$k
   r <- parms$r
-  r * y0 * (1 - y0 / K)
+  r * y0 * (1 - y0 / k)
 }
 
-logistic_dde <- function(r, K, times, y0) {
+logistic_dde <- function(r, k, times, y0) {
   dde::dopri(y0, times, logistic_rhs,
-             list(r = r, K = K),
+             list(r = r, k = k),
              tcrit = times,
              return_time = FALSE,
              return_by_column = FALSE)

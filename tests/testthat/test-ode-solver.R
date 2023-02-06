@@ -1,15 +1,15 @@
 test_that("can integrate logistic", {
   y0 <- c(1, 1)
   r <- c(0.1, 0.2)
-  K <- c(100, 100)
+  k <- c(100, 100)
   times <- 0:25
 
-  analytic <- logistic_analytic(r, K, times, y0)
-  dde <- logistic_dde(r, K, times, y0)
+  analytic <- logistic_analytic(r, k, times, y0)
+  dde <- logistic_dde(r, k, times, y0)
 
   path <- dust_file("examples/ode/logistic.cpp")
   gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = r[[1]], r2 = r[[2]], K1 = K[[1]], K2 = K[[2]])
+  pars <- list(r1 = r[[1]], r2 = r[[2]], K1 = k[[1]], K2 = k[[2]])
   n_particles <- 5
   mod <- gen$new(pars, 0, n_particles)
 

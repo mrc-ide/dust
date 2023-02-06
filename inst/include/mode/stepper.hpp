@@ -106,7 +106,6 @@ public:
       k4[i] = h * (E1 * k1[i] + E3 * k3[i] + E4 * k4[i] +
                    E5 * k5[i] + E6 * k6[i] + E7 * k2[i]);
     }
-
   }
 
   double error(double atol, double rtol) {
@@ -218,7 +217,6 @@ public:
   double init_step_size(double t, control ctl) {
     return initial_step_size(m, t, y, ctl);
   }
-
 };
 
 }

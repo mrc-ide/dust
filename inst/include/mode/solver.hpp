@@ -22,6 +22,7 @@ private:
   double last_error_swap_;
   stats stats_swap_;
   std::vector<double> stochastic_schedule_;
+
 public:
   using rng_state_type = typename Model::rng_state_type;
 

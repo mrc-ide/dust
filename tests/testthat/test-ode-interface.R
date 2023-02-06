@@ -10,9 +10,10 @@ test_that("Can compile a simple model", {
   expect_equal(mod$shape(), n_particles)
   expect_equal(mod$n_particles_each(), n_particles)
   expect_equal(mod$n_pars(), 0L)
-  expected_control <- dust_ode_control(max_steps = 10000, rtol = 1e-6, atol = 1e-6,
-                                   step_size_min = 1e-8, step_size_max = Inf,
-                                   debug_record_step_times = FALSE)
+  expected_control <- dust_ode_control(
+    max_steps = 10000, rtol = 1e-6, atol = 1e-6,
+    step_size_min = 1e-8, step_size_max = Inf,
+    debug_record_step_times = FALSE)
   expect_equal(mod$ode_control(), expected_control)
 })
 
@@ -51,8 +52,9 @@ test_that("Can compile a simple model with partial control", {
   ## A couple more
   expect_equal(generate_control(dust_ode_control(atol = 0.2)),
                modifyList(default, list(atol = 0.2)))
-  expect_equal(generate_control(dust_ode_control(debug_record_step_times = FALSE)),
-               modifyList(default, list(debug_record_step_times = FALSE)))
+  expect_equal(
+    generate_control(dust_ode_control(debug_record_step_times = FALSE)),
+    modifyList(default, list(debug_record_step_times = FALSE)))
 })
 
 test_that("Returns full state from run when no index set", {

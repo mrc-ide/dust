@@ -7,7 +7,6 @@ namespace mode {
 template<typename Model>
 double
 initial_step_size(Model m, double t, std::vector<double> y, control ctl) {
-
   const double order = 5;
   const size_t n = m.n_variables();
   std::vector<double> f0(n);
