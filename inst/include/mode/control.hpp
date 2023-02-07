@@ -1,4 +1,9 @@
-#pragma once
+#ifndef MODE_CONTROL_HPP
+#define MODE_CONTROL_HPP
+
+#include <cstddef>
+#include <limits>
+
 namespace mode {
 
 struct control {
@@ -26,3 +31,5 @@ struct control {
 };
 
 }
+
+#endif

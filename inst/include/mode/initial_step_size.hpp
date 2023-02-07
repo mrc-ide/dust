@@ -1,5 +1,11 @@
-#pragma once
+#ifndef MODE_INITIAL_STEP_SIZE_HPP
+#define MODE_INITIAL_STEP_SIZE_HPP
 
+#include <cmath>
+#include <cstddef>
+#include <vector>
+
+#include "control.hpp"
 #include "utils.hpp"
 
 namespace mode {
@@ -56,3 +62,5 @@ initial_step_size(Model m, double t, std::vector<double> y, control ctl) {
 }
 
 }
+
+#endif

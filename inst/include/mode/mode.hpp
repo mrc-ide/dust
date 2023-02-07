@@ -1,10 +1,15 @@
-#pragma once
+#ifndef MODE_MODE_HPP
+#define MODE_MODE_HPP
 
 #ifdef _OPENMP
 #include <omp.h>
 #endif
 
-#include <dust/types.hpp> // dust::pars_type
+#include <stdexcept>
+
+#include <dust/random/random.hpp>
+#include <dust/types.hpp>
+#include <dust/utils.hpp>
 #include <mode/solver.hpp>
 
 namespace mode {
@@ -237,7 +242,7 @@ public:
   }
 
   void set_pars(const std::vector<pars_type>& pars, bool set_initial_state) {
-    cpp11::stop("Multiparameter setting not yet supported");
+    throw std::runtime_error("Multiparameter setting not yet supported");
   }
 
   void reorder(const std::vector<size_t>& index) {
@@ -315,3 +320,5 @@ private:
 };
 
 }
+
+#endif

@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef MODE_R_MODE_HPP
+#define MODE_R_MODE_HPP
 
 #include <cpp11/external_pointer.hpp>
 #include <cpp11/strings.hpp> // required to avoid link error only
@@ -404,3 +404,5 @@ cpp11::sexp mode_filter(SEXP ptr, SEXP time_end, bool save_trajectories,
 
 }
 }
+
+#endif

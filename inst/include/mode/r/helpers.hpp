@@ -1,9 +1,15 @@
+#ifndef MODE_R_HELPERS_HPP
+#define MODE_R_HELPERS_HPP
+
 #include <cpp11/external_pointer.hpp>
 #include <cpp11/strings.hpp> // required to avoid link error only
 #include <cpp11/list.hpp>
 #include <cpp11/integers.hpp>
 #include <cpp11/doubles.hpp>
 #include <cpp11/logicals.hpp>
+
+#include <vector>
+#include "mode/control.hpp"
 
 namespace mode {
 namespace r {
@@ -297,3 +303,5 @@ cpp11::sexp control(const mode::control ctl) {
 
 }
 }
+
+#endif

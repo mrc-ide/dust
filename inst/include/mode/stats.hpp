@@ -1,4 +1,8 @@
-#pragma once
+#ifndef MODE_STATS_HPP
+#define MODE_STATS_HPP
+
+#include <vector>
+
 namespace mode {
 
 struct stats {
@@ -16,3 +20,5 @@ struct stats {
 };
 
 }
+
+#endif

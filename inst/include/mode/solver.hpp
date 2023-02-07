@@ -1,5 +1,8 @@
-#pragma once
+#ifndef MODE_SOLVER_HPP
+#define MODE_SOLVER_HPP
 
+#include <limits>
+#include <stdexcept>
 #include <vector>
 
 #include "control.hpp"
@@ -207,3 +210,5 @@ public:
   }
 };
 }
+
+#endif

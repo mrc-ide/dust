@@ -1,4 +1,7 @@
-#pragma once
+#ifndef MODE_UTILS_HPP
+#define MODE_UTILS_HPP
+
+#include <algorithm>
 
 namespace mode {
 
@@ -13,3 +16,5 @@ T clamp(T x, T min, T max) {
 }
 
 }
+
+#endif

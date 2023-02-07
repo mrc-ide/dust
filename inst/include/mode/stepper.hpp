@@ -1,6 +1,9 @@
-#pragma once
+#ifndef MODE_STEPPER_HPP
+#define MODE_STEPPER_HPP
 
+#include <algorithm>
 #include <cmath>
+#include <vector>
 
 #include "initial_step_size.hpp"
 #include "utils.hpp"
@@ -220,3 +223,5 @@ public:
 };
 
 }
+
+#endif
