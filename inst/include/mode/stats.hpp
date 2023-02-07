@@ -1,6 +1,7 @@
 #ifndef MODE_STATS_HPP
 #define MODE_STATS_HPP
 
+#include <cstddef>
 #include <vector>
 
 namespace mode {
