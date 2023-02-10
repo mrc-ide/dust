@@ -224,7 +224,7 @@ test_that("Can prevent invalid names", {
 
 
 test_that("Can parse metadata for continuous time models", {
-  meta <- parse_metadata(dust_file("examples/logistic.cpp"))
+  meta <- parse_metadata(dust_file("examples/ode/logistic.cpp"))
   expect_equal(meta$class, "logistic")
   expect_equal(meta$name, "logistic")
   expect_equal(meta$time_type, "continuous")
