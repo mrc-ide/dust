@@ -81,6 +81,32 @@ bool validate_logical(SEXP x, bool default_value, const char * name) {
 }
 
 inline
+double validate_double(SEXP x, double default_value, const char * name) {
+  if (x == R_NilValue) {
+    return default_value;
+  }
+  cpp11::doubles values = cpp11::as_cpp<cpp11::doubles>(x);
+  if (values.size() != 1) {
+    cpp11::stop("Expected '%s' to be a scalar value", name);
+  }
+  return values[0];
+}
+
+// TODO: template on return?
+inline
+size_t validate_integer(SEXP x, size_t default_value, const char * name) {
+  if (x == R_NilValue) {
+    return default_value;
+  }
+  cpp11::integers values = dust::r::as_integer(x, name);
+  if (values.size() != 1) {
+    cpp11::stop("Expected '%s' to be a scalar value", name);
+  }
+  validate_size(values[0], name);
+  return static_cast<size_t>(values[0]);
+}
+
+inline
 void validate_positive(int x, const char *name) {
   if (x <= 0) {
     cpp11::stop("'%s' must be positive (was given %d)", name, x);

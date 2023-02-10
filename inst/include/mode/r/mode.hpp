@@ -35,9 +35,9 @@ cpp11::list mode_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_time,
   const double t0 = 0;
   const auto time = dust::r::validate_time<double>(r_time, t0, "time");
   cpp11::sexp info = dust::dust_info(pars);
-  mode::r::validate_positive(n_threads, "n_threads");
+  dust::r::validate_positive(n_threads, "n_threads");
   auto n_particles = cpp11::as_cpp<int>(r_n_particles);
-  mode::r::validate_positive(n_particles, "n_particles");
+  dust::r::validate_positive(n_particles, "n_particles");
   dust_ode<T> *d = new mode::dust_ode<T>(pars, time, n_particles,
                                            n_threads, ctl, seed);
   cpp11::external_pointer<dust_ode<T>> ptr(d, true, false);
