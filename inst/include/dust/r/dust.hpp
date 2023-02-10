@@ -116,8 +116,7 @@ cpp11::list dust_ode_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_ti
                            cpp11::sexp r_seed, bool deterministic,
                            cpp11::sexp r_gpu_config, cpp11::sexp r_ode_control) {
   if (deterministic) {
-    // TODO: mode -> ode
-    cpp11::stop("Deterministic mode not supported for mode models");
+    cpp11::stop("Deterministic mode not supported for ode models");
   }
   auto pars = dust::dust_pars<T>(r_pars);
   auto seed = dust::random::r::as_rng_seed<typename T::rng_state_type>(r_seed);
