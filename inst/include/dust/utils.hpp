@@ -92,11 +92,6 @@ private:
   std::vector<bool> seen;
 };
 
-}
-}
-
-namespace mode {
-
 template<typename T>
 T square(T x) {
   return x * x;
@@ -107,6 +102,7 @@ T clamp(T x, T min, T max) {
   return std::max(std::min(x, max), min);
 }
 
+}
 }
 
 #endif

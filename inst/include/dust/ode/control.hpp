@@ -1,10 +1,11 @@
-#ifndef DUST_CONTROL_HPP
-#define DUST_CONTROL_HPP
+#ifndef DUST_ODE_CONTROL_HPP
+#define DUST_ODE_CONTROL_HPP
 
 #include <cstddef>
 #include <limits>
 
-namespace mode {
+namespace dust {
+namespace ode {
 
 struct control {
   // TODO: I've had to un-const these for a bit
@@ -30,6 +31,7 @@ struct control {
   control() {}
 };
 
+}
 }
 
 #endif
