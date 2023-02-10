@@ -1,5 +1,5 @@
-#ifndef MODE_CONTROL_HPP
-#define MODE_CONTROL_HPP
+#ifndef DUST_CONTROL_HPP
+#define DUST_CONTROL_HPP
 
 #include <cstddef>
 #include <limits>

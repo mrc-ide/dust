@@ -15,7 +15,7 @@
 #include <dust/types.hpp>
 #include <dust/utils.hpp>
 
-#include <mode/mode.hpp>
+#include <dust/dust_ode.hpp>
 #include <mode/r/helpers.hpp>
 
 namespace mode {

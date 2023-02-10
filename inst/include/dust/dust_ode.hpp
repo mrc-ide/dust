@@ -1,5 +1,5 @@
-#ifndef MODE_MODE_HPP
-#define MODE_MODE_HPP
+#ifndef DUST_MODE_HPP
+#define DUST_MODE_HPP
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -7,15 +7,13 @@
 
 #include <stdexcept>
 
-#include <dust/random/random.hpp>
-#include <dust/types.hpp>
-#include <dust/utils.hpp>
-#include <mode/solver.hpp>
+#include "dust/random/random.hpp"
+#include "dust/types.hpp"
+#include "dust/utils.hpp"
+#include "dust/ode/solver.hpp"
 
 namespace mode {
 
-// TODO: consider a better name here, but using the same name as the
-// namespace does not end well...
 template <typename T>
 class dust_ode {
 public:

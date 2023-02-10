@@ -9,7 +9,7 @@
 #include <cpp11/logicals.hpp>
 
 #include <vector>
-#include "mode/control.hpp"
+#include "dust/ode/control.hpp"
 
 namespace mode {
 namespace r {

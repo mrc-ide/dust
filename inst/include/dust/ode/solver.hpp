@@ -1,13 +1,13 @@
-#ifndef MODE_SOLVER_HPP
-#define MODE_SOLVER_HPP
+#ifndef DUST_SOLVER_HPP
+#define DUST_SOLVER_HPP
 
 #include <limits>
 #include <stdexcept>
 #include <vector>
 
-#include "control.hpp"
-#include "stats.hpp"
-#include "stepper.hpp"
+#include "dust/ode/control.hpp"
+#include "dust/ode/stats.hpp"
+#include "dust/ode/stepper.hpp"
 
 namespace mode {
 template<typename Model>

@@ -1,5 +1,5 @@
-#ifndef MODE_STATS_HPP
-#define MODE_STATS_HPP
+#ifndef DUST_STATS_HPP
+#define DUST_STATS_HPP
 
 #include <cstddef>
 #include <vector>

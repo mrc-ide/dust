@@ -1,12 +1,12 @@
-#ifndef MODE_STEPPER_HPP
-#define MODE_STEPPER_HPP
+#ifndef DUST_STEPPER_HPP
+#define DUST_STEPPER_HPP
 
 #include <algorithm>
 #include <cmath>
 #include <vector>
 
-#include "initial_step_size.hpp"
-#include "utils.hpp"
+#include "dust/ode/initial_step_size.hpp"
+#include "dust/utils.hpp"
 
 namespace mode {
 namespace {

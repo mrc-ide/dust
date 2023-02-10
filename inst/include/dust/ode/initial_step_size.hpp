@@ -1,12 +1,12 @@
-#ifndef MODE_INITIAL_STEP_SIZE_HPP
-#define MODE_INITIAL_STEP_SIZE_HPP
+#ifndef DUST_INITIAL_STEP_SIZE_HPP
+#define DUST_INITIAL_STEP_SIZE_HPP
 
 #include <cmath>
 #include <cstddef>
 #include <vector>
 
-#include "control.hpp"
-#include "utils.hpp"
+#include "dust/ode/control.hpp"
+#include "dust/utils.hpp"
 
 namespace mode {
 
