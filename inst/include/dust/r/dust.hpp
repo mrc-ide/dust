@@ -416,15 +416,7 @@ SEXP dust_rng_state(SEXP ptr, bool first_only, bool last_only) {
   if (first_only && last_only) {
     cpp11::stop("Only one of 'first_only' or 'last_only' may be TRUE");
   }
-  if (last_only && std::is_same<double, typename T::time_type>::value) {
-    // This is used in dust when we have n + 1 rng streams, with the
-    // last one being the particle filter stream - we don't have that
-    // set up here yet, so just error instead. See mrc-3360 for
-    // details.
-    cpp11::stop("'last_only' not yet supported for continuous-time models");
-  }
-  size_t n = (first_only || last_only) ?
-    rng_state_type::size() : state.size();
+  size_t n = (first_only || last_only) ? rng_state_type::size() : state.size();
   size_t rng_offset = last_only ? obj->n_particles() * n : 0;
   size_t len = sizeof(typename rng_state_type::int_type) * n;
   cpp11::writable::raws ret(len);
