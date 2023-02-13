@@ -16,10 +16,12 @@
 ##' * `walk`: A 1D random walk, following a Gaussian distribution each
 ##'   time step.
 ##'
+##' * `logistic`: Logistic growth in continuous time
+##'
 ##' @title Access dust's built-in examples
 ##'
-##' @param name The name of the example to use. There are four
-##'   examples: `sir`, `sirs`, `variable`, `volatility` and `walk`
+##' @param name The name of the example to use. There are five
+##'   examples: `sir`, `sirs`, `variable`, `volatility`, `walk` and `logistic`
 ##'   (see Details).
 ##'
 ##' @return A [`dust::dust_generator`] object that can be used to create a
@@ -49,6 +51,7 @@ dust_example <- function(name) {
   ## state variables change: we'll probably swap it out for something
   ## more interesting later?
   switch(name,
+         logistic = logistic,
          sir = sir,
          sirs = sirs,
          variable = variable,

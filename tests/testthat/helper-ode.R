@@ -17,7 +17,6 @@ logistic_dde <- function(r, k, times, y0) {
 }
 
 example_logistic <- function() {
-  path <- dust_file("examples/ode/logistic.cpp")
-  list(generator = dust(path, quiet = TRUE),
+  list(generator = dust_example("logistic"),
        pars = list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100))
 }
