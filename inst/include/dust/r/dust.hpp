@@ -16,6 +16,7 @@
 #include "dust/gpu/filter.hpp"
 #include "dust/dust_cpu.hpp"
 #include "dust/filter.hpp"
+#include "dust/ode/dust_ode.hpp"
 
 #include "dust/r/gpu.hpp"
 #include "dust/r/helpers.hpp"
@@ -107,6 +108,32 @@ cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi,
     dust::gpu::r::gpu_config_as_sexp(gpu_config);
 
   return cpp11::writable::list({ptr, info, r_shape, ret_r_gpu_config, r_ode_control});
+}
+
+template <typename T>
+cpp11::list dust_ode_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_time,
+                           cpp11::sexp r_n_particles, size_t n_threads,
+                           cpp11::sexp r_seed, bool deterministic,
+                           cpp11::sexp r_gpu_config, cpp11::sexp r_ode_control) {
+  if (deterministic) {
+    cpp11::stop("Deterministic mode not supported for ode models");
+  }
+  auto pars = dust::dust_pars<T>(r_pars);
+  auto seed = dust::random::r::as_rng_seed<typename T::rng_state_type>(r_seed);
+  auto ctl = dust::r::validate_ode_control(r_ode_control);
+  const double t0 = 0;
+  const auto time = dust::r::validate_time<double>(r_time, t0, "time");
+  cpp11::sexp info = dust::dust_info(pars);
+  dust::r::validate_positive(n_threads, "n_threads");
+  auto n_particles = cpp11::as_cpp<int>(r_n_particles);
+  dust::r::validate_positive(n_particles, "n_particles");
+  dust_ode<T> *d = new dust_ode<T>(pars, time, n_particles,
+                                   n_threads, ctl, seed);
+  cpp11::external_pointer<dust_ode<T>> ptr(d, true, false);
+  cpp11::writable::integers r_shape =
+    dust::r::vector_size_to_int(ptr->shape());
+  auto r_ctl = dust::r::ode_control(ctl);
+  return cpp11::writable::list({ptr, info, r_shape, r_gpu_config, r_ctl});
 }
 
 template <typename T>
@@ -639,7 +666,7 @@ cpp11::sexp dust_ode_statistics(SEXP ptr) {
   const auto n_particles = obj->n_particles();
   std::vector<size_t> dat(3 * n_particles);
   obj->statistics(dat);
-  auto ret = dust::r::stats_array(dat, n_particles);
+  auto ret = dust::r::ode_statistics_array(dat, n_particles);
   auto step_times = obj->debug_step_times();
   if (obj->ctl().debug_record_step_times) {
     auto step_times = obj->debug_step_times();

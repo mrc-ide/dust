@@ -1,16 +1,17 @@
-#ifndef MODE_INITIAL_STEP_SIZE_HPP
-#define MODE_INITIAL_STEP_SIZE_HPP
+#ifndef DUST_ODE_INITIAL_STEP_SIZE_HPP
+#define DUST_ODE_INITIAL_STEP_SIZE_HPP
 
 #include <cmath>
 #include <cstddef>
 #include <vector>
 
-#include "control.hpp"
-#include "utils.hpp"
+#include "dust/ode/control.hpp"
+#include "dust/utils.hpp"
 
-namespace mode {
+namespace dust {
+namespace ode {
 
-template<typename Model>
+template <typename Model>
 double
 initial_step_size(Model m, double t, std::vector<double> y, control ctl) {
   const double order = 5;
@@ -29,8 +30,8 @@ initial_step_size(Model m, double t, std::vector<double> y, control ctl) {
 
   for (size_t i = 0; i < n; ++i) {
     const double sk = ctl.atol + ctl.rtol * std::abs(y[i]);
-    norm_f += square(f0[i] / sk);
-    norm_y += square(y[i] / sk);
+    norm_f += utils::square(f0[i] / sk);
+    norm_y += utils::square(y[i] / sk);
   }
   // TODO what are these magic numbers
   double h = (norm_f <= 1e-10 || norm_y <= 1e-10) ?
@@ -47,7 +48,7 @@ initial_step_size(Model m, double t, std::vector<double> y, control ctl) {
   double der2 = 0.0;
   for (size_t i = 0; i < n; ++i) {
     const double sk = ctl.atol + ctl.rtol * std::abs(y[i]);
-    der2 += square((f1[i] - f0[i]) / sk);
+    der2 += utils::square((f1[i] - f0[i]) / sk);
   }
   der2 = std::sqrt(der2) / h;
 
@@ -61,6 +62,7 @@ initial_step_size(Model m, double t, std::vector<double> y, control ctl) {
   return h;
 }
 
+}
 }
 
 #endif

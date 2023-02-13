@@ -1,14 +1,16 @@
-#ifndef MODE_STEPPER_HPP
-#define MODE_STEPPER_HPP
+#ifndef DUST_ODE_STEPPER_HPP
+#define DUST_ODE_STEPPER_HPP
 
 #include <algorithm>
 #include <cmath>
 #include <vector>
 
-#include "initial_step_size.hpp"
-#include "utils.hpp"
+#include "dust/ode/initial_step_size.hpp"
+#include "dust/utils.hpp"
 
-namespace mode {
+namespace dust {
+namespace ode {
+
 namespace {
 constexpr double C2 = 0.2;
 constexpr double C3 = 0.3;
@@ -116,7 +118,7 @@ public:
     for (size_t i = 0; i < n_var; ++i) {
       const double sk = atol + rtol *
                                std::max(std::abs(y[i]), std::abs(y_next[i]));
-      err += square(k4[i] / sk);
+      err += utils::square(k4[i] / sk);
     }
     return std::sqrt(err / n_var);
   }
@@ -222,6 +224,7 @@ public:
   }
 };
 
+}
 }
 
 #endif

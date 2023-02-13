@@ -1,29 +1,31 @@
-#ifndef MODE_SOLVER_HPP
-#define MODE_SOLVER_HPP
+#ifndef DUST_ODE_SOLVER_HPP
+#define DUST_ODE_SOLVER_HPP
 
 #include <limits>
 #include <stdexcept>
 #include <vector>
 
-#include "control.hpp"
-#include "stats.hpp"
-#include "stepper.hpp"
+#include "dust/ode/control.hpp"
+#include "dust/ode/statistics.hpp"
+#include "dust/ode/stepper.hpp"
 
-namespace mode {
-template<typename Model>
+namespace dust {
+namespace ode {
+
+template <typename Model>
 class solver {
 private:
   double t_;
   double h_;
   control ctl_;
-  stats stats_;
+  statistics statistics_;
   double last_error_;
   stepper<Model> stepper_;
   size_t n_variables_;
   size_t n_output_;
   double h_swap_;
   double last_error_swap_;
-  stats stats_swap_;
+  statistics statistics_swap_;
   std::vector<double> stochastic_schedule_;
 
 public:
@@ -38,7 +40,7 @@ public:
                         stepper_(m),
                         n_variables_(m.n_variables()),
                         n_output_(m.n_output()) {
-    stats_.reset();
+    statistics_.reset();
     set_state(y);
     initialise();
     set_initial_step_size();
@@ -59,7 +61,7 @@ public:
 
     double h = h_;
     while (!success) {
-      if (stats_.n_steps > ctl_.max_steps) {
+      if (statistics_.n_steps > ctl_.max_steps) {
         throw std::runtime_error("too many steps");
       }
       if (h < ctl_.step_size_min) {
@@ -74,7 +76,7 @@ public:
 
       // Carry out the step
       stepper_.step(t_, h);
-      stats_.n_steps++;
+      statistics_.n_steps++;
 
       // Error estimation
       const auto err = stepper_.error(ctl_.atol, ctl_.rtol);
@@ -85,16 +87,15 @@ public:
 
       if (err <= 1) {
         success = true;
-        stats_.n_steps_accepted++;
+        statistics_.n_steps_accepted++;
         stepper_.step_complete(t_, h);
         double fac = fac11 / std::pow(fac_old, ctl_.beta);
-        fac = clamp(fac / ctl_.factor_safe,
-                    facc2, facc1);
+        fac = utils::clamp(fac / ctl_.factor_safe, facc2, facc1);
         const double h_new = h / fac;
 
         t_ += h;
         if (ctl_.debug_record_step_times) {
-          stats_.step_times.push_back(t_);
+          statistics_.step_times.push_back(t_);
         }
         if (reject) {
           h_ = std::min(h_new, h);
@@ -104,8 +105,8 @@ public:
         last_error_ = err;
       } else {
         reject = true;
-        if (stats_.n_steps_accepted >= 1) {
-          stats_.n_steps_rejected++;
+        if (statistics_.n_steps_accepted >= 1) {
+          statistics_.n_steps_rejected++;
         }
         h /= std::min(facc1, fac11 / ctl_.factor_safe);
       }
@@ -135,7 +136,7 @@ public:
 
   void set_time(double t) {
     if (t != t_) {
-      stats_.reset();
+      statistics_.reset();
       t_ = t;
     }
   }
@@ -170,14 +171,14 @@ public:
     stepper_.set_state(other.stepper_);
     h_swap_ = other.h_;
     last_error_swap_ = other.last_error_;
-    stats_swap_ = other.stats_;
+    statistics_swap_ = other.statistics_;
   }
 
   void swap() {
     stepper_.swap();
     h_ = h_swap_;
     last_error_ = last_error_swap_;
-    stats_ = stats_swap_;
+    statistics_ = statistics_swap_;
   }
 
   void set_model(Model m) {
@@ -198,17 +199,19 @@ public:
   }
 
   std::vector<size_t>::iterator
-  statistics(std::vector<size_t>::iterator all_stats) const {
-    all_stats[0] = stats_.n_steps;
-    all_stats[1] = stats_.n_steps_accepted;
-    all_stats[2] = stats_.n_steps_rejected;
-    return all_stats + 3;
+  get_statistics(std::vector<size_t>::iterator all_statistics) const {
+    all_statistics[0] = statistics_.n_steps;
+    all_statistics[1] = statistics_.n_steps_accepted;
+    all_statistics[2] = statistics_.n_steps_rejected;
+    return all_statistics + 3;
   }
 
   std::vector<double> debug_step_times() {
-    return stats_.step_times;
+    return statistics_.step_times;
   }
 };
+
+}
 }
 
 #endif

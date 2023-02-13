@@ -1,12 +1,13 @@
-#ifndef MODE_STATS_HPP
-#define MODE_STATS_HPP
+#ifndef DUST_ODE_STATISTICS_HPP
+#define DUST_ODE_STATISTICS_HPP
 
 #include <cstddef>
 #include <vector>
 
-namespace mode {
+namespace dust {
+namespace ode {
 
-struct stats {
+struct statistics {
   size_t n_steps;
   size_t n_steps_accepted;
   size_t n_steps_rejected;
@@ -20,6 +21,7 @@ struct stats {
   }
 };
 
+}
 }
 
 #endif

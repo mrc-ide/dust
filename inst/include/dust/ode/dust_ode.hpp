@@ -1,5 +1,5 @@
-#ifndef MODE_MODE_HPP
-#define MODE_MODE_HPP
+#ifndef DUST_ODE_DUST_ODE_HPP
+#define DUST_ODE_DUST_ODE_HPP
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -7,15 +7,13 @@
 
 #include <stdexcept>
 
-#include <dust/random/random.hpp>
-#include <dust/types.hpp>
-#include <dust/utils.hpp>
-#include <mode/solver.hpp>
+#include "dust/random/random.hpp"
+#include "dust/types.hpp"
+#include "dust/utils.hpp"
+#include "dust/ode/solver.hpp"
 
-namespace mode {
+namespace dust {
 
-// TODO: consider a better name here, but using the same name as the
-// namespace does not end well...
 template <typename T>
 class dust_ode {
 public:
@@ -29,7 +27,7 @@ public:
 
   dust_ode(const pars_type &pars, const double time,
            const size_t n_particles, const size_t n_threads,
-           const control ctl, const std::vector<rng_int_type>& seed)
+           const ode::control ctl, const std::vector<rng_int_type>& seed)
       : n_particles_(n_particles),
         n_threads_(n_threads),
         shape_({n_particles}),
@@ -38,12 +36,12 @@ public:
         errors_(n_particles){
     auto y = m_.initial(time);
     for (size_t i = 0; i < n_particles; ++i) {
-      solver_.push_back(solver<model_type>(m_, time, y, ctl));
+      solver_.push_back(dust::ode::solver<model_type>(m_, time, y, ctl));
     }
     initialise_index();
   }
 
-  control ctl() {
+  ode::control ctl() {
     return solver_[0].ctl();
   }
 
@@ -262,16 +260,16 @@ public:
     initialise(false);
   }
 
-  void statistics(std::vector<size_t> &all_stats) {
-    auto it = all_stats.begin();
+  void statistics(std::vector<size_t> &all_statistics) {
+    auto it = all_statistics.begin();
     // this is hard to make parallel safe without doing
     //
     // solver_i[i].statistics(it + i * 3);
     //
     // which requires knowing that we always have three statistics
-    // (though we do rely on this in r/mode.hpp::mode_stats)
+    // (though we do rely on this in r/dust.hpp::dust_ode_statistics)
     for (size_t i = 0; i < n_particles_; ++i) {
-      it = solver_[i].statistics(it);
+      it = solver_[i].get_statistics(it);
     }
   }
 
@@ -309,7 +307,7 @@ public:
   }
 
 private:
-  std::vector<solver<model_type>> solver_;
+  std::vector<dust::ode::solver<model_type>> solver_;
   size_t n_particles_;
   size_t n_threads_;
   std::vector<size_t> shape_;

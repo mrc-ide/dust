@@ -10,6 +10,7 @@
 #include <cpp11/list.hpp>
 #include <cpp11/strings.hpp>
 
+#include "dust/ode/control.hpp"
 #include "dust/r/random.hpp"
 #include "dust/r/utils.hpp"
 
@@ -78,6 +79,32 @@ bool validate_logical(SEXP x, bool default_value, const char * name) {
     cpp11::stop("'%s' must be a non-missing scalar logical");
   }
   return INTEGER(x)[0];
+}
+
+inline
+double validate_double(SEXP x, double default_value, const char * name) {
+  if (x == R_NilValue) {
+    return default_value;
+  }
+  cpp11::doubles values = cpp11::as_cpp<cpp11::doubles>(x);
+  if (values.size() != 1) {
+    cpp11::stop("Expected '%s' to be a scalar value", name);
+  }
+  return values[0];
+}
+
+// TODO: template on return?
+inline
+size_t validate_integer(SEXP x, size_t default_value, const char * name) {
+  if (x == R_NilValue) {
+    return default_value;
+  }
+  cpp11::integers values = dust::r::as_integer(x, name);
+  if (values.size() != 1) {
+    cpp11::stop("Expected '%s' to be a scalar value", name);
+  }
+  validate_size(values[0], name);
+  return static_cast<size_t>(values[0]);
 }
 
 inline
@@ -560,8 +587,8 @@ dust_inputs<T> process_inputs_multi(cpp11::list r_pars, int time,
     info};
 }
 
-inline cpp11::sexp stats_array(const std::vector<size_t>& dat,
-                               size_t n_particles) {
+inline cpp11::sexp ode_statistics_array(const std::vector<size_t>& dat,
+                                        size_t n_particles) {
   cpp11::writable::integers ret(dat.size());
   std::copy(dat.begin(), dat.end(), ret.begin());
   ret.attr("dim") = cpp11::writable::integers{3, static_cast<int>(n_particles)};
@@ -594,6 +621,52 @@ bool validate_reset_step_size(SEXP r_time,
     reset_step_size = cpp11::as_cpp<bool>(r_reset_step_size);
   }
   return reset_step_size;
+}
+
+inline
+dust::ode::control validate_ode_control(cpp11::sexp r_control) {
+  const auto defaults = dust::ode::control();
+  if (r_control == R_NilValue) {
+    return defaults;
+  }
+  else {
+    auto control = cpp11::as_cpp<cpp11::list>(r_control);
+    auto max_steps = dust::r::validate_integer(control["max_steps"],
+                                               defaults.max_steps,
+                                               "max_steps");
+    auto atol = dust::r::validate_double(control["atol"],
+                                         defaults.atol,
+                                         "atol");
+    auto rtol = dust::r::validate_double(control["rtol"],
+                                         defaults.rtol,
+                                         "rtol");
+    auto step_size_min = dust::r::validate_double(control["step_size_min"],
+                                                  defaults.step_size_min,
+                                                  "step_size_min");
+    auto step_size_max = dust::r::validate_double(control["step_size_max"],
+                                                  defaults.step_size_max,
+                                                  "step_size_max");
+    auto debug_record_step_times =
+        dust::r::validate_logical(control["debug_record_step_times"],
+                                  defaults.debug_record_step_times,
+                                  "debug_record_step_times");
+    return dust::ode::control(max_steps, atol, rtol, step_size_min,
+                             step_size_max, debug_record_step_times);
+  }
+}
+
+inline
+cpp11::sexp ode_control(const dust::ode::control ctl) {
+  using namespace cpp11::literals;
+  auto ret = cpp11::writable::list({"max_steps"_nm = ctl.max_steps,
+                                    "atol"_nm = ctl.atol,
+                                    "rtol"_nm = ctl.rtol,
+                                    "step_size_min"_nm = ctl.step_size_min,
+                                    "step_size_max"_nm = ctl.step_size_max,
+                                    "debug_record_step_times"_nm = ctl.debug_record_step_times});
+
+  ret.attr("class") = "dust_ode_control";
+  return ret;
 }
 
 }
