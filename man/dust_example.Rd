@@ -7,8 +7,8 @@
 dust_example(name)
 }
 \arguments{
-\item{name}{The name of the example to use. There are four
-examples: \code{sir}, \code{sirs}, \code{variable}, \code{volatility} and \code{walk}
+\item{name}{The name of the example to use. There are five
+examples: \code{sir}, \code{sirs}, \code{variable}, \code{volatility}, \code{walk} and \code{logistic}
 (see Details).}
 }
 \value{
@@ -32,6 +32,7 @@ This has a non-zero steady state, so can be run indefinitely for testing.
 currency fluctuations etc.
 \item \code{walk}: A 1D random walk, following a Gaussian distribution each
 time step.
+\item \code{logistic}: Logistic growth in continuous time
 }
 }
 \examples{
