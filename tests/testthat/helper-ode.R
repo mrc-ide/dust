@@ -18,5 +18,5 @@ logistic_dde <- function(r, k, times, y0) {
 
 example_logistic <- function() {
   list(generator = dust_example("logistic"),
-       pars = list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100))
+       pars = list(r = c(0.1, 0.2), K = c(100, 100)))
 }

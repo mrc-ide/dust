@@ -9,7 +9,7 @@ test_that("can integrate logistic", {
 
   path <- dust_file("examples/ode/logistic.cpp")
   gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = r[[1]], r2 = r[[2]], K1 = k[[1]], K2 = k[[2]])
+  pars <- list(r = r, K = k)
   n_particles <- 5
   mod <- gen$new(pars, 0, n_particles)
 

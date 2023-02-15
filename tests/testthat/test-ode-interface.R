@@ -142,7 +142,7 @@ test_that("Setting a named index returns names", {
   ex <- example_logistic()
   r <- c(0.1, 0.2)
   k <- c(100, 100)
-  pars <- list(r1 = r[[1]], r2 = r[[2]], K1 = k[[1]], K2 = k[[2]])
+  pars <- list(r = r, K = k)
   n_particles <- 5
   mod <- ex$generator$new(pars, 0, n_particles)
   analytic <- logistic_analytic(r, k, 1, c(1, 1))
@@ -158,7 +158,7 @@ test_that("Can clear index", {
   ex <- example_logistic()
   r <- c(0.1, 0.2)
   k <- c(100, 100)
-  pars <- list(r1 = r[[1]], r2 = r[[2]], K1 = k[[1]], K2 = k[[2]])
+  pars <- list(r = r, K = k)
   n_particles <- 5
   mod <- ex$generator$new(pars, 0, n_particles)
   analytic <- logistic_analytic(r, k, 1:2, c(1, 1))
@@ -406,7 +406,7 @@ test_that("Can update state when multi-threaded", {
   mod <- ex$generator$new(ex$pars, 0, np, n_threads = 1)
   y <- mod$run(3)
 
-  new_pars <- list(r1 = 0.5, r2 = 0.7, K1 = 200, K2 = 200)
+  new_pars <- list(r = c(0.5, 0.7), K = c(200, 200))
 
   # update all particles to have the same state
   mod$update_state(pars = new_pars, time = 2, state = c(1, 2))
@@ -617,7 +617,7 @@ test_that("Can save a model and reload it after repair", {
   tmp_rds <- tempfile()
   suppressWarnings(saveRDS(gen, tmp_rds))
 
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  pars <- list(r = c(0.1, 0.2), K = c(100, 100))
 
   ## Fails to load because the package environment is not present, and
   ## so can't find the alloc function
@@ -691,10 +691,8 @@ test_that("can retrieve empty params", {
   ex <- example_logistic()
   mod <- ex$generator$new(ex$pars, 0, 10)
   expect_mapequal(mod$param(),
-                  list(r1 = list(required = TRUE),
-                       K1 = list(required = TRUE),
-                       r2 = list(required = TRUE),
-                       K2 = list(required = TRUE)))
+                  list(r = list(required = TRUE),
+                       K = list(required = TRUE)))
 })
 
 

@@ -230,10 +230,8 @@ test_that("Can parse metadata for continuous time models", {
   expect_equal(meta$time_type, "continuous")
   expect_equal(
     meta$param,
-    list(r1 = list(required = TRUE),
-         K1 = list(required = TRUE),
-         r2 = list(required = TRUE),
-         K2 = list(required = TRUE)))
+    list(r = list(required = TRUE),
+         K = list(required = TRUE)))
 })
 
 
