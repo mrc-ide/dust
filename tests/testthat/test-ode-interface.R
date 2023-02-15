@@ -270,8 +270,8 @@ test_that("Errors are reported", {
 })
 
 test_that("Can run a stochastic model", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
+  ex <- example_logistic()
+  gen <- ex$generator
 
   np <- 10
   pars <- list(r = c(0, 0.2), K = c(100, 200), v = 0.1)
@@ -311,8 +311,8 @@ test_that("Can run a stochastic model", {
 
 
 test_that("Can validate the stochastic schedule times", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
+  ex <- example_logistic()
+  gen <- ex$generator
 
   np <- 10
   pars <- list(r = c(0, 0.2), K = c(100, 200), v = 0.1)
@@ -332,8 +332,8 @@ test_that("Can validate the stochastic schedule times", {
 })
 
 test_that("A null schedule clears stochastic schedule", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
+  ex <- example_logistic()
+  gen <- ex$generator
 
   np <- 10
   pars <- list(r = c(0, 0.2), K = c(100, 200), v = 0.1)
@@ -458,8 +458,9 @@ test_that("Can get openmp support", {
 
 
 test_that("can get rng state", {
-  gen <- dust(dust_file("examples/ode/logistic.cpp"), quiet = TRUE)
-  pars <- list(r = c(0.1, 0.2), K = c(100, 200), v = 0.1)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   np <- 10
   mod <- gen$new(pars, 0, np, seed = 1L)
   rng <- mod$rng_state()
@@ -476,7 +477,8 @@ test_that("can get rng state", {
 
 
 test_that("can set rng state into model", {
-  gen <- dust(dust_file("examples/ode/logistic.cpp"), quiet = TRUE)
+  ex <- example_logistic()
+  gen <- ex$generator
   pars <- list(r = c(0.1, 0.2), K = c(100, 200), v = 0.1)
   mod1 <- gen$new(pars, 0, 10, seed = 1L)
   mod2 <- gen$new(pars, 0, 10, seed = 2L)
@@ -491,7 +493,8 @@ test_that("can set rng state into model", {
 
 
 test_that("Can get information about steps", {
-  gen <- dust(dust_file("examples/ode/logistic.cpp"), quiet = TRUE)
+  ex <- example_logistic()
+  gen <- ex$generator
   pars <- list(r = c(0.1, 0.2), K = c(100, 200), v = 0.5)
   n_particles <- 5L
   control <- dust_ode_control(debug_record_step_times = TRUE)
@@ -523,7 +526,8 @@ test_that("Can get information about steps", {
 
 
 test_that("information about steps survives shuffle", {
-  gen <- dust(dust_file("examples/ode/logistic.cpp"), quiet = TRUE)
+  ex <- example_logistic()
+  gen <- ex$generator
   pars <- list(r = c(0.1, 0.2), K = c(100, 200), v = 0.5)
   n_particles <- 5L
   control <- dust_ode_control(debug_record_step_times = TRUE)
@@ -616,6 +620,8 @@ test_that("check that simulate times are reasonable", {
 
 test_that("Can save a model and reload it after repair", {
   skip_if_not_installed("callr")
+  ## We need to recompile a model here from scratch; I can't remember
+  ## if this is best if it's one that is not in the package though?
   path <- dust_file("examples/ode/logistic.cpp")
   gen <- dust(path, quiet = TRUE)
 
