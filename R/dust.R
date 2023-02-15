@@ -17,7 +17,8 @@ logistic <- R6::R6Class(
     ode_control_ = NULL,
     methods_ = NULL,
     param_ = list(r = list(required = TRUE),
-     K = list(required = TRUE)),
+     K = list(required = TRUE),
+     v = list(required = FALSE)),
     reload_ = NULL
   ),
 

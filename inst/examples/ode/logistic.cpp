@@ -10,6 +10,7 @@ public:
     size_t n;
     std::vector<real_type> r;
     std::vector<real_type> K;
+    real_type v;
   };
 
   logistic(const dust::pars_type<logistic>& pars): shared(pars.shared) {
@@ -40,6 +41,10 @@ public:
   void update_stochastic(real_type t, const std::vector<real_type>& y,
                          rng_state_type& rng_state,
                          std::vector<real_type>& y_next) {
+    for (size_t i = 0; i < shared->n; ++i) {
+      const auto r = dust::random::normal<real_type>(rng_state, 0, shared->v);
+      y_next[i] = y[i] * std::exp(r);
+    }
   }
 
   size_t n_variables() const {
@@ -63,14 +68,14 @@ dust::pars_type<logistic> dust_pars<logistic>(cpp11::list pars) {
   std::vector<real_type> r = cpp11::as_cpp<std::vector<real_type>>(pars["r"]);
   // [[dust::param(K, required = TRUE)]]
   std::vector<real_type> K = cpp11::as_cpp<std::vector<real_type>>(pars["K"]);
-  if (r.size() != K.size()) {
-    cpp11::stop("Expected 'r' and 'K' to have the same size");
-  }
   const size_t n = r.size();
   if (n == 0) {
     cpp11::stop("'r' and 'K' must have length of at least 1");
   }
-  logistic::shared_type shared{n, r, K};
+  // [[dust::param(v, required = FALSE)]]
+  cpp11::sexp r_v = pars["v"];
+  const real_type v = r_v == R_NilValue ? 0.1 : cpp11::as_cpp<real_type>(r_v);
+  logistic::shared_type shared{n, r, K, v};
   return dust::pars_type<logistic>(shared);
 }
 
