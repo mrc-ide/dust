@@ -32,7 +32,7 @@ public:
         n_threads_(n_threads),
         shape_({n_particles}),
         m_(model_type(pars)),
-        rng_(n_particles_, seed, false),
+        rng_(n_particles_ + 1, seed, false), // +1 for filter
         errors_(n_particles){
     auto y = m_.initial(time);
     for (size_t i = 0; i < n_particles; ++i) {

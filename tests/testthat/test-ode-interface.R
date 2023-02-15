@@ -455,18 +455,18 @@ test_that("Can get openmp support", {
 test_that("can get rng state", {
   gen <- dust(dust_file("examples/ode/stochastic.cpp"), quiet = TRUE)
   pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 200, v = 0.1)
-  mod <- gen$new(pars, 0, 10, seed = 1L)
+  np <- 10
+  mod <- gen$new(pars, 0, np, seed = 1L)
   rng <- mod$rng_state()
   expect_type(rng, "raw")
-  expect_identical(rng, dust::dust_rng$new(1, 10)$state())
+  expect_identical(rng, dust::dust_rng$new(1, np + 1)$state())
   expect_identical(mod$rng_state(first_only = TRUE),
                    rng[seq_len(32)])
+  expect_identical(mod$rng_state(last_only = TRUE),
+                   rng[(np * 32 + 1):((np + 1) * 32)])
   expect_error(
     mod$rng_state(first_only = TRUE, last_only = TRUE),
     "Only one of 'first_only' or 'last_only' may be TRUE")
-  expect_error(
-    mod$rng_state(last_only = TRUE),
-    "'last_only' not yet supported for continuous-time models")
 })
 
 
@@ -545,7 +545,8 @@ test_that("information about steps survives shuffle", {
   mod$run(5) # must be part of the stochastic updates
   mod$reorder(reverse)
   ## Reverse the rng state too
-  mod$set_rng_state(c(matrix(mod$rng_state(), ncol = n_particles)[, reverse]))
+  r <- matrix(mod$rng_state(), ncol = n_particles + 1)
+  mod$set_rng_state(c(r[, c(reverse, n_particles + 1)]))
   y2 <- mod$run(10)
   stats2 <- mod$ode_statistics()
   steps2 <- attr(stats2, "step_times")
