@@ -34,6 +34,10 @@ test_that("Can validate ode control", {
     "All elements of 'max_steps' must be integer-like")
   expect_error(
     ex$generator$new(ex$pars, 10, 1,
+                     ode_control = dust_ode_control(max_steps = integer())),
+    "Expected 'max_steps' to be a scalar value")
+  expect_error(
+    ex$generator$new(ex$pars, 10, 1,
                      ode_control = dust_ode_control(atol = numeric())),
     "Expected 'atol' to be a scalar value")
   expect_error(
