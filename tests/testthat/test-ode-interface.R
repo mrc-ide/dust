@@ -342,7 +342,7 @@ test_that("A null schedule clears stochastic schedule", {
   mod$set_index(1)
 
   rng <- dust::dust_rng$new(n_streams = np, seed = 1L)
-  ## running draws 12 numbers per particle:  
+  ## running draws 12 numbers per particle:
   y <- drop(mod$run(10))
   r <- array(rng$normal(2 * 6, 0, 0.1), c(2, 6, np))
   expect_equal(y, apply(exp(r[1, , ]), 2, prod))
