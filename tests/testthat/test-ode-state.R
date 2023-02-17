@@ -99,6 +99,10 @@ test_that("Error if state vector does not have correct length", {
                "Expected a vector of length 2 for 'state' but given 5")
   expect_error(mod$update_state(state = c(1, 2), index = 1),
                "Expected a vector of length 1 for 'state' but given 2")
+  expect_error(mod$update_state(state = c(1, 2), index = integer(0)),
+               "Expected at least one element in 'index'")
+  expect_error(mod$update_state(index = 1:5),
+               "Can't provide 'index' without providing 'state'")
 })
 
 test_that("Error if state matrix does not have correct dimensions", {
