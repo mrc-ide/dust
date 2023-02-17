@@ -7,8 +7,7 @@ test_that("can integrate logistic", {
   analytic <- logistic_analytic(r, k, times, y0)
   dde <- logistic_dde(r, k, times, y0)
 
-  ex <- dust_example("logistic")
-  gen <- ex$generator
+  gen <- dust_example("logistic")
   pars <- list(r = r, K = k)
   n_particles <- 5
   mod <- gen$new(pars, 0, n_particles)
