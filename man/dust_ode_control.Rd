@@ -48,3 +48,20 @@ systems of ordinary differential equations (ODEs). The returned
 object can be passed into a continuous-time dust model on
 initialisation.
 }
+\examples{
+
+# We include an example of logistic growth with the package
+gen <- dust::dust_example("logistic")
+
+# Create a control object, then pass it through as the ode_control
+# parameter to the constructor:
+ctrl <- dust::dust_ode_control(atol = 1e-3, rtol = 1e-3)
+mod <- gen$new(list(r = 0.1, K = 100), 0, 1, ode_control = ctrl)
+
+# When the model runs, the control parameters passed in to the
+# constructor are used in the solution
+mod$run(10)
+
+# The full set of control parameters can be extracted:
+mod$ode_control()
+}
