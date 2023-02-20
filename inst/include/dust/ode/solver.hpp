@@ -31,18 +31,13 @@ private:
 public:
   using rng_state_type = typename Model::rng_state_type;
 
-  solver(Model m,
-         double t,
-         std::vector<double> y,
-         control ctl) : t_(t),
-                        ctl_(ctl),
-                        last_error_(0),
-                        stepper_(m),
-                        n_variables_(m.n_variables()),
-                        n_output_(m.n_output()) {
+  solver(Model m, double t, control ctl) : t_(t),
+                                           ctl_(ctl),
+                                           last_error_(0),
+                                           stepper_(m, t),
+                                           n_variables_(m.n_variables()),
+                                           n_output_(m.n_output()) {
     statistics_.reset();
-    set_state(y);
-    initialise();
     set_initial_step_size();
   }
 
@@ -189,8 +184,12 @@ public:
     statistics_ = statistics_swap_;
   }
 
-  void set_model(Model m) {
-    stepper_.set_model(m);
+  void set_model(Model m, bool set_initial_state) {
+    if (set_initial_state) {
+      stepper_.set_model(m, t_);
+    } else {
+      stepper_.set_model(m);
+    }
   }
 
   size_t n_variables() {

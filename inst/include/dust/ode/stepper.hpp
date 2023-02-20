@@ -71,10 +71,15 @@ private:
 public:
   using rng_state_type = typename Model::rng_state_type;
 
-  stepper(Model m) : m(m), n_var(m.n_variables()), n_out(m.n_output()),
-                     y(n_var), y_next(n_var), y_stiff(n_var), k1(n_var),
-                     k2(n_var), k3(n_var), k4(n_var),
-                     k5(n_var), k6(n_var), output(n_out) {}
+  stepper(Model m, double t) :
+    m(m), n_var(m.n_variables()), n_out(m.n_output()),
+    y(n_var), y_next(n_var), y_stiff(n_var), k1(n_var),
+    k2(n_var), k3(n_var), k4(n_var),
+    k5(n_var), k6(n_var), output(n_out) {
+    const auto y = m.initial(t);
+    set_state(y.begin());
+    initialise(t);
+  }
 
   void step(double t, double h) {
     for (size_t i = 0; i < n_var; ++i) { // 22
@@ -156,6 +161,13 @@ public:
 
   void set_model(Model new_model) {
     m = new_model;
+  }
+
+  void set_model(Model new_model, double t) {
+    m = new_model;
+    const auto y = m.initial(t);
+    set_state(y.begin());
+    initialise(t);
   }
 
   void initialise(double t) {
