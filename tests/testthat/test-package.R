@@ -218,3 +218,20 @@ test_that("check that package uses C++11", {
   expect_silent(
     package_validate_uses_cpp11(path))
 })
+
+
+test_that("can create package with ode model", {
+  path <- create_test_package(
+    "pkgode", examples = c("ode/logistic.cpp", "ode/parallel.cpp"))
+  path <- dust_package(path, quiet = TRUE)
+  res <- pkgload::load_all(path, quiet = TRUE)
+  cmp <- example_logistic()
+
+  expect_s3_class(res$env$logistic, "dust_generator")
+  expect_s3_class(res$env$parallel, "dust_generator")
+
+  t <- seq(0, 51, by = 1)
+  expect_equal(
+    res$env$logistic$new(cmp$pars, 0, 1)$simulate(t),
+    cmp$generator$new(cmp$pars, 0, 1)$simulate(t))
+})

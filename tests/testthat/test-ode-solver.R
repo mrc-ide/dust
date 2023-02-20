@@ -7,9 +7,8 @@ test_that("can integrate logistic", {
   analytic <- logistic_analytic(r, k, times, y0)
   dde <- logistic_dde(r, k, times, y0)
 
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = r[[1]], r2 = r[[2]], K1 = k[[1]], K2 = k[[2]])
+  gen <- dust_example("logistic")
+  pars <- list(r = r, K = k)
   n_particles <- 5
   mod <- gen$new(pars, 0, n_particles)
 
@@ -45,4 +44,26 @@ test_that("Can cope with systems that do not set all derivatives", {
   }
 
   expect_equal(y2, y1)
+})
+
+
+## A better test here would be possible if we had a model that had a
+## step size that varied a bunch...
+test_that("Error if step size becomes too small", {
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
+  control <- dust_ode_control(step_size_min = 0.1)
+  n_particles <- 5
+  mod <- gen$new(pars, 0, n_particles, ode_control = control)
+  expect_error(
+    mod$run(5),
+    "step too small")
+  expect_error(
+    mod$run(5),
+    "Errors pending; reset required")
+  mod$update_state(pars = ex$pars, reset_step_size = TRUE)
+  expect_error(
+    mod$run(5),
+    "step too small")
 })

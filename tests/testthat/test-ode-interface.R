@@ -5,7 +5,7 @@ test_that("Can compile a simple model", {
   expect_s3_class(mod, "dust")
   expect_equal(mod$time(), pi)
   expect_equal(mod$pars(), ex$pars)
-  expect_equal(mod$info(), c("N1", "N2"))
+  expect_equal(mod$info(), list(n = 2))
   expect_equal(mod$n_particles(), n_particles)
   expect_equal(mod$shape(), n_particles)
   expect_equal(mod$n_particles_each(), n_particles)
@@ -142,7 +142,7 @@ test_that("Setting a named index returns names", {
   ex <- example_logistic()
   r <- c(0.1, 0.2)
   k <- c(100, 100)
-  pars <- list(r1 = r[[1]], r2 = r[[2]], K1 = k[[1]], K2 = k[[2]])
+  pars <- list(r = r, K = k)
   n_particles <- 5
   mod <- ex$generator$new(pars, 0, n_particles)
   analytic <- logistic_analytic(r, k, 1, c(1, 1))
@@ -158,7 +158,7 @@ test_that("Can clear index", {
   ex <- example_logistic()
   r <- c(0.1, 0.2)
   k <- c(100, 100)
-  pars <- list(r1 = r[[1]], r2 = r[[2]], K1 = k[[1]], K2 = k[[2]])
+  pars <- list(r = r, K = k)
   n_particles <- 5
   mod <- ex$generator$new(pars, 0, n_particles)
   analytic <- logistic_analytic(r, k, 1:2, c(1, 1))
@@ -270,49 +270,52 @@ test_that("Errors are reported", {
 })
 
 test_that("Can run a stochastic model", {
-  path <- dust_file("examples/ode/stochastic.cpp")
-  gen <- dust(path, quiet = TRUE)
+  ex <- example_logistic()
+  gen <- ex$generator
 
   np <- 10
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 200, v = 0.1)
+  pars <- list(r = c(0, 0.2), K = c(100, 200), v = 0.1)
   mod <- gen$new(pars, 0, np, seed = 1L)
   mod$set_stochastic_schedule(0:5)
 
   rng <- dust::dust_rng$new(n_streams = np, seed = 1L)
 
-  expect_equal(mod$state(), matrix(1, 3, np))
+  expect_equal(mod$state(), matrix(c(1, 1, 2), 3, np))
 
   ## Events happen at t + eps so running to t leaves things unchanged:
   mod$run(0)
-  expect_equal(mod$state(), matrix(1, 3, np))
+  expect_equal(mod$state(), matrix(c(1, 1, 2), 3, np))
 
   ## Any bit beyond and we will run the stochastic update
   y1 <- mod$run(1e-8)
-  expect_equal(y1[1:2, ], matrix(1, 2, np))
-  expect_equal(y1[3, ], drop(exp(rng$normal(1, 0, 0.1))))
+  r <- exp(rng$normal(2, 0, 0.1))
+  expect_equal(y1, rbind(r, colSums(r)))
 
   ## Run up to the next one and we won't run a stochastic step, but we
   ## will complete a full deterministic step
   y2 <- mod$run(1)
-  expect_equal(y2[1, ],
-               drop(logistic_analytic(0.1, 100 * y1[3, ], 1, c(1, 1))))
+  expect_equal(y2[1, ], y1[1, ]) # deterministic change turned off here
   expect_equal(y2[2, ],
-               drop(logistic_analytic(0.2, 200 * y1[3, ], 1, c(1, 1))))
-  expect_equal(y2[3, ], y1[3, ])
+               drop(logistic_analytic(0.2, 200, 1, y1[2, ])))
+  expect_equal(y2[3, ], colSums(y2[1:2, ]))
 
   ## Up to the end we've run 5 stochastic updates (but not the 6th)
   y_end <- mod$run(5)
   rng <- dust::dust_rng$new(n_streams = np, seed = 1L)
-  expect_equal(y_end[3, ], apply(exp(rng$normal(5, 0, 0.1)), 2, prod))
+  r <- array(rng$normal(2 * 5, 0, 0.1), c(2, 5, np))
+  expect_equal(
+    y_end[1, ],
+    apply(exp(r[1, , ]), 2, prod))
+  expect_equal(y_end[3, ], colSums(y_end[1:2, ]))
 })
 
 
 test_that("Can validate the stochastic schedule times", {
-  path <- dust_file("examples/ode/stochastic.cpp")
-  gen <- dust(path, quiet = TRUE)
+  ex <- example_logistic()
+  gen <- ex$generator
 
   np <- 10
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 200, v = 0.1)
+  pars <- list(r = c(0, 0.2), K = c(100, 200), v = 0.1)
   mod <- gen$new(pars, 0, np, seed = 1L)
   expect_error(
     mod$set_stochastic_schedule(c(1, 2, 3, 3, 4, 5)),
@@ -325,28 +328,30 @@ test_that("Can validate the stochastic schedule times", {
 
   ## No schedule set:
   y <- mod$run(10)
-  expect_equal(y[3, ], rep(1, np))
+  expect_equal(y[1, ], rep(1, np))
 })
 
 test_that("A null schedule clears stochastic schedule", {
-  path <- dust_file("examples/ode/stochastic.cpp")
-  gen <- dust(path, quiet = TRUE)
+  ex <- example_logistic()
+  gen <- ex$generator
 
   np <- 10
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 200, v = 0.1)
+  pars <- list(r = c(0, 0.2), K = c(100, 200), v = 0.1)
   mod <- gen$new(pars, 0, np, seed = 1L)
   mod$set_stochastic_schedule(0:5)
-  mod$set_index(3)
+  mod$set_index(1)
 
   rng <- dust::dust_rng$new(n_streams = np, seed = 1L)
-  ## running draws 6 numbers per particle:
+  ## running draws 12 numbers per particle:
   y <- drop(mod$run(10))
-  expect_equal(y, apply(exp(rng$normal(6, 0, 0.1)), 2, prod))
+  r <- array(rng$normal(2 * 6, 0, 0.1), c(2, 6, np))
+  expect_equal(y, apply(exp(r[1, , ]), 2, prod))
 
   ## reset and rerun, draw another set:
   mod$update_state(time = 0, pars = pars, set_initial_state = TRUE)
   y <- drop(mod$run(10))
-  expect_equal(y, apply(exp(rng$normal(6, 0, 0.1)), 2, prod))
+  r <- array(rng$normal(2 * 6, 0, 0.1), c(2, 6, np))
+  expect_equal(y, apply(exp(r[1, , ]), 2, prod))
 
   mod$update_state(time = 0, pars = pars, set_initial_state = TRUE)
   mod$set_stochastic_schedule(NULL)
@@ -406,7 +411,7 @@ test_that("Can update state when multi-threaded", {
   mod <- ex$generator$new(ex$pars, 0, np, n_threads = 1)
   y <- mod$run(3)
 
-  new_pars <- list(r1 = 0.5, r2 = 0.7, K1 = 200, K2 = 200)
+  new_pars <- list(r = c(0.5, 0.7), K = c(200, 200))
 
   # update all particles to have the same state
   mod$update_state(pars = new_pars, time = 2, state = c(1, 2))
@@ -453,8 +458,9 @@ test_that("Can get openmp support", {
 
 
 test_that("can get rng state", {
-  gen <- dust(dust_file("examples/ode/stochastic.cpp"), quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 200, v = 0.1)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   np <- 10
   mod <- gen$new(pars, 0, np, seed = 1L)
   rng <- mod$rng_state()
@@ -471,8 +477,9 @@ test_that("can get rng state", {
 
 
 test_that("can set rng state into model", {
-  gen <- dust(dust_file("examples/ode/stochastic.cpp"), quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 200, v = 0.1)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- list(r = c(0.1, 0.2), K = c(100, 200), v = 0.1)
   mod1 <- gen$new(pars, 0, 10, seed = 1L)
   mod2 <- gen$new(pars, 0, 10, seed = 2L)
   mod1$set_stochastic_schedule(0:10)
@@ -486,8 +493,9 @@ test_that("can set rng state into model", {
 
 
 test_that("Can get information about steps", {
-  gen <- dust(dust_file("examples/ode/stochastic.cpp"), quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 200, v = 0.5)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- list(r = c(0.1, 0.2), K = c(100, 200), v = 0.5)
   n_particles <- 5L
   control <- dust_ode_control(debug_record_step_times = TRUE)
   mod <- gen$new(pars, 0L, n_particles, ode_control = control, seed = 1L)
@@ -518,8 +526,9 @@ test_that("Can get information about steps", {
 
 
 test_that("information about steps survives shuffle", {
-  gen <- dust(dust_file("examples/ode/stochastic.cpp"), quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 200, v = 0.5)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- list(r = c(0.1, 0.2), K = c(100, 200), v = 0.5)
   n_particles <- 5L
   control <- dust_ode_control(debug_record_step_times = TRUE)
 
@@ -611,13 +620,15 @@ test_that("check that simulate times are reasonable", {
 
 test_that("Can save a model and reload it after repair", {
   skip_if_not_installed("callr")
+  ## We need to recompile a model here from scratch; I can't remember
+  ## if this is best if it's one that is not in the package though?
   path <- dust_file("examples/ode/logistic.cpp")
   gen <- dust(path, quiet = TRUE)
 
   tmp_rds <- tempfile()
   suppressWarnings(saveRDS(gen, tmp_rds))
 
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  pars <- list(r = c(0.1, 0.2), K = c(100, 100))
 
   ## Fails to load because the package environment is not present, and
   ## so can't find the alloc function
@@ -691,10 +702,9 @@ test_that("can retrieve empty params", {
   ex <- example_logistic()
   mod <- ex$generator$new(ex$pars, 0, 10)
   expect_mapequal(mod$param(),
-                  list(r1 = list(required = TRUE),
-                       K1 = list(required = TRUE),
-                       r2 = list(required = TRUE),
-                       K2 = list(required = TRUE)))
+                  list(r = list(required = TRUE),
+                       K = list(required = TRUE),
+                       v = list(required = FALSE)))
 })
 
 

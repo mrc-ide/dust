@@ -76,7 +76,7 @@ bool validate_logical(SEXP x, bool default_value, const char * name) {
     return default_value;
   }
   if (TYPEOF(x) != LGLSXP || LENGTH(x) != 1) { // TODO: ideally check not missing
-    cpp11::stop("'%s' must be a non-missing scalar logical");
+    cpp11::stop("'%s' must be a non-missing scalar logical", name);
   }
   return INTEGER(x)[0];
 }

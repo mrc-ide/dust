@@ -237,6 +237,7 @@ public:
         solver_[i].set_state(y);
       }
     }
+    reset_errors();
   }
 
   void set_pars(const std::vector<pars_type>& pars, bool set_initial_state) {

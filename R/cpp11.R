@@ -96,6 +96,86 @@ dust_rng_state <- function(ptr, is_float) {
   .Call(`_dust_dust_rng_state`, ptr, is_float)
 }
 
+dust_logistic_capabilities <- function() {
+  .Call(`_dust_dust_logistic_capabilities`)
+}
+
+dust_logistic_gpu_info <- function() {
+  .Call(`_dust_dust_logistic_gpu_info`)
+}
+
+dust_ode_logistic_alloc <- function(r_pars, pars_multi, r_time, r_n_particles, n_threads, r_seed, deterministic, gpu_config, ode_control) {
+  .Call(`_dust_dust_ode_logistic_alloc`, r_pars, pars_multi, r_time, r_n_particles, n_threads, r_seed, deterministic, gpu_config, ode_control)
+}
+
+dust_ode_logistic_run <- function(ptr, r_time_end) {
+  .Call(`_dust_dust_ode_logistic_run`, ptr, r_time_end)
+}
+
+dust_ode_logistic_simulate <- function(ptr, time_end) {
+  .Call(`_dust_dust_ode_logistic_simulate`, ptr, time_end)
+}
+
+dust_ode_logistic_set_index <- function(ptr, r_index) {
+  .Call(`_dust_dust_ode_logistic_set_index`, ptr, r_index)
+}
+
+dust_ode_logistic_update_state <- function(ptr, r_pars, r_state, r_time, r_set_initial_state, index, reset_step_size) {
+  .Call(`_dust_dust_ode_logistic_update_state`, ptr, r_pars, r_state, r_time, r_set_initial_state, index, reset_step_size)
+}
+
+dust_ode_logistic_state <- function(ptr, r_index) {
+  .Call(`_dust_dust_ode_logistic_state`, ptr, r_index)
+}
+
+dust_ode_logistic_time <- function(ptr) {
+  .Call(`_dust_dust_ode_logistic_time`, ptr)
+}
+
+dust_ode_logistic_reorder <- function(ptr, r_index) {
+  invisible(.Call(`_dust_dust_ode_logistic_reorder`, ptr, r_index))
+}
+
+dust_ode_logistic_resample <- function(ptr, r_weights) {
+  .Call(`_dust_dust_ode_logistic_resample`, ptr, r_weights)
+}
+
+dust_ode_logistic_rng_state <- function(ptr, first_only, last_only) {
+  .Call(`_dust_dust_ode_logistic_rng_state`, ptr, first_only, last_only)
+}
+
+dust_ode_logistic_set_rng_state <- function(ptr, rng_state) {
+  .Call(`_dust_dust_ode_logistic_set_rng_state`, ptr, rng_state)
+}
+
+dust_ode_logistic_set_data <- function(ptr, data, shared) {
+  .Call(`_dust_dust_ode_logistic_set_data`, ptr, data, shared)
+}
+
+dust_ode_logistic_compare_data <- function(ptr) {
+  .Call(`_dust_dust_ode_logistic_compare_data`, ptr)
+}
+
+dust_ode_logistic_filter <- function(ptr, time_end, save_trajectories, time_snapshot, min_log_likelihood) {
+  .Call(`_dust_dust_ode_logistic_filter`, ptr, time_end, save_trajectories, time_snapshot, min_log_likelihood)
+}
+
+dust_ode_logistic_set_n_threads <- function(ptr, n_threads) {
+  invisible(.Call(`_dust_dust_ode_logistic_set_n_threads`, ptr, n_threads))
+}
+
+dust_ode_logistic_n_state <- function(ptr) {
+  .Call(`_dust_dust_ode_logistic_n_state`, ptr)
+}
+
+dust_ode_logistic_set_stochastic_schedule <- function(ptr, time) {
+  invisible(.Call(`_dust_dust_ode_logistic_set_stochastic_schedule`, ptr, time))
+}
+
+dust_ode_logistic_ode_statistics <- function(ptr) {
+  .Call(`_dust_dust_ode_logistic_ode_statistics`, ptr)
+}
+
 cpp_openmp_info <- function() {
   .Call(`_dust_cpp_openmp_info`)
 }

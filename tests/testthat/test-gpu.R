@@ -981,6 +981,19 @@ test_that("can update parameters and time, resetting state", {
 })
 
 
+test_that("can update parameters and time, resetting state", {
+  np <- 5
+  len <- 3
+  gen <- dust_example("variable")
+  p <- list(list(len = len, sd = 1), list(len = len, sd = 10))
+
+  mod <- gen$new(p, 0, np, seed = 1L, pars_multi = TRUE, gpu_config = 0L)
+  expect_error(
+    mod$update_state(state = mod$state()[-3, , ], index = c(1, 2)),
+    "Can't use index with gpu models")
+})
+
+
 test_that("Particles are initialised based on time", {
   skip_for_compilation()
   path <- "examples/init.cpp"

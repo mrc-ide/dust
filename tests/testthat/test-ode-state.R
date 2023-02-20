@@ -1,7 +1,7 @@
 test_that("Can update time", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 10
   initial_time <- 1
   mod <- gen$new(pars, initial_time, n_particles)
@@ -17,9 +17,9 @@ test_that("Can update time", {
 })
 
 test_that("Can only update time for all particles at once", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 5
   initial_time <- 1
   mod <- gen$new(pars, initial_time, n_particles)
@@ -30,9 +30,9 @@ test_that("Can only update time for all particles at once", {
 
 test_that(
   "Updating time does not reset state if set_initial_state is FALSE", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   initial_time <- 1
   mod <- gen$new(pars, initial_time, 5)
   res <- mod$run(5)
@@ -49,9 +49,9 @@ test_that(
 })
 
 test_that("Updating time resets statistics", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 5
   initial_time <- 1
   mod <- gen$new(pars, initial_time, n_particles)
@@ -63,9 +63,9 @@ test_that("Updating time resets statistics", {
 })
 
 test_that("Updating time does not reset state if new state is provided", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 5
   initial_time <- 1
   mod <- gen$new(pars, initial_time, n_particles)
@@ -78,9 +78,9 @@ test_that("Updating time does not reset state if new state is provided", {
 })
 
 test_that("'set_initial_state' cannot be TRUE unless 'state' is NULL", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 5
   initial_time <- 1
   mod <- gen$new(pars, initial_time, n_particles)
@@ -90,21 +90,25 @@ test_that("'set_initial_state' cannot be TRUE unless 'state' is NULL", {
 })
 
 test_that("Error if state vector does not have correct length", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 5
   mod <- gen$new(pars, 1, n_particles)
   expect_error(mod$update_state(state = c(1, 2, 3, 4, 5)),
                "Expected a vector of length 2 for 'state' but given 5")
   expect_error(mod$update_state(state = c(1, 2), index = 1),
                "Expected a vector of length 1 for 'state' but given 2")
+  expect_error(mod$update_state(state = c(1, 2), index = integer(0)),
+               "Expected at least one element in 'index'")
+  expect_error(mod$update_state(index = 1:5),
+               "Can't provide 'index' without providing 'state'")
 })
 
 test_that("Error if state matrix does not have correct dimensions", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 5
   mod <- gen$new(pars, 1, n_particles)
   # check wrong ncol
@@ -121,9 +125,9 @@ test_that("Error if state matrix does not have correct dimensions", {
 })
 
 test_that("Can update state with a vector", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 2
   mod <- gen$new(pars, 0, n_particles)
   res <- vapply(1:10, function(t) mod$run(t),
@@ -137,9 +141,9 @@ test_that("Can update state with a vector", {
 })
 
 test_that("Can update state with a matrix", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 3
   mod <- gen$new(pars, 0, n_particles)
   res <- vapply(1:10, function(t) mod$run(t),
@@ -156,9 +160,9 @@ test_that("Can update state with a matrix", {
 ## then we can adjust the checks to re-enable this.
 test_that("Output indexes ignored when updating by vector", {
   skip("currently disabled")
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 5
   mod <- gen$new(pars, 1, n_particles)
   mod$update_state(state = c(1, 1, 1))
@@ -167,9 +171,9 @@ test_that("Output indexes ignored when updating by vector", {
 
 test_that("Output indexes ignored when updating by matrix", {
   skip("currently disabled")
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 5
   mod <- gen$new(pars, 1, n_particles)
   mod$update_state(state = matrix(1, nrow = 3, ncol = 5))
@@ -178,11 +182,9 @@ test_that("Output indexes ignored when updating by matrix", {
 
 test_that("Can update state with a vector and index", {
   y0 <- c(1, 1)
-  r <- c(0.1, 0.2)
-  k <- c(100, 100)
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = r[1], r2 = r[2], K1 = k[1], K2 = k[2])
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 2
   mod <- gen$new(pars, 0, n_particles)
   res <- vapply(1:10, function(t) mod$run(t),
@@ -198,11 +200,9 @@ test_that("Can update state with a vector and index", {
 
 test_that("Can update state with a matrix and index", {
   y0 <- c(1, 1)
-  r <- c(0.1, 0.2)
-  k <- c(100, 100)
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = r[1], r2 = r[2], K1 = k[1], K2 = k[2])
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 3
   mod <- gen$new(pars, 0, n_particles)
   res <- vapply(1:10, function(t) mod$run(t),
@@ -217,11 +217,9 @@ test_that("Can update state with a matrix and index", {
 
 test_that("Updating state does not reset statistics", {
   y0 <- c(1, 1)
-  r <- c(0.1, 0.2)
-  k <- c(100, 100)
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = r[1], r2 = r[2], K1 = k[1], K2 = k[2])
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 2
   mod <- gen$new(pars, 0, n_particles)
   res <- mod$run(2)
@@ -231,29 +229,20 @@ test_that("Updating state does not reset statistics", {
 })
 
 test_that("Nothing happens if any arguments are invalid", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  initial_pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  ex <- example_logistic()
+  gen <- ex$generator
+  initial_pars <- ex$pars
   n_particles <- 5
   initial_time <- 1
   mod <- gen$new(initial_pars, initial_time, n_particles)
   initial_state <- mod$state()
-  expect_error(mod$update_state(state = c(1, 2, 3, 4),
-                                time = 5,
-                                pars = list(r1 = 0.1,
-                                            r2 = 0.2,
-                                            K1 = 200,
-                                            K2 = 200)),
+  pars <- ex$pars
+  expect_error(mod$update_state(state = c(1, 2, 3, 4), time = 5, pars = pars),
                "Expected a vector of length 2 for 'state' but given 4")
   expect_equal(mod$time(), initial_time)
   expect_equal(mod$pars(), initial_pars)
 
-  expect_error(mod$update_state(state = c(1, 2),
-                                time = c(1, 2),
-                                pars = list(r1 = 0.1,
-                                            r2 = 0.2,
-                                            K1 = 200,
-                                            K2 = 200)),
+  expect_error(mod$update_state(state = c(1, 2), time = c(1, 2), pars = pars),
                "Expected 'time' to be scalar")
   expect_equal(mod$state(), initial_state)
   expect_equal(mod$pars(), initial_pars)
@@ -266,12 +255,11 @@ test_that("Nothing happens if any arguments are invalid", {
 })
 
 test_that("Can update pars", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
+  ex <- example_logistic()
+  gen <- ex$generator
   initial_r <- c(0.1, 0.2)
   initial_k <- c(100, 100)
-  initial_pars <- list(r1 = initial_r[[1]], r2 = initial_r[[2]],
-                       K1 = initial_k[[1]], K2 = initial_k[[2]])
+  initial_pars <- list(r = initial_r, K = initial_k)
   n_particles <- 5
   initial_time <- 0
   mod <- gen$new(initial_pars, initial_time, n_particles)
@@ -280,8 +268,7 @@ test_that("Can update pars", {
   expect_equal(mod$state(), y1)
   expect_equal(analytic, y1[1:2, 1, drop = FALSE], tolerance = 1e-7)
   new_k <- c(200, 200)
-  new_pars <- list(r1 = initial_r[[1]], r2 = initial_r[[2]],
-                   K1 = new_k[[1]], K2 = new_k[[2]])
+  new_pars <- list(r = initial_r, K = new_k)
   mod$update_state(pars = new_pars, set_initial_state = FALSE)
   expect_equal(mod$state(), y1)
   expect_equal(mod$time(), 1)
@@ -307,29 +294,27 @@ test_that("Can update pars", {
 
 ## TODO: double check we have the same behaviour here as dust
 test_that("Updating pars set initial state if required", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
+  ex <- example_logistic()
+  gen <- ex$generator
   initial_r <- c(0.1, 0.2)
   initial_k <- c(100, 100)
-  initial_pars <- list(r1 = initial_r[[1]], r2 = initial_r[[2]],
-                       K1 = initial_k[[1]], K2 = initial_k[[2]])
+  initial_pars <- list(r = initial_r, K = initial_k)
   n_particles <- 5
   initial_time <- 0
   mod <- gen$new(initial_pars, initial_time, n_particles)
   y1 <- mod$run(2)
   expect_equal(mod$state(), y1)
   new_k <- c(200, 200)
-  new_pars <- list(r1 = initial_r[[1]], r2 = initial_r[[2]],
-                   K1 = new_k[[1]], K2 = new_k[[2]])
+  new_pars <- list(r = initial_r, K = new_k)
   mod$update_state(pars = new_pars, set_initial_state = TRUE)
   expect_equal(mod$pars(), new_pars)
   expect_equal(mod$state(1:2), matrix(1, ncol = n_particles, nrow = 2))
 })
 
 test_that("Error if particle re-ordering index is wrong length", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 5
   initial_time <- 1
   mod <- gen$new(pars, initial_time, n_particles)
@@ -339,9 +324,9 @@ test_that("Error if particle re-ordering index is wrong length", {
 })
 
 test_that("Error if particle re-ordering index is out of range", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 5
   initial_time <- 1
   mod <- gen$new(pars, initial_time, n_particles)
@@ -350,9 +335,9 @@ test_that("Error if particle re-ordering index is out of range", {
 })
 
 test_that("Can reorder particles", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 5
   initial_time <- 1
   mod <- gen$new(pars, initial_time, n_particles)
@@ -379,9 +364,9 @@ test_that("Can reorder particles", {
 })
 
 test_that("Can reorder particles with duplication", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 5
   initial_time <- 1
   mod <- gen$new(pars, initial_time, n_particles)
@@ -409,9 +394,9 @@ test_that("Can reorder particles with duplication", {
 })
 
 test_that("Can reorder particles mid-flight", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 5
   initial_time <- 1
   y0 <- matrix(as.numeric(1:10), ncol = 5, nrow = 2)
@@ -437,9 +422,9 @@ test_that("Can reorder particles mid-flight", {
 })
 
 test_that("Can update time with integer value", {
-  path <- dust_file("examples/ode/logistic.cpp")
-  gen <- dust(path, quiet = TRUE)
-  pars <- list(r1 = 0.1, r2 = 0.2, K1 = 100, K2 = 100)
+  ex <- example_logistic()
+  gen <- ex$generator
+  pars <- ex$pars
   n_particles <- 10
   initial_time <- 1
   mod <- gen$new(pars, initial_time, n_particles)
