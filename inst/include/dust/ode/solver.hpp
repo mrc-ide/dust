@@ -50,6 +50,14 @@ public:
     return t_;
   }
 
+  size_t n_variables() const {
+    return n_variables_;
+  }
+
+  size_t n_output() const {
+    return n_output_;
+  }
+
   control ctl() const {
     return ctl_;
   }

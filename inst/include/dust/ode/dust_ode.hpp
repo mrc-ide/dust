@@ -50,15 +50,15 @@ public:
   }
 
   size_t n_state_full() const {
-    return m_.n_variables() + m_.n_output();
+    return solver_[0].n_variables() + solver_[0].n_output();
   }
 
   size_t n_state() const {
     return index_.size();
   }
 
-  size_t n_variables() {
-    return m_.n_variables();
+  size_t n_variables() const {
+    return solver_[0].n_variables();
   }
 
   // Until we support multiple parameter sets, this is always zero
