@@ -31,12 +31,11 @@ public:
       : n_particles_(n_particles),
         n_threads_(n_threads),
         shape_({n_particles}),
-        m_(model_type(pars)),
         rng_(n_particles_ + 1, seed, false), // +1 for filter
-        errors_(n_particles){
-    auto y = m_.initial(time);
+        errors_(n_particles) {
+    const auto m = model_type(pars);
     for (size_t i = 0; i < n_particles; ++i) {
-      solver_.push_back(dust::ode::solver<model_type>(m_, time, y, ctl));
+      solver_.push_back(dust::ode::solver<model_type>(m, time, ctl));
     }
     initialise_index();
   }
@@ -50,15 +49,15 @@ public:
   }
 
   size_t n_state_full() const {
-    return m_.n_variables() + m_.n_output();
+    return solver_[0].n_variables() + solver_[0].n_output();
   }
 
   size_t n_state() const {
     return index_.size();
   }
 
-  size_t n_variables() {
-    return m_.n_variables();
+  size_t n_variables() const {
+    return solver_[0].n_variables();
   }
 
   // Until we support multiple parameter sets, this is always zero
@@ -219,23 +218,12 @@ public:
   }
 
   void set_pars(const pars_type& pars, bool set_initial_state) {
-    m_ = model_type(pars);
+    const auto m = model_type(pars);
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
     for (size_t i = 0; i < n_particles_; ++i) {
-      solver_[i].set_model(m_);
-    }
-
-    if (set_initial_state) {
-      const auto t = solver_[0].time();
-      auto y = m_.initial(t);
-#ifdef _OPENMP
-#pragma omp parallel for schedule(static) num_threads(n_threads_)
-#endif
-      for (size_t i = 0; i < n_particles_; ++i) {
-        solver_[i].set_state(y);
-      }
+      solver_[i].set_model(m, set_initial_state);
     }
     reset_errors();
   }
@@ -312,7 +300,6 @@ private:
   size_t n_particles_;
   size_t n_threads_;
   std::vector<size_t> shape_;
-  model_type m_;
   std::vector<size_t> index_;
   dust::random::prng<rng_state_type> rng_;
   dust::utils::openmp_errors errors_;
