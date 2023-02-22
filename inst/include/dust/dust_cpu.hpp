@@ -399,7 +399,9 @@ private:
 
   void initialise(const pars_type& pars, const size_t time,
                   const size_t n_particles, bool set_state) {
-    const size_t n = particles_.size() == 0 ? 0 : n_state_full();
+    const bool first_time = particles_.empty();
+    // TODO: don't require or use n_particles
+    const size_t n = first_time ? 0 : n_state_full();
     dust::particle<T> p(pars, time);
     if (n > 0 && p.size() != n) {
       std::stringstream msg;
@@ -409,7 +411,7 @@ private:
       throw std::invalid_argument(msg.str());
     }
 
-    if (particles_.empty()) {
+    if (first_time) {
       particles_.reserve(n_particles);
       for (size_t i = 0; i < n_particles; ++i) {
         particles_.push_back(p);
@@ -427,7 +429,8 @@ private:
 
   void initialise(const std::vector<pars_type>& pars, const size_t time,
                   const size_t n_particles, bool set_state) {
-    size_t n = particles_.size() == 0 ? 0 : n_state_full();
+    const bool first_time = particles_.empty();
+    size_t n = first_time ? 0 : n_state_full();
     std::vector<dust::particle<T>> p;
     for (size_t i = 0; i < n_pars_; ++i) {
       p.push_back(dust::particle<T>(pars[i], time));
@@ -441,7 +444,7 @@ private:
       n = p.back().size(); // ensures all particles have same size
     }
 
-    if (particles_.empty()) {
+    if (first_time) {
       particles_.reserve(n_particles * n_pars_);
       for (size_t i = 0; i < n_pars_; ++i) {
         for (size_t j = 0; j < n_particles; ++j) {

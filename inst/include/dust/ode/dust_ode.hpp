@@ -302,10 +302,9 @@ private:
   dust::utils::openmp_errors errors_;
   ode::control control_;
 
-  // TODO: no need to pass through n_particles here (or in dust_cpu)
-  // TODO: use empty() for first conditional (and in dust_cpu)
   void initialise(const pars_type& pars, const double time, bool set_state) {
-    const size_t n = solver_.size() == 0 ? 0 : n_state_full();
+    const bool first_time = solver_.empty();
+    const size_t n = first_time ? 0 : n_state_full();
     const auto m = model_type(pars);
 
     const auto m_size = m.n_variables() + m.n_output();
@@ -317,7 +316,7 @@ private:
       throw std::invalid_argument(msg.str());
     }
 
-    if (solver_.empty()) {
+    if (first_time) {
       solver_.reserve(n_particles_);
       for (size_t i = 0 ; i < n_particles_; ++i) {
         solver_.push_back(dust::ode::solver<model_type>(m, time, control_));
