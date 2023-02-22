@@ -30,18 +30,18 @@ public:
            const ode::control ctl, const std::vector<rng_int_type>& seed)
       : n_particles_(n_particles),
         n_threads_(n_threads),
-        shape_({n_particles}),
         rng_(n_particles_ + 1, seed, false), // +1 for filter
-        errors_(n_particles) {
-    const auto m = model_type(pars);
-    for (size_t i = 0; i < n_particles; ++i) {
-      solver_.push_back(dust::ode::solver<model_type>(m, time, ctl));
-    }
+        errors_(n_particles),
+        control_(ctl) {
+    initialise(pars, time, true);
     initialise_index();
+    shape_ = {n_particles};
   }
 
+  // This is called exactly once, for pulling out debug step times;
+  // can we avoid that? Sniff length of the return value perhaps?
   ode::control ctl() {
-    return solver_[0].ctl();
+    return control_;
   }
 
   size_t n_particles() {
@@ -205,7 +205,7 @@ public:
     }
   }
 
-  void initialise(bool reset_step_size) {
+  void initialise_solver(bool reset_step_size) {
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
@@ -218,14 +218,7 @@ public:
   }
 
   void set_pars(const pars_type& pars, bool set_initial_state) {
-    const auto m = model_type(pars);
-#ifdef _OPENMP
-#pragma omp parallel for schedule(static) num_threads(n_threads_)
-#endif
-    for (size_t i = 0; i < n_particles_; ++i) {
-      solver_[i].set_model(m, set_initial_state);
-    }
-    reset_errors();
+    initialise(pars, time(), set_initial_state);
   }
 
   void set_pars(const std::vector<pars_type>& pars, bool set_initial_state) {
@@ -246,7 +239,7 @@ public:
     for (size_t i = 0; i < n_particles_; ++i) {
       solver_[i].swap();
     }
-    initialise(false);
+    initialise_solver(false);
   }
 
   void statistics(std::vector<size_t> &all_statistics) {
@@ -296,6 +289,10 @@ public:
   }
 
 private:
+  // delete move and copy to avoid accidentally using them
+  dust_ode(const dust_ode &) = delete;
+  dust_ode(dust_ode &&) = delete;
+
   std::vector<dust::ode::solver<model_type>> solver_;
   size_t n_particles_;
   size_t n_threads_;
@@ -303,6 +300,40 @@ private:
   std::vector<size_t> index_;
   dust::random::prng<rng_state_type> rng_;
   dust::utils::openmp_errors errors_;
+  ode::control control_;
+
+  // TODO: no need to pass through n_particles here (or in dust_cpu)
+  // TODO: use empty() for first conditional (and in dust_cpu)
+  void initialise(const pars_type& pars, const double time, bool set_state) {
+    const size_t n = solver_.size() == 0 ? 0 : n_state_full();
+    const auto m = model_type(pars);
+
+    const auto m_size = m.n_variables() + m.n_output();
+    if (n > 0 && m_size != n) {
+      std::stringstream msg;
+      msg << "'pars' created inconsistent state size: " <<
+        "expected length " << n << " but created length " <<
+        m_size;
+      throw std::invalid_argument(msg.str());
+    }
+
+    if (solver_.empty()) {
+      solver_.reserve(n_particles_);
+      for (size_t i = 0 ; i < n_particles_; ++i) {
+        solver_.push_back(dust::ode::solver<model_type>(m, time, control_));
+      }
+      // shared_ = {pars.shared};
+    } else {
+#ifdef _OPENMP
+      #pragma omp parallel for schedule(static) num_threads(n_threads_)
+#endif
+      for (size_t i = 0; i < n_particles_; ++i) {
+        solver_[i].set_model(m, set_state);
+      }
+      // shared_[0] = pars.shared;
+    }
+    reset_errors();
+  }
 };
 
 }

@@ -48,6 +48,7 @@ public:
     n_threads_(n_threads),
     rng_(n_particles_total_ + 1, seed, deterministic), // +1 for filter
     errors_(n_particles_total_) {
+    // TODO: don't pass n_particles here, change in dust_gpu too?
     initialise(pars, time, n_particles, true);
     initialise_index();
     shape_ = {n_particles};
@@ -395,6 +396,7 @@ private:
 
   std::vector<size_t> index_;
   std::vector<dust::particle<T>> particles_;
+  // TODO: not clear why this is saved, I don't see where it is used.
   std::vector<dust::shared_ptr<T>> shared_;
 
   void initialise(const pars_type& pars, const size_t time,
