@@ -40,11 +40,9 @@ cpp11::list dust_cpu_alloc(cpp11::list r_pars, bool pars_multi,
 
   cpp11::sexp info;
   if (pars_multi) {
-    const size_t t0 = 0;
-    const auto time = dust::r::validate_time<size_t>(r_time, t0, "time");
     auto inputs =
-      dust::r::process_inputs_multi<T>(r_pars, time, r_n_particles,
-                                       n_threads, r_seed);
+      dust::r::process_inputs_multi<T, size_t>(r_pars, r_time, r_n_particles,
+                                               n_threads, r_seed);
     info = inputs.info;
     d = new dust_cpu<T>(inputs.pars, inputs.time, inputs.n_particles,
                         inputs.n_threads, inputs.seed, deterministic,
@@ -84,10 +82,8 @@ cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi,
   dust_gpu<T> *d = nullptr;
   cpp11::sexp info;
   if (pars_multi) {
-    const size_t t0 = 0;
-    const auto time = dust::r::validate_time<size_t>(r_time, t0, "time");
     auto inputs =
-      dust::r::process_inputs_multi<T>(r_pars, time, r_n_particles,
+      dust::r::process_inputs_multi<T, size_t>(r_pars, r_time, r_n_particles,
                                        n_threads, r_seed);
     info = inputs.info;
     d = new dust_gpu<T>(inputs.pars, inputs.time, inputs.n_particles,
