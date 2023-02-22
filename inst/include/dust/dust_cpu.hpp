@@ -48,8 +48,7 @@ public:
     n_threads_(n_threads),
     rng_(n_particles_total_ + 1, seed, deterministic), // +1 for filter
     errors_(n_particles_total_) {
-    // TODO: don't pass n_particles here, change in dust_gpu too?
-    initialise(pars, time, n_particles, true);
+    initialise(pars, time, true);
     initialise_index();
     shape_ = {n_particles};
   }
@@ -66,7 +65,7 @@ public:
     n_threads_(n_threads),
     rng_(n_particles_total_ + 1, seed, deterministic),  // +1 for filter
     errors_(n_particles_total_) {
-    initialise(pars, time, n_particles_each_, true);
+    initialise(pars, time, true);
     initialise_index();
     // constructing the shape here is harder than above.
     if (n_particles > 0) {
@@ -78,13 +77,11 @@ public:
   }
 
   void set_pars(const pars_type& pars, bool set_state) {
-    const size_t n_particles = particles_.size();
-    initialise(pars, time(), n_particles, set_state);
+    initialise(pars, time(), set_state);
   }
 
   void set_pars(const std::vector<pars_type>& pars, bool set_state) {
-    const size_t n_particles = particles_.size();
-    initialise(pars, time(), n_particles / pars.size(), set_state);
+    initialise(pars, time(), set_state);
   }
 
   // It's the callee's responsibility to ensure this is the correct length:
@@ -397,10 +394,8 @@ private:
   std::vector<size_t> index_;
   std::vector<dust::particle<T>> particles_;
 
-  void initialise(const pars_type& pars, const size_t time,
-                  const size_t n_particles, bool set_state) {
+  void initialise(const pars_type& pars, const size_t time, bool set_state) {
     const bool first_time = particles_.empty();
-    // TODO: don't require or use n_particles
     const size_t n = first_time ? 0 : n_state_full();
     dust::particle<T> p(pars, time);
     if (n > 0 && p.size() != n) {
@@ -412,15 +407,15 @@ private:
     }
 
     if (first_time) {
-      particles_.reserve(n_particles);
-      for (size_t i = 0; i < n_particles; ++i) {
+      particles_.reserve(n_particles_total_);
+      for (size_t i = 0; i < n_particles_total_; ++i) {
         particles_.push_back(p);
       }
     } else {
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
-      for (size_t i = 0; i < n_particles; ++i) {
+      for (size_t i = 0; i < n_particles_total_; ++i) {
         particles_[i].set_pars(p, set_state);
       }
     }
@@ -428,7 +423,7 @@ private:
   }
 
   void initialise(const std::vector<pars_type>& pars, const size_t time,
-                  const size_t n_particles, bool set_state) {
+                  bool set_state) {
     const bool first_time = particles_.empty();
     size_t n = first_time ? 0 : n_state_full();
     std::vector<dust::particle<T>> p;
@@ -445,9 +440,9 @@ private:
     }
 
     if (first_time) {
-      particles_.reserve(n_particles * n_pars_);
+      particles_.reserve(n_particles_total_);
       for (size_t i = 0; i < n_pars_; ++i) {
-        for (size_t j = 0; j < n_particles; ++j) {
+        for (size_t j = 0; j < n_particles_each_; ++j) {
           particles_.push_back(p[i]);
         }
       }
@@ -456,7 +451,7 @@ private:
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
       for (size_t i = 0; i < n_particles_total_; ++i) {
-        particles_[i].set_pars(p[i / n_particles], set_state);
+        particles_[i].set_pars(p[i / n_particles_each_], set_state);
       }
     }
     reset_errors();
