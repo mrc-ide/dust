@@ -27,13 +27,14 @@ public:
 
   dust_ode(const pars_type &pars, const double time,
            const size_t n_particles, const size_t n_threads,
-           const ode::control ctl, const std::vector<rng_int_type>& seed)
+           const ode::control ctl, const std::vector<rng_int_type>& seed,
+           bool deterministic)
     : n_pars_(0),
       n_particles_each_(n_particles),
       n_particles_total_(n_particles),
       pars_are_shared_(true),
       n_threads_(n_threads),
-      rng_(n_particles_total_ + 1, seed, false), // +1 for filter
+      rng_(n_particles_total_ + 1, seed, deterministic), // +1 for filter
       errors_(n_particles),
       control_(ctl) {
     initialise(pars, time, true);
@@ -44,13 +45,14 @@ public:
   dust_ode(const std::vector<pars_type>& pars, const double time,
            const size_t n_particles, const size_t n_threads,
            const ode::control ctl, const std::vector<rng_int_type>& seed,
+           bool deterministic,
            const std::vector<size_t>& shape)
     : n_pars_(pars.size()),
       n_particles_each_(n_particles == 0 ? 1 : n_particles),
       n_particles_total_(n_particles_each_ * pars.size()),
       pars_are_shared_(n_particles != 0),
       n_threads_(n_threads),
-      rng_(n_particles_total_ + 1, seed, false),  // +1 for filter
+      rng_(n_particles_total_ + 1, seed, deterministic),  // +1 for filter
       errors_(n_particles_total_),
       control_(ctl) {
     initialise(pars, time, true);
@@ -106,6 +108,10 @@ public:
 
   void set_n_threads(size_t n_threads) {
     n_threads_ = n_threads;
+  }
+
+  bool deterministic() const {
+    return rng_.deterministic();
   }
 
   void set_stochastic_schedule(const std::vector<double>& time) {
