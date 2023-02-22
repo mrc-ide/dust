@@ -273,7 +273,7 @@ public:
   }
 
   size_t n_particles() const {
-    return particles_.size();
+    return n_particles_total_;
   }
 
   size_t n_state() const {

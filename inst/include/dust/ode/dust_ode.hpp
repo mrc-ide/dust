@@ -28,11 +28,14 @@ public:
   dust_ode(const pars_type &pars, const double time,
            const size_t n_particles, const size_t n_threads,
            const ode::control ctl, const std::vector<rng_int_type>& seed)
-      : n_particles_(n_particles),
-        n_threads_(n_threads),
-        rng_(n_particles_ + 1, seed, false), // +1 for filter
-        errors_(n_particles),
-        control_(ctl) {
+    : n_pars_(0),
+      n_particles_each_(n_particles),
+      n_particles_total_(n_particles),
+      pars_are_shared_(true),
+      n_threads_(n_threads),
+      rng_(n_particles_total_ + 1, seed, false), // +1 for filter
+      errors_(n_particles),
+      control_(ctl) {
     initialise(pars, time, true);
     initialise_index();
     shape_ = {n_particles};
@@ -44,8 +47,8 @@ public:
     return control_;
   }
 
-  size_t n_particles() {
-    return n_particles_;
+  size_t n_particles() const {
+    return n_particles_total_;
   }
 
   size_t n_state_full() const {
@@ -86,7 +89,7 @@ public:
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
-    for (size_t i = 0; i < n_particles_; ++i) {
+    for (size_t i = 0; i < solver_.size(); ++i) {
       solver_[i].set_stochastic_schedule(time);
     }
   }
@@ -112,7 +115,7 @@ public:
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
-    for (size_t i = 0; i < n_particles_; ++i) {
+    for (size_t i = 0; i < solver_.size(); ++i) {
       try {
         solver_[i].solve(time_end, rng_.state(i));
       } catch (std::exception const& e) {
@@ -129,7 +132,7 @@ public:
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
-    for (size_t i = 0; i < n_particles(); ++i) {
+    for (size_t i = 0; i < solver_.size(); ++i) {
       try {
         for (size_t t = 0; t < n_time; ++t) {
           solver_[i].solve(time_end[t], rng_.state(i));
@@ -149,7 +152,7 @@ public:
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
-    for (size_t i = 0; i < n_particles_; ++i) {
+    for (size_t i = 0; i < solver_.size(); ++i) {
       solver_[i].state(it + i * n_state_full());
     }
   }
@@ -159,7 +162,7 @@ public:
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
-    for (size_t i = 0; i < n_particles_; ++i) {
+    for (size_t i = 0; i < solver_.size(); ++i) {
       solver_[i].state(index_, it + i * n_state());
     }
   }
@@ -170,7 +173,7 @@ public:
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
-    for (size_t i = 0; i < n_particles_; ++i) {
+    for (size_t i = 0; i < solver_.size(); ++i) {
       solver_[i].state(index, it + i * index.size());
     }
   }
@@ -179,23 +182,24 @@ public:
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
-    for (size_t i = 0; i < n_particles_; ++i) {
+    for (size_t i = 0; i < solver_.size(); ++i) {
       solver_[i].set_time(time);
     }
   }
 
   void set_state(const std::vector<real_type>& state,
                  const std::vector<size_t>& index) {
+    const size_t n_particles = solver_.size();
     const bool use_index = index.size() > 0;
     const size_t n_state = use_index ? index.size() : n_variables();
-    const bool individual = state.size() == n_state * n_particles_;
-    const size_t n = individual ? 1 : n_particles_; // really n_particles_each_
+    const bool individual = state.size() == n_state * n_particles;
+    const size_t n = individual ? 1 : n_particles_each_;
     auto it = state.begin();
 
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
-    for (size_t i = 0; i < n_particles_; ++i) {
+    for (size_t i = 0; i < solver_.size(); ++i) {
       const auto it_i = it + (i / n) * n_state;
       if (use_index) {
         solver_[i].set_state(it_i, index);
@@ -209,7 +213,7 @@ public:
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
-    for (size_t i = 0; i < n_particles_; ++i) {
+    for (size_t i = 0; i < solver_.size(); ++i) {
       if (reset_step_size) {
         solver_[i].set_initial_step_size();
       }
@@ -229,14 +233,14 @@ public:
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
-    for (size_t i = 0; i < n_particles_; ++i) {
+    for (size_t i = 0; i < solver_.size(); ++i) {
       size_t j = index[i];
       solver_[i].set_state(solver_[j]);
     }
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
-    for (size_t i = 0; i < n_particles_; ++i) {
+    for (size_t i = 0; i < solver_.size(); ++i) {
       solver_[i].swap();
     }
     initialise_solver(false);
@@ -250,15 +254,15 @@ public:
     //
     // which requires knowing that we always have three statistics
     // (though we do rely on this in r/dust.hpp::dust_ode_statistics)
-    for (size_t i = 0; i < n_particles_; ++i) {
+    for (size_t i = 0; i < solver_.size(); ++i) {
       it = solver_[i].get_statistics(it);
     }
   }
 
   std::vector<std::vector<double>> debug_step_times() {
-    std::vector<std::vector<double>> ret(n_particles_);
+    std::vector<std::vector<double>> ret(solver_.size());
     // This could be in parallel safely
-    for (size_t i = 0; i < n_particles_; ++i) {
+    for (size_t i = 0; i < solver_.size(); ++i) {
       ret[i] = solver_[i].debug_step_times();
     }
     return ret;
@@ -293,13 +297,19 @@ private:
   dust_ode(const dust_ode &) = delete;
   dust_ode(dust_ode &&) = delete;
 
-  std::vector<dust::ode::solver<model_type>> solver_;
-  size_t n_particles_;
+  const size_t n_pars_; // 0 in the "single" case, >=1 otherwise
+  const size_t n_particles_each_; // Particles per parameter set
+  const size_t n_particles_total_; // Total number of particles
+  const bool pars_are_shared_; // Does the n_particles dimension exist in shape?
+  std::vector<size_t> shape_; // shape of output
   size_t n_threads_;
-  std::vector<size_t> shape_;
-  std::vector<size_t> index_;
   dust::random::prng<rng_state_type> rng_;
+  // data_
+  // data_is_shared_
   dust::utils::openmp_errors errors_;
+
+  std::vector<size_t> index_;
+  std::vector<dust::ode::solver<model_type>> solver_;
   ode::control control_;
 
   void initialise(const pars_type& pars, const double time, bool set_state) {
@@ -317,8 +327,8 @@ private:
     }
 
     if (first_time) {
-      solver_.reserve(n_particles_);
-      for (size_t i = 0 ; i < n_particles_; ++i) {
+      solver_.reserve(n_particles_total_);
+      for (size_t i = 0 ; i < n_particles_total_; ++i) {
         solver_.push_back(dust::ode::solver<model_type>(m, time, control_));
       }
       // shared_ = {pars.shared};
@@ -326,7 +336,7 @@ private:
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
-      for (size_t i = 0; i < n_particles_; ++i) {
+      for (size_t i = 0; i < n_particles_total_; ++i) {
         solver_[i].set_model(m, set_state);
       }
       // shared_[0] = pars.shared;
