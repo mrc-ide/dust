@@ -41,6 +41,29 @@ public:
     shape_ = {n_particles};
   }
 
+  dust_ode(const std::vector<pars_type>& pars, const double time,
+           const size_t n_particles, const size_t n_threads,
+           const ode::control ctl, const std::vector<rng_int_type>& seed,
+           const std::vector<size_t>& shape)
+    : n_pars_(pars.size()),
+      n_particles_each_(n_particles == 0 ? 1 : n_particles),
+      n_particles_total_(n_particles_each_ * pars.size()),
+      pars_are_shared_(n_particles != 0),
+      n_threads_(n_threads),
+      rng_(n_particles_total_ + 1, seed, false),  // +1 for filter
+      errors_(n_particles_total_),
+      control_(ctl) {
+    initialise(pars, time, true);
+    initialise_index();
+    // constructing the shape here is harder than above.
+    if (n_particles > 0) {
+      shape_.push_back(n_particles);
+    }
+    for (auto i : shape) {
+      shape_.push_back(i);
+    }
+  }
+
   // This is called exactly once, for pulling out debug step times;
   // can we avoid that? Sniff length of the return value perhaps?
   ode::control ctl() {
@@ -340,6 +363,42 @@ private:
         solver_[i].set_model(m, set_state);
       }
       // shared_[0] = pars.shared;
+    }
+    reset_errors();
+  }
+
+  void initialise(const std::vector<pars_type>& pars, const size_t time,
+                  bool set_state) {
+    const bool first_time = solver_.empty();
+    size_t n = first_time ? 0 : n_state_full();
+    std::vector<model_type> m;
+    for (size_t i = 0; i < n_pars_; ++i) {
+      m.push_back(model_type(pars[i]));
+      const auto m_size = m.back().n_variables() + m.back().n_output();
+      if (n > 0 && m_size != n) {
+        std::stringstream msg;
+        msg << "'pars' created inconsistent state size: " <<
+          "expected length " << n << " but parameter set " << i + 1 <<
+          " created length " << m_size;
+        throw std::invalid_argument(msg.str());
+      }
+      n = m_size; // ensures all particles have same size
+    }
+
+    if (first_time) {
+      solver_.reserve(n_particles_total_);
+      for (size_t i = 0; i < n_pars_; ++i) {
+        for (size_t j = 0; j < n_particles_each_; ++j) {
+          solver_.push_back(dust::ode::solver<model_type>(m[i], time, control_));
+        }
+      }
+    } else {
+#ifdef _OPENMP
+      #pragma omp parallel for schedule(static) num_threads(n_threads_)
+#endif
+      for (size_t i = 0; i < n_particles_total_; ++i) {
+        solver_[i].set_model(m[i / n_particles_each_], set_state);
+      }
     }
     reset_errors();
   }

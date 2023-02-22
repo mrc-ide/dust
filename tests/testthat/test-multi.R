@@ -728,3 +728,36 @@ test_that("share data across parameter sets", {
   mod$set_data(dust_data(d, multi = 3))
   expect_identical(ll, mod$compare_data())
 })
+
+
+test_that("Can trivial create multi-parameter-set ode object", {
+  ex <- example_logistic()
+  pars <- ex$pars
+  gen <- ex$generator
+  np <- 10
+  obj1 <- gen$new(pars, 0, np, seed = 1L, pars_multi = FALSE)
+  obj2 <- gen$new(list(pars), 0, np, seed = 1L, pars_multi = TRUE)
+
+  expect_identical(obj2$name(), obj1$name())
+  expect_identical(obj2$param(), obj1$param())
+  expect_identical(obj2$n_threads(), obj1$n_threads())
+  expect_identical(obj2$has_openmp(), obj1$has_openmp())
+  expect_identical(obj2$time(), obj1$time())
+
+  expect_equal(obj2$pars(), list(obj1$pars()))
+  expect_equal(obj2$info(), list(obj1$info()))
+  expect_equal(obj2$shape(), c(obj1$shape(), 1))
+
+  expect_identical(obj2$rng_state(), obj1$rng_state())
+
+  expect_identical(obj1$n_pars(), 0L)
+  expect_identical(obj2$n_pars(), 1L)
+
+  expect_identical(obj2$state(), array(obj1$state(), c(3, np, 1)))
+  expect_identical(obj2$state(1L), array(obj1$state(1L), c(1, np, 1)))
+
+  y1 <- obj1$run(1)
+  y2 <- obj2$run(1)
+  expect_equal(c(y1), c(y2))
+  expect_equal(dim(y2), c(3, 10, 1))
+})

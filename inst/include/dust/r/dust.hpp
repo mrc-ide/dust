@@ -124,7 +124,12 @@ cpp11::list dust_ode_alloc(cpp11::list r_pars, bool pars_multi,
   auto ctl = dust::r::validate_ode_control(r_ode_control);
 
   if (pars_multi) {
-    cpp11::stop("pars_multi must be FALSE for ode models");
+    auto inputs =
+      dust::r::process_inputs_multi<T, double>(r_pars, r_time, r_n_particles, n_threads, r_seed);
+    info = inputs.info;
+    d = new dust_ode<T>(inputs.pars, inputs.time, inputs.n_particles,
+                        inputs.n_threads, ctl, inputs.seed, // + determinstic
+                        inputs.shape);
   } else {
     auto inputs =
       dust::r::process_inputs_single<T, double>(r_pars, r_time, r_n_particles, n_threads, r_seed);
