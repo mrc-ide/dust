@@ -66,15 +66,15 @@ public:
   // Until we support multiple parameter sets, this is always zero
   // (i.e., what dust uses when pars_multi = FALSE)
   size_t n_pars() const {
-    return 0;
+    return n_pars_;
   }
 
   size_t n_pars_effective() const {
-    return 1;
+    return n_pars_ == 0 ? 1 : n_pars_;
   }
 
   size_t pars_are_shared() const {
-    return true;
+    return pars_are_shared_;
   }
 
   void set_index(const std::vector<size_t>& index) {
