@@ -759,5 +759,5 @@ test_that("Can trivial create multi-parameter-set ode object", {
   y1 <- obj1$run(1)
   y2 <- obj2$run(1)
   expect_equal(c(y1), c(y2))
-  expect_equal(dim(y2), c(3, 10, 1))
+  expect_equal(dim(y2), c(3, np, 1))
 })

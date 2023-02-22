@@ -292,6 +292,29 @@ test_that("Can update pars", {
   expect_true(all(y2 == y3))
 })
 
+
+test_that("Error if parameters try to change model size", {
+  gen <- dust_example("logistic")
+  pars1 <- list(r = c(0.1, 0.2), K = c(100, 200))
+  pars2 <- list(r = c(0.1, 0.2, 0.3), K = c(100, 200, 300))
+
+  np <- 5
+  mod1 <- gen$new(pars1, 0, np)
+  mod2 <- gen$new(pars1, 0, np)
+  mod1$run(1)
+  mod2$run(1)
+
+  expect_error(
+    mod1$update_state(pars = pars2),
+    paste("'pars' created inconsistent state size:",
+          "expected length 3 but created length 4"),
+    fixed = TRUE)
+
+  expect_identical(mod1$pars(), pars1)
+  expect_identical(mod1$run(5), mod2$run(5)) # no change to internals
+})
+
+
 ## TODO: double check we have the same behaviour here as dust
 test_that("Updating pars set initial state if required", {
   ex <- example_logistic()
