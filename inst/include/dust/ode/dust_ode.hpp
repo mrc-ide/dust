@@ -249,7 +249,7 @@ public:
   }
 
   void set_pars(const std::vector<pars_type>& pars, bool set_initial_state) {
-    throw std::runtime_error("Multiparameter setting not yet supported");
+    initialise(pars, time(), set_initial_state);
   }
 
   void reorder(const std::vector<size_t>& index) {

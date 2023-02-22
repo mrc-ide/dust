@@ -761,3 +761,26 @@ test_that("Can trivial create multi-parameter-set ode object", {
   expect_equal(c(y1), c(y2))
   expect_equal(dim(y2), c(3, np, 1))
 })
+
+
+test_that("Can set parameters into a trivial multi-parmeter ode object", {
+  gen <- dust_example("logistic")
+
+  pars1 <- list(r = c(0.1, 0.2), K = c(100, 200))
+  pars2 <- list(r = c(0.3, 0.4), K = c(100, 200))
+
+  np <- 10
+  obj1 <- gen$new(pars1, 0, np, seed = 1L, pars_multi = FALSE)
+  obj2 <- gen$new(list(pars1), 0, np, seed = 1L, pars_multi = TRUE)
+
+  y1 <- obj1$run(1)
+  y2 <- obj2$run(1)
+  expect_equal(y2, array(y1, c(dim(y1), 1)))
+
+  obj1$update_state(pars = pars2)
+  obj2$update_state(pars = list(pars2))
+
+  y1 <- obj1$run(10)
+  y2 <- obj2$run(10)
+  expect_equal(y2, array(y1, c(dim(y1), 1)))
+})
