@@ -396,8 +396,6 @@ private:
 
   std::vector<size_t> index_;
   std::vector<dust::particle<T>> particles_;
-  // TODO: not clear why this is saved, I don't see where it is used.
-  std::vector<dust::shared_ptr<T>> shared_;
 
   void initialise(const pars_type& pars, const size_t time,
                   const size_t n_particles, bool set_state) {
@@ -416,7 +414,6 @@ private:
       for (size_t i = 0; i < n_particles; ++i) {
         particles_.push_back(p);
       }
-      shared_ = {pars.shared};
     } else {
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
@@ -424,7 +421,6 @@ private:
       for (size_t i = 0; i < n_particles; ++i) {
         particles_[i].set_pars(p, set_state);
       }
-      shared_[0] = pars.shared;
     }
     reset_errors();
   }
@@ -451,7 +447,6 @@ private:
         for (size_t j = 0; j < n_particles; ++j) {
           particles_.push_back(p[i]);
         }
-        shared_.push_back(pars[i].shared);
       }
     } else {
 #ifdef _OPENMP
@@ -459,9 +454,6 @@ private:
 #endif
       for (size_t i = 0; i < n_particles_total_; ++i) {
         particles_[i].set_pars(p[i / n_particles], set_state);
-      }
-      for (size_t i = 0; i < pars.size(); ++i) {
-        shared_[i] = pars[i].shared;
       }
     }
     reset_errors();
