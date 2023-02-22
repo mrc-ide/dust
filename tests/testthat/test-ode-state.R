@@ -301,17 +301,27 @@ test_that("Error if parameters try to change model size", {
   np <- 5
   mod1 <- gen$new(pars1, 0, np)
   mod2 <- gen$new(pars1, 0, np)
+  mod3 <- gen$new(list(pars1), 0, np, pars_multi = TRUE)
   mod1$run(1)
   mod2$run(1)
+  mod3$run(1)
 
   expect_error(
     mod1$update_state(pars = pars2),
     paste("'pars' created inconsistent state size:",
           "expected length 3 but created length 4"),
     fixed = TRUE)
+  expect_error(
+    mod3$update_state(pars = list(pars2)),
+    paste("'pars' created inconsistent state size:",
+          "expected length 3 but parameter set 1 created length 4"),
+    fixed = TRUE)
 
   expect_identical(mod1$pars(), pars1)
   expect_identical(mod1$run(5), mod2$run(5)) # no change to internals
+
+  expect_identical(mod3$pars(), list(pars1))
+  expect_identical(mod3$run(5), array(mod2$run(5), c(3, np, 1)))
 })
 
 
