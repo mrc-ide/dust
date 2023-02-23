@@ -239,32 +239,8 @@ public:
 
   void resample(const std::vector<real_type>& weights,
                 std::vector<size_t>& index) {
-    auto it_weights = weights.begin();
-    auto it_index = index.begin();
-    if (n_pars_ == 0) {
-      // One parameter set; shuffle among all particles
-      const size_t np = particles_.size();
-      real_type u = dust::random::uniform<real_type>(rng_.state(n_particles_total_),
-                                               0, 1);
-      dust::filter::resample_weight(it_weights, np, u, 0, it_index);
-    } else {
-      // Multiple parameter set; shuffle within each group
-      // independently (and therefore in parallel)
-      const size_t np = particles_.size() / n_pars_;
-      std::vector<real_type> u;
-      for (size_t i = 0; i < n_pars_; ++i) {
-        u.push_back(dust::random::uniform<real_type>(rng_.state(n_particles_total_),
-                                                  0, 1));
-      }
-#ifdef _OPENMP
-      #pragma omp parallel for schedule(static) num_threads(n_threads_)
-#endif
-      for (size_t i = 0; i < n_pars_; ++i) {
-        const size_t j = i * np;
-        dust::filter::resample_weight(it_weights + j, np, u[i], j, it_index + j);
-      }
-    }
-
+    dust::filter::resample_index(weights, n_pars_, n_particles_each_, n_threads_,
+                                 index, rng_.state(n_particles_total_));
     reorder(index);
   }
 
