@@ -24,6 +24,7 @@ public:
   using pars_type = dust::pars_type<T>;
   using rng_state_type = typename T::rng_state_type;
   using rng_int_type = typename rng_state_type::int_type;
+  using filter_state_type = dust::filter::filter_state_host<real_type>;
 
   dust_ode(const pars_type &pars, const double time,
            const size_t n_particles, const size_t n_threads,
@@ -102,6 +103,14 @@ public:
     return pars_are_shared_;
   }
 
+  size_t n_data() const {
+    return data_.size();
+  }
+
+  const std::map<size_t, std::vector<data_type>>& data() const {
+    return data_;
+  }
+
   void set_index(const std::vector<size_t>& index) {
     index_ = index;
   }
@@ -177,23 +186,29 @@ public:
   }
 
   void state_full(std::vector<double> &end_state) {
-    auto it = end_state.begin();
+    state_full(end_state.begin());
+  }
+
+  void state_full(std::vector<double>::iterator end_state) {
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
     for (size_t i = 0; i < solver_.size(); ++i) {
-      solver_[i].state(it + i * n_state_full());
+      solver_[i].state(end_state + i * n_state_full());
+    }
+  }
+
+  void state(typename std::vector<real_type>::iterator end_state) {
+#ifdef _OPENMP
+#pragma omp parallel for schedule(static) num_threads(n_threads_)
+#endif
+    for (size_t i = 0; i < solver_.size(); ++i) {
+      solver_[i].state(index_, end_state + i * n_state());
     }
   }
 
   void state(std::vector<double> &end_state) {
-    auto it = end_state.begin();
-#ifdef _OPENMP
-#pragma omp parallel for schedule(static) num_threads(n_threads_)
-#endif
-    for (size_t i = 0; i < solver_.size(); ++i) {
-      solver_[i].state(index_, it + i * n_state());
-    }
+    state(end_state.begin());
   }
 
   void state(const std::vector<size_t>& index,
@@ -275,6 +290,17 @@ public:
     initialise_solver(false);
   }
 
+  std::vector<size_t> resample(const std::vector<real_type>& weights) {
+    std::vector<size_t> index(n_particles());
+    resample(weights, index);
+    return index;
+  }
+
+  void resample(const std::vector<real_type>& weights,
+                std::vector<size_t>& index) {
+    throw std::runtime_error("resample not yet implemented");
+  }
+
   void statistics(std::vector<size_t> &all_statistics) {
     auto it = all_statistics.begin();
     // this is hard to make parallel safe without doing
@@ -321,6 +347,33 @@ public:
     return std::vector<size_t>();
   }
 
+  void set_data(std::map<size_t, std::vector<data_type>> data,
+                bool data_is_shared) {
+    data_ = data;
+    data_is_shared_ = data_is_shared;
+  }
+
+  std::vector<real_type> compare_data() {
+    std::vector<real_type> res;
+    auto d = data_.find(time());
+    if (d != data_.end()) {
+      res.resize(solver_.size());
+      compare_data(res, d->second);
+    }
+    return res;
+  }
+
+  void compare_data(std::vector<real_type>& res, const std::vector<data_type>& data) {
+    const size_t np = solver_.size() / n_pars_effective();
+#ifdef _OPENMP
+    #pragma omp parallel for schedule(static) num_threads(n_threads_)
+#endif
+    for (size_t i = 0; i < solver_.size(); ++i) {
+      const size_t j = data_is_shared_ ? 0 : i / np;
+      res[i] = solver_[i].compare_data(data[j], rng_.state(i));
+    }
+  }
+
 private:
   // delete move and copy to avoid accidentally using them
   dust_ode(const dust_ode &) = delete;
@@ -333,8 +386,8 @@ private:
   std::vector<size_t> shape_; // shape of output
   size_t n_threads_;
   dust::random::prng<rng_state_type> rng_;
-  // data_
-  // data_is_shared_
+  std::map<size_t, std::vector<data_type>> data_;
+  bool data_is_shared_;
   dust::utils::openmp_errors errors_;
 
   std::vector<size_t> index_;

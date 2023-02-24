@@ -205,6 +205,10 @@ public:
     stepper_.state(t_, end_state);
   }
 
+  double compare_data(const typename Model::data_type& data, rng_state_type& rng_state) {
+    return stepper_.compare_data(data, rng_state);
+  }
+
   std::vector<size_t>::iterator
   get_statistics(std::vector<size_t>::iterator all_statistics) const {
     all_statistics[0] = statistics_.n_steps;

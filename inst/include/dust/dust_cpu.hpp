@@ -164,7 +164,7 @@ public:
   }
 
   void state(std::vector<real_type>& end_state) {
-    return state(end_state.begin());
+    state(end_state.begin());
   }
 
   void state(typename std::vector<real_type>::iterator end_state) {
