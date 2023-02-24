@@ -5,12 +5,15 @@
 #include <omp.h>
 #endif
 
+#include <map>
 #include <stdexcept>
 
+#include "dust/filter_state.hpp"
+#include "dust/filter_tools.hpp"
+#include "dust/ode/solver.hpp"
 #include "dust/random/random.hpp"
 #include "dust/types.hpp"
 #include "dust/utils.hpp"
-#include "dust/ode/solver.hpp"
 
 namespace dust {
 
