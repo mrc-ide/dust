@@ -298,7 +298,9 @@ public:
 
   void resample(const std::vector<real_type>& weights,
                 std::vector<size_t>& index) {
-    throw std::runtime_error("resample not yet implemented");
+    dust::filter::resample_index(weights, n_pars_, n_particles_each_, n_threads_,
+                                 index, rng_.state(n_particles_total_));
+    reorder(index);
   }
 
   void statistics(std::vector<size_t> &all_statistics) {
