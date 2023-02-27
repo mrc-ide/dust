@@ -338,12 +338,6 @@ public:
     n_threads_ = n_threads;
   }
 
-  // NOTE: it only makes sense to expose long_jump, and not jump,
-  // because each rng stream is one jump away from the next.
-  void rng_long_jump() {
-    rng_.long_jump();
-  }
-
   bool deterministic() const {
     return rng_.deterministic();
   }

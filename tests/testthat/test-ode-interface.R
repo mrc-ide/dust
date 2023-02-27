@@ -657,11 +657,19 @@ test_that("prevent use of gpu", {
 })
 
 
-test_that("prevent use of deterministic mode", {
+test_that("can run in deterministic mode", {
   ex <- example_logistic()
-  expect_error(
-    ex$generator$new(ex$pars, 0, 1, deterministic = TRUE),
-    "Deterministic mode not supported for ode models")
+  np <- 7
+  obj <- ex$generator$new(ex$pars, 0, np, seed = 1, deterministic = TRUE)
+  rng_state <- obj$rng_state()
+  t1 <- 10
+  obj$set_stochastic_schedule(seq_len(t1 - 1))
+  y <- obj$run(t1)
+  cmp <- logistic_analytic(ex$pars$r, ex$pars$K, t1, c(1, 1))
+  expect_equal(obj$rng_state(), rng_state)
+  expect_equal(y[1, ], rep(cmp[[1]], np), tolerance = 1e-6)
+  expect_equal(y[2, ], rep(cmp[[2]], np), tolerance = 1e-6)
+  expect_equal(y[3, ], colSums(y[1:2, ]))
 })
 
 
