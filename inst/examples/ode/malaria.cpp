@@ -142,6 +142,12 @@ dust::pars_type<malaria> dust_pars<malaria>(cpp11::list user) {
 }
 
 template <>
+cpp11::sexp dust_info<malaria>(const dust::pars_type<malaria>& pars) {
+  cpp11::writable::strings vars({"Sh", "Ih", "Sv", "Iv", "beta", "Ev"});
+  return vars;
+}
+
+template <>
 malaria::data_type dust_data<malaria>(cpp11::list data) {
   const int tested = cpp11::as_cpp<int>(data["tested"]);
   const int positive = cpp11::as_cpp<int>(data["positive"]);
