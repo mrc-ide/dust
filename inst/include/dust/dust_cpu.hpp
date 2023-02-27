@@ -48,7 +48,7 @@ public:
     n_threads_(n_threads),
     rng_(n_particles_total_ + 1, seed, deterministic), // +1 for filter
     errors_(n_particles_total_) {
-    initialise(pars, time, n_particles, true);
+    initialise(pars, time, true);
     initialise_index();
     shape_ = {n_particles};
   }
@@ -65,7 +65,7 @@ public:
     n_threads_(n_threads),
     rng_(n_particles_total_ + 1, seed, deterministic),  // +1 for filter
     errors_(n_particles_total_) {
-    initialise(pars, time, n_particles_each_, true);
+    initialise(pars, time, true);
     initialise_index();
     // constructing the shape here is harder than above.
     if (n_particles > 0) {
@@ -77,13 +77,11 @@ public:
   }
 
   void set_pars(const pars_type& pars, bool set_state) {
-    const size_t n_particles = particles_.size();
-    initialise(pars, time(), n_particles, set_state);
+    initialise(pars, time(), set_state);
   }
 
   void set_pars(const std::vector<pars_type>& pars, bool set_state) {
-    const size_t n_particles = particles_.size();
-    initialise(pars, time(), n_particles / pars.size(), set_state);
+    initialise(pars, time(), set_state);
   }
 
   // It's the callee's responsibility to ensure this is the correct length:
@@ -275,7 +273,7 @@ public:
   }
 
   size_t n_particles() const {
-    return particles_.size();
+    return n_particles_total_;
   }
 
   size_t n_state() const {
@@ -395,11 +393,10 @@ private:
 
   std::vector<size_t> index_;
   std::vector<dust::particle<T>> particles_;
-  std::vector<dust::shared_ptr<T>> shared_;
 
-  void initialise(const pars_type& pars, const size_t time,
-                  const size_t n_particles, bool set_state) {
-    const size_t n = particles_.size() == 0 ? 0 : n_state_full();
+  void initialise(const pars_type& pars, const size_t time, bool set_state) {
+    const bool first_time = particles_.empty();
+    const size_t n = first_time ? 0 : n_state_full();
     dust::particle<T> p(pars, time);
     if (n > 0 && p.size() != n) {
       std::stringstream msg;
@@ -409,27 +406,26 @@ private:
       throw std::invalid_argument(msg.str());
     }
 
-    if (particles_.empty()) {
-      particles_.reserve(n_particles);
-      for (size_t i = 0; i < n_particles; ++i) {
+    if (first_time) {
+      particles_.reserve(n_particles_total_);
+      for (size_t i = 0; i < n_particles_total_; ++i) {
         particles_.push_back(p);
       }
-      shared_ = {pars.shared};
     } else {
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
-      for (size_t i = 0; i < n_particles; ++i) {
+      for (size_t i = 0; i < n_particles_total_; ++i) {
         particles_[i].set_pars(p, set_state);
       }
-      shared_[0] = pars.shared;
     }
     reset_errors();
   }
 
   void initialise(const std::vector<pars_type>& pars, const size_t time,
-                  const size_t n_particles, bool set_state) {
-    size_t n = particles_.size() == 0 ? 0 : n_state_full();
+                  bool set_state) {
+    const bool first_time = particles_.empty();
+    size_t n = first_time ? 0 : n_state_full();
     std::vector<dust::particle<T>> p;
     for (size_t i = 0; i < n_pars_; ++i) {
       p.push_back(dust::particle<T>(pars[i], time));
@@ -443,23 +439,19 @@ private:
       n = p.back().size(); // ensures all particles have same size
     }
 
-    if (particles_.empty()) {
-      particles_.reserve(n_particles * n_pars_);
+    if (first_time) {
+      particles_.reserve(n_particles_total_);
       for (size_t i = 0; i < n_pars_; ++i) {
-        for (size_t j = 0; j < n_particles; ++j) {
+        for (size_t j = 0; j < n_particles_each_; ++j) {
           particles_.push_back(p[i]);
         }
-        shared_.push_back(pars[i].shared);
       }
     } else {
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
       for (size_t i = 0; i < n_particles_total_; ++i) {
-        particles_[i].set_pars(p[i / n_particles], set_state);
-      }
-      for (size_t i = 0; i < pars.size(); ++i) {
-        shared_[i] = pars[i].shared;
+        particles_[i].set_pars(p[i / n_particles_each_], set_state);
       }
     }
     reset_errors();

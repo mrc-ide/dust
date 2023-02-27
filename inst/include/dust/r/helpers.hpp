@@ -510,10 +510,13 @@ check_min_log_likelihood(cpp11::sexp r_min_log_likelihood, size_t n_pars) {
   return min_log_likelihood;
 }
 
-template <typename T>
+// It's possible that we could create a helper that looks to see if we
+// have a deriv or an update method and then remove the need for the
+// second template parameter here, but it's not that bad.
+template <typename T, typename time_type>
 struct dust_inputs {
   std::vector<dust::pars_type<T>> pars;
-  size_t time;
+  time_type time;
   size_t n_particles;
   size_t n_threads;
   std::vector<typename T::rng_state_type::int_type> seed;
@@ -521,11 +524,12 @@ struct dust_inputs {
   cpp11::sexp info;
 };
 
-template <typename T>
-dust_inputs<T> process_inputs_single(cpp11::list r_pars, int time,
-                                     cpp11::sexp r_n_particles,
-                                     int n_threads, cpp11::sexp r_seed) {
-  dust::r::validate_size(time, "time");
+template <typename T, typename time_type>
+dust_inputs<T, time_type> process_inputs_single(cpp11::list r_pars, cpp11::sexp r_time,
+                                                cpp11::sexp r_n_particles,
+                                                int n_threads, cpp11::sexp r_seed) {
+  const time_type t0 = 0;
+  const time_type time = dust::r::validate_time<time_type>(r_time, t0, "time");
   dust::r::validate_positive(n_threads, "n_threads");
   std::vector<typename T::rng_state_type::int_type> seed =
     dust::random::r::as_rng_seed<typename T::rng_state_type>(r_seed);
@@ -536,21 +540,25 @@ dust_inputs<T> process_inputs_single(cpp11::list r_pars, int time,
   auto n_particles = cpp11::as_cpp<int>(r_n_particles);
   dust::r::validate_positive(n_particles, "n_particles");
   std::vector<size_t> shape; // empty
-  return dust_inputs<T>{
+
+  return dust_inputs<T, time_type>{
     pars,
-    static_cast<size_t>(time),
+    time,
     static_cast<size_t>(n_particles),
     static_cast<size_t>(n_threads),
     seed,
     shape,
-    info};
+    info
+  };
 }
 
-template <typename T>
-dust_inputs<T> process_inputs_multi(cpp11::list r_pars, int time,
+template <typename T, typename time_type>
+dust_inputs<T, time_type> process_inputs_multi(cpp11::list r_pars, cpp11::sexp r_time,
                                     cpp11::sexp r_n_particles,
                                     int n_threads, cpp11::sexp r_seed) {
-  dust::r::validate_size(time, "time");
+  const time_type t0 = 0;
+  const time_type time = dust::r::validate_time<time_type>(r_time, t0, "time");
+
   dust::r::validate_positive(n_threads, "n_threads");
   std::vector<typename T::rng_state_type::int_type> seed =
     dust::random::r::as_rng_seed<typename T::rng_state_type>(r_seed);
@@ -577,9 +585,9 @@ dust_inputs<T> process_inputs_multi(cpp11::list r_pars, int time,
     n_particles = cpp11::as_cpp<int>(r_n_particles);
     dust::r::validate_size(n_particles, "n_particles");
   }
-  return dust_inputs<T>{
+  return dust_inputs<T, time_type>{
     pars,
-    static_cast<size_t>(time),
+    time,
     static_cast<size_t>(n_particles),
     static_cast<size_t>(n_threads),
     seed,

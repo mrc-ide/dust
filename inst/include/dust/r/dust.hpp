@@ -32,25 +32,25 @@ cpp11::list dust_cpu_alloc(cpp11::list r_pars, bool pars_multi,
                            cpp11::sexp r_seed, bool deterministic,
                            cpp11::sexp r_gpu_config,
                            cpp11::sexp r_ode_control) {
-  dust_cpu<T> *d = nullptr;
-  const size_t t0 = 0;
-  const auto time = dust::r::validate_time<size_t>(r_time, t0, "time");
   if (r_ode_control != R_NilValue) {
     cpp11::stop("'ode_control' must be NULL for discrete time models");
   }
+
+  dust_cpu<T> *d = nullptr;
+
   cpp11::sexp info;
   if (pars_multi) {
     auto inputs =
-      dust::r::process_inputs_multi<T>(r_pars, time, r_n_particles,
-                                       n_threads, r_seed);
+      dust::r::process_inputs_multi<T, size_t>(r_pars, r_time, r_n_particles,
+                                               n_threads, r_seed);
     info = inputs.info;
     d = new dust_cpu<T>(inputs.pars, inputs.time, inputs.n_particles,
                         inputs.n_threads, inputs.seed, deterministic,
                         inputs.shape);
   } else {
     auto inputs =
-      dust::r::process_inputs_single<T>(r_pars, time, r_n_particles,
-                                        n_threads, r_seed);
+      dust::r::process_inputs_single<T, size_t>(r_pars, r_time, r_n_particles,
+                                                n_threads, r_seed);
     info = inputs.info;
     d = new dust_cpu<T>(inputs.pars[0], inputs.time, inputs.n_particles,
                         inputs.n_threads, inputs.seed, deterministic);
@@ -80,12 +80,10 @@ cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi,
   }
 
   dust_gpu<T> *d = nullptr;
-  const size_t t0 = 0;
-  const auto time = dust::r::validate_time<size_t>(r_time, t0, "time");
   cpp11::sexp info;
   if (pars_multi) {
     auto inputs =
-      dust::r::process_inputs_multi<T>(r_pars, time, r_n_particles,
+      dust::r::process_inputs_multi<T, size_t>(r_pars, r_time, r_n_particles,
                                        n_threads, r_seed);
     info = inputs.info;
     d = new dust_gpu<T>(inputs.pars, inputs.time, inputs.n_particles,
@@ -93,8 +91,8 @@ cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi,
                         inputs.shape, gpu_config);
   } else {
     auto inputs =
-      dust::r::process_inputs_single<T>(r_pars, time, r_n_particles,
-                                        n_threads, r_seed);
+      dust::r::process_inputs_single<T, size_t>(r_pars, r_time, r_n_particles,
+                                                n_threads, r_seed);
     info = inputs.info;
     d = new dust_gpu<T>(inputs.pars[0], inputs.time, inputs.n_particles,
                         inputs.n_threads, inputs.seed, gpu_config);
@@ -111,27 +109,39 @@ cpp11::list dust_gpu_alloc(cpp11::list r_pars, bool pars_multi,
 }
 
 template <typename T>
-cpp11::list dust_ode_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_time,
+cpp11::list dust_ode_alloc(cpp11::list r_pars, bool pars_multi,
+                           cpp11::sexp r_time,
                            cpp11::sexp r_n_particles, size_t n_threads,
                            cpp11::sexp r_seed, bool deterministic,
-                           cpp11::sexp r_gpu_config, cpp11::sexp r_ode_control) {
+                           cpp11::sexp r_gpu_config,
+                           cpp11::sexp r_ode_control) {
   if (deterministic) {
     cpp11::stop("Deterministic mode not supported for ode models");
   }
-  auto pars = dust::dust_pars<T>(r_pars);
-  auto seed = dust::random::r::as_rng_seed<typename T::rng_state_type>(r_seed);
+
+  dust_ode<T> *d = nullptr;
+  cpp11::sexp info;
   auto ctl = dust::r::validate_ode_control(r_ode_control);
-  const double t0 = 0;
-  const auto time = dust::r::validate_time<double>(r_time, t0, "time");
-  cpp11::sexp info = dust::dust_info(pars);
-  dust::r::validate_positive(n_threads, "n_threads");
-  auto n_particles = cpp11::as_cpp<int>(r_n_particles);
-  dust::r::validate_positive(n_particles, "n_particles");
-  dust_ode<T> *d = new dust_ode<T>(pars, time, n_particles,
-                                   n_threads, ctl, seed);
+
+  if (pars_multi) {
+    auto inputs =
+      dust::r::process_inputs_multi<T, double>(r_pars, r_time, r_n_particles, n_threads, r_seed);
+    info = inputs.info;
+    d = new dust_ode<T>(inputs.pars, inputs.time, inputs.n_particles,
+                        inputs.n_threads, ctl, inputs.seed, // + determinstic
+                        inputs.shape);
+  } else {
+    auto inputs =
+      dust::r::process_inputs_single<T, double>(r_pars, r_time, r_n_particles, n_threads, r_seed);
+    info = inputs.info;
+    d = new dust_ode<T>(inputs.pars[0], inputs.time, inputs.n_particles,
+                        inputs.n_threads, ctl, inputs.seed); // + determinstic
+  }
+
   cpp11::external_pointer<dust_ode<T>> ptr(d, true, false);
   cpp11::writable::integers r_shape =
-    dust::r::vector_size_to_int(ptr->shape());
+    dust::r::vector_size_to_int(d->shape());
+
   auto r_ctl = dust::r::ode_control(ctl);
   return cpp11::writable::list({ptr, info, r_shape, r_gpu_config, r_ctl});
 }
@@ -181,7 +191,7 @@ void dust_initialise(T *obj, bool reset_step_size) {
 
 template <typename T, typename std::enable_if<std::is_same<double, typename T::time_type>::value, int>::type = 0>
 void dust_initialise(T *obj, bool reset_step_size) {
-  obj->initialise(reset_step_size);
+  obj->initialise_solver(reset_step_size);
 }
 
 // There are many components of state (not including rng state which
