@@ -346,12 +346,6 @@ public:
     rng_.import_state(rng_state);
   }
 
-  // needs proper implementation after merge with dust
-  std::vector<size_t> resample(std::vector<real_type>& weights) {
-    std::runtime_error("resample not supported");
-    return std::vector<size_t>();
-  }
-
   void set_data(std::map<size_t, std::vector<data_type>> data,
                 bool data_is_shared) {
     data_ = data;
