@@ -166,9 +166,9 @@ public:
     errors_.report();
   }
 
-  std::vector<double> simulate(const std::vector<time_type>& time_end) {
+  std::vector<real_type> simulate(const std::vector<time_type>& time_end) {
     const size_t n_time = time_end.size();
-    std::vector<double> ret(n_particles() * n_state() * n_time);
+    std::vector<real_type> ret(n_particles() * n_state() * n_time);
 
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
@@ -188,11 +188,11 @@ public:
     return ret;
   }
 
-  void state_full(std::vector<double> &end_state) {
+  void state_full(std::vector<real_type> &end_state) {
     state_full(end_state.begin());
   }
 
-  void state_full(std::vector<double>::iterator end_state) {
+  void state_full(typename std::vector<real_type>::iterator end_state) {
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
@@ -210,12 +210,12 @@ public:
     }
   }
 
-  void state(std::vector<double> &end_state) {
+  void state(std::vector<real_type> &end_state) {
     state(end_state.begin());
   }
 
   void state(const std::vector<size_t>& index,
-             std::vector<double> &end_state) {
+             std::vector<real_type> &end_state) {
     auto it = end_state.begin();
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)

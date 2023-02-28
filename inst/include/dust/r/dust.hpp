@@ -119,16 +119,18 @@ cpp11::list dust_ode_alloc(cpp11::list r_pars, bool pars_multi,
   cpp11::sexp info;
   auto ctl = dust::r::validate_ode_control(r_ode_control);
 
+  using time_type = typename dust_ode<T>::time_type;
+
   if (pars_multi) {
     auto inputs =
-      dust::r::process_inputs_multi<T, double>(r_pars, r_time, r_n_particles, n_threads, r_seed);
+      dust::r::process_inputs_multi<T, time_type>(r_pars, r_time, r_n_particles, n_threads, r_seed);
     info = inputs.info;
     d = new dust_ode<T>(inputs.pars, inputs.time, inputs.n_particles,
                         inputs.n_threads, ctl, inputs.seed, deterministic,
                         inputs.shape);
   } else {
     auto inputs =
-      dust::r::process_inputs_single<T, double>(r_pars, r_time, r_n_particles, n_threads, r_seed);
+      dust::r::process_inputs_single<T, time_type>(r_pars, r_time, r_n_particles, n_threads, r_seed);
     info = inputs.info;
     d = new dust_ode<T>(inputs.pars[0], inputs.time, inputs.n_particles,
                         inputs.n_threads, ctl, inputs.seed, deterministic);
