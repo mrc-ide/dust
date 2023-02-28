@@ -53,25 +53,11 @@ constexpr double D7 = 69997945.0 / 29380423.0;
 
 template<typename Model>
 class stepper {
-private:
-  Model m;
-  size_t n_var;
-  size_t n_out;
-  std::vector<double> y;
-  std::vector<double> y_next;
-  std::vector<double> y_stiff;
-  std::vector<double> k1;
-  std::vector<double> k2;
-  std::vector<double> k3;
-  std::vector<double> k4;
-  std::vector<double> k5;
-  std::vector<double> k6;
-  std::vector<double> output;
-
 public:
+  using real_type = typename Model::real_type;
   using rng_state_type = typename Model::rng_state_type;
 
-  stepper(Model m, double t) :
+  stepper(Model m, real_type t) :
     m(m), n_var(m.n_variables()), n_out(m.n_output()),
     y(n_var), y_next(n_var), y_stiff(n_var), k1(n_var),
     k2(n_var), k3(n_var), k4(n_var),
@@ -81,7 +67,7 @@ public:
     initialise(t);
   }
 
-  void step(double t, double h) {
+  void step(real_type t, real_type h) {
     for (size_t i = 0; i < n_var; ++i) { // 22
       y_next[i] = y[i] + h * A21 * k1[i];
     }
@@ -104,7 +90,7 @@ public:
                                A63 * k3[i] + A64 * k4[i] +
                                A65 * k5[i]);
     }
-    const double t_next = t + h;
+    const real_type t_next = t + h;
     m.rhs(t_next, y_stiff, k6);
     for (size_t i = 0; i < n_var; ++i) { // 27
       y_next[i] = y[i] + h * (A71 * k1[i] + A73 * k3[i] + A74 * k4[i] +
@@ -118,23 +104,23 @@ public:
     }
   }
 
-  double error(double atol, double rtol) {
-    double err = 0.0;
+  real_type error(real_type atol, real_type rtol) {
+    real_type err = 0.0;
     for (size_t i = 0; i < n_var; ++i) {
-      const double sk = atol + rtol *
+      const real_type sk = atol + rtol *
                                std::max(std::abs(y[i]), std::abs(y_next[i]));
       err += utils::square(k4[i] / sk);
     }
     return std::sqrt(err / n_var);
   }
 
-  void set_state(std::vector<double>::const_iterator state) {
+  void set_state(typename std::vector<real_type>::const_iterator state) {
     for (size_t i = 0; i < n_var; ++i, ++state) {
       y[i] = *state;
     }
   }
 
-  void set_state(std::vector<double>::const_iterator state,
+  void set_state(typename std::vector<real_type>::const_iterator state,
                  const std::vector<size_t>& index) {
     for (size_t i = 0; i < index.size(); ++i, ++state) {
       y[index[i]] = *state;
@@ -163,19 +149,19 @@ public:
     m = new_model;
   }
 
-  void set_model(Model new_model, double t) {
+  void set_model(Model new_model, real_type t) {
     m = new_model;
     const auto y = m.initial(t);
     set_state(y.begin());
     initialise(t);
   }
 
-  void initialise(double t) {
+  void initialise(real_type t) {
     std::fill(k1.begin(), k1.end(), 0);
     m.rhs(t, y, k1);
   }
 
-  void update_stochastic(double t, rng_state_type& rng_state) {
+  void update_stochastic(real_type t, rng_state_type& rng_state) {
     // Slightly odd construction here - we copy y into y_next so that
     // they both hold the same values, then do the step to update from
     // y_next to y so that at the end of this step 'y' holds the
@@ -186,18 +172,18 @@ public:
     initialise(t); // must recalculate dydt at this point
   }
 
-  void step_complete(double t, double h) {
+  void step_complete(real_type t, real_type h) {
     std::copy_n(k2.begin(), n_var, k1.begin()); // k1 = k2
     std::copy_n(y_next.begin(), n_var, y.begin()); // y = y_next
   }
 
-  const std::vector<double>& state() const {
+  const std::vector<real_type>& state() const {
     return y;
   }
 
-  void state(double t,
-        const std::vector<size_t>& index,
-        std::vector<double>::iterator end_state) {
+  void state(real_type t,
+             const std::vector<size_t>& index,
+             typename std::vector<real_type>::iterator end_state) {
     auto n = index.size();
     bool have_run_output = false;
     for (size_t i = 0; i < n; ++i, ++end_state) {
@@ -214,8 +200,8 @@ public:
     }
   }
 
-  void state(double t,
-        std::vector<double>::iterator end_state) {
+  void state(real_type t,
+             typename std::vector<real_type>::iterator end_state) {
     auto n = n_var + n_out;
     bool have_run_output = false;
     for (size_t i = 0; i < n; ++i, ++end_state) {
@@ -231,14 +217,30 @@ public:
     }
   }
 
-  double init_step_size(double t, control ctl) {
+  real_type init_step_size(real_type t, control<real_type> ctl) {
     return initial_step_size(m, t, y, ctl);
   }
 
-  double compare_data(const typename Model::data_type& data,
+  real_type compare_data(const typename Model::data_type& data,
                       rng_state_type& rng_state) {
     return m.compare_data(y.data(), data, rng_state);
   }
+
+private:
+  Model m;
+  size_t n_var;
+  size_t n_out;
+  std::vector<real_type> y;
+  std::vector<real_type> y_next;
+  std::vector<real_type> y_stiff;
+  std::vector<real_type> k1;
+  std::vector<real_type> k2;
+  std::vector<real_type> k3;
+  std::vector<real_type> k4;
+  std::vector<real_type> k5;
+  std::vector<real_type> k6;
+  std::vector<real_type> output;
+
 };
 
 }

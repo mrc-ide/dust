@@ -7,11 +7,12 @@
 namespace dust {
 namespace ode {
 
+template <typename real_type>
 struct statistics {
   size_t n_steps;
   size_t n_steps_accepted;
   size_t n_steps_rejected;
-  std::vector<double> step_times;
+  std::vector<real_type> step_times;
 
   void reset() {
     n_steps = 0;

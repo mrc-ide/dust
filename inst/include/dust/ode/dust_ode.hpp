@@ -31,7 +31,7 @@ public:
 
   dust_ode(const pars_type &pars, const double time,
            const size_t n_particles, const size_t n_threads,
-           const ode::control ctl, const std::vector<rng_int_type>& seed,
+           const ode::control<real_type> ctl, const std::vector<rng_int_type>& seed,
            bool deterministic)
     : n_pars_(0),
       n_particles_each_(n_particles),
@@ -48,7 +48,7 @@ public:
 
   dust_ode(const std::vector<pars_type>& pars, const double time,
            const size_t n_particles, const size_t n_threads,
-           const ode::control ctl, const std::vector<rng_int_type>& seed,
+           const ode::control<real_type> ctl, const std::vector<rng_int_type>& seed,
            bool deterministic,
            const std::vector<size_t>& shape)
     : n_pars_(pars.size()),
@@ -72,7 +72,7 @@ public:
 
   // This is called exactly once, for pulling out debug step times;
   // can we avoid that? Sniff length of the return value perhaps?
-  ode::control ctl() {
+  ode::control<real_type> ctl() {
     return control_;
   }
 
@@ -391,7 +391,7 @@ private:
 
   std::vector<size_t> index_;
   std::vector<dust::ode::solver<model_type>> solver_;
-  ode::control control_;
+  ode::control<real_type> control_;
 
   void initialise(const pars_type& pars, const double time, bool set_state) {
     const bool first_time = solver_.empty();

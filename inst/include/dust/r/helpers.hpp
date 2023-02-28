@@ -631,9 +631,10 @@ bool validate_reset_step_size(SEXP r_time,
   return reset_step_size;
 }
 
+// TODO
 inline
-dust::ode::control validate_ode_control(cpp11::sexp r_control) {
-  const auto defaults = dust::ode::control();
+dust::ode::control<double> validate_ode_control(cpp11::sexp r_control) {
+  const auto defaults = dust::ode::control<double>(); // TODO
   if (r_control == R_NilValue) {
     return defaults;
   }
@@ -658,13 +659,13 @@ dust::ode::control validate_ode_control(cpp11::sexp r_control) {
         dust::r::validate_logical(control["debug_record_step_times"],
                                   defaults.debug_record_step_times,
                                   "debug_record_step_times");
-    return dust::ode::control(max_steps, atol, rtol, step_size_min,
-                             step_size_max, debug_record_step_times);
+    return dust::ode::control<double>(max_steps, atol, rtol, step_size_min,
+                                      step_size_max, debug_record_step_times);
   }
 }
 
 inline
-cpp11::sexp ode_control(const dust::ode::control ctl) {
+cpp11::sexp ode_control(const dust::ode::control<double> ctl) {
   using namespace cpp11::literals;
   auto ret = cpp11::writable::list({"max_steps"_nm = ctl.max_steps,
                                     "atol"_nm = ctl.atol,
