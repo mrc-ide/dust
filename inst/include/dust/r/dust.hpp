@@ -181,11 +181,11 @@ cpp11::sexp dust_update_state_set_pars(T *obj, cpp11::list r_pars,
   return ret;
 }
 
-template <typename T, typename std::enable_if<std::is_same<size_t, typename T::time_type>::value, int>::type = 0>
+template <typename T, typename std::enable_if<std::is_integral<typename T::time_type>::value, int>::type = 0>
 void dust_initialise(T *obj, bool reset_step_size) {
 }
 
-template <typename T, typename std::enable_if<std::is_same<double, typename T::time_type>::value, int>::type = 0>
+template <typename T, typename std::enable_if<std::is_floating_point<typename T::time_type>::value, int>::type = 0>
 void dust_initialise(T *obj, bool reset_step_size) {
   obj->initialise_solver(reset_step_size);
 }
@@ -640,21 +640,21 @@ int dust_n_state(SEXP ptr) {
   return obj->n_state_full();
 }
 
-template <typename T, typename std::enable_if<std::is_same<size_t, typename T::time_type>::value, int>::type = 0>
+template <typename T, typename std::enable_if<std::is_integral<typename T::time_type>::value, int>::type = 0>
 void dust_set_stochastic_schedule(SEXP ptr, SEXP time) {
   if (time != R_NilValue) {
     cpp11::stop("'set_stochastic_schedule' not supported in discrete-time models");
   }
 }
 
-template <typename T, typename std::enable_if<std::is_same<size_t, typename T::time_type>::value, int>::type = 0>
+template <typename T, typename std::enable_if<std::is_integral<typename T::time_type>::value, int>::type = 0>
 SEXP dust_ode_statistics(SEXP ptr) {
   cpp11::stop("'ode_statistics' not supported in discrete-time models");
   return R_NilValue; // # nocov
 }
 
 // new below here:
-template <typename T, typename std::enable_if<std::is_same<double, typename T::time_type>::value, int>::type = 0>
+template <typename T, typename std::enable_if<std::is_floating_point<typename T::time_type>::value, int>::type = 0>
 cpp11::sexp dust_ode_statistics(SEXP ptr) {
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const auto n_particles = obj->n_particles();
@@ -673,7 +673,7 @@ cpp11::sexp dust_ode_statistics(SEXP ptr) {
   return ret;
 }
 
-template <typename T, typename std::enable_if<std::is_same<double, typename T::time_type>::value, int>::type = 0>
+template <typename T, typename std::enable_if<std::is_floating_point<typename T::time_type>::value, int>::type = 0>
 void dust_set_stochastic_schedule(SEXP ptr, SEXP r_time) {
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
 
