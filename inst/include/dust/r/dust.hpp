@@ -115,11 +115,12 @@ cpp11::list dust_ode_alloc(cpp11::list r_pars, bool pars_multi,
                            cpp11::sexp r_seed, bool deterministic,
                            cpp11::sexp r_gpu_config,
                            cpp11::sexp r_ode_control) {
+  using real_type = typename dust_ode<T>::real_type;
+  using time_type = typename dust_ode<T>::time_type;
+
   dust_ode<T> *d = nullptr;
   cpp11::sexp info;
-  auto ctl = dust::r::validate_ode_control(r_ode_control);
-
-  using time_type = typename dust_ode<T>::time_type;
+  auto ctl = dust::r::validate_ode_control<real_type>(r_ode_control);
 
   if (pars_multi) {
     auto inputs =
