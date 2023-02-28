@@ -11,47 +11,7 @@
 namespace dust {
 namespace ode {
 
-namespace {
-constexpr double C2 = 0.2;
-constexpr double C3 = 0.3;
-constexpr double C4 = 0.8;
-constexpr double C5 = 8.0 / 9.0;
-constexpr double A21 = 0.2;
-constexpr double A31 = 3.0 / 40.0;
-constexpr double A32 = 9.0 / 40.0;
-constexpr double A41 = 44.0 / 45.0;
-constexpr double A42 = -56.0 / 15.0;
-constexpr double A43 = 32.0 / 9.0;
-constexpr double A51 = 19372.0 / 6561.0;
-constexpr double A52 = -25360.0 / 2187.0;
-constexpr double A53 = 64448.0 / 6561.0;
-constexpr double A54 = -212.0 / 729.0;
-constexpr double A61 = 9017.0 / 3168.0;
-constexpr double A62 = -355.0 / 33.0;
-constexpr double A63 = 46732.0 / 5247.0;
-constexpr double A64 = 49.0 / 176.0;
-constexpr double A65 = -5103.0 / 18656.0;
-constexpr double A71 = 35.0 / 384.0;
-constexpr double A73 = 500.0 / 1113.0;
-constexpr double A74 = 125.0 / 192.0;
-constexpr double A75 = -2187.0 / 6784.0;
-constexpr double A76 = 11.0 / 84.0;
-constexpr double E1 = 71.0 / 57600.0;
-constexpr double E3 = -71.0 / 16695.0;
-constexpr double E4 = 71.0 / 1920.0;
-constexpr double E5 = -17253.0 / 339200.0;
-constexpr double E6 = 22.0 / 525.0;
-constexpr double E7 = -1.0 / 40.0;
-// ---- DENSE OUTPUT OF SHAMPINE (1986)
-constexpr double D1 = -12715105075.0 / 11282082432.0;
-constexpr double D3 = 87487479700.0 / 32700410799.0;
-constexpr double D4 = -10690763975.0 / 1880347072.0;
-constexpr double D5 = 701980252875.0 / 199316789632.0;
-constexpr double D6 = -1453857185.0 / 822651844.0;
-constexpr double D7 = 69997945.0 / 29380423.0;
-}
-
-template<typename Model>
+template <typename Model>
 class stepper {
 public:
   using real_type = typename Model::real_type;
@@ -241,6 +201,43 @@ private:
   std::vector<real_type> k6;
   std::vector<real_type> output;
 
+  static constexpr real_type C2 = 0.2;
+  static constexpr real_type C3 = 0.3;
+  static constexpr real_type C4 = 0.8;
+  static constexpr real_type C5 = 8.0 / 9.0;
+  static constexpr real_type A21 = 0.2;
+  static constexpr real_type A31 = 3.0 / 40.0;
+  static constexpr real_type A32 = 9.0 / 40.0;
+  static constexpr real_type A41 = 44.0 / 45.0;
+  static constexpr real_type A42 = -56.0 / 15.0;
+  static constexpr real_type A43 = 32.0 / 9.0;
+  static constexpr real_type A51 = 19372.0 / 6561.0;
+  static constexpr real_type A52 = -25360.0 / 2187.0;
+  static constexpr real_type A53 = 64448.0 / 6561.0;
+  static constexpr real_type A54 = -212.0 / 729.0;
+  static constexpr real_type A61 = 9017.0 / 3168.0;
+  static constexpr real_type A62 = -355.0 / 33.0;
+  static constexpr real_type A63 = 46732.0 / 5247.0;
+  static constexpr real_type A64 = 49.0 / 176.0;
+  static constexpr real_type A65 = -5103.0 / 18656.0;
+  static constexpr real_type A71 = 35.0 / 384.0;
+  static constexpr real_type A73 = 500.0 / 1113.0;
+  static constexpr real_type A74 = 125.0 / 192.0;
+  static constexpr real_type A75 = -2187.0 / 6784.0;
+  static constexpr real_type A76 = 11.0 / 84.0;
+  static constexpr real_type E1 = 71.0 / 57600.0;
+  static constexpr real_type E3 = -71.0 / 16695.0;
+  static constexpr real_type E4 = 71.0 / 1920.0;
+  static constexpr real_type E5 = -17253.0 / 339200.0;
+  static constexpr real_type E6 = 22.0 / 525.0;
+  static constexpr real_type E7 = -1.0 / 40.0;
+  // ---- DENSE OUTPUT OF SHAMPINE (1986)
+  static constexpr real_type D1 = -12715105075.0 / 11282082432.0;
+  static constexpr real_type D3 = 87487479700.0 / 32700410799.0;
+  static constexpr real_type D4 = -10690763975.0 / 1880347072.0;
+  static constexpr real_type D5 = 701980252875.0 / 199316789632.0;
+  static constexpr real_type D6 = -1453857185.0 / 822651844.0;
+  static constexpr real_type D7 = 69997945.0 / 29380423.0;
 };
 
 }
