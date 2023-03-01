@@ -651,7 +651,6 @@ bool validate_reset_step_size(SEXP r_time,
   return reset_step_size;
 }
 
-// TODO
 template <typename real_type>
 dust::ode::control<real_type> validate_ode_control(cpp11::sexp r_control) {
   const auto defaults = dust::ode::control<real_type>();
