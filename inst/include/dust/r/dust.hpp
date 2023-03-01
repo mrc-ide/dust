@@ -686,7 +686,7 @@ void dust_set_stochastic_schedule(SEXP ptr, SEXP r_time) {
 
   std::vector<time_type> time;
   if (r_time != R_NilValue) {
-    const auto time = as_vector_real<time_type>(r_time, "time");
+    time = as_vector_real<time_type>(r_time, "time");
     for (size_t i = 1; i < time.size(); ++i) {
       if (time[i] <= time[i - 1]) {
         cpp11::stop("schedule must be strictly increasing; see time[%d]",
