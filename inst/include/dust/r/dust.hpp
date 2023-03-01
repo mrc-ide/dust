@@ -674,15 +674,19 @@ cpp11::sexp dust_ode_statistics(SEXP ptr) {
     ret.attr("step_times") = r_step_times;
   }
   return ret;
+  return R_NilValue;
 }
 
+// There's some work here to make this work nicely with validate_time,
+// and for that to cope nicely with vectors of doubles and floats.
 template <typename T, typename std::enable_if<std::is_floating_point<typename T::time_type>::value, int>::type = 0>
 void dust_set_stochastic_schedule(SEXP ptr, SEXP r_time) {
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
+  using time_type = typename T::time_type;
 
-  std::vector<double> time;
+  std::vector<time_type> time;
   if (r_time != R_NilValue) {
-    time = cpp11::as_cpp<std::vector<double>>(cpp11::as_doubles(r_time));
+    const auto time = as_vector_real<time_type>(r_time, "time");
     for (size_t i = 1; i < time.size(); ++i) {
       if (time[i] <= time[i - 1]) {
         cpp11::stop("schedule must be strictly increasing; see time[%d]",

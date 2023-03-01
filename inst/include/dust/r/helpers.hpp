@@ -52,14 +52,15 @@ std::vector<T> copy_vector(U x) {
   return ret;
 }
 
-inline std::vector<double> as_vector_double(cpp11::sexp x, const char * name) {
+template <typename real_type>
+inline std::vector<real_type> as_vector_real(cpp11::sexp x, const char * name) {
   if (TYPEOF(x) != INTSXP && TYPEOF(x) != REALSXP) {
     cpp11::stop("Expected a numeric vector for '%s'", name);
   }
   if (TYPEOF(x) == INTSXP) {
-    return copy_vector<double>(cpp11::as_cpp<cpp11::integers>(x));
+    return copy_vector<real_type>(cpp11::as_cpp<cpp11::integers>(x));
   } else {
-    return copy_vector<double>(cpp11::as_cpp<cpp11::doubles>(x));
+    return copy_vector<real_type>(cpp11::as_cpp<cpp11::doubles>(x));
   }
 }
 
@@ -313,8 +314,16 @@ inline std::vector<size_t> validate_time(cpp11::sexp r_time, size_t time_min,
 template <>
 inline std::vector<double> validate_time(cpp11::sexp r_time, double time_min,
                                          const char *name) {
-  const std::vector<double> time = as_vector_double(r_time, name);
+  const std::vector<double> time = as_vector_real<double>(r_time, name);
   validate_time_vector<double>(time, time_min, name);
+  return time;
+}
+
+template <>
+inline std::vector<float> validate_time(cpp11::sexp r_time, float time_min,
+                                        const char *name) {
+  const std::vector<float> time = as_vector_real<float>(r_time, name);
+  validate_time_vector<float>(time, time_min, name);
   return time;
 }
 
@@ -324,6 +333,17 @@ inline size_t validate_time(cpp11::sexp r_time, size_t time_min,
   const int time_int = cpp11::as_cpp<int>(r_time);
   dust::r::validate_size(time_int, name);
   const size_t time = static_cast<size_t>(time_int);
+  if (time < time_min) {
+    cpp11::stop("'%s' must be at least %s",
+                name, std::to_string(time_min).c_str());
+  }
+  return time;
+}
+
+template <>
+inline float validate_time(cpp11::sexp r_time, float time_min,
+                           const char* name) {
+  const float time = static_cast<float>(cpp11::as_cpp<double>(r_time));
   if (time < time_min) {
     cpp11::stop("'%s' must be at least %s",
                 name, std::to_string(time_min).c_str());
@@ -660,7 +680,8 @@ dust::ode::control<real_type> validate_ode_control(cpp11::sexp r_control) {
                                   defaults.debug_record_step_times,
                                   "debug_record_step_times");
     return dust::ode::control<real_type>(max_steps, atol, rtol, step_size_min,
-                                      step_size_max, debug_record_step_times);
+                                         step_size_max,
+                                         debug_record_step_times);
   }
 }
 
