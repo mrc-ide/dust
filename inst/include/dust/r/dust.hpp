@@ -390,10 +390,6 @@ template <typename T>
 SEXP dust_resample(SEXP ptr, cpp11::doubles r_weights) {
   using real_type = typename T::real_type;
 
-  if (std::is_same<double, typename T::time_type>::value) {
-    cpp11::stop("Can't yet use resample with continuous-time models");
-  }
-
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   size_t n_particles = obj->n_particles();
   size_t n_pars = obj->n_pars_effective();

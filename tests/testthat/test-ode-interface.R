@@ -689,8 +689,6 @@ test_that("dummy data methods error on use", {
   ex <- example_logistic()
   n_particles <- 10
   mod <- ex$generator$new(ex$pars, pi, n_particles)
-  expect_error(mod$resample(rep(1, n_particles)),
-               "Can't yet use resample with continuous-time models")
   expect_error(
     mod$set_data(list(list(1, list()))),
     "The 'set_data' method is not supported for this class")
@@ -723,4 +721,43 @@ test_that("can retrieve empty gpu info", {
   ## expected template:
   expected <- dust::dust_example("sir")$new(list(), 0, 1)$gpu_info()
   expect_equal(mod$gpu_info(), expected)
+})
+
+
+test_that("can set data into models that support it, and compute likelihood", {
+  gen <- dust(dust_file("examples/ode/malaria.cpp"), quiet = TRUE)
+  d <- dust_data(read.csv(dust_file("extdata/malaria_cases.csv")), "t")
+  mod <- gen$new(list(), 0, 1)
+  expect_true(mod$has_compare())
+  mod$set_data(d)
+  mod$set_index(c(Ih = 2))
+  for (el in d[1:5]) {
+    y <- mod$run(el[[1]])
+    cmp <- dbinom(el[[2]]$positive, el[[2]]$tested, y, TRUE)
+    expect_equal(mod$compare_data(), cmp)
+  }
+})
+
+
+test_that("can resample from ode models", {
+  res <- dust_example("logistic")
+  np <- 17
+  obj <- res$new(list(r = c(0.1, 0.2), K = c(100, 200)), 0, np, seed = 1L)
+  s <- obj$state()[1:2, ]
+  s[] <- runif(2 * np, 1, 10)
+  obj$update_state(state = s)
+
+  rng <- dust_rng$new(obj$rng_state(last_only = TRUE))
+  u <- rng$random_real(1)
+  w <- runif(obj$n_particles())
+
+  idx <- obj$resample(w)
+
+  expect_equal(idx, resample_index(w, u))
+  expect_equal(obj$state()[1:2, ], s[, idx])
+
+  obj2 <- res$new(list(r = c(0.1, 0.2), K = c(100, 200)), 0, np, seed = 1L)
+  obj2$update_state(state = s[, idx])
+
+  expect_identical(obj$run(50), obj2$run(50))
 })

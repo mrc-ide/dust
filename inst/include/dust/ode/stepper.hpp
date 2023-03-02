@@ -234,6 +234,11 @@ public:
   double init_step_size(double t, control ctl) {
     return initial_step_size(m, t, y, ctl);
   }
+
+  double compare_data(const typename Model::data_type& data,
+                      rng_state_type& rng_state) {
+    return m.compare_data(y.data(), data, rng_state);
+  }
 };
 
 }
