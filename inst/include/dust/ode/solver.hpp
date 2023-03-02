@@ -144,10 +144,6 @@ public:
     stepper_.set_state(state, index);
   }
 
-  void initialise() {
-    stepper_.initialise(t_);
-  }
-
   void set_state(const std::vector<real_type> &state) {
     set_state(state.begin());
   }

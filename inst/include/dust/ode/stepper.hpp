@@ -21,13 +21,18 @@ public:
     m(m), n_var(m.n_variables()), n_out(m.n_output()),
     y(n_var), y_next(n_var), y_stiff(n_var), k1(n_var),
     k2(n_var), k3(n_var), k4(n_var),
-    k5(n_var), k6(n_var), output(n_out) {
+    k5(n_var), k6(n_var), output(n_out),
+    needs_initialise(true) {
     const auto y = m.initial(t);
     set_state(y.begin());
-    initialise(t);
   }
 
   void step(real_type t, real_type h) {
+    if (needs_initialise) {
+      std::fill(k1.begin(), k1.end(), 0);
+      m.rhs(t, y, k1);
+      needs_initialise = false;
+    }
     for (size_t i = 0; i < n_var; ++i) { // 22
       y_next[i] = y[i] + h * A21 * k1[i];
     }
@@ -78,6 +83,7 @@ public:
     for (size_t i = 0; i < n_var; ++i, ++state) {
       y[i] = *state;
     }
+    needs_initialise = true;
   }
 
   void set_state(typename std::vector<real_type>::const_iterator state,
@@ -85,6 +91,7 @@ public:
     for (size_t i = 0; i < index.size(); ++i, ++state) {
       y[index[i]] = *state;
     }
+    needs_initialise = true;
   }
 
   // store future y values in y_next, future dydt in k2 these will
@@ -107,13 +114,14 @@ public:
 
   void set_model(Model new_model) {
     m = new_model;
+    needs_initialise = true;
   }
 
   void set_model(Model new_model, real_type t) {
     m = new_model;
     const auto y = m.initial(t);
     set_state(y.begin());
-    initialise(t);
+    needs_initialise = true;
   }
 
   void initialise(real_type t) {
@@ -129,7 +137,7 @@ public:
     // initialise works as expected).
     std::copy_n(y.begin(), n_var, y_next.begin()); // from y to y_next
     m.update_stochastic(t, y_next, rng_state, y);  // from y_next to y
-    initialise(t); // must recalculate dydt at this point
+    needs_initialise = true;
   }
 
   void step_complete(real_type t, real_type h) {
@@ -200,6 +208,7 @@ private:
   std::vector<real_type> k5;
   std::vector<real_type> k6;
   std::vector<real_type> output;
+  bool needs_initialise;
 
   static constexpr real_type C2 = 0.2;
   static constexpr real_type C3 = 0.3;
