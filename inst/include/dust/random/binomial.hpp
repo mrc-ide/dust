@@ -1,6 +1,7 @@
 #ifndef DUST_RANDOM_BINOMIAL_HPP
 #define DUST_RANDOM_BINOMIAL_HPP
 
+#include <climits>
 #include <cmath>
 
 #include "dust/random/binomial_gamma_tables.hpp"
