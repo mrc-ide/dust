@@ -158,6 +158,26 @@ test_that("Binomial random numbers prevent bad inputs", {
 })
 
 
+test_that("provide nice feedback on integer overflow", {
+  r <- dust_rng$new(1, seed = 1L)
+  n <- 2^33
+  expect_equal(r$binomial(1, n, 0), 0)
+  expect_equal(r$binomial(1, n, 1), n)
+
+  p1 <- 2.5e-10
+  m1 <- r$binomial(1000000, n, p1)
+  expect_equal(mean(m1), n * p1, tolerance = 1e-3)
+  mt1 <- tabulate(m1)
+  expect_false(any(mt1) == 0)
+
+  p2 <- 0.1
+  m2 <- r$binomial(1000000, n, p2)
+  mt2 <- tabulate(m2)
+  expect_equal(mean(m2), n * p2, tolerance = 1e-3)
+  expect_false(any(mt1) == 0)
+})
+
+
 test_that("poisson numbers", {
   n <- 100000
   lambda <- 5

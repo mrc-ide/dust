@@ -1,3 +1,15 @@
+# dust 0.13.9
+
+* Avoid integer overflow in `binomial()`; previously `n` of greater than `2^31 - 1` (`.Machine$integer.max`) would overflow and error (mrc-4046, reported by Jørgen Eriksson Midtbø).
+
+# dust 0.13.8
+
+* Support for solving ODE models (based on a prototype implementation in [mode](https://mrc-ide.github.io/mode); full documentation forthcoming.
+
+# dust 0.12.5
+
+* Allow control over the C++ specification using the argument `cpp_std`, and including other packages' headers using the argument `linking_to` in `dust::dust()`
+
 # dust 0.12.1
 
 * The `update_state()` method gains an `index` argument for setting just some variables in an update.

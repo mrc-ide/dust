@@ -13,9 +13,9 @@ namespace random {
 // Faster version of pow(x, n) for integer 'n' by using
 // "exponentiation by squaring"
 // https://en.wikipedia.org/wiki/Exponentiation_by_squaring
-template <typename real_type>
+template <typename real_type, typename int_type>
 __host__ __device__
-real_type fast_pow(real_type x, int n) {
+real_type fast_pow(real_type x, int_type n) {
   real_type pow = 1.0;
   if (n != 0) {
     while (true) {
@@ -33,14 +33,14 @@ real_type fast_pow(real_type x, int n) {
 }
 
 __nv_exec_check_disable__
-template <typename real_type>
+template <typename real_type, typename int_type>
 __host__ __device__
-real_type binomial_inversion_calc(real_type u, int n, real_type p) {
+real_type binomial_inversion_calc(real_type u, int_type n, real_type p) {
   const real_type q = 1 - p;
   const real_type r = p / q;
   const real_type g = r * (n + 1);
   real_type f = fast_pow(q, n);
-  int k = 0;
+  int_type k = 0;
 
   real_type f_prev = f;
   while (u >= f) {
@@ -63,9 +63,9 @@ real_type binomial_inversion_calc(real_type u, int n, real_type p) {
 // random number from U(0, 1) and find the 'n' up the distribution
 // (given p) that corresponds to this
 __nv_exec_check_disable__
-template <typename real_type, typename rng_state_type>
+template <typename real_type, typename int_type, typename rng_state_type>
 __host__ __device__
-real_type binomial_inversion(rng_state_type& rng_state, int n, real_type p) {
+real_type binomial_inversion(rng_state_type& rng_state, int_type n, real_type p) {
   real_type k = -1;
   do {
     real_type u = random_real<real_type>(rng_state);
@@ -113,8 +113,7 @@ __host__ __device__ inline double stirling_approx_tail(double k) {
 __nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
 inline __host__ __device__
-real_type btrs(rng_state_type& rng_state, int n_int, real_type p) {
-  const real_type n = static_cast<real_type>(n_int);
+real_type btrs(rng_state_type& rng_state, real_type n, real_type p) {
   const real_type one = 1.0;
   const real_type half = 0.5;
 
@@ -174,11 +173,11 @@ real_type btrs(rng_state_type& rng_state, int n_int, real_type p) {
 
 template <typename real_type>
 __host__ __device__
-void binomial_validate(int n, real_type p) {
+void binomial_validate(real_type n, real_type p) {
   if (n < 0 || p < 0 || p > 1) {
     char buffer[256];
     snprintf(buffer, 256,
-             "Invalid call to binomial with n = %d, p = %g, q = %g",
+             "Invalid call to binomial with n = %.0f, p = %g, q = %g",
              n, p, 1 - p);
     dust::utils::fatal_error(buffer);
   }
@@ -196,15 +195,17 @@ __host__ real_type binomial_deterministic(real_type n, real_type p) {
       throw std::runtime_error(buffer);
     }
   }
-  binomial_validate(static_cast<int>(n), p);
+  binomial_validate(n, p);
   return n * p;
 }
 
 // NOTE: we return a real, not an int, as with deterministic mode this
-// will not necessarily be an integer
+// will not necessarily be an integer. This helps though in cases
+// where n is greater than INT_MAX
 template <typename real_type, typename rng_state_type>
 __host__ __device__
-real_type binomial_stochastic(rng_state_type& rng_state, int n, real_type p) {
+real_type binomial_stochastic(rng_state_type& rng_state, real_type n,
+                              real_type p) {
   binomial_validate(n, p);
   real_type draw;
 
@@ -220,8 +221,10 @@ real_type binomial_stochastic(rng_state_type& rng_state, int n, real_type p) {
 
     if (n * q >= 10) {
       draw = btrs(rng_state, n, q);
+    } else if (n < INT_MAX) {
+      draw = binomial_inversion(rng_state, static_cast<int>(n), q);
     } else {
-      draw = binomial_inversion(rng_state, n, q);
+      draw = binomial_inversion(rng_state, static_cast<size_t>(n), q);
     }
 
     if (p > static_cast<real_type>(0.5)) {
@@ -264,7 +267,7 @@ real_type binomial(rng_state_type& rng_state, real_type n, real_type p) {
   // Avoid integer truncation (which a cast to int would cause) in
   // case of numerical error, instead taking the slightly lower but
   // more accurate round route. This means that `n - eps` becomes
-  // `n` not `n - 1`.
+  // `n` not `n - 1`. Also avoids truncation if n > INT_MAX
   return binomial_stochastic<real_type>(rng_state, std::round(n), p);
 }
 
