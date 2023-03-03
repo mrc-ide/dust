@@ -124,11 +124,6 @@ public:
     needs_initialise = true;
   }
 
-  void initialise(real_type t) {
-    std::fill(k1.begin(), k1.end(), 0);
-    m.rhs(t, y, k1);
-  }
-
   void update_stochastic(real_type t, rng_state_type& rng_state) {
     // Slightly odd construction here - we copy y into y_next so that
     // they both hold the same values, then do the step to update from
