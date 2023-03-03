@@ -72,7 +72,8 @@ test_that("Error if step size becomes too small", {
 test_that("Can run ode solver in single precision mode", {
   skip_for_compilation()
   gen_d <- dust_example("logistic")
-  gen_f <- dust(dust_file("examples/ode/logistic.cpp"), real_type = "float")
+  gen_f <- dust(dust_file("examples/ode/logistic.cpp"),
+                real_type = "float", quiet = TRUE)
 
   pars <- list(r = c(0.1, 0.2), K = c(100, 200))
   mod_d <- gen_d$new(pars, 0, 1)
