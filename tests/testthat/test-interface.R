@@ -112,6 +112,7 @@ test_that("validate package interface", {
                           list(name = "testing", param = "NULL",
                                has_gpu_support = "FALSE",
                                reload = "NULL",
+                               target = "cpu",
                                methods_cpu = "list()",
                                methods_gpu = "list()")),
              tmp)
