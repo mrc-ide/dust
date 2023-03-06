@@ -1,3 +1,7 @@
+# dust 0.13.12
+
+* New method `$time_type()` to determine of a model uses discrete time (`discrete`) or continuous time (`continuous`).
+
 # dust 0.13.10
 
 * Avoid integer overflow in `binomial()`; previously `n` of greater than `2^31 - 1` (`.Machine$integer.max`) would overflow and error (mrc-4046, reported by Jørgen Eriksson Midtbø).
