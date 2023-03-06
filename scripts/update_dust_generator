@@ -8,6 +8,7 @@ txt <- glue_whisker(template_r, list(name = "dust_generator",
                                      param = "NULL",
                                      reload = "NULL",
                                      has_gpu_support = "",
+                                     target = "cpu",
                                      methods_cpu = "",
                                      methods_gpu = ""))
 txt <- gsub(") \\{.+?\n    \\}", ") {\n    }", txt)

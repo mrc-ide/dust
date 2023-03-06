@@ -619,3 +619,17 @@ test_that("don't update time if error initialising particles", {
   expect_error(mod$update_state(pars = list(), time = 0))
   expect_equal(mod$time(), 5)
 })
+
+
+test_that("report back on time type in discrete time models", {
+  gen <- dust_example("walk")
+  expect_equal(gen$public_methods$time_type(), "discrete")
+  expect_equal(gen$new(list(len = 1, sd = 1), 0, 1)$time_type(), "discrete")
+})
+
+
+test_that("report back on time type in continuous time models", {
+  gen <- dust_example("logistic")
+  expect_equal(gen$public_methods$time_type(), "continuous")
+  expect_equal(gen$new(list(r = 0.1, K = 100), 0, 1)$time_type(), "continuous")
+})

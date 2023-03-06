@@ -615,6 +615,15 @@ cpp11::sexp dust_filter(SEXP ptr, SEXP time_end, bool save_trajectories,
   return R_NilValue; // #nocov never gets here
 }
 
+template <typename time_type>
+std::string dust_time_type() {
+  if (std::is_floating_point<time_type>::value) {
+    return "continuous";
+  } else {
+    return "discrete";
+  }
+}
+
 template <typename T>
 cpp11::sexp dust_capabilities() {
   using namespace cpp11::literals;
@@ -633,10 +642,12 @@ cpp11::sexp dust_capabilities() {
   auto real_size = sizeof(real_type);
   auto rng_algorithm =
     dust::random::r::algorithm_name<typename T::rng_state_type>();
+  auto time_type = dust_time_type<typename T::time_type>();
   return cpp11::writable::list({"openmp"_nm = openmp,
                                 "compare"_nm = compare,
                                 "gpu"_nm = gpu,
                                 "rng_algorithm"_nm = rng_algorithm,
+                                "time_type"_nm = time_type,
                                 "real_size"_nm = real_size * CHAR_BIT});
 }
 

@@ -1,6 +1,10 @@
 /// IMPORTANT; changes here must be reflected in inst/template/dust_methods.hpp
 using model_{{target}} = dust::{{container}}<{{class}}>;
 
+cpp11::sexp dust_{{target}}_{{name}}_capabilities() {
+  return dust::r::dust_capabilities<model_{{target}}>();
+}
+
 SEXP dust_{{target}}_{{name}}_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_time,
                              cpp11::sexp r_n_particles, int n_threads,
                              cpp11::sexp r_seed, bool deterministic,
