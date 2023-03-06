@@ -3,7 +3,7 @@ examples <- c("sir.cpp", "sirs.cpp", "variable.cpp", "volatility.cpp",
               "walk.cpp", "ode/logistic.cpp")
 
 setwd(here::here())
-unlink(file.path("src", examples))
+unlink(file.path("src", basename(examples)))
 
 pkgload::load_all()
 path <- withr::with_dir("tests/testthat",
