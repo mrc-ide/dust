@@ -158,7 +158,7 @@ test_that("Binomial random numbers prevent bad inputs", {
 })
 
 
-test_that("provide nice feedback on integer overflow", {
+test_that("avoid integer overflow in binomial draws with very large n", {
   r <- dust_rng$new(1, seed = 1L)
   n <- 2^33
   expect_equal(r$binomial(1, n, 0), 0)
