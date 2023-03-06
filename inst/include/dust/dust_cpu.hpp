@@ -38,7 +38,7 @@ public:
   // TODO: fix this elsewhere, perhaps (see also cuda/dust_gpu.hpp)
   using filter_state_type = dust::filter::filter_state_host<real_type>;
 
-  dust_cpu(const pars_type& pars, const size_t time, const size_t n_particles,
+  dust_cpu(const pars_type& pars, const time_type time, const size_t n_particles,
            const size_t n_threads, const std::vector<rng_int_type>& seed,
            const bool deterministic) :
     n_pars_(0),
@@ -53,7 +53,7 @@ public:
     shape_ = {n_particles};
   }
 
-  dust_cpu(const std::vector<pars_type>& pars, const size_t time,
+  dust_cpu(const std::vector<pars_type>& pars, const time_type time,
            const size_t n_particles, const size_t n_threads,
            const std::vector<rng_int_type>& seed,
            const bool deterministic,
@@ -111,7 +111,7 @@ public:
     }
   }
 
-  void set_time(const size_t time) {
+  void set_time(const time_type time) {
     const size_t n_particles = particles_.size();
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
@@ -127,7 +127,7 @@ public:
     index_ = index;
   }
 
-  void run(const size_t time_end) {
+  void run(const time_type time_end) {
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
@@ -141,7 +141,7 @@ public:
     errors_.report();
   }
 
-  std::vector<real_type> simulate(const std::vector<size_t>& time_end) {
+  std::vector<real_type> simulate(const std::vector<time_type>& time_end) {
     const size_t n_time = time_end.size();
     std::vector<real_type> ret(n_particles() * n_state() * n_time);
 
@@ -284,7 +284,7 @@ public:
     return data_;
   }
 
-  size_t time() const {
+  time_type time() const {
     return particles_.front().time();
   }
 
@@ -364,7 +364,7 @@ private:
   std::vector<size_t> index_;
   std::vector<dust::particle<T>> particles_;
 
-  void initialise(const pars_type& pars, const size_t time, bool set_state) {
+  void initialise(const pars_type& pars, const time_type time, bool set_state) {
     const bool first_time = particles_.empty();
     const size_t n = first_time ? 0 : n_state_full();
     dust::particle<T> p(pars, time);
@@ -392,7 +392,7 @@ private:
     reset_errors();
   }
 
-  void initialise(const std::vector<pars_type>& pars, const size_t time,
+  void initialise(const std::vector<pars_type>& pars, const time_type time,
                   bool set_state) {
     const bool first_time = particles_.empty();
     size_t n = first_time ? 0 : n_state_full();

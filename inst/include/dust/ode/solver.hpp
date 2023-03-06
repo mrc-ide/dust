@@ -14,34 +14,21 @@ namespace ode {
 
 template <typename Model>
 class solver {
-private:
-  double t_;
-  double h_;
-  control ctl_;
-  statistics statistics_;
-  double last_error_;
-  stepper<Model> stepper_;
-  size_t n_variables_;
-  size_t n_output_;
-  double h_swap_;
-  double last_error_swap_;
-  statistics statistics_swap_;
-  std::vector<double> stochastic_schedule_;
-
 public:
   using rng_state_type = typename Model::rng_state_type;
+  using real_type = typename Model::real_type;
 
-  solver(Model m, double t, control ctl) : t_(t),
-                                           ctl_(ctl),
-                                           last_error_(0),
-                                           stepper_(m, t),
-                                           n_variables_(m.n_variables()),
-                                           n_output_(m.n_output()) {
+  solver(Model m, real_type t, control<real_type> ctl) : t_(t),
+                                                         ctl_(ctl),
+                                                         last_error_(0),
+                                                         stepper_(m, t),
+                                                         n_variables_(m.n_variables()),
+                                                         n_output_(m.n_output()) {
     statistics_.reset();
     set_initial_step_size();
   }
 
-  double time() const {
+  real_type time() const {
     return t_;
   }
 
@@ -53,16 +40,16 @@ public:
     return n_output_;
   }
 
-  control ctl() const {
+  control<real_type> ctl() const {
     return ctl_;
   }
 
-  double step(double tcrit) {
+  real_type step(real_type tcrit) {
     bool success = false;
     bool reject = false;
-    const double fac_old = std::max(last_error_, 1e-4);
+    const real_type fac_old = std::max(last_error_, static_cast<real_type>(1e-4));
 
-    double h = h_;
+    real_type h = h_;
     while (!success) {
       if (statistics_.n_steps > ctl_.max_steps) {
         throw std::runtime_error("too many steps");
@@ -70,7 +57,7 @@ public:
       if (h < ctl_.step_size_min) {
         throw std::runtime_error("step too small");
       }
-      if (h <= std::abs(t_) * std::numeric_limits<double>::epsilon()) {
+      if (h <= std::abs(t_) * std::numeric_limits<real_type>::epsilon()) {
         throw std::runtime_error("step size vanished");
       }
       if (t_ + h > tcrit) {
@@ -84,17 +71,17 @@ public:
       // Error estimation
       const auto err = stepper_.error(ctl_.atol, ctl_.rtol);
 
-      const double fac11 = std::pow(err, ctl_.constant);
-      const double facc1 = 1.0 / ctl_.factor_min;
-      const double facc2 = 1.0 / ctl_.factor_max;
+      const real_type fac11 = std::pow(err, ctl_.constant);
+      const real_type facc1 = 1.0 / ctl_.factor_min;
+      const real_type facc2 = 1.0 / ctl_.factor_max;
 
       if (err <= 1) {
         success = true;
         statistics_.n_steps_accepted++;
         stepper_.step_complete(t_, h);
-        double fac = fac11 / std::pow(fac_old, ctl_.beta);
+        real_type fac = fac11 / std::pow(fac_old, ctl_.beta);
         fac = utils::clamp(fac / ctl_.factor_safe, facc2, facc1);
-        const double h_new = h / fac;
+        const real_type h_new = h / fac;
 
         t_ += h;
         if (ctl_.debug_record_step_times) {
@@ -117,7 +104,7 @@ public:
     return t_;
   }
 
-  void solve(double t_end, rng_state_type& rng_state) {
+  void solve(real_type t_end, rng_state_type& rng_state) {
     // TODO: we can tidy this bit of bookkeeping up later once it's
     // correct; it should be possible to hold a pointer to where we
     // are, and update it when doing set_time()
@@ -128,16 +115,16 @@ public:
         stepper_.update_stochastic(t_, rng_state);
         ++it;
       }
-      const double t_next = it == end ? t_end : std::min(*it, t_end);
+      const real_type t_next = it == end ? t_end : std::min(*it, t_end);
       step(t_next);
     }
   }
 
-  void set_stochastic_schedule(const std::vector<double>& time) {
+  void set_stochastic_schedule(const std::vector<real_type>& time) {
     stochastic_schedule_ = time;
   }
 
-  void set_time(double t) {
+  void set_time(real_type t) {
     if (t != t_) {
       statistics_.reset();
       t_ = t;
@@ -148,11 +135,11 @@ public:
     h_ = stepper_.init_step_size(t_, ctl_);
   }
 
-  void set_state(std::vector<double>::const_iterator state) {
+  void set_state(typename std::vector<real_type>::const_iterator state) {
     stepper_.set_state(state);
   }
 
-  void set_state(std::vector<double>::const_iterator state,
+  void set_state(typename std::vector<real_type>::const_iterator state,
                  const std::vector<size_t>& index) {
     stepper_.set_state(state, index);
   }
@@ -161,11 +148,11 @@ public:
     stepper_.initialise(t_);
   }
 
-  void set_state(const std::vector<double> &state) {
+  void set_state(const std::vector<real_type> &state) {
     set_state(state.begin());
   }
 
-  void set_state(const std::vector<double> &state,
+  void set_state(const std::vector<real_type> &state,
                  const std::vector<size_t>& index) {
     set_state(state.begin(), index);
   }
@@ -197,15 +184,15 @@ public:
   }
 
   void state(const std::vector<size_t>& index,
-        std::vector<double>::iterator end_state) {
+             typename std::vector<real_type>::iterator end_state) {
     stepper_.state(t_, index, end_state);
   }
 
-  void state(std::vector<double>::iterator end_state) {
+  void state(typename std::vector<real_type>::iterator end_state) {
     stepper_.state(t_, end_state);
   }
 
-  double compare_data(const typename Model::data_type& data, rng_state_type& rng_state) {
+  real_type compare_data(const typename Model::data_type& data, rng_state_type& rng_state) {
     return stepper_.compare_data(data, rng_state);
   }
 
@@ -217,9 +204,23 @@ public:
     return all_statistics + 3;
   }
 
-  std::vector<double> debug_step_times() {
+  std::vector<real_type> debug_step_times() {
     return statistics_.step_times;
   }
+
+private:
+  real_type t_;
+  real_type h_;
+  control<real_type> ctl_;
+  statistics<real_type> statistics_;
+  real_type last_error_;
+  stepper<Model> stepper_;
+  size_t n_variables_;
+  size_t n_output_;
+  real_type h_swap_;
+  real_type last_error_swap_;
+  statistics<real_type> statistics_swap_;
+  std::vector<real_type> stochastic_schedule_;
 };
 
 }

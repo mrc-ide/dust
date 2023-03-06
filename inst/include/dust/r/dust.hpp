@@ -20,6 +20,7 @@
 
 #include "dust/r/gpu.hpp"
 #include "dust/r/helpers.hpp"
+#include "dust/r/helpers_ode.hpp"
 #include "dust/r/random.hpp"
 
 namespace dust {
@@ -115,20 +116,23 @@ cpp11::list dust_ode_alloc(cpp11::list r_pars, bool pars_multi,
                            cpp11::sexp r_seed, bool deterministic,
                            cpp11::sexp r_gpu_config,
                            cpp11::sexp r_ode_control) {
+  using real_type = typename dust_ode<T>::real_type;
+  using time_type = typename dust_ode<T>::time_type;
+
   dust_ode<T> *d = nullptr;
   cpp11::sexp info;
-  auto ctl = dust::r::validate_ode_control(r_ode_control);
+  auto ctl = dust::r::validate_ode_control<real_type>(r_ode_control);
 
   if (pars_multi) {
     auto inputs =
-      dust::r::process_inputs_multi<T, double>(r_pars, r_time, r_n_particles, n_threads, r_seed);
+      dust::r::process_inputs_multi<T, time_type>(r_pars, r_time, r_n_particles, n_threads, r_seed);
     info = inputs.info;
     d = new dust_ode<T>(inputs.pars, inputs.time, inputs.n_particles,
                         inputs.n_threads, ctl, inputs.seed, deterministic,
                         inputs.shape);
   } else {
     auto inputs =
-      dust::r::process_inputs_single<T, double>(r_pars, r_time, r_n_particles, n_threads, r_seed);
+      dust::r::process_inputs_single<T, time_type>(r_pars, r_time, r_n_particles, n_threads, r_seed);
     info = inputs.info;
     d = new dust_ode<T>(inputs.pars[0], inputs.time, inputs.n_particles,
                         inputs.n_threads, ctl, inputs.seed, deterministic);
@@ -181,11 +185,11 @@ cpp11::sexp dust_update_state_set_pars(T *obj, cpp11::list r_pars,
   return ret;
 }
 
-template <typename T, typename std::enable_if<std::is_same<size_t, typename T::time_type>::value, int>::type = 0>
+template <typename T, typename std::enable_if<std::is_integral<typename T::time_type>::value, int>::type = 0>
 void dust_initialise(T *obj, bool reset_step_size) {
 }
 
-template <typename T, typename std::enable_if<std::is_same<double, typename T::time_type>::value, int>::type = 0>
+template <typename T, typename std::enable_if<std::is_floating_point<typename T::time_type>::value, int>::type = 0>
 void dust_initialise(T *obj, bool reset_step_size) {
   obj->initialise_solver(reset_step_size);
 }
@@ -640,21 +644,21 @@ int dust_n_state(SEXP ptr) {
   return obj->n_state_full();
 }
 
-template <typename T, typename std::enable_if<std::is_same<size_t, typename T::time_type>::value, int>::type = 0>
+template <typename T, typename std::enable_if<std::is_integral<typename T::time_type>::value, int>::type = 0>
 void dust_set_stochastic_schedule(SEXP ptr, SEXP time) {
   if (time != R_NilValue) {
     cpp11::stop("'set_stochastic_schedule' not supported in discrete-time models");
   }
 }
 
-template <typename T, typename std::enable_if<std::is_same<size_t, typename T::time_type>::value, int>::type = 0>
+template <typename T, typename std::enable_if<std::is_integral<typename T::time_type>::value, int>::type = 0>
 SEXP dust_ode_statistics(SEXP ptr) {
   cpp11::stop("'ode_statistics' not supported in discrete-time models");
   return R_NilValue; // # nocov
 }
 
 // new below here:
-template <typename T, typename std::enable_if<std::is_same<double, typename T::time_type>::value, int>::type = 0>
+template <typename T, typename std::enable_if<std::is_floating_point<typename T::time_type>::value, int>::type = 0>
 cpp11::sexp dust_ode_statistics(SEXP ptr) {
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   const auto n_particles = obj->n_particles();
@@ -671,15 +675,19 @@ cpp11::sexp dust_ode_statistics(SEXP ptr) {
     ret.attr("step_times") = r_step_times;
   }
   return ret;
+  return R_NilValue;
 }
 
-template <typename T, typename std::enable_if<std::is_same<double, typename T::time_type>::value, int>::type = 0>
+// There's some work here to make this work nicely with validate_time,
+// and for that to cope nicely with vectors of doubles and floats.
+template <typename T, typename std::enable_if<std::is_floating_point<typename T::time_type>::value, int>::type = 0>
 void dust_set_stochastic_schedule(SEXP ptr, SEXP r_time) {
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
+  using time_type = typename T::time_type;
 
-  std::vector<double> time;
+  std::vector<time_type> time;
   if (r_time != R_NilValue) {
-    time = cpp11::as_cpp<std::vector<double>>(cpp11::as_doubles(r_time));
+    time = as_vector_real<time_type>(r_time, "time");
     for (size_t i = 1; i < time.size(); ++i) {
       if (time[i] <= time[i - 1]) {
         cpp11::stop("schedule must be strictly increasing; see time[%d]",

@@ -21,17 +21,17 @@ template <typename T>
 class dust_ode {
 public:
   using model_type = T;
-  using time_type = double;
   using real_type = typename T::real_type;
+  using time_type = real_type;
   using data_type = typename T::data_type;
   using pars_type = dust::pars_type<T>;
   using rng_state_type = typename T::rng_state_type;
   using rng_int_type = typename rng_state_type::int_type;
   using filter_state_type = dust::filter::filter_state_host<real_type>;
 
-  dust_ode(const pars_type &pars, const double time,
+  dust_ode(const pars_type &pars, const time_type time,
            const size_t n_particles, const size_t n_threads,
-           const ode::control ctl, const std::vector<rng_int_type>& seed,
+           const ode::control<real_type> ctl, const std::vector<rng_int_type>& seed,
            bool deterministic)
     : n_pars_(0),
       n_particles_each_(n_particles),
@@ -46,9 +46,9 @@ public:
     shape_ = {n_particles};
   }
 
-  dust_ode(const std::vector<pars_type>& pars, const double time,
+  dust_ode(const std::vector<pars_type>& pars, const time_type time,
            const size_t n_particles, const size_t n_threads,
-           const ode::control ctl, const std::vector<rng_int_type>& seed,
+           const ode::control<real_type> ctl, const std::vector<rng_int_type>& seed,
            bool deterministic,
            const std::vector<size_t>& shape)
     : n_pars_(pars.size()),
@@ -72,7 +72,7 @@ public:
 
   // This is called exactly once, for pulling out debug step times;
   // can we avoid that? Sniff length of the return value perhaps?
-  ode::control ctl() {
+  ode::control<real_type> ctl() {
     return control_;
   }
 
@@ -126,7 +126,7 @@ public:
     return rng_.deterministic();
   }
 
-  void set_stochastic_schedule(const std::vector<double>& time) {
+  void set_stochastic_schedule(const std::vector<time_type>& time) {
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
@@ -144,7 +144,7 @@ public:
     }
   }
 
-  double time() {
+  time_type time() {
     return solver_[0].time();
   }
 
@@ -152,7 +152,7 @@ public:
     return shape_;
   }
 
-  void run(double time_end) {
+  void run(time_type time_end) {
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
@@ -166,9 +166,9 @@ public:
     errors_.report();
   }
 
-  std::vector<double> simulate(const std::vector<double>& time_end) {
+  std::vector<real_type> simulate(const std::vector<time_type>& time_end) {
     const size_t n_time = time_end.size();
-    std::vector<double> ret(n_particles() * n_state() * n_time);
+    std::vector<real_type> ret(n_particles() * n_state() * n_time);
 
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
@@ -188,11 +188,11 @@ public:
     return ret;
   }
 
-  void state_full(std::vector<double> &end_state) {
+  void state_full(std::vector<real_type> &end_state) {
     state_full(end_state.begin());
   }
 
-  void state_full(std::vector<double>::iterator end_state) {
+  void state_full(typename std::vector<real_type>::iterator end_state) {
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
@@ -210,12 +210,12 @@ public:
     }
   }
 
-  void state(std::vector<double> &end_state) {
+  void state(std::vector<real_type> &end_state) {
     state(end_state.begin());
   }
 
   void state(const std::vector<size_t>& index,
-             std::vector<double> &end_state) {
+             std::vector<real_type> &end_state) {
     auto it = end_state.begin();
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
@@ -225,7 +225,7 @@ public:
     }
   }
 
-  void set_time(double time) {
+  void set_time(time_type time) {
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
@@ -319,8 +319,8 @@ public:
     }
   }
 
-  std::vector<std::vector<double>> debug_step_times() {
-    std::vector<std::vector<double>> ret(solver_.size());
+  std::vector<std::vector<time_type>> debug_step_times() {
+    std::vector<std::vector<time_type>> ret(solver_.size());
     // This could be in parallel safely
     for (size_t i = 0; i < solver_.size(); ++i) {
       ret[i] = solver_[i].debug_step_times();
@@ -391,9 +391,9 @@ private:
 
   std::vector<size_t> index_;
   std::vector<dust::ode::solver<model_type>> solver_;
-  ode::control control_;
+  ode::control<real_type> control_;
 
-  void initialise(const pars_type& pars, const double time, bool set_state) {
+  void initialise(const pars_type& pars, const time_type time, bool set_state) {
     const bool first_time = solver_.empty();
     const size_t n = first_time ? 0 : n_state_full();
     const auto m = model_type(pars);

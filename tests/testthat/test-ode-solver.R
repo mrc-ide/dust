@@ -67,3 +67,24 @@ test_that("Error if step size becomes too small", {
     mod$run(5),
     "step too small")
 })
+
+
+test_that("Can run ode solver in single precision mode", {
+  skip_for_compilation()
+  gen_d <- dust_example("logistic")
+  gen_f <- dust(dust_file("examples/ode/logistic.cpp"),
+                real_type = "float", quiet = TRUE)
+
+  pars <- list(r = c(0.1, 0.2), K = c(100, 200))
+  mod_d <- gen_d$new(pars, 0, 1)
+  mod_f <- gen_f$new(pars, 0, 1)
+
+  expect_equal(mod_d$real_size(), 64)
+  expect_equal(mod_f$real_size(), 32)
+  expect_equal(mod_f$rng_algorithm(), "xoshiro128plus")
+
+  y_d <- drop(mod_d$simulate(0:10))
+  y_f <- drop(mod_f$simulate(0:10))
+
+  expect_equal(y_f, y_d, tolerance = 1e-6)
+})

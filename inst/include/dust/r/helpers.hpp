@@ -10,7 +10,6 @@
 #include <cpp11/list.hpp>
 #include <cpp11/strings.hpp>
 
-#include "dust/ode/control.hpp"
 #include "dust/r/random.hpp"
 #include "dust/r/utils.hpp"
 
@@ -52,14 +51,15 @@ std::vector<T> copy_vector(U x) {
   return ret;
 }
 
-inline std::vector<double> as_vector_double(cpp11::sexp x, const char * name) {
+template <typename real_type>
+inline std::vector<real_type> as_vector_real(cpp11::sexp x, const char * name) {
   if (TYPEOF(x) != INTSXP && TYPEOF(x) != REALSXP) {
     cpp11::stop("Expected a numeric vector for '%s'", name);
   }
   if (TYPEOF(x) == INTSXP) {
-    return copy_vector<double>(cpp11::as_cpp<cpp11::integers>(x));
+    return copy_vector<real_type>(cpp11::as_cpp<cpp11::integers>(x));
   } else {
-    return copy_vector<double>(cpp11::as_cpp<cpp11::doubles>(x));
+    return copy_vector<real_type>(cpp11::as_cpp<cpp11::doubles>(x));
   }
 }
 
@@ -313,8 +313,16 @@ inline std::vector<size_t> validate_time(cpp11::sexp r_time, size_t time_min,
 template <>
 inline std::vector<double> validate_time(cpp11::sexp r_time, double time_min,
                                          const char *name) {
-  const std::vector<double> time = as_vector_double(r_time, name);
+  const std::vector<double> time = as_vector_real<double>(r_time, name);
   validate_time_vector<double>(time, time_min, name);
+  return time;
+}
+
+template <>
+inline std::vector<float> validate_time(cpp11::sexp r_time, float time_min,
+                                        const char *name) {
+  const std::vector<float> time = as_vector_real<float>(r_time, name);
+  validate_time_vector<float>(time, time_min, name);
   return time;
 }
 
@@ -324,6 +332,17 @@ inline size_t validate_time(cpp11::sexp r_time, size_t time_min,
   const int time_int = cpp11::as_cpp<int>(r_time);
   dust::r::validate_size(time_int, name);
   const size_t time = static_cast<size_t>(time_int);
+  if (time < time_min) {
+    cpp11::stop("'%s' must be at least %s",
+                name, std::to_string(time_min).c_str());
+  }
+  return time;
+}
+
+template <>
+inline float validate_time(cpp11::sexp r_time, float time_min,
+                           const char* name) {
+  const float time = static_cast<float>(cpp11::as_cpp<double>(r_time));
   if (time < time_min) {
     cpp11::stop("'%s' must be at least %s",
                 name, std::to_string(time_min).c_str());
@@ -595,19 +614,6 @@ dust_inputs<T, time_type> process_inputs_multi(cpp11::list r_pars, cpp11::sexp r
     info};
 }
 
-inline cpp11::sexp ode_statistics_array(const std::vector<size_t>& dat,
-                                        size_t n_particles) {
-  cpp11::writable::integers ret(dat.size());
-  std::copy(dat.begin(), dat.end(), ret.begin());
-  ret.attr("dim") = cpp11::writable::integers{3, static_cast<int>(n_particles)};
-  ret.attr("class") = "ode_statistics";
-  auto row_names = cpp11::writable::strings{"n_steps",
-                                            "n_steps_accepted",
-                                            "n_steps_rejected"};
-  ret.attr("dimnames") = cpp11::writable::list{row_names, R_NilValue};
-  return ret;
-}
-
 // Can replace with std::make_integer_sequence(n) with C++14
 inline std::vector<size_t> sequence(size_t n) {
   std::vector<size_t> ret;
@@ -615,65 +621,6 @@ inline std::vector<size_t> sequence(size_t n) {
   for (size_t i = 0; i < n; ++i) {
     ret.push_back(i);
   }
-  return ret;
-}
-
-inline
-bool validate_reset_step_size(SEXP r_time,
-                              SEXP r_pars,
-                              SEXP r_reset_step_size) {
-  bool reset_step_size = false;
-  if (r_reset_step_size == R_NilValue) {
-    reset_step_size = r_time != R_NilValue || r_pars != R_NilValue;
-  } else {
-    reset_step_size = cpp11::as_cpp<bool>(r_reset_step_size);
-  }
-  return reset_step_size;
-}
-
-inline
-dust::ode::control validate_ode_control(cpp11::sexp r_control) {
-  const auto defaults = dust::ode::control();
-  if (r_control == R_NilValue) {
-    return defaults;
-  }
-  else {
-    auto control = cpp11::as_cpp<cpp11::list>(r_control);
-    auto max_steps = dust::r::validate_integer(control["max_steps"],
-                                               defaults.max_steps,
-                                               "max_steps");
-    auto atol = dust::r::validate_double(control["atol"],
-                                         defaults.atol,
-                                         "atol");
-    auto rtol = dust::r::validate_double(control["rtol"],
-                                         defaults.rtol,
-                                         "rtol");
-    auto step_size_min = dust::r::validate_double(control["step_size_min"],
-                                                  defaults.step_size_min,
-                                                  "step_size_min");
-    auto step_size_max = dust::r::validate_double(control["step_size_max"],
-                                                  defaults.step_size_max,
-                                                  "step_size_max");
-    auto debug_record_step_times =
-        dust::r::validate_logical(control["debug_record_step_times"],
-                                  defaults.debug_record_step_times,
-                                  "debug_record_step_times");
-    return dust::ode::control(max_steps, atol, rtol, step_size_min,
-                             step_size_max, debug_record_step_times);
-  }
-}
-
-inline
-cpp11::sexp ode_control(const dust::ode::control ctl) {
-  using namespace cpp11::literals;
-  auto ret = cpp11::writable::list({"max_steps"_nm = ctl.max_steps,
-                                    "atol"_nm = ctl.atol,
-                                    "rtol"_nm = ctl.rtol,
-                                    "step_size_min"_nm = ctl.step_size_min,
-                                    "step_size_max"_nm = ctl.step_size_max,
-                                    "debug_record_step_times"_nm = ctl.debug_record_step_times});
-
-  ret.attr("class") = "dust_ode_control";
   return ret;
 }
 
