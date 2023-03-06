@@ -1,4 +1,4 @@
-# dust 0.13.9
+# dust 0.13.10
 
 * Avoid integer overflow in `binomial()`; previously `n` of greater than `2^31 - 1` (`.Machine$integer.max`) would overflow and error (mrc-4046, reported by Jørgen Eriksson Midtbø).
 
