@@ -205,7 +205,7 @@ load_temporary_package <- function(path, base, quiet) {
 ##'
 ##' @title Repair dust environment
 ##'
-##' @param generator The dust generator (also works with mode generators)
+##' @param generator The dust generator
 ##'
 ##' @param quiet Logical, indicating if we should be quiet (default
 ##'   prints some progress information)
@@ -213,7 +213,7 @@ load_temporary_package <- function(path, base, quiet) {
 ##' @return Nothing, called for its side effects
 ##' @export
 dust_repair_environment <- function(generator, quiet = FALSE) {
-  assert_is(generator, c("dust_generator", "mode_generator"))
+  assert_is(generator, "dust_generator")
   data <- generator$private_fields$reload_
   if (is.null(data)) {
     if (!quiet) {
@@ -234,6 +234,9 @@ dust_repair_environment <- function(generator, quiet = FALSE) {
   }
   if (!identical(env, generator$parent_env)) {
     generator$parent_env <- env
+    for (nm in names(generator$public_methods)) {
+      environment(generator$public_methods[[nm]]) <- env
+    }
   }
 }
 

@@ -517,11 +517,13 @@ test_that("Can save a model and reload it after repair", {
   res <- callr::r(function(path) {
     gen <- readRDS(path)
     dust::dust_repair_environment(gen)
-    gen$new(list(sd = 1), 0, 1, seed = 1)$run(10)
+    list(
+      gen$new(list(sd = 1), 0, 1, seed = 1)$run(10),
+      gen$public_methods$time_type())
   }, list(tmp_rds))
 
   cmp <- gen$new(list(sd = 1), 0, 1, seed = 1)$run(10)
-  expect_equal(res, cmp)
+  expect_equal(res, list(cmp, "discrete"))
 })
 
 
