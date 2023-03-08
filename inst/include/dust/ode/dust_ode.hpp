@@ -256,15 +256,12 @@ public:
     }
   }
 
-  void initialise_solver(bool reset_step_size) {
+  void reset_step_size() {
 #ifdef _OPENMP
 #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
     for (size_t i = 0; i < solver_.size(); ++i) {
-      if (reset_step_size) {
-        solver_[i].set_initial_step_size();
-      }
-      solver_[i].initialise();
+      solver_[i].set_initial_step_size();
     }
   }
 
@@ -290,7 +287,6 @@ public:
     for (size_t i = 0; i < solver_.size(); ++i) {
       solver_[i].swap();
     }
-    initialise_solver(false);
   }
 
   std::vector<size_t> resample(const std::vector<real_type>& weights) {

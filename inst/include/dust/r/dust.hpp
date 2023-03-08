@@ -191,7 +191,9 @@ void dust_initialise(T *obj, bool reset_step_size) {
 
 template <typename T, typename std::enable_if<std::is_floating_point<typename T::time_type>::value, int>::type = 0>
 void dust_initialise(T *obj, bool reset_step_size) {
-  obj->initialise_solver(reset_step_size);
+  if (reset_step_size) {
+    obj->reset_step_size();
+  }
 }
 
 // There are many components of state (not including rng state which
