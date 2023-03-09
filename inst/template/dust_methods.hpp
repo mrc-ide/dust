@@ -6,6 +6,9 @@ SEXP dust_{{target}}_{{name}}_alloc(cpp11::list r_pars, bool pars_multi, cpp11::
                          cpp11::sexp gpu_config, cpp11::sexp ode_control);
 
 [[cpp11::register]]
+cpp11::sexp dust_{{target}}_{{name}}_capabilities();
+
+[[cpp11::register]]
 SEXP dust_{{target}}_{{name}}_run(SEXP ptr, cpp11::sexp r_time_end);
 
 [[cpp11::register]]

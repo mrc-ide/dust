@@ -393,16 +393,24 @@ dust_generator <- R6::R6Class(
     ##' @description
     ##' Return the size of real numbers (in bits). Typically this will be
     ##' 64 for double precision and 32 for `float`.  This method can also be
-    ##' used as a static method by running it directory as
+    ##' used as a static method by running it directly as
     ##' `dust_generator$public_methods$real_size()`
     real_size = function() {
+    },
+
+    ##' @description
+    ##' Return the type of time this model uses; will be one of `discrete`
+    ##' (for discrete time models) or `continuous` (for ODE models).
+    ##' This method can also be used as a static method by running it
+    ##' directly as `dust_generator$public_methods$time_type()`
+    time_type = function() {
     },
 
     ##' @description
     ##' Return the random number algorithm used. Typically this will be
     ##' `xoshiro256plus` for models using double precision reals and
     ##' `xoshiro128plus` for single precision (`float`). This method can
-    ##' also be used as a static method by running it directory as
+    ##' also be used as a static method by running it directly as
     ##' `dust_generator$public_methods$rng_algorithm()`
     rng_algorithm = function() {
     },

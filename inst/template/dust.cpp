@@ -4,10 +4,6 @@
 /// Can we move this later? in that case we can simplify a little.
 {{model}}
 
-cpp11::sexp dust_{{name}}_capabilities() {
-  return dust::r::dust_capabilities<{{class}}>();
-}
-
 cpp11::sexp dust_{{name}}_gpu_info() {
   return dust::gpu::r::gpu_info();
 }

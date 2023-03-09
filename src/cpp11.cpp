@@ -177,13 +177,6 @@ extern "C" SEXP _dust_dust_rng_state(SEXP ptr, SEXP is_float) {
   END_CPP11
 }
 // logistic.cpp
-cpp11::sexp dust_logistic_capabilities();
-extern "C" SEXP _dust_dust_logistic_capabilities() {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_logistic_capabilities());
-  END_CPP11
-}
-// logistic.cpp
 cpp11::sexp dust_logistic_gpu_info();
 extern "C" SEXP _dust_dust_logistic_gpu_info() {
   BEGIN_CPP11
@@ -195,6 +188,13 @@ SEXP dust_ode_logistic_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_
 extern "C" SEXP _dust_dust_ode_logistic_alloc(SEXP r_pars, SEXP pars_multi, SEXP r_time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_ode_logistic_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
+  END_CPP11
+}
+// logistic.cpp
+cpp11::sexp dust_ode_logistic_capabilities();
+extern "C" SEXP _dust_dust_ode_logistic_capabilities() {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_ode_logistic_capabilities());
   END_CPP11
 }
 // logistic.cpp
@@ -327,13 +327,6 @@ extern "C" SEXP _dust_cpp_openmp_info() {
   END_CPP11
 }
 // sir.cpp
-cpp11::sexp dust_sir_capabilities();
-extern "C" SEXP _dust_dust_sir_capabilities() {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_sir_capabilities());
-  END_CPP11
-}
-// sir.cpp
 cpp11::sexp dust_sir_gpu_info();
 extern "C" SEXP _dust_dust_sir_gpu_info() {
   BEGIN_CPP11
@@ -345,6 +338,13 @@ SEXP dust_cpu_sir_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_time,
 extern "C" SEXP _dust_dust_cpu_sir_alloc(SEXP r_pars, SEXP pars_multi, SEXP r_time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_cpu_sir_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
+  END_CPP11
+}
+// sir.cpp
+cpp11::sexp dust_cpu_sir_capabilities();
+extern "C" SEXP _dust_dust_cpu_sir_capabilities() {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_cpu_sir_capabilities());
   END_CPP11
 }
 // sir.cpp
@@ -470,13 +470,6 @@ extern "C" SEXP _dust_dust_cpu_sir_ode_statistics(SEXP ptr) {
   END_CPP11
 }
 // sirs.cpp
-cpp11::sexp dust_sirs_capabilities();
-extern "C" SEXP _dust_dust_sirs_capabilities() {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_sirs_capabilities());
-  END_CPP11
-}
-// sirs.cpp
 cpp11::sexp dust_sirs_gpu_info();
 extern "C" SEXP _dust_dust_sirs_gpu_info() {
   BEGIN_CPP11
@@ -488,6 +481,13 @@ SEXP dust_cpu_sirs_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_time
 extern "C" SEXP _dust_dust_cpu_sirs_alloc(SEXP r_pars, SEXP pars_multi, SEXP r_time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_cpu_sirs_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
+  END_CPP11
+}
+// sirs.cpp
+cpp11::sexp dust_cpu_sirs_capabilities();
+extern "C" SEXP _dust_dust_cpu_sirs_capabilities() {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_cpu_sirs_capabilities());
   END_CPP11
 }
 // sirs.cpp
@@ -617,6 +617,13 @@ SEXP dust_gpu_sirs_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_time
 extern "C" SEXP _dust_dust_gpu_sirs_alloc(SEXP r_pars, SEXP pars_multi, SEXP r_time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_gpu_sirs_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
+  END_CPP11
+}
+// sirs.cpp
+cpp11::sexp dust_gpu_sirs_capabilities();
+extern "C" SEXP _dust_dust_gpu_sirs_capabilities() {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_gpu_sirs_capabilities());
   END_CPP11
 }
 // sirs.cpp
@@ -763,13 +770,6 @@ extern "C" SEXP _dust_cpp_scale_log_weights(SEXP w) {
   END_CPP11
 }
 // variable.cpp
-cpp11::sexp dust_variable_capabilities();
-extern "C" SEXP _dust_dust_variable_capabilities() {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_variable_capabilities());
-  END_CPP11
-}
-// variable.cpp
 cpp11::sexp dust_variable_gpu_info();
 extern "C" SEXP _dust_dust_variable_gpu_info() {
   BEGIN_CPP11
@@ -781,6 +781,13 @@ SEXP dust_cpu_variable_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_
 extern "C" SEXP _dust_dust_cpu_variable_alloc(SEXP r_pars, SEXP pars_multi, SEXP r_time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_cpu_variable_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
+  END_CPP11
+}
+// variable.cpp
+cpp11::sexp dust_cpu_variable_capabilities();
+extern "C" SEXP _dust_dust_cpu_variable_capabilities() {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_cpu_variable_capabilities());
   END_CPP11
 }
 // variable.cpp
@@ -913,6 +920,13 @@ extern "C" SEXP _dust_dust_gpu_variable_alloc(SEXP r_pars, SEXP pars_multi, SEXP
   END_CPP11
 }
 // variable.cpp
+cpp11::sexp dust_gpu_variable_capabilities();
+extern "C" SEXP _dust_dust_gpu_variable_capabilities() {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_gpu_variable_capabilities());
+  END_CPP11
+}
+// variable.cpp
 SEXP dust_gpu_variable_run(SEXP ptr, cpp11::sexp r_time_end);
 extern "C" SEXP _dust_dust_gpu_variable_run(SEXP ptr, SEXP r_time_end) {
   BEGIN_CPP11
@@ -1035,13 +1049,6 @@ extern "C" SEXP _dust_dust_gpu_variable_ode_statistics(SEXP ptr) {
   END_CPP11
 }
 // volatility.cpp
-cpp11::sexp dust_volatility_capabilities();
-extern "C" SEXP _dust_dust_volatility_capabilities() {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_volatility_capabilities());
-  END_CPP11
-}
-// volatility.cpp
 cpp11::sexp dust_volatility_gpu_info();
 extern "C" SEXP _dust_dust_volatility_gpu_info() {
   BEGIN_CPP11
@@ -1053,6 +1060,13 @@ SEXP dust_cpu_volatility_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp 
 extern "C" SEXP _dust_dust_cpu_volatility_alloc(SEXP r_pars, SEXP pars_multi, SEXP r_time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_cpu_volatility_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
+  END_CPP11
+}
+// volatility.cpp
+cpp11::sexp dust_cpu_volatility_capabilities();
+extern "C" SEXP _dust_dust_cpu_volatility_capabilities() {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_cpu_volatility_capabilities());
   END_CPP11
 }
 // volatility.cpp
@@ -1178,13 +1192,6 @@ extern "C" SEXP _dust_dust_cpu_volatility_ode_statistics(SEXP ptr) {
   END_CPP11
 }
 // walk.cpp
-cpp11::sexp dust_walk_capabilities();
-extern "C" SEXP _dust_dust_walk_capabilities() {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_walk_capabilities());
-  END_CPP11
-}
-// walk.cpp
 cpp11::sexp dust_walk_gpu_info();
 extern "C" SEXP _dust_dust_walk_gpu_info() {
   BEGIN_CPP11
@@ -1196,6 +1203,13 @@ SEXP dust_cpu_walk_alloc(cpp11::list r_pars, bool pars_multi, cpp11::sexp r_time
 extern "C" SEXP _dust_dust_cpu_walk_alloc(SEXP r_pars, SEXP pars_multi, SEXP r_time, SEXP r_n_particles, SEXP n_threads, SEXP r_seed, SEXP deterministic, SEXP gpu_config, SEXP ode_control) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_cpu_walk_alloc(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(r_pars), cpp11::as_cpp<cpp11::decay_t<bool>>(pars_multi), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_time), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_n_particles), cpp11::as_cpp<cpp11::decay_t<int>>(n_threads), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_seed), cpp11::as_cpp<cpp11::decay_t<bool>>(deterministic), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(gpu_config), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(ode_control)));
+  END_CPP11
+}
+// walk.cpp
+cpp11::sexp dust_cpu_walk_capabilities();
+extern "C" SEXP _dust_dust_cpu_walk_capabilities() {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_cpu_walk_capabilities());
   END_CPP11
 }
 // walk.cpp
@@ -1332,6 +1346,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_density_normal",                              (DL_FUNC) &_dust_density_normal,                              4},
     {"_dust_density_poisson",                             (DL_FUNC) &_dust_density_poisson,                             3},
     {"_dust_dust_cpu_sir_alloc",                          (DL_FUNC) &_dust_dust_cpu_sir_alloc,                          9},
+    {"_dust_dust_cpu_sir_capabilities",                   (DL_FUNC) &_dust_dust_cpu_sir_capabilities,                   0},
     {"_dust_dust_cpu_sir_compare_data",                   (DL_FUNC) &_dust_dust_cpu_sir_compare_data,                   1},
     {"_dust_dust_cpu_sir_filter",                         (DL_FUNC) &_dust_dust_cpu_sir_filter,                         5},
     {"_dust_dust_cpu_sir_n_state",                        (DL_FUNC) &_dust_dust_cpu_sir_n_state,                        1},
@@ -1350,6 +1365,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_cpu_sir_time",                           (DL_FUNC) &_dust_dust_cpu_sir_time,                           1},
     {"_dust_dust_cpu_sir_update_state",                   (DL_FUNC) &_dust_dust_cpu_sir_update_state,                   7},
     {"_dust_dust_cpu_sirs_alloc",                         (DL_FUNC) &_dust_dust_cpu_sirs_alloc,                         9},
+    {"_dust_dust_cpu_sirs_capabilities",                  (DL_FUNC) &_dust_dust_cpu_sirs_capabilities,                  0},
     {"_dust_dust_cpu_sirs_compare_data",                  (DL_FUNC) &_dust_dust_cpu_sirs_compare_data,                  1},
     {"_dust_dust_cpu_sirs_filter",                        (DL_FUNC) &_dust_dust_cpu_sirs_filter,                        5},
     {"_dust_dust_cpu_sirs_n_state",                       (DL_FUNC) &_dust_dust_cpu_sirs_n_state,                       1},
@@ -1368,6 +1384,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_cpu_sirs_time",                          (DL_FUNC) &_dust_dust_cpu_sirs_time,                          1},
     {"_dust_dust_cpu_sirs_update_state",                  (DL_FUNC) &_dust_dust_cpu_sirs_update_state,                  7},
     {"_dust_dust_cpu_variable_alloc",                     (DL_FUNC) &_dust_dust_cpu_variable_alloc,                     9},
+    {"_dust_dust_cpu_variable_capabilities",              (DL_FUNC) &_dust_dust_cpu_variable_capabilities,              0},
     {"_dust_dust_cpu_variable_compare_data",              (DL_FUNC) &_dust_dust_cpu_variable_compare_data,              1},
     {"_dust_dust_cpu_variable_filter",                    (DL_FUNC) &_dust_dust_cpu_variable_filter,                    5},
     {"_dust_dust_cpu_variable_n_state",                   (DL_FUNC) &_dust_dust_cpu_variable_n_state,                   1},
@@ -1386,6 +1403,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_cpu_variable_time",                      (DL_FUNC) &_dust_dust_cpu_variable_time,                      1},
     {"_dust_dust_cpu_variable_update_state",              (DL_FUNC) &_dust_dust_cpu_variable_update_state,              7},
     {"_dust_dust_cpu_volatility_alloc",                   (DL_FUNC) &_dust_dust_cpu_volatility_alloc,                   9},
+    {"_dust_dust_cpu_volatility_capabilities",            (DL_FUNC) &_dust_dust_cpu_volatility_capabilities,            0},
     {"_dust_dust_cpu_volatility_compare_data",            (DL_FUNC) &_dust_dust_cpu_volatility_compare_data,            1},
     {"_dust_dust_cpu_volatility_filter",                  (DL_FUNC) &_dust_dust_cpu_volatility_filter,                  5},
     {"_dust_dust_cpu_volatility_n_state",                 (DL_FUNC) &_dust_dust_cpu_volatility_n_state,                 1},
@@ -1404,6 +1422,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_cpu_volatility_time",                    (DL_FUNC) &_dust_dust_cpu_volatility_time,                    1},
     {"_dust_dust_cpu_volatility_update_state",            (DL_FUNC) &_dust_dust_cpu_volatility_update_state,            7},
     {"_dust_dust_cpu_walk_alloc",                         (DL_FUNC) &_dust_dust_cpu_walk_alloc,                         9},
+    {"_dust_dust_cpu_walk_capabilities",                  (DL_FUNC) &_dust_dust_cpu_walk_capabilities,                  0},
     {"_dust_dust_cpu_walk_compare_data",                  (DL_FUNC) &_dust_dust_cpu_walk_compare_data,                  1},
     {"_dust_dust_cpu_walk_filter",                        (DL_FUNC) &_dust_dust_cpu_walk_filter,                        5},
     {"_dust_dust_cpu_walk_n_state",                       (DL_FUNC) &_dust_dust_cpu_walk_n_state,                       1},
@@ -1422,6 +1441,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_cpu_walk_time",                          (DL_FUNC) &_dust_dust_cpu_walk_time,                          1},
     {"_dust_dust_cpu_walk_update_state",                  (DL_FUNC) &_dust_dust_cpu_walk_update_state,                  7},
     {"_dust_dust_gpu_sirs_alloc",                         (DL_FUNC) &_dust_dust_gpu_sirs_alloc,                         9},
+    {"_dust_dust_gpu_sirs_capabilities",                  (DL_FUNC) &_dust_dust_gpu_sirs_capabilities,                  0},
     {"_dust_dust_gpu_sirs_compare_data",                  (DL_FUNC) &_dust_dust_gpu_sirs_compare_data,                  1},
     {"_dust_dust_gpu_sirs_filter",                        (DL_FUNC) &_dust_dust_gpu_sirs_filter,                        5},
     {"_dust_dust_gpu_sirs_n_state",                       (DL_FUNC) &_dust_dust_gpu_sirs_n_state,                       1},
@@ -1440,6 +1460,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_gpu_sirs_time",                          (DL_FUNC) &_dust_dust_gpu_sirs_time,                          1},
     {"_dust_dust_gpu_sirs_update_state",                  (DL_FUNC) &_dust_dust_gpu_sirs_update_state,                  7},
     {"_dust_dust_gpu_variable_alloc",                     (DL_FUNC) &_dust_dust_gpu_variable_alloc,                     9},
+    {"_dust_dust_gpu_variable_capabilities",              (DL_FUNC) &_dust_dust_gpu_variable_capabilities,              0},
     {"_dust_dust_gpu_variable_compare_data",              (DL_FUNC) &_dust_dust_gpu_variable_compare_data,              1},
     {"_dust_dust_gpu_variable_filter",                    (DL_FUNC) &_dust_dust_gpu_variable_filter,                    5},
     {"_dust_dust_gpu_variable_n_state",                   (DL_FUNC) &_dust_dust_gpu_variable_n_state,                   1},
@@ -1457,9 +1478,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_gpu_variable_state",                     (DL_FUNC) &_dust_dust_gpu_variable_state,                     2},
     {"_dust_dust_gpu_variable_time",                      (DL_FUNC) &_dust_dust_gpu_variable_time,                      1},
     {"_dust_dust_gpu_variable_update_state",              (DL_FUNC) &_dust_dust_gpu_variable_update_state,              7},
-    {"_dust_dust_logistic_capabilities",                  (DL_FUNC) &_dust_dust_logistic_capabilities,                  0},
     {"_dust_dust_logistic_gpu_info",                      (DL_FUNC) &_dust_dust_logistic_gpu_info,                      0},
     {"_dust_dust_ode_logistic_alloc",                     (DL_FUNC) &_dust_dust_ode_logistic_alloc,                     9},
+    {"_dust_dust_ode_logistic_capabilities",              (DL_FUNC) &_dust_dust_ode_logistic_capabilities,              0},
     {"_dust_dust_ode_logistic_compare_data",              (DL_FUNC) &_dust_dust_ode_logistic_compare_data,              1},
     {"_dust_dust_ode_logistic_filter",                    (DL_FUNC) &_dust_dust_ode_logistic_filter,                    5},
     {"_dust_dust_ode_logistic_n_state",                   (DL_FUNC) &_dust_dust_ode_logistic_n_state,                   1},
@@ -1494,15 +1515,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_rng_random_real",                        (DL_FUNC) &_dust_dust_rng_random_real,                        4},
     {"_dust_dust_rng_state",                              (DL_FUNC) &_dust_dust_rng_state,                              2},
     {"_dust_dust_rng_uniform",                            (DL_FUNC) &_dust_dust_rng_uniform,                            6},
-    {"_dust_dust_sir_capabilities",                       (DL_FUNC) &_dust_dust_sir_capabilities,                       0},
     {"_dust_dust_sir_gpu_info",                           (DL_FUNC) &_dust_dust_sir_gpu_info,                           0},
-    {"_dust_dust_sirs_capabilities",                      (DL_FUNC) &_dust_dust_sirs_capabilities,                      0},
     {"_dust_dust_sirs_gpu_info",                          (DL_FUNC) &_dust_dust_sirs_gpu_info,                          0},
-    {"_dust_dust_variable_capabilities",                  (DL_FUNC) &_dust_dust_variable_capabilities,                  0},
     {"_dust_dust_variable_gpu_info",                      (DL_FUNC) &_dust_dust_variable_gpu_info,                      0},
-    {"_dust_dust_volatility_capabilities",                (DL_FUNC) &_dust_dust_volatility_capabilities,                0},
     {"_dust_dust_volatility_gpu_info",                    (DL_FUNC) &_dust_dust_volatility_gpu_info,                    0},
-    {"_dust_dust_walk_capabilities",                      (DL_FUNC) &_dust_dust_walk_capabilities,                      0},
     {"_dust_dust_walk_gpu_info",                          (DL_FUNC) &_dust_dust_walk_gpu_info,                          0},
     {"_dust_test_cuda_pars",                              (DL_FUNC) &_dust_test_cuda_pars,                              9},
     {"_dust_test_rng_pointer_get",                        (DL_FUNC) &_dust_test_rng_pointer_get,                        2},

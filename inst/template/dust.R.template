@@ -421,7 +421,7 @@
     ##' as a static method by running it directly
     ##' as `{{name}}$public_methods$has_openmp()`
     has_openmp = function() {
-      dust_{{name}}_capabilities()[["openmp"]]
+      dust_{{target}}_{{name}}_capabilities()[["openmp"]]
     },
 
     ##' @description
@@ -438,7 +438,7 @@
       if (fake_gpu) {
         {{has_gpu_support}}
       } else {
-        dust_{{name}}_capabilities()[["gpu"]]
+        dust_{{target}}_{{name}}_capabilities()[["gpu"]]
       }
     },
 
@@ -449,26 +449,35 @@
     ##' method can also be used as a static method by running it directly
     ##' as `{{name}}$public_methods$has_compare()`
     has_compare = function() {
-      dust_{{name}}_capabilities()[["compare"]]
+      dust_{{target}}_{{name}}_capabilities()[["compare"]]
     },
 
     ##' @description
     ##' Return the size of real numbers (in bits). Typically this will be
     ##' 64 for double precision and 32 for `float`.  This method can also be
-    ##' used as a static method by running it directory as
+    ##' used as a static method by running it directly as
     ##' `{{name}}$public_methods$real_size()`
     real_size = function() {
-      dust_{{name}}_capabilities()[["real_size"]]
+      dust_{{target}}_{{name}}_capabilities()[["real_size"]]
+    },
+
+    ##' @description
+    ##' Return the type of time this model uses; will be one of `discrete`
+    ##' (for discrete time models) or `continuous` (for ODE models).
+    ##' This method can also be used as a static method by running it
+    ##' directly as `{{name}}$public_methods$time_type()`
+    time_type = function() {
+      dust_{{target}}_{{name}}_capabilities()[["time_type"]]
     },
 
     ##' @description
     ##' Return the random number algorithm used. Typically this will be
     ##' `xoshiro256plus` for models using double precision reals and
     ##' `xoshiro128plus` for single precision (`float`). This method can
-    ##' also be used as a static method by running it directory as
+    ##' also be used as a static method by running it directly as
     ##' `{{name}}$public_methods$rng_algorithm()`
     rng_algorithm = function() {
-      dust_{{name}}_capabilities()[["rng_algorithm"]]
+      dust_{{target}}_{{name}}_capabilities()[["rng_algorithm"]]
     },
 
     ##' @description

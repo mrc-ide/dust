@@ -66,6 +66,7 @@ walk
 \item \href{#method-dust-has_gpu_support}{\code{dust_generator$has_gpu_support()}}
 \item \href{#method-dust-has_compare}{\code{dust_generator$has_compare()}}
 \item \href{#method-dust-real_size}{\code{dust_generator$real_size()}}
+\item \href{#method-dust-time_type}{\code{dust_generator$time_type()}}
 \item \href{#method-dust-rng_algorithm}{\code{dust_generator$rng_algorithm()}}
 \item \href{#method-dust-uses_gpu}{\code{dust_generator$uses_gpu()}}
 \item \href{#method-dust-n_pars}{\code{dust_generator$n_pars()}}
@@ -620,10 +621,23 @@ as \code{dust_generator$public_methods$has_compare()}
 \subsection{Method \code{real_size()}}{
 Return the size of real numbers (in bits). Typically this will be
 64 for double precision and 32 for \code{float}.  This method can also be
-used as a static method by running it directory as
+used as a static method by running it directly as
 \code{dust_generator$public_methods$real_size()}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$real_size()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dust-time_type"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-time_type}{}}}
+\subsection{Method \code{time_type()}}{
+Return the type of time this model uses; will be one of \code{discrete}
+(for discrete time models) or \code{continuous} (for ODE models).
+This method can also be used as a static method by running it
+directly as \code{dust_generator$public_methods$time_type()}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$time_type()}\if{html}{\out{</div>}}
 }
 
 }
@@ -634,7 +648,7 @@ used as a static method by running it directory as
 Return the random number algorithm used. Typically this will be
 \code{xoshiro256plus} for models using double precision reals and
 \code{xoshiro128plus} for single precision (\code{float}). This method can
-also be used as a static method by running it directory as
+also be used as a static method by running it directly as
 \code{dust_generator$public_methods$rng_algorithm()}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dust_generator$rng_algorithm()}\if{html}{\out{</div>}}
