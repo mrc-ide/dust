@@ -7,6 +7,7 @@ public:
 
   struct shared_type {
     real_type sd;
+    bool random_initial;
   };
 
   walk(const dust::pars_type<walk>& pars) : shared(pars.shared) {
@@ -18,6 +19,9 @@ public:
 
   std::vector<real_type> initial(size_t time, rng_state_type& rng_state) {
     std::vector<real_type> ret = {0};
+    if (shared->random_initial) {
+      ret[0] = dust::random::normal<real_type>(rng_state, 0, shared->sd);
+    }
     return ret;
   }
 
@@ -36,7 +40,9 @@ namespace dust {
 template <>
 dust::pars_type<walk> dust_pars<walk>(cpp11::list pars) {
   walk::real_type sd = cpp11::as_cpp<walk::real_type>(pars["sd"]);
-  return dust::pars_type<walk>(walk::shared_type{sd});
+  const bool random_initial = pars["random_initial"] == R_NilValue ? false :
+    cpp11::as_cpp<walk::real_type>(pars["random_initial"]);
+  return dust::pars_type<walk>(walk::shared_type{sd, random_initial});
 }
 
 }
