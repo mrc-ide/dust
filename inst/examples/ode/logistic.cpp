@@ -34,7 +34,7 @@ public:
     output[0] = tot;
   }
 
-  std::vector<real_type> initial(real_type time) {
+  std::vector<real_type> initial(real_type time, rng_state_type& rng_state) {
     return std::vector<real_type>(shared->n, 1);
   }
 

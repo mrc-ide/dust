@@ -23,7 +23,7 @@ public:
     return 1;
   }
 
-  std::vector<real_type> initial(size_t time) {
+  std::vector<real_type> initial(size_t time, rng_state_type& rng_state) {
     std::vector<real_type> state(1);
     state[0] = shared->x0;
     return state;

@@ -41,7 +41,7 @@ public:
     return 4;
   }
 
-  std::vector<real_type> initial(size_t t) {
+  std::vector<real_type> initial(size_t t, rng_state_type& rng) {
     std::vector<real_type> state(shared->n_rates + 5);
     state[0] = 1 - shared->initial_Ih; // Sh
     state[1] = shared->initial_Ih;     // Ih
