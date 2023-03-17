@@ -1,6 +1,7 @@
 #ifndef DUST_PARTICLE_HPP
 #define DUST_PARTICLE_HPP
 
+#include <sstream>
 #include <vector>
 
 #include "dust/types.hpp"
