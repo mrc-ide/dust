@@ -52,6 +52,7 @@ public:
     n_state_full_(0),
     n_state_(0),
     pars_are_shared_(true),
+    rng_state_blank_(dust::random::prng<rng_state_type>(1, 42).state(0)),
     n_threads_(n_threads),
     gpu_config_(gpu_config),
     select_needed_(true),
@@ -72,6 +73,7 @@ public:
     n_state_full_(0), // needed for malloc size
     n_state_(0),
     pars_are_shared_(n_particles != 0),
+    rng_state_blank_(dust::random::prng<rng_state_type>(1, 42).state(0)),
     n_threads_(n_threads),
     gpu_config_(gpu_config),
     select_needed_(true),
@@ -567,6 +569,7 @@ private:
   size_t n_state_full_; // State size of a particle
   size_t n_state_; // State size of a particle with an index
   const bool pars_are_shared_; // Does the n_particles dimension exist in shape?
+  const rng_state_type rng_state_blank_;
 
   std::vector<size_t> shape_; // shape of output
   size_t n_threads_;
@@ -599,12 +602,15 @@ private:
   void initialise_device_state(const std::vector<pars_type>& pars,
                                const std::vector<rng_int_type>& seed) {
     if (n_state_full_ == 0) {
-      auto r = dust::random::prng<rng_state_type>(1, seed);
+      auto r = rng_state_blank_;
       // TODO: it would be nice to enforce that the rng was not
       // accessed here; it will not work. We could error?
-      const dust::particle<T> p(pars[0], time_, r.state(0));
+      const dust::particle<T> p(pars[0], time_, r);
       n_state_full_ = p.size();
       n_state_ = n_state_full_;
+      if (r != rng_state_blank_) {
+        throw std::runtime_error("GPU models cannot use rng in initial");
+      }
     }
 
     initialise_device_memory(pars[0].shared);
@@ -676,20 +682,26 @@ private:
   // that is the case would be important as we're probably doing the
   // wrong thing here sometimes:
   // https://github.com/mrc-ide/dust/issues/310
+  //
+  // TODO: We don't check again that the rng was not accessed, but as
+  // the first time we check this we'll catch most cases. We don't try
+  // and sync state back from the device to the host here as that will
+  // be a fairly big copy that most of the time is not needed.
   void set_state_from_pars(const std::vector<pars_type>& pars) {
     const size_t n_pars = pars.size(); // or n_pars_effective();
     std::vector<std::vector<real_type>>
       state_host(n_particles() * n_pars,
                  std::vector<real_type>(n_state_full_));
-// #ifdef _OPENMP
-//     #pragma omp parallel for schedule(static) num_threads(n_threads_)
-// #endif
-//     for (size_t i = 0; i < n_pars; ++i) {
-//       for (size_t j = 0; j < n_particles(); ++j) {
-//         dust::particle<T> p(pars[i], time_, r);
-//         p.state_full(state_host[i * n_particles() + j].begin());
-//       }
-//     }
+#ifdef _OPENMP
+    #pragma omp parallel for schedule(static) num_threads(n_threads_)
+#endif
+    for (size_t i = 0; i < n_pars; ++i) {
+      for (size_t j = 0; j < n_particles(); ++j) {
+        auto r = rng_state_blank_;
+        dust::particle<T> p(pars[i], time_, r);
+        p.state_full(state_host[i * n_particles() + j].begin());
+      }
+    }
 
     set_device_state(state_host);
   }

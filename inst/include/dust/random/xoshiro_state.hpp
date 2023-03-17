@@ -39,6 +39,18 @@ public:
   }
 };
 
+template <typename T, size_t N, scrambler X>
+bool operator==(const xoshiro_state<T, N, X>& lhs, const xoshiro_state<T, N, X>& rhs) {
+  return lhs.deterministic == rhs.deterministic &&
+    std::equal(std::begin(lhs.state), std::end(lhs.state),
+               std::begin(rhs.state));
+}
+
+template <typename T, size_t N, scrambler X>
+bool operator!=(const xoshiro_state<T, N, X>& lhs, const xoshiro_state<T, N, X>& rhs) {
+  return !(lhs == rhs);
+}
+
 template <typename T>
 typename T::int_type next(T& state);
 
