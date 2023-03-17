@@ -41,7 +41,7 @@ template <>
 dust::pars_type<walk> dust_pars<walk>(cpp11::list pars) {
   walk::real_type sd = cpp11::as_cpp<walk::real_type>(pars["sd"]);
   const bool random_initial = pars["random_initial"] == R_NilValue ? false :
-    cpp11::as_cpp<walk::real_type>(pars["random_initial"]);
+    cpp11::as_cpp<bool>(pars["random_initial"]);
   return dust::pars_type<walk>(walk::shared_type{sd, random_initial});
 }
 
