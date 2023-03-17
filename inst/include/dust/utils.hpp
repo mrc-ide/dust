@@ -63,7 +63,8 @@ public:
     seen[i] = true;
   }
 
-  void report(const char *title = "particles", size_t n_max = 4) {
+  void report(bool clear = false, const char *title = "particles",
+              size_t n_max = 4) {
     count = std::accumulate(std::begin(seen), std::end(seen), 0);
     if (count == 0) {
       return;
@@ -81,6 +82,10 @@ public:
     }
     if (n_report < count) {
       msg << std::endl << "  - (and " << (count - n_report) << " more)";
+    }
+
+    if (clear) {
+      reset();
     }
 
     throw std::runtime_error(msg.str());

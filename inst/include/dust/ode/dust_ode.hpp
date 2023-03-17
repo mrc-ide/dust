@@ -408,7 +408,7 @@ private:
           errors_.capture(e, i);
         }
       }
-      errors_.report();
+      errors_.report(true);
     }
     reset_errors();
   }
@@ -437,7 +437,7 @@ private:
           errors_.capture(e, i);
         }
       }
-      errors_.report();
+      errors_.report(true);
     }
     reset_errors();
     reset_errors();
