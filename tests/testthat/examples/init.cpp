@@ -19,7 +19,7 @@ public:
     return 1;
   }
 
-  std::vector<real_type> initial(size_t time) {
+  std::vector<real_type> initial(size_t time, rng_state_type& rng_state) {
     return std::vector<real_type>{static_cast<real_type>(time)};
   }
 
