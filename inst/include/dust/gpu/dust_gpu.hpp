@@ -599,7 +599,10 @@ private:
   void initialise_device_state(const std::vector<pars_type>& pars,
                                const std::vector<rng_int_type>& seed) {
     if (n_state_full_ == 0) {
-      const dust::particle<T> p(pars[0], time_);
+      auto r = dust::random::prng<rng_state_type>(1, seed);
+      // TODO: it would be nice to enforce that the rng was not
+      // accessed here; it will not work. We could error?
+      const dust::particle<T> p(pars[0], time_, r.state(0));
       n_state_full_ = p.size();
       n_state_ = n_state_full_;
     }
@@ -641,8 +644,9 @@ private:
   void set_device_shared(const std::vector<pars_type>& pars) {
     size_t n = n_particles() == 0 ? 0 : n_state_full();
     std::vector<dust::particle<T>> p;
+    auto r = dust::random::prng<rng_state_type>(1, 1);
     for (size_t i = 0; i < n_pars_effective(); ++i) {
-      p.push_back(dust::particle<T>(pars[i], time_));
+      p.push_back(dust::particle<T>(pars[i], time_, r.state(0)));
       if (n > 0 && p.back().size() != n) {
         std::stringstream msg;
         msg << "'pars' created inconsistent state size: " <<
@@ -677,15 +681,15 @@ private:
     std::vector<std::vector<real_type>>
       state_host(n_particles() * n_pars,
                  std::vector<real_type>(n_state_full_));
-#ifdef _OPENMP
-    #pragma omp parallel for schedule(static) num_threads(n_threads_)
-#endif
-    for (size_t i = 0; i < n_pars; ++i) {
-      for (size_t j = 0; j < n_particles(); ++j) {
-        dust::particle<T> p(pars[i], time_);
-        p.state_full(state_host[i * n_particles() + j].begin());
-      }
-    }
+// #ifdef _OPENMP
+//     #pragma omp parallel for schedule(static) num_threads(n_threads_)
+// #endif
+//     for (size_t i = 0; i < n_pars; ++i) {
+//       for (size_t j = 0; j < n_particles(); ++j) {
+//         dust::particle<T> p(pars[i], time_, r);
+//         p.state_full(state_host[i * n_particles() + j].begin());
+//       }
+//     }
 
     set_device_state(state_host);
   }

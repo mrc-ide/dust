@@ -25,7 +25,7 @@ public:
   sirs(const dust::pars_type<sirs>& pars): shared(pars.shared) {
   }
 
-  size_t size() {
+  size_t size() const {
     return 4;
   }
 
