@@ -19,7 +19,7 @@ public:
   volatility(const dust::pars_type<volatility>& pars) : shared(pars.shared) {
   }
 
-  size_t size() {
+  size_t size() const {
     return 1;
   }
 
