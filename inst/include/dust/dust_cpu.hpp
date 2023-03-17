@@ -396,7 +396,17 @@ private:
         const size_t j = i / n_particles_each_;
         particles_.push_back(dust::particle<T>(pars[j], time, rng_.state(i)));
       }
-      // TODO: validate all are same size, outside of loop?
+      const auto n = n_state_full();
+      for (size_t j = 1; j < n_pars_; ++j) {
+        const auto n_j = particles_[j * n_particles_each_].size();
+        if (n_j != n) {
+          std::stringstream msg;
+          msg << "'pars' created inconsistent state size: " <<
+            "expected length " << n << " but parameter set " << j + 1 <<
+            " created length " << n_j;
+          throw std::invalid_argument(msg.str());
+        }
+      }
     } else {
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)

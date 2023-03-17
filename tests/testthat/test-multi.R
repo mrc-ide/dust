@@ -289,6 +289,7 @@ test_that("must use same sized simulations", {
 })
 
 
+## TODO: These no longer report the group they're in
 test_that("Can't change parameter size on reset or set_pars", {
   res <- dust_example("variable")
   pars <- rep(list(list(len = 7)), 5)
@@ -297,21 +298,21 @@ test_that("Can't change parameter size on reset or set_pars", {
   expect_error(
     obj$update_state(pars = pars2, time = 0),
     paste("'pars' created inconsistent state size:",
-          "expected length 7 but parameter set 1 created length 8"))
+          "expected length 7 but created length 8"))
   expect_error(
     obj$update_state(pars2, set_initial_state = FALSE),
     paste("'pars' created inconsistent state size:",
-          "expected length 7 but parameter set 1 created length 8"))
+          "expected length 7 but created length 8"))
   pars3 <- pars
   pars3[[3]] <- pars2[[3]]
   expect_error(
     obj$update_state(pars = pars3, time = 0),
     paste("'pars' created inconsistent state size:",
-          "expected length 7 but parameter set 3 created length 8"))
+          "expected length 7 but created length 8"))
   expect_error(
     obj$update_state(pars3, set_initial_state = FALSE),
     paste("'pars' created inconsistent state size:",
-          "expected length 7 but parameter set 3 created length 8"))
+          "expected length 7 but created length 8"))
 })
 
 

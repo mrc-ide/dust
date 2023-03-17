@@ -648,7 +648,7 @@ test_that("can use random initial conditions", {
 
 
 test_that("can use random initial conditions in ode model", {
-  gen <- dust_example("walk")
+  gen <- dust_example("logistic")
   pars <- list(r = c(0.1, 0.2), K = c(100, 200), random_initial = TRUE)
   mod <- gen$new(pars, 0, 10, seed = 1)
   rng <- dust_rng$new(1, 10)

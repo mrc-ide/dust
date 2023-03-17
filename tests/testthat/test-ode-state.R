@@ -314,7 +314,7 @@ test_that("Error if parameters try to change model size", {
   expect_error(
     mod3$update_state(pars = list(pars2)),
     paste("'pars' created inconsistent state size:",
-          "expected length 3 but parameter set 1 created length 4"),
+          "expected length 3 but created length 4"),
     fixed = TRUE)
 
   expect_identical(mod1$pars(), pars1)
