@@ -18,7 +18,7 @@ public:
     return shared->len;
   }
 
-  std::vector<real_type> initial(size_t time) {
+  std::vector<real_type> initial(size_t time, rng_state_type& rng_state) {
     std::vector<real_type> ret;
     for (size_t i = 0; i < shared->len; ++i) {
       ret.push_back(i + 1);

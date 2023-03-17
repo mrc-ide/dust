@@ -20,7 +20,7 @@ public:
     return 2;
   }
 
-  std::vector<real_type> initial(size_t time) {
+  std::vector<real_type> initial(size_t time, rng_state_type& rng_state) {
 #ifdef _OPENMP
     static bool has_openmp = true;
 #else

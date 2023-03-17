@@ -365,64 +365,63 @@ private:
   std::vector<dust::particle<T>> particles_;
 
   void initialise(const pars_type& pars, const time_type time, bool set_state) {
-    const bool first_time = particles_.empty();
-    const size_t n = first_time ? 0 : n_state_full();
-    dust::particle<T> p(pars, time);
-    if (n > 0 && p.size() != n) {
-      std::stringstream msg;
-      msg << "'pars' created inconsistent state size: " <<
-        "expected length " << n << " but created length " <<
-        p.size();
-      throw std::invalid_argument(msg.str());
-    }
-
-    if (first_time) {
+    if (particles_.empty()) {
+      // TODO: this can be done in parallel, see
+      // https://stackoverflow.com/questions/18669296/c-openmp-parallel-for-loop-alternatives-to-stdvector
       particles_.reserve(n_particles_total_);
       for (size_t i = 0; i < n_particles_total_; ++i) {
-        particles_.push_back(p);
+        particles_.push_back(dust::particle<T>(pars, time, rng_.state(i)));
       }
     } else {
+      errors_.reset();
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
       for (size_t i = 0; i < n_particles_total_; ++i) {
-        particles_[i].set_pars(p, set_state);
+        try {
+          particles_[i].set_pars(pars, time, set_state, rng_.state(i));
+        } catch (std::exception const& e) {
+          errors_.capture(e, i);
+        }
       }
+      errors_.report(true);
     }
     reset_errors();
   }
 
   void initialise(const std::vector<pars_type>& pars, const time_type time,
                   bool set_state) {
-    const bool first_time = particles_.empty();
-    size_t n = first_time ? 0 : n_state_full();
-    std::vector<dust::particle<T>> p;
-    for (size_t i = 0; i < n_pars_; ++i) {
-      p.push_back(dust::particle<T>(pars[i], time));
-      if (n > 0 && p.back().size() != n) {
-        std::stringstream msg;
-        msg << "'pars' created inconsistent state size: " <<
-          "expected length " << n << " but parameter set " << i + 1 <<
-          " created length " << p.back().size();
-        throw std::invalid_argument(msg.str());
-      }
-      n = p.back().size(); // ensures all particles have same size
-    }
-
-    if (first_time) {
+    if (particles_.empty()) {
       particles_.reserve(n_particles_total_);
-      for (size_t i = 0; i < n_pars_; ++i) {
-        for (size_t j = 0; j < n_particles_each_; ++j) {
-          particles_.push_back(p[i]);
+      for (size_t i = 0; i < n_particles_total_; ++i) {
+        const size_t j = i / n_particles_each_;
+        particles_.push_back(dust::particle<T>(pars[j], time, rng_.state(i)));
+      }
+      const auto n = n_state_full();
+      for (size_t j = 1; j < n_pars_; ++j) {
+        const auto n_j = particles_[j * n_particles_each_].size();
+        if (n_j != n) {
+          std::stringstream msg;
+          msg << "'pars' created inconsistent state size: " <<
+            "expected length " << n << " but parameter set " << j + 1 <<
+            " created length " << n_j;
+          throw std::invalid_argument(msg.str());
         }
       }
     } else {
+      errors_.reset();
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
       for (size_t i = 0; i < n_particles_total_; ++i) {
-        particles_[i].set_pars(p[i / n_particles_each_], set_state);
+        try {
+          const size_t j = i / n_particles_each_;
+          particles_[i].set_pars(pars[j], time, set_state, rng_.state(i));
+        } catch (std::exception const& e) {
+          errors_.capture(e, i);
+        }
       }
+      errors_.report(true);
     }
     reset_errors();
   }

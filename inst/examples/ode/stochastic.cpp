@@ -45,7 +45,7 @@ public:
     y_next[2] = y[2] * std::exp(r);
   }
 
-  std::vector<real_type> initial(real_type time) {
+  std::vector<real_type> initial(real_type time, rng_state_type& rng_state) {
     std::vector<real_type> ret = {1, 1, 1};
     return ret;
   }

@@ -1,6 +1,7 @@
 #ifndef DUST_PARTICLE_HPP
 #define DUST_PARTICLE_HPP
 
+#include <sstream>
 #include <vector>
 
 #include "dust/types.hpp"
@@ -11,18 +12,19 @@ template <typename T>
 class particle {
 public:
   using pars_type = dust::pars_type<T>;
+  using time_type = size_t;
   using real_type = typename T::real_type;
   using data_type = typename T::data_type;
   using rng_state_type = typename T::rng_state_type;
 
-  particle(pars_type pars, size_t time) :
+  particle(pars_type pars, time_type time, rng_state_type& rng_state) :
     model_(pars),
     time_(time),
-    y_(model_.initial(time_)),
+    y_(model_.initial(time_, rng_state)),
     y_swap_(model_.size()) {
   }
 
-  void run(const size_t time_end, rng_state_type& rng_state) {
+  void run(const time_type time_end, rng_state_type& rng_state) {
     while (time_ < time_end) {
       model_.update(time_, y_.data(), rng_state, y_swap_.data());
       time_++;
@@ -47,7 +49,7 @@ public:
     return y_.size();
   }
 
-  size_t time() const {
+  time_type time() const {
     return time_;
   }
 
@@ -55,7 +57,7 @@ public:
     std::swap(y_, y_swap_);
   }
 
-  void set_time(const size_t time) {
+  void set_time(const time_type time) {
     time_ = time;
   }
 
@@ -63,11 +65,20 @@ public:
     y_swap_ = other.y_;
   }
 
-  void set_pars(const particle<T>& other, bool set_state) {
-    model_ = other.model_;
-    time_ = other.time_;
+  void set_pars(const pars_type pars, const time_type time, bool set_state,
+                rng_state_type& rng_state) {
+    const auto m = T(pars);
+    if (m.size() != size()) {
+      std::stringstream msg;
+      msg << "'pars' created inconsistent state size: " <<
+        "expected length " << size() << " but created length " <<
+        m.size();
+      throw std::invalid_argument(msg.str());
+    }
+    model_ = m;
+    time_ = time;
     if (set_state) {
-      y_ = model_.initial(time_);
+      y_ = model_.initial(time_, rng_state);
     }
   }
 
@@ -90,7 +101,7 @@ public:
 
 private:
   T model_;
-  size_t time_;
+  time_type time_;
 
   std::vector<real_type> y_;
   std::vector<real_type> y_swap_;

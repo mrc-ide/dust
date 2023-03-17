@@ -27,7 +27,7 @@ public:
     return 5;
   }
 
-  std::vector<real_type> initial(size_t time) {
+  std::vector<real_type> initial(size_t time, rng_state_type& rng_state) {
     std::vector<real_type> ret = {shared->S0, shared->I0, shared->R0, 0, 0};
     return ret;
   }

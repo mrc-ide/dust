@@ -710,7 +710,8 @@ test_that("can retrieve empty params", {
   expect_mapequal(mod$param(),
                   list(r = list(required = TRUE),
                        K = list(required = TRUE),
-                       v = list(required = FALSE)))
+                       v = list(required = FALSE),
+                       random_initial = list(required = FALSE)))
 })
 
 

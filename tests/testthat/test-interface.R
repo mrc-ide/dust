@@ -636,3 +636,23 @@ test_that("report back on time type in continuous time models", {
   expect_equal(gen$public_methods$time_type(), "continuous")
   expect_equal(gen$new(list(r = 0.1, K = 100), 0, 1)$time_type(), "continuous")
 })
+
+
+test_that("can use random initial conditions", {
+  gen <- dust_example("walk")
+  mod <- gen$new(list(sd = 1, random_initial = TRUE), 0, 10, seed = 1)
+  rng <- dust_rng$new(1, 10)
+  expect_equal(mod$state(), rng$normal(1, 0, 1))
+  expect_equal(mod$rng_state()[1:320], rng$state())
+})
+
+
+test_that("can use random initial conditions in ode model", {
+  gen <- dust_example("logistic")
+  pars <- list(r = c(0.1, 0.2), K = c(100, 200), random_initial = TRUE)
+  mod <- gen$new(pars, 0, 10, seed = 1)
+  rng <- dust_rng$new(1, 10)
+  y_cmp <- matrix(exp(rng$random_normal(2)), 2)
+  expect_equal(mod$state()[1:2, ], y_cmp)
+  expect_equal(mod$rng_state()[1:320], rng$state())
+})

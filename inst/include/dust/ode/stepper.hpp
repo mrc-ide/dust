@@ -17,13 +17,13 @@ public:
   using real_type = typename Model::real_type;
   using rng_state_type = typename Model::rng_state_type;
 
-  stepper(Model m, real_type t) :
+  stepper(Model m, real_type t, rng_state_type& rng_state) :
     m(m), n_var(m.n_variables()), n_out(m.n_output()),
     y(n_var), y_next(n_var), y_stiff(n_var), k1(n_var),
     k2(n_var), k3(n_var), k4(n_var),
     k5(n_var), k6(n_var), output(n_out),
     needs_initialise(true) {
-    const auto y = m.initial(t);
+    const auto y = m.initial(t, rng_state);
     set_state(y.begin());
   }
 
@@ -117,9 +117,9 @@ public:
     needs_initialise = true;
   }
 
-  void set_model(Model new_model, real_type t) {
+  void set_model(Model new_model, real_type t, rng_state_type& rng_state) {
     m = new_model;
-    const auto y = m.initial(t);
+    const auto y = m.initial(t, rng_state);
     set_state(y.begin());
     needs_initialise = true;
   }
