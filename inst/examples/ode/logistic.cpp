@@ -11,6 +11,7 @@ public:
     std::vector<real_type> r;
     std::vector<real_type> K;
     real_type v;
+    bool random_initial;
   };
 
   logistic(const dust::pars_type<logistic>& pars): shared(pars.shared) {
@@ -35,7 +36,13 @@ public:
   }
 
   std::vector<real_type> initial(real_type time, rng_state_type& rng_state) {
-    return std::vector<real_type>(shared->n, 1);
+    std::vector<real_type> y(shared->n, 1);
+    if (shared->random_initial) {
+      for (size_t i = 0; i < shared->n; ++i) {
+        y[i] *= std::exp(dust::random::random_normal<real_type>(rng_state));
+      }
+    }
+    return y;
   }
 
   void update_stochastic(real_type t, const std::vector<real_type>& y,
@@ -80,8 +87,11 @@ dust::pars_type<logistic> dust_pars<logistic>(cpp11::list pars) {
   }
   // [[dust::param(v, required = FALSE)]]
   cpp11::sexp r_v = pars["v"];
+  // [[dust::param(random_initial, required = FALSE)]]
+  const bool random_initial = pars["random_initial"] == R_NilValue ? false :
+    cpp11::as_cpp<bool>(pars["random_initial"]);
   const real_type v = r_v == R_NilValue ? 0.1 : cpp11::as_cpp<real_type>(r_v);
-  logistic::shared_type shared{n, r, K, v};
+  logistic::shared_type shared{n, r, K, v, random_initial};
   return dust::pars_type<logistic>(shared);
 }
 

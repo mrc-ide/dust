@@ -18,12 +18,14 @@ public:
   using rng_state_type = typename Model::rng_state_type;
   using real_type = typename Model::real_type;
 
-  solver(Model m, real_type t, control<real_type> ctl) : t_(t),
-                                                         ctl_(ctl),
-                                                         last_error_(0),
-                                                         stepper_(m, t),
-                                                         n_variables_(m.n_variables()),
-                                                         n_output_(m.n_output()) {
+  solver(Model m, real_type t, control<real_type> ctl,
+         rng_state_type& rng_state) :
+    t_(t),
+    ctl_(ctl),
+    last_error_(0),
+    stepper_(m, t, rng_state),
+    n_variables_(m.n_variables()),
+    n_output_(m.n_output()) {
     statistics_.reset();
     set_initial_step_size();
   }
@@ -167,9 +169,18 @@ public:
     statistics_ = statistics_swap_;
   }
 
-  void set_model(Model m, bool set_initial_state) {
+  void set_model(Model m, bool set_initial_state, rng_state_type& rng_state) {
+    const auto m_size = m.n_variables() + m.n_output();
+    const auto curr_size = n_variables() + n_output();
+    if (m_size != curr_size) {
+      std::stringstream msg;
+      msg << "'pars' created inconsistent state size: " <<
+        "expected length " << curr_size << " but created length " <<
+        m_size;
+      throw std::invalid_argument(msg.str());
+    }
     if (set_initial_state) {
-      stepper_.set_model(m, t_);
+      stepper_.set_model(m, t_, rng_state);
     } else {
       stepper_.set_model(m);
     }

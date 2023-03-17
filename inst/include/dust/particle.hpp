@@ -11,7 +11,7 @@ template <typename T>
 class particle {
 public:
   using pars_type = dust::pars_type<T>;
-  using time_type = size_t; // TODO: this needs sorting out
+  using time_type = size_t;
   using real_type = typename T::real_type;
   using data_type = typename T::data_type;
   using rng_state_type = typename T::rng_state_type;

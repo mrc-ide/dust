@@ -390,70 +390,56 @@ private:
   ode::control<real_type> control_;
 
   void initialise(const pars_type& pars, const time_type time, bool set_state) {
-    const bool first_time = solver_.empty();
-    const size_t n = first_time ? 0 : n_state_full();
     const auto m = model_type(pars);
-
-    const auto m_size = m.n_variables() + m.n_output();
-    if (n > 0 && m_size != n) {
-      std::stringstream msg;
-      msg << "'pars' created inconsistent state size: " <<
-        "expected length " << n << " but created length " <<
-        m_size;
-      throw std::invalid_argument(msg.str());
-    }
-
-    if (first_time) {
+    if (solver_.empty()) {
       solver_.reserve(n_particles_total_);
       for (size_t i = 0 ; i < n_particles_total_; ++i) {
-        solver_.push_back(dust::ode::solver<model_type>(m, time, control_));
+        solver_.push_back(dust::ode::solver<model_type>(m, time, control_,
+                                                        rng_.state(i)));
       }
-      // shared_ = {pars.shared};
     } else {
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
       for (size_t i = 0; i < n_particles_total_; ++i) {
-        solver_[i].set_model(m, set_state);
+        try {
+          solver_[i].set_model(m, set_state, rng_.state(i));
+        } catch (std::exception const& e) {
+          errors_.capture(e, i);
+        }
       }
-      // shared_[0] = pars.shared;
+      errors_.report();
     }
     reset_errors();
   }
 
   void initialise(const std::vector<pars_type>& pars, const size_t time,
                   bool set_state) {
-    const bool first_time = solver_.empty();
-    size_t n = first_time ? 0 : n_state_full();
     std::vector<model_type> m;
     for (size_t i = 0; i < n_pars_; ++i) {
       m.push_back(model_type(pars[i]));
-      const auto m_size = m.back().n_variables() + m.back().n_output();
-      if (n > 0 && m_size != n) {
-        std::stringstream msg;
-        msg << "'pars' created inconsistent state size: " <<
-          "expected length " << n << " but parameter set " << i + 1 <<
-          " created length " << m_size;
-        throw std::invalid_argument(msg.str());
-      }
-      n = m_size; // ensures all particles have same size
     }
-
-    if (first_time) {
-      solver_.reserve(n_particles_total_);
-      for (size_t i = 0; i < n_pars_; ++i) {
-        for (size_t j = 0; j < n_particles_each_; ++j) {
-          solver_.push_back(dust::ode::solver<model_type>(m[i], time, control_));
-        }
+    if (solver_.empty()) {
+      for (size_t i = 0; i < n_particles_total_; ++i) {
+        const size_t j = i / n_particles_each_;
+        solver_.push_back(dust::ode::solver<model_type>(m[j], time, control_,
+                                                        rng_.state(i)));
       }
     } else {
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
       for (size_t i = 0; i < n_particles_total_; ++i) {
-        solver_[i].set_model(m[i / n_particles_each_], set_state);
+        try {
+          const size_t j = i / n_particles_each_;
+          solver_[i].set_model(m[j], set_state, rng_.state(i));
+        } catch (std::exception const& e) {
+          errors_.capture(e, i);
+        }
       }
+      errors_.report();
     }
+    reset_errors();
     reset_errors();
   }
 };
