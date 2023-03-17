@@ -398,6 +398,7 @@ private:
                                                         rng_.state(i)));
       }
     } else {
+      errors_.reset();
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
@@ -426,6 +427,7 @@ private:
                                                         rng_.state(i)));
       }
     } else {
+      errors_.reset();
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
@@ -439,7 +441,6 @@ private:
       }
       errors_.report(true);
     }
-    reset_errors();
     reset_errors();
   }
 };

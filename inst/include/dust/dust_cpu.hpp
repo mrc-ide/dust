@@ -373,6 +373,7 @@ private:
         particles_.push_back(dust::particle<T>(pars, time, rng_.state(i)));
       }
     } else {
+      errors_.reset();
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
@@ -408,6 +409,7 @@ private:
         }
       }
     } else {
+      errors_.reset();
 #ifdef _OPENMP
       #pragma omp parallel for schedule(static) num_threads(n_threads_)
 #endif
