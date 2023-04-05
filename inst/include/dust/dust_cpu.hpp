@@ -36,7 +36,7 @@ public:
   using rng_int_type = typename rng_state_type::int_type;
 
   // TODO: fix this elsewhere, perhaps (see also cuda/dust_gpu.hpp)
-  using filter_state_type = dust::filter::filter_state_host<real_type>;
+  using filter_state_type = dust::filter::filter_state_host<real_type, time_type>;
 
   dust_cpu(const pars_type& pars, const time_type time, const size_t n_particles,
            const size_t n_threads, const std::vector<rng_int_type>& seed,
@@ -280,7 +280,7 @@ public:
     return data_.size();
   }
 
-  const std::map<size_t, std::vector<data_type>>& data() const {
+  const std::map<time_type, std::vector<data_type>>& data() const {
     return data_;
   }
 
@@ -318,7 +318,7 @@ public:
     return rng_.deterministic();
   }
 
-  void set_data(std::map<size_t, std::vector<data_type>> data,
+  void set_data(std::map<time_type, std::vector<data_type>> data,
                 bool data_is_shared) {
     data_ = data;
     data_is_shared_ = data_is_shared;
@@ -357,7 +357,7 @@ private:
   std::vector<size_t> shape_; // shape of output
   size_t n_threads_;
   dust::random::prng<rng_state_type> rng_;
-  std::map<size_t, std::vector<data_type>> data_;
+  std::map<time_type, std::vector<data_type>> data_;
   bool data_is_shared_;
   dust::utils::openmp_errors errors_;
 

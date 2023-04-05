@@ -12,7 +12,7 @@ template <typename T>
 std::vector<typename T::real_type>
 filter(T * obj,
        size_t time_end,
-       filter_state_device<typename T::real_type>& state,
+       filter_state_device<typename T::real_type, typename T::time_type>& state,
        bool save_trajectories,
        std::vector<size_t> time_snapshot,
        const std::vector<typename T::real_type>& min_log_likelihood) {

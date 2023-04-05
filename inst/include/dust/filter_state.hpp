@@ -16,13 +16,13 @@ inline void assert_has_storage(size_t n_state, size_t n_particles,
   }
 }
 
-template <typename real_type>
+template <typename real_type, typename time_type>
 class filter_snapshots_host {
 public:
   filter_snapshots_host() {
   }
 
-  void resize(size_t n_state, size_t n_particles, std::vector<size_t> times) {
+  void resize(size_t n_state, size_t n_particles, std::vector<time_type> times) {
     n_state_ = n_state;
     n_particles_ = n_particles;
     n_times_ = times.size();
@@ -33,7 +33,7 @@ public:
     state_.resize(n_state_ * n_particles_ * n_times_);
   }
 
-  bool is_snapshot_time(size_t time) {
+  bool is_snapshot_time(time_type time) {
     return offset_ < n_times_ && times_[offset_] == time;
   }
 
@@ -59,7 +59,7 @@ protected:
   size_t n_particles_;
   size_t n_times_;
   size_t offset_;
-  std::vector<size_t> times_;
+  std::vector<time_type> times_;
   std::vector<real_type> state_;
 };
 
@@ -182,10 +182,10 @@ protected:
   std::vector<size_t> history_order;
 };
 
-template <typename real_type>
+template <typename real_type, typename time_type>
 struct filter_state_host {
   filter_trajectories_host<real_type> trajectories;
-  filter_snapshots_host<real_type> snapshots;
+  filter_snapshots_host<real_type, time_type> snapshots;
 };
 
 }

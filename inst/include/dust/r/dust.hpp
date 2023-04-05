@@ -463,7 +463,7 @@ void dust_set_data(SEXP ptr, cpp11::list r_data, bool data_is_shared) {
   const size_t n_data = data_is_shared ? 1 : obj->n_pars_effective();
 
   const size_t len = r_data.size();
-  std::map<size_t, std::vector<data_type>> data;
+  std::map<time_type, std::vector<data_type>> data;
 
   for (size_t i = 0; i < len; ++i) {
     cpp11::list el = r_data[i];
@@ -471,7 +471,7 @@ void dust_set_data(SEXP ptr, cpp11::list r_data, bool data_is_shared) {
       cpp11::stop("Expected a list of length %d for element %d of 'data'",
                   n_data + 1, i + 1);
     }
-    const time_type time_i = cpp11::as_cpp<int>(el[0]);
+    const time_type time_i = dust::r::validate_time<time_type, time_type>(el[0], 0, "time");
     std::vector<data_type> data_i;
     data_i.reserve(n_data);
     for (size_t j = 0; j < n_data; ++j) {
@@ -519,7 +519,7 @@ cpp11::sexp save_trajectories(const filter_state& trajectories,
 // models are safe from this at the moment as they don't support data.
 template <typename filter_state, typename T>
 cpp11::sexp save_snapshots(const filter_state& snapshots, const T *obj,
-                           const std::vector<size_t>& time_snapshot) {
+                           const std::vector<typename T::time_type>& time_snapshot) {
   cpp11::writable::doubles snapshots_data(snapshots.size());
   snapshots.history(REAL(snapshots_data));
   snapshots_data.attr("dim") =
@@ -530,8 +530,8 @@ cpp11::sexp save_snapshots(const filter_state& snapshots, const T *obj,
 }
 
 template <typename T>
-cpp11::sexp run_filter(T * obj, size_t time,
-                       std::vector<size_t>& time_snapshot,
+cpp11::sexp run_filter(T * obj, typename T::time_type time,
+                       std::vector<typename T::time_type>& time_snapshot,
                        bool save_trajectories,
                        const std::vector<typename T::real_type> min_log_likelihood) {
   typename T::filter_state_type filter_state;
@@ -558,6 +558,7 @@ cpp11::sexp dust_filter(SEXP ptr, SEXP r_time_end, bool save_trajectories,
                         cpp11::sexp r_time_snapshot,
                         cpp11::sexp r_min_log_likelihood) {
   using real_type = typename T::real_type;
+  using time_type = typename T::time_type;
   T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
   obj->check_errors();
 
@@ -565,7 +566,7 @@ cpp11::sexp dust_filter(SEXP ptr, SEXP r_time_end, bool save_trajectories,
     cpp11::stop("Data has not been set for this object");
   }
 
-  size_t time_end = std::prev(obj->data().end())->first;
+  time_type time_end = std::prev(obj->data().end())->first;
   if (r_time_end != R_NilValue) {
     time_end = cpp11::as_cpp<int>(r_time_end);
     dust::r::validate_size(time_end, "time_end");
@@ -578,7 +579,7 @@ cpp11::sexp dust_filter(SEXP ptr, SEXP r_time_end, bool save_trajectories,
                 obj->time(), time_end);
   }
 
-  std::vector<size_t> time_snapshot =
+  std::vector<time_type> time_snapshot =
     dust::r::check_time_snapshot(r_time_snapshot, obj->data());
 
   const auto min_log_likelihood =
