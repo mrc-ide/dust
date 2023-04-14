@@ -14,7 +14,7 @@ __nv_exec_check_disable__
 template <typename real_type>
 __host__ __device__
 void poisson_validate(real_type lambda) {
-  if (!std::isfinite(lambda) || lambda < 0 || lambda > 10e7) {
+  if (!std::isfinite(lambda)) {
     char buffer[256];
     snprintf(buffer, 256,
              "Invalid call to Poisson with lambda = %g",
@@ -136,6 +136,39 @@ real_type poisson_hormann(rng_state_type& rng_state, real_type lambda) {
   return x;
 }
 
+__nv_exec_check_disable__
+template <typename real_type, typename rng_state_type>
+__host__ __device__
+real_type poisson_cauchy(rng_state_type& rng_state, real_type lambda) {
+  // The algorithm as in the dust rand_distr crate
+  // https://rust-random.github.io/rand/src/rand_distr/poisson.rs.html
+  // using the fat tails of a Cauchy distribution to do generate
+  // poisson values via rejection sampling.
+  real_type result;
+  const real_type log_lambda = std::log(lambda);
+  const real_type sqrt_2lambda = std::sqrt(2 * lambda);
+  const real_type magic_val = lambda * log_lambda - dust::math::lgamma(1 + lambda);
+  for (;;) {
+    real_type comp_dev;
+    for (;;) {
+      comp_dev = cauchy(rng_state, 0, 1);
+      const real_type result = sqrt_2lambda * comp_dev + lambda;
+      if (result >= 0) {
+        break;
+      }
+    }
+    result = std::floor(result);
+    const real_type check = static_cast<real_type>(0.9) *
+      (1 + comp_dev * comp_dev) *
+      std::exp(result * log_lambda - dust::math::lgamma(1 + result) - magic_val);
+    const real_type u = random_real<real_type>(rng_state);
+    if (u <= check) {
+      break;
+    }
+  }
+  return result;
+}
+
 /// Draw a Poisson distributed random number given a mean
 /// parameter. Generation is performed using either Knuth's algorithm
 /// (small lambda) or a Hormann's rejection sampling algorithm (large
@@ -170,10 +203,12 @@ real_type poisson(rng_state_type& rng_state, real_type lambda) {
   } else if (rng_state.deterministic) {
     x = lambda;
 #endif
-  } else if (lambda < 10) {
+  } else if (std::abs(lambda) < 10) {
     x = poisson_knuth<real_type>(rng_state, lambda);
-  } else {
+  } else if (lambda > 0) {
     x = poisson_hormann<real_type>(rng_state, lambda);
+  } else {
+    x = poisson_cauchy<real_type>(rng_state, lambda);
   }
 
   SYNCWARP
