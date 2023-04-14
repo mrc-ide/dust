@@ -250,6 +250,12 @@ test_that("Poisson numbers only valid for 0 <= lambda < Inf", {
 })
 
 
+test_that("Single precision poisson numbers only valid to 1e6", {
+  expect_error(dust_rng$new(1, real_type = "float")$poisson(1, 1e7),
+               "Single precision Poisson with lambda > 1e6 not yet supported")
+})
+
+
 test_that("Short circuit exit does not update rng state", {
   rng <- dust_rng$new(1)
   s <- rng$state()

@@ -150,6 +150,14 @@ real_type poisson_cauchy(rng_state_type& rng_state, real_type lambda) {
   // Dieter 1980 ("Sampling from Binomial and Poisson Distributions",
   // Computing 25 193-208) is meant to be the fastest with a
   // constantly changing lambda, but is more complex to implement.
+  //
+  // Unfortunately, this is incorrect for single precision with fairly
+  // large lambda (1e6 or more), giving a mean that is correct but
+  // inflated variance. The underlying issue is not the cauchy as
+  // that's correct, and it could just be precision loss?
+  if (std::is_same<real_type, float>::value && lambda > 1e6) {
+    throw std::runtime_error("Single precision Poisson with lambda > 1e6 not yet supported");
+  }
   real_type result = 0;
   const real_type log_lambda = dust::math::log<real_type>(lambda);
   const real_type sqrt_2lambda = dust::math::sqrt<real_type>(2 * lambda);
