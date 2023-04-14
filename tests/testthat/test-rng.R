@@ -242,7 +242,7 @@ test_that("Very big poisson numbers", {
 
 
 test_that("Very big poisson with single precision", {
-  n <- 100000
+  n <- 1000000
   lambda <- 1e5
   ans <- dust_rng$new(1, real_type = "float")$poisson(n, lambda)
   expect_equal(mean(ans), lambda, tolerance = 1e-2)
