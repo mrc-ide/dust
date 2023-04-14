@@ -3,6 +3,7 @@
 
 #include <cmath>
 
+#include "dust/random/cauchy.hpp"
 #include "dust/random/generator.hpp"
 #include "dust/random/numeric.hpp"
 #include "dust/random/math.hpp"
