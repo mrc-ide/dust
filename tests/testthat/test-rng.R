@@ -241,6 +241,15 @@ test_that("Very big poisson numbers", {
 })
 
 
+test_that("Very big poisson with single precision", {
+  n <- 100000
+  lambda <- 1e5
+  ans <- dust_rng$new(1, real_type = "float")$poisson(n, lambda)
+  expect_equal(mean(ans), lambda, tolerance = 1e-2)
+  expect_equal(var(ans), lambda, tolerance = 1e-2)
+})
+
+
 test_that("Poisson numbers only valid for 0 <= lambda < Inf", {
   n <- 100
   expect_error(dust_rng$new(1)$poisson(n, -1),
