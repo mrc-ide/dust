@@ -1083,6 +1083,21 @@ test_that("hypergeometric reference implementation agrees with R", {
 })
 
 
+## Found by Charlie, this overflowed and generated garbage answers
+## below 0.14.x
+test_that("avoid integer overflow", {
+  r1 <- dust::dust_rng$new(seed = 1)
+  r2 <- dust::dust_rng$new(seed = 1)
+  hypergeometric <- hypergeometric_r(function() r1$random_real(1))
+  n1 <- 4334282
+  n2 <- 5665718
+  size <- 750
+  ans1 <- replicate(100, hypergeometric(n1, n2, size))
+  ans2 <- r2$hypergeometric(100, n1, n2, size)
+  expect_equal(ans1, ans2)
+})
+
+
 test_that("dust agrees with hypergeometric reference implementation", {
   rng1 <- dust_rng$new(seed = 1L)
   rng2 <- dust_rng$new(seed = 1L)
