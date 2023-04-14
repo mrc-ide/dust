@@ -339,6 +339,8 @@ dust_rng <- R6::R6Class(
 
     ##' @description Generate `n` draws from a Cauchy distribution.
     ##'
+    ##' @param n Number of samples to draw (per stream)
+    ##'
     ##' @param location The location of the peak of the distribution
     ##'   (also its median)
     ##'
