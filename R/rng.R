@@ -337,6 +337,19 @@ dust_rng <- R6::R6Class(
       dust_rng_exponential(private$ptr, n, rate, n_threads, private$float)
     },
 
+    ##' @description Generate `n` draws from a Cauchy distribution.
+    ##'
+    ##' @param location The location of the peak of the distribution
+    ##'   (also its median)
+    ##'
+    ##' @param scale A scale parameter, which specifies the distribution's
+    ##'   "half-width at half-maximum"
+    ##'
+    ##' @param n_threads Number of threads to use; see Details
+    cauchy = function(n, location, scale, n_threads = 1L) {
+      dust_rng_cauchy(private$ptr, n, location, scale, n_threads, private$float)
+    },
+
     ##' @description Generate `n` draws from a multinomial distribution.
     ##'   In contrast with most of the distributions here, each draw is a
     ##'   *vector* with the same length as `prob`.

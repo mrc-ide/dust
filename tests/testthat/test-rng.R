@@ -208,13 +208,44 @@ test_that("Big poisson numbers", {
 })
 
 
-test_that("Poisson numbers only valid for 0 <= lambda <= 10e7", {
+test_that("big poisson numbers at edge of transition are ok", {
+  n <- 100000
+  lambda_d <- 1e8 - 1
+  lambda_f <- 1e4 - 1
+
+  rng_d <- dust_rng$new(1, real_type = "double")
+  rng_f <- dust_rng$new(1, real_type = "float")
+
+  ans_d <- rng_d$poisson(n, lambda_d)
+  ans_f <- rng_f$poisson(n, lambda_f)
+
+  expect_equal(mean(ans_f), lambda_f, tolerance = 1e-2)
+  expect_equal(var(ans_f), lambda_f, tolerance = 1e-2)
+  expect_equal(mean(ans_d), lambda_d, tolerance = 1e-2)
+  expect_equal(var(ans_d), lambda_d, tolerance = 1e-2)
+})
+
+
+test_that("Very big poisson numbers", {
+  n <- 100000
+  lambda <- 1e12
+
+  ans1 <- dust_rng$new(1)$poisson(n, lambda)
+  ans2 <- dust_rng$new(1)$poisson(n, lambda)
+  ans3 <- dust_rng$new(2)$poisson(n, lambda)
+  expect_identical(ans1, ans2)
+  expect_false(all(ans1 == ans3))
+
+  expect_equal(mean(ans1), lambda, tolerance = 1e-2)
+  expect_equal(var(ans1), lambda, tolerance = 1e-2)
+})
+
+
+test_that("Poisson numbers only valid for 0 <= lambda < Inf", {
   n <- 100
-
-  expect_error(dust_rng$new(1)$poisson(n, 1e9),
-               "Invalid call to Poisson")
-
   expect_error(dust_rng$new(1)$poisson(n, -1),
+               "Invalid call to Poisson")
+  expect_error(dust_rng$new(1)$poisson(n, Inf),
                "Invalid call to Poisson")
 })
 
@@ -877,27 +908,17 @@ test_that("deterministic rbinom allow small negative innacuracies", {
 
 test_that("deterministic rpois returns mean", {
   m <- 10
-  lambda <- runif(m, 0, 50)
+  ## numbers from all three regimes:
+  lambda <- c(
+    runif(m, 0, 10),
+    runif(m, 10, 1000),
+    runif(m, 1e10, 1e12))
   rng_f <- dust_rng$new(1, real_type = "float", deterministic = TRUE)
   rng_d <- dust_rng$new(1, real_type = "double", deterministic = TRUE)
   state_f <- rng_f$state()
   state_d <- rng_d$state()
-  expect_equal(rng_f$poisson(m, lambda), lambda, tolerance = 1e-6)
-  expect_equal(rng_d$poisson(m, lambda), lambda)
-  expect_equal(rng_f$state(), state_f)
-  expect_equal(rng_d$state(), state_d)
-})
-
-
-test_that("deterministic rpois returns mean", {
-  m <- 10
-  lambda <- runif(m, 0, 50)
-  rng_f <- dust_rng$new(1, real_type = "float", deterministic = TRUE)
-  rng_d <- dust_rng$new(1, real_type = "double", deterministic = TRUE)
-  state_f <- rng_f$state()
-  state_d <- rng_d$state()
-  expect_equal(rng_f$poisson(m, lambda), lambda, tolerance = 1e-6)
-  expect_equal(rng_d$poisson(m, lambda), lambda)
+  expect_equal(rng_f$poisson(3 * m, lambda), lambda, tolerance = 1e-6)
+  expect_equal(rng_d$poisson(3 * m, lambda), lambda)
   expect_equal(rng_f$state(), state_f)
   expect_equal(rng_d$state(), state_d)
 })
@@ -1326,4 +1347,29 @@ test_that("negative binomial prevents bad inputs", {
                "Invalid call to nbinomial with size = 10, prob = inf")
   expect_error(dust_rng$new(1)$nbinomial(1, Inf, 0.4),
                "Invalid call to nbinomial with size = inf, prob = 0.4")
+})
+
+
+test_that("can generate samples from the cauchy distribution", {
+  ## This one is really hard to validate because the cauchy does not
+  ## have any finite moments...
+  n <- 100000
+  ans_f <- dust_rng$new(2, real_type = "float")$cauchy(n, 0, 1)
+  ans_d <- dust_rng$new(2, real_type = "double")$cauchy(n, 0, 1)
+  expect_gt(suppressWarnings(ks.test(ans_f, "pcauchy"))$p.value, 0.3)
+  expect_gt(ks.test(ans_d, "pcauchy")$p.value, 0.3)
+  expect_equal(median(ans_f), 0, tolerance = 0.01)
+  expect_equal(median(ans_d), 0, tolerance = 0.01)
+})
+
+
+test_that("deterministic cauchy throws", {
+  rng_f <- dust_rng$new(1, real_type = "float", deterministic = TRUE)
+  rng_d <- dust_rng$new(1, real_type = "float", deterministic = TRUE)
+  expect_error(
+    rng_f$cauchy(1, 0, 1),
+    "Can't use Cauchy distribution deterministically; it has no mean")
+  expect_error(
+    rng_d$cauchy(1, 0, 1),
+    "Can't use Cauchy distribution deterministically; it has no mean")
 })

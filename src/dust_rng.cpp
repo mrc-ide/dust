@@ -541,20 +541,28 @@ cpp11::sexp dust_rng_cauchy(SEXP ptr, int n,
   auto location_vary = check_input_type(r_location, n, n_streams, "location");
   auto scale_vary = check_input_type(r_scale, n, n_streams, "scale");
 
+  dust::utils::openmp_errors errors(n_streams);
+
 #ifdef _OPENMP
   #pragma omp parallel for schedule(static) num_threads(n_threads)
 #endif
   for (int i = 0; i < n_streams; ++i) {
-    auto &state = rng->state(i);
-    auto y_i = y + n * i;
-    auto location_i = location_vary.generator ? location + location_vary.offset * i : location;
-    auto scale_i = scale_vary.generator ? scale + scale_vary.offset * i : scale;
-    for (size_t j = 0; j < (size_t)n; ++j) {
-      auto location_ij = location_vary.draw ? location_i[j] : location_i[0];
-      auto scale_ij = scale_vary.draw ? scale_i[j] : scale_i[0];
-      y_i[j] = dust::random::cauchy<real_type>(state, location_ij, scale_ij);
+    try {
+      auto &state = rng->state(i);
+      auto y_i = y + n * i;
+      auto location_i = location_vary.generator ? location + location_vary.offset * i : location;
+      auto scale_i = scale_vary.generator ? scale + scale_vary.offset * i : scale;
+      for (size_t j = 0; j < (size_t)n; ++j) {
+        auto location_ij = location_vary.draw ? location_i[j] : location_i[0];
+        auto scale_ij = scale_vary.draw ? scale_i[j] : scale_i[0];
+        y_i[j] = dust::random::cauchy<real_type>(state, location_ij, scale_ij);
+      }
+    } catch (std::exception const& e) {
+      errors.capture(e, i);
     }
   }
+
+  errors.report("generators");
 
   return sexp_matrix(ret, n, n_streams);
 }
