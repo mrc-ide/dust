@@ -17,49 +17,50 @@ namespace dust {
 namespace random {
 namespace {
 
-inline void hypergeometric_validate(int n1, int n2, int n, int k) {
+template <typename real_type>
+inline void hypergeometric_validate(real_type n1, real_type n2, real_type n, real_type k) {
   if (n1 < 0 || n2 < 0 || k < 0 || k > n) {
     char buffer[256];
     snprintf(buffer, 256,
-             "Invalid call to hypergeometric with n1 = %d, n2 = %d, k = %d",
+             "Invalid call to hypergeometric with n1 = %.0f, n2 = %.0f, k = %.0f",
              n1, n2, k);
     dust::utils::fatal_error(buffer);
   }
 }
 
 template <typename real_type>
-using h2pe_sample_result = std::pair<real_type, int>;
+using h2pe_sample_result = std::pair<real_type, real_type>;
 template <typename real_type>
 using h2pe_test_result = std::pair<bool, real_type>;
 
 template <typename real_type, typename rng_state_type>
-int hypergeometric_hin(rng_state_type& rng_state, int n1, int n2, int n, int k);
+real_type hypergeometric_hin(rng_state_type& rng_state, real_type n1, real_type n2, real_type n, real_type k);
 template <typename real_type, typename rng_state_type>
-int hypergeometric_h2pe(rng_state_type& rng_state, int n1, int n2, int n, int k, int m);
+real_type hypergeometric_h2pe(rng_state_type& rng_state, real_type n1, real_type n2, real_type n, real_type k, real_type m);
 template <typename real_type, typename rng_state_type>
 h2pe_sample_result<real_type>
-h2pe_sample(rng_state_type& rng_state, int n1, int n2, int k,
+h2pe_sample(rng_state_type& rng_state, real_type n1, real_type n2, real_type k,
             real_type p1, real_type p2, real_type p3,
-            int x_l, int x_r, real_type lambda_l, real_type lambda_r);
+            real_type x_l, real_type x_r, real_type lambda_l, real_type lambda_r);
 
 template <typename real_type>
-h2pe_test_result<real_type> h2pe_test_recursive(int n1, int n2, int k, int m,
-                                                int y, real_type v);
+h2pe_test_result<real_type> h2pe_test_recursive(real_type n1, real_type n2, real_type k, real_type m,
+                                                real_type y, real_type v);
 template <typename real_type>
-h2pe_test_result<real_type> h2pe_test_squeeze(int n1, int n2, int k, int m,
-                                              int y, real_type v,
+h2pe_test_result<real_type> h2pe_test_squeeze(real_type n1, real_type n2, real_type k, real_type m,
+                                              real_type y, real_type v,
                                               real_type a);
 template <typename real_type>
-real_type fraction_of_products_of_factorials(int a, int b, int c, int d);
+real_type fraction_of_products_of_factorials(real_type a, real_type b, real_type c, real_type d);
 template <typename T>
 T quad(T x);
 
 // Generate hypergeometric random number via inversion (HIN), p 130 of
 // reference.
 template <typename real_type, typename rng_state_type>
-int hypergeometric_hin(rng_state_type& rng_state, int n1, int n2, int n, int k) {
+real_type hypergeometric_hin(rng_state_type& rng_state, real_type n1, real_type n2, real_type n, real_type k) {
   real_type p;
-  int x;
+  real_type x;
   if (k < n2) {
     p = fraction_of_products_of_factorials<real_type>(n2, n - k, n, n2 - k);
     x = 0;
@@ -80,7 +81,7 @@ int hypergeometric_hin(rng_state_type& rng_state, int n1, int n2, int n, int k) 
 }
 
 template <typename real_type, typename rng_state_type>
-int hypergeometric_h2pe(rng_state_type& rng_state, int n1, int n2, int n, int k, int m) {
+real_type hypergeometric_h2pe(rng_state_type& rng_state, real_type n1, real_type n2, real_type n, real_type k, real_type m) {
   // Step 0 set up constants
   const real_type a = utils::lfactorial<real_type>(m) +
     utils::lfactorial<real_type>(n1 - m) +
@@ -94,8 +95,8 @@ int hypergeometric_h2pe(rng_state_type& rng_state, int n1, int n2, int n, int k,
   const real_type d =
     std::floor(1.5 * std::sqrt(d_numerator / d_denominator)) + 0.5;
 
-  const int x_l = m - d + 0.5;
-  const int x_r = m + d + 0.5;
+  const real_type x_l = m - d + 0.5;
+  const real_type x_r = m + d + 0.5;
 
   const real_type k_l = std::exp(a -
                                  utils::lfactorial<real_type>(x_l) -
@@ -128,7 +129,7 @@ int hypergeometric_h2pe(rng_state_type& rng_state, int n1, int n2, int n, int k,
     const auto vy = h2pe_sample(rng_state, n1, n2, k, p1, p2, p3,
                                 x_l, x_r, lambda_l, lambda_r);
     const real_type v = vy.first;
-    const int y = vy.second;
+    const real_type y = vy.second;
 
     const auto result = (m < 100 || y <= 50) ?
       h2pe_test_recursive(n1, n2, k, m, y, v) :
@@ -144,11 +145,11 @@ int hypergeometric_h2pe(rng_state_type& rng_state, int n1, int n2, int n, int k,
 // Steps 1-3
 template <typename real_type, typename rng_state_type>
 h2pe_sample_result<real_type>
-h2pe_sample(rng_state_type& rng_state, int n1, int n2, int k,
+h2pe_sample(rng_state_type& rng_state, real_type n1, real_type n2, real_type k,
             real_type p1, real_type p2, real_type p3,
-            int x_l, int x_r, real_type lambda_l,
+            real_type x_l, real_type x_r, real_type lambda_l,
             real_type lambda_r) {
-  int y;
+  real_type y;
   real_type v;
   // We get a false-negative coverage report on this line, which is
   // very definitely hit. I presume the compiler is converting it into
@@ -165,7 +166,7 @@ h2pe_sample(rng_state_type& rng_state, int n1, int n2, int k,
     } else if (u <= p2) {
       // Region 2, left exponential tail (step 2)
       y = std::floor(x_l + std::log(v) / lambda_l);
-      if (y >= std::max(0, k - n2)) {
+      if (y >= std::max(static_cast<real_type>(0), k - n2)) {
         v *= (u - p1) * lambda_l;
         break;
       }
@@ -183,8 +184,8 @@ h2pe_sample(rng_state_type& rng_state, int n1, int n2, int k,
 
 // Step 4.1: Evaluate f(y) via recursive relationship
 template <typename real_type>
-h2pe_test_result<real_type> h2pe_test_recursive(int n1, int n2, int k, int m,
-                                                int y, real_type v) {
+h2pe_test_result<real_type> h2pe_test_recursive(real_type n1, real_type n2, real_type k, real_type m,
+                                                real_type y, real_type v) {
   real_type f = 1;
   if (m < y) {
     for (int i = m + 1; i <= y; ++i) {
@@ -204,8 +205,8 @@ h2pe_test_result<real_type> h2pe_test_recursive(int n1, int n2, int k, int m,
 
 // Step 4.2: Squeezing
 template <typename real_type>
-h2pe_test_result<real_type> h2pe_test_squeeze(int n1, int n2, int k, int m,
-                                              int y, real_type v,
+h2pe_test_result<real_type> h2pe_test_squeeze(real_type n1, real_type n2, real_type k, real_type m,
+                                              real_type y, real_type v,
                                               real_type a) {
   const real_type y1 = y + 1;
   const real_type ym = y - m;
@@ -262,7 +263,7 @@ h2pe_test_result<real_type> h2pe_test_squeeze(int n1, int n2, int k, int m,
 // mode (on the order of n = 1e9, m < 10)
 // https://bugs.r-project.org/show_bug.cgi?id=16489
 template <typename real_type>
-real_type fraction_of_products_of_factorials(int a, int b, int c, int d) {
+real_type fraction_of_products_of_factorials(real_type a, real_type b, real_type c, real_type d) {
   return std::exp(utils::lfactorial<real_type>(a) +
                   utils::lfactorial<real_type>(b) -
                   utils::lfactorial<real_type>(c) -
@@ -279,12 +280,12 @@ T quad(T x) {
 // NOTE: we return a real, not an int, as with deterministic mode this
 // will not necessarily be an integer
 template <typename real_type, typename rng_state_type>
-real_type hypergeometric_stochastic(rng_state_type& rng_state, int n1, int n2, int k) {
-  const int n = n1 + n2;
+real_type hypergeometric_stochastic(rng_state_type& rng_state, real_type n1, real_type n2, real_type k) {
+  const real_type n = n1 + n2;
   hypergeometric_validate(n1, n2, n, k);
 
-  int sign_x = 1;
-  int offset_x = 0;
+  real_type sign_x = 1;
+  real_type offset_x = 0;
 
   if (n1 > n2) {
     sign_x = -1;
@@ -297,14 +298,14 @@ real_type hypergeometric_stochastic(rng_state_type& rng_state, int n1, int n2, i
     k = n - k;
   }
 
-  int x;
+  real_type x;
   // Same fast exits as for the binomial case, n == k case handled by
   // the transformation above.
   if (k == 0 || n1 == 0) {
     x = 0;
   } else {
     constexpr real_type hin_threshold = 10;
-    const int m = std::floor((k + 1) * (n1 + 1) / (real_type)(n + 2));
+    const real_type m = std::floor((k + 1) * (n1 + 1) / (real_type)(n + 2));
     x = (m < hin_threshold) ?
       hypergeometric_hin<real_type>(rng_state, n1, n2, n, k) :
       hypergeometric_h2pe<real_type>(rng_state, n1, n2, n, k, m);
@@ -316,8 +317,7 @@ real_type hypergeometric_stochastic(rng_state_type& rng_state, int n1, int n2, i
 template <typename real_type>
 real_type hypergeometric_deterministic(real_type n1, real_type n2, real_type k) {
   const real_type n = n1 + n2;
-  hypergeometric_validate(static_cast<int>(n1), static_cast<int>(n2),
-                          static_cast<int>(n), static_cast<int>(k));
+  hypergeometric_validate(n1, n2, n, k);
   return n1 * k / n;
 }
 
