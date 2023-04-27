@@ -26,6 +26,7 @@ generate_dust <- function(filename, quiet, workdir, cuda, linking_to, cpp_std,
   ## These two are used in the non-package version only
   data$base <- base
   data$path_dust_include <- dust_file("include")
+  data$system_requirements <- data$cpp_std %||% "R (>= 4.0.0)"
 
   dir.create(file.path(path, "R"), FALSE, TRUE)
   dir.create(file.path(path, "src"), FALSE, TRUE)
@@ -242,12 +243,14 @@ dust_repair_environment <- function(generator, quiet = FALSE) {
 
 
 is_valid_cpp_std <- function(cpp_std) {
-  grepl("\\bC\\+\\+[0-9][0-9a-z]\\b", cpp_std, ignore.case = TRUE)
+  grepl("^C\\+\\+[0-9][0-9a-z]$", cpp_std, ignore.case = TRUE)
 }
 
 
 validate_cpp_std <- function(cpp_std) {
-  cpp_std <- cpp_std %||% "C++11"
+  if (is.null(cpp_std)) {
+    return(NULL)
+  }
   assert_is(cpp_std, "character")
   if (length(cpp_std) != 1L) {
     stop("Expected a scalar character for 'cpp_std'")

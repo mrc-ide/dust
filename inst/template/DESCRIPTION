@@ -1,4 +1,4 @@
 Package: {{base}}
 LinkingTo: {{linking_to}}
 Version: 0.0.1
-SystemRequirements: {{cpp_std}}
+SystemRequirements: {{system_requirements}}

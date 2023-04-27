@@ -400,7 +400,6 @@ test_that("create temporary package", {
     "^walk[[:xdigit:]]{8}$")
   desc <- as.list(read.dcf(file.path(path, "DESCRIPTION"))[1, ])
   expect_equal(desc[["LinkingTo"]], "cpp11")
-  expect_equal(desc[["SystemRequirements"]], "C++11")
   pkg <- pkgload::load_all(path, quiet = TRUE, export_all = FALSE)
   expect_s3_class(pkg$env$walk, "dust_generator")
   obj <- pkg$env$walk$new(list(sd = 1), 0L, 100L)
@@ -567,7 +566,7 @@ test_that("Can repair generators", {
 
 
 test_that("Can validate C++ standard", {
-  expect_equal(validate_cpp_std(NULL), "C++11")
+  expect_null(validate_cpp_std(NULL))
   expect_equal(validate_cpp_std("C++11"), "C++11")
   expect_equal(validate_cpp_std("c++11"), "c++11")
   expect_equal(validate_cpp_std("c++17"), "c++17")

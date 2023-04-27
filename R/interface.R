@@ -184,12 +184,14 @@
 ##'   this when your model pulls in C++ code that is packaged within
 ##'   another package's header-only library.
 ##'
-##' @param cpp_std The C++ standard to use. This will be be set into
-##'   the `DESCRIPTION` of the package as the `SystemRequirements`
-##'   field. Sensible options are `C++11`, `C++14` etc. See the
-##'   section "Using C++ code" in "Writing R extensions". The minimum
-##'   allowed version is C++11 but R supports much more recent
-##'   versions now (especially more recent versions of R).
+##' @param cpp_std The C++ standard to use, if you need to set one
+##'   explicitly. See the section "Using C++ code" in "Writing R
+##'   extensions" for the details of this, and how it interacts with
+##'   the R version currently being used. For R 4.0.0 and above, C++11
+##'   will be used; as dust depends on at least this version of R you
+##'   will never need to specify a version this low. Sensible options
+##'   are `C++14`, `C++17`, etc, depending on the features you need
+##'   and what your compiler supports.
 ##'
 ##' @param skip_cache Logical, indicating if the cache of previously
 ##'   compiled models should be skipped. If `TRUE` then your model will

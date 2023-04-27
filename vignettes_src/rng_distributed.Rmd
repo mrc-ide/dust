@@ -86,8 +86,7 @@ dir.create(file.path(path, "src"), FALSE, TRUE)
 writeLines(
   c("Package: piparallel",
     "LinkingTo: cpp11, dust",
-    "Version: 0.0.1",
-    "SystemRequirements: C++11"),
+    "Version: 0.0.1"),
   file.path(path, "DESCRIPTION"))
 writeLines(
   c('useDynLib("piparallel", .registration = TRUE)',

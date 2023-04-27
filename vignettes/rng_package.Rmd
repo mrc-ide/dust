@@ -231,7 +231,6 @@ We have an extremely minimal `DESCRIPTION`, which contains line `LinkingTo: cpp1
 Package: piparallel
 LinkingTo: cpp11, dust
 Version: 0.0.1
-SystemRequirements: C++11
 ```
 
 The `NAMESPACE` loads the dynamic library

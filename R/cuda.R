@@ -258,7 +258,7 @@ cuda_create_test_package <- function(path_cuda_lib, path = tempfile()) {
   data <- list(base = base,
                path_dust_include = dust_file("include"),
                linking_to = "cpp11",
-               cpp_std = "C++11",
+               system_requirements = "R (>= 4.0.0)",
                cuda = list(gencode = "",
                            nvcc_flags = "-O0",
                            cub_include = "",
