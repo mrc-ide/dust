@@ -141,9 +141,9 @@ __nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
 __host__ __device__
 real_type poisson_cauchy(rng_state_type& rng_state, real_type lambda) {
-  // The algorithm as in the dust rand_distr crate
+  // The algorithm as in the rust rand_distr crate
   // https://rust-random.github.io/rand/src/rand_distr/poisson.rs.html
-  // using the fat tails of a Cauchy distribution to do generate
+  // using the fat tails of a Cauchy distribution to generate
   // poisson values via rejection sampling.
   //
   // This algorithm is much less efficient than hormann (consistently
