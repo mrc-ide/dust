@@ -140,6 +140,7 @@ rng$multinomial(5, 10, c(0.1, 0.3, 0.5, 0.1))
 \item \href{#method-dust_rng-gamma}{\code{dust_rng$gamma()}}
 \item \href{#method-dust_rng-poisson}{\code{dust_rng$poisson()}}
 \item \href{#method-dust_rng-exponential}{\code{dust_rng$exponential()}}
+\item \href{#method-dust_rng-cauchy}{\code{dust_rng$cauchy()}}
 \item \href{#method-dust_rng-multinomial}{\code{dust_rng$multinomial()}}
 \item \href{#method-dust_rng-state}{\code{dust_rng$state()}}
 }
@@ -444,6 +445,31 @@ Generate \code{n} numbers from a exponential distribution
 \item{\code{n}}{Number of samples to draw (per stream)}
 
 \item{\code{rate}}{The rate of the exponential}
+
+\item{\code{n_threads}}{Number of threads to use; see Details}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dust_rng-cauchy"></a>}}
+\if{latex}{\out{\hypertarget{method-dust_rng-cauchy}{}}}
+\subsection{Method \code{cauchy()}}{
+Generate \code{n} draws from a Cauchy distribution.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_rng$cauchy(n, location, scale, n_threads = 1L)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{n}}{Number of samples to draw (per stream)}
+
+\item{\code{location}}{The location of the peak of the distribution
+(also its median)}
+
+\item{\code{scale}}{A scale parameter, which specifies the distribution's
+"half-width at half-maximum"}
 
 \item{\code{n_threads}}{Number of threads to use; see Details}
 }
