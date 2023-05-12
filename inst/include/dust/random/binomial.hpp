@@ -43,18 +43,22 @@ real_type binomial_inversion_calc(real_type u, int_type n, real_type p) {
   real_type f = fast_pow(q, n);
   int_type k = 0;
 
-  real_type f_prev = f;
+  // Track last two values of f; we change this by a value that
+  // changes as k increases. If we move two iterations through the
+  // loop without changing the multiplier then we've run out of
+  // precision and will never converge, so reject this and try again.
+  real_type f_prev1 = -1;
+  real_type f_prev2 = -2;
+
   while (u >= f) {
     u -= f;
     k++;
     f *= (g / k - r);
-    if (f == f_prev || k > n) {
-      // This catches an issue seen running with floats where we end
-      // up unable to decrease 'f' because we've run out of
-      // precision. In this case we'll try again with a better u
+    if (f == f_prev2 || k > n) { // See comment above
       return -1;
     }
-    f_prev = f;
+    f_prev2 = f_prev1;
+    f_prev1 = f;
   }
 
   return k;
@@ -209,6 +213,7 @@ real_type binomial_stochastic(rng_state_type& rng_state, real_type n,
                               real_type p) {
   binomial_validate(n, p);
   real_type draw;
+  const bool large_p = p > static_cast<real_type>(0.5);
 
   if (n == 0 || p == 0) {
     draw = 0;
@@ -216,7 +221,7 @@ real_type binomial_stochastic(rng_state_type& rng_state, real_type n,
     draw = n;
   } else {
     real_type q = p;
-    if (p > static_cast<real_type>(0.5)) {
+    if (large_p) {
       q = 1 - q;
     }
 
@@ -228,7 +233,7 @@ real_type binomial_stochastic(rng_state_type& rng_state, real_type n,
       draw = binomial_inversion(rng_state, static_cast<size_t>(n), q);
     }
 
-    if (p > static_cast<real_type>(0.5)) {
+    if (large_p) {
       draw = n - draw;
     }
   }
