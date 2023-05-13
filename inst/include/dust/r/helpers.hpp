@@ -3,6 +3,7 @@
 
 #include <map>
 #include <sstream>
+#include <type_traits>
 #include <vector>
 
 #include <cpp11/doubles.hpp>
@@ -470,10 +471,10 @@ std::vector<real_type> check_resample_weights(cpp11::doubles r_weights,
   return weights;
 }
 
-template <typename T>
-std::vector<size_t> check_time_snapshot(cpp11::sexp r_time_snapshot,
-                                        const std::map<size_t, T>& data) {
-  std::vector<size_t> time_snapshot;
+template <typename T, typename time_type>
+std::vector<time_type> check_time_snapshot(cpp11::sexp r_time_snapshot,
+                                           const std::map<time_type, T>& data) {
+  std::vector<time_type> time_snapshot;
   if (r_time_snapshot == R_NilValue) {
     return time_snapshot;
   }
@@ -491,8 +492,13 @@ std::vector<size_t> check_time_snapshot(cpp11::sexp r_time_snapshot,
       cpp11::stop("'time_snapshot' must be strictly increasing");
     }
     if (data.find(time) == data.end()) {
-      cpp11::stop("'time_snapshot[%d]' (time %d) was not found in data",
-                  i + 1, time);
+      if (std::is_same<time_type, size_t>::value) {
+        cpp11::stop("'time_snapshot[%d]' (time %d) was not found in data",
+                    i + 1, time);
+      } else {
+        cpp11::stop("'time_snapshot[%d]' (time %.9f) was not found in data",
+                    i + 1, time);
+      }
     }
     time_snapshot.push_back(time);
   }

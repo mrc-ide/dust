@@ -41,7 +41,7 @@ public:
   using rng_int_type = typename rng_state_type::int_type;
 
   // TODO: fix this elsewhere, perhaps (see also dust/dust_cpu.hpp)
-  using filter_state_type = dust::filter::filter_state_device<real_type>;
+  using filter_state_type = dust::filter::filter_state_device<real_type, time_type>;
 
   dust_gpu(const pars_type& pars, const size_t time, const size_t n_particles,
            const size_t n_threads, const std::vector<rng_int_type>& seed,
@@ -284,7 +284,7 @@ public:
     // The filter snapshot class can be used to store the indexed state
     // (implements async copy, swap space, and deinterleaving)
     // Filter trajectories not used as we don't need order here
-    dust::filter::filter_snapshots_device<real_type> state_store;
+    dust::filter::filter_snapshots_device<real_type, time_type> state_store;
     state_store.resize(n_state(), n_particles(), time_end);
     for (size_t t = 0; t < n_time; ++t) {
       run(time_end[t]);

@@ -122,8 +122,8 @@ private:
   }
 };
 
-template <typename real_type>
-class filter_snapshots_device : public filter_snapshots_host<real_type> {
+template <typename real_type, typename time_type>
+class filter_snapshots_device : public filter_snapshots_host<real_type, time_type> {
 public:
   filter_snapshots_device() : page_locked(false) {
   }
@@ -134,7 +134,7 @@ public:
   }
 #endif
 
-  void resize(size_t n_state, size_t n_particles, std::vector<size_t> times) {
+  void resize(size_t n_state, size_t n_particles, std::vector<time_type> times) {
     pageable();
     this->n_state_ = n_state;
     this->n_particles_ = n_particles;
@@ -208,10 +208,10 @@ private:
   }
 };
 
-template <typename real_type>
+template <typename real_type, typename time_type>
 struct filter_state_device {
   filter_trajectories_device<real_type> trajectories;
-  filter_snapshots_device<real_type> snapshots;
+  filter_snapshots_device<real_type, time_type> snapshots;
 };
 
 }

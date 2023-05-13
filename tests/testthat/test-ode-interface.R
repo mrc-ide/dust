@@ -762,3 +762,41 @@ test_that("can resample from ode models", {
 
   expect_identical(obj$run(50), obj2$run(50))
 })
+
+
+test_that("can set data with noninteger time", {
+  gen <- dust(dust_file("examples/ode/malaria.cpp"), quiet = TRUE)
+  dat1 <- read.csv(dust_file("extdata/malaria_cases.csv"))
+  dt <- 0.5
+  dat2 <- dat1
+  dat2$t <- dat2$t + dt
+  d1 <- dust_data(dat1, "t")
+  d2 <- dust_data(dat2, "t")
+  ts <- seq(0, 100, by = 2)
+
+  np <- 13L
+  mod1 <- gen$new(list(), 0, np, seed = 42L)
+  mod2 <- gen$new(list(), dt, np, seed = 42L)
+  mod1$set_data(d1)
+  mod2$set_data(d2)
+  mod1$set_stochastic_schedule(ts)
+  mod2$set_stochastic_schedule(ts + dt)
+
+  t1 <- d1[[2]][[1]]
+  t2 <- d2[[2]][[1]]
+
+  y1 <- mod1$run(t1)
+  y2 <- mod2$run(t2)
+
+  expect_equal(y1, y2)
+  expect_equal(mod1$time(), t1)
+  expect_equal(mod2$time(), t2)
+
+  expect_equal(mod2$compare_data(),
+               mod1$compare_data())
+
+  el <- d2[[2]][[2]]
+  expect_equal(
+    mod2$compare_data(),
+    dbinom(el$positive, el$tested, y2[2, ], TRUE))
+})

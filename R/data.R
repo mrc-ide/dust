@@ -66,19 +66,15 @@ dust_data <- function(object, name_time = "time", multi = NULL) {
     stop(sprintf("'%s' is not a column in %s",
                  name_time, deparse(substitute(object))))
   }
-  itimes <- as.integer(round(times))
-  if (any(itimes < 0)) {
+  if (any(times < 0)) {
     stop(sprintf("All elements in column '%s' must be nonnegative", name_time))
-  }
-  if (any(abs(times - itimes) > sqrt(.Machine$double.eps))) {
-    stop(sprintf("All elements in column '%s' must be integer-like", name_time))
   }
 
   rows <- lapply(seq_len(nrow(object)), function(i) as.list(object[i, ]))
   if (is.null(multi)) {
-    ret <- Map(list, itimes, rows)
+    ret <- Map(list, times, rows)
   } else if (is_integer_like(multi)) {
-    ret <- Map(function(i, d) c(list(i), rep(list(d), multi)), itimes, rows)
+    ret <- Map(function(i, d) c(list(i), rep(list(d), multi)), times, rows)
   } else if (is.character(multi)) {
     group <- object[[multi]]
     if (is.null(group)) {
@@ -88,20 +84,20 @@ dust_data <- function(object, name_time = "time", multi = NULL) {
     if (!is.factor(group)) {
       stop(sprintf("Column '%s' must be a factor", multi))
     }
-    itimes <- unname(split(itimes, group))
-    if (length(unique(itimes)) != 1L) {
+    times <- unname(split(times, group))
+    if (length(unique(times)) != 1L) {
       stop("All groups must have the same time steps, in the same order")
     }
-    itimes <- itimes[[1L]]
+    times <- times[[1L]]
     rows_grouped <- unname(split(rows, group))
-    ret <- lapply(seq_along(itimes), function(i) {
-      c(list(itimes[[i]]), lapply(rows_grouped, "[[", i))
+    ret <- lapply(seq_along(times), function(i) {
+      c(list(times[[i]]), lapply(rows_grouped, "[[", i))
     })
   } else {
     stop("Invalid option for 'multi'; must be NULL, integer or character")
   }
 
-  if (any(duplicated(itimes))) {
+  if (any(duplicated(times))) {
     stop(sprintf("All elements in column '%s' must be unique", name_time))
   }
 

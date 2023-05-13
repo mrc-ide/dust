@@ -10,10 +10,10 @@ namespace filter {
 template <typename T>
 std::vector<typename T::real_type>
 filter(T * obj,
-       size_t time_end,
-       filter_state_host<typename T::real_type>& state,
+       typename T::time_type time_end,
+       filter_state_host<typename T::real_type, typename T::time_type>& state,
        bool save_trajectories,
-       std::vector<size_t> time_snapshot,
+       std::vector<typename T::time_type> time_snapshot,
        const std::vector<typename T::real_type>& min_log_likelihood) {
   using real_type = typename T::real_type;
 
