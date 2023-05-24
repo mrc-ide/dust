@@ -43,22 +43,45 @@ real_type binomial_inversion_calc(real_type u, int_type n, real_type p) {
   real_type f = fast_pow(q, n);
   int_type k = 0;
 
-  // Track last two values of f; we change this by a value that
-  // changes as k increases. If we move two iterations through the
-  // loop without changing the multiplier then we've run out of
-  // precision and will never converge, so reject this and try again.
-  real_type f_prev1 = -1;
-  real_type f_prev2 = -2;
-
+  // We hit this branch when n * p has expectation of 10 or less
+  // (e.g., p = 0.5, n = 5 would be ok but p = 0.5, n = 30 would go
+  // through the BTRS route).
+  //
+  // As n increases the only way that np can be < 10 is if we have
+  // most of the mass in the small samples; as p decreases it squashes
+  // more up the y axis, and even with very large n it is never very
+  // high.
+  //
+  // Consider the probability of a sample of size 'm' or greater; this is
+  //
+  //   pbinom(m, n, p, FALSE)
+  //
+  // Because of the setup above, this function is monotonically
+  // increasing with p, so consider the case where np = 10 as a worst case
+  //
+  //   pbinom(m, n, 10 / n, FALSE)
+  //
+  // In the R sources they use a value 'm' of 110 (with their
+  // inclusion level for inversion of np < 30)
+  //
+  //   plot(sapply(10^(2:10), function(n) pbinom(110, n, 10 / n, FALSE)))
+  //
+  // This does monotonically incraese with n, but remains really very
+  // small, rising to an error of ~1e-30 in the R case:
+  //
+  //   pbinom(110, 1e10, 30 / 1e10, FALSE)
+  //
+  // The equivalent cuttoff for us would be 63:
+  //
+  //   qbinom(6.6e-30, 1e10, 10 / 1e10, FALSE)
+  const int_type max_k = std::min(n, static_cast<int_type>(63));
   while (u >= f) {
     u -= f;
     k++;
     f *= (g / k - r);
-    if (f == f_prev2 || k > n) { // See comment above
+    if (k > max_k) {
       return -1;
     }
-    f_prev2 = f_prev1;
-    f_prev1 = f;
   }
 
   return k;
@@ -213,7 +236,6 @@ real_type binomial_stochastic(rng_state_type& rng_state, real_type n,
                               real_type p) {
   binomial_validate(n, p);
   real_type draw;
-  const bool large_p = p > static_cast<real_type>(0.5);
 
   if (n == 0 || p == 0) {
     draw = 0;
@@ -221,7 +243,7 @@ real_type binomial_stochastic(rng_state_type& rng_state, real_type n,
     draw = n;
   } else {
     real_type q = p;
-    if (large_p) {
+    if (p > static_cast<real_type>(0.5)) {
       q = 1 - q;
     }
 
@@ -233,7 +255,7 @@ real_type binomial_stochastic(rng_state_type& rng_state, real_type n,
       draw = binomial_inversion(rng_state, static_cast<size_t>(n), q);
     }
 
-    if (large_p) {
+    if (p > static_cast<real_type>(0.5)) {
       draw = n - draw;
     }
   }

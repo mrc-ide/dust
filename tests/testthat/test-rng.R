@@ -1403,3 +1403,12 @@ test_that("deterministic cauchy throws", {
     rng_d$cauchy(1, 0, 1),
     "Can't use Cauchy distribution deterministically; it has no mean")
 })
+
+
+test_that("regression tests of binomial issues", {
+  rng <- dust_rng$new(1, seed = 42)
+  ## all values 0..n represented:
+  expect_setequal(rng$binomial(10000, 1, 0.5), 0:1)
+  expect_setequal(rng$binomial(10000, 4, 0.2), 0:4)
+  expect_setequal(rng$binomial(10000, 10, 0.5), 0:10)
+})
