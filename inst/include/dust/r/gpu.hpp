@@ -1,7 +1,6 @@
 #ifndef DUST_R_GPU_HPP
 #define DUST_R_GPU_HPP
 
-#include <cpp11/data_frame.hpp>
 #include <cpp11/doubles.hpp>
 #include <cpp11/integers.hpp>
 #include <cpp11/list.hpp>
