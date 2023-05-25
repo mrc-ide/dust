@@ -156,29 +156,30 @@ real_type poisson_cauchy(rng_state_type& rng_state, real_type lambda) {
   // large lambda (1e6 or more), giving a mean that is correct but
   // inflated variance. The underlying issue is not the cauchy as
   // that's correct, and it could just be precision loss?
-  if (std::is_same<real_type, float>::value && lambda > 1e6) {
-    throw std::runtime_error("Single precision Poisson with lambda > 1e6 not yet supported");
-  }
   real_type result = 0;
-  const real_type log_lambda = dust::math::log<real_type>(lambda);
-  const real_type sqrt_2lambda = dust::math::sqrt<real_type>(2 * lambda);
-  const real_type magic_val = lambda * log_lambda - dust::math::lgamma<real_type>(1 + lambda);
-  for (;;) {
-    real_type comp_dev;
+  if (std::is_same<real_type, float>::value && lambda > 1e6) {
+    result = poisson_cauchy<double>(rng_state, static_cast<double>(lambda));
+  } else {
+    const real_type log_lambda = dust::math::log<real_type>(lambda);
+    const real_type sqrt_2lambda = dust::math::sqrt<real_type>(2 * lambda);
+    const real_type magic_val = lambda * log_lambda - dust::math::lgamma<real_type>(1 + lambda);
     for (;;) {
-      comp_dev = cauchy<real_type>(rng_state, 0, 1);
-      result = sqrt_2lambda * comp_dev + lambda;
-      if (result >= 0) {
+      real_type comp_dev;
+      for (;;) {
+        comp_dev = cauchy<real_type>(rng_state, 0, 1);
+        result = sqrt_2lambda * comp_dev + lambda;
+        if (result >= 0) {
+          break;
+        }
+      }
+      result = dust::math::trunc<real_type>(result);
+      const real_type check = static_cast<real_type>(0.9) *
+        (1 + comp_dev * comp_dev) *
+        dust::math::exp<real_type>(result * log_lambda - dust::math::lgamma<real_type>(1 + result) - magic_val);
+      const real_type u = random_real<real_type>(rng_state);
+      if (u <= check) {
         break;
       }
-    }
-    result = dust::math::trunc<real_type>(result);
-    const real_type check = static_cast<real_type>(0.9) *
-      (1 + comp_dev * comp_dev) *
-      dust::math::exp<real_type>(result * log_lambda - dust::math::lgamma<real_type>(1 + result) - magic_val);
-    const real_type u = random_real<real_type>(rng_state);
-    if (u <= check) {
-      break;
     }
   }
   return result;
