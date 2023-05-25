@@ -1,7 +1,6 @@
 #ifndef DUST_R_GPU_INFO_HPP
 #define DUST_R_GPU_INFO_HPP
 
-#include <cpp11/data_frame.hpp>
 #include <cpp11/doubles.hpp>
 #include <cpp11/integers.hpp>
 #include <cpp11/list.hpp>
@@ -52,7 +51,7 @@ inline cpp11::sexp gpu_info() {
   cpp11::sexp cuda_version = R_NilValue;
 #endif
 
-  cpp11::writable::data_frame devices({
+  cpp11::writable::list devices({
     "id"_nm = ids,
     "name"_nm = names,
     "memory"_nm = memory,

@@ -587,6 +587,7 @@
     ##' device.
     gpu_info = function() {
       ret <- dust_{{name}}_gpu_info()
+      ret$devices <- as.data.frame(ret$devices, stringsAsFactors = FALSE)
       parent <- parent.env(environment())
       if (ret$has_cuda && exists("private", parent, inherits = FALSE)) {
         ret$config <- private$gpu_config_
