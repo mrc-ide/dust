@@ -151,34 +151,38 @@ real_type poisson_cauchy(rng_state_type& rng_state, real_type lambda) {
   // Dieter 1980 ("Sampling from Binomial and Poisson Distributions",
   // Computing 25 193-208) is meant to be the fastest with a
   // constantly changing lambda, but is more complex to implement.
-  //
-  // Unfortunately, this is incorrect for single precision with fairly
-  // large lambda (1e6 or more), giving a mean that is correct but
-  // inflated variance. The underlying issue is not the cauchy as
-  // that's correct, and it could just be precision loss?
-  if (std::is_same<real_type, float>::value && lambda > 1e6) {
-    throw std::runtime_error("Single precision Poisson with lambda > 1e6 not yet supported");
-  }
   real_type result = 0;
-  const real_type log_lambda = dust::math::log<real_type>(lambda);
-  const real_type sqrt_2lambda = dust::math::sqrt<real_type>(2 * lambda);
-  const real_type magic_val = lambda * log_lambda - dust::math::lgamma<real_type>(1 + lambda);
-  for (;;) {
-    real_type comp_dev;
+  if (std::is_same<real_type, float>::value && lambda > 1e6) {
+    // This algorithm suffers bias in single precision with large
+    // lambda (as in var(Poisson(lambda)) / lambda ~ 10 rather than
+    // 1); it looks like we're passing back too much of the cauchy
+    // somehow. An alternative normal distribution based rejection
+    // sampling algorithm does better, to lambda between 1e9 and 1e10,
+    // then gets stuck in an finite loop probably because of precision
+    // loss (see mrc-4287 for implementation). So we just fall back on
+    // double precision here, which gets the job done.
+    result = poisson_cauchy<double>(rng_state, static_cast<double>(lambda));
+  } else {
+    const real_type log_lambda = dust::math::log<real_type>(lambda);
+    const real_type sqrt_2lambda = dust::math::sqrt<real_type>(2 * lambda);
+    const real_type magic_val = lambda * log_lambda - dust::math::lgamma<real_type>(1 + lambda);
     for (;;) {
-      comp_dev = cauchy<real_type>(rng_state, 0, 1);
-      result = sqrt_2lambda * comp_dev + lambda;
-      if (result >= 0) {
+      real_type comp_dev;
+      for (;;) {
+        comp_dev = cauchy<real_type>(rng_state, 0, 1);
+        result = sqrt_2lambda * comp_dev + lambda;
+        if (result >= 0) {
+          break;
+        }
+      }
+      result = dust::math::trunc<real_type>(result);
+      const real_type check = static_cast<real_type>(0.9) *
+        (1 + comp_dev * comp_dev) *
+        dust::math::exp<real_type>(result * log_lambda - dust::math::lgamma<real_type>(1 + result) - magic_val);
+      const real_type u = random_real<real_type>(rng_state);
+      if (u <= check) {
         break;
       }
-    }
-    result = dust::math::trunc<real_type>(result);
-    const real_type check = static_cast<real_type>(0.9) *
-      (1 + comp_dev * comp_dev) *
-      dust::math::exp<real_type>(result * log_lambda - dust::math::lgamma<real_type>(1 + result) - magic_val);
-    const real_type u = random_real<real_type>(rng_state);
-    if (u <= check) {
-      break;
     }
   }
   return result;
