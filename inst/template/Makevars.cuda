@@ -2,7 +2,7 @@
 CXX_STD = CXX14
 OBJECTS = cpp11.o dust.o
 PKG_LIBS = {{cuda$lib_flags}} -lcudart $(SHLIB_OPENMP_CXXFLAGS)
-PKG_CXXFLAGS=-I{{path_dust_include}} -DHAVE_INLINE $(SHLIB_OPENMP_CXXFLAGS)
+PKG_CXXFLAGS=-I{{path_dust_include}} -DHAVE_INLINE $(SHLIB_OPENMP_CXXFLAGS) {{compiler_options}}
 
 # NOTE: using -Xcompiler -fopenmp here to pass this to the underlying
 # compiler, but this is not as portable as using

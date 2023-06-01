@@ -1,5 +1,6 @@
 generate_dust <- function(filename, quiet, workdir, cuda, linking_to, cpp_std,
-                          skip_cache, mangle) {
+                          compiler_options, optimisation_level, skip_cache,
+                          mangle) {
   config <- parse_metadata(filename)
   if (grepl("^[A-Za-z][A-Zxa-z0-9]*$", config$name)) {
     base <- config$name
@@ -21,9 +22,10 @@ generate_dust <- function(filename, quiet, workdir, cuda, linking_to, cpp_std,
   path <- dust_workdir(workdir)
   model <- read_lines(filename)
   reload <- list(path = path, base = base)
-  data <- dust_template_data(model, config, cuda, reload, linking_to, cpp_std)
+  data <- dust_template_data(model, config, cuda, reload, linking_to, cpp_std,
+                             compiler_options, optimisation_level)
 
-  ## These two are used in the non-package version only
+  ## This set of options is used in the non-package version only
   data$base <- base
   data$path_dust_include <- dust_file("include")
   data$system_requirements <- data$cpp_std %||% "R (>= 4.0.0)"
@@ -86,10 +88,11 @@ dust_code <- function(data, config) {
 
 compile_and_load <- function(filename, quiet = FALSE, workdir = NULL,
                              cuda = NULL, linking_to = NULL, cpp_std = NULL,
+                             compiler_options = NULL, optimisation_level = NULL,
                              skip_cache = FALSE) {
   mangle <- TRUE
   res <- generate_dust(filename, quiet, workdir, cuda, linking_to, cpp_std,
-                       skip_cache, mangle)
+                       compiler_options, optimisation_level, skip_cache, mangle)
 
   if (is.null(res$env)) {
     path <- res$path
@@ -132,7 +135,7 @@ glue_whisker <- function(template, data) {
 
 
 dust_template_data <- function(model, config, cuda, reload_data, linking_to,
-                               cpp_std) {
+                               cpp_std, compiler_options, optimisation_level) {
   methods <- function(target) {
     nms <- c("alloc", "run", "simulate", "set_index", "n_state",
              "update_state", "state", "time", "reorder", "resample",
@@ -171,6 +174,8 @@ dust_template_data <- function(model, config, cuda, reload_data, linking_to,
   linking_to <- paste(union("cpp11", linking_to), collapse = ", ")
 
   cpp_std <- validate_cpp_std(cpp_std)
+  compiler_options <- build_compiler_options(compiler_options,
+                                             optimisation_level)
 
   list(model = model,
        name = config$name,
@@ -184,7 +189,8 @@ dust_template_data <- function(model, config, cuda, reload_data, linking_to,
        methods_gpu = methods_gpu,
        reload = reload,
        linking_to = linking_to,
-       cpp_std = cpp_std)
+       cpp_std = cpp_std,
+       compiler_options = compiler_options)
 }
 
 
@@ -259,4 +265,18 @@ validate_cpp_std <- function(cpp_std) {
     stop("'cpp_std' does not look like a valid C++ standard name (e.g., C++14)")
   }
   cpp_std
+}
+
+
+build_compiler_options <- function(compiler_options, optimisation_level) {
+  if (!is.null(optimisation_level)) {
+    opts <- switch(
+      optimisation_level,
+      none = "-O0",
+      standard = "-O2",
+      max = c("-O3", "-ffast-math"),
+      stop(sprintf("Unknown optimisation_level '%s'", optimisation_level)))
+    compiler_options <- c(compiler_options, opts)
+  }
+  paste(compiler_options, collapse = " ")
 }

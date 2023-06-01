@@ -20,7 +20,7 @@ test_that("Interface passes arguments as expected", {
   mockery::expect_called(mock_compile_and_load, 1L)
   expect_equal(
     mockery::mock_args(mock_compile_and_load)[[1]],
-    list(filename, TRUE, workdir, NULL, NULL, NULL, FALSE))
+    list(filename, TRUE, workdir, NULL, NULL, NULL, NULL, NULL, FALSE))
 })
 
 
@@ -434,6 +434,30 @@ test_that("change C++ standard compilation", {
   expect_equal(desc[["SystemRequirements"]], "C++17")
 })
 
+
+test_that("enable optimisations", {
+  skip_on_cran()
+  filename <- dust_file("examples/walk.cpp")
+  path <- dust_generate(filename, quiet = TRUE, mangle = FALSE,
+                        optimisation_level = "max")
+  txt <- readLines(file.path(path, "src", "Makevars"))
+  expect_match(txt, "PKG_CXXFLAGS=.* -O3 -ffast-math", all = FALSE)
+})
+
+
+test_that("pass any other options", {
+  skip_on_cran()
+  filename <- dust_file("examples/walk.cpp")
+  path <- dust_generate(filename, quiet = TRUE, mangle = FALSE,
+                        compiler_options = c("--enable-carrot",
+                                             "--no-turnip"),
+                        optimisation_level = "none")
+  txt <- readLines(file.path(path, "src", "Makevars"))
+  expect_match(txt, "PKG_CXXFLAGS=.* --enable-carrot --no-turnip -O0",
+               all = FALSE)
+})
+
+
 test_that("Don't mangle name in generated package", {
   skip_on_cran()
   filename <- dust_file("examples/walk.cpp")
@@ -578,6 +602,18 @@ test_that("Can validate C++ standard", {
     validate_cpp_std("c++recent"),
     "'cpp_std' does not look like a valid C++ standard name (e.g., C++14)",
     fixed = TRUE)
+})
+
+
+test_that("can build sensible compiler options", {
+  expect_equal(build_compiler_options(NULL, NULL), "")
+  expect_equal(build_compiler_options("-a", NULL), "-a")
+  expect_equal(build_compiler_options("-a -b", NULL), "-a -b")
+  expect_equal(build_compiler_options(c("-a -b", "-c"), NULL), "-a -b -c")
+  expect_equal(build_compiler_options(c("-a -b", "-c"), "standard"),
+               "-a -b -c -O2")
+  expect_error(build_compiler_options(c("-a -b", "-c"), "amazing"),
+               "Unknown optimisation_level 'amazing'")
 })
 
 
