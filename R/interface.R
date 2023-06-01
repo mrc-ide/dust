@@ -193,6 +193,29 @@
 ##'   are `C++14`, `C++17`, etc, depending on the features you need
 ##'   and what your compiler supports.
 ##'
+##' @param compiler_options A character vector of additional options
+##'   to pass through to the C++ compiler. These will be passed
+##'   through without any shell quoting or validation, so check the
+##'   generated commands and outputs carefully in case of error. Note
+##'   that R will apply these *before* anything in your personal
+##'   `Makevars`.
+##'
+##' @param optimisation_level A shorthand way of specifying common
+##'   compiler options that control optimisation level. By default
+##'   (`NULL`) no options are generated from this, and the
+##'   optimisation level will depend on your user `Makevars` file.
+##'   Valid options are `none` which disables optimisation (`-O0`),
+##'   which will be faster to compile but much slower, `standard`
+##'   which enables standard level of optimisation (`-O2`), useful if
+##'   your Makevars/pkgload configuration is disabling optimisation,
+##'   or `max` (`-O3` and `--fast-math`) which enables some
+##'   slower-to-compile and [potentially
+##'   unsafe](https://simonbyrne.github.io/notes/fastmath/)
+##'   optimisations.  These options are applied *after*
+##'   `compiler_options` and may override options provided there.
+##'   Note that as for `compiler_options`, R will apply these *before*
+##'   anything in your personal `Makevars`
+##'
 ##' @param skip_cache Logical, indicating if the cache of previously
 ##'   compiled models should be skipped. If `TRUE` then your model will
 ##'   not be looked for in the cache, nor will it be added to the
@@ -244,10 +267,11 @@
 ##' obj$state()
 dust <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
                  real_type = NULL, linking_to = NULL, cpp_std = NULL,
+                 compiler_options = NULL, optimisation_level = NULL,
                  skip_cache = FALSE) {
   filename <- dust_prepare(filename, real_type)
   compile_and_load(filename, quiet, workdir, cuda_check(gpu), linking_to,
-                   cpp_std, skip_cache)
+                   cpp_std, compiler_options, optimisation_level, skip_cache)
 }
 
 
@@ -282,11 +306,13 @@ dust <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
 ##' dir(file.path(path, "src"))
 dust_generate <- function(filename, quiet = FALSE, workdir = NULL, gpu = FALSE,
                           real_type = NULL, linking_to = NULL, cpp_std = NULL,
+                          compiler_options = NULL, optimisation_level = NULL,
                           mangle = FALSE) {
   filename <- dust_prepare(filename, real_type)
   skip_cache <- TRUE
   res <- generate_dust(filename, quiet, workdir, cuda_check(gpu), linking_to,
-                       cpp_std, skip_cache, mangle)
+                       cpp_std, compiler_options, optimisation_level,
+                       skip_cache, mangle)
   cpp11::cpp_register(res$path, quiet = quiet)
   res$path
 }

@@ -12,6 +12,8 @@ dust(
   real_type = NULL,
   linking_to = NULL,
   cpp_std = NULL,
+  compiler_options = NULL,
+  optimisation_level = NULL,
   skip_cache = FALSE
 )
 }
@@ -57,6 +59,28 @@ will be used; as dust depends on at least this version of R you
 will never need to specify a version this low. Sensible options
 are \code{C++14}, \code{C++17}, etc, depending on the features you need
 and what your compiler supports.}
+
+\item{compiler_options}{A character vector of additional options
+to pass through to the C++ compiler. These will be passed
+through without any shell quoting or validation, so check the
+generated commands and outputs carefully in case of error. Note
+that R will apply these \emph{before} anything in your personal
+\code{Makevars}.}
+
+\item{optimisation_level}{A shorthand way of specifying common
+compiler options that control optimisation level. By default
+(\code{NULL}) no options are generated from this, and the
+optimisation level will depend on your user \code{Makevars} file.
+Valid options are \code{none} which disables optimisation (\code{-O0}),
+which will be faster to compile but much slower, \code{standard}
+which enables standard level of optimisation (\code{-O2}), useful if
+your Makevars/pkgload configuration is disabling optimisation,
+or \code{max} (\code{-O3} and \code{--fast-math}) which enables some
+slower-to-compile and \href{https://simonbyrne.github.io/notes/fastmath/}{potentially unsafe}
+optimisations.  These options are applied \emph{after}
+\code{compiler_options} and may override options provided there.
+Note that as for \code{compiler_options}, R will apply these \emph{before}
+anything in your personal \code{Makevars}}
 
 \item{skip_cache}{Logical, indicating if the cache of previously
 compiled models should be skipped. If \code{TRUE} then your model will

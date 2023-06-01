@@ -1,3 +1,3 @@
 # -*- makefile -*-
-PKG_CXXFLAGS=-I{{path_dust_include}} -DHAVE_INLINE $(SHLIB_OPENMP_CXXFLAGS)
+PKG_CXXFLAGS=-I{{path_dust_include}} -DHAVE_INLINE $(SHLIB_OPENMP_CXXFLAGS) {{compiler_options}}
 PKG_LIBS=$(SHLIB_OPENMP_CXXFLAGS)
