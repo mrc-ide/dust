@@ -441,7 +441,7 @@ test_that("enable optimisations", {
   path <- dust_generate(filename, quiet = TRUE, mangle = FALSE,
                         optimisation_level = "max")
   txt <- readLines(file.path(path, "src", "Makevars"))
-  expect_match(txt, "PKG_CXXFLAGS=.* -O3 --ffast-math", all = FALSE)
+  expect_match(txt, "PKG_CXXFLAGS=.* -O3 -ffast-math", all = FALSE)
 })
 
 
