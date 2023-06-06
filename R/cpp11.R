@@ -120,6 +120,10 @@ dust_ode_logistic_simulate <- function(ptr, time_end) {
   .Call(`_dust_dust_ode_logistic_simulate`, ptr, time_end)
 }
 
+dust_ode_logistic_run_adjoint <- function(ptr) {
+  .Call(`_dust_dust_ode_logistic_run_adjoint`, ptr)
+}
+
 dust_ode_logistic_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_ode_logistic_set_index`, ptr, r_index)
 }
@@ -204,6 +208,10 @@ dust_cpu_sir_simulate <- function(ptr, time_end) {
   .Call(`_dust_dust_cpu_sir_simulate`, ptr, time_end)
 }
 
+dust_cpu_sir_run_adjoint <- function(ptr) {
+  .Call(`_dust_dust_cpu_sir_run_adjoint`, ptr)
+}
+
 dust_cpu_sir_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_cpu_sir_set_index`, ptr, r_index)
 }
@@ -284,6 +292,10 @@ dust_cpu_sirs_simulate <- function(ptr, time_end) {
   .Call(`_dust_dust_cpu_sirs_simulate`, ptr, time_end)
 }
 
+dust_cpu_sirs_run_adjoint <- function(ptr) {
+  .Call(`_dust_dust_cpu_sirs_run_adjoint`, ptr)
+}
+
 dust_cpu_sirs_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_cpu_sirs_set_index`, ptr, r_index)
 }
@@ -358,6 +370,10 @@ dust_gpu_sirs_run <- function(ptr, r_time_end) {
 
 dust_gpu_sirs_simulate <- function(ptr, time_end) {
   .Call(`_dust_dust_gpu_sirs_simulate`, ptr, time_end)
+}
+
+dust_gpu_sirs_run_adjoint <- function(ptr) {
+  .Call(`_dust_dust_gpu_sirs_run_adjoint`, ptr)
 }
 
 dust_gpu_sirs_set_index <- function(ptr, r_index) {
@@ -452,6 +468,10 @@ dust_cpu_variable_simulate <- function(ptr, time_end) {
   .Call(`_dust_dust_cpu_variable_simulate`, ptr, time_end)
 }
 
+dust_cpu_variable_run_adjoint <- function(ptr) {
+  .Call(`_dust_dust_cpu_variable_run_adjoint`, ptr)
+}
+
 dust_cpu_variable_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_cpu_variable_set_index`, ptr, r_index)
 }
@@ -526,6 +546,10 @@ dust_gpu_variable_run <- function(ptr, r_time_end) {
 
 dust_gpu_variable_simulate <- function(ptr, time_end) {
   .Call(`_dust_dust_gpu_variable_simulate`, ptr, time_end)
+}
+
+dust_gpu_variable_run_adjoint <- function(ptr) {
+  .Call(`_dust_dust_gpu_variable_run_adjoint`, ptr)
 }
 
 dust_gpu_variable_set_index <- function(ptr, r_index) {
@@ -608,6 +632,10 @@ dust_cpu_volatility_simulate <- function(ptr, time_end) {
   .Call(`_dust_dust_cpu_volatility_simulate`, ptr, time_end)
 }
 
+dust_cpu_volatility_run_adjoint <- function(ptr) {
+  .Call(`_dust_dust_cpu_volatility_run_adjoint`, ptr)
+}
+
 dust_cpu_volatility_set_index <- function(ptr, r_index) {
   .Call(`_dust_dust_cpu_volatility_set_index`, ptr, r_index)
 }
@@ -686,6 +714,10 @@ dust_cpu_walk_run <- function(ptr, r_time_end) {
 
 dust_cpu_walk_simulate <- function(ptr, time_end) {
   .Call(`_dust_dust_cpu_walk_simulate`, ptr, time_end)
+}
+
+dust_cpu_walk_run_adjoint <- function(ptr) {
+  .Call(`_dust_dust_cpu_walk_run_adjoint`, ptr)
 }
 
 dust_cpu_walk_set_index <- function(ptr, r_index) {

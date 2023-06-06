@@ -15,6 +15,9 @@ SEXP dust_{{target}}_{{name}}_run(SEXP ptr, cpp11::sexp r_time_end);
 SEXP dust_{{target}}_{{name}}_simulate(SEXP ptr, cpp11::sexp time_end);
 
 [[cpp11::register]]
+SEXP dust_{{target}}_{{name}}_run_adjoint(SEXP ptr);
+
+[[cpp11::register]]
 SEXP dust_{{target}}_{{name}}_set_index(SEXP ptr, cpp11::sexp r_index);
 
 [[cpp11::register]]

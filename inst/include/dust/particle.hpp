@@ -99,6 +99,14 @@ public:
     return model_.compare_data(y_.data(), data, rng_state);
   }
 
+  T& model() {
+    return model_;
+  }
+
+  std::vector<real_type> state() {
+    return y_;
+  }
+
 private:
   T model_;
   time_type time_;

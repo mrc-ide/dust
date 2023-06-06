@@ -33,6 +33,7 @@ logistic <- R6::R6Class(
            alloc = dust_ode_logistic_alloc,
            run = dust_ode_logistic_run,
            simulate = dust_ode_logistic_simulate,
+           run_adjoint = dust_ode_logistic_run_adjoint,
            set_index = dust_ode_logistic_set_index,
            n_state = dust_ode_logistic_n_state,
            update_state = dust_ode_logistic_update_state,
@@ -89,6 +90,10 @@ logistic <- R6::R6Class(
       m <- private$methods_$simulate(private$ptr_, time_end)
       rownames(m) <- names(private$index_)
       m
+    },
+
+    run_adjoint = function() {
+      private$methods_$run_adjoint(private$ptr_)
     },
 
     set_index = function(index) {
@@ -287,6 +292,7 @@ sir <- R6::R6Class(
            alloc = dust_cpu_sir_alloc,
            run = dust_cpu_sir_run,
            simulate = dust_cpu_sir_simulate,
+           run_adjoint = dust_cpu_sir_run_adjoint,
            set_index = dust_cpu_sir_set_index,
            n_state = dust_cpu_sir_n_state,
            update_state = dust_cpu_sir_update_state,
@@ -343,6 +349,10 @@ sir <- R6::R6Class(
       m <- private$methods_$simulate(private$ptr_, time_end)
       rownames(m) <- names(private$index_)
       m
+    },
+
+    run_adjoint = function() {
+      private$methods_$run_adjoint(private$ptr_)
     },
 
     set_index = function(index) {
@@ -541,6 +551,7 @@ sirs <- R6::R6Class(
            alloc = dust_cpu_sirs_alloc,
            run = dust_cpu_sirs_run,
            simulate = dust_cpu_sirs_simulate,
+           run_adjoint = dust_cpu_sirs_run_adjoint,
            set_index = dust_cpu_sirs_set_index,
            n_state = dust_cpu_sirs_n_state,
            update_state = dust_cpu_sirs_update_state,
@@ -561,6 +572,7 @@ sirs <- R6::R6Class(
            alloc = dust_gpu_sirs_alloc,
            run = dust_gpu_sirs_run,
            simulate = dust_gpu_sirs_simulate,
+           run_adjoint = dust_gpu_sirs_run_adjoint,
            set_index = dust_gpu_sirs_set_index,
            n_state = dust_gpu_sirs_n_state,
            update_state = dust_gpu_sirs_update_state,
@@ -613,6 +625,10 @@ sirs <- R6::R6Class(
       m <- private$methods_$simulate(private$ptr_, time_end)
       rownames(m) <- names(private$index_)
       m
+    },
+
+    run_adjoint = function() {
+      private$methods_$run_adjoint(private$ptr_)
     },
 
     set_index = function(index) {
@@ -808,6 +824,7 @@ variable <- R6::R6Class(
            alloc = dust_cpu_variable_alloc,
            run = dust_cpu_variable_run,
            simulate = dust_cpu_variable_simulate,
+           run_adjoint = dust_cpu_variable_run_adjoint,
            set_index = dust_cpu_variable_set_index,
            n_state = dust_cpu_variable_n_state,
            update_state = dust_cpu_variable_update_state,
@@ -828,6 +845,7 @@ variable <- R6::R6Class(
            alloc = dust_gpu_variable_alloc,
            run = dust_gpu_variable_run,
            simulate = dust_gpu_variable_simulate,
+           run_adjoint = dust_gpu_variable_run_adjoint,
            set_index = dust_gpu_variable_set_index,
            n_state = dust_gpu_variable_n_state,
            update_state = dust_gpu_variable_update_state,
@@ -880,6 +898,10 @@ variable <- R6::R6Class(
       m <- private$methods_$simulate(private$ptr_, time_end)
       rownames(m) <- names(private$index_)
       m
+    },
+
+    run_adjoint = function() {
+      private$methods_$run_adjoint(private$ptr_)
     },
 
     set_index = function(index) {
@@ -1075,6 +1097,7 @@ volatility <- R6::R6Class(
            alloc = dust_cpu_volatility_alloc,
            run = dust_cpu_volatility_run,
            simulate = dust_cpu_volatility_simulate,
+           run_adjoint = dust_cpu_volatility_run_adjoint,
            set_index = dust_cpu_volatility_set_index,
            n_state = dust_cpu_volatility_n_state,
            update_state = dust_cpu_volatility_update_state,
@@ -1131,6 +1154,10 @@ volatility <- R6::R6Class(
       m <- private$methods_$simulate(private$ptr_, time_end)
       rownames(m) <- names(private$index_)
       m
+    },
+
+    run_adjoint = function() {
+      private$methods_$run_adjoint(private$ptr_)
     },
 
     set_index = function(index) {
@@ -1326,6 +1353,7 @@ walk <- R6::R6Class(
            alloc = dust_cpu_walk_alloc,
            run = dust_cpu_walk_run,
            simulate = dust_cpu_walk_simulate,
+           run_adjoint = dust_cpu_walk_run_adjoint,
            set_index = dust_cpu_walk_set_index,
            n_state = dust_cpu_walk_n_state,
            update_state = dust_cpu_walk_update_state,
@@ -1382,6 +1410,10 @@ walk <- R6::R6Class(
       m <- private$methods_$simulate(private$ptr_, time_end)
       rownames(m) <- names(private$index_)
       m
+    },
+
+    run_adjoint = function() {
+      private$methods_$run_adjoint(private$ptr_)
     },
 
     set_index = function(index) {

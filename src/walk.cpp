@@ -19,6 +19,9 @@ SEXP dust_cpu_walk_run(SEXP ptr, cpp11::sexp r_time_end);
 SEXP dust_cpu_walk_simulate(SEXP ptr, cpp11::sexp time_end);
 
 [[cpp11::register]]
+SEXP dust_cpu_walk_run_adjoint(SEXP ptr);
+
+[[cpp11::register]]
 SEXP dust_cpu_walk_set_index(SEXP ptr, cpp11::sexp r_index);
 
 [[cpp11::register]]
@@ -142,6 +145,10 @@ SEXP dust_cpu_walk_run(SEXP ptr, cpp11::sexp r_time_end) {
 
 SEXP dust_cpu_walk_simulate(SEXP ptr, cpp11::sexp r_time_end) {
   return dust::r::dust_simulate<model_cpu>(ptr, r_time_end);
+}
+
+SEXP dust_cpu_walk_run_adjoint(SEXP ptr) {
+  return dust::r::dust_run_adjoint<model_cpu>(ptr);
 }
 
 SEXP dust_cpu_walk_set_index(SEXP ptr, cpp11::sexp r_index) {

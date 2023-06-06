@@ -12,6 +12,7 @@
 #include <omp.h>
 #endif
 
+#include "dust/adjoint.hpp"
 #include "dust/gpu/cuda.hpp"
 #include "dust/filter_state.hpp"
 #include "dust/filter_tools.hpp"
@@ -161,6 +162,13 @@ public:
     }
     errors_.report();
     return ret;
+  }
+
+  adjoint_data<real_type> run_adjoint() {
+    if (!deterministic()) {
+      throw std::runtime_error("'run_adjoint()' only allowed for deterministic models");
+    }
+    return adjoint(particles_[0], data());
   }
 
   void state(std::vector<real_type>& end_state) {

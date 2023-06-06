@@ -691,3 +691,12 @@ test_that("can use random initial conditions in ode model", {
   expect_equal(mod$state()[1:2, ], y_cmp)
   expect_equal(mod$rng_state()[1:320], rng$state())
 })
+
+
+test_that("Can't run adjoint model", {
+  res <- dust_example("walk")
+  mod <- res$new(list(sd = 1), 0, 1)
+  expect_error(
+    mod$run_adjoint(),
+    "The 'run_adjoint' method is not supported for this class")
+})

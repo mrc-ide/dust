@@ -197,6 +197,10 @@
       m
     },
 
+    run_adjoint = function() {
+      private$methods_$run_adjoint(private$ptr_)
+    },
+
     ##' @description
     ##' Set the "index" vector that is used to return a subset of pars
     ##' after using `run()`. If this is not used then `run()` returns
