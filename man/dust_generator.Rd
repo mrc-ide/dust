@@ -43,6 +43,7 @@ walk
 \item \href{#method-dust-param}{\code{dust_generator$param()}}
 \item \href{#method-dust-run}{\code{dust_generator$run()}}
 \item \href{#method-dust-simulate}{\code{dust_generator$simulate()}}
+\item \href{#method-dust-run_adjoint}{\code{dust_generator$run_adjoint()}}
 \item \href{#method-dust-set_index}{\code{dust_generator$set_index()}}
 \item \href{#method-dust-index}{\code{dust_generator$index()}}
 \item \href{#method-dust-ode_control}{\code{dust_generator$ode_control()}}
@@ -235,6 +236,18 @@ not wanted).}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dust-run_adjoint"></a>}}
+\if{latex}{\out{\hypertarget{method-dust-run_adjoint}{}}}
+\subsection{Method \code{run_adjoint()}}{
+Run model with gradient information (if supported). The
+interface here will change, and documentation written once it
+stabilises.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dust_generator$run_adjoint()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-dust-set_index"></a>}}

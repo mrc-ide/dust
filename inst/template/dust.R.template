@@ -197,6 +197,11 @@
       m
     },
 
+    ##' @description
+    ##'
+    ##' Run model with gradient information (if supported). The
+    ##' interface here will change, and documentation written once it
+    ##' stabilises.
     run_adjoint = function() {
       private$methods_$run_adjoint(private$ptr_)
     },
