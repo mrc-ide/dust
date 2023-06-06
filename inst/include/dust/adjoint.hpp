@@ -1,6 +1,9 @@
 #ifndef DUST_ADJOINT_HPP
 #define DUST_ADJOINT_HPP
 
+#include <algorithm>
+#include <map>
+
 #include "dust/particle.hpp"
 
 namespace dust {
