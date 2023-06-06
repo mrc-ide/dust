@@ -350,11 +350,11 @@ cpp11::sexp dust_run_adjoint(SEXP ptr) {
   if (!obj->deterministic()) {
     cpp11::stop("'run_adjoint()' only allowed for deterministic models");
   }
-  if (obj->n_data() == 0) {
-    cpp11::stop("Data has not been set for this object");
-  }
   if (obj->n_particles() != 1) {
     cpp11::stop("'run_adjoint()' only allowed with single particle");
+  }
+  if (obj->n_data() == 0) {
+    cpp11::stop("Data has not been set for this object");
   }
 
   auto result = obj->run_adjoint();
