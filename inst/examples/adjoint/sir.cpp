@@ -125,14 +125,14 @@ public:
                             const real_type * adjoint,
                             real_type * adjoint_next) {
     const real_type cases_inc = state[4];
-    adjoint_next[0] = 0;
-    adjoint_next[1] = 0;
-    adjoint_next[2] = 0;
-    adjoint_next[3] = 0;
-    adjoint_next[4] = data.incidence / cases_inc - 1;
-    adjoint_next[5] = 0;
-    adjoint_next[6] = 0;
-    adjoint_next[7] = 0;
+    adjoint_next[0] = adjoint[0];
+    adjoint_next[1] = adjoint[1];
+    adjoint_next[2] = adjoint[2];
+    adjoint_next[3] = adjoint[3];
+    adjoint_next[4] = adjoint[4] + data.incidence / cases_inc - 1;
+    adjoint_next[5] = adjoint[5];
+    adjoint_next[6] = adjoint[6];
+    adjoint_next[7] = adjoint[7];
   }
 
   real_type compare_data(const real_type * state, const data_type& data,

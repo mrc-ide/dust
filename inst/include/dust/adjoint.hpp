@@ -140,9 +140,6 @@ adjoint(particle<T> particle,
     if (time == d->first) {
       model.adjoint_compare_data(time, state_curr, d->second[0], adjoint_curr,
                                  adjoint_next);
-      for (size_t i = 0; i < n_adjoint; ++i) {
-        adjoint_next[i] += adjoint_curr[i];
-      }
       std::swap(adjoint_curr, adjoint_next);
     } else if (d != d_start && time < d->first) {
       --d;
