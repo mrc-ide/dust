@@ -60,26 +60,15 @@ public:
   void adjoint_initial(size_t time, const real_type * state,
                        const real_type * adjoint,
                        real_type * adjoint_next) {
-    // Same unpack as above.
-    const real_type S = state[0];
-    const real_type I = state[1];
-    const real_type R = state[2];
-    const real_type N = S + I + R;
-    const real_type p_inf = shared->beta * I / N * shared->dt;
-    const real_type p_IR = 1 - dust::math::exp(-shared->gamma * shared->dt);
-    const real_type adj_S = adjoint[0];
     const real_type adj_I = adjoint[1];
-    const real_type adj_R = adjoint[2];
-    const real_type adj_cases_cumul = adjoint[3];
-    const real_type adj_cases_inc = adjoint[4];
-    const real_type adj_n_IR = -adj_I + adj_R;
-    const real_type adj_n_SI = adj_cases_cumul + adj_cases_inc + adj_I - adj_S;
-    const real_type adj_p_SI = S * adj_n_SI;
-    const real_type adj_p_inf = dust::math::exp(-p_inf) * adj_p_SI;
-    const real_type adj_N = -(shared->beta * I / (N * N) * shared->dt) * adj_p_inf;
-
-    const real_type adj_I_next = adj_N + p_IR * adj_n_IR + shared->beta / N * shared->dt * adj_p_inf + adj_I;
-    adjoint_next[7] = 1 * adj_I_next;
+    adjoint_next[0] = adjoint[0];
+    adjoint_next[1] = adjoint[1];
+    adjoint_next[2] = adjoint[2];
+    adjoint_next[3] = adjoint[3];
+    adjoint_next[4] = adjoint[4];
+    adjoint_next[5] = adjoint[5];
+    adjoint_next[6] = adjoint[6];
+    adjoint_next[7] = adjoint[7] + adj_I;
   }
 
   void adjoint_update(size_t time, const real_type * state,
@@ -135,15 +124,12 @@ public:
                             const real_type * state, const data_type& data,
                             const real_type * adjoint,
                             real_type * adjoint_next) {
-    const real_type incidence_modelled = state[4];
-    const real_type incidence_observed = data.incidence;
-    const real_type lambda = incidence_modelled;
-
+    const real_type cases_inc = state[4];
     adjoint_next[0] = 0;
     adjoint_next[1] = 0;
     adjoint_next[2] = 0;
     adjoint_next[3] = 0;
-    adjoint_next[4] = incidence_observed / lambda - 1;
+    adjoint_next[4] = data.incidence / cases_inc - 1;
     adjoint_next[5] = 0;
     adjoint_next[6] = 0;
     adjoint_next[7] = 0;

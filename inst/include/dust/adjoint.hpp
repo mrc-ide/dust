@@ -153,11 +153,8 @@ adjoint(particle<T> particle,
     std::swap(adjoint_curr, adjoint_next);
   }
 
-  // This is the value just before the final value (i.e., at the end
-  // of the first step) which is what we need to be able to replay the
-  // graph; see adjoint_initial above.
-  const auto adjoint_last = adjoint_next;
-  model.adjoint_initial(time, state_curr, adjoint_last, adjoint_curr);
+  model.adjoint_initial(time, state_curr, adjoint_curr, adjoint_next);
+  std::swap(adjoint_curr, adjoint_next);
 
   // Tidy up the object so that we agree on what the current set of
   // data is and copy the final gradient out.
