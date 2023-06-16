@@ -69,7 +69,10 @@ adjoint_data<typename T::real_type>
 adjoint(particle<T> particle,
         const data_map_type<T>& data) {
   using real_type = typename T::real_type;
-  using time_type = typename particle<T>::time_type;
+  // Ideally typename particle<T>::time_type, but that does not work
+  // generally, failing on mac and with nvcc. At the moment the time
+  // type must be size_t anyway, so this is fine.
+  using time_type = size_t;
 
   typename T::rng_state_type rng_state;
   rng_state.deterministic = true;
