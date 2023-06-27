@@ -59,10 +59,6 @@ filter(T * obj,
     obj->run(time);
     obj->compare_data(weights, d->second);
 
-    // TODO: we should cope better with the case where all weights
-    // are 0; I think that is the behaviour in the model (or rather
-    // the case where there is no data and so we do not resample)
-    //
     // TODO: we should cope better with the case where one filter
     // has become impossible but others continue, but that's hard!
     auto wi = weights.begin();

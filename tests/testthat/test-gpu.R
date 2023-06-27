@@ -888,8 +888,6 @@ test_that("Can update number of threads", {
 
 
 test_that("Can resample particles", {
-  ## This one suggests a bug in how we're doing the fiddly index
-  ## calculation (actual resample does look correct though)
   res <- dust_example("variable")
   obj <- res$new(list(len = 5), 0, 7, seed = 1L, gpu_config = 0L)
   m <- matrix(as.numeric(1:35), 5, 7)
@@ -903,6 +901,19 @@ test_that("Can resample particles", {
   expect_equal(idx, resample_index(w, u))
   expect_equal(obj$state(), m[, idx])
   expect_equal(rng$state(), obj$rng_state(last_only = TRUE))
+})
+
+
+test_that("Resampling with zero weights does nothing", {
+  res <- dust_example("variable")
+  np <- 31
+  obj <- res$new(list(len = 5), 0, np, seed = 1L, gpu_config = 0L)
+  m <- matrix(as.numeric(seq_len(5 * np)), 5, np)
+  obj$update_state(state = m)
+  rng_state <- obj$rng_state(last_only = TRUE)
+  expect_equal(obj$resample(rep(0, np)), seq_len(np))
+  expect_equal(obj$state(), m)
+  expect_equal(obj$rng_state(last_only = TRUE), rng_state)
 })
 
 

@@ -385,16 +385,22 @@ public:
   // NOTE: this is only used for debugging/testing, otherwise we would
   // make device_weights and scan class members.
   std::vector<size_t> resample(const std::vector<real_type>& weights) {
-    dust::gpu::device_weights<real_type>
-      device_weights(n_particles(), n_pars_effective());
-    device_weights.weights() = weights;
-
-    dust::gpu::device_scan_state<real_type> scan;
-    scan.initialise(n_particles_total_, device_weights.weights());
-    resample(device_weights.weights(), scan);
-
+    const bool no_reorder = std::any_of(weights.begin(), weights.end(),
+                                        [](real_type w) { return w == 0; });
     std::vector<size_t> index(n_particles());
-    device_state_.scatter_index.get_array(index);
+    if (no_reorder) {
+      dust::filter::no_resample_index(n_pars_, n_particles_each_, index);
+    } else {
+      dust::gpu::device_weights<real_type>
+        device_weights(n_particles(), n_pars_effective());
+      device_weights.weights() = weights;
+
+      dust::gpu::device_scan_state<real_type> scan;
+      scan.initialise(n_particles_total_, device_weights.weights());
+      resample(device_weights.weights(), scan);
+
+      device_state_.scatter_index.get_array(index);
+    }
     return index;
   }
 

@@ -66,6 +66,21 @@ void resample_index(const std::vector<real_type>& weights,
   }
 }
 
+inline void no_resample_index(const size_t n_pars, const size_t n_particles,
+                              std::vector<size_t>& index) {
+  if (n_pars == 0) {
+    for (size_t i = 0; i < n_particles; ++i) {
+      index[i] = i;
+    }
+  } else {
+    for (size_t i = 0, k = 0; i < n_pars; ++i) {
+      for (size_t j = 0; j < n_particles; ++j, ++k) {
+        index[k] = j;
+      }
+    }
+  }
+}
+
 // Given some vector of log probabilities 'w' we want to compute a
 // vector of numbers such that their ratio equals the exponential of
 // their difference, along with the log average value of the numbers.

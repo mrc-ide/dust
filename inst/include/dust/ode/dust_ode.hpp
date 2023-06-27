@@ -297,9 +297,15 @@ public:
 
   void resample(const std::vector<real_type>& weights,
                 std::vector<size_t>& index) {
-    dust::filter::resample_index(weights, n_pars_, n_particles_each_, n_threads_,
-                                 index, rng_.state(n_particles_total_));
-    reorder(index);
+    const bool no_reorder = std::any_of(weights.begin(), weights.end(),
+                                        [](real_type w) { return w == 0; });
+    if (no_reorder) {
+      dust::filter::no_resample_index(n_pars_, n_particles_each_, index);
+    } else {
+      dust::filter::resample_index(weights, n_pars_, n_particles_each_, n_threads_,
+                                   index, rng_.state(n_particles_total_));
+      reorder(index);
+    }
   }
 
   void statistics(std::vector<size_t> &all_statistics) {
