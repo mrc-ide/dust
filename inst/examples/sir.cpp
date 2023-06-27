@@ -59,8 +59,11 @@ public:
 
   real_type compare_data(const real_type * state, const data_type& data,
                          rng_state_type& rng_state) {
-    const real_type incidence_modelled = state[4];
     const real_type incidence_observed = data.incidence;
+    if (std::isnan(data.incidence)) {
+      return 0;
+    }
+    const real_type incidence_modelled = state[4];
     const real_type lambda = incidence_modelled +
       dust::random::exponential(rng_state, shared->exp_noise);
     return dust::density::poisson(incidence_observed, lambda, true);
