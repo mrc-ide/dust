@@ -472,6 +472,24 @@ test_that("resample multi", {
 })
 
 
+test_that("resample multi with zero weights everywhere does nothing", {
+  res <- dust_example("variable")
+  np <- 31
+  obj <- res$new(list(list(len = 5), list(len = 5)), 0, np,
+                 seed = 1L, pars_multi = TRUE)
+  m <- obj$state()
+  m[] <- seq_along(m)
+  obj$update_state(state = m)
+  rng <- dust_rng$new(obj$rng_state(last_only = TRUE))
+  idx <- obj$resample(matrix(0, np, 2))
+  expect_equal(idx, cbind(seq_len(np), seq_len(np)))
+  expect_equal(obj$state(), m)
+  ## RNG state is the same after drawing two samples:
+  rng$random_real(2)
+  expect_identical(obj$rng_state(last_only = TRUE), rng$state())
+})
+
+
 test_that("resample multi validates inputs", {
   res <- dust_example("variable")
   obj <- res$new(list(list(len = 5), list(len = 5)), 0, 7,

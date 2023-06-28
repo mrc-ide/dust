@@ -193,3 +193,9 @@ points(observed ~ time, data, type = "p", pch = 19, col = "blue")
 Typically, you would use the much higher level interface in `mcstate` for this, though.
 
 Some additional work is required if you want to run the comparison on a GPU, see `vignette("gpu")` for more details.
+
+## Coping with missing data
+
+In the real-world, you will have missing data. If this is possible then the data type for your input data *must* be `real_type` (and not `int`, even if it is a count), because you will want to use `std::isnan()` against the data and this is only possibly `true` for floating point types.
+
+We expect that the likelihood will be a sum over components per data stream. As such, in the case of missing input data, your likelihood for that component should be exactly zero. This way if no data streams are present all particles will return a likelihood of exactly zero. In the case where this happens, the particle filter will not reorder particles.

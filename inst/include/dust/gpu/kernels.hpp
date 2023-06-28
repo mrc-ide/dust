@@ -301,12 +301,16 @@ void find_intervals(const real_type * cum_weights,
     real_type start_val = par_idx > 0 ? cum_weights[par_idx * n_particles_each - 1] : 0;
     real_type normalising_constant =
       cum_weights[(par_idx + 1) * n_particles_each - 1] - start_val;
-    real_type u_particle = normalising_constant /
-                        static_cast<real_type>(n_particles_each) *
-                        (u[par_idx] + i % n_particles_each);
-    index[i] = binary_interval_search(
-      cum_weights + par_idx * n_particles_each,
-      n_particles_each, u_particle, start_val) + par_idx * n_particles_each;
+    if (normalising_constant == 0) {
+      index[i] = i;
+    } else {
+      real_type u_particle = normalising_constant /
+                          static_cast<real_type>(n_particles_each) *
+                          (u[par_idx] + i % n_particles_each);
+      index[i] = binary_interval_search(
+        cum_weights + par_idx * n_particles_each,
+        n_particles_each, u_particle, start_val) + par_idx * n_particles_each;
+    }
 #ifdef __NVCC__
   }
 #else

@@ -506,6 +506,30 @@ test_that("Can run compare_data", {
 })
 
 
+test_that("example compare data copes with missing data", {
+  res <- dust_example("sir")
+
+  data <- data_frame(
+    time = seq(0, 50, by = 4),
+    incidence = c(0, 1, 0, 3, 5, 2, NA, 3, 7, 2, 1, 1, 1))
+
+  ## Confirm the incidence calculation is correct:
+  ## Use Inf for exp_noise as that gives us deterministic results
+  np <- 10
+  mod <- res$new(list(exp_noise = Inf), 0, np, seed = 1L)
+  mod$set_data(dust_data(data))
+  mod$set_index(5)
+  y <- mod$run(20)
+  expect_equal(
+    mod$compare_data(),
+    dpois(data$incidence[[6]], drop(y), log = TRUE))
+  y <- mod$run(24)
+  expect_equal(
+    mod$compare_data(),
+    rep(0, np))
+})
+
+
 test_that("fetch model size", {
   res <- dust_example("variable")
   mod <- res$new(list(len = 10), 0, 7, seed = 1L)
@@ -545,11 +569,22 @@ test_that("resample error cases", {
   expect_error(obj$resample(c(w[-1], -1)),
                "All weights must be positive")
   expect_identical(obj$state(), m)
+})
 
-  ## This corner case is pretty nasty, and practically the particle
-  ## filter will have stopped by this point.
-  idx <- obj$resample(rep(0, 7))
-  expect_equal(idx, rep(1, 7))
+
+test_that("resample a vector of zeros does nothing", {
+  res <- dust_example("variable")
+  np <- 31
+  obj <- res$new(list(len = 5), 0, np, seed = 1L)
+  m <- matrix(as.numeric(seq_len(np * 5)), 5, np)
+  obj$update_state(state = m)
+  rng <- dust_rng$new(obj$rng_state(last_only = TRUE))
+  expect_equal(obj$resample(rep(0, np)), seq_len(np))
+  expect_equal(obj$state(), m)
+
+  ## RNG state is the same after drawing one sample:
+  rng$random_real(1)
+  expect_identical(obj$rng_state(last_only = TRUE), rng$state())
 })
 
 

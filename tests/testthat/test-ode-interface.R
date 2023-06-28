@@ -762,3 +762,19 @@ test_that("can resample from ode models", {
 
   expect_identical(obj$run(50), obj2$run(50))
 })
+
+
+test_that("resample a vector of zeros does nothing", {
+  res <- dust_example("logistic")
+  np <- 31
+  obj <- res$new(list(r = c(0.1, 0.2), K = c(100, 200)), 0, np, seed = 1L)
+  s <- obj$state()[1:2, ]
+  s[] <- runif(2 * np, 1, 10)
+  obj$update_state(state = s)
+  rng <- dust_rng$new(obj$rng_state(last_only = TRUE))
+  expect_equal(obj$resample(rep(0, np)), seq_len(np))
+  expect_equal(obj$state()[1:2, ], s)
+  ## RNG state is the same after drawing one sample:
+  rng$random_real(1)
+  expect_identical(obj$rng_state(last_only = TRUE), rng$state())
+})
