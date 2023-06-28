@@ -107,11 +107,6 @@ T clamp(T x, T min, T max) {
   return std::max(std::min(x, max), min);
 }
 
-template <typename real_type, typename It>
-bool all_zero(It begin, It end) {
-  return std::all_of(begin, end, [](real_type x) { return x == 0; });
-}
-
 }
 }
 

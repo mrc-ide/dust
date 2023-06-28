@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "dust/random/random.hpp"
-#include "dust/utils.hpp"
 
 namespace dust {
 namespace filter {
@@ -18,30 +17,23 @@ void resample_weight(typename std::vector<real_type>::const_iterator w,
                      size_t n, real_type u, size_t offset,
                      typename std::vector<size_t>::iterator idx) {
   const real_type tot = std::accumulate(w, w + n, static_cast<real_type>(0));
-  if (tot == 0 && dust::utils::all_zero<real_type>(w, w + n)) {
-    for (size_t i = 0; i < n; ++i) {
-      *idx = offset + i;
-      ++idx;
+  real_type ww = 0.0, uu0 = tot * u / n, du = tot / n;
+  size_t j = offset;
+  const size_t end = n + offset;
+  for (size_t i = 0; i < n; ++i) {
+    // We could accumulate uu by adding du at each iteration but that
+    // suffers roundoff error here with floats.
+    const real_type uu = uu0 + i * du;
+    // The second clause (i.e., j - offset < n) should never be hit
+    // but prevents any invalid read if we have pathalogical 'u' that
+    // is within floating point eps of 1
+    while (ww < uu && j < end) {
+      ww += *w;
+      ++w;
+      ++j;
     }
-  } else {
-    real_type ww = 0.0, uu0 = tot * u / n, du = tot / n;
-    size_t j = offset;
-    const size_t end = n + offset;
-    for (size_t i = 0; i < n; ++i) {
-      // We could accumulate uu by adding du at each iteration but that
-      // suffers roundoff error here with floats.
-      const real_type uu = uu0 + i * du;
-      // The second clause (i.e., j - offset < n) should never be hit
-      // but prevents any invalid read if we have pathalogical 'u' that
-      // is within floating point eps of 1
-      while (ww < uu && j < end) {
-        ww += *w;
-        ++w;
-        ++j;
-      }
-      *idx = j == 0 ? 0 : j - 1;
-      ++idx;
-    }
+    *idx = j == 0 ? 0 : j - 1;
+    ++idx;
   }
 }
 

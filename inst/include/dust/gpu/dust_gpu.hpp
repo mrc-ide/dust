@@ -385,7 +385,6 @@ public:
   // NOTE: this is only used for debugging/testing, otherwise we would
   // make device_weights and scan class members.
   std::vector<size_t> resample(const std::vector<real_type>& weights) {
-    std::vector<size_t> index(n_particles());
     dust::gpu::device_weights<real_type>
       device_weights(n_particles(), n_pars_effective());
     device_weights.weights() = weights;
@@ -394,6 +393,7 @@ public:
     scan.initialise(n_particles_total_, device_weights.weights());
     resample(device_weights.weights(), scan);
 
+    std::vector<size_t> index(n_particles());
     device_state_.scatter_index.get_array(index);
     return index;
   }
