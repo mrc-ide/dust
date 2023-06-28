@@ -583,10 +583,13 @@ test_that("resample a vector of zeros does nothing", {
   obj <- res$new(list(len = 5), 0, np, seed = 1L)
   m <- matrix(as.numeric(seq_len(np * 5)), 5, np)
   obj$update_state(state = m)
-  rng_state <- obj$rng_state(last_only = TRUE)
+  rng <- dust_rng$new(obj$rng_state(last_only = TRUE))
   expect_equal(obj$resample(rep(0, np)), seq_len(np))
-  expect_identical(obj$rng_state(last_only = TRUE), rng_state)
   expect_equal(obj$state(), m)
+
+  ## RNG state is the same after drawing one sample:
+  rng$random_real(1)
+  expect_identical(obj$rng_state(last_only = TRUE), rng$state())
 })
 
 

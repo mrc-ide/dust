@@ -904,16 +904,18 @@ test_that("Can resample particles", {
 })
 
 
-test_that("Resampling with zero weights does nothing", {
+test_that("Resampling with zero weights leaves particles in the same place", {
   res <- dust_example("variable")
   np <- 31
   obj <- res$new(list(len = 5), 0, np, seed = 1L, gpu_config = 0L)
   m <- matrix(as.numeric(seq_len(5 * np)), 5, np)
   obj$update_state(state = m)
-  rng_state <- obj$rng_state(last_only = TRUE)
+  rng <- dust_rng$new(obj$rng_state(last_only = TRUE))
   expect_equal(obj$resample(rep(0, np)), seq_len(np))
   expect_equal(obj$state(), m)
-  expect_equal(obj$rng_state(last_only = TRUE), rng_state)
+  ## RNG state is the same after drawing one sample:
+  rng$random_real(1)
+  expect_identical(obj$rng_state(last_only = TRUE), rng$state())
 })
 
 

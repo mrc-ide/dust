@@ -480,12 +480,13 @@ test_that("resample multi with zero weights everywhere does nothing", {
   m <- obj$state()
   m[] <- seq_along(m)
   obj$update_state(state = m)
-
-  rng_state <- obj$rng_state()
+  rng <- dust_rng$new(obj$rng_state(last_only = TRUE))
   idx <- obj$resample(matrix(0, np, 2))
   expect_equal(idx, cbind(seq_len(np), seq_len(np)))
   expect_equal(obj$state(), m)
-  expect_equal(obj$rng_state(), rng_state)
+  ## RNG state is the same after drawing two samples:
+  rng$random_real(2)
+  expect_identical(obj$rng_state(last_only = TRUE), rng$state())
 })
 
 
