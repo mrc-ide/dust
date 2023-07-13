@@ -11,7 +11,9 @@ test_that("can run adjoint model", {
   res <- mod$run_adjoint()
   expect_equal(res$log_likelihood, -44.0256051296862, tolerance = 1e-14)
   expect_equal(res$gradient,
-               c(244.877646917118, -140.566517375877, 25.2152128116894),
+               c(beta = 244.877646917118,
+                 gamma = -140.566517375877,
+                 I0 = 25.2152128116894),
                tolerance = 1e-14)
 })
 

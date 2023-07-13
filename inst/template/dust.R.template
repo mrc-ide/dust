@@ -203,7 +203,12 @@
     ##' interface here will change, and documentation written once it
     ##' stabilises.
     run_adjoint = function() {
-      private$methods_$run_adjoint(private$ptr_)
+      res <- private$methods_$run_adjoint(private$ptr_)
+      nms <- private$info_$adjoint
+      if (!is.null(nms) && length(nms) == length(res$gradient)) {
+        names(res$gradient) <- nms
+      }
+      res
     },
 
     ##' @description
