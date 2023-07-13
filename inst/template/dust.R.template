@@ -204,6 +204,10 @@
     ##' stabilises.
     run_adjoint = function() {
       res <- private$methods_$run_adjoint(private$ptr_)
+      ## This approach may want to change, because it won't cope well
+      ## with cases where are gradient is structured with respect to
+      ## some parameters, but perhaps it's still a reasonable thing to
+      ## do? While we have array-free models it's fine though.
       nms <- private$info_$adjoint
       if (!is.null(nms) && length(nms) == length(res$gradient)) {
         names(res$gradient) <- nms
