@@ -86,7 +86,7 @@ adjoint(particle<T> particle,
   T& model = particle.model();
   const time_type time_start = particle.time();
   const size_t n_state = model.size();
-  const size_t n_adjoint = n_state + model.adjoint_size();
+  const size_t n_adjoint = model.adjoint_size();
 
   if (time_start > d_start->first) {
     std::stringstream msg;
