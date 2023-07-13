@@ -186,7 +186,10 @@ cpp11::sexp dust_info<sir>(const dust::pars_type<sir>& pars) {
   // Information about parameter values
   cpp11::list p = cpp11::writable::list({"beta"_nm = pars.shared->beta,
                                          "gamma"_nm = pars.shared->gamma});
-  return cpp11::writable::list({"vars"_nm = vars, "pars"_nm = p});
+  cpp11::writable::strings adjoint({"beta", "gamma", "I0"});
+  return cpp11::writable::list({"vars"_nm = vars,
+                                "pars"_nm = p,
+                                "adjoint"_nm = adjoint});
 }
 
 // The way that this is going to work is we will process a list
