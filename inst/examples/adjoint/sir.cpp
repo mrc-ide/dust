@@ -50,7 +50,7 @@ public:
   }
 
   size_t adjoint_size() const {
-    return 8;
+    return 3;
   }
   // The interpretation here is slightly odd and very different to the
   // above, with adjoint and adjoint_next not quite being correct, and
