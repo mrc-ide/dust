@@ -26,7 +26,7 @@ cpp11::integers as_integer(cpp11::sexp x, const char * name) {
     cpp11::writable::integers ret = cpp11::writable::integers(len);
     for (size_t i = 0; i < len; ++i) {
       double el = xn[i];
-      if (!cpp11::is_convertible_without_loss_to_integer(el)) {
+      if (!cpp11::is_convertable_without_loss_to_integer(el)) {
         cpp11::stop("All elements of '%s' must be integer-like",
                     name, i + 1);
       }
