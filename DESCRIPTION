@@ -26,13 +26,13 @@ Language: en-GB
 Requires: R (>= 4.0.0)
 Imports:
     R6,
-    cpp11 (>= 0.4.5),
+    cpp11 (>= 0.4.0),
     glue,
     pkgbuild (>= 1.2.0),
     pkgload,
     withr
 LinkingTo:
-    cpp11 (>= 0.4.5)
+    cpp11 (>= 0.4.0)
 Suggests:
     bench,
     brio,

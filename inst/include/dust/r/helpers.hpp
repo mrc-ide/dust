@@ -16,6 +16,11 @@
 namespace dust {
 namespace r {
 
+inline bool is_integer_like(double x) {
+  double int_part;
+  return std::modf(x, &int_part) == 0.0;
+}
+
 inline
 cpp11::integers as_integer(cpp11::sexp x, const char * name) {
   if (TYPEOF(x) == INTSXP) {
@@ -26,7 +31,7 @@ cpp11::integers as_integer(cpp11::sexp x, const char * name) {
     cpp11::writable::integers ret = cpp11::writable::integers(len);
     for (size_t i = 0; i < len; ++i) {
       double el = xn[i];
-      if (!cpp11::is_convertable_without_loss_to_integer(el)) {
+      if (!is_integer_like(el)) {
         cpp11::stop("All elements of '%s' must be integer-like",
                     name, i + 1);
       }
