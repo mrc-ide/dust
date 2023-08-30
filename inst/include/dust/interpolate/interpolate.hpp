@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <stdexcept>
+#include <vector>
 
 namespace dust {
 namespace interpolate {
