@@ -444,12 +444,16 @@ test_interpolate_search <- function(target, x) {
   .Call(`_dust_test_interpolate_search`, target, x)
 }
 
-test_interpolate_constant1 <- function(x, y, z) {
-  .Call(`_dust_test_interpolate_constant1`, x, y, z)
+test_interpolate_constant1 <- function(t, y, z) {
+  .Call(`_dust_test_interpolate_constant1`, t, y, z)
 }
 
-test_interpolate_linear1 <- function(x, y, z) {
-  .Call(`_dust_test_interpolate_linear1`, x, y, z)
+test_interpolate_linear1 <- function(t, y, z) {
+  .Call(`_dust_test_interpolate_linear1`, t, y, z)
+}
+
+test_interpolate_spline1 <- function(t, y, z) {
+  .Call(`_dust_test_interpolate_spline1`, t, y, z)
 }
 
 test_xoshiro_run <- function(obj) {

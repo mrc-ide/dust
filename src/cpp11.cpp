@@ -798,17 +798,24 @@ extern "C" SEXP _dust_test_interpolate_search(SEXP target, SEXP x) {
   END_CPP11
 }
 // test_interpolate.cpp
-double test_interpolate_constant1(std::vector<double> x, std::vector<double> y, double z);
-extern "C" SEXP _dust_test_interpolate_constant1(SEXP x, SEXP y, SEXP z) {
+double test_interpolate_constant1(std::vector<double> t, std::vector<double> y, double z);
+extern "C" SEXP _dust_test_interpolate_constant1(SEXP t, SEXP y, SEXP z) {
   BEGIN_CPP11
-    return cpp11::as_sexp(test_interpolate_constant1(cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(x), cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(y), cpp11::as_cpp<cpp11::decay_t<double>>(z)));
+    return cpp11::as_sexp(test_interpolate_constant1(cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(t), cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(y), cpp11::as_cpp<cpp11::decay_t<double>>(z)));
   END_CPP11
 }
 // test_interpolate.cpp
-double test_interpolate_linear1(std::vector<double> x, std::vector<double> y, double z);
-extern "C" SEXP _dust_test_interpolate_linear1(SEXP x, SEXP y, SEXP z) {
+double test_interpolate_linear1(std::vector<double> t, std::vector<double> y, double z);
+extern "C" SEXP _dust_test_interpolate_linear1(SEXP t, SEXP y, SEXP z) {
   BEGIN_CPP11
-    return cpp11::as_sexp(test_interpolate_linear1(cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(x), cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(y), cpp11::as_cpp<cpp11::decay_t<double>>(z)));
+    return cpp11::as_sexp(test_interpolate_linear1(cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(t), cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(y), cpp11::as_cpp<cpp11::decay_t<double>>(z)));
+  END_CPP11
+}
+// test_interpolate.cpp
+double test_interpolate_spline1(std::vector<double> t, std::vector<double> y, double z);
+extern "C" SEXP _dust_test_interpolate_spline1(SEXP t, SEXP y, SEXP z) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(test_interpolate_spline1(cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(t), cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(y), cpp11::as_cpp<cpp11::decay_t<double>>(z)));
   END_CPP11
 }
 // test_rng.cpp
@@ -1617,6 +1624,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_test_interpolate_constant1",                  (DL_FUNC) &_dust_test_interpolate_constant1,                  3},
     {"_dust_test_interpolate_linear1",                    (DL_FUNC) &_dust_test_interpolate_linear1,                    3},
     {"_dust_test_interpolate_search",                     (DL_FUNC) &_dust_test_interpolate_search,                     2},
+    {"_dust_test_interpolate_spline1",                    (DL_FUNC) &_dust_test_interpolate_spline1,                    3},
     {"_dust_test_rng_pointer_get",                        (DL_FUNC) &_dust_test_rng_pointer_get,                        2},
     {"_dust_test_xoshiro_run",                            (DL_FUNC) &_dust_test_xoshiro_run,                            1},
     {NULL, NULL, 0}

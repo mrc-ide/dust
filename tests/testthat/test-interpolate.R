@@ -71,3 +71,27 @@ test_that("can work with simple linear interpolation", {
   z <- vapply(t, function(z) test_interpolate_linear1(t, y, z), numeric(1))
   expect_equal(z, y)
 })
+
+
+test_that("can work with simple spline interpolation", {
+  set.seed(1)
+  t <- as.numeric(0:10)
+  y <- runif(length(t))
+
+  expect_error(
+    test_interpolate_spline1(t, y, 0 - 1e-8),
+    "Tried to interpolate.+before the first time")
+  expect_error(
+    test_interpolate_spline1(t, y, 10 + 1e-8),
+    "Tried to interpolate.+after the last time")
+  cmp <- splinefun(t, y, method = "natural")
+
+  z <- vapply(t, function(z) test_interpolate_spline1(t, y, z), numeric(1))
+  expect_equal(z, y)
+
+  expect_equal(test_interpolate_spline1(t, y, 0), y[[1]])
+  expect_equal(test_interpolate_spline1(t, y, 1 - 1e-8), cmp(1 - 1e-8))
+  expect_equal(test_interpolate_spline1(t, y, 0.5), cmp(0.5))
+  expect_equal(test_interpolate_spline1(t, y, 1), y[[2]])
+  expect_equal(test_interpolate_spline1(t, y, 2), y[[3]])
+})

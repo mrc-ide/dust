@@ -7,15 +7,22 @@ int test_interpolate_search(double target, std::vector<double> x) {
 }
 
 [[cpp11::register]]
-double test_interpolate_constant1(std::vector<double> x, std::vector<double> y,
+double test_interpolate_constant1(std::vector<double> t, std::vector<double> y,
                                   double z) {
-  auto obj = dust::interpolate::InterpolateConstant<double>(x, y);
+  auto obj = dust::interpolate::InterpolateConstant<double>(t, y);
   return obj.eval(z);
 }
 
 [[cpp11::register]]
-double test_interpolate_linear1(std::vector<double> x, std::vector<double> y,
+double test_interpolate_linear1(std::vector<double> t, std::vector<double> y,
                                   double z) {
-  auto obj = dust::interpolate::InterpolateLinear<double>(x, y);
+  auto obj = dust::interpolate::InterpolateLinear<double>(t, y);
+  return obj.eval(z);
+}
+
+[[cpp11::register]]
+double test_interpolate_spline1(std::vector<double> t, std::vector<double> y,
+                                  double z) {
+  auto obj = dust::interpolate::InterpolateSpline<double>(t, y);
   return obj.eval(z);
 }
