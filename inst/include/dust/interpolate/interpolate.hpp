@@ -107,7 +107,7 @@ public:
 
   InterpolateSpline() {}
 
-  T eval(T z) {
+  T eval(T z) const {
     size_t i = internal::interpolate_search(z, t_, false);
     const size_t n = t_.size() - 1;
     if (i == n) {
