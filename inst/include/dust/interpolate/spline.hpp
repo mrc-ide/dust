@@ -1,6 +1,10 @@
 #ifndef DUST_INTERPOLATE_SPLINE_HPP
 #define DUST_INTERPOLATE_SPLINE_HPP
 
+#include <stdexcept>
+#include <tuple>
+#include <vector>
+
 namespace dust {
 namespace interpolate {
 namespace spline {
