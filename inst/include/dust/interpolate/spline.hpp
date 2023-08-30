@@ -34,13 +34,6 @@ tridiagonal<T> calculate_a(std::vector<T> x) {
     const T x0 = x[i - 1];
     const T x1 = x[i];
     const T x2 = x[i + 1];
-    if (x0 >= x1 || x1 >= x2) {
-      std::stringstream msg;
-      msg << "Times for spline must be strictly increasing " <<
-        "but were not around index " << i + 1 << ": [" << x0 << ", " <<
-        x1 << ", " << x2 << "]";
-      throw std::runtime_error(msg.str());
-    }
     a0[i] = 1 / (x1 - x0);
     a1[i] = 2 * (1 / (x1 - x0) + 1 / (x2 - x1));
     a2[i] = 1 / (x2 - x1);

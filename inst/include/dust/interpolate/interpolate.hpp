@@ -44,6 +44,26 @@ size_t interpolate_search(T target, std::vector<T> container,
   return container[i] != target ? i - 1 : i;
 }
 
+template <typename T>
+void validate_inputs(const std::vector<T>& t, const std::vector<T>& y,
+                     const char * name_t, const char * name_y) {
+  if (t.size() != y.size()) {
+    std::stringstream msg;
+    msg << "Time variable '" << name_t << "' and interpolation target '" <<
+      name_y << "' must have the same length, but do not (" <<
+      t.size() << " vs " << y.size() << ")";
+    throw std::runtime_error(msg.str());
+  }
+  for (size_t i = 1; i < t.size(); ++i) {
+    if (t[i - 1] >= t[i]) {
+      std::stringstream msg;
+      msg << "Time variable '" << name_t << "' must be strictly increasing " <<
+        "but was not at index " << i;
+      throw std::runtime_error(msg.str());
+    }
+  }
+}
+
 }
 
 template <typename T>
@@ -52,9 +72,10 @@ private:
   std::vector<T> t_;
   std::vector<T> y_;
 public:
-  InterpolateConstant(const std::vector<T>& t, const std::vector<T>& y) :
+  InterpolateConstant(const std::vector<T>& t, const std::vector<T>& y,
+                      const char * name_t, const char * name_y) :
     t_(t), y_(y) {
-    // TODO: check sizes
+    internal::validate_inputs(t_, y_, name_t, name_y);
   }
 
   InterpolateConstant() {}
@@ -71,9 +92,10 @@ private:
   std::vector<T> t_;
   std::vector<T> y_;
 public:
-  InterpolateLinear(const std::vector<T>& t, const std::vector<T>& y) :
+  InterpolateLinear(const std::vector<T>& t, const std::vector<T>& y,
+                    const char * name_t, const char * name_y) :
     t_(t), y_(y) {
-    // TODO: check sizes
+    internal::validate_inputs(t_, y_, name_t, name_y);
   }
 
   InterpolateLinear() {}
@@ -97,8 +119,10 @@ private:
   std::vector<T> k_;
 
 public:
-  InterpolateSpline(const std::vector<T> t, const std::vector<T>& y) :
+  InterpolateSpline(const std::vector<T> t, const std::vector<T>& y,
+                    const char * name_t, const char * name_y) :
     t_(t), y_(y) {
+    internal::validate_inputs(t_, y_, name_t, name_y);
     const auto a = spline::calculate_a<T>(t);
     auto b = spline::calculate_b<T>(t, y);
     spline::solve_tridiagonal(a, b);

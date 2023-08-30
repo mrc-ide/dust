@@ -100,8 +100,10 @@ test_that("can work with simple spline interpolation", {
 test_that("Check that time values are sensible", {
   t <- c(0, 1, 1, 2)
   y <- c(0, 1, 2, 3)
-  err <- expect_error(
+  expect_error(
     test_interpolate_spline1(t, y, 1),
-    "Times for spline must be strictly increasing but were not around index 2:")
-  expect_match(err$message, "[0, 1, 1]", fixed = TRUE)
+    "Time variable 't' must be strictly increasing but was not at index 2")
+  expect_error(
+    test_interpolate_spline1(t[-2], y, 1),
+    "Time variable 't' and interpolation target 'y' must have the same length")
 })
