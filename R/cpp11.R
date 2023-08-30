@@ -24,18 +24,6 @@ density_poisson <- function(x, lambda, log) {
   .Call(`_dust_density_poisson`, x, lambda, log)
 }
 
-dust_rng_pointer_init <- function(n_streams, seed, long_jump, algorithm) {
-  .Call(`_dust_dust_rng_pointer_init`, n_streams, seed, long_jump, algorithm)
-}
-
-dust_rng_pointer_sync <- function(obj, algorithm) {
-  invisible(.Call(`_dust_dust_rng_pointer_sync`, obj, algorithm))
-}
-
-test_rng_pointer_get <- function(obj, n_streams) {
-  .Call(`_dust_test_rng_pointer_get`, obj, n_streams)
-}
-
 dust_rng_alloc <- function(r_seed, n_streams, deterministic, is_float) {
   .Call(`_dust_dust_rng_alloc`, r_seed, n_streams, deterministic, is_float)
 }
@@ -98,6 +86,18 @@ dust_rng_multinomial <- function(ptr, n, r_size, r_prob, n_threads, is_float) {
 
 dust_rng_state <- function(ptr, is_float) {
   .Call(`_dust_dust_rng_state`, ptr, is_float)
+}
+
+dust_rng_pointer_init <- function(n_streams, seed, long_jump, algorithm) {
+  .Call(`_dust_dust_rng_pointer_init`, n_streams, seed, long_jump, algorithm)
+}
+
+dust_rng_pointer_sync <- function(obj, algorithm) {
+  invisible(.Call(`_dust_dust_rng_pointer_sync`, obj, algorithm))
+}
+
+test_rng_pointer_get <- function(obj, n_streams) {
+  .Call(`_dust_test_rng_pointer_get`, obj, n_streams)
 }
 
 dust_logistic_gpu_info <- function() {
@@ -438,6 +438,18 @@ dust_gpu_sirs_ode_statistics <- function(ptr) {
 
 test_cuda_pars <- function(r_gpu_config, n_particles, n_particles_each, n_state, n_state_full, n_shared_int, n_shared_real, data_size, shared_size) {
   .Call(`_dust_test_cuda_pars`, r_gpu_config, n_particles, n_particles_each, n_state, n_state_full, n_shared_int, n_shared_real, data_size, shared_size)
+}
+
+test_interpolate_search <- function(target, x) {
+  .Call(`_dust_test_interpolate_search`, target, x)
+}
+
+test_interpolate_constant1 <- function(x, y, z) {
+  .Call(`_dust_test_interpolate_constant1`, x, y, z)
+}
+
+test_interpolate_linear1 <- function(x, y, z) {
+  .Call(`_dust_test_interpolate_linear1`, x, y, z)
 }
 
 test_xoshiro_run <- function(obj) {

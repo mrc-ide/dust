@@ -47,28 +47,6 @@ extern "C" SEXP _dust_density_poisson(SEXP x, SEXP lambda, SEXP log) {
     return cpp11::as_sexp(density_poisson(cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(x), cpp11::as_cpp<cpp11::decay_t<cpp11::doubles>>(lambda), cpp11::as_cpp<cpp11::decay_t<bool>>(log)));
   END_CPP11
 }
-// dust_rng_pointer.cpp
-cpp11::sexp dust_rng_pointer_init(int n_streams, cpp11::sexp seed, int long_jump, std::string algorithm);
-extern "C" SEXP _dust_dust_rng_pointer_init(SEXP n_streams, SEXP seed, SEXP long_jump, SEXP algorithm) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(dust_rng_pointer_init(cpp11::as_cpp<cpp11::decay_t<int>>(n_streams), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(seed), cpp11::as_cpp<cpp11::decay_t<int>>(long_jump), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm)));
-  END_CPP11
-}
-// dust_rng_pointer.cpp
-void dust_rng_pointer_sync(cpp11::environment obj, std::string algorithm);
-extern "C" SEXP _dust_dust_rng_pointer_sync(SEXP obj, SEXP algorithm) {
-  BEGIN_CPP11
-    dust_rng_pointer_sync(cpp11::as_cpp<cpp11::decay_t<cpp11::environment>>(obj), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm));
-    return R_NilValue;
-  END_CPP11
-}
-// dust_rng_pointer.cpp
-double test_rng_pointer_get(cpp11::environment obj, int n_streams);
-extern "C" SEXP _dust_test_rng_pointer_get(SEXP obj, SEXP n_streams) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(test_rng_pointer_get(cpp11::as_cpp<cpp11::decay_t<cpp11::environment>>(obj), cpp11::as_cpp<cpp11::decay_t<int>>(n_streams)));
-  END_CPP11
-}
 // dust_rng.cpp
 SEXP dust_rng_alloc(cpp11::sexp r_seed, int n_streams, bool deterministic, bool is_float);
 extern "C" SEXP _dust_dust_rng_alloc(SEXP r_seed, SEXP n_streams, SEXP deterministic, SEXP is_float) {
@@ -181,6 +159,28 @@ cpp11::sexp dust_rng_state(SEXP ptr, bool is_float);
 extern "C" SEXP _dust_dust_rng_state(SEXP ptr, SEXP is_float) {
   BEGIN_CPP11
     return cpp11::as_sexp(dust_rng_state(cpp11::as_cpp<cpp11::decay_t<SEXP>>(ptr), cpp11::as_cpp<cpp11::decay_t<bool>>(is_float)));
+  END_CPP11
+}
+// dust_rng_pointer.cpp
+cpp11::sexp dust_rng_pointer_init(int n_streams, cpp11::sexp seed, int long_jump, std::string algorithm);
+extern "C" SEXP _dust_dust_rng_pointer_init(SEXP n_streams, SEXP seed, SEXP long_jump, SEXP algorithm) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(dust_rng_pointer_init(cpp11::as_cpp<cpp11::decay_t<int>>(n_streams), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(seed), cpp11::as_cpp<cpp11::decay_t<int>>(long_jump), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm)));
+  END_CPP11
+}
+// dust_rng_pointer.cpp
+void dust_rng_pointer_sync(cpp11::environment obj, std::string algorithm);
+extern "C" SEXP _dust_dust_rng_pointer_sync(SEXP obj, SEXP algorithm) {
+  BEGIN_CPP11
+    dust_rng_pointer_sync(cpp11::as_cpp<cpp11::decay_t<cpp11::environment>>(obj), cpp11::as_cpp<cpp11::decay_t<std::string>>(algorithm));
+    return R_NilValue;
+  END_CPP11
+}
+// dust_rng_pointer.cpp
+double test_rng_pointer_get(cpp11::environment obj, int n_streams);
+extern "C" SEXP _dust_test_rng_pointer_get(SEXP obj, SEXP n_streams) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(test_rng_pointer_get(cpp11::as_cpp<cpp11::decay_t<cpp11::environment>>(obj), cpp11::as_cpp<cpp11::decay_t<int>>(n_streams)));
   END_CPP11
 }
 // logistic.cpp
@@ -788,6 +788,27 @@ SEXP test_cuda_pars(cpp11::sexp r_gpu_config, int n_particles, int n_particles_e
 extern "C" SEXP _dust_test_cuda_pars(SEXP r_gpu_config, SEXP n_particles, SEXP n_particles_each, SEXP n_state, SEXP n_state_full, SEXP n_shared_int, SEXP n_shared_real, SEXP data_size, SEXP shared_size) {
   BEGIN_CPP11
     return cpp11::as_sexp(test_cuda_pars(cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(r_gpu_config), cpp11::as_cpp<cpp11::decay_t<int>>(n_particles), cpp11::as_cpp<cpp11::decay_t<int>>(n_particles_each), cpp11::as_cpp<cpp11::decay_t<int>>(n_state), cpp11::as_cpp<cpp11::decay_t<int>>(n_state_full), cpp11::as_cpp<cpp11::decay_t<int>>(n_shared_int), cpp11::as_cpp<cpp11::decay_t<int>>(n_shared_real), cpp11::as_cpp<cpp11::decay_t<int>>(data_size), cpp11::as_cpp<cpp11::decay_t<int>>(shared_size)));
+  END_CPP11
+}
+// test_interpolate.cpp
+int test_interpolate_search(double target, std::vector<double> x);
+extern "C" SEXP _dust_test_interpolate_search(SEXP target, SEXP x) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(test_interpolate_search(cpp11::as_cpp<cpp11::decay_t<double>>(target), cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(x)));
+  END_CPP11
+}
+// test_interpolate.cpp
+double test_interpolate_constant1(std::vector<double> x, std::vector<double> y, double z);
+extern "C" SEXP _dust_test_interpolate_constant1(SEXP x, SEXP y, SEXP z) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(test_interpolate_constant1(cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(x), cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(y), cpp11::as_cpp<cpp11::decay_t<double>>(z)));
+  END_CPP11
+}
+// test_interpolate.cpp
+double test_interpolate_linear1(std::vector<double> x, std::vector<double> y, double z);
+extern "C" SEXP _dust_test_interpolate_linear1(SEXP x, SEXP y, SEXP z) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(test_interpolate_linear1(cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(x), cpp11::as_cpp<cpp11::decay_t<std::vector<double>>>(y), cpp11::as_cpp<cpp11::decay_t<double>>(z)));
   END_CPP11
 }
 // test_rng.cpp
@@ -1593,6 +1614,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dust_dust_volatility_gpu_info",                    (DL_FUNC) &_dust_dust_volatility_gpu_info,                    0},
     {"_dust_dust_walk_gpu_info",                          (DL_FUNC) &_dust_dust_walk_gpu_info,                          0},
     {"_dust_test_cuda_pars",                              (DL_FUNC) &_dust_test_cuda_pars,                              9},
+    {"_dust_test_interpolate_constant1",                  (DL_FUNC) &_dust_test_interpolate_constant1,                  3},
+    {"_dust_test_interpolate_linear1",                    (DL_FUNC) &_dust_test_interpolate_linear1,                    3},
+    {"_dust_test_interpolate_search",                     (DL_FUNC) &_dust_test_interpolate_search,                     2},
     {"_dust_test_rng_pointer_get",                        (DL_FUNC) &_dust_test_rng_pointer_get,                        2},
     {"_dust_test_xoshiro_run",                            (DL_FUNC) &_dust_test_xoshiro_run,                            1},
     {NULL, NULL, 0}
