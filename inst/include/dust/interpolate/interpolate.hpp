@@ -41,9 +41,12 @@ private:
 public:
   InterpolateConstant(const std::vector<T>& x, const std::vector<T>& y) :
     x_(x), y_(y) {
+    // TODO: check sizes
   }
 
-  T eval(T z) {
+  InterpolateConstant() {}
+
+  T eval(T z) const {
     size_t i = internal::interpolate_search(z, x_, true);
     return y_[i];
   }
@@ -57,9 +60,12 @@ private:
 public:
   InterpolateLinear(const std::vector<T>& x, const std::vector<T>& y) :
     x_(x), y_(y) {
+    // TODO: check sizes
   }
 
-  T eval(T z) {
+  InterpolateLinear() {}
+
+  T eval(T z) const {
     size_t i = internal::interpolate_search(z, x_, false);
     const size_t n = x_.size() - 1;
     if (i == n) {
