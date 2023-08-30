@@ -95,3 +95,13 @@ test_that("can work with simple spline interpolation", {
   expect_equal(test_interpolate_spline1(t, y, 1), y[[2]])
   expect_equal(test_interpolate_spline1(t, y, 2), y[[3]])
 })
+
+
+test_that("Check that time values are sensible", {
+  t <- c(0, 1, 1, 2)
+  y <- c(0, 1, 2, 3)
+  err <- expect_error(
+    test_interpolate_spline1(t, y, 1),
+    "Times for spline must be strictly increasing but were not around index 2:")
+  expect_match(err$message, "[0, 1, 1]", fixed = TRUE)
+})
