@@ -84,25 +84,14 @@ void solve_tridiagonal(const tridiagonal<T>& m,
   std::vector<T> b = std::get<1>(m);
   const auto n = a.size();
 
-  // Eliminate:
   for (size_t i = 1; i < n; ++i) {
-    if (b[i - 1] == 0) {
-      throw std::runtime_error("no diagonal dominance");
-    }
     const auto fac = a[i] / b[i - 1];
     b[i] -= fac * c[i - 1];
     x[i] -= fac * x[i - 1];
   }
 
-  // Back-substitute:
-  if (b[n - 1] == 0) {
-    throw std::runtime_error("singular matrix");
-  }
   x[n - 1] /= b[n - 1];
   for (int i = n - 2; i >= 0; i--) {
-    if (b[i] == 0) {
-      throw std::runtime_error("singular matrix");
-    }
     x[i] = (x[i] - c[i] * x[i + 1]) / b[i];
   }
 }
