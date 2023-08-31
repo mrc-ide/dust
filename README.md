@@ -74,21 +74,21 @@ We use `dust` to power several epidemiological models. Public examples include:
 
 ## Installation
 
-To install `dust`:
+Please install from our [r-universe](https://mrc-ide.r-universe.dev/):
 
-```r
-# install.packages("drat") # -- if you don't have drat installed
-drat:::add("ncov-ic")
-install.packages("dust")
+```
+install.packages(
+  "dust",
+  repos = c("https://mrc-ide.r-universe.dev", "https://cloud.r-project.org"))
+```
+
+If you prefer, you can install from GitHub with remotes:
+
+```
+remotes::install_github("mrc-ide/dust")
 ```
 
 You will need a compiler to install dependencies for the package, and to build any models with dust.  `dust` uses `pkgbuild` to build its shared libraries so use `pkgbuild::check_build_tools()` to see if your system is ok to use.
-
-The development version of the package can be installed directly from GitHub if you prefer with:
-
-```r
-remotes::install_github("mrc-ide/dust", upgrade = FALSE)
-```
 
 ## License
 
