@@ -1,6 +1,6 @@
 Package: dust
 Title: Iterate Multiple Realisations of Stochastic Models
-Version: 0.14.10
+Version: 0.15.0
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     email = "rich.fitzjohn@gmail.com"),
              person("Alex", "Hill", role = "aut"),
@@ -32,7 +32,7 @@ Imports:
     pkgload,
     withr
 LinkingTo:
-    cpp11 (>= 0.4.0)
+    cpp11 (>= 0.4.4)
 Suggests:
     bench,
     brio,

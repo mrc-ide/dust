@@ -629,6 +629,22 @@ inline std::vector<size_t> sequence(size_t n) {
   return ret;
 }
 
+// Really unpleasant bit of C++ hackery to test whether or not the
+// 'adjoint_size' method exists. Other approaches exist, but before
+// C++20 they're all pretty ugly. This one works with C++11 and up.
+// https://stackoverflow.com/a/257382
+template <typename T>
+class has_adjoint {
+  typedef char one;
+  struct two { char x[2]; };
+
+  template <typename C> static one test( decltype(&C::adjoint_size) ) ;
+  template <typename C> static two test(...);
+
+public:
+  enum { value = sizeof(test<T>(0)) == sizeof(char) };
+};
+
 }
 }
 

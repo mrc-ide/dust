@@ -177,6 +177,14 @@ dust_generator <- R6::R6Class(
     },
 
     ##' @description
+    ##'
+    ##' Run model with gradient information (if supported). The
+    ##' interface here will change, and documentation written once it
+    ##' stabilises.
+    run_adjoint = function() {
+    },
+
+    ##' @description
     ##' Set the "index" vector that is used to return a subset of pars
     ##' after using `run()`. If this is not used then `run()` returns
     ##' all elements in your state vector, which may be excessive and slower

@@ -342,6 +342,30 @@ cpp11::sexp dust_simulate(SEXP ptr, cpp11::sexp r_time_end) {
                               time_end.size());
 }
 
+template <typename T, typename std::enable_if<has_adjoint<typename T::model_type>::value, int>::type = 0>
+cpp11::sexp dust_run_adjoint(SEXP ptr) {
+  T *obj = cpp11::as_cpp<cpp11::external_pointer<T>>(ptr).get();
+  obj->check_errors();
+
+  if (!obj->deterministic()) {
+    cpp11::stop("'run_adjoint()' only allowed for deterministic models");
+  }
+  if (obj->n_particles() != 1) {
+    cpp11::stop("'run_adjoint()' only allowed with single particle");
+  }
+  if (obj->n_data() == 0) {
+    cpp11::stop("Data has not been set for this object");
+  }
+
+  auto result = obj->run_adjoint();
+  auto log_likelihood = cpp11::as_sexp(result.log_likelihood);
+  auto gradient = cpp11::as_sexp(result.gradient);
+
+  using namespace cpp11::literals;
+  return cpp11::writable::list({"log_likelihood"_nm = log_likelihood,
+                                "gradient"_nm = gradient});
+}
+
 template <typename T>
 SEXP dust_state_full(T *obj) {
   const size_t n_state_full = obj->n_state_full();
@@ -667,6 +691,12 @@ void dust_set_stochastic_schedule(SEXP ptr, SEXP time) {
 template <typename T, typename std::enable_if<std::is_integral<typename T::time_type>::value, int>::type = 0>
 SEXP dust_ode_statistics(SEXP ptr) {
   cpp11::stop("'ode_statistics' not supported in discrete-time models");
+  return R_NilValue; // # nocov
+}
+
+template <typename T, typename std::enable_if<!has_adjoint<typename T::model_type>::value, int>::type = 0>
+cpp11::sexp dust_run_adjoint(SEXP ptr) {
+  disable_method("run_adjoint");
   return R_NilValue; // # nocov
 }
 

@@ -22,6 +22,10 @@ SEXP dust_{{target}}_{{name}}_simulate(SEXP ptr, cpp11::sexp r_time_end) {
   return dust::r::dust_simulate<model_{{target}}>(ptr, r_time_end);
 }
 
+SEXP dust_{{target}}_{{name}}_run_adjoint(SEXP ptr) {
+  return dust::r::dust_run_adjoint<model_{{target}}>(ptr);
+}
+
 SEXP dust_{{target}}_{{name}}_set_index(SEXP ptr, cpp11::sexp r_index) {
   dust::r::dust_set_index<model_{{target}}>(ptr, r_index);
   return R_NilValue;

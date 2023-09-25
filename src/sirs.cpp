@@ -19,6 +19,9 @@ SEXP dust_cpu_sirs_run(SEXP ptr, cpp11::sexp r_time_end);
 SEXP dust_cpu_sirs_simulate(SEXP ptr, cpp11::sexp time_end);
 
 [[cpp11::register]]
+SEXP dust_cpu_sirs_run_adjoint(SEXP ptr);
+
+[[cpp11::register]]
 SEXP dust_cpu_sirs_set_index(SEXP ptr, cpp11::sexp r_index);
 
 [[cpp11::register]]
@@ -81,6 +84,9 @@ SEXP dust_gpu_sirs_run(SEXP ptr, cpp11::sexp r_time_end);
 
 [[cpp11::register]]
 SEXP dust_gpu_sirs_simulate(SEXP ptr, cpp11::sexp time_end);
+
+[[cpp11::register]]
+SEXP dust_gpu_sirs_run_adjoint(SEXP ptr);
 
 [[cpp11::register]]
 SEXP dust_gpu_sirs_set_index(SEXP ptr, cpp11::sexp r_index);
@@ -352,6 +358,10 @@ SEXP dust_cpu_sirs_simulate(SEXP ptr, cpp11::sexp r_time_end) {
   return dust::r::dust_simulate<model_cpu>(ptr, r_time_end);
 }
 
+SEXP dust_cpu_sirs_run_adjoint(SEXP ptr) {
+  return dust::r::dust_run_adjoint<model_cpu>(ptr);
+}
+
 SEXP dust_cpu_sirs_set_index(SEXP ptr, cpp11::sexp r_index) {
   dust::r::dust_set_index<model_cpu>(ptr, r_index);
   return R_NilValue;
@@ -444,6 +454,10 @@ SEXP dust_gpu_sirs_run(SEXP ptr, cpp11::sexp r_time_end) {
 
 SEXP dust_gpu_sirs_simulate(SEXP ptr, cpp11::sexp r_time_end) {
   return dust::r::dust_simulate<model_gpu>(ptr, r_time_end);
+}
+
+SEXP dust_gpu_sirs_run_adjoint(SEXP ptr) {
+  return dust::r::dust_run_adjoint<model_gpu>(ptr);
 }
 
 SEXP dust_gpu_sirs_set_index(SEXP ptr, cpp11::sexp r_index) {
