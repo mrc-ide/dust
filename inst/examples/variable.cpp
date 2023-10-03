@@ -5,8 +5,11 @@ public:
   using internal_type = dust::no_internal;
   using rng_state_type = dust::random::generator<real_type>;
 
-  struct shared_type {
+  struct constant_type {
     size_t len;
+  };
+
+  struct shared_type {
     real_type mean;
     real_type sd;
   };
@@ -15,12 +18,12 @@ public:
   }
 
   size_t size() const {
-    return shared->len;
+    return constant->len;
   }
 
   std::vector<real_type> initial(size_t time, rng_state_type& rng_state) {
     std::vector<real_type> ret;
-    for (size_t i = 0; i < shared->len; ++i) {
+    for (size_t i = 0; i < constant->len; ++i) {
       ret.push_back(i + 1);
     }
     return ret;
@@ -28,7 +31,7 @@ public:
 
   void update(size_t time, const real_type * state, rng_state_type& rng_state,
               real_type * state_next) {
-    for (size_t i = 0; i < shared->len; ++i) {
+    for (size_t i = 0; i < constant->len; ++i) {
       state_next[i] = state[i] +
         dust::random::normal<real_type>(rng_state, shared->mean, shared->sd);
     }
@@ -55,14 +58,35 @@ dust::pars_type<variable> dust_pars<variable>(cpp11::list pars) {
     sd = cpp11::as_cpp<real_type>(r_sd);
   }
 
-  variable::shared_type shared{len, mean, sd};
-  return dust::pars_type<variable>(shared);
+  variable::shared_type shared{mean, sd};
+  variable::constant_type constant{len};
+  variable::internal_type internal;
+  return dust::pars_type<variable>(shared, constant, internal);
+}
+
+// We can write a shared function that avoids some of the duplication
+// here easily enough I think; it needs to take (shared&, const
+// constant&, internal&) as parameters I think, but get everything
+// else working first.
+template <>
+variable::shared_type dust_pars_update<variable>(cpp11::list pars, dust::pars<variable>& pars) {
+  using real_type = variable::real_type;
+  auto shared = *pars.shared;
+  SEXP r_mean = pars["mean"];
+  if (r_mean != R_NilValue) {
+    shared.mean = cpp11::as_cpp<real_type>(r_mean);
+  }
+  SEXP r_sd = pars["sd"];
+  if (r_sd != R_NilValue) {
+    shared.sd = cpp11::as_cpp<real_type>(r_sd);
+  }
+  return shared;
 }
 
 template <>
 cpp11::sexp dust_info<variable>(const dust::pars_type<variable>& pars) {
   using namespace cpp11::literals;
-  return cpp11::writable::list({"len"_nm = pars.shared->len});
+  return cpp11::writable::list({"len"_nm = pars.constant->len});
 }
 
 namespace gpu {
@@ -83,7 +107,7 @@ void shared_copy<variable>(dust::shared_ptr<variable> shared,
                            variable::real_type * shared_real) {
   using dust::gpu::shared_copy_data;
   using real_type = variable::real_type;
-  shared_int = shared_copy_data<int>(shared_int, shared->len);
+  shared_int = shared_copy_data<int>(shared_int, constant->len);
   shared_real = shared_copy_data<real_type>(shared_real, shared->mean);
   shared_real = shared_copy_data<real_type>(shared_real, shared->sd);
 }
