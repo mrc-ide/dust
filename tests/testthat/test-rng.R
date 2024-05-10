@@ -505,6 +505,7 @@ test_that("negative seed values result in sensible state", {
   expect_false(all(s0 == as.raw(0)))
   expect_false(all(s1 == as.raw(0)))
   expect_false(all(s10 == as.raw(0)))
+  skip_on_os("mac") # mrc-5288 - see mcstate2 for more on this
   expect_false(identical(s0, s1))
   expect_false(identical(s0, s10))
   expect_false(identical(s1, s10))
