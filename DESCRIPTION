@@ -37,6 +37,7 @@ Suggests:
     bench,
     brio,
     callr,
+    curl,
     dde,
     decor,
     fs,
