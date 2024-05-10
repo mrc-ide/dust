@@ -1,0 +1,15 @@
+pandoc: 3.1.11
+pkgdown: 2.0.9
+pkgdown_sha: ~
+articles:
+  data: data.html
+  design: design.html
+  dust: dust.html
+  gpu: gpu.html
+  multi: multi.html
+  rng_algorithms: rng_algorithms.html
+  rng_distributed: rng_distributed.html
+  rng_package: rng_package.html
+  rng: rng.html
+last_built: 2024-05-10T08:21Z
+
