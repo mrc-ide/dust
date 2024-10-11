@@ -45,7 +45,8 @@ for (f in files) {
   if (grepl("/r/", f, fixed = TRUE)) {
     include <- c(include, include_cpp)
   }
-  ans <- system2(cc, c(cc_flags, "-O0", "-o/dev/null", "-c", include,
+  dest <- tempfile()
+  ans <- system2(cc, c(cc_flags, "-O0", "-o", dest, "-c", include,
                        file.path(path_dust, f)))
   if (ans == 0) {
     message(crayon::bold(crayon::green("OK")))
