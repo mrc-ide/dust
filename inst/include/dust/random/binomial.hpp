@@ -33,7 +33,6 @@ real_type fast_pow(real_type x, int_type n) {
   return pow;
 }
 
-__nv_exec_check_disable__
 template <typename real_type, typename int_type>
 __host__ __device__
 real_type binomial_inversion_calc(real_type u, int_type n, real_type p) {
@@ -74,7 +73,7 @@ real_type binomial_inversion_calc(real_type u, int_type n, real_type p) {
   // The equivalent cuttoff for us would be 63:
   //
   //   qbinom(6.6e-30, 1e10, 10 / 1e10, FALSE)
-  const int_type max_k = std::min(n, static_cast<int_type>(63));
+  const int_type max_k = math::min(n, static_cast<int_type>(63));
   while (u >= f) {
     u -= f;
     k++;
@@ -90,7 +89,6 @@ real_type binomial_inversion_calc(real_type u, int_type n, real_type p) {
 // Binomial random numbers via inversion (for low np only!). Draw a
 // random number from U(0, 1) and find the 'n' up the distribution
 // (given p) that corresponds to this
-__nv_exec_check_disable__
 template <typename real_type, typename int_type, typename rng_state_type>
 __host__ __device__
 real_type binomial_inversion(rng_state_type& rng_state, int_type n, real_type p) {
@@ -138,7 +136,6 @@ __host__ __device__ inline double stirling_approx_tail(double k) {
 }
 
 // https://www.tandfonline.com/doi/abs/10.1080/00949659308811496
-__nv_exec_check_disable__
 template <typename real_type, typename rng_state_type>
 inline __host__ __device__
 real_type btrs(rng_state_type& rng_state, real_type n, real_type p) {
@@ -203,11 +200,15 @@ template <typename real_type>
 __host__ __device__
 void binomial_validate(real_type n, real_type p) {
   if (n < 0 || p < 0 || p > 1) {
+#ifdef __CUDA_ARCH__
+    dust::utils::fatal_error("Invalid call to binomial");
+#else
     char buffer[256];
     snprintf(buffer, 256,
              "Invalid call to binomial with n = %.0f, p = %g, q = %g",
              n, p, 1 - p);
     dust::utils::fatal_error(buffer);
+#endif
   }
 }
 
