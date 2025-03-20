@@ -73,7 +73,7 @@ real_type binomial_inversion_calc(real_type u, int_type n, real_type p) {
   // The equivalent cuttoff for us would be 63:
   //
   //   qbinom(6.6e-30, 1e10, 10 / 1e10, FALSE)
-  const int_type max_k = n < 63 ? n : 63;
+  const int_type max_k = math::min(n, static_cast<int_type>(63));
   while (u >= f) {
     u -= f;
     k++;
