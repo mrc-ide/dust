@@ -22,17 +22,23 @@ namespace random {
 namespace {
 
 template <typename real_type>
+__host__ __device__
 void gamma_validate(real_type shape, real_type scale) {
   if (shape < 0.0 || scale < 0.0) {
+#ifdef __CUDA_ARCH__
+    dust::utils::fatal_error("Invalid call to gamma");
+#else
     char buffer[256];
     snprintf(buffer, 256,
              "Invalid call to gamma with shape = %g, scale = %g",
              shape, scale);
     dust::utils::fatal_error(buffer);
+#endif
   }
 }
 
 template <typename real_type, typename rng_state_type>
+__host__ __device__
 real_type gamma_large(rng_state_type& rng_state, real_type shape) {
   real_type d = shape - 1.0 / 3.0;
   real_type c = 1.0 / sqrt(9.0 * d);
@@ -53,6 +59,7 @@ real_type gamma_large(rng_state_type& rng_state, real_type shape) {
 }
 
 template <typename real_type, typename rng_state_type>
+__host__ __device__
 real_type gamma_small(rng_state_type& rng_state, real_type shape) {
   real_type inv_shape = 1 / shape;
   real_type u = random_real<real_type>(rng_state);
@@ -88,17 +95,15 @@ real_type gamma(rng_state_type& rng_state, real_type shape, real_type scale) {
 
   gamma_validate(shape, scale);
 
-#ifdef __CUDA_ARCH__
-  static_assert("gamma() not implemented for GPU targets");
-#endif
-
   if (shape == 0 || scale == 0) {
     return 0;
   }
 
+#ifndef __CUDA_ARCH__
   if (rng_state.deterministic) {
     return gamma_deterministic<real_type>(shape, scale);
   }
+#endif
 
   if (shape < 1) {
     return gamma_small<real_type>(rng_state, shape) * scale;
