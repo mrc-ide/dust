@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 glue_whisker <- function(template, data) {
-  glue::glue(template, .envir = data, .open = "{{", .close = "}}",
-             .trim = FALSE)
+  glue::glue_data(data, template, .open = "{{", .close = "}}",
+                  .trim = FALSE)
 }
 
 version <- numeric_version(read.dcf("DESCRIPTION", "Version")[[1]])
