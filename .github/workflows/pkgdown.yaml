@@ -37,7 +37,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends doxygen
-          sudo pip3 install --upgrade Sphinx breathe furo pygments
+          pip3 install --upgrade Sphinx breathe furo pygments
 
       - name: Build site
         run: ./scripts/docs_build

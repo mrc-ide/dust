@@ -1,9 +1,16 @@
-FROM rocker/r-ver:4.0.4
+FROM rocker/r-ver:4.5.1
 
 RUN apt-get update &&  apt-get install -y --no-install-recommends \
         gnupg2 \
         libcurl4-openssl-dev \
+        libfontconfig1-dev \
+        libfreetype6-dev \
+        libfribidi-dev \
+        libharfbuzz-dev \
+        libjpeg-dev \
+        libpng-dev \
         libssl-dev \
+        libtiff5-dev \
         libxml2-dev \
         valgrind \
         wget \
